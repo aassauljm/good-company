@@ -16,16 +16,28 @@
     "babel-loader": "^5.3.2",
     "css-loader": "^0.18.0",
     "extract-text-webpack-plugin": "^0.8.2",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-sails-linker": "~0.9.5",
+    "grunt-webpack": "^1.0.11",
+    "istanbul": "^0.3.19",
+    "mocha": "^2.3.2",
+    "mocha-lcov-reporter": "0.0.2",
     "node-sass": "^3.3.3",
+    "sails-hook-autoreload": "^0.12.0",
     "sass-loader": "^2.0.1",
     "style-loader": "^0.12.4",
     "webpack": "^1.12.2",
-    "istanbul": "^0.3.19",
-    "mocha": "^2.3.2",
-    "mocha-lcov-reporter": "0.0.2"
+    "webpack-dev-server": "^1.11.0"
   },
   "dependencies": {
     "bootstrap-alpha": "git+https://github.com/twbs/bootstrap.git#v4.0.0-alpha",
-    "react": "^0.13.3"
+    "react": "^0.13.3",
+    "sails": "~0.11.0",
+    "sails-disk": "~0.10.0",
+    "grunt": "0.4.2",
+    "grunt-sync": "~0.0.4"
   }
 }

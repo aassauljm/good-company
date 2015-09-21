@@ -1,16 +1,16 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-    context: __dirname + "/app",
-    entry: "./js/app.js",
+    //cache: true,
+    context: __dirname +'/assets',
+    entry: "./js/main.js",
 
     output: {
-        filename: "app.js",
-        path: __dirname + "/dist",
+        filename: "main.js",
+        path: __dirname + "/.tmp/public/js",
     },
 
     devtool: 'source-map',
-
     module: {
         loaders: [{
             test: /\.js$/,
@@ -27,6 +27,6 @@ module.exports = {
     },
     plugins: [
         // extract inline css into separate 'styles.css'
-        new ExtractTextPlugin('styles.css')
+        new ExtractTextPlugin('../css/styles.css')
     ]
 }
