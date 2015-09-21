@@ -1,15 +1,13 @@
-import React from "react"
+import React from "react";
+import ReactDOM from 'react-dom';
+import Router from "./routes";
 
-import  "../styles/style.scss"
+import "../styles/style.scss"
 
-class Test extends React.Component {
-    render() {
-        return <div>Hello  pews {this.props.name}</div>;
 
-    }
-}
+let mountNode = document.getElementById("main");
 
-React.render(
-  <Test name="World"/>,
-  document.body
-);
+if (mountNode)
+	ReactDOM.render(Router, mountNode);
+
+

@@ -33,11 +33,18 @@
     "webpack-dev-server": "^1.11.0"
   },
   "dependencies": {
+    "babel": "^5.8.23",
+    "babel-plugin-typecheck": "^1.2.0",
     "bootstrap-alpha": "git+https://github.com/twbs/bootstrap.git#v4.0.0-alpha",
-    "react": "^0.13.3",
-    "sails": "~0.11.0",
-    "sails-disk": "~0.10.0",
     "grunt": "0.4.2",
-    "grunt-sync": "~0.0.4"
+    "grunt-sync": "~0.0.4",
+    "history": "^1.9.1",
+    "pure-render-decorator": "^0.1.0",
+    "react": "^0.14.0-rc1",
+    "react-bootstrap": "^0.25.100-react-pre.1",
+    "react-dom": "^0.14.0-rc1",
+    "react-router": "^1.0.0-rc1",
+    "sails": "~0.11.0",
+    "sails-disk": "~0.10.0"
   }
 }

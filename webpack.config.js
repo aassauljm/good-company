@@ -1,12 +1,17 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-    //cache: true,
+    cache: false,
     context: __dirname +'/assets',
     entry: "./js/main.js",
-
+    target:  "web",
+    node:    {
+        __dirname: true,
+        fs:        'empty'
+    },
     output: {
         filename: "main.js",
+        chunkFilename: "[name].[id].js",
         path: __dirname + "/.tmp/public/js",
     },
 
@@ -15,7 +20,8 @@ module.exports = {
         loaders: [{
             test: /\.js$/,
             exclude: /node_modules/,
-            loaders: ["babel-loader"],
+            loader: "babel-loader",
+            query: {stage: 0}
         }, {
             test: /\.scss$/,
             loader: ExtractTextPlugin.extract(
