@@ -4,12 +4,17 @@ import request from 'superagent-bluebird-promise'
 import Actions from '../actions';
 import _ from 'lodash';
 
+let urls = {
+    'users': '/user',
+    'companies': '/company'
+}
 
-Actions.userInfo.listen(function(credentials){
+
+Actions.fetchResource.listen(function(resource){
     request
-        .get('/get_info', credentials)
-        .then(Actions.userInfo.success)
-        .catch(Actions.userInfo.failure)
+        .get(urls[resource])
+        .then(Actions.fetchResource.success)
+        .catch(Actions.fetchResource.failure)
 })
 
 export default Reflux.createStore({
@@ -19,17 +24,17 @@ export default Reflux.createStore({
     getInitialState: function(){
         return {}
     },
-    onSetUserInfo: function(data){
+    onSetResource: function(resource, data){
         this.data = _.defaults(data, this.getInitialState());
         this.update();
     },
-    onUserInfoSuccess: function(data){
-        this.data = data.body;
+    onResourceSuccess: function(resource, response){
+        this.data[resource] = _.defaults(response.body, this.getInitialState());
         // trigger nav
         this.update();
     },
-    onUserInfoFailure: function(e){
-        this.data = {};
+    onLoginFailure: function(e){
+        this.data[resource] = []
         this.update();
     },
     update: function(){

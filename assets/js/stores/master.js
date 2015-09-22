@@ -3,6 +3,7 @@ import Reflux from 'reflux';
 import { Socket } from '../util'
 import Login from './login';
 import UserInfo from './user_info';
+import Resource from './resource';
 import Actions from '../actions';
 
 
@@ -32,6 +33,7 @@ export default Reflux.createStore({
         this.listenTo(Login, this.onLogin);
         this.listenTo(LoggedIn, this.onLoggedIn);
         this.listenTo(UserInfo, this.onUserInfo);
+        this.listenTo(Resource, this.onResource);
     },
     getInitialState: function() {
         return this.app;
@@ -39,7 +41,7 @@ export default Reflux.createStore({
     loadData: function(data) {
         Actions.setLogin(data.login);
         Actions.setLoggedIn(data.loggedIn);
-
+        Actions.setResources(data.resources);
     },
     onLogin: function(data) {
        this.app.login = data;
@@ -53,7 +55,10 @@ export default Reflux.createStore({
        this.app.userInfo = data;
        this.update();
     },
-
+    onResource: function(data) {
+       this.app.resources = data;
+       this.update();
+    },
     update: function(){
         console.log('Master', this.app);
         this.trigger(this.app);

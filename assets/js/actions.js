@@ -9,5 +9,9 @@ export default Reflux.createActions({
 
     "userInfo": {children: ['success', 'failure']},
     "setUserInfo": {},
+
+    "fetchResource": {children: ['success', 'failure']},
+    "setResources": {},
+
 });
 

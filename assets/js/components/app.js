@@ -9,8 +9,8 @@ import pureRender from 'pure-render-decorator';
 @pureRender
 @storeDecorator(Master)
 export default class App extends React.Component {
+
     render() {
-        console.log(this.state );
         return  <div>
             <Header loggedIn={this.state.loggedIn } userInfo={ this.state.userInfo }/>
              { this.state.loggedIn ? this.props.children  : <Login  {...this.state.login} /> }
