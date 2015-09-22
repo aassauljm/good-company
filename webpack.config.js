@@ -1,7 +1,7 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-    cache: false,
+    cache: true,
     context: __dirname +'/assets',
     entry: "./js/main.js",
     target:  "web",

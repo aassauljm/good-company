@@ -22,7 +22,9 @@ export default function(renderProps){
             res.send(404, 'Not found')
         }
         else{
-            res.render('content.ejs', { reactOutput: renderToString(<RoutingContext {...renderProps}/>), _layoutFile: 'layout.ejs'});
+            let output = null;
+            //output = renderToString(<RoutingContext {...renderProps}/>);
+            res.render('content.ejs', { reactOutput: output, data: JSON.stringify({loggedIn: req.isAuthenticated()}),  _layoutFile: 'layout.ejs'});
         }
     })
 }
