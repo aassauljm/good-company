@@ -5,6 +5,9 @@ Reflux.setPromise(require('bluebird'));
 export default Reflux.createActions({
     "login": {children: ['success', 'failure']},
     "setLogin": {},
-    "setLoggedIn": {}
+    "setLoggedIn": {},
+
+    "userInfo": {children: ['success', 'failure']},
+    "setUserInfo": {},
 });
 

@@ -2,6 +2,7 @@
 import Reflux from 'reflux';
 import { Socket } from '../util'
 import Login from './login';
+import UserInfo from './user_info';
 import Actions from '../actions';
 
 
@@ -30,6 +31,7 @@ export default Reflux.createStore({
         this.app = {login: Login.getInitialState()}
         this.listenTo(Login, this.onLogin);
         this.listenTo(LoggedIn, this.onLoggedIn);
+        this.listenTo(UserInfo, this.onUserInfo);
     },
     getInitialState: function() {
         return this.app;
@@ -47,6 +49,11 @@ export default Reflux.createStore({
        this.app.loggedIn = data;
        this.update();
     },
+    onUserInfo: function(data) {
+       this.app.userInfo = data;
+       this.update();
+    },
+
     update: function(){
         console.log('Master', this.app);
         this.trigger(this.app);

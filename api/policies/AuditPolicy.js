@@ -2,3 +2,4 @@
 
 
 module.exports = require('sails-permissions/api/policies/AuditPolicy');
+

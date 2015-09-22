@@ -35,8 +35,12 @@ module.exports.routes = {
   '/': {
     controller: 'LandingController',
     action: 'landing'
-  }
+  },
 
+  '/get_info': {
+    controller: 'UserController',
+    action: 'userInfo'
+  }
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *
