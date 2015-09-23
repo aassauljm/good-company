@@ -7,12 +7,6 @@ _.merge(exports, _super);
 _.merge(exports, {
 
   // Extend with custom logic here by adding additional fields, methods, etc.
-  attributes: {
-    userInfo: function(){
-        console.log(this);
-    }
-}
+
 });
 
-
-console.log(exports)

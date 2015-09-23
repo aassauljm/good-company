@@ -18,7 +18,18 @@ export default class Users extends React.Component {
     }
 
     render() {
-        return <div>Here</div>
+        let fields = ['id', 'username', 'createdAt', 'updatedAt'];
+        return <table className="table">
+        <thead><tr>{ fields.map(f => <th>{f}</th>) }</tr></thead>
+        <tbody>
+        {this.props.list ? this.props.list.map(
+            (row, i) => <tr key={i}>
+                { fields.map(f => <td>{row[f]}</td>) }
+            </tr>)
+
+        : null}
+        </tbody>
+        </table>
     }
 }
 
