@@ -1,26 +1,24 @@
 "use strict";
 import React from 'react';
-import Actions from '../actions';
+import {requestResource} from '../actions';
 import pureRender from 'pure-render-decorator';
+import { connect } from 'react-redux';
+
 
 @pureRender
+@connect(state => state.resources.users)
 export default class Users extends React.Component {
+
     componentDidMount(){
-        this.fetch();
+        this.props.dispatch(requestResource('users'));
     }
 
     componentDidUpdate(){
-        this.fetch();
-    }
-
-    fetch(){
-        if(!this.props.users){
-            Actions.fetchResource('users');
-        }
+        this.props.dispatch(requestResource('users'));
     }
 
     render() {
-        return  <div/>
+        return <div>Here</div>
     }
 }
 

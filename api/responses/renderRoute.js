@@ -10,6 +10,8 @@ export default function(renderProps){
     let req = this.req;
     let res = this.res;
     let location = createLocation(req.url)
+    res.render('content.ejs', { reactOutput: null, data: JSON.stringify({login: {loggedIn: req.isAuthenticated()}}),  _layoutFile: 'layout.ejs'});
+    return;
 
     match({ routes, location }, (error, redirectLocation, renderProps) => {
         if (redirectLocation){
@@ -24,7 +26,7 @@ export default function(renderProps){
         else{
             let output = null;
             //output = renderToString(<RoutingContext {...renderProps}/>);
-            res.render('content.ejs', { reactOutput: output, data: JSON.stringify({loggedIn: req.isAuthenticated()}),  _layoutFile: 'layout.ejs'});
+            res.render('content.ejs', { reactOutput: output, data: JSON.stringify({login: {loggedIn: req.isAuthenticated()}}),  _layoutFile: 'layout.ejs'});
         }
     })
 }

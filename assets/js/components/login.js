@@ -2,23 +2,26 @@
 import React from 'react';
 import pureRender from 'pure-render-decorator';
 import { Input, ButtonInput, Container } from 'react-bootstrap';
-import Actions from '../actions';
+import { requestLogin } from '../actions';
+import { connect } from 'react-redux';
+
+
 
 @pureRender
-export default class Login extends React.Component {
-    static propTypes = { error: React.PropTypes.object };
+@connect(state => state.login)
+class Login extends React.Component {
+    static propTypes = { login: React.PropTypes.object };
     submit(e) {
     	e.preventDefault();
-        Actions.login({
+        this.props.dispatch(requestLogin({
             identifier: this.refs.email.getValue(),
             password: this.refs.password.getValue()
-        });
+       }));
     }
     render() {
-        console.log(this.props.error)
         return <div className="container">
             <form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
-            { this.props.error ? <span className="Error">{this.props.error.message}</span> : null }
+            { this.props.loginError ? <span className="Error">{this.props.loginError }</span> : null }
         	<Input type="text" ref="email" placeholder="Email" />
         	<Input type="password" ref="password" placeholder="Password"/>
         	<ButtonInput type='submit' value='Sign In' />
@@ -27,3 +30,5 @@ export default class Login extends React.Component {
     }
 }
 
+// Wrap the component to inject dispatch and state into it
+export default Login

@@ -2,18 +2,23 @@ import { Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import Header from './header';
 import Login from './login';
-import Master from '../stores/master';
-import {storeDecorator} from '../util';
 import pureRender from 'pure-render-decorator';
+import { connect } from 'react-redux';
+import { requestUserInfo } from '../actions';
 
 @pureRender
-@storeDecorator(Master)
+@connect(state => state)
 export default class App extends React.Component {
-
+    componentDidMount(){
+        this.props.dispatch(requestUserInfo())
+    }
+    componentDidUpdate(){
+        this.props.dispatch(requestUserInfo())
+    }
     render() {
         return  <div>
-            <Header loggedIn={this.state.loggedIn } userInfo={ this.state.userInfo }/>
-             { this.state.loggedIn ? this.props.children  : <Login  {...this.state.login} /> }
+            <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
+             { this.props.login.loggedIn ? this.props.children  : <Login /> }
         </div>
     }
 }

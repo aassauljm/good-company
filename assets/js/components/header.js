@@ -7,7 +7,7 @@ import { Link } from 'react-router';
 import Actions from '../actions';
 
 
-function RoleAllows(roles, menu){
+function RoleAllows(roles = [], menu){
     let rules = {
         "admin": {
             "users": true,
@@ -28,25 +28,10 @@ function RoleAllows(roles, menu){
 @pureRender
 export default class Main extends React.Component {
 
-    componentDidMount(){
-        if(!this.props.userInfo){
-            Actions.userInfo();
-        }
-    }
-
     users(){
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'users' )){
             return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to="users">Users
-                </Link>
-            </li>;
-        }
-    }
-
-    companies(){
-        if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'companies')){
-            return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to="companies">Companies
+                <Link activeClassName="active" className="nav-link" to="/users">Users
                 </Link>
             </li>;
         }
@@ -55,7 +40,6 @@ export default class Main extends React.Component {
     showMenus(){
         return  <Nav>
             { this.users() }
-            { this.companies() }
         </Nav>
     }
 
