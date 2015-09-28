@@ -12,16 +12,30 @@ export const RESOURCE_REQUEST = 'RESOURCE_REQUEST';
 export const RESOURCE_SUCCESS = 'RESOURCE_SUCCESS';
 export const RESOURCE_FAILURE = 'RESOURCE_FAILURE';
 
+export const RESOURCE_CREATE_REQUEST = 'RESOURCE_CREATE_REQUEST';
+export const RESOURCE_CREATE_SUCCESS = 'RESOURCE_CREATE_SUCCESS';
+export const RESOURCE_CREATE_FAILURE = 'RESOURCE_CREATE_FAILURE';
+
+export const RESOURCE_UPDATE_REQUEST = 'RESOURCE_UPDATE_REQUEST';
+export const RESOURCE_UPDATE_SUCCESS = 'RESOURCE_UPDATE_SUCCESS';
+export const RESOURCE_UPDATE_FAILURE = 'RESOURCE_UPDATE_FAILURE';
+
+export const RESOURCE_DELETE_REQUEST = 'RESOURCE_DELETE_REQUEST';
+export const RESOURCE_DELETE_SUCCESS = 'RESOURCE_DELETE_SUCCESS';
+export const RESOURCE_DELETE_FAILURE = 'RESOURCE_DELETE_FAILURE';
+
+
+const json_headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+};
 
 export function requestLogin(credentials) {
     return {
         types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],
         callAPI: () => fetch('/auth/local', {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+            headers: json_headers,
             credentials: 'same-origin',
             body: JSON.stringify(credentials)
         })
@@ -32,29 +46,65 @@ export function requestUserInfo() {
     return {
         types: [USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE],
         callAPI: () => fetch('/get_info', {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+            headers: json_headers,
             credentials: 'same-origin'
         }),
         shouldCallAPI: (state) => state.login.loggedIn && !state.userInfo.status
     };
 }
 
+const urls = {
+    'users': '/user',
+    'roles': '/role'
+}
+
 export function requestResource(resource) {
-    let urls = {
-        'users': '/user'
-    }
     return {
         types: [RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE],
-        callAPI: () => fetch(urls[resource], {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+        callAPI: () => fetch(urls[resource] || resource, {
+            headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => !state.resources[resource].status
+        shouldCallAPI: (state) => !state.resources[resource] || !state.resources[resource].status,
+        payload: {key: resource}
+    };
+}
+
+export function createResource(resource, data) {
+    return {
+        //types: [RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE],
+        types: [RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE],
+        callAPI: () => fetch(urls[resource] || resource, {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        }),
+        payload: {key: resource}
+    };
+}
+
+export function updateResource(resource, data) {
+    return {
+        types: [RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE],
+        callAPI: () => fetch(urls[resource] || resource, {
+            method: 'PUT',
+            headers: json_headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        }),
+        payload: {key: resource}
+    };
+}
+
+export function deleteResource(resource) {
+    return {
+        types: [RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE],
+        callAPI: () => fetch(urls[resource] || resource, {
+            method: 'DELETE',
+            headers: json_headers,
+            credentials: 'same-origin'
+        }),
+        payload: {key: resource}
     };
 }

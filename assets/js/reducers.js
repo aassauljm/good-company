@@ -33,20 +33,20 @@ function userInfo(state = {}, action){
         case USER_INFO_SUCCESS:
             return {...state, ...action.response, ...{status: 'complete'}};
         case USER_INFO_FAILURE:
-            return {...state, ...{status: 'error'}};
+            return {...state, ...action.response, ...{status: 'error'}};
         default:
             return state;
     }
 }
 
-function resources(state = {users: {}}, action){
+function resources(state = {users: {}, roles: {}}, action){
     switch(action.type){
         case RESOURCE_REQUEST:
-            return {...state, ...{users: {status: 'fetching'}}};
+            return {...state, ...{[action.key]: {status: 'fetching'}}};
         case RESOURCE_SUCCESS:
-            return {...state, ...{users: {...{list: action.response, status: 'complete'}}}};
+            return {...state, ...{[action.key]: {...{data: action.response, status: 'complete'}}}};
         case RESOURCE_FAILURE:
-            return {...state, ...{users: {status: 'error'}}};
+            return {...state, ...{[action.key]: {...{data: action.response, status: 'error'}}}};
         default:
             return state;
     }

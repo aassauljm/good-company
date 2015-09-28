@@ -1,9 +1,10 @@
 "use strict";
 import React from 'react';
-import {requestResource} from '../actions';
+import {requestResource, deleteResource} from '../actions';
 import pureRender from 'pure-render-decorator';
 import { connect } from 'react-redux';
-
+import { ButtonInput } from 'react-bootstrap';
+import { Link } from 'react-router';
 
 @pureRender
 @connect(state => state.resources.users)
@@ -17,19 +18,28 @@ export default class Users extends React.Component {
         this.props.dispatch(requestResource('users'));
     }
 
+    submit(id, e) {
+        e.preventDefault();
+        this.props.dispatch(deleteResource('user/'+id));
+    }
+
     render() {
         let fields = ['id', 'username', 'createdAt', 'updatedAt'];
-        return <table className="table">
-        <thead><tr>{ fields.map(f => <th>{f}</th>) }</tr></thead>
+        return <div><table className="table">
+        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th><th></th></tr></thead>
         <tbody>
-        {this.props.list ? this.props.list.map(
+        {this.props.data ? this.props.data.map(
             (row, i) => <tr key={i}>
-                { fields.map(f => <td>{row[f]}</td>) }
+                { fields.map(f => <td key={f}>{row[f]}</td>) }
+                <td><Link activeClassName="active" className="nav-link" to={"/user/edit/"+row.id} >Edit</Link></td>
+                <td><a href="#" onClick={this.submit.bind(this, row.id)} >Delete</a></td>
             </tr>)
 
         : null}
         </tbody>
         </table>
+        <Link activeClassName="active" className="nav-link" to={"/user/create"}>Create User</Link>
+        </div>
     }
 }
 

@@ -18,7 +18,9 @@ export default class App extends React.Component {
     render() {
         return  <div>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
+            <div className="container">
              { this.props.login.loggedIn ? this.props.children  : <Login /> }
+             </div>
         </div>
     }
 }

@@ -64,10 +64,16 @@ function callAPIMiddleware({
                     response: response,
                     type: successType
                 })))
-                .catch(error => dispatch(Object.assign({}, payload, {
-                    error: error,
+                .catch(error => error.response.json().then(response =>
+                       dispatch(Object.assign({}, payload, {
+                    response: response,
                     type: failureType
-                })));
+                }))))
+                .catch(error =>  dispatch(Object.assign({}, payload, {
+                    error: error,
+                    response: error.response,
+                    type: failureType
+                })))
         };
     };
 }

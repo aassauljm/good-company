@@ -11,7 +11,7 @@ function RoleAllows(roles = [], menu){
     let rules = {
         "admin": {
             "users": true,
-            "companies": true,
+            "roles": true,
         },
         "registered": {
 
@@ -27,7 +27,6 @@ function RoleAllows(roles = [], menu){
 
 @pureRender
 export default class Main extends React.Component {
-
     users(){
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'users' )){
             return <li className="nav-item">
@@ -36,17 +35,25 @@ export default class Main extends React.Component {
             </li>;
         }
     }
-
+    roles(){
+        if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'roles' )){
+            return <li className="nav-item">
+                <Link activeClassName="active" className="nav-link" to="/roles">Roles
+                </Link>
+            </li>;
+        }
+    }
     showMenus(){
         return  <Nav>
             { this.users() }
+            { this.roles() }
         </Nav>
     }
 
     showAccount(){
         if(this.props.userInfo){
             return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to="account">{this.props.userInfo.username}
+                <Link activeClassName="active" className="nav-link" to={"/user/edit/"+this.props.userInfo.id}>{this.props.userInfo.username}
                 </Link>
             </li>;
         }
@@ -57,7 +64,7 @@ export default class Main extends React.Component {
     }
 
     render() {
-        return  <Navbar brand='Title' className="navbar-dark bg-inverse">
+        return  <Navbar brand='Title' className="navbar-dark bg-inverse navbar-static-top ">
                 {this.showMenus() }
                 <Nav pullRight={true}>
                 { this.props.loggedIn ? this.showAccount() : null}

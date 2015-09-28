@@ -4,6 +4,8 @@ import App from './components/app';
 import Landing from './components/landing';
 import Home from './components/home';
 import Users from './components/users';
+import Roles from './components/roles';
+import Account from './components/account';
 //import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 import { Provider } from 'react-redux';
 
@@ -17,6 +19,9 @@ export default <Provider store={store}>
                     <Route path="/" component={ Landing }  />
                     <Route path="home" component={ Home }  />
                     <Route path="users" component={ Users }  />
+                    <Route path="roles" component={ Roles }  />
+                    <Route path="user/edit/:id" edit={true} component={ Account }  />
+                    <Route path="user/create" component={ Account }  />
                 </Route>
             </Router>
         </Provider>
