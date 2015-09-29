@@ -37,9 +37,18 @@ module.exports.routes = {
     action: 'landing'
   },
 
-  '/get_info': {
+  '/api/get_info': {
     controller: 'UserController',
     action: 'userInfo'
+  },
+
+  '/api/set_password': {
+    controller: 'UserController',
+    action: 'setPassword'
+  },
+
+    UserController: {
+    'create': true
   }
   /***************************************************************************
   *                                                                          *

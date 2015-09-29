@@ -2,11 +2,11 @@ import { Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import Header from './header';
 import Login from './login';
-import pureRender from 'pure-render-decorator';
+import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { requestUserInfo } from '../actions';
 
-@pureRender
+//@pureRender
 @connect(state => state)
 export default class App extends React.Component {
     componentDidMount(){
@@ -16,6 +16,7 @@ export default class App extends React.Component {
         this.props.dispatch(requestUserInfo())
     }
     render() {
+        console.log('render', this.props)
         return  <div>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
             <div className="container">

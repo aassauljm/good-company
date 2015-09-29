@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import pureRender from 'pure-render-decorator';
+import { pureRender } from '../utils';
 
 
 @pureRender

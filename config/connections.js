@@ -32,6 +32,14 @@ module.exports.connections = {
     adapter: 'sails-disk'
   },
 
+  pg: {
+    adapter: 'sails-postgresql',
+    host: 'localhost',
+    user: 'josh',
+    password: '',
+    database: 'users'
+  },
+
   /***************************************************************************
   *                                                                          *
   * MySQL is the world's most popular relational database.                   *

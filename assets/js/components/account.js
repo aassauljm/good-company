@@ -1,9 +1,14 @@
 "use strict";
 import React from 'react';
 import {requestResource, updateResource, createResource} from '../actions';
-import pureRender from 'pure-render-decorator';
+import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { Input, ButtonInput, Container, Button } from 'react-bootstrap';
+import { connectReduxForm } from 'redux-form';
+import { initialize } from 'redux-form';
+import { Link } from 'react-router';
+import { fieldStyle } from '../utils';
+
 
 function* objectValues(obj) {
   for (let prop of Object.keys(obj)) {
@@ -11,37 +16,94 @@ function* objectValues(obj) {
   }
 }
 
+function fieldExistence(form){
+    const errors = {};
+    if(!form.email){
+        errors.email = ['Must supply email'];
+    }
+    if(!form.username){
+        errors.username = ['Must supply username'];
+    }
+    return errors;
+}
+
+@connectReduxForm({
+  form: 'account',
+  fields: ['email', 'username'],
+  //validate: fieldExistence
+})
+export default class AccountForm extends React.Component {
+    submit(e){
+        e.preventDefault();
+        const data = {
+            email: this.refs.email.getValue(),
+            username: this.refs.username.getValue(),
+        }
+        if(this.props.valid){
+            this.props.submit(data);
+        }
+        else{
+            this.props.touchAll();
+        }
+    }
+
+    componentWillUnmount(){
+        this.props.dispatch(initialize('account', {}));
+    }
+
+    errors(){
+        const errors = [];
+        let i = 0;
+        for(let field of objectValues(this.props.fields)){
+            errors.push(...(field.error || []).map((m) => (
+                <div className="alert alert-danger" role="alert" key={i++}>{m}</div>
+                )
+            ));
+        }
+        return errors;
+    }
+
+    render() {
+        const { fields: {email, username} } = this.props;
+         return <form onSubmit={::this.submit}>
+            <Input type="text" ref="email" {...email}
+                bsStyle={fieldStyle(this.props.fields.email)} label="Email" />
+            <Input type="text" ref="username" {...username} label="User name"
+                bsStyle={fieldStyle(this.props.fields.username)}  />
+            <ButtonInput type='submit' value={this.props.edit ? 'Update' : 'Create' } />
+            { this.errors() }
+        </form>
+    }
+}
+
 
 @pureRender
-@connect((state, ownProps) => state.resources[ownProps.edit ? 'user/'+ownProps.params.id : 'user'] || {data: {}})
+//@connect((state, ownProps) => state.resources[ownProps.route.edit ? '/user/'+ownProps.params.id : '/user'] || {data: {}})
+@connect((state) => state.userInfo)
 export default class Account extends React.Component {
+
     key(){
         return this.props.params.id
     }
 
     componentDidMount(){
-        if(this.props.edit){
-            this.props.dispatch(requestResource('user/'+this.key()));
+        if(this.props.route.edit){
+            this.props.dispatch(requestResource('/user/'+this.key(), 'account'));
         }
     }
 
     componentDidUpdate(){
-        if(this.props.edit){
-            this.props.dispatch(requestResource('user/'+this.key()));
+        if(this.props.route.edit){
+            this.props.dispatch(requestResource('/user/'+this.key(), 'account'));
         }
     }
 
-    submit(e) {
-        e.preventDefault();
-        let data = {
-            email: this.refs.email.getValue(),
-            username: this.refs.username.getValue(),
-        }
-        if(this.props.edit){
-            this.props.dispatch(updateResource('user/'+this.key(), data));
+    submit(data) {
+        if(this.props.route.edit){
+            this.props.dispatch(updateResource('/user/'+this.key(), data, 'account'));
         }
         else{
-            this.props.dispatch(createResource('user', data));
+            this.props.dispatch(createResource('/user', data, 'account'));
         }
     }
 
@@ -54,28 +116,14 @@ export default class Account extends React.Component {
         }
     }
 
-    errors(){
-        if(!this.props.data || !this.props.data.invalidAttributes){
-            return;
-        }
-        let errors = [], i = 0;
-        for(let value of objectValues(this.props.data.invalidAttributes)){
-            errors.push(...value.map((m) => (
-                <div className="alert alert-danger" role="alert" key={i++}>{m.message}</div>
-                )
-            ));
-        }
-        return errors;
+    isOwnAccount(){
+        return this.key() === this.props.id+'';
     }
 
     render() {
-        let data = this.props.data || {};
-        return <div><form onSubmit={::this.submit}>
-            { this.errors() }
-            <Input type="text" ref="email" defaultValue={data.email} label="Email" bsStyle={this.validation('email')} />
-            <Input type="text" ref="username" defaultValue={data.username} label="User name" bsStyle={this.validation('username')} />
-            <ButtonInput type='submit' value={this.props.edit ? 'Update' : 'Create' } />
-        </form>
+        return <div>
+            <AccountForm submit={::this.submit} edit={this.props.route.edit} />
+            { this.isOwnAccount() ? <Link activeClassName="active" className="nav-link" to={"/user/set_password"}>Set Password</Link> : null }
         </div>
     }
 }

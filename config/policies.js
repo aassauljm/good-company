@@ -37,7 +37,14 @@ module.exports.policies = {
     ],
     AuthController: {
         '*': ['passport']
+    },
+    UserController: {
+        'setPassword': [
+        'passport',
+        'SelfPolicy'
+        ]
     }
+
     /***************************************************************************
      *                                                                          *
      * Default policy for all controllers and actions (`true` allows public     *

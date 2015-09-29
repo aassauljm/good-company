@@ -1,13 +1,13 @@
 "use strict";
 import React from 'react';
 import {requestResource, deleteResource} from '../actions';
-import pureRender from 'pure-render-decorator';
+import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { ButtonInput } from 'react-bootstrap';
 
 
-@pureRender
 @connect(state => state.resources.roles)
+@pureRender
 export default class Users extends React.Component {
 
     componentDidMount(){

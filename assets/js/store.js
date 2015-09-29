@@ -2,9 +2,10 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
 import createHistory from 'history/lib/createBrowserHistory';
 import { reduxReactRouter } from 'redux-router';
-import { devTools } from 'redux-devtools';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
+import { stopSubmit } from 'redux-form/lib/actions';
+
 
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -56,7 +57,6 @@ function callAPIMiddleware({
             dispatch(Object.assign({}, payload, {
                 type: requestType
             }));
-
             return callAPI()
                 .then(checkStatus)
                 .then(parseJSON)

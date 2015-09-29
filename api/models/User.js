@@ -8,5 +8,18 @@ _.merge(exports, {
 
   // Extend with custom logic here by adding additional fields, methods, etc.
 
+    attributes: {
+        username: {
+            type: 'string',
+            required: true,
+            minLength: 3
+
+        },
+        email: {
+            type: 'email',
+            required: true,
+            unique: true
+        }
+    }
 });
 
