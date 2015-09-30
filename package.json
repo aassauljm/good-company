@@ -30,7 +30,10 @@
     "sass-loader": "^2.0.1",
     "style-loader": "^0.12.4",
     "webpack": "^1.12.2",
-    "webpack-dev-server": "^1.11.0"
+    "webpack-dev-server": "^1.11.0",
+    "barrels": "^1.5.0",
+    "chai": "^3.2.0",
+    "chai-as-promised": "^5.1.0"
   },
   "dependencies": {
     "babel": "^5.8.23",
@@ -44,7 +47,7 @@
     "isomorphic-fetch": "^2.1.1",
     "lodash": "^3.10.1",
     "react": "^0.14.0-rc1",
-    "rreact-addons-shallow-compare": "^0.14.0-rc1",
+    "react-addons-shallow-compare": "^0.14.0-rc1",
     "react-dom": "^0.14.0-rc1",
     "react-redux": "^3.0.1",
     "react-router": "^1.0.0-rc1",
