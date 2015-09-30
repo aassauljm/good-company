@@ -33,6 +33,5 @@ exports.create = function () {
         //                 criteria: { where: { public: true }, blacklist: ['public'] } })
   ])
   .spread(function(role){
-    console.log(role)
   })
 };

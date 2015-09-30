@@ -10,7 +10,7 @@ import AuthenticatedComponent from  './authenticated';
 import { pushState, replaceState } from 'redux-router';
 
 function validatePasswordMatch(form){
-    if(form.newNassword !== form.repeatPassword){
+    if(form.newPassword !== form.repeatPassword){
         return {newPassword: ['Passwords do not match'],
                 repeatPassword: ['Passwords do not match'],
             };

@@ -1,0 +1,12 @@
+[
+  {
+    "protocol"    : "local",
+    "password"    : "testtest",
+    "user"        : 10
+  },
+    {
+    "protocol"    : "local",
+    "password"    : "testtest",
+    "user"        : 11
+  }
+]
