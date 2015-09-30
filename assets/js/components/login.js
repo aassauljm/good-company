@@ -16,10 +16,12 @@ import { pushState, replaceState } from 'redux-router';
 export default class LoginForm extends React.Component {
     submit(e){
         e.preventDefault();
-        this.props.submit({
-            identifier: this.refs.email.getValue(),
-            password: this.refs.password.getValue()
-       });
+        if(this.props.valid){
+            this.props.submit({
+                identifier: this.refs.email.getValue(),
+                password: this.refs.password.getValue()
+           });
+        }
     }
 
     render() {
@@ -39,8 +41,8 @@ export default class LoginForm extends React.Component {
 @pureRender
 class Login extends React.Component {
     static propTypes = { login: React.PropTypes.object };
-    submit(identifier, password) {
-        this.props.dispatch(requestLogin(identifier, password))
+    submit(data) {
+        this.props.dispatch(requestLogin(data))
     }
     componentDidMount() {
         this.nav()

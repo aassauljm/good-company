@@ -1,7 +1,7 @@
 "use strict";
 import React from 'react';
 import {requestResource, updateResource, createResource} from '../actions';
-import { pureRender } from '../utils';
+import { pureRender, objectValues } from '../utils';
 import { connect } from 'react-redux';
 import { Input, ButtonInput, Container, Button } from 'react-bootstrap';
 import { connectReduxForm } from 'redux-form';
@@ -10,22 +10,6 @@ import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
 import AuthenticatedComponent from  './authenticated';
 
-function* objectValues(obj) {
-  for (let prop of Object.keys(obj)) {
-    yield obj[prop];
-  }
-}
-
-function fieldExistence(form){
-    const errors = {};
-    if(!form.email){
-        errors.email = ['Must supply email'];
-    }
-    if(!form.username){
-        errors.username = ['Must supply username'];
-    }
-    return errors;
-}
 
 @connectReduxForm({
   form: 'account',

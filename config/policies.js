@@ -41,8 +41,11 @@ module.exports.policies = {
     UserController: {
         'setPassword': [
             'passport',
+            'sessionAuth',
             'SelfPolicy'
-        ]
+        ],
+        'signup': true,
+        'userInfo': ['passport','sessionAuth']
     }
 
     /***************************************************************************

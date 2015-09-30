@@ -47,10 +47,10 @@ module.exports.routes = {
     action: 'setPassword'
   },
 
-  UserController: {
-        'create': true
+  '/api/user/signup': {
+    controller: 'UserController',
+    action: 'signup'
   },
-
 
   /***************************************************************************
   *                                                                          *

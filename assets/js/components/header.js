@@ -75,7 +75,7 @@ export default class Header extends React.Component {
     }
 
     showLogout(){
-        return  this.props.loggedIn ? <li className="nav-item"><a className="nav-link" href="logout">Log out</a></li> : null;
+        return  this.props.loggedIn ? <li className="nav-item"><a className="nav-link" href="/logout">Log out</a></li> : null;
     }
 
     render() {

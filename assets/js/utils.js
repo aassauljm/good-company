@@ -26,3 +26,21 @@ function shouldComponentUpdate(nextProps, nextState) {
 export function pureRender(component) {
   component.prototype.shouldComponentUpdate = shouldComponentUpdate;
 }
+
+
+export function* objectValues(obj) {
+  for (let prop of Object.keys(obj)) {
+    yield obj[prop];
+  }
+}
+
+export function fieldExistence(form){
+    const errors = {};
+    if(!form.email){
+        errors.email = ['Must supply email'];
+    }
+    if(!form.username){
+        errors.username = ['Must supply username'];
+    }
+    return errors;
+}

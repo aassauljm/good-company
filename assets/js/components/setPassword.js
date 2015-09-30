@@ -11,7 +11,9 @@ import { pushState, replaceState } from 'redux-router';
 
 function validatePasswordMatch(form){
     if(form.newNassword !== form.repeatPassword){
-        return {repeatPassword: ['Passwords do not match']};
+        return {newPassword: ['Passwords do not match'],
+                repeatPassword: ['Passwords do not match'],
+            };
     }
     return {};
 }
@@ -23,10 +25,10 @@ function validatePasswordMatch(form){
 })
 @AuthenticatedComponent
 export default class PasswordForm extends React.Component {
+
     submit(e){
         e.preventDefault();
         this.props.touchAll();
-
         this.props.submit({
             oldPassword: this.refs.oldPassword.getValue(),
             newPassword: this.refs.newPassword.getValue()

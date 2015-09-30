@@ -4,32 +4,65 @@ import { pureRender } from '../utils';
 import { Input, ButtonInput, Container } from 'react-bootstrap';
 import { requestLogin } from '../actions';
 import { connect } from 'react-redux';
-import {connectReduxForm} from 'redux-form';
+import { connectReduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { pushState, replaceState } from 'redux-router';
-import { fieldStyle } from '../utils';
+import { fieldStyle, objectValues } from '../utils';
+import { createResource } from '../actions';
+
+function signUpValidate(form){
+    const error = {};
+    if(!form.email){
+        error.email = ['Email required'];
+    }
+    if(!form.username){
+        error.username= ['Username required'];
+    }
+    if(!form.password){
+        error.password = ['Password required'];
+    }
+    if(!form.repeatPassword){
+        error.repeatPassword = ['Password required'];
+    }
+    return error;
+}
 
 @connectReduxForm({
-  form: 'login',
-  fields: ['email', 'password']
+  form: 'signup',
+  fields: ['email', 'username', 'password', 'repeatPassword'],
+  validate: signUpValidate
 })
-export default class LoginForm extends React.Component {
+export default class SignUpForm extends React.Component {
     submit(e){
         e.preventDefault();
-        this.props.submit({
-            identifier: this.refs.email.getValue(),
-            password: this.refs.password.getValue()
-        });
+        this.props.touchAll();
+        if(this.props.valid){
+            this.props.submit({
+                email: this.refs.email.getValue(),
+                username: this.refs.username.getValue(),
+                password: this.refs.password.getValue()
+           });
+        }
     }
-
+    errors(){
+        const errors = [];
+        let i = 0;
+        for(let field of objectValues(this.props.fields)){
+            errors.push(...(field.error || []).map((m) => (
+                <div className="alert alert-danger" role="alert" key={i++}>{m}</div>
+                )
+            ));
+        }
+        return errors;
+    }
     render() {
-        const { fields: {email, password} } = this.props;
+        const { fields: {email, username, password, repeatPassword} } = this.props;
          return  <form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
-            { this.props.error ?    <div className="alert alert-danger" role="alert">{this.props.error }</div> : null }
-            <Input type="text" ref="email" {...email} label="Email" />
-            <Input type="text" ref="username" {...email} label="Username" />
-            <Input type="password" ref="password" {...password} label="Password"  />
-            <Input type="password" ref="repeatPassword" {...password} label="Repeat Password"  />
+            { this.errors() }
+            <Input type="text" ref="email" {...email} bsStyle={fieldStyle(this.props.fields.email)} label="Email" />
+            <Input type="text" ref="username" {...username} bsStyle={fieldStyle(this.props.fields.username)} label="Username" />
+            <Input type="password" ref="password" {...password} bsStyle={fieldStyle(this.props.fields.password)}label="Password"  />
+            <Input type="password" ref="repeatPassword" {...repeatPassword} bsStyle={fieldStyle(this.props.fields.repeatPassword)} label="Repeat Password"  />
             <ButtonInput type='submit' value='Sign Up' />
         </form>
     }
@@ -38,10 +71,10 @@ export default class LoginForm extends React.Component {
 
 @connect(state => state.login)
 @pureRender
-class Login extends React.Component {
+class Signup extends React.Component {
     static propTypes = { login: React.PropTypes.object };
-    submit(identifier, password) {
-        this.props.dispatch(requestLogin(identifier, password))
+    submit(data) {
+        this.props.dispatch(createResource('/user/signup', data, 'signup'))
     }
     componentDidMount() {
         this.nav()
@@ -56,10 +89,10 @@ class Login extends React.Component {
     }
     render() {
         return <div className="container">
-            <LoginForm submit={::this.submit} />
+            <SignUpForm submit={::this.submit} />
             </div>
     }
 }
 
 // Wrap the component to inject dispatch and state into it
-export default Login;
+export default Signup;

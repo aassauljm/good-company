@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import {
     LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
+    SIGNUP_REQUEST, SIGNUP_SUCCESS, SIGNUP_FAILURE,
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
     SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE,
     RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE,
@@ -26,6 +27,11 @@ function login(state = {
             return {...state, ...{loggedIn: true}};
         case LOGIN_FAILURE:
             return {...state, ...{loggedIn: false}};
+        case RESOURCE_CREATE_SUCCESS:
+            if(action.form === 'signup'){
+                return {...state, ...{loggedIn: true}};
+            }
+            return state;
         default:
             return state;
     }
@@ -84,12 +90,8 @@ function mergeErrors(state, err){
         }
 }
 
-const forms = formReducer.plugin({
-    account: (state, action) => {
-      if (action.form !== 'account'){
-        return state;
-      }
-      switch(action.type) {
+function processResource(state, action){
+    switch(action.type) {
         case RESOURCE_SUCCESS:
             return {
             ...state,
@@ -105,12 +107,21 @@ const forms = formReducer.plugin({
         case RESOURCE_CREATE_FAILURE:
         case RESOURCE_UPDATE_FAILURE:
         case RESOURCE_DELETE_FAILURE:
-            const err = action.response.invalidAttributes || {};
+            const err = (action.response||{}).invalidAttributes || {};
            return mergeErrors(state, err);
 
         default:
           return state;
       }
+}
+
+
+const forms = formReducer.plugin({
+    account: (state, action) => {
+      if (action.form !== 'account'){
+        return state;
+      }
+      return processResource(state, action);
     },
     login: (state, action) => {
         switch(action.type) {
@@ -121,6 +132,18 @@ const forms = formReducer.plugin({
             default:
                 return state;
         }
+    },
+    signup: (state, action) => {
+        if (action.form !== 'signup'){
+            return state;
+        }
+        state = processResource(state, action);
+        switch(action.type) {
+            case RESOURCE_SUCCESS:
+                return {...state, ...{password: {}, repeatPassword: {}}};
+            default:
+                return state;
+            }
     },
     setPassword: (state, action) => {
         switch(action.type) {
