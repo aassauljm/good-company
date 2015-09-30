@@ -3,13 +3,14 @@ import React from 'react'
 import createLocation from 'history/lib/createLocation'
 import { RoutingContext, match } from 'react-router'
 import { renderToString } from 'react-dom/server'
-import routes from '../../assets/js/routes';
+//import routes from '../../assets/js/routes';
 
 
 export default function(renderProps){
     let req = this.req;
     let res = this.res;
     let location = createLocation(req.url)
+    // TODO, implement
     res.render('content.ejs', { reactOutput: null, data: JSON.stringify({login: {loggedIn: req.isAuthenticated()}}),  _layoutFile: 'layout.ejs'});
     return;
 

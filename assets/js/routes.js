@@ -7,26 +7,34 @@ import Users from './components/users';
 import Roles from './components/roles';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
-//import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
+import Login from './components/login';
+import SignUp from './components/signup';
 import { Provider } from 'react-redux';
-
-
 import configureStore from './store';
-
 const store = configureStore();
-export default <Provider store={store}>
-            <Router>
+
+import { ReduxRouter } from 'redux-router';
+
+
+
+export default class Root extends React.Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <ReduxRouter>
                 <Route component={ App }>
-                    <Route path="/" component={ Landing }  />
-                    <Route path="home" component={ Home }  />
-                    <Route path="users" component={ Users }  />
-                    <Route path="roles" component={ Roles }  />
-                    <Route path="user/edit/:id" edit={true} component={ Account }  />
-                    <Route path="user/set_password" edit={true} component={ SetPassword }  />
-                    <Route path="user/create" component={ Account }  />
+                <Route path="login" component={ Login }  />
+                <Route path="signup" component={ SignUp }  />
+                <Route path="/" component={ Landing }  />
+                <Route path="home" component={ Home }  />
+                <Route path="users" component={ Users }  />
+                <Route path="roles" component={ Roles }  />
+                <Route path="user/edit/:id" edit={true} component={ Account }  />
+                <Route path="user/set_password" edit={true} component={ SetPassword }  />
+                <Route path="user/create" component={ Account }  />
                 </Route>
-            </Router>
+            </ReduxRouter>
         </Provider>
-
-
-
+    );
+  }
+}

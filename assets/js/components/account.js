@@ -8,7 +8,7 @@ import { connectReduxForm } from 'redux-form';
 import { initialize } from 'redux-form';
 import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
-
+import AuthenticatedComponent from  './authenticated';
 
 function* objectValues(obj) {
   for (let prop of Object.keys(obj)) {
@@ -32,6 +32,7 @@ function fieldExistence(form){
   fields: ['email', 'username'],
   //validate: fieldExistence
 })
+@AuthenticatedComponent
 export default class AccountForm extends React.Component {
     submit(e){
         e.preventDefault();

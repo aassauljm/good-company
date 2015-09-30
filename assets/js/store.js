@@ -90,11 +90,14 @@ try{
 
 const loggerMiddleware = createLogger();
 
-const createStoreWithMiddleware = applyMiddleware(
+const createStoreWithMiddleware = compose(
+applyMiddleware(
   thunkMiddleware,
   loggerMiddleware,
-  callAPIMiddleware
+  callAPIMiddleware),
+   reduxReactRouter({ createHistory })
 )(createStore);
+
 
 export default function configureStore(initialState=data) {
   return createStoreWithMiddleware(appReducer, initialState);

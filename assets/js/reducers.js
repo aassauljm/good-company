@@ -9,7 +9,7 @@ import {
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE
      } from './actions'
 import { reducer as formReducer } from 'redux-form';
-
+import { routerStateReducer } from 'redux-router';
 
 const initialState = {
 
@@ -106,7 +106,7 @@ const forms = formReducer.plugin({
         case RESOURCE_UPDATE_FAILURE:
         case RESOURCE_DELETE_FAILURE:
             const err = action.response.invalidAttributes || {};
-           return mergeErrors(state, error);
+           return mergeErrors(state, err);
 
         default:
           return state;
@@ -136,7 +136,8 @@ const appReducer = combineReducers({
   login,
   userInfo,
   resources,
-  form: forms
+  form: forms,
+  router: routerStateReducer
 });
 
 

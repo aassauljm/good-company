@@ -45,6 +45,7 @@ module.exports = function notFound (data, options) {
     return res.jsonx(data);
   }
 
+
   // If second argument is a string, we take that to mean it refers to a view.
   // If it was omitted, use an empty object (`{}`)
   options = (typeof options === 'string') ? { view: options } : options || {};
@@ -56,6 +57,9 @@ module.exports = function notFound (data, options) {
     return res.view(options.view, { data: data });
   }
 
+    if (!req.path.match('^/api')) {
+        return require('../policies/passport')(req, res, function(){ res.renderRoute() });
+    }
   // If no second argument provided, try to serve the default view,
   // but fall back to sending JSON(P) if any errors occur.
   else return res.view('404', { data: data }, function (err, html) {

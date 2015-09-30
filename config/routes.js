@@ -47,9 +47,11 @@ module.exports.routes = {
     action: 'setPassword'
   },
 
-    UserController: {
-    'create': true
-  }
+  UserController: {
+        'create': true
+  },
+
+
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

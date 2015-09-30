@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import {connectReduxForm} from 'redux-form';
 import { Link } from 'react-router';
 import { pushState, replaceState } from 'redux-router';
-
+import { fieldStyle } from '../utils';
 
 @connectReduxForm({
   form: 'login',
@@ -19,7 +19,7 @@ export default class LoginForm extends React.Component {
         this.props.submit({
             identifier: this.refs.email.getValue(),
             password: this.refs.password.getValue()
-       });
+        });
     }
 
     render() {
@@ -27,9 +27,10 @@ export default class LoginForm extends React.Component {
          return  <form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
             { this.props.error ?    <div className="alert alert-danger" role="alert">{this.props.error }</div> : null }
             <Input type="text" ref="email" {...email} label="Email" />
+            <Input type="text" ref="username" {...email} label="Username" />
             <Input type="password" ref="password" {...password} label="Password"  />
-            <ButtonInput type='submit' value='Sign In' />
-            <Link activeClassName="active" className="nav-link" to={'/signup'}>Sign Up</Link>
+            <Input type="password" ref="repeatPassword" {...password} label="Repeat Password"  />
+            <ButtonInput type='submit' value='Sign Up' />
         </form>
     }
 }

@@ -24,9 +24,8 @@ function RoleAllows(roles = [], menu){
     }
 }
 
-
-@pureRender
-export default class Main extends React.Component {
+/** Can't be pure, because router Links use context to show active */
+export default class Header extends React.Component {
     users(){
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'users' )){
             return <li className="nav-item">
@@ -59,6 +58,22 @@ export default class Main extends React.Component {
         }
     }
 
+    showLogin(){
+        if(!this.props.loggedIn){
+            return <li className="nav-item">
+                <Link activeClassName="active" className="nav-link" to={"/login"}>Login</Link>
+            </li>;
+        }
+    }
+
+    showSignUp(){
+        if(!this.props.loggedIn){
+            return <li className="nav-item">
+                <Link activeClassName="active" className="nav-link" to={"/signup"}>Sign Up</Link>
+            </li>;
+        }
+    }
+
     showLogout(){
         return  this.props.loggedIn ? <li className="nav-item"><a className="nav-link" href="logout">Log out</a></li> : null;
     }
@@ -67,8 +82,10 @@ export default class Main extends React.Component {
         return  <Navbar brand='Title' className="navbar-dark bg-inverse navbar-static-top ">
                 {this.showMenus() }
                 <Nav pullRight={true}>
-                { this.props.loggedIn ? this.showAccount() : null}
-                { this.props.loggedIn ? this.showLogout() : null}
+                { this.showAccount() }
+                { this.showLogout() }
+                { this.showLogin() }
+                { this.showSignUp() }
                 </Nav>
             </Navbar>
 

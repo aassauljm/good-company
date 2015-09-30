@@ -40,8 +40,8 @@ module.exports.policies = {
     },
     UserController: {
         'setPassword': [
-        'passport',
-        'SelfPolicy'
+            'passport',
+            'SelfPolicy'
         ]
     }
 
