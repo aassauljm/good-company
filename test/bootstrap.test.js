@@ -23,7 +23,8 @@ before(function(done) {
             grunt: false,
              sockets: false,
              pubsub: false
-        }
+        },
+        babel: {stage: 0}
     }, function(err, server) {
         if (err) return done(err);
         sails = server;
