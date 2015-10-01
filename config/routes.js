@@ -52,6 +52,16 @@ module.exports.routes = {
     action: 'signup'
   },
 
+   '/api/document/upload_document': {
+    controller: 'DocumentController',
+    action: 'uploadDocument'
+  },
+
+   '/api/document/get_document/:id': {
+    controller: 'DocumentController',
+    action: 'getDocument',
+    modelDefinition: 'document'
+  },
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

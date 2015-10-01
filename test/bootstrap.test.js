@@ -16,7 +16,7 @@ before(function(done) {
             level: 'error'
         },
         models: {
-            connection: 'test',
+            connection: 'localDiskDb',
             migrate: 'drop'
         },
         hooks:{

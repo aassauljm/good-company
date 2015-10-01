@@ -22,44 +22,39 @@ module.exports = {
             if (uploadedFiles.length === 0) {
                 return res.badRequest('No file was uploaded');
             }
-            // TODO, validate matter
             fs.readFileAsync(uploadedFiles[0].fd, 'binary')
                 .then(function(file){
-                    Document.create({
-                        matter: req.allParams().matter,
-                        name: uploadedFiles[0].filename,
-                        data: file,
-                        uploader: req.user.id,
-                        pending: req.user.accountType === 'client'
-                    })
-                    .exec(function(err, newInstance) {
-                        if (err) return res.negotiate(err);
-
-                        // If we have the pubsub hook, use the model class's publish method
-                        // to notify all subscribers about the created item
-                        if (req._sails.hooks.pubsub) {
-                            if (req.isSocket) {
-                                Document.subscribe(req, newInstance);
-                                Document.introduce(newInstance);
-                            }
-                            Document.publishCreate(newInstance.toJSON(), !req.options.mirror && req);
+                    let doc;
+                    return Document.create({
+                        filename: uploadedFiles[0].filename,
+                        createdBy: req.user.id,
+                        documentData: {
+                             data: file,
                         }
+                    })
+                })
+                .then(function(newInstance){
+                    // If we have the pubsub hook, use the model class's publish method
+                    // to notify all subscribers about the created item
+                    if (req._sails.hooks.pubsub) {
+                        if (req.isSocket) {
+                            Document.subscribe(req, newInstance);
+                            Document.introduce(newInstance);
+                        }
+                        Document.publishCreate(newInstance.toJSON(), !req.options.mirror && req);
+                    }
 
-                        // Send JSONP-friendly response if it's supported
-                        res.created(newInstance);
-                    });
-            })
+                    res.created(newInstance);
+                })
         });
     },
     getDocument: function(req, res){
-        req.validate({
-            id: 'string'
-        });
         Document.findOne(req.param('id'))
+            .populate('documentData')
             .then(function(doc){
                 if (!doc) return res.notFound();
-                res.attachment(doc.name)
-                res.write(new Buffer(doc.data));
+                res.attachment(doc.filename)
+                res.write(new Buffer(doc.documentData.data));
                 res.end();
             })
             .catch(function(err){

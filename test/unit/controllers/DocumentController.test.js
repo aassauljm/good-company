@@ -15,31 +15,18 @@ function binaryParser(res, callback) {
 
 describe('DocumentController', function() {
 
-    var req, matter_id, document_id, client_id;
-    /*it('should login successfully', function(done) {
+    var req, document_id, client_id;
+    it('should login successfully', function(done) {
         req = request.agent(sails.hooks.http.app);
         req
             .post('/auth/local')
-            .type('form')
-            .field('email', 'documentuploader@email.com')
-            .field('password', 'testtest')
+            .send({'identifier': 'documentuploader@email.com', 'password': 'testtest'})
             .expect(200, done)
     });
-    it('should get id of client', function(done){
+
+    it('should upload document', function(done) {
         req
-            .get('/user')
-            .expect(200)
-            .then(function(res){
-                client_id = res.body.filter(function(user){
-                    return user.email === "documentclient@email.com"
-                })[0].id;
-                done();
-            })
-    });
-    it('should attach document to matter', function(done) {
-        req
-            .post('/document/uploadDocument')
-            .field('matter', matter_id)
+            .post('/api/document/upload_document')
             .attach('document', 'test/fixtures/pdf-sample.pdf')
             .expect(201)
             .then(function(res){
@@ -47,6 +34,22 @@ describe('DocumentController', function() {
                 done();
             });
     });
+    it('should get document', function(done) {
+        req
+            .post('/api/document/get_document/'+document_id)
+            .expect(200)
+            .expect('Content-Type', 'application/pdf')
+            .expect('Content-Disposition', 'attachment; filename="pdf-sample.pdf"')
+            .parse(binaryParser)
+            .then(function(res){
+                fs.readFileAsync('test/fixtures/pdf-sample.pdf', 'binary')
+                .then(function(f){
+                    JSON.stringify(res.body).should.be.eql(JSON.stringify(Buffer(f)));
+                    done();
+                });
+            });
+    });
+    /*
     it('should download file and confirm', function(done) {
         req
             .get('/document/getDocument')

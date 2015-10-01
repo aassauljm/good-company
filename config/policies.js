@@ -44,6 +44,12 @@ module.exports.policies = {
             'sessionAuth'],
         'signup': true,
         'userInfo': ['passport','sessionAuth']
+    },
+    DocumentController: {
+        '*': false,
+        'uploadDocument': ['passport','sessionAuth'],
+        'getDocument': ['passport','sessionAuth', 'OwnerPolicy'],
+
     }
 
     /***************************************************************************

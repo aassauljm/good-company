@@ -6,20 +6,27 @@
 */
 
 module.exports = {
+      _config: {
+        actions: false,
+        shortcuts: false,
+        rest: false
+      },
     attributes: {
-        name: {
+        filename: {
             type: 'string',
             required: true,
-        },
-        data: {
-            type: 'binary',
-            required: true
         },
         owner: {
             model: 'user'
         },
         createdBy: {
             model: 'user'
+        },
+        documentData: {
+            model: 'documentData'
+        },
+        directory: {
+            model: 'documentDirectory'
         }
     },
     toJSON: function() {

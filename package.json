@@ -39,6 +39,7 @@
     "webpack-dev-server": "^1.11.0"
   },
   "dependencies": {
+    "pdf-image": "^1.0.01",
     "babel": "^5.8.23",
     "babel-plugin-typecheck": "^1.2.0",
     "bcrypt": "^0.8.5",

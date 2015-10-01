@@ -1,4 +1,5 @@
 [
 {"id": 10, "username": "test-user", "email": "test@email.com"},
-{"id": 11, "username": "test-user-2", "email": "testacular@email.com"}
+{"id": 11, "username": "test-user-2", "email": "testacular@email.com"},
+{"id": 12, "username": "document-uploader", "email": "documentuploader@email.com"}
 ]
