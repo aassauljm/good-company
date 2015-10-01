@@ -1,33 +1,45 @@
 "use strict"
 import React from 'react'
 import createLocation from 'history/lib/createLocation'
-import { RoutingContext, match } from 'react-router'
-import { renderToString } from 'react-dom/server'
-//import routes from '../../assets/js/routes';
+import {renderToString } from 'react-dom/server'
+import routes from '../../assets/js/routes';
+import configureStore from '../../assets/js/serverStore';
+import { match } from 'redux-router/server';
+import { Provider } from 'react-redux';
 
 
-export default function(renderProps){
+export default function(renderProps) {
     let req = this.req;
     let res = this.res;
-    let location = createLocation(req.url)
-    // TODO, implement
-    res.render('content.ejs', { reactOutput: null, data: JSON.stringify({login: {loggedIn: req.isAuthenticated()}}),  _layoutFile: 'layout.ejs'});
-    return;
-
-    match({ routes, location }, (error, redirectLocation, renderProps) => {
-        if (redirectLocation){
-            res.redirect(301, redirectLocation.pathname + redirectLocation.search)
-        }
-        else if (error){
+   //let location = createLocation(req.url)
+    const state = {login: {loggedIn: req.isAuthenticated()}};
+    const store = configureStore(state);
+    store.dispatch(match(req.url, (error, redirectLocation, routerState) => {
+        if (error) {
             res.send(500, error.message)
         }
-        else if (renderProps == null){
-            res.send(404, 'Not found')
+
+        if (redirectLocation) {
+            res.redirect(301, redirectLocation.pathname + redirectLocation.search)
         }
-        else{
-            let output = null;
-            //output = renderToString(<RoutingContext {...renderProps}/>);
-            res.render('content.ejs', { reactOutput: output, data: JSON.stringify({login: {loggedIn: req.isAuthenticated()}}),  _layoutFile: 'layout.ejs'});
+
+        if (!routerState) {
+            //res.send(404, 'Not found')
         }
-    })
+
+        class Root extends React.Component {
+          render() {
+            return (
+              <Provider store={store}>
+                { routes }
+                </Provider>
+            );
+          }
+        }
+
+        const output = renderToString(<Root/>);
+        res.render('content.ejs', { reactOutput: output, data: JSON.stringify(state),  _layoutFile: 'layout.ejs'});
+
+
+    }));
 }

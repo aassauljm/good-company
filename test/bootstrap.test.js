@@ -1,7 +1,3 @@
-require("babel/register")({
-  stage: 0,
-  plugins: ["typecheck"]
-});
 var Sails = require('sails');
 var Promise = require("bluebird");
 var Barrels = require("barrels");
@@ -17,7 +13,7 @@ before(function(done) {
 
     Sails.lift({
         log: {
-            level: 'info'
+            level: 'error'
         },
         models: {
             connection: 'test',

@@ -1,12 +1,12 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
 import createHistory from 'history/lib/createBrowserHistory';
-import { reduxReactRouter } from 'redux-router';
+import { reduxReactRouter } from 'redux-router/server';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { stopSubmit } from 'redux-form/lib/actions';
 import { callAPIMiddleware } from './middleware';
-
+import routes from './routes'
 let data;
 
 try{
@@ -17,13 +17,11 @@ try{
 
 
 const loggerMiddleware = createLogger();
-
 const createStoreWithMiddleware = compose(
 applyMiddleware(
   thunkMiddleware,
-  loggerMiddleware,
   callAPIMiddleware),
-   reduxReactRouter({ createHistory })
+   reduxReactRouter({ routes })
 )(createStore);
 
 

@@ -9,19 +9,10 @@ import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
 import SignUp from './components/signup';
-import { Provider } from 'react-redux';
-import configureStore from './store';
-const store = configureStore();
 
 import { ReduxRouter } from 'redux-router';
 
-
-
-export default class Root extends React.Component {
-  render() {
-    return (
-      <Provider store={store}>
-        <ReduxRouter>
+const routes = (<ReduxRouter>
                 <Route component={ App }>
                 <Route path="login" component={ Login }  />
                 <Route path="signup" component={ SignUp }  />
@@ -33,8 +24,7 @@ export default class Root extends React.Component {
                 <Route path="user/set_password" edit={true} component={ SetPassword }  />
                 <Route path="user/create" component={ Account }  />
                 </Route>
-            </ReduxRouter>
-        </Provider>
-    );
-  }
-}
+            </ReduxRouter>);
+
+
+export default routes;
