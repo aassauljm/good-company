@@ -98,6 +98,7 @@ const urls = {
 }
 
 export function requestResource(resource, form) {
+    console.log('/api' + (urls[resource] || resource))
     return {
         types: [RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {

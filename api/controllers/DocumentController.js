@@ -25,7 +25,7 @@ function readBinary(sails, fd){
 
 
 function makePreview(sails, fd, type){
-    var pdfImage = new PDFImage(fd, {size: 'x128'});
+    var pdfImage = new PDFImage(fd, {convertOptions: {'-resize': '256x'}});
     return pdfImage.convertPage(0)
         .then(function(fd){
             return readBinary(sails, fd);

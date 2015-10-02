@@ -5,6 +5,7 @@ import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { ButtonInput } from 'react-bootstrap';
 import AuthenticatedComponent from  './authenticated';
+import { Link } from 'react-router'
 
 @connect(state => state.resources.documents)
 @AuthenticatedComponent
@@ -27,11 +28,12 @@ export default class Users extends React.Component {
     render() {
         let fields = ['id', 'filename', 'type', 'createdAt', 'updatedAt'];
         return <table className="table">
-        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th></tr></thead>
+        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th><th></th></tr></thead>
         <tbody>
         {this.props.data ? this.props.data.map(
             (row, i) => <tr key={i}>
                 { fields.map(f => <td key={f}>{row[f]}</td>) }
+                <td><Link activeClassName="active" className="nav-link" to={"/document/view/"+row.id} >View</Link></td>
                 <td><a href="#" type='button' value='Delete' onClick={this.submit.bind(this, row.id)}  >Delete</a></td>
             </tr>)
 

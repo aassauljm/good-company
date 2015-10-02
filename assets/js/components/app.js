@@ -24,7 +24,10 @@ export default class App extends React.Component {
     onDrop(files){
         let form = new FormData()
         form.append('document', files[0], files[0].name)
-        this.props.dispatch(createResource('/document/upload_document', form, null, false));
+        this.props.dispatch(createResource('/document/upload_document', form, null, false))
+            .then(function(){
+                // show upload notification
+            })
     }
 
     render() {

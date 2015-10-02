@@ -3,7 +3,6 @@ module.exports = function (sails) {
   return {
     initialize: function (next) {
       sails.log.info('Initializing fixtures');
-
       sails.after('hook:permissions:loaded', function () {
         return initializeFixtures(sails)
           .then(function () {

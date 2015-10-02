@@ -8,8 +8,32 @@ var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 
 _.merge(exports, _super);
 _.merge(exports, {
-
+    autoCreateBy: true,
   // Extend with custom logic here by adding additional fields, methods, etc.
+    username: {
+      type: 'string',
+      unique: true,
+      index: true,
+      notNull: true
+    },
+    email: {
+      type: 'email',
+      unique: true,
+      index: true
+    },
+    passports: {
+      collection: 'Passport',
+      via: 'user'
+    },
+    roles: {
+      collection: 'Role',
+      via: 'users',
+      dominant: true
+    },
+    permissions: {
+      collection: "Permission",
+      via: "user"
+    },
 
     userInfo: function(req, res){
         User.findOne({id: req.user.id})

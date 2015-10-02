@@ -1,4 +1,5 @@
 {
+    "log": {"level": "silly"},
   "generators": {
     "modules": {
       "permissions-api": "sails-permissions/generator"
@@ -8,5 +9,8 @@
   },
   "babel": {
     "stage": 0
+  },
+  "models":{
+    "migrate": "alter"
   }
 }
