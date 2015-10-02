@@ -46,10 +46,11 @@ module.exports.policies = {
     DocumentController: {
         '*': false,
         'find': ['passport','sessionAuth', 'OwnerPolicy'],
-        'delete':  ['passport','sessionAuth'],
-        'update':  ['passport','sessionAuth'],
+        'delete':  ['passport','sessionAuth', 'OwnerPolicy'],
+        'update':  ['passport','sessionAuth', 'OwnerPolicy'],
         'uploadDocument': ['passport','sessionAuth'],
         'getDocument': ['passport','sessionAuth', 'OwnerPolicy'],
+        'getDocumentPreview': ['passport','sessionAuth', 'OwnerPolicy'],
 
     }
 

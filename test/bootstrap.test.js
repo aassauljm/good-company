@@ -13,7 +13,7 @@ before(function(done) {
 
     Sails.lift({
         log: {
-            level: 'error'
+            level: 'info'
         },
         models: {
             connection: 'memory_test',

@@ -7,11 +7,30 @@
 
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
+var PDFImage = require("pdf-image").PDFImage;
 
 function hexEncode(sails){
-    return sails.config.models.connection.indexOf('pg_') === 0 ;
+    return sails.config.models.connection.indexOf('pg') === 0 ;
 }
 
+function readBinary(sails, fd){
+    return fs.readFileAsync(fd, hexEncode(sails) ? 'hex' : 'binary')
+    .then(function(file){
+        if(hexEncode(sails)){
+            file = '\\x' + file;
+        }
+        return file;
+    })
+}
+
+
+function makePreview(sails, fd, type){
+    var pdfImage = new PDFImage(fd, {size: 'x128'});
+    return pdfImage.convertPage(0)
+        .then(function(fd){
+            return readBinary(sails, fd);
+        });
+}
 
 module.exports = {
     uploadDocument: function(req, res) {
@@ -28,19 +47,20 @@ module.exports = {
                 return res.badRequest('No file was uploaded');
             }
 
-            console.log(sails.config.models)
-            fs.readFileAsync(uploadedFiles[0].fd, hexEncode(sails) ? 'hex' : 'binary')
-                .then(function(file){
+            var type = uploadedFiles[0].filename.split('.').pop();
+            Promise.join(readBinary(sails, uploadedFiles[0].fd),
+                        makePreview(sails, uploadedFiles[0].fd, type))
+                .spread(function(file, preview){
                     sails.log.debug('Uploaded, saving to db');
-                    if(hexEncode(sails)){
-                        file = '\\x' + file;
-                    }
                     return Document.create({
                         filename: uploadedFiles[0].filename,
                         createdBy: req.user.id,
-                        type: uploadedFiles[0].filename.split('.').pop(),
+                        type: type,
                         documentData: {
                              data: file,
+                        },
+                        documentPreview: {
+                            data: preview
                         }
                     })
                 })
@@ -55,9 +75,9 @@ module.exports = {
                         }
                         Document.publishCreate(newInstance.toJSON(), !req.options.mirror && req);
                     }
-
-                    res.created(newInstance);
+                    res.created({id: newInstance.id });
                 })
+
         });
     },
     getDocument: function(req, res){
@@ -72,6 +92,18 @@ module.exports = {
             .catch(function(err){
                return res.negotiate(err);
             })
-
+    },
+    getDocumentPreview: function(req, res){
+        Document.findOne(req.param('id'))
+            .populate('documentPreview')
+            .then(function(doc){
+                if (!doc) return res.notFound();
+                res.contentType('image/png');
+                res.write(new Buffer(doc.documentPreview.data, 'binary'));
+                res.end();
+            })
+            .catch(function(err){
+               return res.negotiate(err);
+            })
     }
 };

@@ -25,7 +25,6 @@ grantIfNeeded: function(permissions) {
       var findUser = permission.user ? User.findOne({
         username: permission.user
       }) : null;
-
       return Promise.all([findRole, findUser, Model.findOne({
           name: permission.model
         })])

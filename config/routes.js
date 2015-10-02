@@ -62,6 +62,12 @@ module.exports.routes = {
     action: 'getDocument',
     modelDefinition: 'document'
   },
+
+   '/api/document/get_document_preview/:id': {
+    controller: 'DocumentController',
+    action: 'getDocumentPreview',
+    modelDefinition: 'document'
+  },
    '/api/document': {
     controller: 'DocumentController',
     modelDefinition: 'document',

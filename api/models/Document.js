@@ -28,6 +28,9 @@ module.exports = {
         documentData: {
             model: 'documentData'
         },
+        documentPreview: {
+            model: 'documentData'
+        },
         directory: {
             model: 'documentDirectory'
         }

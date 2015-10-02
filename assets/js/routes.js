@@ -3,6 +3,7 @@ import React from 'react';
 import App from './components/app';
 import Landing from './components/landing';
 import Home from './components/home';
+import NotFound from './components/notFound';
 import Users from './components/users';
 import Roles from './components/roles';
 import Documents from './components/documents';
@@ -25,6 +26,7 @@ const routes = (<ReduxRouter>
                 <Route path="user/edit/:id" edit={true} component={ Account }  />
                 <Route path="user/set_password" edit={true} component={ SetPassword }  />
                 <Route path="user/create" component={ Account }  />
+                <Route path="*" component={ NotFound } />
                 </Route>
             </ReduxRouter>);
 

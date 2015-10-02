@@ -21,7 +21,7 @@ export default class Users extends React.Component {
 
     submit(id, e) {
         e.preventDefault();
-        this.props.dispatch(deleteResource('document/'+id));
+        this.props.dispatch(deleteResource('/document/'+id));
     }
 
     render() {

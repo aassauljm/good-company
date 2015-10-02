@@ -37,9 +37,7 @@ module.exports.connections = {
     host: 'localhost',
     user: 'josh',
     password: '',
-    database: 'users',
-
-    wlNext: { caseSensitive: true }
+    database: 'users'
   },
 
   pg_test: {
@@ -47,9 +45,7 @@ module.exports.connections = {
     host: 'localhost',
     user: 'josh',
     password: '',
-    database: 'test',
-
-    wlNext: { caseSensitive: true }
+    database: 'test'
   },
 
   memory_test: {
