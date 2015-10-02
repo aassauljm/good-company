@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import {requestResource, updateResource, createResource} from '../actions';
+import {requestResource, updateResource, createResource, addNotification} from '../actions';
 import { pureRender, objectValues } from '../utils';
 import { connect } from 'react-redux';
 import { Input, ButtonInput, Container, Button } from 'react-bootstrap';
@@ -85,10 +85,12 @@ export default class Account extends React.Component {
 
     submit(data) {
         if(this.props.route.edit){
-            this.props.dispatch(updateResource('/user/'+this.key(), data, 'account'));
+            this.props.dispatch(updateResource('/user/'+this.key(), data, 'account'))
+                .then(() => this.props.dispatch(addNotification({message: 'Account Updated'})))
         }
         else{
-            this.props.dispatch(createResource('/user', data, 'account'));
+            this.props.dispatch(createResource('/user', data, 'account'))
+                .then(() => this.props.dispatch(addNotification({message: 'Account Created'})))
         }
     }
 

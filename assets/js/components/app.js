@@ -1,4 +1,3 @@
-import { Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import Header from './header';
 import Login from './login';
@@ -8,9 +7,10 @@ import { requestUserInfo } from '../actions';
 import { pushState, replaceState } from 'redux-router';
 import DropZone from 'react-dropzone';
 import { createResource } from '../actions'
+import Notifications from './notifications';
 
 
-@connect(state => state)
+@connect(state => { return {login: state.login, userInfo: state.userInfo} })
 export default class App extends React.Component {
 
     componentDidMount(){
@@ -37,7 +37,8 @@ export default class App extends React.Component {
             <div className="container">
                     { this.props.children }
              </div>
-                </DropZone>
+             <Notifications/>
+            </DropZone>
         </div>
     }
 }

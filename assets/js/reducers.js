@@ -7,7 +7,8 @@ import {
     RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE,
     RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE,
     RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE,
-    RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE
+    RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
+    ADD_NOTIFICATION, HIDE_NOTIFICATION
     //UPLOAD_FILE_REQUEST, UPLOAD_FILE_SUCCESS, UPLOAD_FILE_FAILURE
      } from './actions'
 import { reducer as formReducer } from 'redux-form';
@@ -51,6 +52,17 @@ function userInfo(state = {}, action){
     }
 }
 
+function notifications(state = {list: []}, action){
+    switch(action.type){
+        case ADD_NOTIFICATION:
+            return {...state, ...{list: [...state.list, action.data]}};
+        case HIDE_NOTIFICATION:
+            state.list.splice(action.index);
+            return {...state, ...[...state.list]};
+        default:
+            return state;
+    }
+}
 const default_resources = {users: {}, roles: {}, documents: {}}
 
 function resources(state = default_resources, action){
@@ -117,7 +129,7 @@ function processResource(state, action){
 }
 
 
-const forms = formReducer.plugin({
+const form = formReducer.plugin({
     account: (state, action) => {
       if (action.form !== 'account'){
         return state;
@@ -160,7 +172,8 @@ const appReducer = combineReducers({
   login,
   userInfo,
   resources,
-  form: forms,
+  form,
+  notifications,
   router: routerStateReducer
 });
 

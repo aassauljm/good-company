@@ -34,6 +34,9 @@ export const RESOURCE_DELETE_SUCCESS = 'RESOURCE_DELETE_SUCCESS';
 export const RESOURCE_DELETE_FAILURE = 'RESOURCE_DELETE_FAILURE';
 
 
+export const ADD_NOTIFICATION = 'ADD_NOTIFICATION';
+export const HIDE_NOTIFICATION = 'HIDE_NOTIFICATION';
+
 const json_headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -42,6 +45,13 @@ const accept_json_headers = {
     'Accept': 'application/json'
 };
 
+export function addNotification(data){
+    return {type: ADD_NOTIFICATION, data};
+}
+
+export function hideNotification(data){
+    return {type: HIDE_NOTIFICATION, data};
+}
 
 export function requestLogin(credentials) {
     return {
@@ -54,21 +64,8 @@ export function requestLogin(credentials) {
         })
     };
 }
-/*
-export function requestFileUpload(files) {
-    return {
-        types: [UPLOAD_FILE_REQUEST, UPLOAD_FILE_SUCCESS, UPLOAD_FILE_FAILURE],
-        callAPI: () => fetch('/api/documents/upload', {
-            method: 'POST',
-            headers: json_headers,
-            credentials: 'same-origin',
-            body: JSON.stringify(files)
-        })
-    };
-}
-*/
+
 export function setPassword(data) {
-    console.log(data)
     return {
         types: [SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE],
         callAPI: () => fetch('/api/set_password', {
