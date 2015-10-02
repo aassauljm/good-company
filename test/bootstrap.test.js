@@ -16,15 +16,17 @@ before(function(done) {
             level: 'error'
         },
         models: {
-            connection: 'localDiskDb',
+            connection: 'memory_test',
             migrate: 'drop'
         },
         hooks:{
             grunt: false,
              sockets: false,
-             pubsub: false
+             pubsub: false,
+             permissions: false
         },
-        babel: {stage: 0}
+        babel: {stage: 0},
+        test: true
     }, function(err, server) {
         if (err) return done(err);
         sails = server;

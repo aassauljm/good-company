@@ -12,6 +12,7 @@ _.extend(PermissionService.prototype, {
   // Extend with custom logic here by adding additional fields and methods,
   // and/or overriding methods in the superclass.
 grantIfNeeded: function(permissions) {
+
     if (!_.isArray(permissions)) {
       permissions = [permissions];
     }
@@ -24,6 +25,7 @@ grantIfNeeded: function(permissions) {
       var findUser = permission.user ? User.findOne({
         username: permission.user
       }) : null;
+
       return Promise.all([findRole, findUser, Model.findOne({
           name: permission.model
         })])

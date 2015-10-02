@@ -5,9 +5,9 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 
 /*
-export const SIGNUP_REQUEST = 'SIGNUP_REQUEST';
-export const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
-export const SIGNUP_FAILURE = 'SIGNUP_FAILURE';
+export const UPLOAD_FILE_REQUEST = 'UPLOAD_FILE_REQUEST';
+export const UPLOAD_FILE_SUCCESS = 'UPLOAD_FILE_SUCCESS';
+export const UPLOAD_FILE_FAILURE = 'UPLOAD_FILE_FAILURE';
 */
 export const SET_PASSWORD_REQUEST = 'SET_PASSWORD_REQUEST';
 export const SET_PASSWORD_SUCCESS = 'SET_PASSWORD_SUCCESS';
@@ -38,6 +38,10 @@ const json_headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
 };
+const accept_json_headers = {
+    'Accept': 'application/json'
+};
+
 
 export function requestLogin(credentials) {
     return {
@@ -50,8 +54,19 @@ export function requestLogin(credentials) {
         })
     };
 }
-
-
+/*
+export function requestFileUpload(files) {
+    return {
+        types: [UPLOAD_FILE_REQUEST, UPLOAD_FILE_SUCCESS, UPLOAD_FILE_FAILURE],
+        callAPI: () => fetch('/api/documents/upload', {
+            method: 'POST',
+            headers: json_headers,
+            credentials: 'same-origin',
+            body: JSON.stringify(files)
+        })
+    };
+}
+*/
 export function setPassword(data) {
     console.log(data)
     return {
@@ -78,7 +93,8 @@ export function requestUserInfo() {
 
 const urls = {
     'users': '/user',
-    'roles': '/role'
+    'roles': '/role',
+    'documents': '/document',
 }
 
 export function requestResource(resource, form) {
@@ -93,13 +109,13 @@ export function requestResource(resource, form) {
     };
 }
 
-export function createResource(resource, data, form) {
+export function createResource(resource, data, form, stringify = true) {
     return {
         types: [RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
             method: 'POST',
-            headers: json_headers,
-            body: JSON.stringify(data),
+            headers: stringify ? json_headers : accept_json_headers,
+            body: stringify ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
         payload: {key: resource, form}

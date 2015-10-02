@@ -8,6 +8,7 @@ import {
     RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE,
     RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE,
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE
+    //UPLOAD_FILE_REQUEST, UPLOAD_FILE_SUCCESS, UPLOAD_FILE_FAILURE
      } from './actions'
 import { reducer as formReducer } from 'redux-form';
 import { routerStateReducer } from 'redux-router';
@@ -50,7 +51,7 @@ function userInfo(state = {}, action){
     }
 }
 
-const default_resources = {users: {}, roles: {}}
+const default_resources = {users: {}, roles: {}, documents: {}}
 
 function resources(state = default_resources, action){
     switch(action.type){

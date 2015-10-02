@@ -44,7 +44,7 @@ describe('DocumentController', function() {
             .then(function(res){
                 fs.readFileAsync('test/fixtures/pdf-sample.pdf', 'binary')
                 .then(function(f){
-                    JSON.stringify(res.body).should.be.eql(JSON.stringify(Buffer(f)));
+                    JSON.stringify(res.body).should.be.eql(JSON.stringify(new Buffer(f, 'binary')));
                     done();
                 });
             });

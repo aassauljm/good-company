@@ -9,7 +9,7 @@ module.exports = {
       _config: {
         actions: false,
         shortcuts: false,
-        rest: false
+        rest: true
       },
     attributes: {
         filename: {
@@ -18,6 +18,9 @@ module.exports = {
         },
         owner: {
             model: 'user'
+        },
+        type: {
+            type: 'string'
         },
         createdBy: {
             model: 'user'

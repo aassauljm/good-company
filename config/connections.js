@@ -28,7 +28,7 @@ module.exports.connections = {
   * Installed by default.                                                    *
   *                                                                          *
   ***************************************************************************/
-  localDiskDb: {
+  disk_test: {
     adapter: 'sails-disk'
   },
 
@@ -37,10 +37,24 @@ module.exports.connections = {
     host: 'localhost',
     user: 'josh',
     password: '',
-    database: 'users'
+    database: 'users',
+
+    wlNext: { caseSensitive: true }
   },
 
-  test: {
+  pg_test: {
+    adapter: 'sails-postgresql',
+    host: 'localhost',
+    user: 'josh',
+    password: '',
+    database: 'test',
+
+    wlNext: { caseSensitive: true }
+  },
+
+  memory_test: {
     adapter: 'sails-memory'
   }
+
+
 };

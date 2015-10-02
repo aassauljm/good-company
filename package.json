@@ -6,7 +6,7 @@
   "scripts": {
     "build-dev": "webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p",
-    "test": "istanbul cover _mocha -- --recursive test --compilers js:babel/register --timeout 10000"
+    "test": "istanbul cover _mocha -- --recursive test --compilers js:babel/register --timeout 30000"
   },
   "author": "",
   "license": "ISC",
@@ -39,7 +39,6 @@
     "webpack-dev-server": "^1.11.0"
   },
   "dependencies": {
-    "pdf-image": "^1.0.01",
     "babel": "^5.8.23",
     "babel-plugin-typecheck": "^1.2.0",
     "bcrypt": "^0.8.5",
@@ -50,23 +49,25 @@
     "history": "^1.9.1",
     "isomorphic-fetch": "^2.1.1",
     "lodash": "^3.10.1",
+    "pdf-image": "^1.0.01",
     "react": "^0.14.0-rc1",
     "react-addons-shallow-compare": "^0.14.0-rc1",
+    "react-bootstrap": "^0.25.100-react-pre.1",
     "react-dom": "^0.14.0-rc1",
+    "react-dropzone": "^2.1.0",
     "react-redux": "^3.0.1",
     "react-router": "^1.0.0-rc1",
     "redux": "^3.0.2",
     "redux-form": "^1.7.0",
     "redux-logger": "^2.0.0",
+    "redux-router": "^1.0.0-beta3",
     "redux-thunk": "^1.0.0",
     "sails": "~0.11.0",
     "sails-auth": "^2.0.0",
     "sails-disk": "~0.10.0",
+    "sails-hook-babel": "^5.0.1",
     "sails-hook-validation": "^0.4.1",
     "sails-permissions": "^1.4.4",
-    "sails-postgresql": "^0.10.16",
-    "react-bootstrap": "^0.25.100-react-pre.1",
-    "redux-router": "^1.0.0-beta3",
-    "sails-hook-babel": "^5.0.1"
+    "sails-postgresql": "^0.10.16"
   }
 }

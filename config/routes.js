@@ -62,6 +62,11 @@ module.exports.routes = {
     action: 'getDocument',
     modelDefinition: 'document'
   },
+   '/api/document': {
+    controller: 'DocumentController',
+    modelDefinition: 'document',
+    action: 'find'
+   }
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

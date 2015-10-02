@@ -12,9 +12,10 @@ function RoleAllows(roles = [], menu){
         "admin": {
             "users": true,
             "roles": true,
+            "documents": true
         },
         "registered": {
-
+            "documents": true
         }
     }
     for(let role of roles){
@@ -42,10 +43,19 @@ export default class Header extends React.Component {
             </li>;
         }
     }
+    documents(){
+        if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'documents' )){
+            return <li className="nav-item">
+                <Link activeClassName="active" className="nav-link" to="/documents">Documents
+                </Link>
+            </li>;
+        }
+    }
     showMenus(){
         return  <Nav>
             { this.users() }
             { this.roles() }
+            { this.documents() }
         </Nav>
     }
 

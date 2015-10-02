@@ -5,6 +5,7 @@ import Landing from './components/landing';
 import Home from './components/home';
 import Users from './components/users';
 import Roles from './components/roles';
+import Documents from './components/documents';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -20,6 +21,7 @@ const routes = (<ReduxRouter>
                 <Route path="home" component={ Home }  />
                 <Route path="users" component={ Users }  />
                 <Route path="roles" component={ Roles }  />
+                <Route path="documents" component={ Documents }  />
                 <Route path="user/edit/:id" edit={true} component={ Account }  />
                 <Route path="user/set_password" edit={true} component={ SetPassword }  />
                 <Route path="user/create" component={ Account }  />

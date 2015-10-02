@@ -8,6 +8,11 @@
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 
+function hexEncode(sails){
+    return sails.config.models.connection.indexOf('pg_') === 0 ;
+}
+
+
 module.exports = {
     uploadDocument: function(req, res) {
         req.file('document').upload({
@@ -22,18 +27,25 @@ module.exports = {
             if (uploadedFiles.length === 0) {
                 return res.badRequest('No file was uploaded');
             }
-            fs.readFileAsync(uploadedFiles[0].fd, 'binary')
+
+            console.log(sails.config.models)
+            fs.readFileAsync(uploadedFiles[0].fd, hexEncode(sails) ? 'hex' : 'binary')
                 .then(function(file){
-                    let doc;
+                    sails.log.debug('Uploaded, saving to db');
+                    if(hexEncode(sails)){
+                        file = '\\x' + file;
+                    }
                     return Document.create({
                         filename: uploadedFiles[0].filename,
                         createdBy: req.user.id,
+                        type: uploadedFiles[0].filename.split('.').pop(),
                         documentData: {
                              data: file,
                         }
                     })
                 })
                 .then(function(newInstance){
+                    sails.log.debug('Saved to db');
                     // If we have the pubsub hook, use the model class's publish method
                     // to notify all subscribers about the created item
                     if (req._sails.hooks.pubsub) {
@@ -54,7 +66,7 @@ module.exports = {
             .then(function(doc){
                 if (!doc) return res.notFound();
                 res.attachment(doc.filename)
-                res.write(new Buffer(doc.documentData.data));
+                res.write(new Buffer(doc.documentData.data, 'binary'));
                 res.end();
             })
             .catch(function(err){

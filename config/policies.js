@@ -39,14 +39,15 @@ module.exports.policies = {
         '*': ['passport']
     },
     UserController: {
-        'setPassword': [
-            'passport',
-            'sessionAuth'],
+        'setPassword': ['passport', 'sessionAuth'],
         'signup': true,
         'userInfo': ['passport','sessionAuth']
     },
     DocumentController: {
         '*': false,
+        'find': ['passport','sessionAuth', 'OwnerPolicy'],
+        'delete':  ['passport','sessionAuth'],
+        'update':  ['passport','sessionAuth'],
         'uploadDocument': ['passport','sessionAuth'],
         'getDocument': ['passport','sessionAuth', 'OwnerPolicy'],
 
