@@ -68,3 +68,12 @@ nav.navbar{
         height: 100%;
     }
 }
+
+.notifications-leave {
+  opacity: 1;
+}
+
+.notifications-leave.notifications-leave-active {
+  opacity: 0.01;
+  transition: opacity .2s ease-in;
+}

@@ -55,10 +55,10 @@ function userInfo(state = {}, action){
 function notifications(state = {list: []}, action){
     switch(action.type){
         case ADD_NOTIFICATION:
-            return {...state, ...{list: [...state.list, action.data]}};
+            return {...state, list: [...state.list, action.data]};
         case HIDE_NOTIFICATION:
             state.list.splice(action.index);
-            return {...state, ...[...state.list]};
+            return {...state, list: state.list.slice()};
         default:
             return state;
     }
