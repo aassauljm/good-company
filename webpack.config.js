@@ -1,4 +1,8 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var webpack = require('webpack')
+var definePlugin = new webpack.DefinePlugin({
+  __DEV__: process.env.NODE_ENV!=='production'
+});
 
 module.exports = {
     cache: true,
@@ -32,7 +36,9 @@ module.exports = {
         }],
     },
     plugins: [
+        definePlugin,
         // extract inline css into separate 'styles.css'
-        new ExtractTextPlugin('../css/styles.css')
+        new ExtractTextPlugin('../css/styles.css'),
+        new webpack.optimize.DedupePlugin()
     ]
 }

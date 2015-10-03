@@ -3,7 +3,6 @@ import React from 'react';
 import {requestResource, deleteResource} from '../actions';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
-import { ButtonInput } from 'react-bootstrap';
 import { Link } from 'react-router';
 import AuthenticatedComponent from  './authenticated';
 

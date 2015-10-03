@@ -2,7 +2,6 @@
 import React from 'react'
 import { pureRender }  from '../utils';
 import Router from 'react-router'
-import { Navbar, Nav, NavItem,  DropdownButton, MenuItem} from 'react-bootstrap';
 import { Link } from 'react-router';
 import Actions from '../actions';
 
@@ -52,11 +51,11 @@ export default class Header extends React.Component {
         }
     }
     showMenus(){
-        return  <Nav>
+        return   <ul className="nav navbar-nav">
             { this.users() }
             { this.roles() }
             { this.documents() }
-        </Nav>
+        </ul>
     }
 
     showAccount(){
@@ -89,15 +88,18 @@ export default class Header extends React.Component {
     }
 
     render() {
-        return  <Navbar brand='Title' className="navbar-dark bg-inverse navbar-static-top ">
+        return  <nav className="navbar-dark bg-inverse navbar-static-top  navbar navbar-default">
+            <div className="container">
+                <a className="navbar-brand" href="#">Title</a>
                 {this.showMenus() }
-                <Nav pullRight={true}>
+                <ul className="nav navbar-nav pull-right">
                 { this.showAccount() }
                 { this.showLogout() }
                 { this.showLogin() }
                 { this.showSignUp() }
-                </Nav>
-            </Navbar>
+                </ul>
+                </div>
+            </nav>
 
     }
 }

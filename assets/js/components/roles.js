@@ -3,7 +3,7 @@ import React from 'react';
 import {requestResource, deleteResource} from '../actions';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
-import { ButtonInput } from 'react-bootstrap';
+import ButtonInput from './forms/buttonInput';
 import AuthenticatedComponent from  './authenticated';
 
 @connect(state => state.resources.roles)

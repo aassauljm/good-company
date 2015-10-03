@@ -1,3 +1,4 @@
+"use strict";
 import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
 import createHistory from 'history/lib/createBrowserHistory';
@@ -6,6 +7,22 @@ import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { stopSubmit } from 'redux-form/lib/actions';
 import { callAPIMiddleware } from './middleware';
+
+let middleware;
+
+
+if(__DEV__){
+    const loggerMiddleware = createLogger();
+    middleware = applyMiddleware(
+          thunkMiddleware,
+          loggerMiddleware,
+          callAPIMiddleware)
+}
+else{
+    middleware = applyMiddleware(
+          thunkMiddleware,
+          callAPIMiddleware)
+}
 
 let data;
 
@@ -16,14 +33,8 @@ try{
 }
 
 
-const loggerMiddleware = createLogger();
 
-const createStoreWithMiddleware = compose(
-applyMiddleware(
-  thunkMiddleware,
-  loggerMiddleware,
-  callAPIMiddleware),
-   reduxReactRouter({ createHistory })
+const createStoreWithMiddleware = compose(middleware,reduxReactRouter({ createHistory })
 )(createStore);
 
 

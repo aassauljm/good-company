@@ -4,7 +4,6 @@ import createHistory from 'history/lib/createBrowserHistory';
 import { reduxReactRouter } from 'redux-router/server';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
-import { stopSubmit } from 'redux-form/lib/actions';
 import { callAPIMiddleware } from './middleware';
 import routes from './routes'
 let data;

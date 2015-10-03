@@ -1,7 +1,8 @@
 "use strict";
 import React from 'react';
 import { pureRender } from '../utils';
-import { Input, ButtonInput, Container } from 'react-bootstrap';
+import Input from './forms/input';
+import ButtonInput from './forms/buttonInput';
 import { requestLogin } from '../actions';
 import { connect } from 'react-redux';
 import {connectReduxForm} from 'redux-form';

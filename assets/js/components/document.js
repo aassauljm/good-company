@@ -3,7 +3,6 @@ import React from 'react';
 import {requestResource, updateResource, createResource} from '../actions';
 import { pureRender, objectValues } from '../utils';
 import { connect } from 'react-redux';
-import { Input, ButtonInput, Container, Button } from 'react-bootstrap';
 import { connectReduxForm } from 'redux-form';
 import { initialize } from 'redux-form';
 import { Link } from 'react-router';
