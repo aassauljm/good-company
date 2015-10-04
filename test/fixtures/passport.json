@@ -13,5 +13,10 @@
     "protocol"    : "local",
     "password"    : "testtest",
     "user"        : 12
+  },
+    {
+    "protocol"    : "local",
+    "password"    : "testtest",
+    "user"        : 13
   }
 ]

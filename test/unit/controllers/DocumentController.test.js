@@ -36,7 +36,7 @@ describe('DocumentController', function() {
     });
     it('should get document', function(done) {
         req
-            .post('/api/document/get_document/'+document_id)
+            .get('/api/document/get_document/'+document_id)
             .expect(200)
             .expect('Content-Type', 'application/pdf')
             .expect('Content-Disposition', 'attachment; filename="pdf-sample.pdf"')
@@ -49,57 +49,49 @@ describe('DocumentController', function() {
                 });
             });
     });
-    /*
-    it('should download file and confirm', function(done) {
-        req
-            .get('/document/getDocument')
-            .query({'id': document_id, 'matter': matter_id})
-            .expect(200)
-            .expect('Content-Type', 'application/pdf')
-            .expect('Content-Disposition', 'attachment; filename="pdf-sample.pdf"')
-            .parse(binaryParser)
-            .then(function(res){
-                fs.readFileAsync('test/fixtures/pdf-sample.pdf', 'binary')
-                .then(function(f){
-                    JSON.stringify(res.body).should.be.eql(JSON.stringify(Buffer(f)));
-                    done();
-                });
-            });
-        });
     it('logs out and confirms file is inaccessible', function(done) {
         req
             .get('/logout')
-            .expect(200)
+            .expect(302)
             .then(function(){
                 return req
-                .get('/document/getDocument')
-                .query({'id': document_id, 'matter': matter_id})
+                .get('/api/document/get_document/'+document_id)
             })
-            .catch(function(res){
+            .then(function(res){
                 res.status.should.be.eql(403);
                 done();
             })
     });
-    it('logs in as client and confirms file is accessible', function(done) {
+
+    it('should login with other account and fail to get document', function(done) {
         req
             .post('/auth/local')
-            .type('form')
-            .field('email', 'documentclient@email.com')
-            .field('password', 'testtest')
+            .send({'identifier': 'documentstealer@email.com', 'password': 'testtest'})
             .expect(200)
             .then(function(){
                 return req
-                    .get('/document/getDocument')
-                    .query({'id': document_id, 'matter': matter_id})
-                    .expect(200)
+                .get('/api/document/get_document/'+document_id)
             })
-            .then(function(){
-                return req.get('/logout')
+            .then(function(res){
+                res.status.should.be.eql(403);
+                done();
             })
+
+    });
+
+    it('relogs in as client and reconfirms file is accessible', function(done) {
+        req
+            .post('/auth/local')
+            .send({'identifier': 'documentuploader@email.com', 'password': 'testtest'})
+            .expect(200)
             .then(function(){
+                return req.get('/api/document/get_document/'+document_id)
+                     .expect(200)
+            }).then(function(){
                 done();
             })
     });
+    /*
     it('logs in as non client and confirms file is inaccessible', function(done) {
         req
             .post('/auth/local')

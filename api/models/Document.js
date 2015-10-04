@@ -39,5 +39,5 @@ module.exports = {
         var obj = this.toObject();
         delete obj.data;
         return obj;
-    },
+    }
 };

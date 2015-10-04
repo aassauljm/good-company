@@ -55,6 +55,7 @@ module.exports = {
                     return Document.create({
                         filename: uploadedFiles[0].filename,
                         createdBy: req.user.id,
+                        owner: req.user.id,
                         type: type,
                         documentData: {
                              data: file,

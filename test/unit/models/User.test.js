@@ -4,7 +4,7 @@ describe('Users Model', function() {
             User.find()
                 .then(function(users) {
                     users.length.should.not.be.eql(0);
-                    user = _.findWhere(users, {username: 'test-user'});
+                    var user = _.findWhere(users, {username: 'test-user'});
                     user.should.be.an('object');
                 })
                 .then(done)

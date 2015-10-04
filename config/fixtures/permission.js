@@ -29,9 +29,17 @@ const rules = {
 exports.create = function () {
   return Promise.all([
         PermissionService.grantIfNeeded({ role: 'admin', model: 'role', action: 'read'}),
+        PermissionService.grantIfNeeded({ role: 'registered', model: 'user', action: 'update', relation:'owner'}),
        // PermissionService.grantIfNeeded({role: 'collaborator', model: 'Issue', action: 'update',
         //                 criteria: { where: { public: true }, blacklist: ['public'] } })
+
+        PermissionService.grantIfNeeded({action: 'create', model: 'document', role: 'registered'}),
+        PermissionService.grantIfNeeded({action: 'read', model: 'document', role: 'registered', relation:'owner'}),
+        PermissionService.grantIfNeeded({action: 'update', model: 'document', role: 'registered', relation:'owner'}),
+        PermissionService.grantIfNeeded({action: 'delete', model: 'document', role: 'registered', relation:'owner'})
   ])
-  .spread(function(role){
+  .spread(function(roles){
+        sails.log.verbose(arguments)
+        sails.log.verbose('Permissions Added')
   })
 };

@@ -39,38 +39,41 @@ module.exports.routes = {
 
   '/api/get_info': {
     controller: 'UserController',
+    modelIdentity: 'user',
     action: 'userInfo'
   },
 
-  '/api/set_password': {
+  'PUT /api/set_password': {
     controller: 'UserController',
+    modelIdentity: 'user',
     action: 'setPassword'
   },
 
-  '/api/user/signup': {
+  'POST /api/user/signup': {
     controller: 'UserController',
     action: 'signup'
   },
 
-   '/api/document/upload_document': {
+   'POST /api/document/upload_document': {
     controller: 'DocumentController',
-    action: 'uploadDocument'
+    action: 'uploadDocument',
+    modelIdentity: 'document'
   },
 
-   '/api/document/get_document/:id': {
+   'GET /api/document/get_document/:id': {
     controller: 'DocumentController',
     action: 'getDocument',
-    modelDefinition: 'document'
+    modelIdentity: 'document'
   },
 
-   '/api/document/get_document_preview/:id': {
+   'GET /api/document/get_document_preview/:id': {
     controller: 'DocumentController',
     action: 'getDocumentPreview',
-    modelDefinition: 'document'
+    modelIdentity: 'document'
   },
-   '/api/document': {
+   'GET /api/document': {
     controller: 'DocumentController',
-    modelDefinition: 'document',
+    modelIdentity: 'document',
     action: 'find'
    }
   /***************************************************************************

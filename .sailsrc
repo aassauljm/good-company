@@ -1,5 +1,5 @@
 {
-    "log": {"level": "silly"},
+    "log": {"level": "verbose"},
   "generators": {
     "modules": {
       "permissions-api": "sails-permissions/generator"

@@ -15,7 +15,7 @@ describe('UserController', function() {
         });
         it('should attempt change password, fail auth', function(done) {
             req
-                .post('/api/set_password')
+                .put('/api/set_password')
                 .send({'oldPassword': 'test2', 'newPassword': 'hunter12'})
                 .expect(403)
                 .then(function(){
@@ -25,15 +25,14 @@ describe('UserController', function() {
         it('should fail validation', function(done) {
 
             req
-                .post('/api/set_password')
+                .put('/api/set_password')
                 .send({'oldPassword': 'testtest', 'newPassword': 'h'})
                 .expect(400, done)
 
         });
         it('should succeed validation', function(done) {
-
             req
-                .post('/api/set_password')
+                .put('/api/set_password')
                 .send({'oldPassword': 'testtest', 'newPassword': 'hunter12'})
                 .expect(200, done)
         })
@@ -56,7 +55,7 @@ describe('UserController', function() {
         });
         it('should change password back', function(done) {
              req
-                .post('/api/set_password')
+                .put('/api/set_password')
                 .send({'oldPassword': 'hunter12', 'newPassword': 'testtest'})
                 .expect(200, done)
             });

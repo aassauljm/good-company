@@ -39,19 +39,19 @@ module.exports.policies = {
         '*': ['passport']
     },
     UserController: {
-        'setPassword': ['passport', 'sessionAuth'],
+        //'setPassword': ['passport', 'sessionAuth'],
         'signup': true,
-        'userInfo': ['passport','sessionAuth']
+       //'userInfo': ['passport','sessionAuth']
     },
     DocumentController: {
-        '*': false,
-        'find': ['passport','sessionAuth', 'OwnerPolicy'],
+        //'*': false,
+        /*'find': ['passport','sessionAuth', 'OwnerPolicy'],
         'findOne': ['passport','sessionAuth', 'OwnerPolicy'],
         'delete':  ['passport','sessionAuth', 'OwnerPolicy'],
         'update':  ['passport','sessionAuth', 'OwnerPolicy'],
         'uploadDocument': ['passport','sessionAuth'],
         'getDocument': ['passport','sessionAuth', 'OwnerPolicy'],
-        'getDocumentPreview': ['passport','sessionAuth', 'OwnerPolicy'],
+        'getDocumentPreview': ['passport','sessionAuth', 'OwnerPolicy'],*/
 
     }
 

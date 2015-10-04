@@ -69,7 +69,7 @@ export function setPassword(data) {
     return {
         types: [SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE],
         callAPI: () => fetch('/api/set_password', {
-            method: 'POST',
+            method: 'PUT',
             headers: json_headers,
             credentials: 'same-origin',
             body: JSON.stringify(data)

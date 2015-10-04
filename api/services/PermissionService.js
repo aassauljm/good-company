@@ -43,7 +43,6 @@ grantIfNeeded: function(permissions) {
     ok = ok.then(function() {
       return Promise.map(permissions, function(p){ return Permission.findOrCreate(p, p) });
     });
-
     return ok;
   }
 });
