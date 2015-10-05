@@ -1,12 +1,16 @@
 {
-  "name": "catalex-webpack-base",
+  "name": "good-company",
   "version": "0.0.1",
-  "description": "Starter Kit",
+  "description": "Catalex's Company Manager",
   "main": "index.js",
   "scripts": {
     "build-dev": "webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p ",
     "test": "istanbul cover _mocha -- --recursive test --compilers js:babel/register --timeout 30000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/joshgagnon/good-company.git"
   },
   "author": "",
   "license": "ISC",
@@ -39,6 +43,7 @@
     "webpack-dev-server": "^1.11.0"
   },
   "dependencies": {
+    "cheerio": "0.19.0",
     "babel": "^5.8.23",
     "babel-plugin-typecheck": "^1.2.0",
     "bcrypt": "^0.8.5",

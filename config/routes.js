@@ -37,7 +37,7 @@ module.exports.routes = {
     action: 'landing'
   },
 
-  '/api/get_info': {
+  'GET /api/get_info': {
     controller: 'UserController',
     modelIdentity: 'user',
     action: 'userInfo'

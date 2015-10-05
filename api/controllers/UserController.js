@@ -94,7 +94,7 @@ _.merge(exports, {
           passport.initialize()(req, res, function () {
             // Use the built-in sessions
                 passport.session()(req, res, function () {
-                    req.login(user, function(err) {
+                    req.login(newInstance, function(err) {
                       if (err) { return next(err); }
                       req.session.authenticated = true;
                       return res.ok({account_created: true});

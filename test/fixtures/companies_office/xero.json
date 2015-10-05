@@ -1,0 +1,110 @@
+{
+"companyName": "XERO LIMITED",
+"companyNumber": "1830488",
+"nzbn": "9429034042984",
+"incorporationDate": "06 Jul 2006",
+"companyStatus": "Registered",
+"entityType": "NZ Limited Company",
+"constitutionFiled": true,
+"arFilingMonth": "July",
+"fraReportingMonth": "March",
+"ultimateHoldingCompany": false,
+
+"shareholdings": {
+    "total": 136595374,
+    "extensive": true,
+
+    "allocations": [{
+        "name": "Allocation 1",
+        "shares": 39739580,
+        "holders": [{
+            "name": "NEW ZEALAND CENTRAL SECURITIES DEPOSITORY LIMITED",
+            "address": "2 The Terrace, Wellington, New Zealand",
+            "companyNumber": "644859"
+            }]
+        }, {
+        "name": "Allocation 2",
+        "shares": 21719779,
+        "holders": [{
+            "name": "Anna DRURY",
+            "address": "20-22 Munroe Street, Napier, 4110, New Zealand"
+            }, {
+            "name": "Kenneth DRURY",
+            "address": "20-22 Munroe Street, Napier, 4110, New Zealand"
+            }]
+        }, {
+        "name": "Allocation 3",
+        "shares": 18454545,
+        "holders": [{
+            "name": "GIVIA PTY LIMITED",
+            "address": "101 Collins Street, Melbourne, Australia,"
+            }]
+        }, {
+        "name": "Allocation 4",
+        "shares": 6643636,
+        "holders": [{
+            "name": "AP Investments (HK) Limited",
+            "address": "3806 Central Plaza, 18 Harbour Road, Wanchai, Hong Kong"
+            }]
+        }, {
+        "name": "Allocation 5",
+        "shares": 5122609,
+        "holders": [{
+            "name": "JASMINE INVESTMENT HOLDINGS LIMITED",
+            "address": "Crowe Horwath, Level 6, Westfield Tower, 45 Knights Road, Lower Hutt, 5010, New Zealand",
+            "companyNumber": "1797860"
+            }]
+        }, {
+        "name": "Allocation 6",
+        "shares": 4135870,
+        "holders": [{
+            "name": "Valar Ventures LP",
+            "address": "1 Letterman Drive, Building C Suite 400, San Francisco, 94129, United States of America"
+            }]
+        }, {
+        "name": "Allocation 7",
+        "shares": 4062068,
+        "holders": [{
+            "name": "VV Xero Holdings LLC",
+            "address": "One Letterman Drive, Building C, Suite 400, San Francisco, Ca, United States of America"
+            }]
+        }, {
+        "name": "Allocation 8",
+        "shares": 3988899,
+        "holders": [{
+            "name": "Hamish EDWARDS",
+            "address": "49 East Street, Greytown, Greytown, 5712, New Zealand"
+            }, {
+            "name": "Tineke EDWARDS",
+            "address": "49 East Street, Greytown, Greytown, 5712, New Zealand"
+            }, {
+            "name": "Andrew FINCH",
+            "address": "65 Taylor Pass Road, Blenheim, New Zealand"
+            }]
+        }, {
+        "name": "Allocation 9",
+        "shares": 1652893,
+        "holders": [{
+            "name": "Credit Suisse Securities (Europe) Limited",
+            "address": "1 Cabot Square, London, E144QJ, United Kingdom"
+            }]
+        }, {
+        "name": "Allocation 10",
+        "shares": 1630399,
+        "holders": [{
+            "name": "NICOLA JANE WILSON, DAVID JONATHAN WILSON AND CHRISTOPHER ELLIOT RITCHIE",
+            "address": "43 Rawhiti Terrace, Kelburn, Wellington 6012,"
+            }]
+        }, {
+        "name": "Allocation 11",
+        "shares": 1300000,
+        "holders": [{
+            "name": "Graham And Delwyn SHAW",
+            "address": "Flat 2, 41 Aurora Terrace, Kelburn, Wellington, 6012, New Zealand"
+            }]
+        }]
+    },
+"historicHolders": [
+
+    ]
+}

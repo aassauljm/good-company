@@ -36,7 +36,7 @@ export default function(renderProps) {
             );
           }
         }
-
+        res.status(200);
         const output = renderToString(<Root/>);
         res.render('content.ejs', { reactOutput: output, data: JSON.stringify(state),  _layoutFile: 'layout.ejs'});
 
