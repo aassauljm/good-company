@@ -61,9 +61,13 @@ module.exports = {
                 }
             }).get()
         }
-        console.log(JSON.stringify(result, null, 4));
 
-        result['historicHolders'] = [];
+        result['historicHolders'] = $('.historic').find('.shareholder').map(function(i, e){
+            return {
+                name: $(this).find('.legalName')[0].parentNode.lastChild.data.replace(/\s\s+/g, ' '),
+                vacationDate: $(this).find('.vacationDate')[0].parentNode.lastChild.data }
+        }).get()
+        console.log(JSON.stringify(result, null, 4));
         return result
     }
 
