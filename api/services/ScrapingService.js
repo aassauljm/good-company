@@ -14,11 +14,10 @@ module.exports = {
         var $ = cheerio.load(html);
         var result = {};
 
-
         result['companyName'] = _.trim($('.leftPanel .row h1')[0].firstChild.data);
         _.merge(result, ['companyNumber', 'nzbn', 'incorporationDate', 'companyStatus', 'entityType'].reduce(function(obj, f){
             try{
-                obj[f] = _.trim($('label[for="'+f+'"]')[0].parentNode.lastChild.data);
+                obj[f] = _.trim($('label[for="'+f+'"]')[0].parentNode.lastChild.data).replace(/\s\s+/g, ' ');
             }catch(e){};
             return obj;
         }, {}));
@@ -38,6 +37,14 @@ module.exports = {
             }catch(e){};
             return obj;
         }, {}));
+
+        _.merge(result, ['registeredCompanyAddress2', 'addressForService1', 'addressForShareRegister0'].reduce(function(obj, f){
+            try{
+                obj[f.slice(0, -1)] = _.trim($('label[for="'+f+'"]').next().text()).replace('\n', '').replace(/\s\s+/g, ' ')
+            }catch(e){};
+            return obj;
+        }, {}));
+
 
         result['ultimateHoldingCompany'] = _.trim($('#ultimateHoldingCompany').parent()[0].firstChild.data) === 'Yes';
 
@@ -67,6 +74,44 @@ module.exports = {
                 name: $(this).find('.legalName')[0].parentNode.lastChild.data.replace(/\s\s+/g, ' '),
                 vacationDate: $(this).find('.vacationDate')[0].parentNode.lastChild.data }
         }).get()
+
+        var documents = [];
+        var docIDReg = /javascript:showDocumentDetails\((\d+)\);/;
+
+        $('#documentListPanel .dataList tbody tr').map(function(i, el){
+            var $el = $(el);
+            if($el.find('td:nth-child(1)').text()){
+                documents.push({
+                    'date': $el.find('td:nth-child(1)').text(),
+                    'documentType': $el.find('td:nth-child(2)').text(),
+                    'documentID': $el.find('td:nth-child(2) a').attr('href').match(docIDReg)[1]
+                })
+            }
+            else{
+                _.last(documents)['original'] = $el.find('td:nth-child(2) a').attr('href')
+            }
+        })
+        result['documents'] = documents;
+        var directors = []
+        var formerDirectors = []
+        $('.director').map(function(i, el){
+            var $el = $(el);
+            var obj = {};
+            ['fullName', 'residentialAddress', 'appointmentDate', 'ceasedDate'].map(function(f){
+                try{
+                    obj[f] = _.trim($el.find('label[for="'+f+'"]')[0].parentNode.lastChild.data).replace('\n', '').replace(/\s\s+/g, ' ');
+                }catch(e){};
+            });
+            if(obj.ceasedDate){
+                formerDirectors.push(obj);
+            }
+            else{
+                directors.push(obj);
+            }
+
+        })
+        result['directors'] = directors;
+        result['formerDirectors'] = formerDirectors;
         console.log(JSON.stringify(result, null, 4));
         return result
     }

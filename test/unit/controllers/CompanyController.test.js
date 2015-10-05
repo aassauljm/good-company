@@ -10,8 +10,8 @@ describe('Company Controller', function() {
                 .then(JSON.parse)
                 .then(function(_data){
                     data = _data;
+                    return fs.readFileAsync('test/fixtures/companies_office/Xero.html', 'utf8')
                 })
-            fs.readFileAsync('test/fixtures/companies_office/Xero.html', 'utf8')
             .then(ScrapingService.parseNZCompaniesOffice)
             .then(function(result) {
                 for(var i=0;i<result.shareholdings.allocations.length;i++){
