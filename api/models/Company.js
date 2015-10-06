@@ -4,14 +4,16 @@
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
+var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 
 module.exports = {
-    _config: {
-        actions: false,
-        shortcuts: false,
-        rest: false
-    },
     attributes: {
+        companyName: {
+            type: 'string',
+            required: true,
+            notNull: true
+        },
         companyNumber: {
             type: 'integer',
         },
@@ -31,13 +33,28 @@ module.exports = {
             type: 'boolean'
         },
         arFilingMonth: {
-            type: 'string'
+            type: 'string',
+            enum: months
         },
         fraReportingMonth:{
+            type: 'string',
+            enum: months
+        },
+        registeredCompanyAddress: {
+            type: 'string'
+        },
+        addressForShareRegister: {
+            type: 'string'
+        },
+        addressForService: {
             type: 'string'
         },
         ultimateHoldingCompany: {
             type: 'boolean'
+        },
+        shareholdings: {
+            collection: 'shareholding',
+            via: 'company'
         }
     }
 };

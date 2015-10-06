@@ -2,14 +2,28 @@
 "use strict";
 var _ = require('lodash');
 var cheerio = require('cheerio');
-
+var request = require("supertest-as-promised");
 
 module.exports = {
 
-    fetch: function(){
-
+    fetch: function(companyID){
+        return req.get('https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyID+'/detail');
     },
 
+    populateDB: function(data){
+        return Company.create(ScrapingService.canonicalizeNZCompaniesData(data))
+    },
+    canonicalizeNZCompaniesData: function(data){
+        var result = _.merge({}, data);
+        var total = result.shareholdings.total;
+        result.shareholdings = result.shareholdings.allocations.map(function(shareholding){
+            return {
+                parcels: [{amount: shareholding.shares}],
+                shareholders: shareholding.holders
+            }
+        });
+        return result;
+    },
     parseNZCompaniesOffice: function(html){
         var $ = cheerio.load(html);
         var result = {};
@@ -112,7 +126,6 @@ module.exports = {
         })
         result['directors'] = directors;
         result['formerDirectors'] = formerDirectors;
-        console.log(JSON.stringify(result, null, 4));
         return result
     }
 

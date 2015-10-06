@@ -10,16 +10,29 @@ _.merge(exports, {
 
     attributes: {
         username: {
-            type: 'string',
-            required: true,
-            minLength: 3
-
+          type: 'string',
+          unique: true,
+          index: true,
+          notNull: true
         },
         email: {
-            type: 'email',
-            required: true,
-            unique: true
-        }
+          type: 'email',
+          unique: true,
+          index: true
+        },
+        passports: {
+          collection: 'Passport',
+          via: 'user'
+        },
+        roles: {
+          collection: 'Role',
+          via: 'users',
+          dominant: true
+        },
+        permissions: {
+          collection: "Permission",
+          via: "user"
+        },
     },
   afterCreate: [
     function setOwner (user, next) {

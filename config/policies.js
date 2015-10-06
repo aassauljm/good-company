@@ -39,7 +39,7 @@ module.exports.policies = {
         '*': ['passport']
     },
     UserController: {
-        //'setPassword': ['passport', 'sessionAuth'],
+        'setPassword': ['passport', 'sessionAuth'],
         'signup': true,
        //'userInfo': ['passport','sessionAuth']
     },

@@ -46,7 +46,8 @@ module.exports.routes = {
   'PUT /api/set_password': {
     controller: 'UserController',
     modelIdentity: 'user',
-    action: 'setPassword'
+    action: 'setPassword',
+    blacklist: ['oldPassword']
   },
 
   'POST /api/user/signup': {

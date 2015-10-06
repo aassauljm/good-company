@@ -62,9 +62,8 @@ export default class AccountForm extends React.Component {
 }
 
 // DANGER, do other accounts
-@pureRender
-@connect((state, ownProps) => state.resources[ownProps.route.edit ? '/user/'+ownProps.params.id : '/user'] || {data: {}})
-//@connect((state) => state.userInfo)
+//@connect((state, ownProps) => {return {state.resources[ownProps.route.edit ? '/user/'+ownProps.params.id : '/user'] || {data: {}})
+@connect((state) => state.userInfo)
 @AuthenticatedComponent
 export default class Account extends React.Component {
 

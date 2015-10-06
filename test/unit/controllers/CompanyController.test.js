@@ -14,13 +14,17 @@ describe('Company Controller', function() {
                 })
             .then(ScrapingService.parseNZCompaniesOffice)
             .then(function(result) {
-                for(var i=0;i<result.shareholdings.allocations.length;i++){
-                    result.shareholdings.allocations[i].should.deep.equal(data.shareholdings.allocations[i]);
-                }
-                result.shareholdings.should.deep.equal(data.shareholdings);
                 result.should.deep.equal(data);
+                return data;
+            })
+            .then(ScrapingService.populateDB)
+            .then(function(){
+                return Company.findOne({companyName: 'XERO LIMITED'})
+            })
+            .then(function(company){
+                console.log(company)
                 done();
-            });
+            })
         })
 
 })

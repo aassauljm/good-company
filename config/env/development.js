@@ -18,7 +18,7 @@ module.exports = {
    ***************************************************************************/
     hookTimeout: 40000,
    models: {
-     connection: 'disk_test'
+     connection: 'pg'
    }
 
 };
