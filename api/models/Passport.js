@@ -16,6 +16,7 @@ _.merge(exports, {
 
   // Extend with custom logic here by adding additional fields, methods, etc.
   attributes: {
+    password: { type: 'string', minLength: 8, required: true },
     changePassword: function(newPassword) {
         validatePassword(newPassword);
         this.password = newPassword;

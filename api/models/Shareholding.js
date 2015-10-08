@@ -19,6 +19,12 @@ module.exports = {
             collection: 'shareholder',
             via: 'shareholdings',
             dominant: true
+        },
+        transaction: {
+            model: 'transaction'
         }
+    },
+    combine: function(/*holdings*/){
+        //arguments.reduce()
     }
 };

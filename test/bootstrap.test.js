@@ -12,6 +12,7 @@ var sails;
 before(function(done) {
 
     Sails.lift({
+        port: 1338,
         log: {
             level: 'info'
         },

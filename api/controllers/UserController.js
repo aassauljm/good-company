@@ -43,34 +43,16 @@ _.merge(exports, {
                 res.badRequest({'newPassword': [err]});
             })
     },
-    signup: function(req, res) {
-        var data = actionUtil.parseValues(req);
-        User.create(data).exec(function created (err, newInstance) {
-
-        // Differentiate between waterline-originated validation errors
-        // and serious underlying issues. Respond with badRequest if a
-        // validation error is encountered, w/ validation info.
-        if (err) return res.negotiate(err);
-
-        // If we have the pubsub hook, use the model class's publish method
-        // to notify all subscribers about the created item
-        if (req._sails.hooks.pubsub) {
-            if (req.isSocket) {
-                Model.subscribe(req, newInstance);
-                Model.introduce(newInstance);
-            }
-            Model.publishCreate(newInstance, !req.options.mirror && req);
-        }
-        // Sign in
-
-        // Send JSONP-friendly response if it's supported
+    signup: function(req, res){
+        sails.services.passport.protocols.local.register(req.body, function (err, user) {
+          if (err) return res.negotiate(err);
           var passport = sails.services.passport;
 
           // Initialize Passport
           passport.initialize()(req, res, function () {
             // Use the built-in sessions
                 passport.session()(req, res, function () {
-                    req.login(newInstance, function(err) {
+                    req.login(user, function(err) {
                       if (err) { return next(err); }
                       req.session.authenticated = true;
                       return res.ok({account_created: true});
@@ -78,6 +60,5 @@ _.merge(exports, {
                 });
         });
       });
-
     }
 });

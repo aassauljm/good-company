@@ -13,12 +13,14 @@ _.merge(exports, {
           type: 'string',
           unique: true,
           index: true,
-          notNull: true
+          notNull: true,
+          required: true
         },
         email: {
           type: 'email',
           unique: true,
-          index: true
+          index: true,
+          required: true
         },
         passports: {
           collection: 'Passport',
@@ -34,6 +36,12 @@ _.merge(exports, {
           via: "user"
         },
     },
+  beforeValidate: [function(user, next){
+    if(user.email){
+      user.email = user.email.toLowerCase();
+    }
+    next();
+  }],
   afterCreate: [
     function setOwner (user, next) {
       sails.log.verbose('User.afterCreate.setOwner', user);

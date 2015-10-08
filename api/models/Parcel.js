@@ -9,7 +9,8 @@ module.exports = {
 
   attributes: {
     amount: {
-        type: 'integer'
+        type: 'integer',
+        required: true
     },
     shareClass: {
         type: 'string'
@@ -17,6 +18,9 @@ module.exports = {
     shareholding: {
         model: 'shareholding'
     }
+  },
+  combinable: function(a, b){
+    return a.shareClass === b.shareClass;
   }
 };
 

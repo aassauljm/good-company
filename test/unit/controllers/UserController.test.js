@@ -63,18 +63,51 @@ describe('UserController', function() {
     });
 
     describe('it should be able to register new user', function(done){
-        var req, id;
+        var req;
         it('should get signup page', function(done){
             req = request.agent(sails.hooks.http.app)
             req.get('/signup')
+                .set('Accept', 'text/html')
             .expect(200, done)
         });
         it('get sign up page validation error', function(done) {
             req
                 .post('/api/user/signup')
                 .send({})
-            .expect(400, done)
+                .expect(400)
+                .then(function(){
+                    done();
+                })
         });
+        it('get sign up page validation error again', function(done) {
+            req
+                .post('/api/user/signup')
+                .send({'email': 'testacular@email.com', 'username': 'duplicate'})
+                .expect(400)
+                .then(function(){
+                    done();
+                })
+        }); 
+        it('get sign up page validation error again from no password', function(done) {
+            req
+                .post('/api/user/signup')
+                .send({'email': 'testaculary@email.com', 'username': 'nonduplicate'})
+                .expect(400)
+                .then(function(){
+                    done();
+                })
+        }); 
+        it('sign up sucessfully', function(done) {
+            req
+                .post('/api/user/signup')
+                .send({'email': 'testaculary@email.com', 'username': 'nonduplicate', 'password': 'password'})
+                .expect(200, done);
+        });  
+         it('confirm that now signed in', function(done) {
+            req
+                .get('/api/get_info')
+                .expect(200, done);
+        });                             
     });
 
 });
