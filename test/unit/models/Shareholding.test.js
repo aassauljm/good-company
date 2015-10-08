@@ -37,8 +37,11 @@ describe('Shareholding Model', function() {
             Promise.join(
                 Shareholding.findOne({id: first_id}).populateAll(),
                 Shareholding.findOne({id: second_id}).populateAll()
-                ).then(function(share1, share2){
-                    //console.log(arguments);
+                ).spread(function(share1, share2){
+                    console.log(arguments);
+                    return share1.combine(share2)
+                })
+                .then(function(){
                     done();
                 });
 

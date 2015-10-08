@@ -22,9 +22,16 @@ module.exports = {
         },
         transaction: {
             model: 'transaction'
+        },
+        add: function(holding){
+            return this
+        },
+        combine: function(parcel){
+            var model = new Shareholding._model(this.toObject());
+            console.log(model)
+           // this.parcels.map(function(parcel){
+           //     if(parcels)
+           // })
         }
     },
-    combine: function(/*holdings*/){
-        //arguments.reduce()
-    }
 };

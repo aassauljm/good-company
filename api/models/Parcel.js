@@ -19,7 +19,7 @@ module.exports = {
         model: 'shareholding'
     }
   },
-  combinable: function(a, b){
+  match: function(a, b){
     return a.shareClass === b.shareClass;
   }
 };
