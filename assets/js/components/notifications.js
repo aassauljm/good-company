@@ -18,7 +18,6 @@ class Notification extends React.Component {
 }
 
 
-@AuthenticatedComponent
 @connect(state => state.notifications)
 export default class Notifications extends React.Component {
     static propTypes = { list: React.PropTypes.array.isRequired };

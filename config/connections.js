@@ -37,7 +37,7 @@ module.exports.connections = {
     host: 'localhost',
     user: 'josh',
     password: '',
-    database: 'users'
+    database: 'goodcompany'
   },
 
   pg_test: {
@@ -45,7 +45,7 @@ module.exports.connections = {
     host: 'localhost',
     user: 'josh',
     password: '',
-    database: 'test'
+    database: 'goodcompanytest'
   },
 
   memory_test: {

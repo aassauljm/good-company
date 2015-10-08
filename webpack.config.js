@@ -18,7 +18,6 @@ module.exports = {
         chunkFilename: "[name].[id].js",
         path: __dirname + "/.tmp/public/js",
     },
-
     devtool: 'source-map',
     module: {
         loaders: [{

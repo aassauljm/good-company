@@ -62,4 +62,19 @@ describe('UserController', function() {
 
     });
 
+    describe('it should be able to register new user', function(done){
+        var req, id;
+        it('should get signup page', function(done){
+            req = request.agent(sails.hooks.http.app)
+            req.get('/signup')
+            .expect(200, done)
+        });
+        it('get sign up page validation error', function(done) {
+            req
+                .post('/api/user/signup')
+                .send({})
+            .expect(400, done)
+        });
+    });
+
 });

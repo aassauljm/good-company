@@ -21,5 +21,10 @@ _.merge(exports, {
         this.password = newPassword;
         return this.save();
     },
-  }
+  },
+  /*  beforeValidate: [function(passport, next){
+      passport.identifier = passport.identifier.toLowerCase();
+      next();
+    }
+    ]*/
 });
