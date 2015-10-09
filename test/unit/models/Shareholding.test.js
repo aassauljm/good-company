@@ -38,7 +38,7 @@ describe('Shareholding Model', function() {
                 Shareholding.findOne({id: first_id}).populateAll(),
                 Shareholding.findOne({id: second_id}).populateAll()
                 ).spread(function(share1, share2){
-                    console.log(arguments);
+                    //console.log(arguments);
                     return share1.combine(share2)
                 })
                 .then(function(){

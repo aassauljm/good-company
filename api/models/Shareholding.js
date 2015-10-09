@@ -5,6 +5,10 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 
+var clone = function(obj){
+    return _.omit(obj.toObject(), 'id', 'createdBy', 'createdAt', 'updatedAt')
+}
+
 module.exports = {
 
     attributes: {
@@ -27,8 +31,14 @@ module.exports = {
             return this
         },
         combine: function(parcel){
-            var model = new Shareholding._model(this.toObject());
-            console.log(model)
+            //var model = new Shareholding._model(this.toObject());
+
+            var model = new Shareholding._model(clone(this))
+            this.parcels.map(function(p){
+                model.parcels.add(clone(p))   
+            })
+
+            console.log(model.parcels)
            // this.parcels.map(function(parcel){
            //     if(parcels)
            // })
