@@ -4,57 +4,58 @@
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
-var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 
 
 module.exports = {
     attributes: {
         companyName: {
-            type: 'string',
-            required: true,
-            notNull: true
+            type: Sequelize.TEXT
         },
         companyNumber: {
-            type: 'integer',
+            type: Sequelize.TEXT
         },
         nzba: {
-            type: 'integer',
+           type: Sequelize.TEXT
         },
         incorporationDate: {
-            type: 'date'
+            type: Sequelize.DATE
         },
         companyStatus: {
-            type: 'string'
+            type: Sequelize.TEXT
         },
         entityType: {
-            type: 'string'
+            type: Sequelize.TEXT
         },
         constiutionFiled: {
-            type: 'boolean'
+            type: Sequelize.BOOLEAN
         },
         arFilingMonth: {
-            type: 'string',
-            enum: months
+            type: months
+            
         },
         fraReportingMonth:{
-            type: 'string',
-            enum: months
+            type: months
         },
         registeredCompanyAddress: {
-            type: 'string'
+            type: Sequelize.TEXT
         },
         addressForShareRegister: {
-            type: 'string'
+            type: Sequelize.TEXT
         },
         addressForService: {
-            type: 'string'
+            type: Sequelize.TEXT
         },
         ultimateHoldingCompany: {
-            type: 'boolean'
+            type: Sequelize.BOOLEAN
         },
-        shareholdings: {
-            collection: 'shareholding',
-            via: 'company'
+    },
+        associate: function(){
+            Company.hasMany(Shareholding, {
+                foreignKey: {
+                    name: 'company'
+
+                }
+            })
         }
-    }
 };

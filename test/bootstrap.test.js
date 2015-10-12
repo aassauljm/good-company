@@ -17,10 +17,12 @@ before(function(done) {
             level: 'info'
         },
         models: {
-            connection: 'memory_test',
+            connection: 'pg_test',
             migrate: 'drop'
         },
         hooks:{
+            orm: false,
+            blueprints: false,
             grunt: false,
              sockets: false,
              pubsub: false,

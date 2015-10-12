@@ -6,6 +6,10 @@
     }
   },
  "hooks": {
+ "orm": false,
+ "pubsub": false,
+ "blueprints": false
+
   },
   "babel": {
     "stage": 0
