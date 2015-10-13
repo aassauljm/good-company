@@ -17,7 +17,6 @@
   "devDependencies": {
     "babel-core": "^5.8.25",
     "babel-loader": "^5.3.2",
-    "barrels": "^1.5.0",
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
     "css-loader": "^0.18.0",
@@ -33,7 +32,6 @@
     "mocha-lcov-reporter": "0.0.2",
     "node-sass": "^3.3.3",
     "sails-hook-autoreload": "^0.12.0",
-    "sails-hook-babel": "^5.0.1",
     "sails-memory": "^0.10.5",
     "sass-loader": "^2.0.1",
     "style-loader": "^0.12.4",
@@ -49,15 +47,19 @@
     "bluebird": "^2.9.34",
     "bootstrap-alpha": "git+https://github.com/twbs/bootstrap.git#v4.0.0-alpha",
     "cheerio": "0.19.0",
+    "coffee-script": "^1.10.0",
     "continuation-local-storage": "^3.1.4",
+    "fnv-plus": "^1.2.12",
     "grunt": "0.4.2",
     "grunt-sync": "~0.0.4",
     "history": "^1.9.1",
     "isomorphic-fetch": "^2.1.1",
     "lodash": "^3.10.1",
+    "passport": "^0.3.0",
     "pdf-image": "^1.0.01",
     "pg": "^4.4.2",
     "pg-hstore": "^2.3.2",
+    "pg-native": "^1.9.0",
     "react": "^0.14.0-rc1",
     "react-addons-shallow-compare": "^0.14.0-rc1",
     "react-bootstrap": "^0.25.100-react-pre.1",
@@ -77,8 +79,10 @@
     "sails-hook-sequelize": "^1.0.1",
     "sails-hook-sequelize-blueprints": "0.0.8",
     "sails-hook-validation": "^0.4.1",
-    "sails-permissions": "^1.4.4",
+    "sails-permissions": "^1.4.5",
     "sails-postgresql": "^0.10.16",
-    "sequelize": "^3.11.0"
+    "sequelize": "^3.11.0",
+    "sequelize-fixtures": "^0.4.8",
+    "url": "^0.11.0"
   }
 }

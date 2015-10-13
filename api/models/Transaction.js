@@ -9,6 +9,13 @@ module.exports = {
 
   attributes: {
 
-  }
+  },
+    options: {
+        freezeTableName: false,
+        tableName: 'transaction',
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
+    }
 };
 

@@ -59,7 +59,7 @@ export default class Header extends React.Component {
     }
 
     showAccount(){
-        if(this.props.userInfo){
+        if(this.props.loggedIn && this.props.userInfo){
             return <li className="nav-item">
                 <Link activeClassName="active" className="nav-link" to={"/user/edit/"+this.props.userInfo.id}>{this.props.userInfo.username}
                 </Link>

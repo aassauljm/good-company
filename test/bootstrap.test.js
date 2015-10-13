@@ -1,8 +1,8 @@
 var Sails = require('sails');
 var Promise = require("bluebird");
-var Barrels = require("barrels");
 var fs = Promise.promisifyAll(require("fs"));
 var chai = require("chai");
+var sequelize_fixtures = require('sequelize-fixtures');
 var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 chai.should();
@@ -14,7 +14,7 @@ before(function(done) {
     Sails.lift({
         port: 1338,
         log: {
-            level: 'info'
+            level: 'silly'
         },
         models: {
             connection: 'pg_test',
@@ -24,9 +24,9 @@ before(function(done) {
             orm: false,
             blueprints: false,
             grunt: false,
-             sockets: false,
-             pubsub: false,
-             permissions: false
+            sockets: false,
+            pubsub: false,
+            permissions: false,
         },
         babel: {stage: 0},
         test: true
@@ -34,22 +34,10 @@ before(function(done) {
         if (err) return done(err);
         sails = server;
         sails.log.info('Sails Lifted');
-
-        var barrels = new Barrels();
-        // Populate the DB
-        barrels.populate(['user'], function(err) {
-            if (err)
-                return done(err); // Higher level callback
-
-            // Users will already be populated here, so the required association should work
-            barrels.populate(['passport'], function(err) {
-                if (err)
-                    return done(err); // Higher level callback
-
-                // Do your thing...
+        sequelize_fixtures.loadFiles(['test/fixtures/user.json', 'test/fixtures/passport.json'], sails.models)
+            .then(function(){
                 done();
-            },false);
-        });
+            });
     });
 });
 

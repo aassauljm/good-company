@@ -21,14 +21,14 @@
 
 module.exports.connections = {
 
-  /***************************************************************************
-  *                                                                          *
-  * Local disk storage for DEVELOPMENT ONLY                                  *
-  *                                                                          *
-  * Installed by default.                                                    *
-  *                                                                          *
-  ***************************************************************************/
-  /*disk_test: {
+    /***************************************************************************
+     *                                                                          *
+     * Local disk storage for DEVELOPMENT ONLY                                  *
+     *                                                                          *
+     * Installed by default.                                                    *
+     *                                                                          *
+     ***************************************************************************/
+    /*disk_test: {
     adapter: 'sails-disk'
   },
 
@@ -52,31 +52,40 @@ module.exports.connections = {
     adapter: 'sails-memory'
   }
 */
-pg: {
-  user: 'josh',
-  password: '',
-  database: 'goodcompany',
-  dialect: 'postgres',
-  options: {
-    dialect: 'postgres',
-    host   : 'localhost',
-    port   : 5432,
-    logging: true
-  }
-},
-pg_test: {
-  user: 'josh',
-  password: '',
-  database: 'test',
-  dialect: 'postgres',
-  options: {
-    dialect: 'postgres',
-    host   : 'localhost',
-    port   : 5432,
-    logging: true
-  }
-}
-
+    pg: {
+        user: 'josh',
+        password: '',
+        database: 'goodcompany',
+        dialect: 'postgres',
+        options: {
+            dialect: 'postgres',
+            host: 'localhost',
+            port: 5432,
+            logging: true,
+            pool: {
+                max: 5,
+                min: 0,
+                idle: 10000
+            }
+        }
+    },
+    pg_test: {
+        user: 'josh',
+        password: '',
+        database: 'test',
+        dialect: 'postgres',
+        options: {
+            dialect: 'postgres',
+            host: 'localhost',
+            port: 5432,
+            logging: true,
+            pool: {
+                max: 5,
+                min: 0,
+                idle: 10000
+            }
+        }
+    }
 
 
 

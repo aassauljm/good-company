@@ -1,5 +1,53 @@
 var Promise = require('bluebird');
+
+var grants = {
+  admin: [
+    { action: 'create' },
+    { action: 'read' },
+    { action: 'update' },
+    { action: 'delete' }
+  ],
+  registered: [
+    { action: 'create' },
+    { action: 'read' }
+  ],
+  public: [
+    { action: 'read' }
+  ]
+};
+
+var modelRestrictions = {
+  registered: [
+    'Role',
+    'Permission',
+    'User',
+    'Passport'
+  ],
+  public: [
+    'Role',
+    'Permission',
+    'User',
+    'Model',
+    'Passport'
+  ]
+};
+
+// TODO let users override this in the actual model definition
+
 /**
+ * Create default Role permissions
+ */
+exports.create = function (roles, models, admin) {
+  return Promise.all([
+    grantAdminPermissions(roles, models, admin),
+    grantRegisteredPermissions(roles, models, admin)
+  ])
+  .spread(function (err, permissions) {
+    sails.log.verbose('created', permissions.length, 'permissions');
+    return permissions;
+  })
+};
+
 function grantAdminPermissions (roles, models, admin) {
   var adminRole = _.find(roles, { name: 'admin' });
   var permissions = _.flatten(_.map(models, function (modelEntity) {
@@ -7,39 +55,56 @@ function grantAdminPermissions (roles, models, admin) {
 
     return _.map(grants.admin, function (permission) {
       var newPermission = {
-        model: modelEntity.id,
+        model_id: modelEntity.id,
         action: permission.action,
-        role: adminRole.id,
+        role_id: adminRole.id,
       };
-      return Permission.findOrCreate(newPermission, newPermission);
+      return Permission.findOrCreate({where: newPermission, defaults: newPermission});
     });
-  }));
-
-  return Promise.all(permissions);
+  }))
 }
- */
 
-const rules = {
-    "admin": {
-
+function grantRegisteredPermissions (roles, models, admin) {
+  var registeredRole = _.find(roles, { name: 'registered' });
+  var permissions = [
+    {
+      model_id: _.find(models, { name: 'Permission' }).id,
+      action: 'read',
+      role_id: registeredRole.id
+    },
+    {
+      model_id: _.find(models, { name: 'Model' }).id,
+      action: 'read',
+      role_id: registeredRole.id
+    },
+    {
+      model_id: _.find(models, { name: 'User' }).id,
+      action: 'update',
+      role_id: registeredRole.id,
+      relation: 'owner'
+    },
+    {
+      model_id: _.find(models, { name: 'User' }).id,
+      action: 'read',
+      role_id: registeredRole.id,
+      relation: 'owner'
+    },
+    {
+      model_id: _.find(models, { name: 'Document' }).id,
+      action: 'create',
+      role_id: registeredRole.id,
+    },
+    {
+      model_id: _.find(models, { name: 'Document' }).id,
+      action: 'read',
+      role_id: registeredRole.id,
+      relation: 'owner'
     }
+  ];
+
+  return Promise.all(
+    _.map(permissions, function (permission) {
+      return Permission.findOrCreate({where: permission, defaults:permission});
+    })
+  )
 }
-
-
-exports.create = function () {
-  return Promise.all([
-        PermissionService.grantIfNeeded({ role: 'admin', model: 'role', action: 'read'}),
-        PermissionService.grantIfNeeded({ role: 'registered', model: 'user', action: 'update', relation:'owner'}),
-       // PermissionService.grantIfNeeded({role: 'collaborator', model: 'Issue', action: 'update',
-        //                 criteria: { where: { public: true }, blacklist: ['public'] } })
-
-        PermissionService.grantIfNeeded({action: 'create', model: 'document', role: 'registered'}),
-        PermissionService.grantIfNeeded({action: 'read', model: 'document', role: 'registered', relation:'owner'}),
-        PermissionService.grantIfNeeded({action: 'update', model: 'document', role: 'registered', relation:'owner'}),
-        PermissionService.grantIfNeeded({action: 'delete', model: 'document', role: 'registered', relation:'owner'})
-  ])
-  .spread(function(roles){
-        sails.log.verbose(arguments)
-        sails.log.verbose('Permissions Added')
-  })
-};

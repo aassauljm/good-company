@@ -13,11 +13,17 @@ module.exports = {
       },
     attributes: {
         data: {
-            type: 'binary',
-            required: true
-        },
-        document: {
-            model: 'document'
-        },
+            type: Sequelize.BLOB,
+        }
+    },
+    associations: function() {
+
+    },
+    options: {
+        freezeTableName: false,
+        tableName: 'documentData',
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
     }
 };

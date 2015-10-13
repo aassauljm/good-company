@@ -8,13 +8,13 @@
  "hooks": {
  "orm": false,
  "pubsub": false,
- "blueprints": false
-
+ "blueprints": false,
+"permissions": false
   },
   "babel": {
     "stage": 0
   },
   "models":{
-    "migrate": "alter"
+    "migrate": "drop"
   }
 }

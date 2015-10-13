@@ -16,7 +16,7 @@ module.exports = {
             type: Sequelize.TEXT
         },
         nzba: {
-           type: Sequelize.TEXT
+            type: Sequelize.TEXT
         },
         incorporationDate: {
             type: Sequelize.DATE
@@ -32,9 +32,9 @@ module.exports = {
         },
         arFilingMonth: {
             type: months
-            
+
         },
-        fraReportingMonth:{
+        fraReportingMonth: {
             type: months
         },
         registeredCompanyAddress: {
@@ -50,12 +50,29 @@ module.exports = {
             type: Sequelize.BOOLEAN
         },
     },
-        associate: function(){
-            Company.hasMany(Shareholding, {
-                foreignKey: {
-                    name: 'company'
+    associations: function() {
 
-                }
-            })
-        }
+        Company.belongsTo(User, {
+            foreignKey: {
+                onDelete: 'cascade',
+                as: 'owner',
+                name: 'owner_id'
+            }
+        });
+        Company.belongsTo(User, {
+            foreignKey: {
+                onDelete: 'cascade',
+                as: 'createdBy',
+                name: 'createdBy_id'
+            }
+        })
+
+    },
+    options: {
+        freezeTableName: false,
+        tableName: 'company',
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
+    }
 };

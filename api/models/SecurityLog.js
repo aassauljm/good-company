@@ -1,11 +1,20 @@
 // api/models/SecurityLog.js
 
 var _ = require('lodash');
-var _super = require('sails-permissions/api/models/SecurityLog');
 
-_.merge(exports, _super);
-_.merge(exports, {
+module.exports = {
+  attributes: {
 
-  // Extend with custom logic here by adding additional fields, methods, etc.
+  },
+  associations: function(){
+       SecurityLog.hasOne(RequestLog, {as: 'request'});
+  },
+      options: {
+        freezeTableName: false,
+        tableName: 'securityLog',
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
+    }
+};
 
-});

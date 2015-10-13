@@ -5,19 +5,34 @@
 * @docs        :: http://sailsjs.org/#!documentation/models
 */
 
+//var ShareholderShareholding = sequelize.define('shareHolderShareholding', {});
+
+
 module.exports = {
 
   attributes: {
     name: {
-        type: 'string',
+        type: Sequelize.TEXT
     },
     companyNumber: {
-        type: 'string'
-    },
-    shareholdings: {
-        collection: 'shareholding',
-        via: 'shareholders'
+        type:  Sequelize.TEXT
     }
-  }
+    },
+    associations: function(){
+        Shareholder.belongsToMany(Shareholding,
+          {foreignKey: {
+            as: 'shareholdings',
+            name: 'shareholding_id'
+            }, through: 'shareholding_shareholder'
+        })
+    },
+      options: {
+        freezeTableName: false,
+        tableName: 'shareholder',
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
+    }
+
 };
 

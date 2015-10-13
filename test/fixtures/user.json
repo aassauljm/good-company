@@ -1,6 +1,29 @@
-[
-{"id": 10, "username": "test-user", "email": "test@email.com"},
-{"id": 11, "username": "test-user-2", "email": "testacular@email.com"},
-{"id": 12, "username": "document-uploader", "email": "documentuploader@email.com"},
-{"id": 13, "username": "document-stealer", "email": "documentstealer@email.com"}
-]
+[{
+    "model": "user",
+    "data": {
+        "id": 10,
+        "username": "test-user",
+        "email": "test@email.com"
+    }
+}, {
+    "model": "user",
+    "data": {
+        "id": 11,
+        "username": "test-user-2",
+        "email": "testacular@email.com"
+    }
+}, {
+    "model": "user",
+    "data": {
+        "id": 12,
+        "username": "document-uploader",
+        "email": "documentuploader@email.com"
+    }
+}, {
+    "model": "user",
+    "data": {
+        "id": 13,
+        "username": "document-stealer",
+        "email": "documentstealer@email.com"
+    }
+}]

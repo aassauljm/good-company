@@ -1,22 +1,29 @@
-[
-  {
-    "protocol"    : "local",
-    "password"    : "testtest",
-    "user"        : 10
-  },
-    {
-    "protocol"    : "local",
-    "password"    : "testtest",
-    "user"        : 11
-  },
-    {
-    "protocol"    : "local",
-    "password"    : "testtest",
-    "user"        : 12
-  },
-    {
-    "protocol"    : "local",
-    "password"    : "testtest",
-    "user"        : 13
-  }
-]
+[{
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "user_id": 10
+    }
+}, {
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "user_id": 11
+    }
+}, {
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "user_id": 12
+    }
+}, {
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "user_id": 13
+    }
+}]

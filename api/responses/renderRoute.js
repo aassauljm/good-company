@@ -11,6 +11,7 @@ import { Provider } from 'react-redux';
 export default function(renderProps) {
     let req = this.req;
     let res = this.res;
+    //return  res.render('content.ejs', { reactOutput: '', data: null,  _layoutFile: 'layout.ejs'});
    //let location = createLocation(req.url)
     const state = {login: {loggedIn: req.isAuthenticated()}};
     const store = configureStore(state);

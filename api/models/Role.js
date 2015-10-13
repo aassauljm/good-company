@@ -1,11 +1,45 @@
 // api/models/Role.js
 
 var _ = require('lodash');
-var _super = require('sails-permissions/api/models/Role');
 
-_.merge(exports, _super);
-_.merge(exports, {
+//var UserRole = sequelize.define('userRole', {});
+//var RolePermission = sequelize.define('rolePermission', {});
 
-  // Extend with custom logic here by adding additional fields, methods, etc.
+module.exports = {
 
-});
+  attributes: {
+        name: {
+          type: Sequelize.TEXT,
+          index: true,
+          notNull: true,
+          unique: true
+        },
+        active: {
+          type: 'boolean',
+          defaultValue: true,
+          index: true
+        }
+    },
+    associations: function(){
+        Role.belongsToMany(User, {
+            as: 'users',
+            through: 'user_roles',
+            foreignKey: {
+                name: 'role_id'
+            }
+        });
+        Role.hasMany(Permission, {
+            as: 'permissions',
+            foreignKey: {
+                name: 'role_id'
+            }
+        });
+    },
+    options: {
+        freezeTableName: false,
+        tableName: 'role',
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
+    }
+};

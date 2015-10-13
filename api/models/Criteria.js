@@ -1,25 +1,26 @@
 // api/models/Criteria.js
 
 var _ = require('lodash');
-/*var _super = require('sails-permissions/api/models/Criteria');
-
-_.merge(exports, _super);
-_.merge(exports, {
-
-  // Extend with custom logic here by adding additional fields, methods, etc.
-
-});
-*/
 
 module.exports = {
-	autoCreatedBy: false,
-
 
 	attributes: {
 		where: { type: Sequelize.JSON },
-		blacklist: { type: Sequelize.ARRAY }
+		blacklist: { type: Sequelize.ARRAY(Sequelize.TEXT) }
 	},
 	associations: function(){
-		Criteria.hasOne(Permission, {foreignKey: {name: 'criteria'}});
-	}
+	    Criteria.belongsTo(Permission, {
+            foreignKey: {
+                as: 'permission',
+                name: 'permission_id'
+            }
+        });
+	},
+    options: {
+        freezeTableName: false,
+        tableName: 'criteria', // Optional, but I suggest to set it
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
+    }
 };

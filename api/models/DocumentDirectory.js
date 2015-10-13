@@ -12,9 +12,15 @@ module.exports = {
         rest: false
       },
     attributes: {
-        documents: {
-            collection: 'document',
-            via: 'directory'
+        name:{
+            type: Sequelize.TEXT
         }
+    },
+    options: {
+        freezeTableName: false,
+        tableName: 'documentDirectory',
+        classMethods: {},
+        instanceMethods: {},
+        hooks: {}
     }
 };
