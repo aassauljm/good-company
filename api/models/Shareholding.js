@@ -11,13 +11,13 @@ module.exports = {
 
     },
     associations: function() {
-        Shareholding.hasOne(Company, {
+        Shareholding.belongsTo(Company, {
             foreignKey: {
                 as: 'company',
                 name: 'company_id'
             }
         });
-        Shareholding.hasOne(Transaction, {
+        Shareholding.belongsTo(Transaction, {
             foreignKey: {
                 as: 'transaction',
                 name: 'transaction_id'

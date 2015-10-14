@@ -54,8 +54,8 @@ module.exports = {
                     sails.log.debug('Uploaded, saving to db');
                     return Document.create({
                         filename: uploadedFiles[0].filename,
-                        createdBy: req.user.id,
-                        owner: req.user.id,
+                        createdBy_id: req.user.id,
+                        owner_id: req.user.id,
                         type: type,
                         documentData: {
                              data: file,
@@ -63,7 +63,9 @@ module.exports = {
                         documentPreview: {
                             data: preview
                         }
-                    })
+                    }, {include: [
+                        {model: DocumentData, as: 'documentData'},
+                        {model: DocumentData, as: 'documentPreview'}]});
                 })
                 .then(function(newInstance){
                     sails.log.debug('Saved to db');
@@ -82,8 +84,7 @@ module.exports = {
         });
     },
     getDocument: function(req, res){
-        Document.findOne(req.param('id'))
-            .populate('documentData')
+        Document.findOne({where: {id: req.param('id')}, include: [{model: DocumentData, as: 'documentData'}]})
             .then(function(doc){
                 if (!doc) return res.notFound();
                 res.attachment(doc.filename)
@@ -95,8 +96,7 @@ module.exports = {
             })
     },
     getDocumentPreview: function(req, res){
-        Document.findOne(req.param('id'))
-            .populate('documentPreview')
+        Document.findOne({where: {id: req.param('id')}, include: [{model: DocumentData, as: 'documentPreview'}]})
             .then(function(doc){
                 if (!doc) return res.notFound();
                 res.contentType('image/png');

@@ -33,13 +33,13 @@ module.exports = {
                 name: 'createdBy_id'
             }
         });
-        Document.hasOne(DocumentData, {
+        Document.belongsTo(DocumentData, {
             as: 'documentData',
             foreignKey: {
                 name: 'data_id'
             }
         });
-        Document.hasOne(DocumentData, {
+        Document.belongsTo(DocumentData, {
             as: 'documentPreview',
             foreignKey: {
                 name: 'preview_id'
@@ -57,13 +57,7 @@ module.exports = {
         freezeTableName: false,
         tableName: 'document', // Optional, but I suggest to set it
         classMethods: {},
-        instanceMethods: {
-            toJSON: function() {
-                var obj = this.toObject();
-                delete obj.data;
-                return obj;
-            },
-        },
+        instanceMethods: {},
         hooks: {}
     }
 };

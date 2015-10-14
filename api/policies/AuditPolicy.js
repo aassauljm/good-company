@@ -5,7 +5,6 @@ var url = require('url');
 module.exports = function (req, res, next) {
   var ipAddress = req.headers['x-forwarded-for'] || (req.connection && req.connection.remoteAddress);
   req.requestId = fnv.hash(new Date().valueOf() + ipAddress, 128).str();
-
   sails.models.requestlog.create({
     id: req.requestId,
     ipAddress: ipAddress,
@@ -13,9 +12,8 @@ module.exports = function (req, res, next) {
     method: req.method,
     body: _.omit(req.body, 'password'),
     model: req.options.modelIdentity,
-    user: (req.user || {}).id
+    user_id: (req.user || {}).id
   });
-
   // persist RequestLog entry in the background; continue immediately
   next();
 };

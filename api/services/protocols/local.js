@@ -4,7 +4,6 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 
 var SAError = require('sails-auth/lib/error/SAError.js');
-
 /**
  * Local Authentication Protocol
  *
@@ -41,11 +40,11 @@ exports.createUser = function(_user) {
     var password = _user.password;
     var user;
     delete _user.password;
-    console.log('creating', _user)
-    return sails.models.user.create(_user)
+    return User.create(_user)
         .then(function(__user) {
             user = __user;
-            return Promise.all(_user.roles.map(function(role){ return user.addRole(role); }))
+            if(_user.roles)
+                return Promise.all(_user.roles.map(function(role){ return user.addRole(role); }))
         })
         .then(function(){
             return sails.models.passport.create({
@@ -54,17 +53,18 @@ exports.createUser = function(_user) {
                 user_id: user.id
             })
         })
+        .then(function(){
+            return user;
+        })
         .catch(function(err) {
-            sails.log(err);
-            if (err.code === 'E_VALIDATION') {
-                return next(new SAError({
-                    originalError: err
-                }));
-            }
             if (user) {
-                return user.destroy(function(destroyErr) {
-                    next(destroyErr || err);
-                });
+                return user.destroy()
+                    .then(function(){
+                         throw new sails.config.exceptions.ValidationError(err.message);
+                     });
+            }
+            else{
+                throw new sails.config.exceptions.ValidationError(err.message);
             }
         })
 };

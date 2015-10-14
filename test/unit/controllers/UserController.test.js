@@ -13,6 +13,12 @@ describe('UserController', function() {
                 .send({'identifier': 'testacular@email.com', 'password': 'testtest'})
                 .expect(200, done)
         });
+         it('confirm that now signed in', function(done) {
+            req
+                .get('/api/get_info')
+                .expect(200, done);
+        });
+
         it('should attempt change password, fail auth', function(done) {
             req
                 .put('/api/set_password')
@@ -87,7 +93,7 @@ describe('UserController', function() {
                 .then(function(){
                     done();
                 })
-        }); 
+        });
         it('get sign up page validation error again from no password', function(done) {
             req
                 .post('/api/user/signup')
@@ -96,18 +102,18 @@ describe('UserController', function() {
                 .then(function(){
                     done();
                 })
-        }); 
+        });
         it('sign up sucessfully', function(done) {
             req
                 .post('/api/user/signup')
                 .send({'email': 'testaculary@email.com', 'username': 'nonduplicate', 'password': 'password'})
                 .expect(200, done);
-        });  
+        });
          it('confirm that now signed in', function(done) {
             req
                 .get('/api/get_info')
                 .expect(200, done);
-        });                             
+        });
     });
 
 });

@@ -8,7 +8,6 @@ chai.use(chaiAsPromised);
 chai.should();
 var sails;
 
-
 before(function(done) {
 
     Sails.lift({

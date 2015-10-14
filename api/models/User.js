@@ -14,14 +14,20 @@ module.exports = {
             type: Sequelize.TEXT,
             unique: true,
             index: true,
-            notNull: true,
-            required: true
+            allowNull: false,
+            validate: {
+                min: 5,
+            }
+
         },
         email: {
             type: Sequelize.TEXT,
             unique: true,
             index: true,
-            required: true
+                allowNull: false,
+            validate: {
+                isEmail: true,
+            }
         }
     },
     associations: function() {

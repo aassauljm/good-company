@@ -1,3 +1,5 @@
+var _ = require('lodash')
+
 function ValidationException(value) {
    this.value = value;
    this.toString = function() {
@@ -39,9 +41,11 @@ function BadCredentialsException(value) {
 BadCredentialsException.prototype = Object.create(Error.prototype);
 BadCredentialsException.prototype.constructor = BadCredentialsException;
 
-module.exports.exceptions = {
+module.exports.exceptions = _.defaults({
     ValidationException: ValidationException,
     ForbiddenException: ForbiddenException,
     UserNotFoundException: UserNotFoundException,
     BadCredentialsException: BadCredentialsException
-}
+}, require('sequelize/lib/errors'));
+
+

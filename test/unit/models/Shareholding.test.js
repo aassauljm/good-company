@@ -1,5 +1,5 @@
 var Promise = require('bluebird');
-
+/*
 describe('Shareholding Model', function() {
     describe('Basic shareholding', function() {
         var first_id, second_id;
@@ -49,4 +49,4 @@ describe('Shareholding Model', function() {
         });
 
     });
-});
+});*/

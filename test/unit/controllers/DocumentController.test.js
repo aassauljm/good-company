@@ -70,13 +70,16 @@ describe('DocumentController', function() {
             .expect(200)
             .then(function(){
                 return req
-                .get('/api/document/get_document/'+document_id)
+                .get('/api/document/'+document_id)
+            })
+            .then(function(res){
+                res.status.should.be.eql(403);
+                return req.get('/api/document/get_document/'+document_id)
             })
             .then(function(res){
                 res.status.should.be.eql(403);
                 done();
-            })
-
+            });
     });
 
     it('relogs in as client and reconfirms file is accessible', function(done) {
@@ -91,24 +94,6 @@ describe('DocumentController', function() {
                 done();
             })
     });
-    /*
-    it('logs in as non client and confirms file is inaccessible', function(done) {
-        req
-            .post('/auth/local')
-            .type('form')
-            .field('email', 'documentnonclient@email.com')
-            .field('password', 'testtest')
-            .expect(200)
-            .then(function(){
-                return req
-                    .get('/document/getDocument')
-                    .query({'id': document_id, 'matter': matter_id})
-            })
-            .catch(function(res){
-                res.status.should.be.eql(403);
-                done();
-            });
-        });
-    */
+
 
 });

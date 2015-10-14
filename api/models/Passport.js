@@ -80,7 +80,6 @@ module.exports = {
                         if(!success){
                             throw new sails.config.exceptions.BadCredentialsException();
                         }
-                        debugger
                     });
             }
         },

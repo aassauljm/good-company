@@ -99,6 +99,18 @@ function grantRegisteredPermissions (roles, models, admin) {
       action: 'read',
       role_id: registeredRole.id,
       relation: 'owner'
+    },
+    {
+      model_id: _.find(models, { name: 'Document' }).id,
+      action: 'update',
+      role_id: registeredRole.id,
+      relation: 'owner'
+    },
+    {
+      model_id: _.find(models, { name: 'Document' }).id,
+      action: 'delete',
+      role_id: registeredRole.id,
+      relation: 'owner'
     }
   ];
 

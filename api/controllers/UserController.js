@@ -24,10 +24,10 @@ _.merge(exports, {
     },
 
     setPassword: function(req, res) {
-        sails.models.passport.findOne({
+        sails.models.passport.findOne({where: {
                 protocol: 'local',
-                user: req.user.id
-            })
+                user_id: req.user.id
+            }})
             .then(function(passport) {
                 return bcrypt.compareAsync(req.allParams().oldPassword || '', passport.password)
                     .then(function(match) {
@@ -55,7 +55,6 @@ _.merge(exports, {
         sails.services.passport.protocols.local.register(req.body)
             .then(function(user) {
                 var passport = sails.services.passport;
-
                 // Initialize Passport
                 passport.initialize()(req, res, function() {
                     // Use the built-in sessions
@@ -72,6 +71,12 @@ _.merge(exports, {
                     });
                 });
             })
-            .catch(res.negotiate)
+            .catch(sails.config.exceptions.ValidationError, function(err){
+                return res.badRequest(err);
+            })
+            .catch(function(err){
+                return res.serverError(err);
+            });
+
     }
 });

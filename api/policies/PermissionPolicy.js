@@ -37,7 +37,6 @@ module.exports = function (req, res, next) {
       if (!permissions || permissions.length === 0) {
         return res.forbidden({ error: PermissionService.getErrorMessage(options) });
       }
-
       req.permissions = permissions;
 
       next();
@@ -78,7 +77,6 @@ function responsePolicy (_data, options) {
       });
 
       if (permitted.length === 0) {
-        //sails.log.verbose('permitted.length === 0');
         return res.send(404);
       }
       else if (_.isArray(_data)) {
