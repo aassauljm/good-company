@@ -31,6 +31,18 @@ module.exports = {
         }
     },
     associations: function() {
+        User.belongsTo(User, {
+            as: 'owner',
+            foreignKey: {
+                name: 'owner_id'
+            }
+        });
+        User.belongsTo(User, {
+            as: 'createdBy',
+            foreignKey: {
+                name: 'createdBy_id'
+            }
+        });
         User.hasMany(Passport, {
             foreignKey: {
                 as: 'passports',
@@ -63,44 +75,46 @@ module.exports = {
         },
         hooks: {
 
-            beforeValidate: [function(user) {
-                if (user.email) {
-                    user.email = user.email.toLowerCase();
+            beforeValidate: [
+                function(user) {
+                    if (user.email) {
+                        user.email = user.email.toLowerCase();
+                    }
                 }
-            }],
+            ],
             afterCreate: [
-            function setOwner(user) {
-                sails.log.verbose('User.afterCreate.setOwner', user);
-                return User
-                .update({
-                    owner: user.id
-                },{
-                    where: { id: user.id}
-                })
-                .then(function(user) {})
-                .catch(function(e) {
-                    sails.log.error(e);
-                });
-            },
-            function attachDefaultRole(user) {
-                sails.log.verbose('User.afterCreate.attachDefaultRole', user);
-                return User.findOne({where: {id: user.id}}, { include: 'roles'})
-                .then(function(_user) {
-                    user = _user;
-                    return Role.findOne({where: {
-                        name: 'registered'
-                    }});
-                })
-                .then(function(role) {
-                    return user.addRole(role)
-                })
-                .then(function(updatedUser) {
-                    sails.log.verbose('role "registered" attached to user', user.username);
-                })
-                .catch(function(e) {
-                    sails.log.error(e);
-                })
-            }
+                function setOwner(user) {
+                    sails.log.verbose('User.afterCreate.setOwner', user);
+                    return User
+                    .update({
+                        owner_id: user.id
+                    },{
+                        where: { id: user.id}
+                    })
+                    .then(function(user) {})
+                    .catch(function(e) {
+                        sails.log.error(e);
+                    });
+                },
+                function attachDefaultRole(user) {
+                    sails.log.verbose('User.afterCreate.attachDefaultRole', user);
+                    return User.findOne({where: {id: user.id}}, { include: 'roles'})
+                    .then(function(_user) {
+                        user = _user;
+                        return Role.findOne({where: {
+                            name: 'registered'
+                        }});
+                    })
+                    .then(function(role) {
+                        return user.addRole(role)
+                    })
+                    .then(function(updatedUser) {
+                        sails.log.verbose('role "registered" attached to user', user.username);
+                    })
+                    .catch(function(e) {
+                        sails.log.error(e);
+                    })
+                }
             ]
 
         }

@@ -13,12 +13,20 @@ describe('UserController', function() {
                 .send({'identifier': 'testacular@email.com', 'password': 'testtest'})
                 .expect(200, done)
         });
-         it('confirm that now signed in', function(done) {
+        it('confirm that now signed in', function(done) {
             req
                 .get('/api/get_info')
-                .expect(200, done);
+                .expect(200);
         });
-
+        it('users api should return only this user', function(done) {
+            req
+                .get('/api/user')
+                .expect(200)
+                .then(function(res){
+                    res.body.length.should.be.eql(1);
+                    done();
+                })
+        });
         it('should attempt change password, fail auth', function(done) {
             req
                 .put('/api/set_password')
@@ -109,7 +117,7 @@ describe('UserController', function() {
                 .send({'email': 'testaculary@email.com', 'username': 'nonduplicate', 'password': 'password'})
                 .expect(200, done);
         });
-         it('confirm that now signed in', function(done) {
+        it('confirm that now signed in', function(done) {
             req
                 .get('/api/get_info')
                 .expect(200, done);

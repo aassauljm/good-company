@@ -22,7 +22,6 @@ describe('Company Controller', function() {
                 return Company.findOne({companyName: 'XERO LIMITED'})
             })
             .then(function(company){
-                console.log(company)
                 done();
             })
         })

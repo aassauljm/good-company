@@ -97,19 +97,17 @@ function responsePolicy(criteria, _data, options) {
   var isResponseArray = _.isArray(_data);
 
   var data = isResponseArray ? _data : [_data];
-
   sails.log.silly('data', data);
   sails.log.silly('options', options);
   sails.log.silly('criteria!', criteria);
 
   var permitted = data.reduce(function(memo, item) {
     criteria.some(function(crit) {
-      var filtered = wlFilter([item], {
+      var filtered = wlFilter([item.get ? item.get() : item], {
         where: {
           or: [crit.where]
         }
       }).results;
-
       if (filtered.length) {
 
         if (crit.blacklist && crit.blacklist.length) {
@@ -123,6 +121,7 @@ function responsePolicy(criteria, _data, options) {
     });
     return memo;
   }, []);
+
 
   if (isResponseArray) {
     return res._ok(permitted, options);

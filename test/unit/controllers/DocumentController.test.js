@@ -63,7 +63,8 @@ describe('DocumentController', function() {
             })
     });
 
-    it('should login with other account and fail to get document', function(done) {
+    it('should login with other account and fail to get record', function(done) {
+        req = request.agent(sails.hooks.http.app);
         req
             .post('/auth/local')
             .send({'identifier': 'documentstealer@email.com', 'password': 'testtest'})
@@ -74,8 +75,12 @@ describe('DocumentController', function() {
             })
             .then(function(res){
                 res.status.should.be.eql(403);
-                return req.get('/api/document/get_document/'+document_id)
-            })
+                done();
+            });
+        });
+
+    it('should login with other account and fail to get raw document', function(done) {
+        req.get('/api/document/get_document/'+document_id)
             .then(function(res){
                 res.status.should.be.eql(403);
                 done();
