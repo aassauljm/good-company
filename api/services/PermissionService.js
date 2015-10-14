@@ -191,7 +191,7 @@ module.exports = {
      * otherwise.
      */
     hasOwnershipPolicy: function(model) {
-        return model.autoCreatedBy;
+        return !!(model.associations && model.associations.owner);
     },
 
     /**
@@ -249,7 +249,7 @@ module.exports = {
         // look up user ids based on usernames, and replace the names with ids
         ok = ok.then(function(permissions) {
             if (options.users) {
-                return User.find({
+                return User.findAll({
                         where: {
                             username: options.users
                         }
@@ -303,11 +303,11 @@ module.exports = {
                     }
                 })])
                 .spread(function(role, user, model) {
-                    permission.model = model.id;
+                    permission.model_id = model.id;
                     if (role && role.id) {
-                        permission.role = role.id;
+                        permission.role_id = role.id;
                     } else if (user && user.id) {
-                        permission.user = user.id;
+                        permission.user_id = user.id;
                     } else {
                         return Promise.reject(new Error('no role or user specified'));
                     }
@@ -315,7 +315,7 @@ module.exports = {
         });
 
         ok = ok.then(function() {
-            return Permission.create(permissions);
+            return Permission.bulkCreate(permissions);
         });
 
         return ok;
@@ -335,20 +335,23 @@ module.exports = {
         if (!_.isArray(usernames)) {
             usernames = [usernames];
         }
-
+        var role;
         return Role.findOne({
             where: {
                 name: rolename
-            }
-        }).populate('users').then(function(role) {
-            return User.find({
+            }, include: [{model: User, as: 'users'}]})
+            .then(function(_role) {
+                role = _role;
+            return User.findAll({
                 where: {
                     username: usernames
                 }
             }).then(function(users) {
-                role.users.add(_.pluck(users, 'id'));
-                return role.save();
-            });
+                return role.setUsers(role.users.concat(users));
+            })
+            .then(function(){
+                return role.reload();
+            })
         });
     },
 
@@ -366,23 +369,19 @@ module.exports = {
         if (!_.isArray(usernames)) {
             usernames = [usernames];
         }
-
-        return Role.findOne({
+        var role;
+        return Role.findOne({where: {
                 name: rolename
+            }, include: [{model: User, as: 'users'}]})
+            .then(function(_role) {
+                role = _role;
+                return role.setUsers(_.filter(role.users, function(user){
+                    return !_.contains(usernames, user.username);
+                }));
             })
-            .populate('users')
-            .then(function(role) {
-                return User.find({
-                    username: usernames
-                }, {
-                    select: ['id']
-                }).then(function(users) {
-                    users.map(function(users) {
-                        role.users.remove(user.id);
-                    });
-                    return role.save();
-                });
-            });
+            .then(function(){
+                return role.reload();
+            })
     },
 
     /**
@@ -395,14 +394,17 @@ module.exports = {
      * @param options.relation {string} - the type of the relation (owner or role)
      */
     revoke: function(options) {
-        var findRole = options.role ? Role.findOne({
+        var findRole = options.role ? Role.findOne({ where: {
             name: options.role
+        }
         }) : null;
-        var findUser = options.user ? User.findOne({
+        var findUser = options.user ? User.findOne({ where: {
             username: options.user
+        }
         }) : null;
-        var ok = Promise.all([findRole, findUser, Model.findOne({
+        var ok = Promise.all([findRole, findUser, Model.findOne({ where: {
             name: options.model
+        }
         })]);
 
         ok = ok.spread(function(role, user, model) {
@@ -420,10 +422,9 @@ module.exports = {
             } else {
                 return Promise.reject(new Error('You must provide either a user or role to revoke the permission from'));
             }
-
             return Permission.destroy({
                 where: query
-            });
+            })
         });
 
         return ok;

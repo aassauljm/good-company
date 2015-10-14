@@ -37,6 +37,17 @@ module.exports.routes = {
     action: 'landing'
   },
 
+
+  'GET /logout': 'AuthController.logout',
+
+  'POST /auth/local': 'AuthController.callback',
+  'POST /auth/local/:action': 'AuthController.callback',
+
+  'GET /auth/:provider': 'AuthController.provider',
+  'GET /auth/:provider/callback': 'AuthController.callback',
+  'GET /auth/:provider/:action': 'AuthController.callback',
+
+
   'GET /api/get_info': {
     controller: 'UserController',
     modelIdentity: 'user',
@@ -77,14 +88,6 @@ module.exports.routes = {
     modelIdentity: 'document',
     action: 'find'
    }
-  /***************************************************************************
-  *                                                                          *
-  * Custom routes here...                                                    *
-  *                                                                          *
-  * If a request to a URL doesn't match any of the custom routes above, it   *
-  * is matched against Sails route blueprints. See `config/blueprints.js`    *
-  * for configuration options and examples.                                  *
-  *                                                                          *
-  ***************************************************************************/
+
 
 };

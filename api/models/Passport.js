@@ -1,7 +1,6 @@
 // api/models/Passport.js
 
 var _ = require('lodash');
-var _super = require('sails-permissions/api/models/Passport');
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var MIN_PASSWORD = 8;

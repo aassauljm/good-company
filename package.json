@@ -79,7 +79,6 @@
     "sails-hook-sequelize": "^1.0.1",
     "sails-hook-sequelize-blueprints": "0.0.8",
     "sails-hook-validation": "^0.4.1",
-    "sails-permissions": "^1.4.5",
     "sails-postgresql": "^0.10.16",
     "sequelize": "^3.11.0",
     "sequelize-fixtures": "^0.4.8",

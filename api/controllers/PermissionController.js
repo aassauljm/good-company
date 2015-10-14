@@ -1,11 +1,10 @@
-// api/controllers/PermissionController.js
+/**
+ * PermissionController
+ *
+ * @description :: Server-side logic for managing permissions
+ * @help        :: See http://links.sailsjs.org/docs/controllers
+ */
 
-var _ = require('lodash');
-var _super = require('sails-permissions/api/controllers/PermissionController');
+module.exports = {
 
-_.merge(exports, _super);
-_.merge(exports, {
-
-  // Extend with custom logic here by adding additional fields, methods, etc.
-
-});
+};

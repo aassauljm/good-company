@@ -16,7 +16,11 @@ describe('UserController', function() {
         it('confirm that now signed in', function(done) {
             req
                 .get('/api/get_info')
-                .expect(200);
+                .expect(200)
+                .then(function(res){
+                    id = res.body.id;
+                    done();
+                })
         });
         it('users api should return only this user', function(done) {
             req
@@ -24,6 +28,23 @@ describe('UserController', function() {
                 .expect(200)
                 .then(function(res){
                     res.body.length.should.be.eql(1);
+                    done();
+                })
+        });
+        it('users api should return this user info on request', function(done) {
+            req
+                .get('/api/user/'+id)
+                .expect(200)
+                .then(function(res){
+                    res.body.id.should.be.eql(id);
+                    done();
+                })
+        });
+        it("sers api should not return another's user info on request", function(done) {
+            req
+                .get('/api/user/'+(id-1))
+                .expect(403)
+                .then(function(res){
                     done();
                 })
         });

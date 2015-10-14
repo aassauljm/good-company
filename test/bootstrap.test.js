@@ -6,14 +6,20 @@ var sequelize_fixtures = require('sequelize-fixtures');
 var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 chai.should();
+var events = require("events"),
+    EventEmitter = events.EventEmitter;
+EventEmitter.defaultMaxListeners = 20;
+
 var sails;
+
+//EventEmitter.emitter.setMaxListeners(20)
 
 before(function(done) {
 
     Sails.lift({
         port: 1338,
         log: {
-            level: 'silly'
+            level: 'error'
         },
         models: {
             connection: 'pg_test',

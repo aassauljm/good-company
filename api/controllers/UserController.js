@@ -1,15 +1,12 @@
 // api/controllers/UserController.js
 
 var _ = require('lodash');
-var _super = require('sails-permissions/api/controllers/UserController');
 var Promise = require("bluebird");
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 
-_.merge(exports, _super);
-_.merge(exports, {
-    autoCreateBy: true,
-    // Extend with custom logic here by adding additional fields, methods, etc.
+
+module.exports = {
 
     userInfo: function(req, res) {
         User.findOne({
@@ -79,4 +76,4 @@ _.merge(exports, {
             });
 
     }
-});
+}

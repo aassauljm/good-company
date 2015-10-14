@@ -20,6 +20,7 @@ module.exports = {
                 'update',
                 'delete'),
             index: true,
+            unique: 'permissionIndex'
         },
 
         relation: {
@@ -28,7 +29,18 @@ module.exports = {
                 'owner',
                 'user'),
             defaultValue: 'role',
-            index: true
+            index: true,
+            unique: 'permissionIndex'
+        },
+
+        user_id: {
+            type: Sequelize.INTEGER,
+            unique: 'permissionIndex'
+        },
+
+        role_id: {
+            type: Sequelize.INTEGER,
+            unique: 'permissionIndex'
         }
     },
 
