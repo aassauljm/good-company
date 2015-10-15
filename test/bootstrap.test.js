@@ -1,3 +1,4 @@
+var superstack = require('superstack');
 var Sails = require('sails');
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
@@ -9,7 +10,7 @@ chai.should();
 var events = require("events"),
     EventEmitter = events.EventEmitter;
 EventEmitter.defaultMaxListeners = 20;
-
+Error.stackTraceLimit = Infinity;
 var sails;
 
 //EventEmitter.emitter.setMaxListeners(20)

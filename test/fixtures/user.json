@@ -26,4 +26,12 @@
         "username": "document-stealer",
         "email": "documentstealer@email.com"
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 14,
+        "username": "admin-tester",
+        "email": "admintester@email.com",
+        "roles": [{"name": "admin"}]
+    }
 }]

@@ -40,7 +40,7 @@ describe('UserController', function() {
                     done();
                 })
         });
-        it("sers api should not return another's user info on request", function(done) {
+        it("users api should not return another's user info on request", function(done) {
             req
                 .get('/api/user/'+(id-1))
                 .expect(403)
