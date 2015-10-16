@@ -28,30 +28,6 @@ module.exports.connections = {
      * Installed by default.                                                    *
      *                                                                          *
      ***************************************************************************/
-    /*disk_test: {
-    adapter: 'sails-disk'
-  },
-
-  pg: {
-    adapter: 'sails-postgresql',
-    host: 'localhost',
-    user: 'josh',
-    password: '',
-    database: 'goodcompany'
-  },
-
-  pg_test: {
-    adapter: 'sails-postgresql',
-    host: 'localhost',
-    user: 'josh',
-    password: '',
-    database: 'goodcompanytest'
-  },
-
-  memory_test: {
-    adapter: 'sails-memory'
-  }
-*/
     pg: {
         user: process.env.USER || 'postgres',
         password: '',
@@ -86,7 +62,5 @@ module.exports.connections = {
             }
         }
     }
-
-
 
 };

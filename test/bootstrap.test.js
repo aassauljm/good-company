@@ -19,7 +19,7 @@ before(function(done) {
     Sails.lift({
         port: 1338,
         log: {
-            level: 'silly'
+            level: 'error'
         },
         models: {
             connection: 'pg_test',

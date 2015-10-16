@@ -49,6 +49,15 @@ describe('DocumentController', function() {
                 });
             });
     });
+    it('should get document preview', function(done) {
+        req
+            .get('/api/document/get_document_preview/'+document_id)
+            .expect(200)
+            .expect('Content-Type', 'image/png')
+            .then(function(){
+                done();
+            });
+    });
     it('logs out and confirms file is inaccessible', function(done) {
         req
             .get('/logout')
