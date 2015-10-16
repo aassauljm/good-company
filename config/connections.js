@@ -53,7 +53,7 @@ module.exports.connections = {
   }
 */
     pg: {
-        user: 'josh',
+        user: process.env.USER || 'postgres',
         password: '',
         database: 'goodcompany',
         dialect: 'postgres',
@@ -70,7 +70,7 @@ module.exports.connections = {
         }
     },
     pg_test: {
-        user: 'josh',
+        user: process.env.USER || 'postgres',
         password: '',
         database: 'test',
         dialect: 'postgres',

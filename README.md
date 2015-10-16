@@ -1,4 +1,4 @@
-#Webpack Starter Kit
+#Sailsjs, Sequelize Project
 
 * React support
 * ES2015 support
@@ -6,5 +6,7 @@
 
 ### Set Up
 npm install
+
+npm test
 
 npm run build-dev
