@@ -41,11 +41,23 @@ function BadCredentialsException(value) {
 BadCredentialsException.prototype = Object.create(Error.prototype);
 BadCredentialsException.prototype.constructor = BadCredentialsException;
 
+function BadParcelOperation(value) {
+   this.value = value;
+   this.toString = function() {
+      return this.value + this.message;
+   };
+}
+
+BadParcelOperation.prototype = Object.create(Error.prototype);
+BadParcelOperation.prototype.constructor = BadParcelOperation;
+
+
 module.exports.exceptions = _.defaults({
     ValidationException: ValidationException,
     ForbiddenException: ForbiddenException,
     UserNotFoundException: UserNotFoundException,
-    BadCredentialsException: BadCredentialsException
+    BadCredentialsException: BadCredentialsException,
+    BadParcelOperation: BadParcelOperation
 }, require('sequelize/lib/errors'));
 
 

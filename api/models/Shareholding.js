@@ -12,21 +12,21 @@ module.exports = {
     },
     associations: function() {
         Shareholding.belongsTo(Company, {
+            as: 'company',
             foreignKey: {
-                as: 'company',
                 name: 'company_id'
             }
         });
         Shareholding.belongsTo(Transaction, {
+            as: 'transaction',
             foreignKey: {
-                as: 'transaction',
                 name: 'transaction_id'
             }
         });
         Shareholding.hasMany(Parcel, {
+            as: 'parcels',
             foreignKey: {
-                as: 'parcels',
-                name: 'transaction_id'
+                name: 'shareholding_id'
             }
         });
     },

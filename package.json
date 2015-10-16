@@ -7,7 +7,7 @@
     "build-dev": "webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p ",
     "run": "sails lift",
-    "test-coverage": "istanbul cover _mocha -- --recursive test  --timeout 10000",
+    "test-coverage": "istanbul cover _mocha -- --recursive test  --timeout 25000",
     "test": "_mocha --recursive test  --timeout 10000"
   },
   "repository": {
