@@ -1,4 +1,3 @@
-var superstack = require('superstack');
 var Sails = require('sails');
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
@@ -20,7 +19,7 @@ before(function(done) {
     Sails.lift({
         port: 1338,
         log: {
-            level: 'error'
+            level: 'silly'
         },
         models: {
             connection: 'pg_test',

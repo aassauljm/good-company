@@ -6,7 +6,9 @@
   "scripts": {
     "build-dev": "webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p ",
-    "test": "istanbul cover _mocha -- --recursive test --compilers js:babel/register --timeout 30000"
+    "run": "sails lift",
+    "test-coverage": "istanbul cover _mocha -- --recursive test  --timeout 10000",
+    "test": "_mocha --recursive test  --timeout 10000"
   },
   "repository": {
     "type": "git",
@@ -35,10 +37,8 @@
     "sails-memory": "^0.10.5",
     "sass-loader": "^2.0.1",
     "style-loader": "^0.12.4",
-    "superstack": "0.0.4",
     "supertest": "^1.0.1",
     "supertest-as-promised": "^2.0.2",
-    "webpack": "^1.12.2",
     "webpack-dev-server": "^1.11.0"
   },
   "dependencies": {
@@ -84,6 +84,7 @@
     "sequelize": "^3.11.0",
     "sequelize-fixtures": "^0.4.8",
     "url": "^0.11.0",
-    "waterline-criteria": "^0.11.2"
+    "waterline-criteria": "^0.11.2",
+    "webpack": "^1.12.2"
   }
 }
