@@ -39,9 +39,19 @@ before(function(done) {
         if (err) return done(err);
         sails = server;
         sails.log.info('Sails Lifted');
-        sequelize_fixtures.loadFiles(['test/fixtures/user.json', 'test/fixtures/passport.json'], sails.models)
+        sequelize_fixtures.loadFiles(['test/fixtures/user.json', 'test/fixtures/passport.json', 'test/fixtures/company.json'], sails.models)
             .then(function(){
-                done();
+                fs.readFileAsync('config/db/functions.sql', 'utf8')
+                .then(function(sql){
+                    console.log(sql)
+                    return sequelize.query(sql)
+                })
+                .then(function(){
+                    return sequelize.query('SELECT reset_sequences();')
+                })
+                .then(function(){
+                    done();
+                });
             });
     });
 });

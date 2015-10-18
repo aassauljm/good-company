@@ -14,7 +14,8 @@ module.exports = {
         Shareholding.belongsTo(Company, {
             as: 'company',
             foreignKey: {
-                name: 'company_id'
+                name: 'company_id',
+                as: 'company'
             }
         });
         Shareholding.belongsTo(Transaction, {
@@ -25,6 +26,7 @@ module.exports = {
         });
         Shareholding.hasMany(Parcel, {
             as: 'parcels',
+            notNull: true,
             foreignKey: {
                 name: 'shareholding_id'
             }

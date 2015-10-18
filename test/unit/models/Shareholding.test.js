@@ -4,7 +4,7 @@ describe('Shareholding Model', function() {
     describe('Basic shareholding', function() {
         var first_id, second_id;
         it('Sets up first share holding', function(done) {
-            Shareholding.build({
+            Shareholding.build({ company_id: 1,
                 parcels: [{amount: 10, shareClass: 'A'}, {amount: 5, shareClass: 'B'}]
             }, {include: [{all: true}]}).save()
             .then(function(shareholding){
@@ -18,7 +18,7 @@ describe('Shareholding Model', function() {
             })
         });
         it('Sets up second share holding', function(done) {
-            Shareholding.build({
+            Shareholding.build({ company_id: 1,
                 parcels: [{amount: 100, shareClass: 'A'}, {amount: 50, shareClass: 'B'}]
             },{include: [{all: true}]}).save()
             .then(function(shareholding){

@@ -124,6 +124,33 @@ function grantRegisteredPermissions(roles, models, admin) {
         action: 'delete',
         role_id: registeredRole.id,
         relation: 'owner'
+    }, {
+        model_id: _.find(models, {
+            name: 'Company'
+        }).id,
+        action: 'create',
+        role_id: registeredRole.id
+    }, {
+        model_id: _.find(models, {
+            name: 'Company'
+        }).id,
+        action: 'read',
+        role_id: registeredRole.id,
+        relation: 'owner'
+    }, {
+        model_id: _.find(models, {
+            name: 'Company'
+        }).id,
+        action: 'update',
+        role_id: registeredRole.id,
+        relation: 'owner'
+    }, {
+        model_id: _.find(models, {
+            name: 'Company'
+        }).id,
+        action: 'delete',
+        role_id: registeredRole.id,
+        relation: 'owner'
     }];
 
     return Promise.all(

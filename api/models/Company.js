@@ -10,7 +10,13 @@ var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'Jun
 module.exports = {
     attributes: {
         companyName: {
-            type: Sequelize.TEXT
+            type: Sequelize.TEXT,
+            unique: true,
+            index: true,
+            allowNull: false,
+            validate: {
+                min: 1
+            }
         },
         companyNumber: {
             type: Sequelize.TEXT
@@ -32,7 +38,6 @@ module.exports = {
         },
         arFilingMonth: {
             type: months
-
         },
         fraReportingMonth: {
             type: months
@@ -66,7 +71,15 @@ module.exports = {
                 name: 'createdBy_id'
             }
         })
-
+        Company.hasMany(Shareholding, {
+            as: 'shareholdings',
+            foreignKey: {
+                name: 'company_id',
+                as: 'shareholdings',
+                allowNull: false
+            }
+        });
+        console.log(Company.associations)
     },
     options: {
         freezeTableName: false,
