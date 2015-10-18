@@ -34,4 +34,11 @@
         "email": "admintester@email.com",
         "roles": [{"name": "admin"}]
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 15,
+        "username": "company-creator",
+        "email": "companycreator@email.com"
+    }
 }]

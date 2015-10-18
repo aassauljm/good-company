@@ -33,4 +33,11 @@
         "password": "testtest",
         "user_id": 14
     }
+}, {
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "user_id": 15
+    }
 }]

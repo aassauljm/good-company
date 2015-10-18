@@ -40,33 +40,27 @@ exports.createUser = function(_user) {
     var password = _user.password;
     var user;
     delete _user.password;
-    return User.create(_user)
-        .then(function(__user) {
-            user = __user;
-            if(_user.roles)
-                return Promise.all(_user.roles.map(function(role){ return user.addRole(role); }))
-        })
-        .then(function(){
-            return sails.models.passport.create({
-                protocol: 'local',
-                password: password,
-                user_id: user.id
+    return sequelize.transaction(function (t) {
+        return User.create(_user, {transaction: t})
+            .then(function(__user) {
+                user = __user;
+                if(_user.roles)
+                    return Promise.all(_user.roles.map(function(role){ return user.addRole(role, {transaction: t}); }))
             })
-        })
-        .then(function(){
-            return user;
-        })
-        .catch(function(err) {
-            if (user) {
-                return user.destroy()
-                    .then(function(){
-                         throw new sails.config.exceptions.ValidationError(err.message);
-                     });
-            }
-            else{
+            .then(function(){
+                return sails.models.passport.create({
+                    protocol: 'local',
+                    password: password,
+                    user_id: user.id
+                }, {transaction: t})
+            })
+            .then(function(){
+                return user;
+            })
+            .catch(function(err) {
                 throw new sails.config.exceptions.ValidationError(err.message);
-            }
-        })
+            })
+        });
 };
 /**
  * Assign local Passport to user

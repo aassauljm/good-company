@@ -16,9 +16,23 @@ describe('Users Model', function() {
                 })
                 .then(done)
             });
-
     });
-
-
+    describe('Test User creation', function() {
+        var count;
+        it('should rollback after failing to supply valid info', function(done) {
+            User.findAll()
+                .then(function(users) {
+                    count = users.length;
+                    return User.register({email: 'a@b.com', username: 'userwithoutpassword'})
+                })
+                .catch(function(){
+                    return User.findAll()
+                })
+                .then(function(users){
+                    users.length.should.be.eql(count);
+                    done();
+                })
+        });
+    });
 
 });
