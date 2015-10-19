@@ -51,7 +51,7 @@ describe('TransactionController', function() {
             req.post('/api/transaction/seed/'+companyId)
                 .send({shareholdings: [{
                     shareholders: [{name: 'Gary'}, {name: 'Busey'}],
-                    parcels: [{amount: 1111}]
+                    parcels: [{amount: 1111, shareClass: 'A'}, {amount: 1, shareClass: 'B'}]
                 }]})
                 .expect(200, done)
         });
@@ -59,12 +59,13 @@ describe('TransactionController', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
+                    res.body.totalAllocatedShares.should.be.equal(1112)
                     res.body.currentTransaction.should.containSubset({
                         type: 'SEED',
                         shareholdings: [
                             {
                                 shareholders: [{name: 'Busey'}, {name: 'Gary'}],
-                                parcels: [{amount: 1111}]
+                                parcels: [{amount: 1111}, {amount: 1}]
                             }
                         ]
                     })
