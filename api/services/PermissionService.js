@@ -552,7 +552,7 @@ module.exports = {
             })
             .then(function(pass){
                 if(!pass){
-                    throw new ForbiddenException('Not Permitted')
+                    throw new sails.config.exceptions.ForbiddenException('Not Permitted')
                 }
             })
 

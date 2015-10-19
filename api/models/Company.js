@@ -79,12 +79,51 @@ module.exports = {
                 allowNull: false
             }
         });
+        Company.belongsTo(Transaction, {
+            as: 'seedTransaction',
+            foreignKey: {
+                as: 'seedTransaction',
+                name: 'seedTransactionId'
+            }
+        });
+        Company.belongsTo(Transaction, {
+            as: 'currentTransaction',
+            foreignKey: {
+                as: 'currentTransaction',
+                name: 'currentTransactionId'
+            }
+        });
     },
     options: {
         freezeTableName: false,
         tableName: 'company',
-        classMethods: {},
-        instanceMethods: {},
-        hooks: {}
+        classMethods: {
+        },
+        instanceMethods: {
+            getCurrentShareholdings: function(){
+                //console.log('here');
+                //return this.getShareholdings({where: {transactionId: this.currentTransactionId, include: [{model: Parcel, as: 'parcels'}, {model: Shareholder, as: 'shareholders'}]}})
+            }
+        },
+        hooks: {
+            afterCreate: [
+            function addSeedTransaction(company) {
+                sails.log.verbose('company.addSeedTransaction', company.get());
+                return Transaction.create({
+                        type: Transaction.types.SEED
+                    })
+                .then(function(transaction){
+                    this.transaction = transaction;
+                    return company.setSeedTransaction(transaction)
+                    })
+                .then(function(){
+                    return company.setCurrentTransaction(this.transaction)
+                    })
+                .catch(function(e) {
+                    sails.log.error(e);
+                });
+            }
+        ]
     }
+}
 };

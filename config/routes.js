@@ -22,76 +22,81 @@
 
 module.exports.routes = {
 
-  /***************************************************************************
-  *                                                                          *
-  * Make the view located at `views/homepage.ejs` (or `views/homepage.jade`, *
-  * etc. depending on your default view engine) your home page.              *
-  *                                                                          *
-  * (Alternatively, remove this and add an `index.html` file in your         *
-  * `assets` directory)                                                      *
-  *                                                                          *
-  ***************************************************************************/
+    /***************************************************************************
+     *                                                                          *
+     * Make the view located at `views/homepage.ejs` (or `views/homepage.jade`, *
+     * etc. depending on your default view engine) your home page.              *
+     *                                                                          *
+     * (Alternatively, remove this and add an `index.html` file in your         *
+     * `assets` directory)                                                      *
+     *                                                                          *
+     ***************************************************************************/
 
-  '/': {
-    controller: 'LandingController',
-    action: 'landing'
-  },
-
-
-  'GET /logout': 'AuthController.logout',
-
-  'POST /auth/local': 'AuthController.callback',
-  'POST /auth/local/:action': 'AuthController.callback',
-
-  'GET /auth/:provider': 'AuthController.provider',
-  'GET /auth/:provider/callback': 'AuthController.callback',
-  'GET /auth/:provider/:action': 'AuthController.callback',
+    '/': {
+        controller: 'LandingController',
+        action: 'landing'
+    },
 
 
-  'GET /api/get_info': {
-    controller: 'UserController',
-    modelIdentity: 'user',
-    action: 'userInfo'
-  },
+    'GET /logout': 'AuthController.logout',
 
-  'PUT /api/set_password': {
-    controller: 'UserController',
-    modelIdentity: 'user',
-    action: 'setPassword',
-    blacklist: ['oldPassword']
-  },
+    'POST /auth/local': 'AuthController.callback',
+    'POST /auth/local/:action': 'AuthController.callback',
 
-  'POST /api/user/signup': {
-    controller: 'UserController',
-    action: 'signup'
-  },
+    'GET /auth/:provider': 'AuthController.provider',
+    'GET /auth/:provider/callback': 'AuthController.callback',
+    'GET /auth/:provider/:action': 'AuthController.callback',
 
-   'POST /api/document/upload_document': {
-    controller: 'DocumentController',
-    action: 'uploadDocument',
-    modelIdentity: 'document'
-  },
 
-   'GET /api/document/get_document/:id': {
-    controller: 'DocumentController',
-    action: 'getDocument',
-    modelIdentity: 'document'
-  },
+    'GET /api/get_info': {
+        controller: 'UserController',
+        modelIdentity: 'user',
+        action: 'userInfo'
+    },
 
-   'GET /api/document/get_document_preview/:id': {
-    controller: 'DocumentController',
-    action: 'getDocumentPreview',
-    modelIdentity: 'document'
-  },
-   'GET /api/document': {
-    controller: 'DocumentController',
-    modelIdentity: 'document',
-    action: 'find'
-   },
+    'PUT /api/set_password': {
+        controller: 'UserController',
+        modelIdentity: 'user',
+        action: 'setPassword',
+        blacklist: ['oldPassword']
+    },
 
-   'POST /api/transaction/:type/:companyId': {
+    'POST /api/user/signup': {
+        controller: 'UserController',
+        action: 'signup'
+    },
+
+    'POST /api/document/upload_document': {
+        controller: 'DocumentController',
+        action: 'uploadDocument',
+        modelIdentity: 'document'
+    },
+
+    'GET /api/document/get_document/:id': {
+        controller: 'DocumentController',
+        action: 'getDocument',
+        modelIdentity: 'document'
+    },
+
+    'GET /api/document/get_document_preview/:id': {
+        controller: 'DocumentController',
+        action: 'getDocumentPreview',
+        modelIdentity: 'document'
+    },
+    'GET /api/document': {
+        controller: 'DocumentController',
+        modelIdentity: 'document',
+        action: 'find'
+    },
+
+    'POST /api/transaction/:type/:companyId': {
         controller: 'TransactionController',
         action: 'create'
-   }
+    },
+    'GET /api/company/:id/get_info': {
+        controller: 'CompanyController',
+        action: 'getInfo',
+        modelIdentity: 'company'
+    }
 
 };

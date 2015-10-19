@@ -18,7 +18,6 @@ module.exports = {
             validate: {
                 min: 5,
             }
-
         },
         email: {
             type: Sequelize.TEXT,

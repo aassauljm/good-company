@@ -32,8 +32,17 @@ module.exports = {
             as: 'parcels',
             notNull: true,
             foreignKey: {
+                as: 'parcels',
                 name: 'shareholdingId'
             }
+        });
+        Shareholding.belongsToMany(Shareholder, {
+            as: 'shareholders',
+            foreignKey: {
+                as: 'shareholders',
+                name: 'shareholderId'
+            },
+            through: 'shareholdingShareholder'
         });
     },
     options: {

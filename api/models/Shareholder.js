@@ -25,7 +25,7 @@ module.exports = {
                 name: 'shareholdingId'
             },
             through: 'shareholdingShareholder'
-        })
+        });
     },
     options: {
         freezeTableName: false,
