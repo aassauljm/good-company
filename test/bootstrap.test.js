@@ -4,7 +4,9 @@ var fs = Promise.promisifyAll(require("fs"));
 var chai = require("chai");
 var sequelize_fixtures = require('sequelize-fixtures');
 var chaiAsPromised = require("chai-as-promised");
+var chaiSubset = require('chai-subset');
 chai.use(chaiAsPromised);
+chai.use(chaiSubset);
 chai.should();
 var events = require("events"),
     EventEmitter = events.EventEmitter;

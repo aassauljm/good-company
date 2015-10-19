@@ -34,13 +34,10 @@ var transactions = {
                     }, {transaction: t});
                 }))
             })
-            .spread(function(shareholdings){
-                this.transaction.getShareholdings()
-                .then(function(shareholdings){
-
-                console.log(shareholdings)
+            .spread(function(){
+                return this.transaction.getShareholdings()
+            }).then(function(shareholdings){
                 return res.ok();
-                });
             })
             .catch(function(e){
                 sails.log.error(e);
@@ -56,7 +53,6 @@ var transactions = {
 
 
 module.exports = {
-
     create: function(req, res) {
         var company;
         Company.findById(req.params.companyId, {

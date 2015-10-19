@@ -30,6 +30,13 @@ module.exports = {
                 as: 'shareholdings'
             }
         });
+        Transaction.belongsTo(Transaction, {
+            as: 'previousTransaction',
+            foreignKey: {
+                name: 'previousTransactionId',
+                as: 'previousTransaction'
+            }
+        });
     },
     options: {
         freezeTableName: false,

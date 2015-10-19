@@ -38,7 +38,7 @@ describe('TransactionController', function() {
         it('Try valid post', function(done) {
             req.post('/api/transaction/seed/'+companyId)
                 .send({shareholdings: [{
-                    shareholders: ['Gary', 'Bussy'],
+                    shareholders: [{name: 'Gary'}, {name: 'Busey'}],
                     parcels: [{amount: 1111}]
                 }]})
                 .expect(200, done)
@@ -47,7 +47,16 @@ describe('TransactionController', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    console.log(res.body);
+                    console.log(res.body.currentTransaction)
+                    res.body.currentTransaction.should.containSubset({
+                        type: 'SEED',
+                        shareholdings: [
+                            {
+                                shareholders: [{name: 'Gary'}, {name: 'Busey'}],
+                                parcels: [{amount: 1111}]
+                            }
+                        ]
+                    })
                     done();
                 })
         });
