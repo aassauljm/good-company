@@ -27,12 +27,12 @@ module.exports = {
                 }]
             })
             .then(function(company) {
-                this.company = company;
-                return this.company.currentTransaction.totalShares()
+                this.company = company.get();
+                return company.currentTransaction.totalShares()
             })
             .then(function(total){
-                company.totalAllocatedShares = total;
-                res.json(company)
+                this.company.totalAllocatedShares = total;
+                res.json(this.company)
             });
     }
 };

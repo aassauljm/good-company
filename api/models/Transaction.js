@@ -4,12 +4,13 @@
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
- var _ = require('lodash');
- var Promise = require('bluebird');
+var _ = require('lodash');
+var Promise = require('bluebird');
 
 
- var types = {
+var types = {
     SEED: 'SEED',
+    ISSUE: 'ISSUE',
     ISSUE_INCORPORATION: 'ISSUE_INCORPORATION',
     ISSUE_PROPORTIONAL: 'ISSUE_PROPORTIONAL',
     ISSUE_NONPROPORTIONAL: 'ISSUE_NONPROPORTIONAL'
@@ -55,50 +56,77 @@ module.exports = {
         instanceMethods: {
             groupShares: function() {
                 return this.getShareholdings({
-                    include: [{
-                        model: Parcel,
-                        as: 'parcels'
-                    }]
-                })
-                .then(function(shareholdings) {
-                    return _.groupBy(_.flatten(shareholdings.map(function(s) {
-                        return s.parcels;
-                    })), function(p) {
-                        return p.shareClass;
-                    });
-                })
+                        include: [{
+                            model: Parcel,
+                            as: 'parcels'
+                        }]
+                    })
+                    .then(function(shareholdings) {
+                        return _.groupBy(_.flatten(shareholdings.map(function(s) {
+                            return s.parcels;
+                        })), function(p) {
+                            return p.shareClass;
+                        });
+                    })
             },
             groupTotals: function() {
                 return this.groupShares()
-                .then(function(groups) {
-                    return Promise.reduce(_.values(groups), function(acc, shares){
-                        return Promise.reduce(shares, function(total, share){
-                            return total.combine(share);
-                        }, Parcel.build({
-                            shareClass: shares[0].shareClass,
-                            amount: 0
-                        }))
-                        .then(function(result){
-                            acc[result.shareClass] = result.get();
-                            return acc;
-                        })
-                    }, {});
-                });
-            },
-            totalShares: function(){
-                return this.getShareholdings({
-                    include: [{
-                        model: Parcel,
-                        as: 'parcels'
-                    }]
-                })
-                .then(function(shareholdings) {
-                    return _.sum(_.flatten(shareholdings.map(function(s) {
-                        return s.parcels;
-                    })), function(p){
-                        return p.amount;
+                    .then(function(groups) {
+                        return Promise.reduce(_.values(groups), function(acc, shares) {
+                            return Promise.reduce(shares, function(total, share) {
+                                    return total.combine(share);
+                                }, Parcel.build({
+                                    shareClass: shares[0].shareClass,
+                                    amount: 0
+                                }))
+                                .then(function(result) {
+                                    acc[result.shareClass] = result.get();
+                                    return acc;
+                                })
+                        }, {});
                     });
-                })
+            },
+            totalShares: function() {
+                return this.getShareholdings({
+                        include: [{
+                            model: Parcel,
+                            as: 'parcels'
+                        }]
+                    })
+                    .then(function(shareholdings) {
+                        console.log('BVORKEN TOTAL', shareholdings)
+                        return _.sum(_.flatten(shareholdings.map(function(s) {
+                            return s.parcels;
+                        })), function(p) {
+                            return p.amount;
+                        });
+                    })
+            },
+            cloneShareholdings: function() {
+                return this.getShareholdings({
+                        include: [{
+                            model: Parcel,
+                            as: 'parcels'
+                        }, {
+                            model: Shareholder,
+                            as: 'shareholders'
+                        }]
+                    })
+                    .then(function(shareholdings) {
+                        return shareholdings.map(function(shareholding) {
+                            var parcels = shareholding.parcels.map(function(p) {
+                                return _.pick(p.get(), 'amount', 'shareClass')
+                            });
+                            var shareholders = shareholding.shareholders.map(function(p) {
+                                return _.pick(p.get(), 'name', 'companyNumber')
+                            });
+                            return {
+                                parcels: parcels,
+                                shareholders: shareholders,
+                                companyId: shareholding.companyId
+                            }
+                        });
+                    });
             }
         },
         hooks: {}

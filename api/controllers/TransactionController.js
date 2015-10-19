@@ -34,16 +34,14 @@ var transactions = {
                     }, {transaction: t});
                 }))
             })
-            .spread(function(){
-                return this.transaction.getShareholdings()
-            }).then(function(shareholdings){
-                return res.ok();
-            })
-            .catch(function(e){
-                sails.log.error(e);
-                throw new sails.config.exceptions.TransactionException();
-            })
-        });
+        })
+        .then(function(shareholdings){
+            return res.ok();
+        })
+        .catch(function(e){
+            sails.log.error(e);
+            res.serverError(e);
+        })
     }
 
 }
@@ -70,11 +68,9 @@ module.exports = {
                 res.serverError(e);
             })
             .catch(sails.config.exceptions.ForbiddenException, function(e) {
-                console.log(e)
                 res.forbidden();
             })
             .catch(function(e) {
-                console.log(e)
                 res.serverError(e);
             })
 
