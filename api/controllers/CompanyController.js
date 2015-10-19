@@ -16,10 +16,12 @@ module.exports = {
                         as: 'shareholdings',
                         include: [{
                             model: Parcel,
-                            as: 'parcels'
+                            as: 'parcels',
+                            order: ['shareClass', 'DESC']
                         }, {
                             model: Shareholder,
-                            as: 'shareholders'
+                            as: 'shareholders',
+                            order: ['name', 'DESC']
                         }]
                     }]
                 }]

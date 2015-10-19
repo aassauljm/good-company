@@ -11,4 +11,11 @@
         "companyName": "Transaction Ltd",
         "ownerId": 16
     }
+},{
+    "model": "company",
+    "data": {
+        "id": 3,
+        "companyName": "Calucation Co",
+        "ownerId": 16
+    }
 }]

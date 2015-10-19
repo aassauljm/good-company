@@ -51,6 +51,15 @@ function BadParcelOperation(value) {
 BadParcelOperation.prototype = Object.create(Error.prototype);
 BadParcelOperation.prototype.constructor = BadParcelOperation;
 
+function TransactionException(value) {
+   this.value = value;
+   this.toString = function() {
+      return this.value + this.message;
+   };
+}
+
+TransactionException.prototype = Object.create(Error.prototype);
+TransactionException.prototype.constructor = TransactionException;
 
 module.exports.exceptions = _.defaults({
     ValidationException: ValidationException,

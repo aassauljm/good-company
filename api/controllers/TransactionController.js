@@ -41,10 +41,8 @@ var transactions = {
             })
             .catch(function(e){
                 sails.log.error(e);
-                 return res.serverError();
+                throw new sails.config.exceptions.TransactionException();
             })
-            .then(function(){
-            });
         });
     }
 

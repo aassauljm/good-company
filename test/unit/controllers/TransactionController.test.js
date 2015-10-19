@@ -35,6 +35,18 @@ describe('TransactionController', function() {
                 .send({})
                 .expect(500, done)
         });
+        it('Try no shareholders', function(done) {
+            req.post('/api/transaction/seed/'+companyId)
+                .send({shareholders: [{name: 'Gary'}, {name: 'Busey'}]})
+                .expect(500, done)
+        });
+        it('Try no parcels', function(done) {
+            req.post('/api/transaction/seed/'+companyId)
+                .send({parcels: [{amount: 1111}]})
+                .expect(500, done)
+        });
+    });
+    describe('Successful Seed Transaction', function() {
         it('Try valid post', function(done) {
             req.post('/api/transaction/seed/'+companyId)
                 .send({shareholdings: [{
@@ -47,12 +59,11 @@ describe('TransactionController', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    console.log(res.body.currentTransaction)
                     res.body.currentTransaction.should.containSubset({
                         type: 'SEED',
                         shareholdings: [
                             {
-                                shareholders: [{name: 'Gary'}, {name: 'Busey'}],
+                                shareholders: [{name: 'Busey'}, {name: 'Gary'}],
                                 parcels: [{amount: 1111}]
                             }
                         ]
