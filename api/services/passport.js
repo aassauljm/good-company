@@ -251,7 +251,7 @@ passport.callback = function (req, res, next) {
       protocol: 'oauth2',
       scope: [ 'user', 'gist' ]
       options: {
-        clientID: 'CLIENT_ID',
+        clientID: 'CLIENTId',
         clientSecret: 'CLIENT_SECRET'
       }
     }

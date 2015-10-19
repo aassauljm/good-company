@@ -34,19 +34,19 @@ module.exports = {
         User.belongsTo(User, {
             as: 'owner',
             foreignKey: {
-                name: 'owner_id'
+                name: 'ownerId'
             }
         });
         User.belongsTo(User, {
             as: 'createdBy',
             foreignKey: {
-                name: 'createdBy_id'
+                name: 'createdById'
             }
         });
         User.hasMany(Passport, {
             foreignKey: {
                 as: 'passports',
-                name: 'user_id'
+                name: 'userId'
             }
         });
         User.belongsToMany(Role, {
@@ -54,7 +54,7 @@ module.exports = {
             unique: true,
             through: 'user_roles',
             foreignKey:{
-                name:  'user_id'
+                name:  'userId'
             }
         });
     },
@@ -87,7 +87,7 @@ module.exports = {
                     sails.log.verbose('User.afterCreate.setOwner', user);
                     return User
                     .update({
-                        owner_id: user.id
+                        ownerId: user.id
                     },{
                         where: { id: user.id}
                     })

@@ -12,7 +12,7 @@ module.exports = {
 	    Criteria.belongsTo(Permission, {
             foreignKey: {
                 as: 'permission',
-                name: 'permission_id'
+                name: 'permissionId'
             }
         });
 	},

@@ -22,9 +22,9 @@ module.exports = {
         Shareholder.belongsToMany(Shareholding, {
             foreignKey: {
                 as: 'shareholdings',
-                name: 'shareholding_id'
+                name: 'shareholdingId'
             },
-            through: 'shareholding_shareholder'
+            through: 'shareholdingShareholder'
         })
     },
     options: {

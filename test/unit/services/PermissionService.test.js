@@ -14,7 +14,7 @@ describe('Permission Service', function() {
         it('should return true if object is not owned by the requesting user', function(done) {
 
             var objectNotOwnedByUser = {
-                owner_id: 2
+                ownerId: 2
             };
             var user = 1;
 
@@ -27,7 +27,7 @@ describe('Permission Service', function() {
         it('should return false if object is owned by the requesting user', function(done) {
 
             var objectOwnedByUser = {
-                owner_id: 1
+                ownerId: 1
             };
             var user = 1;
 
@@ -43,10 +43,10 @@ describe('Permission Service', function() {
         it('should return true if any object is not owned by the requesting user', function(done) {
 
             var objectOwnedByUser = {
-                owner_id: 1
+                ownerId: 1
             };
             var objectNotOwnedByUser = {
-                owner_id: 2
+                ownerId: 2
             };
             var user = {
                 id: 1
@@ -60,10 +60,10 @@ describe('Permission Service', function() {
         it('should return false if all objects are owned by the requesting user', function(done) {
 
             var objectOwnedByUser = {
-                owner_id: 1
+                ownerId: 1
             };
             var objectOwnedByUser2 = {
-                owner_id: 1
+                ownerId: 1
             };
             var user = {
                 id: 1
@@ -398,7 +398,7 @@ it('should create a permission', function(done) {
                 return Permission.destroy({
                     where: {
                         action: 'create',
-                        model_id: permissionModelId,
+                        modelId: permissionModelId,
                         relation: 'role'
                     }
                 });
@@ -409,7 +409,7 @@ it('should create a permission', function(done) {
                         where: {
                             action: 'create',
                             relation: 'role',
-                            model_id: permissionModelId
+                            modelId: permissionModelId
                         }
                     });
                 })
@@ -457,14 +457,14 @@ it('should create a permission', function(done) {
 
 
 it('should grant a permission directly to a user', function(done) {
-    var permissionModelId, user_id;
+    var permissionModelId, userId;
             // find any existing permission for this action, and delete it
             User.create({
                 username: 'permission-user',
                 email: 'permission-user@email.com'
             })
             .then(function(user) {
-                user_id = user.id;
+                userId = user.id;
                 return Model.findOne({
                     where: {
                         name: 'Permission'
@@ -476,7 +476,7 @@ it('should grant a permission directly to a user', function(done) {
                 return Permission.destroy({
                     where: {
                         action: 'create',
-                        model_id: permissionModelId,
+                        modelId: permissionModelId,
                         relation: 'role'
                     }
                 });
@@ -487,7 +487,7 @@ it('should grant a permission directly to a user', function(done) {
                         where: {
                             action: 'create',
                             relation: 'role',
-                            model_id: permissionModelId
+                            modelId: permissionModelId
                         }
                     });
                 })
@@ -525,8 +525,8 @@ it('should grant a permission directly to a user', function(done) {
                         where: {
                             action: 'create',
                             relation: 'role',
-                            user_id: user_id,
-                            model_id: permissionModelId
+                            userId: userId,
+                            modelId: permissionModelId
                         }
                     });
                 })
@@ -537,7 +537,7 @@ it('should grant a permission directly to a user', function(done) {
 });
 
 it('should revoke a permission', function(done) {
-    var permissionModelId, user_id;
+    var permissionModelId, userId;
 
             // make sure there is already an existing permission for this case
             User.findOne({
@@ -547,7 +547,7 @@ it('should revoke a permission', function(done) {
                 }
             })
             .then(function(user) {
-                user_id = user.id;
+                userId = user.id;
                 return Model.findOne({
                     where: {
                         name: 'Permission'
@@ -559,8 +559,8 @@ it('should revoke a permission', function(done) {
                     where: {
                         action: 'create',
                         relation: 'role',
-                        user_id: user_id,
-                        model_id: permissionModelId
+                        userId: userId,
+                        modelId: permissionModelId
                     }
                 });
             })
@@ -578,8 +578,8 @@ it('should revoke a permission', function(done) {
                     where: {
                         action: 'create',
                         relation: 'role',
-                        user_id: user_id,
-                        model_id: permissionModelId
+                        userId: userId,
+                        modelId: permissionModelId
                     }
                 });
             })
@@ -627,7 +627,7 @@ it('should not revoke a permission if no user or role is supplied', function(don
                             where: {
                                 action: 'create',
                                 relation: 'role',
-                                model_id: permissionModelId
+                                modelId: permissionModelId
                             }
                         });
                     })
@@ -647,7 +647,7 @@ it('should not revoke a permission if no user or role is supplied', function(don
                             where: {
                                 action: 'create',
                                 relation: 'role',
-                                model_id: permissionModelId
+                                modelId: permissionModelId
                             }
                         });
                     })

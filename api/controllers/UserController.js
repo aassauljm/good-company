@@ -23,7 +23,7 @@ module.exports = {
     setPassword: function(req, res) {
         sails.models.passport.findOne({where: {
                 protocol: 'local',
-                user_id: req.user.id
+                userId: req.user.id
             }})
             .then(function(passport) {
                 return bcrypt.compareAsync(req.allParams().oldPassword || '', passport.password)

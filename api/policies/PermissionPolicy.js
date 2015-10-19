@@ -33,7 +33,6 @@ module.exports = function (req, res, next) {
   PermissionService
     .findModelPermissions(options)
     .then(function (permissions) {
-
       if (!permissions || permissions.length === 0) {
         return res.forbidden({ error: PermissionService.getErrorMessage(options) });
       }

@@ -6,7 +6,11 @@
  */
 
 module.exports = {
-
+     _config: {
+        actions: false,
+        shortcuts: false,
+        rest: false
+      },
     attributes: {
 
     },
@@ -14,21 +18,21 @@ module.exports = {
         Shareholding.belongsTo(Company, {
             as: 'company',
             foreignKey: {
-                name: 'company_id',
+                name: 'companyId',
                 as: 'company'
             }
         });
         Shareholding.belongsTo(Transaction, {
             as: 'transaction',
             foreignKey: {
-                name: 'transaction_id'
+                name: 'transactionId'
             }
         });
         Shareholding.hasMany(Parcel, {
             as: 'parcels',
             notNull: true,
             foreignKey: {
-                name: 'shareholding_id'
+                name: 'shareholdingId'
             }
         });
     },

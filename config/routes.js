@@ -87,7 +87,11 @@ module.exports.routes = {
     controller: 'DocumentController',
     modelIdentity: 'document',
     action: 'find'
-   }
+   },
 
+   'POST /api/transaction/:type/:companyId': {
+        controller: 'TransactionController',
+        action: 'create'
+   }
 
 };

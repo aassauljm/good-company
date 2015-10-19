@@ -51,7 +51,7 @@ exports.createUser = function(_user) {
                 return sails.models.passport.create({
                     protocol: 'local',
                     password: password,
-                    user_id: user.id
+                    userId: user.id
                 }, {transaction: t})
             })
             .then(function(){
@@ -128,7 +128,7 @@ exports.login = function(req, identifier, password, next) {
             return sails.models.passport.findOne({
                 where: {
                 protocol: 'local',
-                user_id: user.id
+                userId: user.id
                 }
             });
         })

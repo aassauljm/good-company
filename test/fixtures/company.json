@@ -4,4 +4,11 @@
         "id": 1,
         "companyName": "No 1 Action Company"
     }
+},{
+    "model": "company",
+    "data": {
+        "id": 2,
+        "companyName": "Transaction Ltd",
+        "ownerId": 16
+    }
 }]

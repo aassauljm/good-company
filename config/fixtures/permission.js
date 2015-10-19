@@ -42,12 +42,12 @@ var modelRestrictions = {
  * Create default Role permissions
  */
 exports.create = function(roles, models, admin) {
+    sails.log.verbose('creating permissions');
     return Promise.all([
             grantAdminPermissions(roles, models, admin),
             grantRegisteredPermissions(roles, models, admin)
         ])
         .spread(function(err, permissions) {
-            sails.log.verbose('created', permissions.length, 'permissions');
             return permissions;
         })
 };
@@ -61,9 +61,9 @@ function grantAdminPermissions(roles, models, admin) {
 
         return _.map(grants.admin, function(permission) {
             var newPermission = {
-                model_id: modelEntity.id,
+                modelId: modelEntity.id,
                 action: permission.action,
-                role_id: adminRole.id,
+                roleId: adminRole.id,
             };
             return Permission.findOrCreate({
                 where: newPermission,
@@ -78,79 +78,85 @@ function grantRegisteredPermissions(roles, models, admin) {
         name: 'registered'
     });
     var permissions = [{
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Permission'
         }).id,
         action: 'read',
-        role_id: registeredRole.id
+        roleId: registeredRole.id
     },{
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'User'
         }).id,
         action: 'update',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'User'
         }).id,
         action: 'read',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Document'
         }).id,
         action: 'create',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Document'
         }).id,
         action: 'read',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Document'
         }).id,
         action: 'update',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Document'
         }).id,
         action: 'delete',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Company'
         }).id,
         action: 'create',
-        role_id: registeredRole.id
+        roleId: registeredRole.id
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Company'
         }).id,
         action: 'read',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Company'
         }).id,
         action: 'update',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
     }, {
-        model_id: _.find(models, {
+        modelId: _.find(models, {
             name: 'Company'
         }).id,
         action: 'delete',
-        role_id: registeredRole.id,
+        roleId: registeredRole.id,
         relation: 'owner'
+    }, {
+        modelId: _.find(models, {
+            name: 'Transaction'
+        }).id,
+        action: 'create',
+        roleId: registeredRole.id
     }];
 
     return Promise.all(

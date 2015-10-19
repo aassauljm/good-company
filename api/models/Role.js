@@ -25,13 +25,13 @@ module.exports = {
             as: 'users',
             through: 'user_roles',
             foreignKey: {
-                name: 'role_id'
+                name: 'roleId'
             }
         });
         Role.hasMany(Permission, {
             as: 'permissions',
             foreignKey: {
-                name: 'role_id'
+                name: 'roleId'
             }
         });
     },

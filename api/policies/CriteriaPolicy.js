@@ -10,7 +10,6 @@ var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 module.exports = function(req, res, next) {
   var permissions = req.permissions;
-
   if (_.isEmpty(permissions)) {
     return next();
   }
@@ -45,7 +44,7 @@ module.exports = function(req, res, next) {
         criteria.where = criteria.where || {};
 
         if (permission.relation == 'owner') {
-          criteria.where.owner_id = req.user.id;
+          criteria.where.ownerId = req.user.id;
         }
 
         return criteria;
@@ -54,6 +53,7 @@ module.exports = function(req, res, next) {
   ));
 
   // set up response filters if we are not mutating an existing object
+
   if (!_.contains(['update', 'delete'], action) && !(action === 'read' && actionUtil.parsePk(req) !== undefined)) {
     if (criteria.length) {
       bindResponsePolicy(req, res, criteria);

@@ -61,25 +61,24 @@ module.exports = {
             foreignKey: {
                 onDelete: 'cascade',
                 as: 'owner',
-                name: 'owner_id'
+                name: 'ownerId'
             }
         });
         Company.belongsTo(User, {
             foreignKey: {
                 onDelete: 'cascade',
                 as: 'createdBy',
-                name: 'createdBy_id'
+                name: 'createdById'
             }
         })
         Company.hasMany(Shareholding, {
             as: 'shareholdings',
             foreignKey: {
-                name: 'company_id',
+                name: 'companyId',
                 as: 'shareholdings',
                 allowNull: false
             }
         });
-        console.log(Company.associations)
     },
     options: {
         freezeTableName: false,

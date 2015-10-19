@@ -54,8 +54,8 @@ module.exports = {
                     sails.log.debug('Uploaded, saving to db');
                     return Document.create({
                         filename: uploadedFiles[0].filename,
-                        createdBy_id: req.user.id,
-                        owner_id: req.user.id,
+                        createdById: req.user.id,
+                        ownerId: req.user.id,
                         type: type,
                         documentData: {
                              data: file,

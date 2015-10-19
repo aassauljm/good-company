@@ -33,12 +33,12 @@ module.exports = {
             unique: 'permissionIndex'
         },
 
-        user_id: {
+        userId: {
             type: Sequelize.INTEGER,
             unique: 'permissionIndex'
         },
 
-        role_id: {
+        roleId: {
             type: Sequelize.INTEGER,
             unique: 'permissionIndex'
         }
@@ -48,19 +48,19 @@ module.exports = {
     associations: function() {
         Permission.belongsTo(Model, {
             foreignKey: {
-                name: 'model_id',
+                name: 'modelId',
                 as: 'model'
             }
         });
         Permission.belongsTo(Role, {
             foreignKey: {
-                name: 'role_id',
+                name: 'roleId',
                 as: 'role'
             }
         });
         Permission.belongsTo(User, {
             foreignKey: {
-                name: 'user_id',
+                name: 'userId',
                 as: 'user'
             }
         });

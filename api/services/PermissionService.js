@@ -27,11 +27,11 @@ module.exports = {
     /**
      * Return whether the specified object is NOT owned by the specified user.
      */
-    isForeignObject: function(owner_id) {
+    isForeignObject: function(ownerId) {
         return function(object) {
             //sails.log.verbose('object', object);
             //sails.log.verbose('object.owner: ', object.owner, ', owner:', owner);
-            return object.owner_id !== owner_id;
+            return object.ownerId !== ownerId;
         };
     },
 
@@ -80,12 +80,11 @@ module.exports = {
      * @param options.user
      */
     findModelPermissions: function(options) {
-        var action = PermissionService.getMethod(options.method);
+        var action = options.action || PermissionService.getMethod(options.method);
         var permissionCriteria = {
             model: options.model.id,
             action: action
         };
-
         return User.findOne({
                 where: {
                     id: options.user.id
@@ -98,12 +97,12 @@ module.exports = {
             .then(function(user) {
                 return Permission.findAll({
                     where: {
-                        model_id: options.model.id,
+                        modelId: options.model.id,
                         action: action,
                         $or: [{
-                            user_id: user.id
+                            userId: user.id
                         }, {
-                            role_id: _.pluck(user.roles, 'id')
+                            roleId: _.pluck(user.roles, 'id')
                         }]
                     },
                     include: [{
@@ -126,14 +125,13 @@ module.exports = {
      * @returns boolean - True if there is at least one granted permission that allows the requested action,
      * otherwise false
      */
-    hasPassingCriteria: function(objects, permissions, attributes, user) {
+    hasPassingCriteria: function(objects, permissions, attributes, userId) {
         // return success if there are no permissions or objects
         if (_.isEmpty(permissions) || _.isEmpty(objects)) return true;
 
         if (!_.isArray(objects)) {
             objects = [objects];
         }
-
         var criteria = permissions.reduce(function(memo, perm) {
             if (perm) {
                 if (!perm.criteria || perm.criteria.length == 0) {
@@ -161,7 +159,6 @@ module.exports = {
         if (_.isEmpty(criteria)) {
             return true;
         }
-
         // every object must have at least one permission that has a passing criteria and a passing attribute check
         return objects.every(function(obj) {
             return criteria.some(function(criteria) {
@@ -171,7 +168,7 @@ module.exports = {
                 var hasUnpermittedAttributes = PermissionService.hasUnpermittedAttributes(attributes, criteria.blacklist);
                 var hasOwnership = true; // edge case for scenario where a user has some permissions that are owner based and some that are role based
                 if (criteria.owner) {
-                    hasOwnership = !PermissionService.isForeignObject(user)(obj);
+                    hasOwnership = !PermissionService.isForeignObject(userId)(obj);
                 }
                 return match.length === 1 && !hasUnpermittedAttributes && hasOwnership;
             });
@@ -240,7 +237,7 @@ module.exports = {
                         }
                     })
                     .then(function(model) {
-                        permission.model_id = model.id;
+                        permission.modelId = model.id;
                         return permission;
                     });
             });
@@ -303,11 +300,11 @@ module.exports = {
                     }
                 })])
                 .spread(function(role, user, model) {
-                    permission.model_id = model.id;
+                    permission.modelId = model.id;
                     if (role && role.id) {
-                        permission.role_id = role.id;
+                        permission.roleId = role.id;
                     } else if (user && user.id) {
-                        permission.user_id = user.id;
+                        permission.userId = user.id;
                     } else {
                         return Promise.reject(new Error('no role or user specified'));
                     }
@@ -410,15 +407,15 @@ module.exports = {
         ok = ok.spread(function(role, user, model) {
 
             var query = {
-                model_id: model.id,
+                modelId: model.id,
                 action: options.action,
                 relation: options.relation
             };
 
             if (role && role.id) {
-                query.role_id = role.id;
+                query.roleId = role.id;
             } else if (user && user.id) {
-                query.user_id = user.id;
+                query.userId = user.id;
             } else {
                 return Promise.reject(new Error('You must provide either a user or role to revoke the permission from'));
             }
@@ -467,10 +464,10 @@ module.exports = {
                 }).then(function(model) {
                     return Permission.find({
                         where: {
-                            model_id: model.id,
+                            modelId: model.id,
                             action: action,
                             relation: 'user',
-                            user_id: user_id
+                            userId: userId
                         },
                         include: [{
                             model: Criteria
@@ -485,5 +482,79 @@ module.exports = {
                 }).catch(reject);
             });
         };
+    },
+
+    getModel: Promise.method(function(modelIdentity) {
+        var modelCache = sails.hooks['sails-permissions']._modelCache;
+        if (_.isEmpty(modelIdentity)) {
+            return
+        }
+
+        var modelDefinition = sails.models[modelIdentity];
+        var model = modelCache[modelIdentity];
+
+        if (_.isObject(model) && !_.isNull(model.id)) {
+            return model;
+        }
+
+        sails.log.warn('Model [', modelIdentity, '] not found in model cache');
+
+        // if the model is not found in the cache for some reason, get it from the database
+        return Model.findOne({
+                where: {
+                    identity: modelIdentity
+                }
+            })
+            .then(function(model) {
+                if (!_.isObject(model)) {
+                    if (!sails.config.permissions.allowUnknownModelDefinition) {
+                        return next(new Error('Model definition not found: ' + modelIdentity));
+                    } else {
+                        model = sails.models[modelIdentity];
+                    }
+                }
+
+                return model;
+            })
+    }),
+
+
+    isAllowed: function(objects, user, action, modelIdentity){
+       return PermissionService.getModel(modelIdentity)
+            .then(function(model){
+                return PermissionService.findModelPermissions({model: model, action: action, user: user})
+            })
+            .then(function(permissions){
+                var criteria = _.compact(_.flatten(
+                    _.map(permissions, function(permission) {
+                      if (_.isEmpty(permission.criteria)) {
+                        permission.criteria = [{
+                          where: {}
+                        }];
+                      }
+
+                      var criteriaList = permission.criteria;
+                      return _.map(criteriaList, function(criteria) {
+                        // ensure criteria.where is initialized
+                        criteria.where = criteria.where || {};
+
+                        if (permission.relation == 'owner') {
+                          criteria.where.ownerId = user.id;
+                        }
+                        return criteria;
+                      });
+                    })
+                  ));
+                return permissions;
+            })
+            .then(function(permissions){
+                return PermissionService.hasPassingCriteria(objects, permissions, null, user.id);
+            })
+            .then(function(pass){
+                if(!pass){
+                    throw new ForbiddenException('Not Permitted')
+                }
+            })
+
     }
 };

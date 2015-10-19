@@ -57,6 +57,9 @@ module.exports.policies = {
         'getDocument': ['passport','sessionAuth', 'OwnerPolicy'],
         'getDocumentPreview': ['passport','sessionAuth', 'OwnerPolicy'],*/
 
+    },
+    CompanyController: {
+        'populate': false
     }
 
     /***************************************************************************

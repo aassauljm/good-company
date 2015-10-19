@@ -23,32 +23,32 @@ module.exports = {
         Document.belongsTo(User, {
             as: 'owner',
             foreignKey: {
-                name: 'owner_id'
+                name: 'ownerId'
 
             }
         });
         Document.belongsTo(User, {
             as: 'createdBy',
             foreignKey: {
-                name: 'createdBy_id'
+                name: 'createdById'
             }
         });
         Document.belongsTo(DocumentData, {
             as: 'documentData',
             foreignKey: {
-                name: 'data_id'
+                name: 'dataId'
             }
         });
         Document.belongsTo(DocumentData, {
             as: 'documentPreview',
             foreignKey: {
-                name: 'preview_id'
+                name: 'previewId'
             }
         });
         Document.belongsTo(DocumentDirectory, {
             as: 'documentDirectory',
             foreignKey: {
-                name: 'directory_id'
+                name: 'directoryId'
             }
         });
     },

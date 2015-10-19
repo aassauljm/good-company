@@ -37,7 +37,7 @@ describe('Company Controller', function() {
        /* it('Tries to add invalid holding to company', function(done) {
             req.post('/api/company/'+company_id+'/shareholdings')
                 .send({})
-                .expect(500)
+                .expect(403)
                 .then(function(res){
                     console.log(res.body)
                     done();

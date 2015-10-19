@@ -41,4 +41,11 @@
         "username": "company-creator",
         "email": "companycreator@email.com"
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 16,
+        "username": "transactor",
+        "email": "transactor@email.com"
+    }
 }]
