@@ -50,8 +50,16 @@ module.exports = {
         tableName: 'shareholding',
         classMethods: {},
         instanceMethods: {
-            add: function(holding) {
-                return this
+            shareholdersMatch: function(other){
+                return this.getShareholders()
+                    .then(function(shareholders){
+                        if(!other.shareholders){
+                            return false;
+                        }
+                        return _.isEqual(
+                                   _.sortBy(other.shareholders.map(function(s){ return _.filter(_.pick(s, 'name', 'companyNumber')); }), 'name'),
+                                    _.sortBy(shareholders.map(function(s){ return _.filter(_.pick(s.get(), 'name', 'companyNumber')); }), 'name'));
+                });
             },
             combine: function(parcel) {
                 //var model = new Shareholding._model(this.toObject());

@@ -73,4 +73,25 @@ describe('TransactionController', function() {
                 })
         });
     });
+    describe('Invalid Issue Transaction', function() {
+        it('Try invalid post', function(done) {
+            req.post('/api/transaction/issue/'+companyId)
+                .send({shareholdings: [{
+                    shareholders: [],
+                    parcels: []
+                }]})
+                .expect(500, done)
+        });
+        it('Try invalid post', function(done) {
+            req.post('/api/transaction/issue/'+companyId)
+                .send({shareholdings: [{
+                    shareholders: [],
+                    parcels: [{amount: 10}]
+                }]})
+                .expect(500, done)
+        });
+
+
+    });
+
 });

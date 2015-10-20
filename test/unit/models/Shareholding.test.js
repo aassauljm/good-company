@@ -31,21 +31,53 @@ describe('Shareholding Model', function() {
                 done();
             })
         });
-
-        /*it('Combines share holdings', function(done){
-            Promise.join(
-                Shareholding.findOne({id: firstId}).populateAll(),
-                Shareholding.findOne({id: secondId}).populateAll()
-                ).spread(function(share1, share2){
-                    //console.log(arguments);
-                    return share1.combine(share2)
-                })
-                .then(function(){
-                    done();
-                });
-
-
-        });*/
-
+        it('Compare equivalency of shareholders, empty case', function(done) {
+            Shareholding.build({ companyId: 1,
+                parcels: [{amount: 100, shareClass: 'A'}],
+                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+            },{include: [{all: true}]}).save()
+            .then(function(shareholding){
+                return shareholding.shareholdersMatch({})
+                    .should.be.fulfilled
+                    .eventually.become(false)
+                    .should.notify(done);
+            })
+        });
+        it('Compare equivalency of shareholders, almost match', function(done) {
+            Shareholding.build({ companyId: 1,
+                parcels: [{amount: 100, shareClass: 'A'}],
+                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+            },{include: [{all: true}]}).save()
+            .then(function(shareholding){
+                return shareholding.shareholdersMatch({shareholders: [{name: 'Jim'}]})
+                    .should.be.fulfilled
+                    .eventually.become(false)
+                    .should.notify(done);
+            })
+        });
+        it('Compare equivalency of shareholders, almost match again', function(done) {
+            Shareholding.build({ companyId: 1,
+                parcels: [{amount: 100, shareClass: 'A'}],
+                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+            },{include: [{all: true}]}).save()
+            .then(function(shareholding){
+                return shareholding.shareholdersMatch({shareholders: [{name: 'Jim'}, {name: 'Disco Tech'}]})
+                    .should.be.fulfilled
+                    .eventually.become(false)
+                    .should.notify(done);
+            })
+        });
+        it('Compare equivalency of shareholders, match', function(done) {
+            Shareholding.build({ companyId: 1,
+                parcels: [{amount: 100, shareClass: 'A'}],
+                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+            },{include: [{all: true}]}).save()
+            .then(function(shareholding){
+                return shareholding.shareholdersMatch({shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]})
+                    .should.be.fulfilled
+                    .eventually.become(true)
+                    .should.notify(done);
+            })
+        });
     });
 });

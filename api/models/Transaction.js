@@ -94,7 +94,6 @@ module.exports = {
                         }]
                     })
                     .then(function(shareholdings) {
-                        console.log('BVORKEN TOTAL', shareholdings)
                         return _.sum(_.flatten(shareholdings.map(function(s) {
                             return s.parcels;
                         })), function(p) {
@@ -115,10 +114,10 @@ module.exports = {
                     .then(function(shareholdings) {
                         return shareholdings.map(function(shareholding) {
                             var parcels = shareholding.parcels.map(function(p) {
-                                return _.pick(p.get(), 'amount', 'shareClass')
+                                return _.omit(p.get(), 'id')
                             });
                             var shareholders = shareholding.shareholders.map(function(p) {
-                                return _.pick(p.get(), 'name', 'companyNumber')
+                                return _.omit(p.get(), 'id', 'shareholdingShareholder')
                             });
                             return {
                                 parcels: parcels,

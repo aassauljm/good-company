@@ -42,6 +42,32 @@ var transactions = {
             sails.log.error(e);
             res.serverError(e);
         })
+    },
+    issue: function(req, res, company){
+        " For now, using name equivilency to match shareholders "
+        " Match all shareholders in a shareholding, then an issue will increase the parcels on that shareholding "
+        if (!req.body.shareholdings || !req.body.shareholdings.length) {
+            throw new sails.config.exceptions.ValidationException('Shareholdings are required');
+        }
+        res.body.shareholdings.forEach(function(shareholding){
+            if(!shareholding.shareholders || !shareholding.shareholding.length){
+                throw new sails.config.exceptions.ValidationException('Shareholders are required');
+            }
+            if(!shareholding.parcels || !shareholding.parcels.length){
+                throw new sails.config.exceptions.ValidationException('Parcels are required');
+            }
+        });
+
+        sequelize.transaction(function(t){
+
+        })
+        .then(function(shareholdings){
+            return res.ok();
+        })
+        .catch(function(e){
+            sails.log.error(e);
+            res.serverError(e);
+        })
     }
 
 }
