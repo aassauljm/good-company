@@ -28,14 +28,18 @@ module.exports = {
             }
         },
         instanceMethods: {
-            combine: Promise.method(function(other){
+            combine: function(other){
+                if(!this.isNewRecord){
+                    throw new sails.config.exceptions.BadParcelOperation("Cannot mutate persistent parcel");
+                }
                 if(Parcel.match(this, other)){
-                    return Parcel.build({shareClass: this.shareClass, amount: this.amount + other.amount });
+                    this.set('amount',  this.amount + other.amount);
+                    return this;
                 }
                 else{
                     throw new sails.config.exceptions.BadParcelOperation("Parcels do not match");
                 }
-            })
+            }
 
         },
         hooks: {}

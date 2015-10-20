@@ -51,29 +51,35 @@ module.exports = {
         classMethods: {},
         instanceMethods: {
             shareholdersMatch: function(other){
-                return this.getShareholders()
-                    .then(function(shareholders){
-                        if(!other.shareholders){
-                            return false;
-                        }
-                        return _.isEqual(
-                                   _.sortBy(other.shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'),
-                                    _.sortBy(shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'));
-                });
+                if(!other.shareholders){
+                        return false;
+                    }
+                return _.isEqual(
+                           _.sortBy(other.shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'),
+                            _.sortBy(this.shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'));
             },
-            combine: function(parcel) {
-                //var model = new Shareholding._model(this.toObject());
+            combineParcels: function(shareholding){
+                var parcels = this.parcels.slice();
+                _.some(parcels, function(currentP, i){
+
+                    _.some(shareholding.dataValues.parcels, function(addP){
+                        if(Parcel.match(addP, currentP)){
+                            currentP.combine(addP);
+                            shareholding.dataValues.parcels = _.without(shareholding.dataValues.parcels, addP)
+                            return true;
+                        }
+                    });
+                });
+                this.dataValues.parcels = this.dataValues.parcels.concat(shareholding.dataValues.parcels);
+            },
+            /*combine: function(parcel) {
 
                 var model = new Shareholding._model(clone(this))
                 this.parcels.map(function(p) {
                     model.parcels.add(clone(p))
                 })
 
-               // console.log(model.parcels)
-                    // this.parcels.map(function(parcel){
-                    //     if(parcels)
-                    // })
-            }
+            }*/
 
 
 

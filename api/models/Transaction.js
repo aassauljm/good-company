@@ -73,16 +73,14 @@ module.exports = {
                 return this.groupShares()
                     .then(function(groups) {
                         return Promise.reduce(_.values(groups), function(acc, shares) {
-                            return Promise.reduce(shares, function(total, share) {
+                            var result = _.reduce(shares, function(total, share) {
                                     return total.combine(share);
                                 }, Parcel.build({
                                     shareClass: shares[0].shareClass,
                                     amount: 0
-                                }))
-                                .then(function(result) {
-                                    acc[result.shareClass] = result.get();
-                                    return acc;
-                                })
+                                }));
+                            acc[result.shareClass] = result.get();
+                            return acc;
                         }, {});
                     });
             },
@@ -128,13 +126,16 @@ module.exports = {
                     });
             },
             buildNext: function(attr) {
+                var id = this.id;
                 return this.cloneShareholdings()
                     .then(function(shareholdings) {
+                        console.log(shareholdings)
                         return Transaction
                             .build(_.extend(attr, {
                                 companyId: this.companyId,
-                                shareholdings: shareholdings
-                            }, {
+                                shareholdings: shareholdings,
+                                previousTransactionId: id
+                            }), {
                                 include: [{
                                     model: Shareholding,
                                     as: 'shareholdings',
@@ -146,7 +147,7 @@ module.exports = {
                                         as: 'shareholders'
                                     }]
                                 }]
-                            }))
+                            })
                     })
             }
         },

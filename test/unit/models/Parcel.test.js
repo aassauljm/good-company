@@ -8,17 +8,18 @@ describe('Parcel Model', function() {
         });
 
         it('should error on bad addition', function(done) {
-            Parcel.build({amount: 10, shareClass: 'A'})
-                .combine(Parcel.build({amount: 1, shareClass: 'B'}))
-                .should.be.rejectedWith(sails.config.exceptions.BadParcelOperation)
-                .should.notify(done);
+            (function () {
+                Parcel.build({amount: 10, shareClass: 'A'})
+                    .combine(Parcel.build({amount: 1, shareClass: 'B'}))
+
+            }).should.throw(sails.config.exceptions.BadParcelOperation)
+            done();
         });
 
         it('should succeed on good addition', function(done) {
-            return Parcel.build({amount: 10, shareClass: 'A'})
-                .combine(Parcel.build({amount: 1, shareClass: 'A'}))
-                .should.be.fulfilled
-                .eventually.property('amount', 11).should.notify(done);
+            Parcel.build({amount: 10, shareClass: 'A'})
+                .combine(Parcel.build({amount: 1, shareClass: 'A'})).should.have.property('amount', 11);
+            done();
 
         });
 
