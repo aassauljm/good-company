@@ -75,7 +75,6 @@ var transactions = {
                     newShareholdings.forEach(function(sharesToAdd, i){
                         sharesToAdd = Shareholding.build(sharesToAdd,
                                 {include: [{model: Parcel, as: 'parcels'}, {model: Shareholder, as: 'shareholders'}]} );
-
                         if(nextShareholding.shareholdersMatch(sharesToAdd)){
                             nextShareholding.combineParcels(sharesToAdd);
                             toRemove = i;
@@ -89,7 +88,6 @@ var transactions = {
                         return true;
                     }
                 });
-
                 var newShares = newShareholdings.map(function(sharesToAdd, i){
                     return Shareholding.build(_.extend(sharesToAdd, {companyId: company.id}),
                                 {include: [{model: Parcel, as: 'parcels'}, {model: Shareholder, as: 'shareholders'}]});

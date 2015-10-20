@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 describe('TransactionController', function() {
 
-    var req, companyId;
+    var req, companyId, firstSummary, secondSummary;
     describe('Gets needed info', function() {
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -51,7 +51,9 @@ describe('TransactionController', function() {
             req.post('/api/transaction/seed/'+companyId)
                 .send({shareholdings: [{
                     shareholders: [{name: 'Gary'}, {name: 'Busey'}],
-                    parcels: [{amount: 1111, shareClass: 'A'}, {amount: 1, shareClass: 'B'}]
+                    parcels: [{amount: 1111, shareClass: 'A'},
+                        {amount: 1, shareClass: 'B'},
+                        {amount: 10, shareClass: 'D'}]
                 }]})
                 .expect(200, done)
         });
@@ -59,8 +61,10 @@ describe('TransactionController', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    res.body.totalAllocatedShares.should.be.equal(1112)
-                    res.body.currentTransaction.should.containSubset({
+                    firstSummary = res.body;
+                    console.log(firstSummary);
+                    firstSummary.totalAllocatedShares.should.be.equal(1122)
+                    firstSummary.currentTransaction.should.containSubset({
                         type: 'SEED',
                         shareholdings: [
                             {
@@ -108,8 +112,8 @@ describe('TransactionController', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    console.log(JSON.stringify(res.body.currentTransaction))
-                    res.body.totalAllocatedShares.should.be.equal(1315)
+                    secondSummary = res.body;
+                    res.body.totalAllocatedShares.should.be.equal(1325)
                     res.body.currentTransaction.should.containSubset({
                         type: 'ISSUE',
                         shareholdings: [
@@ -125,6 +129,16 @@ describe('TransactionController', function() {
                     })
                     done();
                 })
+        });
+        it('Get Should have different parcel ids for A,B classes, same for D', function(done) {
+            var firstShareholding = firstSummary.currentTransaction.shareholdings[0].parcels;
+            var secondShareholding = _.find(secondSummary.currentTransaction.shareholdings, function(s){
+                return s.shareholders.length == 2;
+            }).parcels;
+            _.findWhere(firstShareholding, {shareClass: 'A'}).id.should.be.not.eql(_.findWhere(secondShareholding, {shareClass: 'A'}).id)
+            _.findWhere(firstShareholding, {shareClass: 'B'}).id.should.be.not.eql(_.findWhere(secondShareholding, {shareClass: 'B'}).id)
+            _.findWhere(firstShareholding, {shareClass: 'D'}).id.should.be.eql(_.findWhere(secondShareholding, {shareClass: 'D'}).id)
+            done();
         });
     });
 });

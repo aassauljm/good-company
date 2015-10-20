@@ -51,7 +51,24 @@ module.exports = {
         freezeTableName: false,
         tableName: 'transaction',
         classMethods: {
-            types: types
+            types: types,
+            includes: {
+                full: function(){
+                    return [{
+                        model: Shareholding,
+                        as: 'shareholdings',
+                        include: [{
+                            model: Parcel,
+                            as: 'parcels',
+                            order: ['shareClass', 'DESC']
+                        }, {
+                            model: Shareholder,
+                            as: 'shareholders',
+                            order: ['name', 'DESC']
+                        }]
+                    }]
+                }
+            }
         },
         instanceMethods: {
             groupShares: function() {
@@ -112,10 +129,10 @@ module.exports = {
                     .then(function(shareholdings) {
                         return shareholdings.map(function(shareholding) {
                             var parcels = shareholding.parcels.map(function(p) {
-                                return _.omit(p.get(), 'id')
+                                return _.omit(p.get(), 'shareholdingParcel')
                             });
                             var shareholders = shareholding.shareholders.map(function(p) {
-                                return _.omit(p.get(), 'id', 'shareholdingShareholder')
+                                return _.omit(p.get(), 'shareholdingShareholder')
                             });
                             return {
                                 parcels: parcels,
@@ -129,7 +146,6 @@ module.exports = {
                 var id = this.id;
                 return this.cloneShareholdings()
                     .then(function(shareholdings) {
-                        console.log(shareholdings)
                         return Transaction
                             .build(_.extend(attr, {
                                 companyId: this.companyId,
@@ -148,6 +164,18 @@ module.exports = {
                                     }]
                                 }]
                             })
+                    })
+                    .then(function(transaction){
+                        // items with id are not newRecords
+                        transaction.get('shareholdings').map(function(sh){
+                            sh.get('shareholders').map(function(holders){
+                                holders.isNewRecord = false;
+                            })
+                            sh.get('parcels').map(function(parcels){
+                                parcels.isNewRecord = false;
+                            })
+                        })
+                        return transaction;
                     })
             }
         },

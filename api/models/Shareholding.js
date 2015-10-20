@@ -28,13 +28,14 @@ module.exports = {
                 name: 'transactionId'
             }
         });
-        Shareholding.hasMany(Parcel, {
+        Shareholding.belongsToMany(Parcel, {
             as: 'parcels',
             notNull: true,
             foreignKey: {
                 as: 'parcels',
                 name: 'shareholdingId'
-            }
+            },
+            through: 'shareholdingParcel'
         });
         Shareholding.belongsToMany(Shareholder, {
             as: 'shareholders',
@@ -59,30 +60,22 @@ module.exports = {
                             _.sortBy(this.shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'));
             },
             combineParcels: function(shareholding){
-                var parcels = this.parcels.slice();
-                _.some(parcels, function(currentP, i){
+                var newParcels = [];
+                _.some(this.parcels, function(currentP, i){
 
-                    _.some(shareholding.dataValues.parcels, function(addP){
+                    var match = _.some(shareholding.dataValues.parcels, function(addP){
                         if(Parcel.match(addP, currentP)){
-                            currentP.combine(addP);
+                            newParcels.push(currentP.combine(addP));
                             shareholding.dataValues.parcels = _.without(shareholding.dataValues.parcels, addP)
                             return true;
                         }
                     });
+                    if(!match){
+                        newParcels.push(currentP);
+                    }
                 });
-                this.dataValues.parcels = this.dataValues.parcels.concat(shareholding.dataValues.parcels);
-            },
-            /*combine: function(parcel) {
-
-                var model = new Shareholding._model(clone(this))
-                this.parcels.map(function(p) {
-                    model.parcels.add(clone(p))
-                })
-
-            }*/
-
-
-
+                this.dataValues.parcels = newParcels.concat(shareholding.dataValues.parcels);
+            }
         },
         hooks: {}
     }
