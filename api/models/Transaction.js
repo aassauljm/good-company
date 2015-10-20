@@ -126,6 +126,28 @@ module.exports = {
                             }
                         });
                     });
+            },
+            buildNext: function(attr) {
+                return this.cloneShareholdings()
+                    .then(function(shareholdings) {
+                        return Transaction
+                            .build(_.extend(attr, {
+                                companyId: this.companyId,
+                                shareholdings: shareholdings
+                            }, {
+                                include: [{
+                                    model: Shareholding,
+                                    as: 'shareholdings',
+                                    include: [{
+                                        model: Parcel,
+                                        as: 'parcels'
+                                    }, {
+                                        model: Shareholder,
+                                        as: 'shareholders'
+                                    }]
+                                }]
+                            }))
+                    })
             }
         },
         hooks: {}

@@ -57,8 +57,8 @@ module.exports = {
                             return false;
                         }
                         return _.isEqual(
-                                   _.sortBy(other.shareholders.map(function(s){ return _.filter(_.pick(s, 'name', 'companyNumber')); }), 'name'),
-                                    _.sortBy(shareholders.map(function(s){ return _.filter(_.pick(s.get(), 'name', 'companyNumber')); }), 'name'));
+                                   _.sortBy(other.shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'),
+                                    _.sortBy(shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'));
                 });
             },
             combine: function(parcel) {

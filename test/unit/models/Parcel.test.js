@@ -18,8 +18,8 @@ describe('Parcel Model', function() {
             return Parcel.build({amount: 10, shareClass: 'A'})
                 .combine(Parcel.build({amount: 1, shareClass: 'A'}))
                 .should.be.fulfilled
-                .eventually.property('amount', 11)
-                .should.notify(done);
+                .eventually.property('amount', 11).should.notify(done);
+
         });
 
     });

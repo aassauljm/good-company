@@ -100,10 +100,6 @@ module.exports = {
         classMethods: {
         },
         instanceMethods: {
-            getCurrentShareholdings: function(){
-                //console.log('here');
-                //return this.getShareholdings({where: {transactionId: this.currentTransactionId, include: [{model: Parcel, as: 'parcels'}, {model: Shareholder, as: 'shareholders'}]}})
-            }
         },
         hooks: {
             afterCreate: [

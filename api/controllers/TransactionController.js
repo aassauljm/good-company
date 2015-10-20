@@ -49,8 +49,8 @@ var transactions = {
         if (!req.body.shareholdings || !req.body.shareholdings.length) {
             throw new sails.config.exceptions.ValidationException('Shareholdings are required');
         }
-        res.body.shareholdings.forEach(function(shareholding){
-            if(!shareholding.shareholders || !shareholding.shareholding.length){
+        req.body.shareholdings.forEach(function(shareholding){
+            if(!shareholding.shareholders || !shareholding.shareholders.length){
                 throw new sails.config.exceptions.ValidationException('Shareholders are required');
             }
             if(!shareholding.parcels || !shareholding.parcels.length){
@@ -59,7 +59,14 @@ var transactions = {
         });
 
         sequelize.transaction(function(t){
-
+            return company.getCurrentTransaction()
+             .then(function(currentTransaction){
+                return currentTransaction.buildNext({type: Transaction.types.ISSUE})
+             })
+             .then(function(nextTransaction){
+                this.nextTransaction = nextTransaction;
+                console.log(this.nextTransaction)
+             })
         })
         .then(function(shareholdings){
             return res.ok();

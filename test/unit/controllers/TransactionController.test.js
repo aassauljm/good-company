@@ -65,7 +65,7 @@ describe('TransactionController', function() {
                         shareholdings: [
                             {
                                 shareholders: [{name: 'Busey'}, {name: 'Gary'}],
-                                parcels: [{amount: 1111}, {amount: 1}]
+                                parcels: [{amount: 1111, shareClass: 'A'}, {amount: 1, shareClass: 'B'}]
                             }
                         ]
                     })
@@ -74,7 +74,7 @@ describe('TransactionController', function() {
         });
     });
     describe('Invalid Issue Transaction', function() {
-        it('Try invalid post', function(done) {
+        it('Try invalid Issue post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({shareholdings: [{
                     shareholders: [],
@@ -82,7 +82,7 @@ describe('TransactionController', function() {
                 }]})
                 .expect(500, done)
         });
-        it('Try invalid post', function(done) {
+        it('Try invalid Issue post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({shareholdings: [{
                     shareholders: [],
@@ -90,8 +90,40 @@ describe('TransactionController', function() {
                 }]})
                 .expect(500, done)
         });
-
-
     });
 
+    describe('Issue Transaction', function() {
+        it('Try Valid Issue Post', function(done) {
+            req.post('/api/transaction/issue/'+companyId)
+                .send({shareholdings: [{
+                    shareholders: [{name: 'Gary'}, {name: 'Busey'}],
+                    parcels: [{amount: 100, shareClass: 'B'}]
+                },{
+                    shareholders: [{name: 'Santa'}],
+                    parcels: [{amount: 100, shareClass: 'B'}]
+                }]})
+                .expect(200, done)
+        });
+        it('Get Updated Info', function(done) {
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.totalAllocatedShares.should.be.equal(1112)
+                    res.body.currentTransaction.should.containSubset({
+                        type: 'SEED',
+                        shareholdings: [
+                            {
+                                shareholders: [{name: 'Busey'}, {name: 'Gary'}],
+                                parcels: [{amount: 1111, shareClass: 'A'}, {amount: 101, shareClass: 'B'}]
+                            },
+                            {
+                                shareholders: [{name: 'Santa'}],
+                                parcels: [{amount: 100, shareClass: 'B'}]
+                            }
+                        ]
+                    })
+                    done();
+                })
+        });
+    });
 });
