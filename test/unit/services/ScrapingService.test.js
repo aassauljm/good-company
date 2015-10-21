@@ -1,7 +1,7 @@
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 
-describe('Company Controller', function() {
+describe('Scraping Service', function() {
 
     describe('Should get all fields from html doc', function() {
         it('passes doc to scraping service', function(done) {

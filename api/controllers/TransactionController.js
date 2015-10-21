@@ -8,8 +8,8 @@ var Promise = require('bluebird');
 
 var transactions = {
     seed: function(req, res, company) {
-        if (!req.body.shareholdings || !req.body.shareholdings.length) {
-            throw new sails.config.exceptions.ValidationException('Shareholdings are required');
+        if (!req.body.holdings || !req.body.holdings.length) {
+            throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
         sequelize.transaction(function(t){
             return Transaction.create({type: Transaction.types.SEED}, {transaction: t})
@@ -22,11 +22,11 @@ var transactions = {
             })
             .then(function(){
                 var transactionId = this.transaction.id;
-                return Promise.all(req.body.shareholdings.map(function(s) {
-                    return Shareholding.create(_.merge(s, {transactionId: transactionId, companyId: company.id}), {
+                return Promise.all(req.body.holdings.map(function(s) {
+                    return Holding.create(_.merge(s, {transactionId: transactionId, companyId: company.id}), {
                         include: [{
-                            model: Shareholder,
-                            as: 'shareholders'
+                            model: Holder,
+                            as: 'holders'
                         }, {
                             model: Parcel,
                             as: 'parcels'
@@ -35,10 +35,10 @@ var transactions = {
                 }))
             })
         })
-        .then(function(shareholdings){
+        .then(function(holdings){
             return company.save();
         })
-        .then(function(shareholdings){
+        .then(function(holdings){
             return res.ok();
         })
         .catch(function(e){
@@ -47,17 +47,17 @@ var transactions = {
         })
     },
     issue: function(req, res, company){
-        " For now, using name equivilency to match shareholders "
-        " Match all shareholders in a shareholding, then an issue will increase the parcels on that shareholding "
-        var newShareholdings = req.body.shareholdings
-        if (!newShareholdings || !newShareholdings.length) {
-            throw new sails.config.exceptions.ValidationException('Shareholdings are required');
+        " For now, using name equivilency to match holders "
+        " Match all holders in a holding, then an issue will increase the parcels on that holding "
+        var newHoldings = req.body.holdings
+        if (!newHoldings || !newHoldings.length) {
+            throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
-        newShareholdings.forEach(function(shareholding){
-            if(!shareholding.shareholders || !shareholding.shareholders.length){
-                throw new sails.config.exceptions.ValidationException('Shareholders are required');
+        newHoldings.forEach(function(holding){
+            if(!holding.holders || !holding.holders.length){
+                throw new sails.config.exceptions.ValidationException('Holders are required');
             }
-            if(!shareholding.parcels || !shareholding.parcels.length){
+            if(!holding.parcels || !holding.parcels.length){
                 throw new sails.config.exceptions.ValidationException('Parcels are required');
             }
         });
@@ -69,37 +69,37 @@ var transactions = {
              })
              .then(function(nextTransaction){
                 this.nextTransaction = nextTransaction;
-                /* find any matching shareholders */
-                _.some(nextTransaction.shareholdings, function(nextShareholding){
+                /* find any matching holders */
+                _.some(nextTransaction.holdings, function(nextHolding){
                     var toRemove;
-                    newShareholdings.forEach(function(sharesToAdd, i){
-                        sharesToAdd = Shareholding.build(sharesToAdd,
-                                {include: [{model: Parcel, as: 'parcels'}, {model: Shareholder, as: 'shareholders'}]} );
-                        if(nextShareholding.shareholdersMatch(sharesToAdd)){
-                            nextShareholding.combineParcels(sharesToAdd);
+                    newHoldings.forEach(function(sharesToAdd, i){
+                        sharesToAdd = Holding.build(sharesToAdd,
+                                {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]} );
+                        if(nextHolding.holdersMatch(sharesToAdd)){
+                            nextHolding.combineParcels(sharesToAdd);
                             toRemove = i;
                             return false;
                         }
                     })
                     if(toRemove !== undefined){
-                        newShareholdings.splice(toRemove, 1);
+                        newHoldings.splice(toRemove, 1);
                     }
-                    if(!newShareholdings.length){
+                    if(!newHoldings.length){
                         return true;
                     }
                 });
-                var newShares = newShareholdings.map(function(sharesToAdd, i){
-                    return Shareholding.build(_.extend(sharesToAdd, {companyId: company.id}),
-                                {include: [{model: Parcel, as: 'parcels'}, {model: Shareholder, as: 'shareholders'}]});
+                var newShares = newHoldings.map(function(sharesToAdd, i){
+                    return Holding.build(_.extend(sharesToAdd, {companyId: company.id}),
+                                {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
                 });
-                nextTransaction.dataValues.shareholdings = nextTransaction.dataValues.shareholdings.concat(newShares);
+                nextTransaction.dataValues.holdings = nextTransaction.dataValues.holdings.concat(newShares);
                 return this.nextTransaction.save({transaction: t});
              })
              .then(function(){
                 return company.setCurrentTransaction(this.nextTransaction, {transaction: t});
              })
         })
-        .then(function(shareholdings){
+        .then(function(holdings){
             return res.ok();
         })
         .catch(function(e){
@@ -117,8 +117,8 @@ module.exports = {
         var company;
         Company.findById(req.params.companyId, {
                 include: [{
-                    model: Shareholding,
-                    as: 'shareholdings'
+                    model: Holding,
+                    as: 'holdings'
                 }]
             })
             .then(function(_company) {

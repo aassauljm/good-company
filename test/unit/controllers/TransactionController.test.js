@@ -1,7 +1,7 @@
 var request = require("supertest-as-promised");
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
-var _ = require('lodash');
+
 
 describe('TransactionController', function() {
 
@@ -35,9 +35,9 @@ describe('TransactionController', function() {
                 .send({})
                 .expect(500, done)
         });
-        it('Try no shareholders', function(done) {
+        it('Try no holders', function(done) {
             req.post('/api/transaction/seed/'+companyId)
-                .send({shareholders: [{name: 'Gary'}, {name: 'Busey'}]})
+                .send({holders: [{name: 'Gary'}, {name: 'Busey'}]})
                 .expect(500, done)
         });
         it('Try no parcels', function(done) {
@@ -49,8 +49,8 @@ describe('TransactionController', function() {
     describe('Successful Seed Transaction', function() {
         it('Try valid post', function(done) {
             req.post('/api/transaction/seed/'+companyId)
-                .send({shareholdings: [{
-                    shareholders: [{name: 'Gary'}, {name: 'Busey'}],
+                .send({holdings: [{
+                    holders: [{name: 'Gary'}, {name: 'Busey'}],
                     parcels: [{amount: 1111, shareClass: 'A'},
                         {amount: 1, shareClass: 'B'},
                         {amount: 10, shareClass: 'D'}]
@@ -62,13 +62,12 @@ describe('TransactionController', function() {
                 .expect(200)
                 .then(function(res){
                     firstSummary = res.body;
-                    console.log(JSON.stringify(firstSummary.currentTransaction));
                     firstSummary.totalAllocatedShares.should.be.equal(1122)
                     firstSummary.currentTransaction.should.containSubset({
                         type: 'SEED',
-                        shareholdings: [
+                        holdings: [
                             {
-                                shareholders: [{name: 'Busey'}, {name: 'Gary'}],
+                                holders: [{name: 'Busey'}, {name: 'Gary'}],
                                 parcels: [{amount: 1111, shareClass: 'A'}, {amount: 1, shareClass: 'B'}]
                             }
                         ]
@@ -80,16 +79,16 @@ describe('TransactionController', function() {
     describe('Invalid Issue Transaction', function() {
         it('Try invalid Issue post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({shareholdings: [{
-                    shareholders: [],
+                .send({holdings: [{
+                    holders: [],
                     parcels: []
                 }]})
                 .expect(500, done)
         });
         it('Try invalid Issue post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({shareholdings: [{
-                    shareholders: [],
+                .send({holdings: [{
+                    holders: [],
                     parcels: [{amount: 10}]
                 }]})
                 .expect(500, done)
@@ -99,11 +98,11 @@ describe('TransactionController', function() {
     describe('Issue Transaction', function() {
         it('Try Valid Issue Post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({shareholdings: [{
-                    shareholders: [{name: 'Gary'}, {name: 'Busey'}],
+                .send({holdings: [{
+                    holders: [{name: 'Gary'}, {name: 'Busey'}],
                     parcels: [{amount: 100, shareClass: 'B'},{amount: 2, shareClass: 'A'},{amount: 1, shareClass: 'C'}]
                 },{
-                    shareholders: [{name: 'Santa'}],
+                    holders: [{name: 'Santa'}],
                     parcels: [{amount: 100, shareClass: 'B'}]
                 }]})
                 .expect(200, done)
@@ -113,17 +112,16 @@ describe('TransactionController', function() {
                 .expect(200)
                 .then(function(res){
                     secondSummary = res.body;
-                    console.log(JSON.stringify(secondSummary))
                     res.body.totalAllocatedShares.should.be.equal(1325)
                     res.body.currentTransaction.should.containSubset({
                         type: 'ISSUE',
-                        shareholdings: [
+                        holdings: [
                             {
-                                shareholders: [{name: 'Busey'}, {name: 'Gary'}],
+                                holders: [{name: 'Busey'}, {name: 'Gary'}],
                                 parcels: [{amount: 1113, shareClass: 'A'}, {amount: 101, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
                             },
                             {
-                                shareholders: [{name: 'Santa'}],
+                                holders: [{name: 'Santa'}],
                                 parcels: [{amount: 100, shareClass: 'B'}]
                             }
                         ]
@@ -132,13 +130,13 @@ describe('TransactionController', function() {
                 })
         });
         it('Get Should have different parcel ids for A,B classes, same for D', function(done) {
-            var firstShareholding = firstSummary.currentTransaction.shareholdings[0].parcels;
-            var secondShareholding = _.find(secondSummary.currentTransaction.shareholdings, function(s){
-                return s.shareholders.length === 2;
+            var firstHolding = firstSummary.currentTransaction.holdings[0].parcels;
+            var secondHolding = _.find(secondSummary.currentTransaction.holdings, function(s){
+                return s.holders.length === 2;
             }).parcels;
-            _.findWhere(firstShareholding, {shareClass: 'A'}).id.should.be.not.eql(_.findWhere(secondShareholding, {shareClass: 'A'}).id)
-            _.findWhere(firstShareholding, {shareClass: 'B'}).id.should.be.not.eql(_.findWhere(secondShareholding, {shareClass: 'B'}).id)
-            _.findWhere(firstShareholding, {shareClass: 'D'}).id.should.be.eql(_.findWhere(secondShareholding, {shareClass: 'D'}).id)
+            _.findWhere(firstHolding, {shareClass: 'A'}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 'A'}).id)
+            _.findWhere(firstHolding, {shareClass: 'B'}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 'B'}).id)
+            _.findWhere(firstHolding, {shareClass: 'D'}).id.should.be.eql(_.findWhere(secondHolding, {shareClass: 'D'}).id)
             done();
         });
     });
@@ -146,9 +144,7 @@ describe('TransactionController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    console.log(JSON.stringify(res.body.transaction))
-                    console.log(JSON.stringify(firstSummary.currentTransaction))
-                   // res.body.transaction.should.be.deep.eql(firstSummary.currentTransaction);
+                    _.omitDeep(res.body.transaction, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentTransaction, 'updatedAt'));
                     done();
                 });
         });

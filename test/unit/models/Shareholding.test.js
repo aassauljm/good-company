@@ -1,76 +1,76 @@
 var Promise = require('bluebird');
 
-describe('Shareholding Model', function() {
-    describe('Basic shareholding', function() {
+describe('Holding Model', function() {
+    describe('Basic holding', function() {
         var firstId, secondId;
         it('Sets up first share holding', function(done) {
-            Shareholding.build({ companyId: 1,
+            Holding.build({ companyId: 1,
                 parcels: [{amount: 10, shareClass: 'A'}, {amount: 5, shareClass: 'B'}]
             }, {include: [{all: true}]}).save()
-            .then(function(shareholding){
-                firstId = shareholding.id;
+            .then(function(holding){
+                firstId = holding.id;
                 firstId.should.not.be.null;
-                return Shareholding.findById(firstId, {include: [{model: Parcel, as: 'parcels'}]});
+                return Holding.findById(firstId, {include: [{model: Parcel, as: 'parcels'}]});
             })
-            .then(function(shareholding){
-                shareholding.parcels.length.should.be.equal(2);
+            .then(function(holding){
+                holding.parcels.length.should.be.equal(2);
                 done();
             })
         });
         it('Sets up second share holding', function(done) {
-            Shareholding.build({ companyId: 1,
+            Holding.build({ companyId: 1,
                 parcels: [{amount: 100, shareClass: 'A'}, {amount: 50, shareClass: 'B'}]
             },{include: [{all: true}]}).save()
-            .then(function(shareholding){
-                secondId = shareholding.id;
+            .then(function(holding){
+                secondId = holding.id;
                 secondId.should.not.be.null;
-                return Shareholding.findById(secondId, {include: [{model: Parcel, as: 'parcels'}]});
+                return Holding.findById(secondId, {include: [{model: Parcel, as: 'parcels'}]});
             })
-            .then(function(shareholding){
-                shareholding.parcels.length.should.be.equal(2);
+            .then(function(holding){
+                holding.parcels.length.should.be.equal(2);
                 done();
             })
         });
-        it('Compare equivalency of shareholders, empty case', function(done) {
-            Shareholding.build({ companyId: 1,
+        it('Compare equivalency of holders, empty case', function(done) {
+            Holding.build({ companyId: 1,
                 parcels: [{amount: 100, shareClass: 'A'}],
-                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+                holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]}).save()
-            .then(function(shareholding){
-                shareholding.shareholdersMatch({})
+            .then(function(holding){
+                holding.holdersMatch({})
                     .should.be.false;
                     done();
             })
         });
-        it('Compare equivalency of shareholders, almost match', function(done) {
-            Shareholding.build({ companyId: 1,
+        it('Compare equivalency of holders, almost match', function(done) {
+            Holding.build({ companyId: 1,
                 parcels: [{amount: 100, shareClass: 'A'}],
-                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+                holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]}).save()
-            .then(function(shareholding){
-                shareholding.shareholdersMatch({shareholders: [{name: 'Jim'}]})
+            .then(function(holding){
+                holding.holdersMatch({holders: [{name: 'Jim'}]})
                     .should.be.false;
                     done();
             })
         });
-        it('Compare equivalency of shareholders, almost match again', function(done) {
-            Shareholding.build({ companyId: 1,
+        it('Compare equivalency of holders, almost match again', function(done) {
+            Holding.build({ companyId: 1,
                 parcels: [{amount: 100, shareClass: 'A'}],
-                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+                holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]}).save()
-            .then(function(shareholding){
-                shareholding.shareholdersMatch({shareholders: [{name: 'Jim'}, {name: 'Disco Tech'}]})
+            .then(function(holding){
+                holding.holdersMatch({holders: [{name: 'Jim'}, {name: 'Disco Tech'}]})
                     .should.be.false;
                     done();
             })
         });
-        it('Compare equivalency of shareholders, match', function(done) {
-            Shareholding.build({ companyId: 1,
+        it('Compare equivalency of holders, match', function(done) {
+            Holding.build({ companyId: 1,
                 parcels: [{amount: 100, shareClass: 'A'}],
-                shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
+                holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]}).save()
-            .then(function(shareholding){
-                shareholding.shareholdersMatch({shareholders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]})
+            .then(function(holding){
+                holding.holdersMatch({holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]})
                     .should.be.true;
                     done();
             })

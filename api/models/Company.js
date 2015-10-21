@@ -71,11 +71,11 @@ module.exports = {
                 name: 'createdById'
             }
         })
-        Company.hasMany(Shareholding, {
-            as: 'shareholdings',
+        Company.hasMany(Holding, {
+            as: 'holdings',
             foreignKey: {
                 name: 'companyId',
-                as: 'shareholdings',
+                as: 'holdings',
                 allowNull: false
             }
         });

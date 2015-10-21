@@ -1,11 +1,11 @@
 /**
- * Shareholder.js
+ * Holder.js
  *
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 
-//var ShareholderShareholding = sequelize.define('shareHolderShareholding', {});
+//var HolderHolding = sequelize.define('shareHolderHolding', {});
 
 
 module.exports = {
@@ -19,17 +19,17 @@ module.exports = {
         }
     },
     associations: function() {
-        Shareholder.belongsToMany(Shareholding, {
+        Holder.belongsToMany(Holding, {
             foreignKey: {
-                as: 'shareholdings',
-                name: 'shareholdingId'
+                as: 'holdings',
+                name: 'holdingId'
             },
             through: 'holdingJ'
         });
     },
     options: {
         freezeTableName: false,
-        tableName: 'shareholder',
+        tableName: 'holder',
         classMethods: {},
         instanceMethods: {},
         hooks: {}

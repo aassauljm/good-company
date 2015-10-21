@@ -32,11 +32,11 @@ module.exports = {
         }
     },
     associations: function(n) {
-        Transaction.hasMany(Shareholding, {
-            as: 'shareholdings',
+        Transaction.hasMany(Holding, {
+            as: 'holdings',
             foreignKey: {
                 name: 'transactionId',
-                as: 'shareholdings'
+                as: 'holdings'
             }
         });
         Transaction.belongsTo(Transaction, {
@@ -55,8 +55,8 @@ module.exports = {
             includes: {
                 full: function(){
                     return [{
-                        model: Shareholding,
-                        as: 'shareholdings',
+                        model: Holding,
+                        as: 'holdings',
                        // through: {attributes: []},
                         include: [{
                             model: Parcel,
@@ -64,8 +64,8 @@ module.exports = {
                             order: ['shareClass', 'DESC'],
                            // through: {attributes: []}
                         }, {
-                            model: Shareholder,
-                            as: 'shareholders',
+                            model: Holder,
+                            as: 'holders',
                             order: ['name', 'DESC'],
                            // through: {attributes: []}
                         }]
@@ -73,16 +73,16 @@ module.exports = {
                 },
                 fullNoJunctions: function(){
                     return [{
-                        model: Shareholding,
-                        as: 'shareholdings',
+                        model: Holding,
+                        as: 'holdings',
                         include: [{
                             model: Parcel,
                             as: 'parcels',
                             order: ['shareClass', 'DESC'],
                             through: {attributes: []}
                         }, {
-                            model: Shareholder,
-                            as: 'shareholders',
+                            model: Holder,
+                            as: 'holders',
                             order: ['name', 'DESC'],
                             through: {attributes: []}
                         }]
@@ -92,14 +92,14 @@ module.exports = {
         },
         instanceMethods: {
             groupShares: function() {
-                return this.getShareholdings({
+                return this.getHoldings({
                         include: [{
                             model: Parcel,
                             as: 'parcels'
                         }]
                     })
-                    .then(function(shareholdings) {
-                        return _.groupBy(_.flatten(shareholdings.map(function(s) {
+                    .then(function(holdings) {
+                        return _.groupBy(_.flatten(holdings.map(function(s) {
                             return s.parcels;
                         })), function(p) {
                             return p.shareClass;
@@ -122,76 +122,76 @@ module.exports = {
                     });
             },
             totalShares: function() {
-                return this.getShareholdings({
+                return this.getHoldings({
                         include: [{
                             model: Parcel,
                             as: 'parcels',
                         }]
                     })
-                    .then(function(shareholdings) {
-                        return _.sum(_.flatten(shareholdings.map(function(s) {
+                    .then(function(holdings) {
+                        return _.sum(_.flatten(holdings.map(function(s) {
                             return s.parcels;
                         })), function(p) {
                             return p.amount;
                         });
                     })
             },
-            cloneShareholdings: function() {
-                return this.getShareholdings({
+            cloneHoldings: function() {
+                return this.getHoldings({
                         include: [{
                             model: Parcel,
                             as: 'parcels',
                             // drop junction info
                             through: {attributes: []}
                         }, {
-                            model: Shareholder,
-                            as: 'shareholders',
+                            model: Holder,
+                            as: 'holders',
                             through: {attributes: []}
                         }]
                     })
-                    .then(function(shareholdings) {
-                        return shareholdings.map(function(shareholding) {
-                            var parcels = shareholding.parcels.map(function(p) {
+                    .then(function(holdings) {
+                        return holdings.map(function(holding) {
+                            var parcels = holding.parcels.map(function(p) {
                                 return p.get()
                             });
-                            var shareholders = shareholding.shareholders.map(function(p) {
+                            var holders = holding.holders.map(function(p) {
                                 return p.get()
                             });
                             return {
                                 parcels: parcels,
-                                shareholders: shareholders,
-                                companyId: shareholding.companyId
+                                holders: holders,
+                                companyId: holding.companyId
                             }
                         });
                     });
             },
             buildNext: function(attr) {
                 var id = this.id;
-                return this.cloneShareholdings()
-                    .then(function(shareholdings) {
+                return this.cloneHoldings()
+                    .then(function(holdings) {
                         return Transaction
                             .build(_.extend(attr, {
                                 companyId: this.companyId,
-                                shareholdings: shareholdings,
+                                holdings: holdings,
                                 previousTransactionId: id
                             }), {
                                 include: [{
-                                    model: Shareholding,
-                                    as: 'shareholdings',
+                                    model: Holding,
+                                    as: 'holdings',
                                     include: [{
                                         model: Parcel,
                                         as: 'parcels'
                                     }, {
-                                        model: Shareholder,
-                                        as: 'shareholders'
+                                        model: Holder,
+                                        as: 'holders'
                                     }]
                                 }]
                             })
                     })
                     .then(function(transaction){
                         // items with id are not newRecords
-                        transaction.get('shareholdings').map(function(sh){
-                            sh.get('shareholders').map(function(holders){
+                        transaction.get('holdings').map(function(sh){
+                            sh.get('holders').map(function(holders){
                                 holders.isNewRecord = false;
                             })
                             sh.get('parcels').map(function(parcels){

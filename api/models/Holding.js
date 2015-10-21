@@ -1,5 +1,5 @@
 /**
- * Shareholding.js
+ * Holding.js
  *
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/#!documentation/models
@@ -15,58 +15,58 @@ module.exports = {
 
     },
     associations: function() {
-        Shareholding.belongsTo(Company, {
+        Holding.belongsTo(Company, {
             as: 'company',
             foreignKey: {
                 name: 'companyId',
                 as: 'company'
             }
         });
-        Shareholding.belongsTo(Transaction, {
+        Holding.belongsTo(Transaction, {
             as: 'transaction',
             foreignKey: {
                 name: 'transactionId'
             }
         });
-        Shareholding.belongsToMany(Parcel, {
+        Holding.belongsToMany(Parcel, {
             as: 'parcels',
             notNull: true,
             foreignKey: {
                 as: 'parcels',
-                name: 'shareholdingId'
+                name: 'holdingId'
             },
             through: 'parcelJ'
         });
-        Shareholding.belongsToMany(Shareholder, {
-            as: 'shareholders',
+        Holding.belongsToMany(Holder, {
+            as: 'holders',
             foreignKey: {
-                as: 'shareholders',
-                name: 'shareholderId'
+                as: 'holders',
+                name: 'holderId'
             },
             through: 'holdingJ'
         });
     },
     options: {
         freezeTableName: false,
-        tableName: 'shareholding',
+        tableName: 'holding',
         classMethods: {},
         instanceMethods: {
-            shareholdersMatch: function(other){
-                if(!other.shareholders){
+            holdersMatch: function(other){
+                if(!other.holders){
                         return false;
                     }
                 return _.isEqual(
-                           _.sortBy(other.shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'),
-                            _.sortBy(this.shareholders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'));
+                           _.sortBy(other.holders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'),
+                            _.sortBy(this.holders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'));
             },
-            combineParcels: function(shareholding){
+            combineParcels: function(holding){
                 var newParcels = [];
                 _.some(this.parcels, function(currentP, i){
 
-                    var match = _.some(shareholding.dataValues.parcels, function(addP){
+                    var match = _.some(holding.dataValues.parcels, function(addP){
                         if(Parcel.match(addP, currentP)){
                             newParcels.push(currentP.combine(addP));
-                            shareholding.dataValues.parcels = _.without(shareholding.dataValues.parcels, addP)
+                            holding.dataValues.parcels = _.without(holding.dataValues.parcels, addP)
                             return true;
                         }
                     });
@@ -74,7 +74,7 @@ module.exports = {
                         newParcels.push(currentP);
                     }
                 });
-                this.dataValues.parcels = newParcels.concat(shareholding.dataValues.parcels);
+                this.dataValues.parcels = newParcels.concat(holding.dataValues.parcels);
             }
         },
         hooks: {}

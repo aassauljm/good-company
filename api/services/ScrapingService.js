@@ -15,11 +15,11 @@ module.exports = {
     },
     canonicalizeNZCompaniesData: function(data){
         var result = _.merge({}, data);
-        var total = result.shareholdings.total;
-        result.shareholdings = result.shareholdings.allocations.map(function(shareholding){
+        var total = result.holdings.total;
+        result.holdings = result.holdings.allocations.map(function(holding){
             return {
-                parcels: [{amount: shareholding.shares}],
-                shareholders: shareholding.holders
+                parcels: [{amount: holding.shares}],
+                holders: holding.holders
             }
         });
         return result;
@@ -63,7 +63,7 @@ module.exports = {
         result['ultimateHoldingCompany'] = _.trim($('#ultimateHoldingCompany').parent()[0].firstChild.data) === 'Yes';
 
 
-        result['shareholdings'] = {
+        result['holdings'] = {
             total: parseInt($('div.allocations > div.row > span:nth-of-type(1)').text(), 10),
             extensive: $('div.allocations > div.row > span:nth-of-type(2)').hasClass('yesLabel'),
             allocations: $('div.allocationDetail').map(function(i, alloc){

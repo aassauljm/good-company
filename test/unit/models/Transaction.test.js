@@ -1,10 +1,10 @@
 describe('Transaction Model', function() {
-    describe('Create Transaction Shareholdings', function() {
+    describe('Create Transaction Holdings', function() {
 
-        it('should calculate shareholding totals', function(done) {
+        it('should calculate holding totals', function(done) {
             Transaction.create({
                     type: Transaction.types.SEED,
-                    shareholdings: [{
+                    holdings: [{
                         parcels: [{
                             amount: 10,
                             shareClass: 'A'
@@ -12,7 +12,7 @@ describe('Transaction Model', function() {
                             amount: 1,
                             shareClass: 'B'
                         }],
-                        shareholders: [{
+                        holders: [{
                             name: 'Mike'
                         }],
                         companyId: 3
@@ -24,7 +24,7 @@ describe('Transaction Model', function() {
                             amount: 1,
                             shareClass: 'C'
                         }],
-                        shareholders: [{
+                        holders: [{
                             name: 'Gary'
                         }],
                         companyId: 3
@@ -36,21 +36,21 @@ describe('Transaction Model', function() {
                             amount: 1,
                             shareClass: 'B'
                         }],
-                        shareholders: [{
+                        holders: [{
                             name: 'Peter'
                         }],
                         companyId: 3
                     }]
                 }, {
                     include: [{
-                        model: Shareholding,
-                        as: 'shareholdings',
+                        model: Holding,
+                        as: 'holdings',
                         include: [{
                             model: Parcel,
                             as: 'parcels'
                         }, {
-                            model: Shareholder,
-                            as: 'shareholders'
+                            model: Holder,
+                            as: 'holders'
                         }]
 
                     }]
@@ -98,10 +98,10 @@ describe('Transaction Model', function() {
                     done();
                 });
         });
-        it('should clone shareholdings', function(done) {
+        it('should clone holdings', function(done) {
             Transaction.create({
                 type: Transaction.types.SEED,
-                shareholdings: [{
+                holdings: [{
                     parcels: [{
                         amount: 10,
                         shareClass: 'A'
@@ -109,20 +109,20 @@ describe('Transaction Model', function() {
                         amount: 1,
                         shareClass: 'B'
                     }],
-                    shareholders: [{
+                    holders: [{
                         name: 'Simon Slimjim'
                     }],
                     companyId: 3
                 }]
             }, {include: [{
-                        model: Shareholding,
-                        as: 'shareholdings',
+                        model: Holding,
+                        as: 'holdings',
                         include: [{
                             model: Parcel,
                             as: 'parcels'
                         }, {
-                            model: Shareholder,
-                            as: 'shareholders'
+                            model: Holder,
+                            as: 'holders'
                         }]
                 }]})
             .then(function(transaction){
@@ -131,28 +131,28 @@ describe('Transaction Model', function() {
             })
             .then(function(second_transaction){
                 this.second_transaction = second_transaction;
-                return second_transaction.getShareholdings({include: [{ all: true }]})
+                return second_transaction.getHoldings({include: [{ all: true }]})
             })
             .then(function(){
-                this.first_transaction.shareholdings.length.should.be.eql(1);
-                this.second_transaction.shareholdings.length.should.be.eql(1);
-                this.first_transaction.shareholdings[0].parcels.length.should.be.eql(2);
-                this.second_transaction.shareholdings[0].parcels.length.should.be.eql(2);
+                this.first_transaction.holdings.length.should.be.eql(1);
+                this.second_transaction.holdings.length.should.be.eql(1);
+                this.first_transaction.holdings[0].parcels.length.should.be.eql(2);
+                this.second_transaction.holdings[0].parcels.length.should.be.eql(2);
                 this.first_transaction.id.should.not.eql(this.second_transaction.id)
-                var first_tran_share_a = _.find(this.first_transaction.shareholdings[0].parcels, {shareClass: 'A'});
-                var first_tran_share_b = _.find(this.first_transaction.shareholdings[0].parcels, {shareClass: 'B'});
-                var second_tran_share_a = _.find(this.second_transaction.shareholdings[0].parcels, {shareClass: 'A'});
-                var second_tran_share_b = _.find(this.second_transaction.shareholdings[0].parcels, {shareClass: 'B'});
+                var first_tran_share_a = _.find(this.first_transaction.holdings[0].parcels, {shareClass: 'A'});
+                var first_tran_share_b = _.find(this.first_transaction.holdings[0].parcels, {shareClass: 'B'});
+                var second_tran_share_a = _.find(this.second_transaction.holdings[0].parcels, {shareClass: 'A'});
+                var second_tran_share_b = _.find(this.second_transaction.holdings[0].parcels, {shareClass: 'B'});
                 first_tran_share_a.amount.should.be.eql(10);
                 second_tran_share_a.amount.should.be.eql(10);
                 first_tran_share_a.id.should.be.eql(second_tran_share_a.id);
                 first_tran_share_b.amount.should.be.eql(1);
                 second_tran_share_b.amount.should.be.eql(1);
                 first_tran_share_b.id.should.be.eql(second_tran_share_b.id);
-                this.first_transaction.shareholdings[0].shareholders.length.should.be.eql(1);
-                this.second_transaction.shareholdings[0].shareholders.length.should.be.eql(1);
-                this.first_transaction.shareholdings[0].shareholders[0].id.should.be.eql(
-                    this.second_transaction.shareholdings[0].shareholders[0].id);
+                this.first_transaction.holdings[0].holders.length.should.be.eql(1);
+                this.second_transaction.holdings[0].holders.length.should.be.eql(1);
+                this.first_transaction.holdings[0].holders[0].id.should.be.eql(
+                    this.second_transaction.holdings[0].holders[0].id);
                 done();
             });
 

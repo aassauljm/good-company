@@ -1,7 +1,7 @@
 /**
- * ShareholdingController
+ * HolderController
  *
- * @description :: Server-side logic for managing shareholdings
+ * @description :: Server-side logic for managing holders
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 

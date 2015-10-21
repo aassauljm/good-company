@@ -1403,10 +1403,7 @@
             "vacationDate": "12 Jul 2012"
         }
     ],
-    "incorporationDate": "06 Jul 2006",
-    "nzbn": "9429034042984",
-    "registeredCompanyAddress": "3 Market Lane, Wellington, 6011, New Zealand",
-    "shareholdings": {
+    "holdings": {
         "allocations": [
             {
                 "holders": [
@@ -1536,5 +1533,8 @@
         "extensive": true,
         "total": 136595374
     },
+    "incorporationDate": "06 Jul 2006",
+    "nzbn": "9429034042984",
+    "registeredCompanyAddress": "3 Market Lane, Wellington, 6011, New Zealand",
     "ultimateHoldingCompany": false
 }
