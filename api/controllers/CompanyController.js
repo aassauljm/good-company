@@ -21,11 +21,12 @@ module.exports = {
                 include: [{
                     model: Transaction,
                     as: 'currentTransaction',
-                    include: Transaction.includes.full()
+                    include: Transaction.includes.fullNoJunctions()
                 }]
             })
             .then(function(company){
                 this.company = company;
+                console.log(JSON.stringify(company, null, 4))
                 return company.currentTransaction;
             })
             .then(TransactionStats)
@@ -40,6 +41,7 @@ module.exports = {
             })
             .then(function(transaction){
                 this.transaction = transaction;
+                console.log(JSON.stringify(transaction, null, 4))
                 return transaction
             })
             .then(TransactionStats)

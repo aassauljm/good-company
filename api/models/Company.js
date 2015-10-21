@@ -110,7 +110,7 @@ module.exports = {
                         throw new sails.config.exceptions.TransactionNotFound();
                     }
                     return Transaction.findById(id[0]['previous_transaction'],
-                                                {include: Transaction.includes.full()});
+                                                {include: Transaction.includes.fullNoJunctions()});
                 });
             }
         },

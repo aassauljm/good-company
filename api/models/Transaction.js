@@ -70,6 +70,23 @@ module.exports = {
                            // through: {attributes: []}
                         }]
                     }]
+                },
+                fullNoJunctions: function(){
+                    return [{
+                        model: Shareholding,
+                        as: 'shareholdings',
+                        include: [{
+                            model: Parcel,
+                            as: 'parcels',
+                            order: ['shareClass', 'DESC'],
+                            through: {attributes: []}
+                        }, {
+                            model: Shareholder,
+                            as: 'shareholders',
+                            order: ['name', 'DESC'],
+                            through: {attributes: []}
+                        }]
+                    }]
                 }
             }
         },

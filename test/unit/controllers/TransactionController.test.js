@@ -113,6 +113,7 @@ describe('TransactionController', function() {
                 .expect(200)
                 .then(function(res){
                     secondSummary = res.body;
+                    console.log(JSON.stringify(secondSummary))
                     res.body.totalAllocatedShares.should.be.equal(1325)
                     res.body.currentTransaction.should.containSubset({
                         type: 'ISSUE',

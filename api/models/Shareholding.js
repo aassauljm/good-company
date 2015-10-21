@@ -35,7 +35,7 @@ module.exports = {
                 as: 'parcels',
                 name: 'shareholdingId'
             },
-            through: 'shareholdingParcel'
+            through: 'parcelJ'
         });
         Shareholding.belongsToMany(Shareholder, {
             as: 'shareholders',
@@ -43,7 +43,7 @@ module.exports = {
                 as: 'shareholders',
                 name: 'shareholderId'
             },
-            through: 'shareholdingShareholder'
+            through: 'holdingJ'
         });
     },
     options: {

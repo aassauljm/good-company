@@ -24,7 +24,7 @@ module.exports = {
                 as: 'shareholdings',
                 name: 'shareholdingId'
             },
-            through: 'shareholdingShareholder'
+            through: 'holdingJ'
         });
     },
     options: {
