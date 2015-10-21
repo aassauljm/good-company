@@ -5,9 +5,9 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
-function CompanyStats(company){
+function TransactionStats(transaction){
     var stats = {};
-    return company.currentTransaction.totalShares()
+    return transaction.totalShares()
     .then(function(total){
         stats.totalAllocatedShares = total;
         return stats;
@@ -26,9 +26,9 @@ module.exports = {
             })
             .then(function(company){
                 this.company = company;
-                return company;
+                return company.currentTransaction;
             })
-            .then(CompanyStats)
+            .then(TransactionStats)
             .then(function(stats){
                 res.json(_.merge({}, this.company.get(), stats))
             });
@@ -36,7 +36,15 @@ module.exports = {
     history: function(req, res){
         Company.findById(req.params.id)
             .then(function(company){
-                res.json(company)
-            });
+                return company.getPreviousTransaction(req.params.generation)
+            })
+            .then(function(transaction){
+                this.transaction = transaction;
+                return transaction
+            })
+            .then(TransactionStats)
+            .then(function(stats){
+                res.json(_.merge({transaction: this.transaction.get()}, stats))
+            })
     }
 };

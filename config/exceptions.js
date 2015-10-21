@@ -61,12 +61,24 @@ function TransactionException(value) {
 TransactionException.prototype = Object.create(Error.prototype);
 TransactionException.prototype.constructor = TransactionException;
 
+function TransactionNotFound(value) {
+   this.value = value;
+   this.toString = function() {
+      return this.value + this.message;
+   };
+}
+
+TransactionNotFound.prototype = Object.create(Error.prototype);
+TransactionNotFound.prototype.constructor = TransactionNotFound;
+
+
 module.exports.exceptions = _.defaults({
     ValidationException: ValidationException,
     ForbiddenException: ForbiddenException,
     UserNotFoundException: UserNotFoundException,
     BadCredentialsException: BadCredentialsException,
-    BadParcelOperation: BadParcelOperation
+    BadParcelOperation: BadParcelOperation,
+    TransactionNotFound: TransactionNotFound
 }, require('sequelize/lib/errors'));
 
 

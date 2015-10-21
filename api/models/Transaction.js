@@ -57,14 +57,17 @@ module.exports = {
                     return [{
                         model: Shareholding,
                         as: 'shareholdings',
+                       // through: {attributes: []},
                         include: [{
                             model: Parcel,
                             as: 'parcels',
-                            order: ['shareClass', 'DESC']
+                            order: ['shareClass', 'DESC'],
+                           // through: {attributes: []}
                         }, {
                             model: Shareholder,
                             as: 'shareholders',
-                            order: ['name', 'DESC']
+                            order: ['name', 'DESC'],
+                           // through: {attributes: []}
                         }]
                     }]
                 }
@@ -105,7 +108,7 @@ module.exports = {
                 return this.getShareholdings({
                         include: [{
                             model: Parcel,
-                            as: 'parcels'
+                            as: 'parcels',
                         }]
                     })
                     .then(function(shareholdings) {
@@ -120,19 +123,22 @@ module.exports = {
                 return this.getShareholdings({
                         include: [{
                             model: Parcel,
-                            as: 'parcels'
+                            as: 'parcels',
+                            // drop junction info
+                            through: {attributes: []}
                         }, {
                             model: Shareholder,
-                            as: 'shareholders'
+                            as: 'shareholders',
+                            through: {attributes: []}
                         }]
                     })
                     .then(function(shareholdings) {
                         return shareholdings.map(function(shareholding) {
                             var parcels = shareholding.parcels.map(function(p) {
-                                return _.omit(p.get(), 'shareholdingParcel')
+                                return p.get()
                             });
                             var shareholders = shareholding.shareholders.map(function(p) {
-                                return _.omit(p.get(), 'shareholdingShareholder')
+                                return p.get()
                             });
                             return {
                                 parcels: parcels,

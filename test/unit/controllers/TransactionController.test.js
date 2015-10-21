@@ -62,7 +62,7 @@ describe('TransactionController', function() {
                 .expect(200)
                 .then(function(res){
                     firstSummary = res.body;
-                    console.log(firstSummary);
+                    console.log(JSON.stringify(firstSummary.currentTransaction));
                     firstSummary.totalAllocatedShares.should.be.equal(1122)
                     firstSummary.currentTransaction.should.containSubset({
                         type: 'SEED',
@@ -133,7 +133,7 @@ describe('TransactionController', function() {
         it('Get Should have different parcel ids for A,B classes, same for D', function(done) {
             var firstShareholding = firstSummary.currentTransaction.shareholdings[0].parcels;
             var secondShareholding = _.find(secondSummary.currentTransaction.shareholdings, function(s){
-                return s.shareholders.length == 2;
+                return s.shareholders.length === 2;
             }).parcels;
             _.findWhere(firstShareholding, {shareClass: 'A'}).id.should.be.not.eql(_.findWhere(secondShareholding, {shareClass: 'A'}).id)
             _.findWhere(firstShareholding, {shareClass: 'B'}).id.should.be.not.eql(_.findWhere(secondShareholding, {shareClass: 'B'}).id)
@@ -141,4 +141,15 @@ describe('TransactionController', function() {
             done();
         });
     });
+    describe('Get Previous Versions', function(){
+        it('should get and compare seed version', function(done){
+            req.get('/api/company/'+companyId+'/history/1')
+                .then(function(res){
+                    console.log(JSON.stringify(res.body.transaction))
+                    console.log(JSON.stringify(firstSummary.currentTransaction))
+                   // res.body.transaction.should.be.deep.eql(firstSummary.currentTransaction);
+                    done();
+                });
+        });
+    })
 });

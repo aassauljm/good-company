@@ -98,7 +98,7 @@ module.exports.routes = {
         action: 'getInfo',
         modelIdentity: 'company'
     },
-    'GET /api/company/:id/history/:age': {
+    'GET /api/company/:id/history/:generation': {
         controller: 'CompanyController',
         action: 'history',
         modelIdentity: 'company'

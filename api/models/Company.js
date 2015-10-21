@@ -100,25 +100,38 @@ module.exports = {
         classMethods: {
         },
         instanceMethods: {
+            getPreviousTransaction: function(generation){
+                return sequelize.query("select previous_transaction(:id, :generation)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentTransactionId,
+                                                generation: generation }})
+                .then(function(id){
+                    if(!id.length){
+                        throw new sails.config.exceptions.TransactionNotFound();
+                    }
+                    return Transaction.findById(id[0]['previous_transaction'],
+                                                {include: Transaction.includes.full()});
+                });
+            }
         },
         hooks: {
             afterCreate: [
-            function addSeedTransaction(company) {
-                sails.log.verbose('company.addSeedTransaction', company.get());
-                return Transaction.create({
-                        type: Transaction.types.SEED
-                    })
-                .then(function(transaction){
-                    this.transaction = transaction;
-                    return company.setSeedTransaction(transaction)
-                    })
-                .then(function(){
-                    return company.setCurrentTransaction(this.transaction)
-                    })
-                .catch(function(e) {
-                    sails.log.error(e);
-                });
-            }
+                function addSeedTransaction(company) {
+                    sails.log.verbose('company.addSeedTransaction', company.get());
+                    return Transaction.create({
+                            type: Transaction.types.SEED
+                        })
+                    .then(function(transaction){
+                        this.transaction = transaction;
+                        return company.setSeedTransaction(transaction)
+                        })
+                    .then(function(){
+                        return company.setCurrentTransaction(this.transaction)
+                        })
+                    .catch(function(e) {
+                        sails.log.error(e);
+                    });
+                }
         ]
     }
 }
