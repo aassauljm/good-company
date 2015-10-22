@@ -1,15 +1,19 @@
 // api/services/scrapingService.js
+// es7
 "use strict";
-var _ = require('lodash');
-var cheerio = require('cheerio');
-var Promise = require("bluebird");
-var fetch = require("isomorphic-fetch");
-var fs = Promise.promisifyAll(require("fs"));
+let _ = require('lodash');
+let cheerio = require('cheerio');
+let Promise = require("bluebird");
+let fetch = require("isomorphic-fetch");
+let fs = Promise.promisifyAll(require("fs"));
+let moment = require('moment');
 
-var DOCUMENT_TYPES = {
+
+let DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
+    PARTICULARS: 'PARTICULARS',
     UNKNOWN: 'UNKNOWN'
-}
+};
 
 
 function cleanString(str){
@@ -23,6 +27,7 @@ function textAfterMatch($, query, regex){
             })[0].parentNode.lastChild.data)
         }catch(e){};
 }
+
 function divAfterMatch($, query, regex){
         try{
             return cleanString($(query).filter(function(){
@@ -40,28 +45,28 @@ function divAfterParent($, query, regex){
 }
 
 function parseIssue($){
-    var fields = [
-        ['from', 'Previous Number of Shares:'],
-        ['by', 'Increased Shares by:'],
-        ['to', 'New Number of Shares:'],
-        ['amount', 'Number of Increased Shares:'],
-        ['issueDate', 'Date of Issue:']
+    let fields = [
+        ['from', 'Previous Number of Shares:', Number],
+        ['by', 'Increased Shares by:', Number],
+        ['to', 'New Number of Shares:', Number],
+        ['amount', 'Number of Increased Shares:', Number],
+        ['issueDate', 'Date of Issue:', date => moment(date, 'DD MMM YYYY').toDate()]
     ];
     return fields.reduce(function(result, f){
-        result[f[0]] = divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$'));
+        result[f[0]] = f[2](divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$')));
         return result;
     }, {})
 }
 
-var extractTypes = {
-    [DOCUMENT_TYPES.UPDATE]: function($){
+let extractTypes = {
+    [DOCUMENT_TYPES.UPDATE]: ($) => {
 
-        var transactionMap = {
+        let transactionMap = {
             'Issue': Transaction.types.ISSUE
         }
 
-        var result = {};
-        var regex = /^\s*Type of Change:\s*$/;
+        let result = {};
+        let regex = /^\s*Type of Change:\s*$/;
         result.originaltransactionType = divAfterParent($, '.row .wideLabel label', regex);
         result.transactionType = transactionMap[result.originaltransactionType];
         switch(result.transactionType){
@@ -70,17 +75,20 @@ var extractTypes = {
             default:
         }
         return result;
+    },
+    [DOCUMENT_TYPES.PARTICULARS]: ($) => {
+
     }
 }
 
 
 
-var DOCUMENT_TYPE_MAP = {
+let DOCUMENT_TYPE_MAP = {
     'Particulars of Director':{
 
     },
     'Particulars of Shareholding': {
-
+        type: DOCUMENT_TYPES.PARTICULARS
     },
     'Particulars of ultimate holding company': {
 
@@ -104,8 +112,8 @@ module.exports = {
         return Company.create(ScrapingService.canonicalizeNZCompaniesData(data))
     },
     canonicalizeNZCompaniesData: function(data){
-        var result = _.merge({}, data);
-        var total = result.holdings.total;
+        let result = {...data};
+        let total = result.holdings.total;
         result.holdings = result.holdings.allocations.map(function(holding){
             return {
                 parcels: [{amount: holding.shares}],
@@ -116,7 +124,7 @@ module.exports = {
     },
     getDocumentSummaries: function(data){
         return Promise.map(data.documents, function(document){
-            var url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+data.companyNumber+'/'+document.documentId+'/entityFilingRequirement';
+            let url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+data.companyNumber+'/'+document.documentId+'/entityFilingRequirement';
             sails.log.verbose('Getting url', url);
             return fetch(url)
             .then(function(res){
@@ -133,11 +141,11 @@ module.exports = {
         });
     },
     processDocument: function(html){
-        var $ = cheerio.load(html);
-        var result = {};
-        var typeRegex =/^Document Type$/;
+        let $ = cheerio.load(html);
+        let result = {};
+        let typeRegex =/^Document Type$/;
         result.type = textAfterMatch($, '.row.wideLabel label', typeRegex) || "UNKNOWN";
-        var docType = DOCUMENT_TYPE_MAP[result.type]
+        let docType = DOCUMENT_TYPE_MAP[result.type]
         if(docType && docType.type){
             result = {...result, ...extractTypes[docType.type]($)}
         }
@@ -145,8 +153,8 @@ module.exports = {
         return result;
     },
     parseNZCompaniesOffice: function(html){
-        var $ = cheerio.load(html);
-        var result = {};
+        let $ = cheerio.load(html);
+        let result = {};
 
         result['companyName'] = _.trim($('.leftPanel .row h1')[0].firstChild.data);
         _.merge(result, ['companyNumber', 'nzbn', 'incorporationDate', 'companyStatus', 'entityType'].reduce(function(obj, f){
@@ -193,7 +201,7 @@ module.exports = {
                     holders: _.chunk($(this).find('.labelValue').get(), 2)
                         .map(function(chunk){
                             chunk = [$(chunk[0]), $(chunk[1])];
-                            var r = {name: _.trim(chunk[0].text()).replace(/\s\s+/g, ' '), address: _.trim(chunk[1].text()).replace('\n', '')};
+                            let r = {name: _.trim(chunk[0].text()).replace(/\s\s+/g, ' '), address: _.trim(chunk[1].text()).replace('\n', '')};
                             if(chunk[0].find('a').length){
                                 r['companyNumber'] = _.last(chunk[0].find('a').attr('href').split('/'));
                             }
@@ -209,11 +217,11 @@ module.exports = {
                 vacationDate: $(this).find('.vacationDate')[0].parentNode.lastChild.data }
         }).get()
 
-        var documents = [];
-        var docIDReg = /javascript:showDocumentDetails\((\d+)\);/;
+        let documents = [];
+        let docIDReg = /javascript:showDocumentDetails\((\d+)\);/;
 
         $('#documentListPanel .dataList tbody tr').map(function(i, el){
-            var $el = $(el);
+            let $el = $(el);
             if($el.find('td:nth-child(1)').text()){
                 documents.push({
                     'date': $el.find('td:nth-child(1)').text(),
@@ -226,11 +234,11 @@ module.exports = {
             }
         })
         result['documents'] = documents;
-        var directors = []
-        var formerDirectors = []
+        let directors = []
+        let formerDirectors = []
         $('.director').map(function(i, el){
-            var $el = $(el);
-            var obj = {};
+            let $el = $(el);
+            let obj = {};
             ['fullName', 'residentialAddress', 'appointmentDate', 'ceasedDate'].map(function(f){
                 try{
                     obj[f] = cleanString($el.find('label[for="'+f+'"]')[0].parentNode.lastChild.data)
