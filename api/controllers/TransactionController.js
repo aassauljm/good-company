@@ -7,11 +7,11 @@
 var Promise = require('bluebird');
 
 var transactions = {
-    seed: function(req, res, company) {
-        if (!req.body.holdings || !req.body.holdings.length) {
+    seed: function(args, company) {
+        if (!args.holdings || !args.holdings.length) {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
-        sequelize.transaction(function(t){
+        return sequelize.transaction(function(t){
             return Transaction.create({type: Transaction.types.SEED}, {transaction: t})
             .then(function(transaction){
                 this.transaction = transaction;
@@ -22,7 +22,7 @@ var transactions = {
             })
             .then(function(){
                 var transactionId = this.transaction.id;
-                return Promise.all(req.body.holdings.map(function(s) {
+                return Promise.all(args.holdings.map(function(s) {
                     return Holding.create(_.merge(s, {transactionId: transactionId, companyId: company.id}), {
                         include: [{
                             model: Holder,
@@ -34,22 +34,18 @@ var transactions = {
                     }, {transaction: t});
                 }))
             })
-        })
-        .then(function(holdings){
-            return company.save();
-        })
-        .then(function(holdings){
-            return res.ok();
-        })
-        .catch(function(e){
-            sails.log.error(e);
-            res.serverError(e);
-        })
+            .then(function(holdings){
+                return company.save();
+            })
+            .then(function(holdings){
+                return;
+            })
+        });
     },
-    issue: function(req, res, company){
+    issue: function(args, company){
         " For now, using name equivilency to match holders "
         " Match all holders in a holding, then an issue will increase the parcels on that holding "
-        var newHoldings = req.body.holdings
+        var newHoldings = args.holdings
         if (!newHoldings || !newHoldings.length) {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
@@ -62,7 +58,7 @@ var transactions = {
             }
         });
 
-        sequelize.transaction(function(t){
+        return sequelize.transaction(function(t){
             return company.getCurrentTransaction()
              .then(function(currentTransaction){
                 return currentTransaction.buildNext({type: Transaction.types.ISSUE})
@@ -98,13 +94,12 @@ var transactions = {
              .then(function(){
                 return company.setCurrentTransaction(this.nextTransaction, {transaction: t});
              })
-        })
-        .then(function(holdings){
-            return res.ok();
-        })
-        .catch(function(e){
-            sails.log.error(e);
-            res.serverError(e);
+             .then(function(){
+                return company.save();
+             })
+             .then(function(){
+                return;
+             })
         })
     }
 
@@ -115,18 +110,16 @@ var transactions = {
 module.exports = {
     create: function(req, res) {
         var company;
-        Company.findById(req.params.companyId, {
-                include: [{
-                    model: Holding,
-                    as: 'holdings'
-                }]
-            })
+        Company.findById(req.params.companyId)
             .then(function(_company) {
                 company = _company;
                 return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
             })
             .then(function() {
-                return transactions[req.params.type](req, res, company);
+                return transactions[req.params.type](req.body, company);
+            })
+            .then(function(result){
+                res.ok(result);
             })
             .catch(sails.config.exceptions.ValidationException, function(e) {
                 res.serverError(e);

@@ -54,6 +54,7 @@ module.exports = function(req, res, next) {
 
   // set up response filters if we are not mutating an existing object
 
+
   if (!_.contains(['update', 'delete'], action) && !(action === 'read' && actionUtil.parsePk(req) !== undefined)) {
     if (criteria.length) {
       bindResponsePolicy(req, res, criteria);

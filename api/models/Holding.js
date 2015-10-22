@@ -15,13 +15,6 @@ module.exports = {
 
     },
     associations: function() {
-        Holding.belongsTo(Company, {
-            as: 'company',
-            foreignKey: {
-                name: 'companyId',
-                as: 'company'
-            }
-        });
         Holding.belongsTo(Transaction, {
             as: 'transaction',
             foreignKey: {

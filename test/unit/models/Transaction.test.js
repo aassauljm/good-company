@@ -14,8 +14,7 @@ describe('Transaction Model', function() {
                         }],
                         holders: [{
                             name: 'Mike'
-                        }],
-                        companyId: 3
+                        }]
                     }, {
                         parcels: [{
                             amount: 10,
@@ -26,8 +25,7 @@ describe('Transaction Model', function() {
                         }],
                         holders: [{
                             name: 'Gary'
-                        }],
-                        companyId: 3
+                        }]
                     }, {
                         parcels: [{
                             amount: 1,
@@ -38,8 +36,7 @@ describe('Transaction Model', function() {
                         }],
                         holders: [{
                             name: 'Peter'
-                        }],
-                        companyId: 3
+                        }]
                     }]
                 }, {
                     include: [{
@@ -111,8 +108,7 @@ describe('Transaction Model', function() {
                     }],
                     holders: [{
                         name: 'Simon Slimjim'
-                    }],
-                    companyId: 3
+                    }]
                 }]
             }, {include: [{
                         model: Holding,

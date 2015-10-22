@@ -5,8 +5,6 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 
-//var HolderHolding = sequelize.define('shareHolderHolding', {});
-
 
 module.exports = {
 

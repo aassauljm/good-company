@@ -71,14 +71,6 @@ module.exports = {
                 name: 'createdById'
             }
         })
-        Company.hasMany(Holding, {
-            as: 'holdings',
-            foreignKey: {
-                name: 'companyId',
-                as: 'holdings',
-                allowNull: false
-            }
-        });
         Company.belongsTo(Transaction, {
             as: 'seedTransaction',
             foreignKey: {

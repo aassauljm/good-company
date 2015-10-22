@@ -14,7 +14,6 @@ EventEmitter.defaultMaxListeners = 20;
 Error.stackTraceLimit = Infinity;
 var sails;
 
-
 before(function(done) {
 
     Sails.lift({

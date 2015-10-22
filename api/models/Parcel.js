@@ -11,10 +11,14 @@ module.exports = {
 
     attributes: {
         amount: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            validate: {
+                min: 1
+            }
         },
         shareClass: {
-            type: Sequelize.TEXT
+            type: Sequelize.TEXT,
+            required: true
         },
     },
     associations: function() {

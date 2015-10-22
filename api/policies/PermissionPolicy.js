@@ -29,7 +29,6 @@ module.exports = function (req, res, next) {
   if (req.options.unknownModel) {
     return next();
   }
-
   PermissionService
     .findModelPermissions(options)
     .then(function (permissions) {
@@ -37,7 +36,6 @@ module.exports = function (req, res, next) {
         return res.forbidden({ error: PermissionService.getErrorMessage(options) });
       }
       req.permissions = permissions;
-
       next();
     });
 };
