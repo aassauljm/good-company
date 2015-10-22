@@ -46,6 +46,15 @@ module.exports = {
                 as: 'previousTransaction'
             }
         });
+        Transaction.belongsToMany(Parcel, {
+            as: 'unallocatedParcels',
+            notNull: true,
+            foreignKey: {
+                as: 'parcels',
+                name: 'transactionId'
+            },
+            through: 'parcelTJ'
+        });
     },
     options: {
         freezeTableName: false,
@@ -57,18 +66,18 @@ module.exports = {
                     return [{
                         model: Holding,
                         as: 'holdings',
-                       // through: {attributes: []},
                         include: [{
                             model: Parcel,
                             as: 'parcels',
                             order: ['shareClass', 'DESC'],
-                           // through: {attributes: []}
                         }, {
                             model: Holder,
                             as: 'holders',
                             order: ['name', 'DESC'],
-                           // through: {attributes: []}
                         }]
+                    },{
+                        model: Parcel,
+                        as: 'unallocatedParcels'
                     }]
                 },
                 fullNoJunctions: function(){
@@ -86,6 +95,9 @@ module.exports = {
                             order: ['name', 'DESC'],
                             through: {attributes: []}
                         }]
+                    },{
+                        model: Parcel,
+                        as: 'unallocatedParcels'
                     }]
                 }
             }

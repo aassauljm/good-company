@@ -2,12 +2,102 @@
 "use strict";
 var _ = require('lodash');
 var cheerio = require('cheerio');
-var request = require("supertest-as-promised");
+var Promise = require("bluebird");
+var fetch = require("isomorphic-fetch");
+var fs = Promise.promisifyAll(require("fs"));
+
+var DOCUMENT_TYPES = {
+    UPDATE : 'UPDATE',
+    UNKNOWN: 'UNKNOWN'
+}
+
+
+function cleanString(str){
+    return _.trim(str).replace('\n', '').replace(/\s\s+/g, ' ')
+}
+
+function textAfterMatch($, query, regex){
+        try{
+            return cleanString($(query).filter(function(){
+                return $(this).text().match(regex);
+            })[0].parentNode.lastChild.data)
+        }catch(e){};
+}
+function divAfterMatch($, query, regex){
+        try{
+            return cleanString($(query).filter(function(){
+                return $(this).text().match(regex);
+            }).first().next().text())
+        }catch(e){};
+}
+
+function divAfterParent($, query, regex){
+        try{
+            return cleanString($(query).filter(function(){
+                return $(this).text().match(regex);
+            }).first().parent().next().text())
+        }catch(e){};
+}
+
+function parseIssue($){
+    var fields = [
+        ['from', 'Previous Number of Shares:'],
+        ['by', 'Increased Shares by:'],
+        ['to', 'New Number of Shares:'],
+        ['amount', 'Number of Increased Shares:'],
+        ['issueDate', 'Date of Issue:']
+    ];
+    return fields.reduce(function(result, f){
+        result[f[0]] = divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$'));
+        return result;
+    }, {})
+}
+
+var extractTypes = {
+    [DOCUMENT_TYPES.UPDATE]: function($){
+
+        var transactionMap = {
+            'Issue': Transaction.types.ISSUE
+        }
+
+        var result = {};
+        var regex = /^\s*Type of Change:\s*$/;
+        result.originaltransactionType = divAfterParent($, '.row .wideLabel label', regex);
+        result.transactionType = transactionMap[result.originaltransactionType];
+        switch(result.transactionType){
+            case(Transaction.types.ISSUE):
+                result = {...result, ...parseIssue($)}
+            default:
+        }
+        return result;
+    }
+}
+
+
+
+var DOCUMENT_TYPE_MAP = {
+    'Particulars of Director':{
+
+    },
+    'Particulars of Shareholding': {
+
+    },
+    'Particulars of ultimate holding company': {
+
+    },
+    'Update Shares': {
+        type: DOCUMENT_TYPES.UPDATE
+    },
+    'Directors Certificate': {
+
+    }
+};
+
 
 module.exports = {
 
     fetch: function(companyID){
-        return req.get('https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyID+'/detail');
+        return fetch.get('https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyID+'/detail');
     },
 
     populateDB: function(data){
@@ -24,6 +114,36 @@ module.exports = {
         });
         return result;
     },
+    getDocumentSummaries: function(data){
+        return Promise.map(data.documents, function(document){
+            var url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+data.companyNumber+'/'+document.documentId+'/entityFilingRequirement';
+            sails.log.verbose('Getting url', url);
+            return fetch(url)
+            .then(function(res){
+                return res.text();
+            })
+        }, {concurrency: 3});
+    },
+    writeDocumentSummaries: function(data){
+        return getDocumentSummaries(data)
+            .then(function(texts){
+                return Promise.map(texts, function(text){
+                    return fs.writeFileAsync('test/fixtures/companies_office/documents/'+document.documentId+'.html', text, 'utf-8');
+            });
+        });
+    },
+    processDocument: function(html){
+        var $ = cheerio.load(html);
+        var result = {};
+        var typeRegex =/^Document Type$/;
+        result.type = textAfterMatch($, '.row.wideLabel label', typeRegex) || "UNKNOWN";
+        var docType = DOCUMENT_TYPE_MAP[result.type]
+        if(docType && docType.type){
+            result = {...result, ...extractTypes[docType.type]($)}
+        }
+        console.log(result)
+        return result;
+    },
     parseNZCompaniesOffice: function(html){
         var $ = cheerio.load(html);
         var result = {};
@@ -31,7 +151,7 @@ module.exports = {
         result['companyName'] = _.trim($('.leftPanel .row h1')[0].firstChild.data);
         _.merge(result, ['companyNumber', 'nzbn', 'incorporationDate', 'companyStatus', 'entityType'].reduce(function(obj, f){
             try{
-                obj[f] = _.trim($('label[for="'+f+'"]')[0].parentNode.lastChild.data).replace(/\s\s+/g, ' ');
+                obj[f] = cleanString($('label[for="'+f+'"]')[0].parentNode.lastChild.data)
             }catch(e){};
             return obj;
         }, {}));
@@ -54,7 +174,7 @@ module.exports = {
 
         _.merge(result, ['registeredCompanyAddress2', 'addressForService1', 'addressForShareRegister0'].reduce(function(obj, f){
             try{
-                obj[f.slice(0, -1)] = _.trim($('label[for="'+f+'"]').next().text()).replace('\n', '').replace(/\s\s+/g, ' ')
+                obj[f.slice(0, -1)] = cleanString($('label[for="'+f+'"]').next().text())
             }catch(e){};
             return obj;
         }, {}));
@@ -98,7 +218,7 @@ module.exports = {
                 documents.push({
                     'date': $el.find('td:nth-child(1)').text(),
                     'documentType': $el.find('td:nth-child(2)').text(),
-                    'documentID': $el.find('td:nth-child(2) a').attr('href').match(docIDReg)[1]
+                    'documentId': $el.find('td:nth-child(2) a').attr('href').match(docIDReg)[1]
                 })
             }
             else{
@@ -113,7 +233,7 @@ module.exports = {
             var obj = {};
             ['fullName', 'residentialAddress', 'appointmentDate', 'ceasedDate'].map(function(f){
                 try{
-                    obj[f] = _.trim($el.find('label[for="'+f+'"]')[0].parentNode.lastChild.data).replace('\n', '').replace(/\s\s+/g, ' ');
+                    obj[f] = cleanString($el.find('label[for="'+f+'"]')[0].parentNode.lastChild.data)
                 }catch(e){};
             });
             if(obj.ceasedDate){
