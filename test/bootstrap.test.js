@@ -43,7 +43,6 @@ before(function(done) {
             .then(function(){
                 fs.readFileAsync('config/db/functions.sql', 'utf8')
                 .then(function(sql){
-                    console.log(sql)
                     return sequelize.query(sql)
                 })
                 .then(function(){

@@ -71,18 +71,18 @@ module.exports = {
                 name: 'createdById'
             }
         })
-        Company.belongsTo(Transaction, {
-            as: 'seedTransaction',
+        Company.belongsTo(CompanyState, {
+            as: 'seedCompanyState',
             foreignKey: {
-                as: 'seedTransaction',
-                name: 'seedTransactionId'
+                as: 'seedCompanyState',
+                name: 'seedCompanyStateId'
             }
         });
-        Company.belongsTo(Transaction, {
-            as: 'currentTransaction',
+        Company.belongsTo(CompanyState, {
+            as: 'currentCompanyState',
             foreignKey: {
-                as: 'currentTransaction',
-                name: 'currentTransactionId'
+                as: 'currentCompanyState',
+                name: 'currentCompanyStateId'
             }
         });
     },
@@ -92,33 +92,33 @@ module.exports = {
         classMethods: {
         },
         instanceMethods: {
-            getPreviousTransaction: function(generation){
-                return sequelize.query("select previous_transaction(:id, :generation)",
+            getPreviousCompanyState: function(generation){
+                return sequelize.query("select previous_company_state(:id, :generation)",
                                { type: sequelize.QueryTypes.SELECT,
-                                replacements: { id: this.currentTransactionId,
+                                replacements: { id: this.currentCompanyStateId,
                                                 generation: generation }})
                 .then(function(id){
                     if(!id.length){
-                        throw new sails.config.exceptions.TransactionNotFound();
+                        throw new sails.config.exceptions.CompanyStateNotFound();
                     }
-                    return Transaction.findById(id[0]['previous_transaction'],
-                                                {include: Transaction.includes.fullNoJunctions()});
+                    return CompanyState.findById(id[0]['previous_company_state'],
+                                                {include: CompanyState.includes.fullNoJunctions(), order: CompanyState.ordering.full()});
                 });
             }
         },
         hooks: {
             afterCreate: [
-                function addSeedTransaction(company) {
-                    sails.log.verbose('company.addSeedTransaction', company.get());
-                    return Transaction.create({
-                            type: Transaction.types.SEED
-                        })
-                    .then(function(transaction){
-                        this.transaction = transaction;
-                        return company.setSeedTransaction(transaction)
+                function addSeedCompanyState(company) {
+                    sails.log.verbose('company.addSeedCompanyState', company.get());
+                    return CompanyState.create({
+                            transaction: {type: Transaction.types.SEED}
+                        }, {include: [{model: Transaction, as: 'transaction'}]})
+                    .then(function(state){
+                        this.state = state;
+                        return company.setSeedCompanyState(state)
                         })
                     .then(function(){
-                        return company.setCurrentTransaction(this.transaction)
+                        return company.setCurrentCompanyState(this.state)
                         })
                     .catch(function(e) {
                         sails.log.error(e);

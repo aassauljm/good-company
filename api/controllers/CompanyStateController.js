@@ -1,7 +1,7 @@
 /**
- * TransactionController
+ * CompanyStateController
  *
- * @description :: Server-side logic for managing Transactions
+ * @description :: Server-side logic for managing CompanyStates
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 var Promise = require('bluebird');
@@ -12,18 +12,18 @@ var transactions = {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
         return sequelize.transaction(function(t){
-            return Transaction.create({type: Transaction.types.SEED}, {transaction: t})
-            .then(function(transaction){
-                this.transaction = transaction;
-                return company.setSeedTransaction(transaction, {transaction: t})
+            return CompanyState.create({transaction:{type: Transaction.types.SEED}}, {transaction: t, include: [{model: Transaction, as: 'transaction'}]})
+            .then(function(state){
+                this.state = state;
+                return company.setSeedCompanyState(this.state, {transaction: t})
             })
             .then(function(company){
-                return company.setCurrentTransaction(this.transaction, {transaction: t})
+                return company.setCurrentCompanyState(this.state, {transaction: t})
             })
             .then(function(){
-                var transactionId = this.transaction.id;
+                var stateId = this.state.id;
                 return Promise.all(args.holdings.map(function(s) {
-                    return Holding.create(_.merge(s, {transactionId: transactionId, companyId: company.id}), {
+                    return Holding.create(_.merge(s, {companyStateId: stateId, companyId: company.id}), {
                         include: [{
                             model: Holder,
                             as: 'holders'
@@ -59,14 +59,14 @@ var transactions = {
         });
 
         return sequelize.transaction(function(t){
-            return company.getCurrentTransaction()
-             .then(function(currentTransaction){
-                return currentTransaction.buildNext({type: Transaction.types.ISSUE})
+            return company.getCurrentCompanyState()
+             .then(function(currentCompanyState){
+                return currentCompanyState.buildNext({transaction: {type: Transaction.types.ISSUE}})
              })
-             .then(function(nextTransaction){
-                this.nextTransaction = nextTransaction;
+             .then(function(nextCompanyState){
+                this.nextCompanyState = nextCompanyState;
                 /* find any matching holders */
-                _.some(nextTransaction.holdings, function(nextHolding){
+                _.some(nextCompanyState.holdings, function(nextHolding){
                     var toRemove;
                     newHoldings.forEach(function(sharesToAdd, i){
                         sharesToAdd = Holding.build(sharesToAdd,
@@ -88,11 +88,11 @@ var transactions = {
                     return Holding.build(_.extend(sharesToAdd, {companyId: company.id}),
                                 {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
                 });
-                nextTransaction.dataValues.holdings = nextTransaction.dataValues.holdings.concat(newShares);
-                return this.nextTransaction.save({transaction: t});
+                nextCompanyState.dataValues.holdings = nextCompanyState.dataValues.holdings.concat(newShares);
+                return this.nextCompanyState.save({transaction: t});
              })
              .then(function(){
-                return company.setCurrentTransaction(this.nextTransaction, {transaction: t});
+                return company.setCurrentCompanyState(this.nextCompanyState, {transaction: t});
              })
              .then(function(){
                 return company.save();

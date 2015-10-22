@@ -15,10 +15,10 @@ module.exports = {
 
     },
     associations: function() {
-        Holding.belongsTo(Transaction, {
-            as: 'transaction',
+        Holding.belongsTo(CompanyState, {
+            as: 'companyState',
             foreignKey: {
-                name: 'transactionId'
+                name: 'companyStateId'
             }
         });
         Holding.belongsToMany(Parcel, {

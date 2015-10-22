@@ -5,9 +5,9 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
-function TransactionStats(transaction){
+function CompanyStateStats(companyState){
     var stats = {};
-    return transaction.totalShares()
+    return companyState.totalShares()
     .then(function(total){
         stats.totalAllocatedShares = total;
         return stats;
@@ -19,16 +19,17 @@ module.exports = {
     getInfo: function(req, res) {
         Company.findById(req.params.id, {
                 include: [{
-                    model: Transaction,
-                    as: 'currentTransaction',
-                    include: Transaction.includes.fullNoJunctions()
-                }]
+                    model: CompanyState,
+                    as: 'currentCompanyState',
+                    include: CompanyState.includes.fullNoJunctions(),
+                }],
+                order: CompanyState.ordering.full().map((e) => [{model: CompanyState, as: 'currentCompanyState'}, ...e])
             })
             .then(function(company){
                 this.company = company;
-                return company.currentTransaction;
+                return company.currentCompanyState;
             })
-            .then(TransactionStats)
+            .then(CompanyStateStats)
             .then(function(stats){
                 res.json(_.merge({}, this.company.get(), stats))
             });
@@ -36,15 +37,15 @@ module.exports = {
     history: function(req, res){
         Company.findById(req.params.id)
             .then(function(company){
-                return company.getPreviousTransaction(req.params.generation)
+                return company.getPreviousCompanyState(req.params.generation)
             })
-            .then(function(transaction){
-                this.transaction = transaction;
-                return transaction
+            .then(function(companyState){
+                this.companyState = companyState;
+                return companyState;
             })
-            .then(TransactionStats)
+            .then(CompanyStateStats)
             .then(function(stats){
-                res.json(_.merge({transaction: this.transaction.get()}, stats))
+                res.json(_.merge({companyState: this.companyState.get()}, stats))
             })
     }
 };

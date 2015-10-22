@@ -3,7 +3,7 @@ var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 
 
-describe('TransactionController', function() {
+describe('CompanyStateController', function() {
 
     var req, companyId, firstSummary, secondSummary;
     describe('Gets needed info', function() {
@@ -25,7 +25,7 @@ describe('TransactionController', function() {
                 })
         });
     });
-    describe('Fails Seed Transaction', function() {
+    describe('Fails Seed CompanyState', function() {
         it('Try someone elses company', function(done) {
             req.post('/api/transaction/seed/'+(companyId-1))
                 .expect(403, done)
@@ -46,7 +46,7 @@ describe('TransactionController', function() {
                 .expect(500, done)
         });
     });
-    describe('Successful Seed Transaction', function() {
+    describe('Successful Seed CompanyState', function() {
         it('Try valid post', function(done) {
             req.post('/api/transaction/seed/'+companyId)
                 .send({holdings: [{
@@ -63,8 +63,10 @@ describe('TransactionController', function() {
                 .then(function(res){
                     firstSummary = res.body;
                     firstSummary.totalAllocatedShares.should.be.equal(1122)
-                    firstSummary.currentTransaction.should.containSubset({
-                        type: 'SEED',
+                    firstSummary.currentCompanyState.should.containSubset({
+                        transaction: {
+                            type: 'SEED'
+                        },
                         holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
@@ -76,7 +78,7 @@ describe('TransactionController', function() {
                 })
         });
     });
-    describe('Invalid Issue Transaction', function() {
+    describe('Invalid Issue CompanyState', function() {
         it('Try invalid Issue post, no parcels or holders', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdings: [{
@@ -111,7 +113,7 @@ describe('TransactionController', function() {
         });
     });
 
-    describe('Issue Transaction', function() {
+    describe('Issue CompanyState', function() {
         it('Try Valid Issue Post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdings: [{
@@ -129,8 +131,10 @@ describe('TransactionController', function() {
                 .then(function(res){
                     secondSummary = res.body;
                     res.body.totalAllocatedShares.should.be.equal(1325)
-                    res.body.currentTransaction.should.containSubset({
-                        type: 'ISSUE',
+                    res.body.currentCompanyState.should.containSubset({
+                        transaction: {
+                            type: 'ISSUE'
+                        },
                         holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
@@ -146,8 +150,8 @@ describe('TransactionController', function() {
                 })
         });
         it('Get Should have different parcel ids for A,B classes, same for D', function(done) {
-            var firstHolding = firstSummary.currentTransaction.holdings[0].parcels;
-            var secondHolding = _.find(secondSummary.currentTransaction.holdings, function(s){
+            var firstHolding = firstSummary.currentCompanyState.holdings[0].parcels;
+            var secondHolding = _.find(secondSummary.currentCompanyState.holdings, function(s){
                 return s.holders.length === 2;
             }).parcels;
             _.findWhere(firstHolding, {shareClass: 'A'}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 'A'}).id)
@@ -160,12 +164,14 @@ describe('TransactionController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    _.omitDeep(res.body.transaction, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentTransaction, 'updatedAt'));
+                    console.log(JSON.stringify(res.body.companyState, null ,4))
+                    console.log(JSON.stringify(firstSummary.currentCompanyState, null ,4))
+                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
                     done();
                 });
         });
     })
-    describe('Another Issue Transaction', function(){
+    describe('Another Issue CompanyState', function(){
         it('Try Valid Issue Post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdings: [{
@@ -179,8 +185,10 @@ describe('TransactionController', function() {
                 .expect(200)
                 .then(function(res){
                     res.body.totalAllocatedShares.should.be.equal(2325)
-                    res.body.currentTransaction.should.containSubset({
-                        type: 'ISSUE',
+                    res.body.currentCompanyState.should.containSubset({
+                        transaction: {
+                            type: 'ISSUE'
+                        },
                         holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
@@ -201,14 +209,14 @@ describe('TransactionController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/2')
                 .then(function(res){
-                    _.omitDeep(res.body.transaction, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentTransaction, 'updatedAt'));
+                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
                     done();
                 });
         });
         it('should get and compare first issue version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    _.omitDeep(res.body.transaction, 'updatedAt').should.be.deep.eql(_.omitDeep(secondSummary.currentTransaction, 'updatedAt'));
+                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(secondSummary.currentCompanyState, 'updatedAt'));
                     done();
                 });
         });

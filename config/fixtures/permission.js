@@ -153,7 +153,7 @@ function grantRegisteredPermissions(roles, models, admin) {
         relation: 'owner'
     }, {
         modelId: _.find(models, {
-            name: 'Transaction'
+            name: 'CompanyState'
         }).id,
         action: 'create',
         roleId: registeredRole.id

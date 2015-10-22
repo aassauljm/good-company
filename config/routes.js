@@ -90,7 +90,7 @@ module.exports.routes = {
     },
 
     'POST /api/transaction/:type/:companyId': {
-        controller: 'TransactionController',
+        controller: 'CompanyStateController',
         action: 'create'
     },
     'GET /api/company/:id/get_info': {
