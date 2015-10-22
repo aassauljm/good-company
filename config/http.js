@@ -84,4 +84,11 @@ module.exports.http = {
   ***************************************************************************/
 
   // cache: 31557600000
+    xframe: require('lusca').xframe('SAMEORIGIN'),
+  // ...
+  order: [
+    // ...
+    'xframe'
+    // ...
+  ]
 };
