@@ -17,7 +17,7 @@ let DOCUMENT_TYPES = {
 
 
 function cleanString(str){
-    return _.trim(str).replace('\n', '').replace(/\s\s+/g, ' ')
+    return _.trim(str).replace(/[\n\r]/g, '').replace(/\s\s+/g, ' ')
 }
 
 function textAfterMatch($, query, regex){
@@ -58,6 +58,29 @@ function parseIssue($){
     }, {})
 }
 
+function parseAmendAllocation($, $el){
+   return {
+        beforeAmount: Number(cleanString($el.find('.beforePanel .before.value.shareNumber').text().replace(' Shares', ''))),
+        beforeHolders: $el.find('.beforePanel .value.shareholderName').map(function(){
+            return {name: cleanString($(this).text()), address: cleanString($(this).parent().next().text())};
+        }).get(),
+        afterAmount: Number(cleanString($el.find('.afterPanel .value.shareNumber').text().replace(' Shares', ''))),
+        afterHolders: $el.find('.afterPanel .value.shareholderName').map(function(){
+            return {name: cleanString($(this).text()), address: cleanString($(this).parent().next().text())};
+        }).get()
+    }
+}
+
+function parseAllocation($, $el){
+   return {
+        amount:  Number(cleanString($el.find('.value.shareNumber').text().replace(' Shares', ''))),
+        holders: $el.find('.value.shareholderName').map(function(){
+            return {name: cleanString($(this).text()), address: cleanString($(this).parent().next().text())};
+        }).get()
+    }
+}
+
+
 let extractTypes = {
     [DOCUMENT_TYPES.UPDATE]: ($) => {
 
@@ -77,6 +100,24 @@ let extractTypes = {
         return result;
     },
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
+        let result = {};
+        result.changes = $('#reviewContactChangesContent .panel').map(function(){
+            let $el = $(this);
+            let amendAllocRegex = /^\s*Amended Share Allocation\s*$/;
+            let newAllocRegex = /^\s*New Share Allocation\s*$/;
+            let removedAllocRegex = /^\s*Removed Share Allocation\s*$/;
+            if($el.find('.head').text().match(amendAllocRegex)){
+                return {'amend': parseAmendAllocation($, $el)};
+            }
+            else if($el.find('.head').text().match(newAllocRegex)){
+                return {'newAllocation': parseAllocation($, $el)};
+            }
+            else if($el.find('.head').text().match(removedAllocRegex)){
+                return {'removeAllocation': parseAllocation($, $el)};
+            }
+
+        }).get();
+        return result;
 
     }
 }
@@ -149,7 +190,7 @@ module.exports = {
         if(docType && docType.type){
             result = {...result, ...extractTypes[docType.type]($)}
         }
-        console.log(result)
+        console.log(JSON.stringify(result, null ,4))
         return result;
     },
     parseNZCompaniesOffice: function(html){
