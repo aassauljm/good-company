@@ -29,13 +29,13 @@ var transactions = {
         return sequelize.transaction(function(t){
             return CompanyState.create({holdings: args.holdings, unallocatedParcels: args.unallocatedParcels,
                                         transaction:{type: Transaction.types.SEED}},
-                                       {transaction: t, include: CompanyState.includes.full() })
+                                       {include: CompanyState.includes.full() })
             .then(function(state){
                 this.state = state;
-                return company.setSeedCompanyState(this.state, {transaction: t})
+                return company.setSeedCompanyState(this.state)
             })
             .then(function(company){
-                return company.setCurrentCompanyState(this.state, {transaction: t})
+                return company.setCurrentCompanyState(this.state)
             })
             .then(function(){
                 return company.save();
@@ -58,10 +58,10 @@ var transactions = {
                 return currentCompanyState.buildNext({transaction: {type: Transaction.types.ISSUE}})
              })
             .then(function(companyState){
-                return companyState.combineHoldings(args.holdings).save({transaction: t})
+                return companyState.combineHoldings(args.holdings).save()
             })
              .then(function(nextCompanyState){
-                return company.setCurrentCompanyState(nextCompanyState, {transaction: t});
+                return company.setCurrentCompanyState(nextCompanyState);
              })
              .then(function(){
                 return company.save();

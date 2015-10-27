@@ -117,7 +117,7 @@ let extractTypes = {
                 result = {...result, ...parseIssue($)}
             default:
         }
-        return {actions: result};
+        return {actions: [result]};
     },
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
         let result = {};
@@ -130,7 +130,7 @@ let extractTypes = {
             let removedHolderRegex = /^\s*Removed Shareholder\s*$/;
             let head = cleanString($el.find('.head').text());
             if(head.match(amendAllocRegex)){
-                return {[Transaction.types.AMEND]: parseAmendAllocation($, $el)};
+                return {...parseAmendAllocation($, $el), type: Transaction.types.AMEND};
             }
             else if(head.match(newAllocRegex)){
                 return {'newAllocation': parseAllocation($, $el)};
@@ -190,6 +190,33 @@ function processBizNet($){
 }
 
 
+function validateAmend(amend, companyState){
+    let holding = companyState.getMatchingHolding(amend.afterHolders);
+    let sum = _.sum(holding.parcels, function(p){
+        return p.amount;
+    });
+    if(sum != amend.afterAmount){
+        throw new sails.config.exception.InvalidInverseOperation('After amount does not match')
+    }
+}
+
+
+function performAmend(amend, companyState){
+    validateAmend(amend, companyState)
+    let difference = amend.afterAmount - amend.beforeAmount;
+    let parcel = {amount: Math.abs(difference)};
+    let holding = {holders: amend.afterHolders, parcels: [parcel]};
+    if(difference < 0){
+        companyState.subtractUnallocatedParcels(parcel);
+        return companyState.combineHoldings([holding]);
+    }
+    else{
+        companyState.combineUnallocatedParcels(parcel);
+        return companyState.subtractHoldings([holding]);
+    }
+}
+
+
 module.exports = {
 
     fetch: function(companyId){
@@ -199,13 +226,59 @@ module.exports = {
     populateDB: function(data){
         return Company.create(data)
             .then(function(company){
+                this.company = company;
                 return sails.controllers.companystate.transactions.seed(ScrapingService.formatHolders(data), company);
-            });
+            })
+            .then(function(){
+                return this.company;
+            })
+    },
+
+    populateHistory: function(data, company){
+        if(!data.actions){
+            return;
+        }
+        let rootState, currentRoot;
+        return sequelize.transaction(function(t){
+            return company.getRootCompanyState()
+                .then(function(_rootState){
+                    currentRoot = _rootState;
+                    return currentRoot.buildPrevious({})
+                })
+                .then(function(_rootState){
+                    rootState = _rootState;
+                    return Promise.each(data.actions, function(action){
+                        switch(action.type){
+                            case(Transaction.types.AMEND):
+                                return performAmend(action, rootState);
+                            default:
+
+                        }
+                    })
+
+                })
+                .then(function(){
+                    //console.log(JSON.stringify(rootState, null, 4))
+                    //console.log('args', arguments)
+                    console.log("SAVING")
+                    return rootState.save();
+                })
+                .then(function(_rootState){
+                    console.log("HI")
+                    return currentRoot.setPreviousCompanyState(_rootState);
+                })
+                .then(function(){
+                    console.log(JSON.stringify(rootState, null, 4))
+                    return currentRoot.save();
+                })
+            })
 
     },
+
     canonicalizeNZCompaniesData: function(data){
         return data;
     },
+
     formatHolders: function(data){
         let result = {};
         let total = data.holdings.total,
@@ -223,6 +296,7 @@ module.exports = {
         }
         return result;
     },
+
     getDocumentSummaries: function(data){
         return Promise.map(data.documents, function(document){
             let url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+data.companyNumber+'/'+document.documentId+'/entityFilingRequirement';
@@ -263,6 +337,7 @@ module.exports = {
             })
         }, {concurrency: 3});
     },
+
     writeDocumentSummaries: function(data){
         return ScrapingService.getDocumentSummaries(data)
             .then(function(texts){
@@ -271,6 +346,7 @@ module.exports = {
             });
         });
     },
+
     processDocument: function(html, info){
         let $ = cheerio.load(html),
             result = {};
@@ -282,6 +358,7 @@ module.exports = {
         }
         return {...result, ...info, date: moment(info.date, 'DD MMM YYYY HH:mm').toDate()}
     },
+
     parseNZCompaniesOffice: function(html){
         let $ = cheerio.load(html);
         let result = {};

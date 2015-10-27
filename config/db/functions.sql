@@ -25,3 +25,17 @@ CREATE OR REPLACE FUNCTION previous_company_state(companyStateId integer, genera
     )
     SELECT id from find_state where generation = $2;
 $$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
+    RETURNS INTEGER
+    AS $$
+    WITH RECURSIVE find_state(id, "previousCompanyStateId") as (
+        SELECT t.id, t."previousCompanyStateId" FROM companystate as t where t.id = $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId"
+        FROM companystate t, find_state tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+    SELECT id from find_state where "previousCompanyStateId" is null;
+$$ LANGUAGE SQL;

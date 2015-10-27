@@ -54,8 +54,7 @@ module.exports = {
             },
             combineParcels: function(holding){
                 var newParcels = [];
-                _.some(this.parcels, function(currentP, i){
-
+                _.some(this.dataValues.parcels, function(currentP, i){
                     var match = _.some(holding.dataValues.parcels, function(addP){
                         if(Parcel.match(addP, currentP)){
                             newParcels.push(currentP.combine(addP));
@@ -68,6 +67,21 @@ module.exports = {
                     }
                 });
                 this.dataValues.parcels = newParcels.concat(holding.dataValues.parcels);
+            },
+            subtractParcels: function(holding){
+                var newParcels = [];
+                _.some(this.dataValues.parcels, function(currentP, i){
+                    var match = _.some(holding.dataValues.parcels, function(addP){
+                        if(Parcel.match(addP, currentP)){
+                            newParcels.push(currentP.subtract(addP));
+                            return true;
+                        }
+                    });
+                    if(!match){
+                        newParcels.push(currentP);
+                    }
+                });
+                this.dataValues.parcels = newParcels;
             }
         },
         hooks: {}

@@ -244,14 +244,16 @@ module.exports = {
                         return state;
                     })
             },
+
             buildPrevious: function(attr){
                 return this.buildNext(attr)
                     .then(function(state){
-                        state.setPreviousCompany(null)
+                        state.dataValues.previousCompanyStateId = null;
                         return state;
                     })
             },
-            combineHoldings: function(newHoldings, removeHoldings){
+
+            combineHoldings: function(newHoldings, subtractHoldings){
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
                 }
@@ -263,8 +265,8 @@ module.exports = {
                         sharesToAdd = Holding.build(sharesToAdd,
                                 {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]} );
                         if(nextHolding.holdersMatch(sharesToAdd)){
-                            if(removeHoldings){
-                                newHolding.removeParcels(sharesToAdd);
+                            if(subtractHoldings){
+                                nextHolding.subtractParcels(sharesToAdd);
                             }
                             else{
                                 nextHolding.combineParcels(sharesToAdd);
@@ -284,14 +286,51 @@ module.exports = {
                     return Holding.build(sharesToAdd,
                                 {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
                 });
-                if(removeHoldings && newShares.length){
+                if(subtractHoldings && newShares.length){
                     throw new sails.config.exceptions.InvalidInverseOperation('Unknown holders to issue to');
                 }
                 this.dataValues.holdings = this.dataValues.holdings.concat(newShares);
+
+                // unaccounted for, alter unallocated shares
+
                 return this;
             },
-            removeHoldings: function(removeHoldings){
-                return combineHoldings(removeHoldings, true);
+
+            subtractHoldings: function(subtractHoldings){
+                return this.combineHoldings(subtractHoldings, true);
+            },
+
+            getMatchingHolding: function(holders){
+                return _.find(this.dataValues.holdings, function(holding){
+                    return holding.holdersMatch({holders: holders})
+                });
+            },
+            combineUnallocatedParcels: function(parcel, subtract){
+                var match, result;
+                var parcel = Parcel.build(parcel);
+                _.some(this.dataValues.unallocatedParcels, function(p){
+                    if(Parcel.match(p, parcel)){
+                        match = p;
+                        return p;
+                    }
+                });
+                if(match){
+                   this.dataValues.unallocatedParcels = _.without(this.dataValues.unallocatedParcels, match);
+                }
+                else{
+                    match = Parcel.build({amount: 0, shareClass: parcel.shareClass});
+                }
+                if(!subtract){
+                    result = match.combine(parcel);
+                }
+                else{
+                    result = match.subtract(parcel);
+                }
+                this.dataValues.unallocatedParcels.push(result);
+                return this;
+            },
+            subtractUnallocatedParcels: function(parcel){
+                return this.combineUnallocatedParcels(parcel, true);
             }
         },
         hooks: {}

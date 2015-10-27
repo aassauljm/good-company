@@ -25,6 +25,7 @@ describe('Scraping Service', function() {
                     return company.getCurrentCompanyState({include: CompanyState.includes.full()});
                 })
                 .then(function(companyState){
+                    //console.log(JSON.stringify(companyState, null ,4))
                     done();
                 })
         })
@@ -44,10 +45,16 @@ describe('Scraping Service', function() {
 
                 })
                 .then(function(data){
-                    console.log(_.find(data, {documentId: '14007316'}));
-                   // console.log(JSON.stringify(_.sortBy(data, 'date').reverse().slice(0, 20), null, 4));
-                    return data;
+                    this.data = data;
+                    return Company.findOne({where: {companyName: 'XERO LIMITED'}})
                 })
+                .then(function(company){
+                    var amend = _.find(this.data, {documentId: '21472248'});
+                    //console.log(JSON.stringify(_.sortBy(this.data, 'date').reverse().slice(0, 20), null, 4));
+                    console.log(amend)
+                    return ScrapingService.populateHistory(amend, company);
+                })
+
                 .then(function(){
                     done();
                 })

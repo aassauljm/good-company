@@ -28,7 +28,7 @@ module.exports = {
         tableName: 'parcel',
         classMethods: {
             match: function(a, b) {
-                return a.shareClass === b.shareClass;
+                return !a.shareClass && !b.shareClass || a.shareClass === b.shareClass;
             }
         },
         instanceMethods: {
@@ -39,8 +39,15 @@ module.exports = {
                 else{
                     throw new sails.config.exceptions.BadParcelOperation("Parcels do not match");
                 }
+            },
+            subtract: function(other){
+                if(Parcel.match(this, other)){
+                    return Parcel.build({amount: this.amount - other.amount, shareClass: this.shareClass});
+                }
+                else{
+                    throw new sails.config.exceptions.BadParcelOperation("Parcels do not match");
+                }
             }
-
         },
         hooks: {}
     }
