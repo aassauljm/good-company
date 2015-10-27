@@ -10,6 +10,15 @@ function ValidationException(value) {
 ValidationException.prototype = Object.create(Error.prototype);
 ValidationException.prototype.constructor = ValidationException
 
+function BadImmutableOperation(value) {
+   this.value = value;
+   this.toString = function() {
+      return this.value + this.message;
+   };
+}
+
+BadImmutableOperation.prototype = Object.create(Error.prototype);
+BadImmutableOperation.prototype.constructor = BadImmutableOperation;
 
 function ForbiddenException(value) {
    this.value = value;
@@ -74,6 +83,7 @@ TransactionNotFound.prototype.constructor = TransactionNotFound;
 
 module.exports.exceptions = _.defaults({
     ValidationException: ValidationException,
+    BadImmutableOperation: BadImmutableOperation,
     ForbiddenException: ForbiddenException,
     UserNotFoundException: UserNotFoundException,
     BadCredentialsException: BadCredentialsException,

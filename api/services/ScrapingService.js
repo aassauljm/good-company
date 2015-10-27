@@ -200,27 +200,43 @@ module.exports = {
             .then(function(res){
                 return res.text();
             })
+            .then(function(text){
+                let $ = cheerio(text);
+                if($('#biznetMigratedVirtualDocument #integrated-iframe').length){
+                    return fetch($('#biznetMigratedVirtualDocument #integrated-iframe').src)
+                        .then(function(res){
+                            return res.text();
+                        })
+                        .then(function(text){
+                            return {text}
+                        })
+                }
+                return {text};
+            })
+            .then(function(data){
+                return {...data, documentId: document.documentId}
+            })
         }, {concurrency: 3});
     },
     writeDocumentSummaries: function(data){
-        return getDocumentSummaries(data)
+        return ScrapingService.getDocumentSummaries(data)
             .then(function(texts){
-                return Promise.map(texts, function(text){
-                    return fs.writeFileAsync('test/fixtures/companies_office/documents/'+document.documentId+'.html', text, 'utf-8');
+                return Promise.map(texts, function(data){
+                    return fs.writeFileAsync('test/fixtures/companies_office/documents/'+data.documentId+'.html', data.text, 'utf-8');
             });
         });
     },
-    processDocument: function(html){
+    processDocument: function(html, info){
         let $ = cheerio.load(html);
         let result = {};
         let typeRegex =/^Document Type$/;
-        result.label = textAfterMatch($, '.row.wideLabel label', typeRegex) || "UNKNOWN";
+        result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
         let docType = DOCUMENT_TYPE_MAP[result.label]
         if(docType && docType.type){
             result = {...result, ...extractTypes[docType.type]($)}
         }
         console.log(JSON.stringify(result, null ,4))
-        return result;
+        return {...result, ...info};
     },
     parseNZCompaniesOffice: function(html){
         let $ = cheerio.load(html);

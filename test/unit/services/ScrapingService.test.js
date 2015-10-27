@@ -36,13 +36,15 @@ describe('Scraping Service', function() {
                         return fs.readFileAsync('test/fixtures/companies_office/documents/'+document.documentId+'.html', 'utf8')
                             .then(function(data){
                                 console.log(document.documentId);
-                                return ScrapingService.processDocument(data);
+                                return ScrapingService.processDocument(data, document);
                             });
                         }, {concurrency: 10})
 
                 })
-                .then(function(results){
-                    return console.log(results.length)
+                .then(function(data){
+                    console.log(_.find(data, {documentId: '14007316'}));
+
+                    return data;
                 })
                 .then(function(){
                     done();

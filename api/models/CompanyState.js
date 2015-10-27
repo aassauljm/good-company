@@ -207,7 +207,6 @@ module.exports = {
                     .then(function(state){
                         // items with id are not newRecords
                         state.get('holdings').map(function(sh){
-                            console.log(sh)
                             sh.get('holders').map(function(holders){
                                 holders.isNewRecord = false;
                             })
@@ -220,6 +219,44 @@ module.exports = {
                         })
                         return state;
                     })
+            },
+            buildPrevious: function(attr){
+                return this.buildNext(attr)
+                    .then(function(state){
+                        state.setPreviousCompany(null)
+                        return state;
+                    })
+            },
+            combineHoldings: function(newHoldings){
+                if(this.id){
+                    throw new sails.config.exceptions.BadImmutableOperation();
+                }
+                " For now, using name equivilency to match holders (and companyId) "
+                " Match all holders in a holding, then an issue will increase the parcels on that holding "
+                _.some(this.dataValues.holdings, function(nextHolding){
+                    var toRemove;
+                    newHoldings.forEach(function(sharesToAdd, i){
+                        sharesToAdd = Holding.build(sharesToAdd,
+                                {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]} );
+                        if(nextHolding.holdersMatch(sharesToAdd)){
+                            nextHolding.combineParcels(sharesToAdd);
+                            toRemove = i;
+                            return false;
+                        }
+                    })
+                    if(toRemove !== undefined){
+                        newHoldings.splice(toRemove, 1);
+                    }
+                    if(!newHoldings.length){
+                        return true;
+                    }
+                });
+                var newShares = newHoldings.map(function(sharesToAdd, i){
+                    return Holding.build(sharesToAdd,
+                                {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
+                });
+                this.dataValues.holdings = this.dataValues.holdings.concat(newShares);
+                return this;
             }
         },
         hooks: {}
