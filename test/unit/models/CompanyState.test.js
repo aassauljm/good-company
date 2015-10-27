@@ -3,7 +3,6 @@ describe('CompanyState Model', function() {
 
         it('should calculate holding totals', function(done) {
             CompanyState.create({
-                    type: Transaction.types.SEED,
                     holdings: [{
                         parcels: [{
                             amount: 10,
@@ -88,7 +87,7 @@ describe('CompanyState Model', function() {
                         'B': {amount: 12},
                         'C': {amount: 1}
                     });
-                    return this.state.totalShares();
+                    return this.state.totalAllocatedShares();
                 })
                 .then(function(totalShares){
                     totalShares.should.be.eql(24)
@@ -97,7 +96,6 @@ describe('CompanyState Model', function() {
         });
         it('should clone holdings', function(done) {
             CompanyState.create({
-                type: Transaction.types.SEED,
                 holdings: [{
                     parcels: [{
                         amount: 10,
@@ -151,7 +149,43 @@ describe('CompanyState Model', function() {
                     this.second_state.holdings[0].holders[0].id);
                 done();
             });
-
         });
+        it('should add some unallocated shares', function(done){
+            CompanyState.create({
+                holdings: [{
+                    parcels: [{
+                        amount: 10,
+                        shareClass: 'A'
+                    }],
+                    holders: [{
+                        name: 'Randy'
+                    }]
+                }],
+                unallocatedParcels: [
+                    {
+                        amount: 100,
+                        shareClass: 'A'
+                    }]
+            }, {include: [{
+                        model: Holding,
+                        as: 'holdings',
+                        include: [{
+                            model: Parcel,
+                            as: 'parcels'
+                        }, {
+                            model: Holder,
+                            as: 'holders'
+                        }]
+                }, {
+                    model: Parcel,
+                    as: 'unallocatedParcels'
+                }]})
+                .then(function(state){
+                    state.totalAllocatedShares().should.eventually.become(10);
+                    state.totalUnallocatedShares().should.eventually.become(100)
+                        .notify(done)
+
+                })
+        })
     });
 });

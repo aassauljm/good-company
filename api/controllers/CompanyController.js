@@ -7,11 +7,18 @@
 
 function CompanyStateStats(companyState){
     var stats = {};
-    return companyState.totalShares()
-    .then(function(total){
-        stats.totalAllocatedShares = total;
-        return stats;
-    })
+    return companyState.totalAllocatedShares()
+        .then(function(total){
+            stats.totalAllocatedShares = total;
+            return companyState.totalUnallocatedShares()
+        })
+        .then(function(total){
+            stats.totalUnallocatedShares = total;
+            stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
+        })
+        .then(function(){
+            return stats;
+        });
 }
 
 

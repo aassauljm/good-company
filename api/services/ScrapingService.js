@@ -20,6 +20,16 @@ function cleanString(str){
     return _.trim(str).replace(/[\n\r]/g, '').replace(/\s\s+/g, ' ')
 }
 
+function parseName(text){
+    text = cleanString(text);
+    let companyNumberRegex = /^\s*(.*)\( ([0-9]{5,}) \)\s*$/g,
+        matches = companyNumberRegex.exec(text);
+    return {
+        companyNumber: matches ? matches[2] : null,
+        name: matches ? matches[1] : text
+    }
+}
+
 function textAfterMatch($, query, regex){
         try{
             return cleanString($(query).filter(function(){
@@ -62,11 +72,11 @@ function parseAmendAllocation($, $el){
    return {
         beforeAmount: Number(cleanString($el.find('.beforePanel .before.value.shareNumber').text().replace(' Shares', ''))),
         beforeHolders: $el.find('.beforePanel .value.shareholderName').map(function(){
-            return {name: cleanString($(this).text()), address: cleanString($(this).parent().next().text())};
+            return {...parseName($(this).text()), address: cleanString($(this).parent().next().text())};
         }).get(),
         afterAmount: Number(cleanString($el.find('.afterPanel .value.shareNumber').text().replace(' Shares', ''))),
         afterHolders: $el.find('.afterPanel .value.shareholderName').map(function(){
-            return {name: cleanString($(this).text()), address: cleanString($(this).parent().next().text())};
+            return {...parseName($(this).text()), address: cleanString($(this).parent().next().text())};
         }).get()
     }
 }
@@ -75,15 +85,25 @@ function parseAllocation($, $el){
    return {
         amount:  Number(cleanString($el.find('.value.shareNumber').text().replace(' Shares', ''))),
         holders: $el.find('.value.shareholderName').map(function(){
-            return {name: cleanString($(this).text()), address: cleanString($(this).parent().next().text())};
+            return {...parseName($(this).text()), address: cleanString($(this).parent().next().text())};
         }).get()
     }
 }
 
 
+
+function parseHolder($, $el){
+   return {
+        holders: $el.find('.value.shareholderName').map(function(){
+            return {
+                ...parseName($(this).text()),
+                address: cleanString($(this).parent().next().text())};
+        }).get()
+    }
+}
+
 let extractTypes = {
     [DOCUMENT_TYPES.UPDATE]: ($) => {
-
         let transactionMap = {
             'Issue': Transaction.types.ISSUE
         }
@@ -106,14 +126,23 @@ let extractTypes = {
             let amendAllocRegex = /^\s*Amended Share Allocation\s*$/;
             let newAllocRegex = /^\s*New Share Allocation\s*$/;
             let removedAllocRegex = /^\s*Removed Share Allocation\s*$/;
-            if($el.find('.head').text().match(amendAllocRegex)){
+            let newHolderRegex = /^\s*New Shareholder\s*$/;
+            let removedHolderRegex = /^\s*Removed Shareholder\s*$/;
+            let head = cleanString($el.find('.head').text());
+            if(head.match(amendAllocRegex)){
                 return {'amend': parseAmendAllocation($, $el)};
             }
-            else if($el.find('.head').text().match(newAllocRegex)){
+            else if(head.match(newAllocRegex)){
                 return {'newAllocation': parseAllocation($, $el)};
             }
-            else if($el.find('.head').text().match(removedAllocRegex)){
+            else if(head.match(removedAllocRegex)){
                 return {'removeAllocation': parseAllocation($, $el)};
+            }
+            else if(head.match(newHolderRegex)){
+                return {'newHolder': parseHolder($, $el)};
+            }
+            else if(head.match(removedHolderRegex)){
+                return {'removedHolder': parseHolder($, $el)};
             }
 
         }).get();
@@ -145,8 +174,8 @@ let DOCUMENT_TYPE_MAP = {
 
 module.exports = {
 
-    fetch: function(companyID){
-        return fetch.get('https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyID+'/detail');
+    fetch: function(companyId){
+        return fetch.get('https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyId+'/detail');
     },
 
     populateDB: function(data){
@@ -185,8 +214,8 @@ module.exports = {
         let $ = cheerio.load(html);
         let result = {};
         let typeRegex =/^Document Type$/;
-        result.type = textAfterMatch($, '.row.wideLabel label', typeRegex) || "UNKNOWN";
-        let docType = DOCUMENT_TYPE_MAP[result.type]
+        result.label = textAfterMatch($, '.row.wideLabel label', typeRegex) || "UNKNOWN";
+        let docType = DOCUMENT_TYPE_MAP[result.label]
         if(docType && docType.type){
             result = {...result, ...extractTypes[docType.type]($)}
         }

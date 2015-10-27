@@ -132,7 +132,7 @@ module.exports = {
                         }, {});
                     });
             },
-            totalShares: function() {
+            totalAllocatedShares: function() {
                 return this.getHoldings({
                         include: [{
                             model: Parcel,
@@ -143,6 +143,14 @@ module.exports = {
                         return _.sum(_.flatten(holdings.map(function(s) {
                             return s.parcels;
                         })), function(p) {
+                            return p.amount;
+                        });
+                    })
+            },
+            totalUnallocatedShares: function() {
+                return this.getUnallocatedParcels()
+                    .then(function(parcels) {
+                        return _.sum(parcels, function(p) {
                             return p.amount;
                         });
                     })
@@ -161,7 +169,7 @@ module.exports = {
                         }]
                     })
                     .then(function(holdings) {
-                        return holdings.map(function(holding) {
+                        return {holdings: holdings.map(function(holding) {
                             var parcels = holding.parcels.map(function(p) {
                                 return p.get()
                             });
@@ -172,32 +180,43 @@ module.exports = {
                                 parcels: parcels,
                                 holders: holders,
                                 companyId: holding.companyId
-                            }
-                        });
+                            };
+                        })};
+
+                    })
+            },
+            cloneUnallocated: function(){
+                return this.getUnallocatedParcels()
+                    .then(function(parcels){
+                        return {unallocatedParcels: parcels.map(function(p){
+                            return p;
+                        })};
                     });
             },
             buildNext: function(attr) {
                 var id = this.id;
-                return this.cloneHoldings()
-                    .then(function(holdings) {
+                return Promise.join(this.cloneHoldings(), this.cloneUnallocated(),
+                        function(holdings, unallocatedParcels) {
                         return CompanyState
                             .build(_.extend(attr, {
-                                companyId: this.companyId,
-                                holdings: holdings,
                                 previousCompanyStateId: id
-                            }), {
+                            }, holdings, unallocatedParcels), {
                                 include: CompanyState.includes.fullNoJunctions()
                             })
                     })
                     .then(function(state){
                         // items with id are not newRecords
                         state.get('holdings').map(function(sh){
+                            console.log(sh)
                             sh.get('holders').map(function(holders){
                                 holders.isNewRecord = false;
                             })
                             sh.get('parcels').map(function(parcels){
                                 parcels.isNewRecord = false;
                             })
+                        });
+                        state.get('unallocatedParcels').map(function(p){
+                            p.isNewRecord = false;
                         })
                         return state;
                     })
