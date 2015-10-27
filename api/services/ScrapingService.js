@@ -172,6 +172,24 @@ let DOCUMENT_TYPE_MAP = {
 };
 
 
+function processCompaniesOffice($){
+    let result = {};
+    let typeRegex =/^Document Type$/;
+    result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
+    let docType = DOCUMENT_TYPE_MAP[result.label]
+    if(docType && docType.type){
+        result = {...result, ...extractTypes[docType.type]($)}
+    }
+
+    return result
+}
+
+function processBizNet($){
+    let result = {};
+    return {}
+}
+
+
 module.exports = {
 
     fetch: function(companyId){
@@ -201,9 +219,23 @@ module.exports = {
                 return res.text();
             })
             .then(function(text){
-                let $ = cheerio(text);
+                let $ = cheerio.load(text);
                 if($('#biznetMigratedVirtualDocument #integrated-iframe').length){
-                    return fetch($('#biznetMigratedVirtualDocument #integrated-iframe').src)
+                    return fetch($('#biznetMigratedVirtualDocument #integrated-iframe').attr('src'))
+                        .then(function(res){
+                            return res.text();
+                        })
+                        .then(function(text){
+                            let url = /href="(http:\/\/[^ ]+)";/g.exec(text)[1]
+                            return fetch(url)
+                        })
+                        .then(function(res){
+                            return res.text();
+                        })
+                        .then(function(text){
+                            let $ = cheerio.load(text);
+                            return fetch('http://www.societies.govt.nz/pls/web/' + $('frame[name=LowerFrame]').attr('src'))
+                        })
                         .then(function(res){
                             return res.text();
                         })
@@ -227,16 +259,16 @@ module.exports = {
         });
     },
     processDocument: function(html, info){
-        let $ = cheerio.load(html);
-        let result = {};
-        let typeRegex =/^Document Type$/;
-        result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
-        let docType = DOCUMENT_TYPE_MAP[result.label]
-        if(docType && docType.type){
-            result = {...result, ...extractTypes[docType.type]($)}
+        let $ = cheerio.load(html),
+            result = {};
+        if($('#page-body').length){
+            result = processCompaniesOffice($)
         }
-        console.log(JSON.stringify(result, null ,4))
-        return {...result, ...info};
+        else{
+            result = processBizNet($)
+        }
+        console.log(JSON.stringify({...result, ...info}, null ,4))
+        return {...result, ...info}
     },
     parseNZCompaniesOffice: function(html){
         let $ = cheerio.load(html);

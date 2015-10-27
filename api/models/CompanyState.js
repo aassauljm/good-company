@@ -227,7 +227,7 @@ module.exports = {
                         return state;
                     })
             },
-            combineHoldings: function(newHoldings){
+            combineHoldings: function(newHoldings, removeHoldings){
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
                 }
@@ -239,7 +239,12 @@ module.exports = {
                         sharesToAdd = Holding.build(sharesToAdd,
                                 {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]} );
                         if(nextHolding.holdersMatch(sharesToAdd)){
-                            nextHolding.combineParcels(sharesToAdd);
+                            if(removeHoldings){
+                                newHolding.removeParcels(sharesToAdd);
+                            }
+                            else{
+                                nextHolding.combineParcels(sharesToAdd);
+                            }
                             toRemove = i;
                             return false;
                         }
@@ -255,8 +260,14 @@ module.exports = {
                     return Holding.build(sharesToAdd,
                                 {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
                 });
+                if(removeHoldings && newShares.length){
+                    throw new sails.config.exceptions.InvalidInverseOperation('Unknown holders to issue to');
+                }
                 this.dataValues.holdings = this.dataValues.holdings.concat(newShares);
                 return this;
+            },
+            removeHoldings: function(removeHoldings){
+                return combineHoldings(removeHoldings, true);
             }
         },
         hooks: {}

@@ -1,4 +1,6 @@
 var _ = require('lodash')
+/* TODO, write error factory */
+
 
 function ValidationException(value) {
    this.value = value;
@@ -81,6 +83,16 @@ TransactionNotFound.prototype = Object.create(Error.prototype);
 TransactionNotFound.prototype.constructor = TransactionNotFound;
 
 
+function InvalidInverseOperation(value) {
+   this.value = value;
+   this.toString = function() {
+      return this.value + this.message;
+   };
+}
+
+InvalidInverseOperation.prototype = Object.create(Error.prototype);
+InvalidInverseOperation.prototype.constructor = InvalidInverseOperation;
+
 module.exports.exceptions = _.defaults({
     ValidationException: ValidationException,
     BadImmutableOperation: BadImmutableOperation,
@@ -88,7 +100,8 @@ module.exports.exceptions = _.defaults({
     UserNotFoundException: UserNotFoundException,
     BadCredentialsException: BadCredentialsException,
     BadParcelOperation: BadParcelOperation,
-    TransactionNotFound: TransactionNotFound
+    TransactionNotFound: TransactionNotFound,
+    InvalidInverseOperation: InvalidInverseOperation
 }, require('sequelize/lib/errors'));
 
 

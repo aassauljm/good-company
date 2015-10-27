@@ -35,7 +35,6 @@ describe('Scraping Service', function() {
                     return Promise.map(data.documents, function(document){
                         return fs.readFileAsync('test/fixtures/companies_office/documents/'+document.documentId+'.html', 'utf8')
                             .then(function(data){
-                                console.log(document.documentId);
                                 return ScrapingService.processDocument(data, document);
                             });
                         }, {concurrency: 10})
@@ -43,7 +42,6 @@ describe('Scraping Service', function() {
                 })
                 .then(function(data){
                     console.log(_.find(data, {documentId: '14007316'}));
-
                     return data;
                 })
                 .then(function(){
@@ -51,4 +49,7 @@ describe('Scraping Service', function() {
                 })
         })
     })
+
+
+
 });
