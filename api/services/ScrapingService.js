@@ -117,11 +117,11 @@ let extractTypes = {
                 result = {...result, ...parseIssue($)}
             default:
         }
-        return result;
+        return {actions: result};
     },
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
         let result = {};
-        result.changes = $('#reviewContactChangesContent .panel').map(function(){
+        result.actions = $('#reviewContactChangesContent .panel').map(function(){
             let $el = $(this);
             let amendAllocRegex = /^\s*Amended Share Allocation\s*$/;
             let newAllocRegex = /^\s*New Share Allocation\s*$/;
@@ -130,7 +130,7 @@ let extractTypes = {
             let removedHolderRegex = /^\s*Removed Shareholder\s*$/;
             let head = cleanString($el.find('.head').text());
             if(head.match(amendAllocRegex)){
-                return {'amend': parseAmendAllocation($, $el)};
+                return {[Transaction.types.AMEND]: parseAmendAllocation($, $el)};
             }
             else if(head.match(newAllocRegex)){
                 return {'newAllocation': parseAllocation($, $el)};
@@ -197,17 +197,30 @@ module.exports = {
     },
 
     populateDB: function(data){
-        return Company.create(ScrapingService.canonicalizeNZCompaniesData(data))
+        return Company.create(data)
+            .then(function(company){
+                return sails.controllers.companystate.transactions.seed(ScrapingService.formatHolders(data), company);
+            });
+
     },
     canonicalizeNZCompaniesData: function(data){
-        let result = {...data};
-        let total = result.holdings.total;
-        result.holdings = result.holdings.allocations.map(function(holding){
-            return {
-                parcels: [{amount: holding.shares}],
-                holders: holding.holders
-            }
-        });
+        return data;
+    },
+    formatHolders: function(data){
+        let result = {};
+        let total = data.holdings.total,
+            counted = 0;
+        result.holdings = data.holdings.allocations.map(function(holding){
+                counted += holding.shares;
+                return {
+                    parcels: [{amount: holding.shares}],
+                    holders: holding.holders,
+                }
+            })
+        let difference = total - counted;
+        if(difference > 0){
+            result.unallocatedParcels = [{amount: difference}];
+        }
         return result;
     },
     getDocumentSummaries: function(data){
@@ -267,8 +280,7 @@ module.exports = {
         else{
             result = processBizNet($)
         }
-        console.log(JSON.stringify({...result, ...info}, null ,4))
-        return {...result, ...info}
+        return {...result, ...info, date: moment(info.date, 'DD MMM YYYY HH:mm').toDate()}
     },
     parseNZCompaniesOffice: function(html){
         let $ = cheerio.load(html);

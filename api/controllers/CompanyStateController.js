@@ -27,7 +27,9 @@ var transactions = {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
         return sequelize.transaction(function(t){
-            return CompanyState.create({transaction:{type: Transaction.types.SEED}}, {transaction: t, include: [{model: Transaction, as: 'transaction'}]})
+            return CompanyState.create({holdings: args.holdings, unallocatedParcels: args.unallocatedParcels,
+                                        transaction:{type: Transaction.types.SEED}},
+                                       {transaction: t, include: CompanyState.includes.full() })
             .then(function(state){
                 this.state = state;
                 return company.setSeedCompanyState(this.state, {transaction: t})
@@ -36,23 +38,9 @@ var transactions = {
                 return company.setCurrentCompanyState(this.state, {transaction: t})
             })
             .then(function(){
-                var stateId = this.state.id;
-                return Promise.all(args.holdings.map(function(s) {
-                    return Holding.create(_.merge(s, {companyStateId: stateId, companyId: company.id}), {
-                        include: [{
-                            model: Holder,
-                            as: 'holders'
-                        }, {
-                            model: Parcel,
-                            as: 'parcels'
-                        }]
-                    }, {transaction: t});
-                }))
-            })
-            .then(function(holdings){
                 return company.save();
             })
-            .then(function(holdings){
+            .then(function(){
                 return;
             })
         });
@@ -64,6 +52,9 @@ var transactions = {
         return sequelize.transaction(function(t){
             return company.getCurrentCompanyState()
             .then(function(currentCompanyState){
+                if(!currentCompanyState){
+                    return CompanyState.build({transaction: {type: Transaction.types.ISSUE}}, {include: CompanyState.includes.full()})
+                }
                 return currentCompanyState.buildNext({transaction: {type: Transaction.types.ISSUE}})
              })
             .then(function(companyState){
@@ -82,6 +73,7 @@ var transactions = {
 
 
 module.exports = {
+    transactions: transactions,
     create: function(req, res) {
         var company;
         Company.findById(req.params.companyId)

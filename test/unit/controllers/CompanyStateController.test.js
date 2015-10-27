@@ -164,8 +164,6 @@ describe('CompanyStateController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    console.log(JSON.stringify(res.body.companyState, null ,4))
-                    console.log(JSON.stringify(firstSummary.currentCompanyState, null ,4))
                     _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
                     done();
                 });

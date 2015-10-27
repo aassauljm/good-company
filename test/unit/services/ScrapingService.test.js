@@ -19,14 +19,17 @@ describe('Scraping Service', function() {
                 })
                 .then(ScrapingService.populateDB)
                 .then(function(){
-                    return Company.findOne({companyName: 'XERO LIMITED'})
+                    return Company.findOne({where: {companyName: 'XERO LIMITED'}})
                 })
                 .then(function(company){
+                    return company.getCurrentCompanyState({include: CompanyState.includes.full()});
+                })
+                .then(function(companyState){
                     done();
                 })
         })
     });
-    describe('Parse documents', function() {
+   describe('Parse documents', function() {
         it('get data structures for each file', function(done) {
             var data;
             fs.readFileAsync('test/fixtures/companies_office/xero.json', 'utf8')
@@ -42,6 +45,7 @@ describe('Scraping Service', function() {
                 })
                 .then(function(data){
                     console.log(_.find(data, {documentId: '14007316'}));
+                   // console.log(JSON.stringify(_.sortBy(data, 'date').reverse().slice(0, 20), null, 4));
                     return data;
                 })
                 .then(function(){

@@ -41,6 +41,7 @@ module.exports = {
                 as: 'previousCompanyState'
             }
         });
+        // TODO, make a scoped query or something
         CompanyState.belongsToMany(Parcel, {
             as: 'unallocatedParcels',
             notNull: true,
@@ -48,8 +49,17 @@ module.exports = {
                 as: 'parcels',
                 name: 'companyStateId'
             },
-            through: 'parcelTJ'
+            through: 'parcelCJ'
         });
+        /*CompanyState.belongsToMany(Parcel, {
+            as: 'overallocatedParcels',
+            notNull: true,
+            foreignKey: {
+                as: 'parcelss',
+                name: 'companyStateId'
+            },
+            through: 'parcelCCJ'
+        });*/
     },
     options: {
         freezeTableName: true,
@@ -57,7 +67,8 @@ module.exports = {
         classMethods: {
             includes: {
                 full: function(){
-                    return [{
+                    return [
+                    {
                         model: Holding,
                         as: 'holdings',
                         include: [{
@@ -70,10 +81,17 @@ module.exports = {
                     },{
                         model: Parcel,
                         as: 'unallocatedParcels'
-                    },{model: Transaction, as: 'transaction'}]
+                    },/*{
+                        model: Parcel,
+                        as: 'overallocatedParcels'
+                    },*/{
+                        model: Transaction,
+                        as: 'transaction'
+                    }]
                 },
                 fullNoJunctions: function(){
-                    return [{
+                    return [
+                    {
                         model: Holding,
                         as: 'holdings',
                         include: [{
@@ -88,7 +106,13 @@ module.exports = {
                     },{
                         model: Parcel,
                         as: 'unallocatedParcels'
-                    },{model: Transaction, as: 'transaction'}]
+                    },/*{
+                        model: Parcel,
+                        as: 'overallocatedParcels'
+                    },*/{
+                        model: Transaction,
+                        as: 'transaction'
+                    }]
                 }
             },
             ordering: {
