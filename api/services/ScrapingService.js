@@ -214,7 +214,9 @@ function validateInverseIssue(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
             }
             if(stats.totalShares != data.toAmount){
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue')
+                console.log(JSON.stringify(stats, null ,4))
+                console.log(JSON.stringify(data, null ,4))
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue ')
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
                 throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up')

@@ -119,12 +119,44 @@ describe('Scraping Service', function() {
     })
     describe('Should get all fields from Timely html doc', function() {
         it('passes doc to scraping service', function(done) {
-            var data;
+            var data, company;
             return fs.readFileAsync('test/fixtures/companies_office/Timely.html', 'utf8')
 
                 .then(ScrapingService.parseNZCompaniesOffice)
+                .then(function(_data){
+                    data = _data;
+                    return data;
+                })
                 .then(ScrapingService.populateDB)
+                .then(function(data){
+                    this.data = data;
+                    return Company.findOne({where: {companyName: 'TIMELY LIMITED'}})
+                })
+                .then(function(_company){
+                    company = _company;
+                    return company.getCurrentCompanyState({include: CompanyState.includes.full()});
+                })
                 .then(function(companyState){
+                    return companyState.stats();
+                })
+                .then(function(stats){
+                    stats.totalShares.should.equal(1365670);
+                })
+                .then(function(){
+                    return Promise.map(data.documents, function(document){
+                        return fs.readFileAsync('test/fixtures/companies_office/documents/'+document.documentId+'.html', 'utf8')
+                            .then(function(data){
+                                return ScrapingService.processDocument(data, document);
+                            });
+                        }, {concurrency: 10})
+
+                })
+                .then(function(documents){
+                    return Promise.map(documents, function(doc){
+                        return ScrapingService.populateHistory(doc, company);
+                    });
+                })
+                .then(function(){
                     done();
                 })
         })
