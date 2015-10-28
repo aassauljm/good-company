@@ -86,7 +86,13 @@ module.exports = {
                         as: 'overallocatedParcels'
                     },*/{
                         model: Transaction,
-                        as: 'transaction'
+                        as: 'transaction',
+                        include: [
+                            {
+                                model: Transaction,
+                                as: 'childTransactions'
+                            }
+                        ]
                     }]
                 },
                 fullNoJunctions: function(){
@@ -111,7 +117,13 @@ module.exports = {
                         as: 'overallocatedParcels'
                     },*/{
                         model: Transaction,
-                        as: 'transaction'
+                        as: 'transaction',
+                        include: [
+                            {
+                                model: Transaction,
+                                as: 'childTransactions'
+                            }
+                        ]
                     }]
                 }
             },
@@ -157,12 +169,12 @@ module.exports = {
                     });
             },
             totalAllocatedShares: function() {
-                return this.getHoldings({
+                return Promise.resolve(this.isNewRecord ? this.dataValues.holdings : this.getHoldings({
                         include: [{
                             model: Parcel,
                             as: 'parcels',
                         }]
-                    })
+                    }))
                     .then(function(holdings) {
                         return _.sum(_.flatten(holdings.map(function(s) {
                             return s.parcels;
@@ -172,7 +184,7 @@ module.exports = {
                     })
             },
             totalUnallocatedShares: function() {
-                return this.getUnallocatedParcels()
+                return Promise.resolve(this.isNewRecord ? this.dataValues.unallocatedParcels : this.getUnallocatedParcels())
                     .then(function(parcels) {
                         return _.sum(parcels, function(p) {
                             return p.amount;
@@ -331,7 +343,18 @@ module.exports = {
             },
             subtractUnallocatedParcels: function(parcel){
                 return this.combineUnallocatedParcels(parcel, true);
+            },
+            stats: function(){
+                var stats = {};
+                return Promise.join(this.totalAllocatedShares(), this.totalUnallocatedShares(),
+                        function(total, totalUnallocated){
+                        stats.totalUnallocatedShares = totalUnallocated;
+                        stats.totalAllocatedShares = total;
+                        stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
+                        return stats
+                    })
             }
+
         },
         hooks: {}
     }

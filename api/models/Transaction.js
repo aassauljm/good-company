@@ -1,9 +1,9 @@
 /**
-* Transaction.js
-*
-* @description :: TODO: You might write a short summary of how this model works and what it represents here.
-* @docs        :: http://sailsjs.org/#!documentation/models
-*/
+ * Transaction.js
+ *
+ * @description :: TODO: You might write a short summary of how this model works and what it represents here.
+ * @docs        :: http://sailsjs.org/#!documentation/models
+ */
 
 var types = {
     SEED: 'SEED',
@@ -12,6 +12,7 @@ var types = {
     ISSUE_PROPORTIONAL: 'ISSUE_PROPORTIONAL',
     ISSUE_NONPROPORTIONAL: 'ISSUE_NONPROPORTIONAL',
     AMEND: 'AMEND',
+    COMPOUND: 'COMPOUND'
 };
 
 module.exports = {
@@ -21,11 +22,30 @@ module.exports = {
         rest: false
     },
 
-  attributes: {
+    attributes: {
         type: {
             type: Sequelize.ENUM.apply(null, _.values(types))
+        },
+        data: {
+            type: Sequelize.JSON
         }
-  },
+    },
+    associations: function() {
+        Transaction.belongsTo(Transaction, {
+            as: 'parentTransaction',
+            foreignKey: {
+                name: 'parentTransactionId',
+                as: 'parentTransaction'
+            }
+        });
+        Transaction.hasMany(Transaction, {
+            as: 'childTransactions',
+            foreignKey: {
+                name: 'parentTransactionId',
+                as: 'parentTransaction'
+            }
+        });
+    },
     options: {
         freezeTableName: true,
         tableName: 'transaction',
@@ -36,4 +56,3 @@ module.exports = {
     }
 
 };
-

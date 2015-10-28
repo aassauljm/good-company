@@ -56,9 +56,9 @@ function divAfterParent($, query, regex){
 
 function parseIssue($){
     let fields = [
-        ['from', 'Previous Number of Shares:', Number],
-        ['by', 'Increased Shares by:', Number],
-        ['to', 'New Number of Shares:', Number],
+        ['fromAmount', 'Previous Number of Shares:', Number],
+        ['byAmount', 'Increased Shares by:', Number],
+        ['toAmount', 'New Number of Shares:', Number],
         ['amount', 'Number of Increased Shares:', Number],
         ['issueDate', 'Date of Issue:', date => moment(date, 'DD MMM YYYY').toDate()]
     ];
@@ -130,7 +130,7 @@ let extractTypes = {
             let removedHolderRegex = /^\s*Removed Shareholder\s*$/;
             let head = cleanString($el.find('.head').text());
             if(head.match(amendAllocRegex)){
-                return {...parseAmendAllocation($, $el), type: Transaction.types.AMEND};
+                return {...parseAmendAllocation($, $el), transactionType: Transaction.types.AMEND};
             }
             else if(head.match(newAllocRegex)){
                 return {'newAllocation': parseAllocation($, $el)};
@@ -190,32 +190,61 @@ function processBizNet($){
 }
 
 
-function validateAmend(amend, companyState){
+function validateInverseAmend(amend, companyState){
     let holding = companyState.getMatchingHolding(amend.afterHolders);
     let sum = _.sum(holding.parcels, function(p){
         return p.amount;
     });
-    if(sum != amend.afterAmount){
-        throw new sails.config.exception.InvalidInverseOperation('After amount does not match')
+    if(!Number.isSafeInteger(sum)){
+        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
     }
+    if(sum != amend.afterAmount){
+        throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
+    }
+    return Promise.resolve();
+}
+
+function validateInverseIssue(data, companyState){
+    companyState.stats()
+        .then(function(stats){
+            if(!Number.isInteger(data.amount) || data.amount <= 0 ){
+                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be postive integer')
+            }
+            if(!Number.isSafeInteger(data.amount)){
+                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
+            }
+            if(stats.totalShares != data.toAmount){
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue')
+            }
+            if(data.fromAmount + data.amount !== data.toAmount ){
+                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up')
+            }
+        })
 }
 
 
-function performAmend(amend, companyState){
-    validateAmend(amend, companyState)
-    let difference = amend.afterAmount - amend.beforeAmount;
+function performIssue(data, companyState){
+    validateInverseIssue(data, companyState);
+    // In an issue we remove from unallocatedShares
+    companyState.subtractUnallocatedParcels({amount: data.amount});
+    return Transaction.build({type: data.transactionType, data: data})
+}
+
+function performAmend(data, companyState){
+    validateInverseAmend(data, companyState)
+    let difference = data.afterAmount - data.beforeAmount;
     let parcel = {amount: Math.abs(difference)};
-    let holding = {holders: amend.afterHolders, parcels: [parcel]};
+    let holding = {holders: data.afterHolders, parcels: [parcel]};
     if(difference < 0){
         companyState.subtractUnallocatedParcels(parcel);
-        return companyState.combineHoldings([holding]);
+        companyState.combineHoldings([holding]);
     }
     else{
         companyState.combineUnallocatedParcels(parcel);
-        return companyState.subtractHoldings([holding]);
+        companyState.subtractHoldings([holding]);
     }
+    return Transaction.build({type: data.transactionType,  data: data})
 }
-
 
 module.exports = {
 
@@ -238,37 +267,37 @@ module.exports = {
         if(!data.actions){
             return;
         }
-        let rootState, currentRoot;
+        console.log(data)
+        let rootState, currentRoot, transactions;
         return sequelize.transaction(function(t){
             return company.getRootCompanyState()
                 .then(function(_rootState){
                     currentRoot = _rootState;
-                    return currentRoot.buildPrevious({})
+                    return currentRoot.buildPrevious({transaction:
+                        {type: Transaction.types.COMPOUND,
+                            data: _.omit(data, 'actions')
+                        }})
                 })
                 .then(function(_rootState){
                     rootState = _rootState;
-                    return Promise.each(data.actions, function(action){
-                        switch(action.type){
+                    return Promise.map(data.actions, function(action){
+                        switch(action.transactionType){
                             case(Transaction.types.AMEND):
                                 return performAmend(action, rootState);
+                            case(Transaction.types.ISSUE):
+                                return performIssue(action, rootState);
                             default:
 
                         }
-                    })
+                    }, {concurrecy: 1})
 
                 })
-                .then(function(){
-                    //console.log(JSON.stringify(rootState, null, 4))
-                    //console.log('args', arguments)
-                    console.log("SAVING")
+                .then(function(transactions){
+                    rootState.dataValues.transaction.dataValues.childTransactions = _.filter(transactions);
                     return rootState.save();
                 })
                 .then(function(_rootState){
-                    console.log("HI")
-                    return currentRoot.setPreviousCompanyState(_rootState);
-                })
-                .then(function(){
-                    console.log(JSON.stringify(rootState, null, 4))
+                    currentRoot.setPreviousCompanyState(_rootState);
                     return currentRoot.save();
                 })
             })

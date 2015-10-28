@@ -5,22 +5,6 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
-function CompanyStateStats(companyState){
-    var stats = {};
-    return companyState.totalAllocatedShares()
-        .then(function(total){
-            stats.totalAllocatedShares = total;
-            return companyState.totalUnallocatedShares()
-        })
-        .then(function(total){
-            stats.totalUnallocatedShares = total;
-            stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
-        })
-        .then(function(){
-            return stats;
-        });
-}
-
 
 module.exports = {
     getInfo: function(req, res) {
@@ -34,9 +18,8 @@ module.exports = {
             })
             .then(function(company){
                 this.company = company;
-                return company.currentCompanyState;
+                return company.currentCompanyState.stats();
             })
-            .then(CompanyStateStats)
             .then(function(stats){
                 res.json(_.merge({}, this.company.get(), stats))
             });
@@ -48,9 +31,8 @@ module.exports = {
             })
             .then(function(companyState){
                 this.companyState = companyState;
-                return companyState;
+                return companyState.stats();
             })
-            .then(CompanyStateStats)
             .then(function(stats){
                 res.json(_.merge({companyState: this.companyState.get()}, stats))
             })
