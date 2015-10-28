@@ -267,7 +267,7 @@ module.exports = {
         if(!data.actions){
             return;
         }
-        console.log(data)
+        console.log(JSON.stringify(data, null ,4))
         let rootState, currentRoot, transactions;
         return sequelize.transaction(function(t){
             return company.getRootCompanyState()

@@ -48,9 +48,10 @@ module.exports = {
                 if(!other.holders){
                         return false;
                     }
-                return _.isEqual(
-                           _.sortBy(other.holders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'),
-                            _.sortBy(this.holders.map(function(s){ return _.filter(_.pick(s.get ? s.get() : s, 'name', 'companyNumber')); }), 'name'));
+                var clean = function(list){
+                    return _.sortBy(list.map(function(s){ return _.pick(_.pick(s.get ? s.get() : s, 'name', 'companyNumber'), _.identity); }), 'name');
+                }
+                return _.isEqual(clean(other.holders), clean(this.holders));
             },
             combineParcels: function(holding){
                 var newParcels = [];

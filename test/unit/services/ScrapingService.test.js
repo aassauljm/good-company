@@ -3,7 +3,7 @@ var fs = Promise.promisifyAll(require("fs"));
 
 describe('Scraping Service', function() {
 
-    describe('Should get all fields from html doc', function() {
+    describe('Should get all fields from Xero html doc', function() {
         it('passes doc to scraping service', function(done) {
             var data;
             fs.readFileAsync('test/fixtures/companies_office/xero.json', 'utf8')
@@ -30,7 +30,7 @@ describe('Scraping Service', function() {
                 })
         })
     });
-   describe('Parse documents', function() {
+   describe('Parse Xero documents', function() {
         it('get and apply data structures for each file', function(done) {
             var data, startStats;
             fs.readFileAsync('test/fixtures/companies_office/xero.json', 'utf8')
@@ -94,12 +94,41 @@ describe('Scraping Service', function() {
                 .then(function(stats){
                     stats.totalShares.should.be.equal(startStats.totalShares - this.issue.actions[0].amount);
                     stats.totalUnallocatedShares.should.be.equal(this.secondStats.totalUnallocatedShares - this.issue.actions[0].amount)
-
-                    done();
+                    console.log(stats)
+                })
+                .then(function(){
+                    var company = this.company;
+                    return Promise.each(['21386429', '21000586', '21000301', '21000289'], function(documentId){
+                        return ScrapingService.populateHistory(_.find(this.data, {documentId: documentId}), company);
+                    })
+                })
+                .then(function(){
+                    return this.company.getRootCompanyState()
+                })
+                .then(function(state){
+                    return state.stats();
+                })
+                .then(function(stats){
+                    // todo, reconfirm numbers
+                    stats.totalUnallocatedShares.should.be.equal(28128064)
+                    stats.totalAllocatedShares.should.be.equal(107888740)
+                    stats.totalShares.should.be.equal(136016804 )
+                    return done();
                 })
         })
     })
+    describe('Should get all fields from Timely html doc', function() {
+        it('passes doc to scraping service', function(done) {
+            var data;
+            return fs.readFileAsync('test/fixtures/companies_office/Timely.html', 'utf8')
 
+                .then(ScrapingService.parseNZCompaniesOffice)
+                .then(ScrapingService.populateDB)
+                .then(function(companyState){
+                    done();
+                })
+        })
+    });
 
 
 });
