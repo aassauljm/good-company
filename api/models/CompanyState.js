@@ -274,8 +274,7 @@ module.exports = {
                 _.some(this.dataValues.holdings, function(nextHolding){
                     var toRemove;
                     newHoldings.forEach(function(sharesToAdd, i){
-                        sharesToAdd = Holding.build(sharesToAdd,
-                                {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]} );
+                        sharesToAdd = Holding.buildDeep(sharesToAdd);
                         if(nextHolding.holdersMatch(sharesToAdd)){
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(sharesToAdd);
@@ -295,8 +294,7 @@ module.exports = {
                     }
                 });
                 var newShares = newHoldings.map(function(sharesToAdd, i){
-                    return Holding.build(sharesToAdd,
-                                {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
+                    return Holding.buildDeep(sharesToAdd)
                 });
                 if(subtractHoldings && newShares.length){
                     throw new sails.config.exceptions.InvalidInverseOperation('Unknown holders to issue to');
@@ -304,10 +302,8 @@ module.exports = {
                 this.dataValues.holdings = this.dataValues.holdings.concat(newShares);
 
                 // unaccounted for, alter unallocated shares
-
                 return this;
             },
-
             subtractHoldings: function(subtractHoldings){
                 return this.combineHoldings(subtractHoldings, true);
             },
@@ -339,6 +335,9 @@ module.exports = {
                     result = match.subtract(parcel);
                 }
                 this.dataValues.unallocatedParcels.push(result);
+                this.dataValues.unallocatedParcels = _.filter(this.dataValues.unallocatedParcels, function(p){
+                    return p.amount;
+                });
                 return this;
             },
             subtractUnallocatedParcels: function(parcel){

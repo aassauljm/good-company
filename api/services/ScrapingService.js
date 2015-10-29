@@ -77,7 +77,8 @@ function parseAmendAllocation($, $el){
         afterAmount: Number(cleanString($el.find('.afterPanel .value.shareNumber').text().replace(' Shares', ''))),
         afterHolders: $el.find('.afterPanel .value.shareholderName').map(function(){
             return {...parseName($(this).text()), address: cleanString($(this).parent().next().text())};
-        }).get()
+        }).get(),
+        transactionType: Transaction.types.AMEND
     }
 }
 
@@ -130,22 +131,43 @@ let extractTypes = {
             let removedHolderRegex = /^\s*Removed Shareholder\s*$/;
             let head = cleanString($el.find('.head').text());
             if(head.match(amendAllocRegex)){
-                return {...parseAmendAllocation($, $el), transactionType: Transaction.types.AMEND};
+                return parseAmendAllocation($, $el);
             }
             else if(head.match(newAllocRegex)){
-                return {'newAllocation': parseAllocation($, $el)};
+                return {...parseAllocation($, $el), transactionType: Transaction.types.NEW_ALLOCATION};
             }
             else if(head.match(removedAllocRegex)){
-                return {'removeAllocation': parseAllocation($, $el)};
+                return {...parseAllocation($, $el), transactionType: Transaction.types.REMOVE_ALLOCATION};
             }
             else if(head.match(newHolderRegex)){
-                return {'newHolder': parseHolder($, $el)};
+                return parseHolder($, $el);
             }
             else if(head.match(removedHolderRegex)){
-                return {'removedHolder': parseHolder($, $el)};
+                return parseHolder($, $el);
             }
 
         }).get();
+        // a kludge to add companyIds from new/removeHolder to new/remove allocation
+
+        let idMap = result.actions.reduce(function(acc, action){
+            _.each(action.holders, function(holder){
+                if(holder.companyNumber){
+                    acc[holder.name] = holder.companyNumber;
+                }
+            });
+            return acc;
+        }, {});
+
+        result.actions.map(function(a){
+            if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
+               a.transactionType === Transaction.types.REMOVE_ALLOCATION){
+                _.each(a.holders, function(holder){
+                    if(idMap[holder.name]){
+                        holder.companyNumber = idMap[holder.name];
+                    }
+                });
+            }
+        });
         return result;
 
     }
@@ -214,8 +236,6 @@ function validateInverseIssue(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
             }
             if(stats.totalShares != data.toAmount){
-                console.log(JSON.stringify(stats, null ,4))
-                console.log(JSON.stringify(data, null ,4))
                 throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue ')
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
@@ -225,14 +245,14 @@ function validateInverseIssue(data, companyState){
 }
 
 
-function performIssue(data, companyState){
+function performInverseIssue(data, companyState){
     validateInverseIssue(data, companyState);
     // In an issue we remove from unallocatedShares
     companyState.subtractUnallocatedParcels({amount: data.amount});
     return Transaction.build({type: data.transactionType, data: data})
 }
 
-function performAmend(data, companyState){
+function performInverseAmend(data, companyState){
     validateInverseAmend(data, companyState)
     let difference = data.afterAmount - data.beforeAmount;
     let parcel = {amount: Math.abs(difference)};
@@ -245,6 +265,30 @@ function performAmend(data, companyState){
         companyState.combineUnallocatedParcels(parcel);
         companyState.subtractHoldings([holding]);
     }
+    return Transaction.build({type: data.transactionType,  data: data})
+}
+
+
+function performInverseNewAllocation(data, companyState){
+    companyState.combineUnallocatedParcels({amount: data.amount});
+    let holding = companyState.getMatchingHolding(data.holders);
+    if(!holding){
+        throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation')
+    }
+    let sum = _.sum(holding.parcels, function(p){
+        return p.amount;
+    });
+    if(sum !== data.amount){
+        throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocaiton')
+    }
+    companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, holding);
+    return Transaction.build({type: data.transactionType,  data: data})
+}
+
+function performInverseRemoveAllocation(data, companyState){
+    companyState.subtractUnallocatedParcels({amount: data.amount});
+    companyState.dataValues.holdings.push(Holding.buildDeep({
+        holders: data.holders, parcels: [{amount: data.amount}]}));
     return Transaction.build({type: data.transactionType,  data: data})
 }
 
@@ -269,7 +313,6 @@ module.exports = {
         if(!data.actions){
             return;
         }
-        console.log(JSON.stringify(data, null ,4))
         let rootState, currentRoot, transactions;
         return sequelize.transaction(function(t){
             return company.getRootCompanyState()
@@ -285,9 +328,13 @@ module.exports = {
                     return Promise.map(data.actions, function(action){
                         switch(action.transactionType){
                             case(Transaction.types.AMEND):
-                                return performAmend(action, rootState);
+                                return performInverseAmend(action, rootState);
                             case(Transaction.types.ISSUE):
-                                return performIssue(action, rootState);
+                                return performInverseIssue(action, rootState);
+                            case(Transaction.types.NEW_ALLOCATION):
+                                return performInverseNewAllocation(action, rootState);
+                            case(Transaction.types.REMOVE_ALLOCATION):
+                                return performInverseRemoveAllocation(action, rootState);
                             default:
 
                         }

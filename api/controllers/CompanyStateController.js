@@ -27,8 +27,12 @@ var transactions = {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
         return sequelize.transaction(function(t){
-            return CompanyState.create({holdings: args.holdings, unallocatedParcels: args.unallocatedParcels,
-                                        transaction:{type: Transaction.types.SEED}},
+            var data = { holdings: args.holdings,
+                        transaction:{type: Transaction.types.SEED}};
+            if(args.unallocatedParcels){
+                data.unallocatedParcels = args.unallocatedParcels
+            }
+            return CompanyState.create(data,
                                        {include: CompanyState.includes.full() })
             .then(function(state){
                 this.state = state;

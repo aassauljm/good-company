@@ -42,6 +42,7 @@ describe('Holding Model', function() {
                     done();
             })
         });
+
         it('Compare equivalency of holders, almost match', function(done) {
             Holding.build({
                 parcels: [{amount: 100, shareClass: 'A'}],

@@ -60,7 +60,6 @@ describe('Scraping Service', function() {
                 })
                 .then(function(){
                     this.amend = _.find(this.data, {documentId: '21472248'});
-                    console.log(JSON.stringify(_.sortBy(this.data, 'date').reverse().slice(0, 20), null, 4));
                     return ScrapingService.populateHistory(this.amend, this.company);
                 })
                 .then(function(){
@@ -94,7 +93,6 @@ describe('Scraping Service', function() {
                 .then(function(stats){
                     stats.totalShares.should.be.equal(startStats.totalShares - this.issue.actions[0].amount);
                     stats.totalUnallocatedShares.should.be.equal(this.secondStats.totalUnallocatedShares - this.issue.actions[0].amount)
-                    console.log(stats)
                 })
                 .then(function(){
                     var company = this.company;
@@ -112,7 +110,7 @@ describe('Scraping Service', function() {
                     // todo, reconfirm numbers
                     stats.totalUnallocatedShares.should.be.equal(28128064)
                     stats.totalAllocatedShares.should.be.equal(107888740)
-                    stats.totalShares.should.be.equal(136016804 )
+                    stats.totalShares.should.be.equal(136016804)
                     return done();
                 })
         })
@@ -151,12 +149,22 @@ describe('Scraping Service', function() {
                         }, {concurrency: 10})
 
                 })
-                .then(function(documents){
-                    return Promise.map(documents, function(doc){
-                        return ScrapingService.populateHistory(doc, company);
+                .then(function(documentSummaries){
+                    return Promise.each(data.documents, function(doc){
+                        var action = _.find(documentSummaries, {documentId: doc.documentId});
+                        return ScrapingService.populateHistory(action, company);
                     });
                 })
                 .then(function(){
+                    return company.getRootCompanyState()
+                })
+                .then(function(state){
+                    return state.stats();
+                })
+                .then(function(stats){
+                    stats.totalUnallocatedShares.should.be.equal(0)
+                    stats.totalAllocatedShares.should.be.equal(1000)
+                    stats.totalShares.should.be.equal(1000)
                     done();
                 })
         })

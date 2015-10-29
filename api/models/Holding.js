@@ -42,7 +42,11 @@ module.exports = {
     options: {
         freezeTableName: false,
         tableName: 'holding',
-        classMethods: {},
+        classMethods: {
+            buildDeep: function(data){
+                return Holding.build(data, {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
+            }
+        },
         instanceMethods: {
             holdersMatch: function(other){
                 if(!other.holders){
