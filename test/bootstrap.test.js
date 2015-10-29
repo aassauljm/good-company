@@ -10,7 +10,7 @@ chai.use(chaiSubset);
 chai.should();
 var events = require("events"),
     EventEmitter = events.EventEmitter;
-EventEmitter.defaultMaxListeners = 20;
+EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
 var sails;
 
@@ -53,7 +53,10 @@ before(function(done) {
         if (err) return done(err);
         sails = server;
         sails.log.info('Sails Lifted');
-        sequelize_fixtures.loadFiles(['test/fixtures/user.json', 'test/fixtures/passport.json', 'test/fixtures/company.json'], sails.models)
+        sequelize_fixtures.loadFiles(['test/fixtures/user.json',
+                                     'test/fixtures/passport.json',
+                                     'test/fixtures/companyState.json',
+                                     'test/fixtures/company.json'], sails.models)
             .then(function(){
                 fs.readFileAsync('config/db/functions.sql', 'utf8')
                 .then(function(sql){

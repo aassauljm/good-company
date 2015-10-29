@@ -341,10 +341,14 @@ module.exports = {
     },
 
     populateDB: function(data){
-        return Company.create(data)
+        return  Company.create({
+            ownerId: data.ownerId,
+            creatorId: data.creatorId,
+            seedCompanyState: data},
+            {include: [{model: CompanyState, as: 'seedCompanyState'}]})
             .then(function(company){
                 this.company = company;
-                return sails.controllers.companystate.transactions.seed(ScrapingService.formatHolders(data), company);
+                return sails.controllers.companystate.transactions.seed({...data, ...ScrapingService.formatHolders(data)}, company);
             })
             .then(function(){
                 return this.company;

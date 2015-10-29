@@ -19,7 +19,7 @@ describe('Scraping Service', function() {
                 })
                 .then(ScrapingService.populateDB)
                 .then(function(){
-                    return Company.findOne({where: {companyName: 'XERO LIMITED'}})
+                    return Company.findOne({include: [{model: CompanyState, as: 'currentCompanyState', where: {companyName: 'XERO LIMITED'}}]})
                 })
                 .then(function(company){
                     return company.getCurrentCompanyState({include: CompanyState.includes.full()});
@@ -45,7 +45,7 @@ describe('Scraping Service', function() {
                 })
                 .then(function(_data){
                     data = _data;
-                    return Company.findOne({where: {companyName: 'XERO LIMITED'}})
+                    return Company.findOne({include: [{model: CompanyState, as: 'currentCompanyState', where: {companyName: 'XERO LIMITED'}}]});
                 })
                 .then(function(_company){
                     company = _company;
@@ -125,7 +125,7 @@ describe('Scraping Service', function() {
                 })
                 .then(ScrapingService.populateDB)
                 .then(function(){
-                    return Company.findOne({where: {companyName: 'TIMELY LIMITED'}})
+                    return Company.findOne({include: [{model: CompanyState, as: 'currentCompanyState', where: {companyName: 'TIMELY LIMITED'}}]})
                 })
                 .then(function(_company){
                     company = _company;

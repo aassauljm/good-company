@@ -6,9 +6,25 @@
  */
 var Promise = require('bluebird');
 var _ = require('lodash');
-
+var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 module.exports = {
+    find: function(req, res){
+      var Model = actionUtil.parseModel(req);
+      Model.findAll({
+        where: actionUtil.parseCriteria(req),
+        limit: actionUtil.parseLimit(req),
+        offset: actionUtil.parseSkip(req),
+        order: actionUtil.parseSort(req),
+        include: [{model: CompanyState, as: 'currentCompanyState'}]
+      }).then(function(matchingRecords) {
+        res.ok(matchingRecords);
+      }).catch(function(err){
+        return res.serverError(err);
+      });
+    },
+
+
     getInfo: function(req, res) {
         Company.findById(req.params.id, {
                 include: [{
@@ -24,7 +40,9 @@ module.exports = {
             })
             .then(function(stats){
                 res.json(_.merge({}, this.company.get(), stats))
-            });
+            }).catch(function(err){
+                return res.serverError(err);
+              });
     },
     history: function(req, res){
         Company.findById(req.params.id)
@@ -37,7 +55,9 @@ module.exports = {
             })
             .then(function(stats){
                 res.json(_.merge({companyState: this.companyState.get()}, stats))
-            })
+            }).catch(function(err){
+        return res.serverError(err);
+      });
     },
     import: function(req, res){
         var data, company;
@@ -68,6 +88,22 @@ module.exports = {
             })
             .then(function(){
                 return res.ok(company);
-            })
+            }).catch(function(err){
+        return res.serverError(err);
+      });
+    },
+    create: function(req, res){
+        var data = actionUtil.parseValues(req);
+        console.log(data)
+        Company.create({
+            ownerId: req.user.id,
+            creatorId: req.user.id,
+            seedCompanyState: data},
+            {include: [{model: CompanyState, as: 'seedCompanyState'}]})
+        .then(function(newInstance) {
+            return res.created(newInstance);
+        }).catch(function(err){
+            return res.negotiate(err);
+        });
     }
 };

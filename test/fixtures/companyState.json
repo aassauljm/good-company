@@ -1,0 +1,22 @@
+
+[{
+    "model": "companystate",
+    "data": {
+        "id": 1,
+        "companyName": "No 1 Action Company"
+    }
+},
+{
+    "model": "companystate",
+    "data": {
+        "id": 2,
+        "companyName": "Transaction Ltd"
+    }
+}
+,{
+    "model": "companystate",
+    "data": {
+        "id": 3,
+        "companyName": "Calucation Co"
+    }
+}]

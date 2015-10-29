@@ -5,6 +5,8 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 var Promise = require('bluebird');
+var _ = require('lodash');
+var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 function validateHoldings(newHoldings){
     if (!newHoldings || !newHoldings.length) {
@@ -26,14 +28,17 @@ var transactions = {
         if (!args.holdings || !args.holdings.length) {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
+        /*var data = { holdings: args.holdings,
+                    ;
+        if(args.unallocatedParcels){
+            data.unallocatedParcels = args.unallocatedParcels
+        }*/
         return sequelize.transaction(function(t){
-            var data = { holdings: args.holdings,
-                        transaction:{type: Transaction.types.SEED}};
-            if(args.unallocatedParcels){
-                data.unallocatedParcels = args.unallocatedParcels
-            }
-            return CompanyState.create(data,
-                                       {include: CompanyState.includes.full() })
+            return company.getCurrentCompanyState()
+            .then(function(companyState){
+                return CompanyState.create(_.defaults({}, args, companyState.nonAssociativeFields(), {transaction:{type: Transaction.types.SEED}}),
+                                           {include: CompanyState.includes.full() })
+            })
             .then(function(state){
                 this.state = state;
                 return company.setSeedCompanyState(this.state)
@@ -56,9 +61,6 @@ var transactions = {
         return sequelize.transaction(function(t){
             return company.getCurrentCompanyState()
             .then(function(currentCompanyState){
-                if(!currentCompanyState){
-                    return CompanyState.build({transaction: {type: Transaction.types.ISSUE}}, {include: CompanyState.includes.full()})
-                }
                 return currentCompanyState.buildNext({transaction: {type: Transaction.types.ISSUE}})
              })
             .then(function(companyState){
@@ -71,6 +73,23 @@ var transactions = {
                 return company.save();
              });
         })
+    },
+    details: function(args, company){
+        return sequelize.transaction(function(t){
+            return company.getCurrentCompanyState()
+            .then(function(currentCompanyState){
+                return currentCompanyState.buildNext(_.merge(args, {transaction: {type: Transaction.types.DETAILS}}))
+             })
+             .then(function(nextCompanyState){
+                return nextCompanyState.save();
+             })
+             .then(function(nextCompanyState){
+                return company.setCurrentCompanyState(nextCompanyState);
+             })
+             .then(function(){
+                return company.save();
+             });
+         });
     }
 }
 
@@ -86,7 +105,7 @@ module.exports = {
                 return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
             })
             .then(function() {
-                return transactions[req.params.type](req.body, company);
+                return transactions[req.params.type](actionUtil.parseValues(req), company);
             })
             .then(function(result){
                 res.ok(result);

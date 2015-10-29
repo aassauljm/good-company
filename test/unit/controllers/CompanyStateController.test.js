@@ -19,7 +19,9 @@ describe('CompanyStateController', function() {
                 .get('/api/company')
                 .expect(200)
                 .then(function(res){
-                    companyId = _.find(res.body, {companyName: 'Transaction Ltd'}).id;
+                    companyId = _.find(res.body, function(c){
+                        return c.currentCompanyState.companyName === 'Transaction Ltd'
+                    }).id;
                     companyId.should.be.a('number')
                     done();
                 })
@@ -218,5 +220,22 @@ describe('CompanyStateController', function() {
                     done();
                 });
         });
-    })
+    });
+
+    describe('Update company info', function(){
+        it('Update name', function(done) {
+            req.post('/api/transaction/details/'+companyId)
+                .send({companyName: 'Transaction Limited'})
+                .expect(200, done)
+        });
+        it('Get Updated Info', function(done) {
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.companyName.should.be.equal('Transaction Limited');
+                    done();
+                });
+            });
+    });
+
 });

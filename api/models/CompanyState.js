@@ -6,7 +6,7 @@
  */
 var _ = require('lodash');
 var Promise = require('bluebird');
-
+var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 
 module.exports = {
     _config: {
@@ -15,8 +15,49 @@ module.exports = {
         rest: false
     },
     attributes: {
-        executed: {
-            type: Sequelize.DATE,
+       companyName: {
+            type: Sequelize.TEXT,
+            index: true,
+            allowNull: false,
+            validate: {
+                min: 1
+            }
+        },
+        companyNumber: {
+            type: Sequelize.TEXT
+        },
+        nzba: {
+            type: Sequelize.TEXT
+        },
+        incorporationDate: {
+            type: Sequelize.DATE
+        },
+        companyStatus: {
+            type: Sequelize.TEXT
+        },
+        entityType: {
+            type: Sequelize.TEXT
+        },
+        constiutionFiled: {
+            type: Sequelize.BOOLEAN
+        },
+        arFilingMonth: {
+            type: months
+        },
+        fraReportingMonth: {
+            type: months
+        },
+        registeredCompanyAddress: {
+            type: Sequelize.TEXT
+        },
+        addressForShareRegister: {
+            type: Sequelize.TEXT
+        },
+        addressForService: {
+            type: Sequelize.TEXT
+        },
+        ultimateHoldingCompany: {
+            type: Sequelize.BOOLEAN
         }
     },
     associations: function(n) {
@@ -221,6 +262,7 @@ module.exports = {
 
                     })
             },
+
             cloneUnallocated: function(){
                 return this.getUnallocatedParcels()
                     .then(function(parcels){
@@ -229,14 +271,20 @@ module.exports = {
                         })};
                     });
             },
+
+            nonAssociativeFields: function(){
+                return _.omit(_.pick.apply(_, [this.dataValues].concat(_.keys(CompanyState.attributes))), 'id');
+            },
+
             buildNext: function(attr) {
                 var id = this.id;
+                var currentFields = this.nonAssociativeFields();
                 return Promise.join(this.cloneHoldings(), this.cloneUnallocated(),
                         function(holdings, unallocatedParcels) {
                         return CompanyState
-                            .build(_.extend(attr, {
+                            .build(_.merge(currentFields, {
                                 previousCompanyStateId: id
-                            }, holdings, unallocatedParcels), {
+                            }, holdings, unallocatedParcels, attr), {
                                 include: CompanyState.includes.fullNoJunctions()
                             })
                     })

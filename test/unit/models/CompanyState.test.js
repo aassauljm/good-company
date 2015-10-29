@@ -3,6 +3,7 @@ describe('CompanyState Model', function() {
 
         it('should calculate holding totals', function(done) {
             CompanyState.create({
+                    companyName: 'hax',
                     holdings: [{
                         parcels: [{
                             amount: 10,
@@ -96,6 +97,7 @@ describe('CompanyState Model', function() {
         });
         it('should clone holdings', function(done) {
             CompanyState.create({
+                companyName: 'hax',
                 holdings: [{
                     parcels: [{
                         amount: 10,
@@ -152,6 +154,7 @@ describe('CompanyState Model', function() {
         });
         it('should add some unallocated shares', function(done){
             CompanyState.create({
+                companyName: 'hax',
                 holdings: [{
                     parcels: [{
                         amount: 10,
