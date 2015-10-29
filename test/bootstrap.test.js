@@ -14,8 +14,22 @@ EventEmitter.defaultMaxListeners = 20;
 Error.stackTraceLimit = Infinity;
 var sails;
 
-before(function(done) {
+function stubs(){
+    ScrapingService.fetch = function(companyNumber){
+        return fs.readFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', 'utf8');
+    }
+    ScrapingService.fetchDocument = function(companyNumber, documentId){
+        return fs.readFileAsync('test/fixtures/companies_office/documents/'+documentId+'.html', 'utf8')
+            .then(function(text){
+                return {text: text, documentId: documentId}
+            })
+    }
+}
 
+
+
+
+before(function(done) {
     Sails.lift({
         port: 1338,
         log: {
@@ -49,6 +63,7 @@ before(function(done) {
                     return sequelize.query('SELECT reset_sequences();')
                 })
                 .then(function(){
+                    stubs();
                     done();
                 });
             });

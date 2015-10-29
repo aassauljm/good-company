@@ -3,10 +3,10 @@ var request = require("supertest-as-promised");
 var fs = Promise.promisifyAll(require("fs"));
 
 describe('Company Controller', function() {
+    var req;
 
     describe('Should perform validation', function() {
-
-        var req, company_id;
+        var companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
             req
@@ -29,20 +29,29 @@ describe('Company Controller', function() {
                 .send({'companyName': 'Weyland-Yutani'})
                 .expect(201)
                 .then(function(res){
-                    company_id = res.body.id;
+                    companyId = res.body.id;
                     done();
                 })
         });
+    });
 
-       /* it('Tries to add invalid holding to company', function(done) {
-            req.post('/api/company/'+company_id+'/holdings')
-                .send({})
-                .expect(403)
+    describe('Test import from companies office', function(){
+        var companyId;
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/2109736')
+                .expect(200)
                 .then(function(res){
-                    console.log(res.body)
+                    companyId = res.body.id;
                     done();
-                })
-        });*/
-
-    })
+                });
+        });
+        it('Gets current stats', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.totalShares.should.be.equal(2719492);
+                    done();
+                });
+        });
+    });
 });

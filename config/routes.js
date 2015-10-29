@@ -102,5 +102,9 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'history',
         modelIdentity: 'company'
+    },
+    'POST /api/company/import/companiesoffice/:companyNumber': {
+        controller: 'CompanyController',
+        action: 'import'
     }
 };

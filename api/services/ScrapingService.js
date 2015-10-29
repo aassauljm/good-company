@@ -1,6 +1,6 @@
+"use strict";
 // api/services/scrapingService.js
 // es7
-"use strict";
 let _ = require('lodash');
 let cheerio = require('cheerio');
 let Promise = require("bluebird");
@@ -147,7 +147,7 @@ let extractTypes = {
             }
 
         }).get();
-        // a kludge to add companyIds from new/removeHolder to new/remove allocation
+        // a kludge to add companyNumbers from new/removeHolder to new/remove allocation
 
         let idMap = result.actions.reduce(function(acc, action){
             _.each(action.holders, function(holder){
@@ -294,8 +294,50 @@ function performInverseRemoveAllocation(data, companyState){
 
 module.exports = {
 
-    fetch: function(companyId){
-        return fetch.get('https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyId+'/detail');
+    fetch: function(companyNumber){
+        let url = 'https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/detail';
+        sails.log.verbose('Getting url', url);
+        return fetch(url)
+                .then(function(res){
+                    return res.text();
+                });
+    },
+
+    fetchDocument: function(companyNumber, documentId){
+        let url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
+        sails.log.verbose('Getting url', url);
+        return fetch(url)
+                .then(function(res){
+                    return res.text();
+                })
+                .then(function(text){
+                    let $ = cheerio.load(text);
+                    // some bad smells here
+                    if($('#biznetMigratedVirtualDocument #integrated-iframe').length){
+                        return fetch($('#biznetMigratedVirtualDocument #integrated-iframe').attr('src'))
+                            .then(function(res){
+                                return res.text();
+                            })
+                            .then(function(text){
+                                let url = /href="(http:\/\/[^ ]+)";/g.exec(text)[1]
+                                return fetch(url)
+                            })
+                            .then(function(res){
+                                return res.text();
+                            })
+                            .then(function(text){
+                                let $ = cheerio.load(text);
+                                return fetch('http://www.societies.govt.nz/pls/web/' + $('frame[name=LowerFrame]').attr('src'))
+                            })
+                            .then(function(res){
+                                return res.text();
+                            })
+                            .then(function(text){
+                                return {text: text}
+                            })
+                    }
+                    return {text: text};
+                })
     },
 
     populateDB: function(data){
@@ -306,7 +348,7 @@ module.exports = {
             })
             .then(function(){
                 return this.company;
-            })
+            });
     },
 
     populateHistory: function(data, company){
@@ -377,42 +419,10 @@ module.exports = {
 
     getDocumentSummaries: function(data){
         return Promise.map(data.documents, function(document){
-            let url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+data.companyNumber+'/'+document.documentId+'/entityFilingRequirement';
-            sails.log.verbose('Getting url', url);
-            return fetch(url)
-            .then(function(res){
-                return res.text();
-            })
-            .then(function(text){
-                let $ = cheerio.load(text);
-                if($('#biznetMigratedVirtualDocument #integrated-iframe').length){
-                    return fetch($('#biznetMigratedVirtualDocument #integrated-iframe').attr('src'))
-                        .then(function(res){
-                            return res.text();
-                        })
-                        .then(function(text){
-                            let url = /href="(http:\/\/[^ ]+)";/g.exec(text)[1]
-                            return fetch(url)
-                        })
-                        .then(function(res){
-                            return res.text();
-                        })
-                        .then(function(text){
-                            let $ = cheerio.load(text);
-                            return fetch('http://www.societies.govt.nz/pls/web/' + $('frame[name=LowerFrame]').attr('src'))
-                        })
-                        .then(function(res){
-                            return res.text();
-                        })
-                        .then(function(text){
-                            return {text}
-                        })
-                }
-                return {text};
-            })
-            .then(function(data){
-                return {...data, documentId: document.documentId}
-            })
+            return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
+                .then(function(data){
+                    return {...data, documentId: document.documentId}
+                })
         }, {concurrency: 3});
     },
 
