@@ -60,6 +60,7 @@ module.exports = {
       });
     },
     import: function(req, res){
+        // for now, just companies office
         var data, company;
         ScrapingService.fetch(req.params.companyNumber)
             .then(ScrapingService.parseNZCompaniesOffice)
@@ -94,7 +95,6 @@ module.exports = {
     },
     create: function(req, res){
         var data = actionUtil.parseValues(req);
-        console.log(data)
         Company.create({
             ownerId: req.user.id,
             creatorId: req.user.id,

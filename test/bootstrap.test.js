@@ -1,3 +1,7 @@
+var jsdom = require('node-jsdom');
+dom();
+
+
 var Sails = require('sails');
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
@@ -12,6 +16,9 @@ var events = require("events"),
     EventEmitter = events.EventEmitter;
 EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
+
+require("babel/register")({stage: 0});
+
 var sails;
 
 function stubs(){
@@ -26,7 +33,30 @@ function stubs(){
     }
 }
 
+function dom(){
+    global.__DEV__ = process.env.NODE_ENV !== 'production';
 
+    // setup the simplest document possible
+    var doc = jsdom.jsdom('<!doctype html><html><body><div id="main"></div></body></html>', {url: '/'});
+    // get the window object out of the document
+    var win = doc.defaultView;
+    // set globals for mocha that make access to document and window feel
+    // natural in the test environment
+    global.document = doc;
+    global.window = win;
+
+    // take all properties of the window object and also attach it to the
+    // mocha global object
+    propagateToGlobal(win);
+    // from mocha-jsdom https://github.com/rstacruz/mocha-jsdom/blob/master/index.js#L80
+    function propagateToGlobal (window) {
+      for (var key in window) {
+        if (!window.hasOwnProperty(key)) continue
+        if (key in global) continue
+        global[key] = window[key]
+      }
+    }
+}
 
 
 before(function(done) {
@@ -47,7 +77,7 @@ before(function(done) {
             pubsub: false,
             permissions: false,
         },
-        babel: {stage: 0},
+        babel: {stage: 0, compile: false},
         test: true
     }, function(err, server) {
         if (err) return done(err);
@@ -69,8 +99,8 @@ before(function(done) {
                     stubs();
                     done();
                 });
-            });
     });
+            });
 });
 
 after(function(done) {

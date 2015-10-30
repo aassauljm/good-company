@@ -17,6 +17,7 @@ export function callAPIMiddleware({
     dispatch, getState
 }) {
     return next => {
+
         return action => {
             const {
                 types,
@@ -29,7 +30,6 @@ export function callAPIMiddleware({
                 // Normal action: pass it on
                 return next(action);
             }
-
             if (!Array.isArray(types) ||
                 types.length !== 3 ||
                 !types.every(type => typeof type === 'string')
@@ -39,7 +39,6 @@ export function callAPIMiddleware({
             if (typeof callAPI !== 'function') {
                 throw new Error('Expected fetch to be a function.');
             }
-
             if (!shouldCallAPI(getState())) {
                 return;
             }

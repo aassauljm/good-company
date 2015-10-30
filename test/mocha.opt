@@ -1,3 +1,5 @@
   --require should
   --reporter dot
   --ui bdd
+  --full-trace
+  --debug

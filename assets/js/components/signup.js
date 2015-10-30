@@ -71,7 +71,6 @@ export default class SignUpForm extends React.Component {
 
 
 @connect(state => state.login)
-@pureRender
 class Signup extends React.Component {
     static propTypes = { login: React.PropTypes.object };
     submit(data) {
