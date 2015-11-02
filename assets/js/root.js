@@ -8,7 +8,7 @@ const store = configureStore();
 export default class Root extends React.Component {
   render() {
     return (
-      <Provider store={store}>
+      <Provider store={this.props.store}>
         { routes }
         </Provider>
     );

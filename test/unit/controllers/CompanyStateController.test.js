@@ -170,7 +170,8 @@ describe('CompanyStateController', function() {
                     done();
                 });
         });
-    })
+    });
+
     describe('Another Issue CompanyState', function(){
         it('Try Valid Issue Post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
@@ -184,7 +185,7 @@ describe('CompanyStateController', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    res.body.totalAllocatedShares.should.be.equal(2325)
+                    res.body.totalAllocatedShares.should.be.equal(2325);
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
                             type: 'ISSUE'
@@ -199,12 +200,12 @@ describe('CompanyStateController', function() {
                                 parcels: [{amount: 1100, shareClass: 'B'}]
                             }
                         ]
-                    })
+                    });
                     done();
-                })
+                });
         });
-
     });
+
     describe('Get Previous Versions Again', function(){
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/2')

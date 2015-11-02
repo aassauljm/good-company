@@ -169,12 +169,12 @@ const form = formReducer.plugin({
 });
 
 const appReducer = combineReducers({
+  router: routerStateReducer,
   login,
   userInfo,
   resources,
   form,
-  notifications,
-  router: routerStateReducer
+  notifications
 });
 
 

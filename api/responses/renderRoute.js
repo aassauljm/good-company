@@ -4,6 +4,7 @@ import createLocation from 'history/lib/createLocation'
 import {renderToString } from 'react-dom/server'
 import routes from '../../assets/js/routes';
 import configureStore from '../../assets/js/serverStore';
+import Root from '../../assets/js/root';
 import { match } from 'redux-router/server';
 import { Provider } from 'react-redux';
 
@@ -11,8 +12,6 @@ import { Provider } from 'react-redux';
 export default function(renderProps) {
     let req = this.req;
     let res = this.res;
-    //return  res.render('content.ejs', { reactOutput: '', data: null,  _layoutFile: 'layout.ejs'});
-   //let location = createLocation(req.url)
     const state = {login: {loggedIn: req.isAuthenticated()}};
     const store = configureStore(state);
     store.dispatch(match(req.url, (error, redirectLocation, routerState) => {
@@ -28,17 +27,8 @@ export default function(renderProps) {
             //res.send(404, 'Not found')
         }
 
-        class Root extends React.Component {
-          render() {
-            return (
-              <Provider store={store}>
-                { routes }
-                </Provider>
-            );
-          }
-        }
         res.status(200);
-        const output = renderToString(<Root/>);
+        const output = renderToString(<Root store={store}/>);
         res.render('content.ejs', { reactOutput: output, data: JSON.stringify(state),  _layoutFile: 'layout.ejs'});
 
 

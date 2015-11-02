@@ -34,7 +34,9 @@ try{
 
 
 
-const createStoreWithMiddleware = compose(middleware, reduxReactRouter({ createHistory }))(createStore);
+const createStoreWithMiddleware = compose(middleware,
+        reduxReactRouter({ createHistory
+    }))(createStore);
 
 
 export default function configureStore(initialState=data) {

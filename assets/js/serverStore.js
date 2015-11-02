@@ -1,29 +1,35 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
-import createHistory from 'history/lib/createBrowserHistory';
-import { reduxReactRouter } from 'redux-router/server';
+import { reduxReactRouter as reduxReactRouterServer } from 'redux-router/server';
+import { reduxReactRouter } from 'redux-router';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { callAPIMiddleware } from './middleware';
 import routes from './routes'
-let data;
+import createHistory from 'history/lib/createMemoryHistory';
 
-try{
-    data = JSON.parse(document.getElementById("data").textContent);
-}catch(e){
-    //do nothing
-}
-
-
-const loggerMiddleware = createLogger();
-const createStoreWithMiddleware = compose(
-applyMiddleware(
-  thunkMiddleware,
-  callAPIMiddleware),
-   reduxReactRouter({ routes })
-)(createStore);
+let data = {};
 
 
 export default function configureStore(initialState=data) {
-  return createStoreWithMiddleware(appReducer, initialState);
+    const createStoreWithMiddleware = compose(
+    applyMiddleware(
+      thunkMiddleware,
+      callAPIMiddleware),
+       reduxReactRouterServer({ routes })
+    )(createStore);
+    return createStoreWithMiddleware(appReducer, initialState);
+}
+
+
+export function configureHistoriedStore(initialState=data) {
+    let history = createHistory();
+    const createStoreWithMiddleware = compose(
+    applyMiddleware(
+      thunkMiddleware,
+      callAPIMiddleware),
+       reduxReactRouter({ history, routes })
+    )(createStore);
+    history.pushState(null, '/');
+    return createStoreWithMiddleware(appReducer, initialState);
 }
