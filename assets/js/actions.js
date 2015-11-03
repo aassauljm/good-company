@@ -3,7 +3,7 @@ import _fetch from 'isomorphic-fetch';
 function fetch(url, args){
     // TODO, move to test code
     url =  window.location.protocol + '//' +window.location.host + url;
-    return _fetch(url, args)
+    return _fetch(url, args);
 }
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
@@ -47,6 +47,7 @@ const json_headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
 };
+
 const accept_json_headers = {
     'Accept': 'application/json'
 };
