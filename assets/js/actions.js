@@ -1,9 +1,18 @@
 import _fetch from 'isomorphic-fetch';
 
+let cookie;
+
 function fetch(url, args){
     // TODO, move to test code
     url =  window.location.protocol + '//' +window.location.host + url;
-    return _fetch(url, args);
+    console.log({...args, headers: {...args.headers, 'Cookie': cookie}});
+    return _fetch(url, {...args, headers: {...args.headers, 'Cookie': cookie}})
+        .then(function(r){
+            if(r.headers._headers['set-cookie']){
+                cookie = r.headers._headers['set-cookie'][0];
+            }
+            return r;
+        })
 }
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';

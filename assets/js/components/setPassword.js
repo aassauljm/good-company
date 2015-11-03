@@ -26,7 +26,6 @@ export class PasswordForm extends React.Component {
 
     submit(e){
         e.preventDefault();
-        console.log("SUBMIT")
         this.props.submit({
             oldPassword: this.refs.oldPassword.getValue(),
             newPassword: this.refs.newPassword.getValue()
