@@ -1,19 +1,7 @@
-import _fetch from 'isomorphic-fetch';
+import { fetch } from './utils';
 
 let cookie;
 
-function fetch(url, args){
-    // TODO, move to test code
-    url =  window.location.protocol + '//' +window.location.host + url;
-    console.log({...args, headers: {...args.headers, 'Cookie': cookie}});
-    return _fetch(url, {...args, headers: {...args.headers, 'Cookie': cookie}})
-        .then(function(r){
-            if(r.headers._headers['set-cookie']){
-                cookie = r.headers._headers['set-cookie'][0];
-            }
-            return r;
-        })
-}
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -24,6 +12,7 @@ export const UPLOAD_FILE_REQUEST = 'UPLOAD_FILE_REQUEST';
 export const UPLOAD_FILE_SUCCESS = 'UPLOAD_FILE_SUCCESS';
 export const UPLOAD_FILE_FAILURE = 'UPLOAD_FILE_FAILURE';
 */
+
 export const SET_PASSWORD_REQUEST = 'SET_PASSWORD_REQUEST';
 export const SET_PASSWORD_SUCCESS = 'SET_PASSWORD_SUCCESS';
 export const SET_PASSWORD_FAILURE = 'SET_PASSWORD_FAILURE';

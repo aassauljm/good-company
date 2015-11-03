@@ -66,6 +66,7 @@
     "pg": "^4.4.2",
     "pg-hstore": "^2.3.2",
     "pg-native": "^1.9.0",
+    "proxyquire": "^1.7.3",
     "react": "^0.14.2",
     "react-addons-shallow-compare": "^0.14.2",
     "react-bootstrap": "^0.27.3",
@@ -87,6 +88,7 @@
     "sails-postgresql": "^0.10.16",
     "sequelize": "^3.11.0",
     "sequelize-fixtures": "^0.4.8",
+    "sinon": "^1.17.2",
     "url": "^0.11.0",
     "waterline-criteria": "^0.11.2",
     "webpack": "^1.12.2"

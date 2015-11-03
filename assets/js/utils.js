@@ -1,4 +1,4 @@
-
+import isoFetch from 'isomorphic-fetch';
 
 
 export function fieldStyle(field){
@@ -43,4 +43,14 @@ export function fieldExistence(form){
         errors.username = ['Must supply username'];
     }
     return errors;
+}
+
+let _fetch = isoFetch;
+
+export function fetch(url, args){
+   return _fetch(url, args);
+}
+
+export function setFetch(func){
+    _fetch = func;
 }

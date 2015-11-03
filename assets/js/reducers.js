@@ -22,7 +22,6 @@ const initialState = {
 function login(state = {
     loggedIn: false
 }, action){
-    console.log(action)
     switch(action.type){
         case LOGIN_REQUEST:
             return state;

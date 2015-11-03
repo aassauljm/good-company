@@ -1,7 +1,7 @@
 var jsdom = require('node-jsdom');
 var https = require('https');
+var _ = require('lodash');
 dom();
-
 
 var Sails = require('sails');
 var Promise = require("bluebird");
@@ -17,8 +17,9 @@ var events = require("events"),
     EventEmitter = events.EventEmitter;
 EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
-
 require("babel/register")({stage: 0});
+var setFetch = require("../assets/js/utils").setFetch;
+var _fetch = require('isomorphic-fetch');
 
 var sails;
 
@@ -30,8 +31,19 @@ function stubs(){
         return fs.readFileAsync('test/fixtures/companies_office/documents/'+documentId+'.html', 'utf8')
             .then(function(text){
                 return {text: text, documentId: documentId}
-            })
+            });
     }
+    var cookie;
+    setFetch(function(url, args){
+        url =  window.location.protocol + '//' +window.location.host + url;
+        return _fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
+            .then(function(r){
+                if(r.headers._headers['set-cookie']){
+                    cookie = r.headers._headers['set-cookie'][0];
+                }
+                return r;
+            })
+    })
 }
 
 function dom(){

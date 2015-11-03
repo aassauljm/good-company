@@ -7,6 +7,7 @@ import {
   findRenderedDOMComponentWithTag,
   Simulate
 } from 'react-addons-test-utils';
+
 import {configureHistoriedStore} from ".../../../../assets/js/serverStore";
 import Root from ".../../../../assets/js/root";
 import {LoginForm} from ".../../../../assets/js/components/login.js";
@@ -58,6 +59,6 @@ describe('Renders full ', () => {
         const submit = findRenderedDOMComponentWithTag(form.refs.submit, 'input');
         Simulate.click(submit);
         waitFor('Waiting for login confirmation', 'a[href="/logout"]', this.dom)
-            //.then(done);
+            .then(done);
    });
 });
