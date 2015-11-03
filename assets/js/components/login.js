@@ -5,16 +5,13 @@ import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import { requestLogin } from '../actions';
 import { connect } from 'react-redux';
-import {connectReduxForm} from 'redux-form';
+import {reduxForm} from 'redux-form';
 import { Link } from 'react-router';
 import { pushState, replaceState } from 'redux-router';
 
 
-@connectReduxForm({
-  form: 'login',
-  fields: ['email', 'password']
-})
-export default class LoginForm extends React.Component {
+
+export class LoginForm extends React.Component {
     submit(e){
         e.preventDefault();
         if(this.props.valid){
@@ -31,12 +28,16 @@ export default class LoginForm extends React.Component {
             { this.props.error ?    <div className="alert alert-danger" role="alert">{this.props.error }</div> : null }
             <Input type="text" ref="email" {...email} label="Email" />
             <Input type="password" ref="password" {...password} label="Password"  />
-            <ButtonInput type='submit' value='Sign In' />
+            <ButtonInput type='submit' value='Sign In' ref="submit" onClick={::this.submit}/>
             <Link activeClassName="active" className="nav-link" to={'/signup'}>Sign Up</Link>
         </form>
     }
 }
 
+export const DecoratedLoginForm = reduxForm({
+  form: 'login',
+  fields: ['email', 'password']
+})(LoginForm)
 
 @connect(state => state.login)
 @pureRender
@@ -58,7 +59,7 @@ class Login extends React.Component {
     }
     render() {
         return <div className="container">
-            <LoginForm submit={::this.submit} />
+            <DecoratedLoginForm submit={::this.submit} />
             </div>
     }
 }

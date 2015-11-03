@@ -48,4 +48,11 @@
         "username": "transactor",
         "email": "transactor@email.com"
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 17,
+        "username": "integrate",
+        "email": "integrate@email.com"
+    }
 }]

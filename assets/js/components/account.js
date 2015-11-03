@@ -5,14 +5,14 @@ import { pureRender, objectValues } from '../utils';
 import { connect } from 'react-redux';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
-import { connectReduxForm } from 'redux-form';
+import { reduxForm } from 'redux-form';
 import { initialize } from 'redux-form';
 import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
 import AuthenticatedComponent from  './authenticated';
 
 
-@connectReduxForm({
+@reduxForm({
   form: 'account',
   fields: ['email', 'username'],
   //validate: fieldExistence

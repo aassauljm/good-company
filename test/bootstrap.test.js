@@ -1,4 +1,5 @@
 var jsdom = require('node-jsdom');
+var https = require('https');
 dom();
 
 
@@ -37,7 +38,7 @@ function dom(){
     global.__DEV__ = process.env.NODE_ENV !== 'production';
 
     // setup the simplest document possible
-    var doc = jsdom.jsdom('<!doctype html><html><body><div id="main"></div></body></html>', {url: '/'});
+    var doc = jsdom.jsdom('<!doctype html><html><body><div id="main"></div></body></html>', {url: 'http://localhost:1338/'});
     // get the window object out of the document
     var win = doc.defaultView;
     // set globals for mocha that make access to document and window feel
@@ -60,6 +61,7 @@ function dom(){
 
 
 before(function(done) {
+    console.log(__dirname)
     Sails.lift({
         port: 1338,
         log: {

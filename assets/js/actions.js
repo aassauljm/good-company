@@ -1,4 +1,10 @@
-import fetch from 'isomorphic-fetch';
+import _fetch from 'isomorphic-fetch';
+
+function fetch(url, args){
+    // TODO, move to test code
+    url =  window.location.protocol + '//' +window.location.host + url;
+    return _fetch(url, args)
+}
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';

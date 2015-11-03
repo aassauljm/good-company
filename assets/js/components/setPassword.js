@@ -5,7 +5,7 @@ import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import { setPassword } from '../actions';
 import { connect } from 'react-redux';
-import { connectReduxForm}  from 'redux-form';
+import { reduxForm}  from 'redux-form';
 import { fieldStyle } from '../utils';
 import AuthenticatedComponent from  './authenticated';
 import { pushState, replaceState } from 'redux-router';
@@ -26,6 +26,7 @@ export class PasswordForm extends React.Component {
 
     submit(e){
         e.preventDefault();
+        console.log("SUBMIT")
         this.props.submit({
             oldPassword: this.refs.oldPassword.getValue(),
             newPassword: this.refs.newPassword.getValue()
@@ -38,13 +39,13 @@ export class PasswordForm extends React.Component {
             <Input type="password" ref="oldPassword" {...oldPassword} bsStyle={fieldStyle(this.props.fields.oldPassword)} label="Old Password" />
             <Input type="password" ref="newPassword" {...newPassword} bsStyle={fieldStyle(this.props.fields.newPassword)} label="New Password"  />
             <Input type="password" ref="repeatPassword" {...repeatPassword} bsStyle={fieldStyle(this.props.fields.repeatPassword)} label="Repeat Password"  />
-            <ButtonInput type='submit' value='Update' ref="submit"/>
+            <ButtonInput type='submit' value='Update' ref="submit" onClick={::this.submit}/>
         </form>
     }
 }
 
 
-@connectReduxForm({
+@reduxForm({
   form: 'setPassword',
   fields: ['oldPassword', 'newPassword', 'repeatPassword'],
   validate: validatePasswordMatch

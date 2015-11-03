@@ -5,7 +5,7 @@ import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import { requestLogin } from '../actions';
 import { connect } from 'react-redux';
-import { connectReduxForm } from 'redux-form';
+import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { pushState, replaceState } from 'redux-router';
 import { fieldStyle, objectValues } from '../utils';
@@ -28,7 +28,7 @@ function signUpValidate(form){
     return error;
 }
 
-@connectReduxForm({
+@reduxForm({
   form: 'signup',
   fields: ['email', 'username', 'password', 'repeatPassword'],
   validate: signUpValidate

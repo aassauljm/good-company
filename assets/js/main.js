@@ -6,7 +6,8 @@ import Root from "./root"
 import configureStore from './store';
 
 let mountNode = document.getElementById("main");
-if (mountNode)
+if (mountNode){
     ReactDOM.render(<Root store={configureStore()}/>, mountNode);
+}
 
 
