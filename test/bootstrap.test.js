@@ -81,7 +81,6 @@ function dom(){
 
 
 before(function(done) {
-    console.log(__dirname)
     Sails.lift({
         port: 1338,
         log: {
@@ -99,9 +98,7 @@ before(function(done) {
             pubsub: false,
             permissions: false,
         },
-        session: {
-            adapter: undefined
-        },
+        session: {adapter: 'memory'},
         babel: {stage: 0, compile: false},
         test: true
     }, function(err, server) {
