@@ -102,6 +102,7 @@ const urls = {
     'users': '/user',
     'roles': '/role',
     'documents': '/document',
+    'companies': '/company'
 }
 
 export function requestResource(resource, form) {
@@ -157,7 +158,7 @@ export function deleteResource(resource) {
 export function lookupCompany(query) {
     return {
         types: [LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE],
-        callAPI: () => fetch('/api/company/query/' + encodeURIComponent(query), {
+        callAPI: () => fetch('/api/company/lookup/' + encodeURIComponent(query), {
             headers: json_headers,
             credentials: 'same-origin'
         }),

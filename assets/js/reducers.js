@@ -188,6 +188,7 @@ const form = formReducer.plugin({
 
 const appReducer = combineReducers({
   router: routerStateReducer,
+  lookupCompany,
   login,
   userInfo,
   resources,

@@ -24,7 +24,6 @@ module.exports = {
       });
     },
 
-
     getInfo: function(req, res) {
         Company.findById(req.params.id, {
                 include: [{
@@ -103,6 +102,14 @@ module.exports = {
         .then(function(newInstance) {
             return res.created(newInstance);
         }).catch(function(err){
+            return res.negotiate(err);
+        });
+    },
+    lookup: function(req, res){
+        ScrapingService.getSearchResults(req.params.query)
+            .then(function(data){
+                return res.ok(data);
+            }).catch(function(err){
             return res.negotiate(err);
         });
     }

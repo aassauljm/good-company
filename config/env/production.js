@@ -34,5 +34,8 @@ module.exports = {
   // log: {
   //   level: "silent"
   // }
+   models: {
+     connection: 'pg'
+   }
 
 };

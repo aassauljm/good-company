@@ -10,10 +10,10 @@ import { Provider } from 'react-redux';
 
 
 export default function(renderProps) {
-    let req = this.req;
-    let res = this.res;
-    const state = {login: {loggedIn: req.isAuthenticated()}};
-    const store = configureStore(state);
+    const req = this.req,
+        res = this.res,
+        state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user ? {...req.user.toJSON(), _status: 'complete'} : {}},
+        store = configureStore(state);
     store.dispatch(match(req.url, (error, redirectLocation, routerState) => {
         if (error) {
             res.send(500, error.message)
@@ -30,7 +30,5 @@ export default function(renderProps) {
         res.status(200);
         const output = renderToString(<Root store={store}/>);
         res.render('content.ejs', { reactOutput: output, data: JSON.stringify(state),  _layoutFile: 'layout.ejs'});
-
-
     }));
 }

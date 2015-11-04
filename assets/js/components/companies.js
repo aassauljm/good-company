@@ -9,31 +9,25 @@ import { Link } from 'react-router'
 
 @connect(state => state.resources.documents)
 @AuthenticatedComponent
-export default class Documents extends React.Component {
+export default class Companies extends React.Component {
 
     componentDidMount(){
-        this.props.dispatch(requestResource('documents'));
+        this.props.dispatch(requestResource('companies'));
     }
 
     componentDidUpdate(){
-        this.props.dispatch(requestResource('documents'));
-    }
-
-    submitDelete(id, e) {
-        e.preventDefault();
-        this.props.dispatch(deleteResource('/document/'+id));
+        this.props.dispatch(requestResource('companies'));
     }
 
     render() {
-        let fields = ['id', 'filename', 'type', 'createdAt', 'updatedAt'];
+        let fields = ['id', 'companyName'];
         return <table className="table">
-        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th><th></th></tr></thead>
+        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th></tr></thead>
         <tbody>
         {this.props.data ? this.props.data.map(
             (row, i) => <tr key={i}>
                 { fields.map(f => <td key={f}>{row[f]}</td>) }
                 <td><Link activeClassName="active" className="nav-link" to={"/document/view/"+row.id} >View</Link></td>
-                <td><a href="#" type='button' value='Delete' onClick={this.submitDelete.bind(this, row.id)}  >Delete</a></td>
             </tr>)
 
         : null}

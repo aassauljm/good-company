@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import {Input} from 'react-bootstrap';
+import Input from 'react-bootstrap/lib/Input';
 
 export default Input;
 /*

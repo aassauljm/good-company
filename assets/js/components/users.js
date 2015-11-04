@@ -6,10 +6,6 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import AuthenticatedComponent from  './authenticated';
 
-var shallowCompare = require('react-addons-shallow-compare');
-
-
-
 @connect(state => state.resources.users)
 @AuthenticatedComponent
 @pureRender

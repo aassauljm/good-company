@@ -343,7 +343,7 @@ passport.serializeUser(function (user, next) {
 });
 
 passport.deserializeUser(function (id, next) {
-  return sails.models.user.findOne({where: {id: id}})
+  return User.userWithRoles(id)
     .then(function (user) {
       next(null, user || null);
       return user;

@@ -106,5 +106,9 @@ module.exports.routes = {
     'POST /api/company/import/companiesoffice/:companyNumber': {
         controller: 'CompanyController',
         action: 'import'
-    }
+    },
+    'GET /api/company/lookup/:query': {
+        controller: 'CompanyController',
+        action: 'lookup'
+    },
 };

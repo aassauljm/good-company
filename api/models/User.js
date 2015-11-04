@@ -63,6 +63,14 @@ module.exports = {
         classMethods: {
             register: function(user) {
                 return sails.services.passport.protocols.local.createUser(user)
+            },
+            userWithRoles: function(id){
+                return User.findOne({
+                    where: {
+                        id: id
+                    },
+                    include: [{model: Role, as: 'roles'}]
+                })
             }
         },
         instanceMethods: {
@@ -73,7 +81,6 @@ module.exports = {
             }
         },
         hooks: {
-
             beforeValidate: [
                 function(user) {
                     if (user.email) {

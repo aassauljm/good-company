@@ -9,15 +9,10 @@ var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 module.exports = {
 
     userInfo: function(req, res) {
-        User.findOne({
-                where: {
-                    id: req.user.id
-                },
-                include: [{model: Role, as: 'roles'}]
-            })
+        User.userWithRoles(req.user.id)
             .then(function(r) {
                 res.json(r);
-            })
+            });
     },
 
     setPassword: function(req, res) {
