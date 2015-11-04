@@ -24,34 +24,11 @@ module.exports.session = {
   secret: '6fff5f366cc0a176b1baaf68939653f0',
 
 
-  /***************************************************************************
-  *                                                                          *
-  * Set the session cookie expire time The maxAge is set by milliseconds,    *
-  * the example below is for 24 hours                                        *
-  *                                                                          *
-  ***************************************************************************/
-
    cookie: {
      maxAge: 24 * 60 * 60 * 1000
    },
 
-  /***************************************************************************
-  *                                                                          *
-  * In production, uncomment the following lines to set up a shared redis    *
-  * session store that can be shared across multiple Sails.js servers        *
-  ***************************************************************************/
-
    adapter: 'redis',
-
-  /***************************************************************************
-  *                                                                          *
-  * The following values are optional, if no options are set a redis         *
-  * instance running on localhost is expected. Read more about options at:   *
-  * https://github.com/visionmedia/connect-redis                             *
-  *                                                                          *
-  *                                                                          *
-  ***************************************************************************/
-
    host: 'localhost',
    port: 6379,
    ttl: 100000,

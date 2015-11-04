@@ -99,6 +99,9 @@ before(function(done) {
             pubsub: false,
             permissions: false,
         },
+        session: {
+            adapter: undefined
+        },
         babel: {stage: 0, compile: false},
         test: true
     }, function(err, server) {
