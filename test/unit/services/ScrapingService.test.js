@@ -168,5 +168,14 @@ describe('Scraping Service', function() {
         })
     });
 
+    describe('Should get live query results', function() {
+        it('enters test string into live query', function(done){
+            ScrapingService.getSearchResults('test')
+                .then(function(results){
+                    results.length.should.be.equal(15);
+                    done();
+                })
+        });
 
+    });
 });

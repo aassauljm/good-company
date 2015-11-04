@@ -41,6 +41,11 @@ export const RESOURCE_DELETE_FAILURE = 'RESOURCE_DELETE_FAILURE';
 export const ADD_NOTIFICATION = 'ADD_NOTIFICATION';
 export const HIDE_NOTIFICATION = 'HIDE_NOTIFICATION';
 
+
+export const LOOKUP_COMPANY_REQUEST = 'LOOKUP_COMPANY_REQUEST';
+export const LOOKUP_COMPANYSUCCESS = 'LOOKUP_COMPANY_SUCCESS';
+export const LOOKUP_COMPANYFAILURE = 'LOOKUP_COMPANY_FAILURE';
+
 const json_headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -100,7 +105,6 @@ const urls = {
 }
 
 export function requestResource(resource, form) {
-    console.log('/api' + (urls[resource] || resource))
     return {
         types: [RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
@@ -147,5 +151,16 @@ export function deleteResource(resource) {
             credentials: 'same-origin'
         }),
         payload: {key: resource}
+    };
+}
+
+export function lookupCompany(query) {
+    return {
+        types: [LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE],
+        callAPI: () => fetch('/api/company/query/' + encodeURIComponent(query), {
+            headers: json_headers,
+            credentials: 'same-origin'
+        }),
+        payload: {query: query}
     };
 }

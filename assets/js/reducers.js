@@ -8,8 +8,8 @@ import {
     RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE,
     RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE,
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
-    ADD_NOTIFICATION, HIDE_NOTIFICATION
-    //UPLOAD_FILE_REQUEST, UPLOAD_FILE_SUCCESS, UPLOAD_FILE_FAILURE
+    ADD_NOTIFICATION, HIDE_NOTIFICATION,
+    LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE
      } from './actions'
 import { reducer as formReducer } from 'redux-form';
 import { routerStateReducer } from 'redux-router';
@@ -63,6 +63,21 @@ function notifications(state = {list: []}, action){
             return state;
     }
 }
+
+function lookupCompany(state = {list: []}, action){
+    switch(action.type){
+        case LOOKUP_COMPANY_REQUEST:
+            return {...state, ...{_status: 'fetching'}};
+        case LOOKUP_COMPANY_SUCCESS:
+            return {...state, list: [...state.list, action.data]};
+        default:
+            return state;
+    }
+}
+
+
+
+
 const default_resources = {users: {}, roles: {}, documents: {}}
 
 function resources(state = default_resources, action){
@@ -165,6 +180,9 @@ const form = formReducer.plugin({
             default:
                 return state;
             }
+    },
+    lookupCompany: (state, action) => {
+        return state;
     }
 });
 

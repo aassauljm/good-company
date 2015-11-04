@@ -24,16 +24,24 @@ var _fetch = require('isomorphic-fetch');
 var sails;
 
 function stubs(){
+
     ScrapingService.fetch = function(companyNumber){
         return fs.readFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', 'utf8');
     }
+
     ScrapingService.fetchDocument = function(companyNumber, documentId){
         return fs.readFileAsync('test/fixtures/companies_office/documents/'+documentId+'.html', 'utf8')
             .then(function(text){
                 return {text: text, documentId: documentId}
             });
     }
+
+    ScrapingService.fetchSearchResults = function(query){
+        return fs.readFileAsync('test/fixtures/companies_office/queries/'+query+'.html', 'utf8')
+    }
+
     var cookie;
+    // This function will allow cookie authentication to persist on the server side
     setFetch(function(url, args){
         url =  window.location.protocol + '//' +window.location.host + url;
         return _fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))

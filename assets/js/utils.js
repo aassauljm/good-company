@@ -54,3 +54,4 @@ export function fetch(url, args){
 export function setFetch(func){
     _fetch = func;
 }
+

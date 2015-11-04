@@ -340,6 +340,31 @@ module.exports = {
                 })
     },
 
+    fetchSearchResults: function(query){
+        return fetch('https://www.business.govt.nz/companies/app/ui/pages/search?q='+encodeURIComponent(query)+' &type=entities')
+            .then(function(res){
+                return res.text();
+            })
+    },
+
+    getSearchResults: function(query){
+        return this.fetchSearchResults(query)
+            .then(function(html){
+                const $ = cheerio.load(html);
+                return $('.LSRow.registered a, .LSRow.struckoff a').map(function(){
+                    const $el = $(this);
+                    return {
+                        companyNumber: _.last($el.attr('href').split('/')),
+                        companyName: $el[0].firstChild.data,
+                        structOff: !!$el.find('.struckoffAssertion').length,
+                        notes: $el.next('.registryNote').map(function(){
+                            return $(this).text();
+                        }).get()
+                    }
+                }).get();
+            })
+    },
+
     populateDB: function(data){
         return  Company.create({
             ownerId: data.ownerId,
@@ -440,8 +465,8 @@ module.exports = {
     },
 
     processDocument: function(html, info){
-        let $ = cheerio.load(html),
-            result = {};
+        const $ = cheerio.load(html);
+        let result = {};
         if($('#page-body').length){
             result = processCompaniesOffice($)
         }
@@ -452,7 +477,7 @@ module.exports = {
     },
 
     parseNZCompaniesOffice: function(html){
-        let $ = cheerio.load(html);
+        const $ = cheerio.load(html);
         let result = {};
 
         result['companyName'] = _.trim($('.leftPanel .row h1')[0].firstChild.data);
