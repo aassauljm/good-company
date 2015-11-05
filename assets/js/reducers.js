@@ -9,7 +9,8 @@ import {
     RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE,
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
-    LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE
+    LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
+    IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE
      } from './actions'
 import { reducer as formReducer } from 'redux-form';
 import { routerStateReducer } from 'redux-router';
@@ -42,11 +43,11 @@ function login(state = {
 function userInfo(state = {}, action){
     switch(action.type){
         case USER_INFO_REQUEST:
-            return {...state, ...{_status: 'fetching'}};
+            return {...state, _status: 'fetching'};
         case USER_INFO_SUCCESS:
-            return {...state, ...action.response, ...{_status: 'complete'}};
+            return {...state, ...action.response, _status: 'complete'};
         case USER_INFO_FAILURE:
-            return {...state, ...action.response, ...{_status: 'error'}};
+            return {...state, ...action.response, _status: 'error'};
         default:
             return state;
     }
@@ -67,9 +68,22 @@ function notifications(state = {list: []}, action){
 function lookupCompany(state = {list: []}, action){
     switch(action.type){
         case LOOKUP_COMPANY_REQUEST:
-            return {...state, ...{_status: 'fetching'}};
+            return {...state, _status: 'fetching'};
         case LOOKUP_COMPANY_SUCCESS:
-            return {...state, list: [...state.list, action.data]};
+            return {...state, list: action.response, _status: 'complete'};
+        default:
+            return state;
+    }
+}
+
+function importCompany(state = {}, action){
+    switch(action.type){
+        case IMPORT_COMPANY_REQUEST:
+            return {...state, _status: 'fetching'};
+        case IMPORT_COMPANY_SUCCESS:
+            return {...state, data: action.response, _status: 'complete'};
+        case IMPORT_COMPANY_FAILURE:
+            return {...state, data: action.response, _status: 'error'};
         default:
             return state;
     }
@@ -77,8 +91,7 @@ function lookupCompany(state = {list: []}, action){
 
 
 
-
-const default_resources = {users: {}, roles: {}, documents: {}}
+const default_resources = {users: {}, roles: {}, documents: {}, companies: {}}
 
 function resources(state = default_resources, action){
     switch(action.type){
@@ -189,6 +202,7 @@ const form = formReducer.plugin({
 const appReducer = combineReducers({
   router: routerStateReducer,
   lookupCompany,
+  importCompany,
   login,
   userInfo,
   resources,

@@ -83,6 +83,7 @@ function dom(){
 before(function(done) {
     Sails.lift({
         port: 1338,
+        serverRender: true,
         log: {
             level: 'error'
         },

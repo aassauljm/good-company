@@ -11,7 +11,6 @@ import AuthenticatedComponent from  './authenticated';
 
 @connect((state, ownProps) => state.resources['/document/'+ownProps.params.id ] || {data: {}})
 @AuthenticatedComponent
-@pureRender
 export default class Account extends React.Component {
 
     key(){

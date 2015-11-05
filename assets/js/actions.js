@@ -43,8 +43,13 @@ export const HIDE_NOTIFICATION = 'HIDE_NOTIFICATION';
 
 
 export const LOOKUP_COMPANY_REQUEST = 'LOOKUP_COMPANY_REQUEST';
-export const LOOKUP_COMPANYSUCCESS = 'LOOKUP_COMPANY_SUCCESS';
-export const LOOKUP_COMPANYFAILURE = 'LOOKUP_COMPANY_FAILURE';
+export const LOOKUP_COMPANY_SUCCESS = 'LOOKUP_COMPANY_SUCCESS';
+export const LOOKUP_COMPANY_FAILURE = 'LOOKUP_COMPANY_FAILURE';
+
+export const IMPORT_COMPANY_REQUEST = 'IMPORT_COMPANY_REQUEST';
+export const IMPORT_COMPANY_SUCCESS = 'IMPORT_COMPANY_SUCCESS';
+export const IMPORT_COMPANY_FAILURE = 'IMPORT_COMPANY_FAILURE';
+
 
 const json_headers = {
     'Accept': 'application/json',
@@ -163,5 +168,18 @@ export function lookupCompany(query) {
             credentials: 'same-origin'
         }),
         payload: {query: query}
+    };
+}
+
+export function importCompany(companyNumber) {
+    return {
+        types: [IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE],
+        callAPI: () => fetch('/api/company/import/companiesoffice/' + companyNumber, {
+            method: 'POST',
+            headers: json_headers,
+            credentials: 'same-origin'
+        }),
+        shouldCallAPI: (state) => !state.importCompany._status !== 'complete',
+        payload: {companyNumber: companyNumber}
     };
 }

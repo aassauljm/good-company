@@ -74,7 +74,6 @@ module.exports = {
                 company = _company;
                 return ScrapingService.getDocumentSummaries(data)
             })
-            .each(ScrapingService.processDocument)
             .then(function(readDocuments){
                 return Promise.each(data.documents, function(doc){
                     var docData = _.find(readDocuments, {documentId: doc.documentId});
@@ -82,15 +81,18 @@ module.exports = {
                 });
             })
             .then(function(actions){
+                sails.log.verbose('Processing '+actions.length+' actions');
                 return Promise.each(actions, function(action){
                     ScrapingService.populateHistory(action, company);
                 })
             })
             .then(function(){
-                return res.ok(company);
-            }).catch(function(err){
-        return res.serverError(err);
-      });
+                return res.json(company);
+            })
+            .catch(function(err){
+                sails.log.error(err)
+                return res.serverError(err);
+            });
     },
     create: function(req, res){
         var data = actionUtil.parseValues(req);
@@ -108,7 +110,7 @@ module.exports = {
     lookup: function(req, res){
         ScrapingService.getSearchResults(req.params.query)
             .then(function(data){
-                return res.ok(data);
+                return res.json(data);
             }).catch(function(err){
             return res.negotiate(err);
         });

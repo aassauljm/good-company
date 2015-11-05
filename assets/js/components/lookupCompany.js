@@ -1,15 +1,21 @@
 "use strict";
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { pureRender } from '../utils';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
-import { lookupCompany } from '../actions';
+import ListGroup from './forms/listGroup';
+import ListGroupItem from './forms/listGroupItem';
+import { lookupCompany, importCompany, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import { pushState, replaceState } from 'redux-router';
 
 
 export class LookupCompanyForm extends React.Component {
+    static propTypes = {
+        fields: PropTypes.object.isRequired,
+        submit: PropTypes.func.isRequired
+    };
     submit(e){
         e.preventDefault();
         if(this.props.valid){
@@ -30,19 +36,33 @@ export const DecoratedLookupCompanyForm = reduxForm({
   fields: ['query']
 })(LookupCompanyForm)
 
-@connect(state => state.login)
-@pureRender
+
+@connect(state => ({lookupCompany: state.lookupCompany, importCompany: state.importCompany}))
 class LookupCompany extends React.Component {
-    static propTypes = { login: React.PropTypes.object };
-    submit(data) {
+    static propTypes = {
+        //list: PropTypes.array.isRequired
+    };
+    submit(data){
         this.props.dispatch(lookupCompany(data))
     }
+    importCompany(i){
+        this.props.dispatch(importCompany(this.props.lookupCompany.list[i].companyNumber))
+            .then(() => this.props.dispatch(addNotification({message: 'Company Imported'})))
+    }
     render() {
+        console.log(this.props)
         return <div className="container">
             <DecoratedLookupCompanyForm submit={::this.submit} />
+            { this.props._status === 'fetching' ? <span>Fetching</span> : null}
+            { this.props._status === 'complete' && !this.props.lookupCompany.list.length ? <span>No Results</span> : null}
+             <ListGroup>
+                { this.props.lookupCompany.list.map((item, i) => {
+                    return <ListGroupItem key={i} onClick={this.importCompany.bind(this, i)}>{item.companyName}</ListGroupItem>
+                }) }
+              </ListGroup>
             </div>
     }
 }
 
 // Wrap the component to inject dispatch and state into it
-export default Login;
+export default LookupCompany;

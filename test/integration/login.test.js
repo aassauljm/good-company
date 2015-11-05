@@ -27,6 +27,7 @@ describe('Renders full ', () => {
         password.value = 'testtest';
         Simulate.change(password);
         Simulate.click(submit);
+
         waitFor('Waiting for login confirmation', 'a[href="/logout"]', dom)
             .then(function(){
                 return waitFor('Waiting for user info', '.username.nav-link', dom)

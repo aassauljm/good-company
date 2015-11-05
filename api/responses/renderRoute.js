@@ -10,25 +10,31 @@ import { Provider } from 'react-redux';
 
 
 export default function(renderProps) {
-    const req = this.req,
-        res = this.res,
-        state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user ? {...req.user.toJSON(), _status: 'complete'} : {}},
-        store = configureStore(state);
-    store.dispatch(match(req.url, (error, redirectLocation, routerState) => {
-        if (error) {
-            res.send(500, error.message)
-        }
+    if(sails.config.serverRender){
+        const req = this.req,
+            res = this.res,
+            state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user ? {...req.user.toJSON(), _status: 'complete'} : {}},
+            store = configureStore(state);
+        store.dispatch(match(req.url, (error, redirectLocation, routerState) => {
+            if (error) {
+                res.send(500, error.message)
+            }
 
-        if (redirectLocation) {
-            res.redirect(301, redirectLocation.pathname + redirectLocation.search)
-        }
+            if (redirectLocation) {
+                res.redirect(301, redirectLocation.pathname + redirectLocation.search)
+            }
 
-        if (!routerState) {
-            //res.send(404, 'Not found')
-        }
+            if (!routerState) {
+                //res.send(404, 'Not found')
+            }
 
-        res.status(200);
-        const output = renderToString(<Root store={store}/>);
-        res.render('content.ejs', { reactOutput: output, data: JSON.stringify(state),  _layoutFile: 'layout.ejs'});
-    }));
+            res.status(200);
+            const output = renderToString(<Root store={store}/>);
+            res.render('content.ejs', { reactOutput: output, data: JSON.stringify(state),  _layoutFile: 'layout.ejs'});
+        }));
+    }
+    else{
+        this.res.render('content.ejs', { reactOutput: '', data: JSON.stringify(
+                        {login: {loggedIn: this.req.isAuthenticated()}}),  _layoutFile: 'layout.ejs'});
+    }
 }

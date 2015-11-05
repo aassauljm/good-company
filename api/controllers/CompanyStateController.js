@@ -36,7 +36,8 @@ var transactions = {
         return sequelize.transaction(function(t){
             return company.getCurrentCompanyState()
             .then(function(companyState){
-                return CompanyState.create(_.defaults({}, args, companyState.nonAssociativeFields(), {transaction:{type: Transaction.types.SEED}}),
+                var fields = companyState ? companyState.nonAssociativeFields(): {};
+                return CompanyState.create(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED}}),
                                            {include: CompanyState.includes.full() })
             })
             .then(function(state){

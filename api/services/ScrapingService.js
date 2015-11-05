@@ -295,16 +295,20 @@ function performInverseRemoveAllocation(data, companyState){
 module.exports = {
 
     fetch: function(companyNumber){
-        let url = 'https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/detail';
+        const url = 'https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/detail';
         sails.log.verbose('Getting url', url);
-        return fetch(url)
-                .then(function(res){
-                    return res.text();
+        return new Promise(function(resolve, reject){
+                    fetch(url)
+                        .then(function(res){
+                            return res.text();
+                        })
+                        .then(resolve)
+                        .catch(reject);
                 });
     },
 
     fetchDocument: function(companyNumber, documentId){
-        let url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
+        const url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
         sails.log.verbose('Getting url', url);
         return fetch(url)
                 .then(function(res){
@@ -319,14 +323,14 @@ module.exports = {
                                 return res.text();
                             })
                             .then(function(text){
-                                let url = /href="(http:\/\/[^ ]+)";/g.exec(text)[1]
+                                const url = /href="(http:\/\/[^ ]+)";/g.exec(text)[1]
                                 return fetch(url)
                             })
                             .then(function(res){
                                 return res.text();
                             })
                             .then(function(text){
-                                let $ = cheerio.load(text);
+                                const $ = cheerio.load(text);
                                 return fetch('http://www.societies.govt.nz/pls/web/' + $('frame[name=LowerFrame]').attr('src'))
                             })
                             .then(function(res){
@@ -341,7 +345,9 @@ module.exports = {
     },
 
     fetchSearchResults: function(query){
-        return fetch('https://www.business.govt.nz/companies/app/ui/pages/search?q='+encodeURIComponent(query)+' &type=entities')
+        const url = 'https://www.business.govt.nz/companies/app/ui/pages/search?q='+encodeURIComponent(query)+'&type=entities';
+        sails.log.verbose('Getting url', url);
+        return fetch(url)
             .then(function(res){
                 return res.text();
             })
@@ -360,7 +366,7 @@ module.exports = {
                         notes: $el.next('.registryNote').map(function(){
                             return $(this).text();
                         }).get()
-                    }
+                    };
                 }).get();
             })
     },
@@ -369,13 +375,18 @@ module.exports = {
         return  Company.create({
             ownerId: data.ownerId,
             creatorId: data.creatorId,
-            seedCompanyState: data},
-            {include: [{model: CompanyState, as: 'seedCompanyState'}]})
+            seedCompanyState: data
+        },
+            {include: [{model: CompanyState, as: 'seedCompanyState'}]}
+            )
             .then(function(company){
                 this.company = company;
+                sails.log.verbose('Company populated in DB');
+                sails.log.verbose(JSON.stringify(ScrapingService.formatHolders(data), null , 4));
                 return sails.controllers.companystate.transactions.seed({...data, ...ScrapingService.formatHolders(data)}, company);
             })
             .then(function(){
+                sails.log.verbose('CompanyState populated in DB');
                 return this.company;
             });
     },
@@ -547,11 +558,13 @@ module.exports = {
         $('#documentListPanel .dataList tbody tr').map(function(i, el){
             let $el = $(el);
             if($el.find('td:nth-child(1)').text()){
-                documents.push({
-                    'date': $el.find('td:nth-child(1)').text(),
-                    'documentType': $el.find('td:nth-child(2)').text(),
-                    'documentId': $el.find('td:nth-child(2) a').attr('href').match(docIDReg)[1]
-                })
+                if($el.find('td:nth-child(2) a').attr('href')){
+                    documents.push({
+                        'date': $el.find('td:nth-child(1)').text(),
+                        'documentType': $el.find('td:nth-child(2)').text(),
+                        'documentId': $el.find('td:nth-child(2) a').attr('href').match(docIDReg)[1]
+                    })
+                }
             }
             else{
                 _.last(documents)['original'] = $el.find('td:nth-child(2) a').attr('href')
@@ -578,6 +591,7 @@ module.exports = {
         })
         result['directors'] = directors;
         result['formerDirectors'] = formerDirectors;
+        sails.log.verbose('Parsed company: ', JSON.stringify(result));
         return result
     }
 

@@ -20,7 +20,7 @@ module.exports = {
             index: true,
             allowNull: false,
             validate: {
-                min: 1
+                len: [1]
             }
         },
         companyNumber: {
