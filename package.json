@@ -53,6 +53,7 @@
     "coffee-script": "^1.10.0",
     "connect-redis": "^1.4.5",
     "continuation-local-storage": "^3.1.4",
+    "error-factory": "^0.1.6",
     "fnv-plus": "^1.2.12",
     "grunt": "0.4.2",
     "grunt-sync": "~0.0.4",

@@ -11,7 +11,8 @@ class Notification extends React.Component {
     static propTypes = { notification: React.PropTypes.object.isRequired };
 
     render(){
-        return <div className="alert alert-success notification" role="alert" onClick={this.props.close}>
+        const type = this.props.notification.error ? 'alert-danger' : 'alert-success';
+        return <div className={"alert notification " +type} role="alert" onClick={this.props.close}>
             { this.props.notification.message }
         </div>
     }

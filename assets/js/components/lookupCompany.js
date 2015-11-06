@@ -40,17 +40,21 @@ export const DecoratedLookupCompanyForm = reduxForm({
 @connect(state => ({lookupCompany: state.lookupCompany, importCompany: state.importCompany}))
 class LookupCompany extends React.Component {
     static propTypes = {
-        //list: PropTypes.array.isRequired
+        lookupCompany: PropTypes.object.isRequired,
+        importCompany: PropTypes.object.isRequired
     };
     submit(data){
         this.props.dispatch(lookupCompany(data))
     }
     importCompany(i){
         this.props.dispatch(importCompany(this.props.lookupCompany.list[i].companyNumber))
-            .then(() => this.props.dispatch(addNotification({message: 'Company Imported'})))
+            .then((result) => {
+                result.error ?
+                    this.props.dispatch(addNotification({message: 'Could not import company', error: true})) :
+                    this.props.dispatch(addNotification({message: 'Company Imported'}));
+            })
     }
     render() {
-        console.log(this.props)
         return <div className="container">
             <DecoratedLookupCompanyForm submit={::this.submit} />
             { this.props._status === 'fetching' ? <span>Fetching</span> : null}

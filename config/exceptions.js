@@ -1,107 +1,16 @@
-var _ = require('lodash')
-/* TODO, write error factory */
-
-
-function ValidationException(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-ValidationException.prototype = Object.create(Error.prototype);
-ValidationException.prototype.constructor = ValidationException
-
-function BadImmutableOperation(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-BadImmutableOperation.prototype = Object.create(Error.prototype);
-BadImmutableOperation.prototype.constructor = BadImmutableOperation;
-
-function ForbiddenException(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-ForbiddenException.prototype = Object.create(Error.prototype);
-ForbiddenException.prototype.constructor = ForbiddenException
-
-function UserNotFoundException(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-UserNotFoundException.prototype = Object.create(Error.prototype);
-UserNotFoundException.prototype.constructor = UserNotFoundException;
-
-function BadCredentialsException(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-BadCredentialsException.prototype = Object.create(Error.prototype);
-BadCredentialsException.prototype.constructor = BadCredentialsException;
-
-function BadParcelOperation(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-BadParcelOperation.prototype = Object.create(Error.prototype);
-BadParcelOperation.prototype.constructor = BadParcelOperation;
-
-function TransactionException(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-TransactionException.prototype = Object.create(Error.prototype);
-TransactionException.prototype.constructor = TransactionException;
-
-function TransactionNotFound(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-TransactionNotFound.prototype = Object.create(Error.prototype);
-TransactionNotFound.prototype.constructor = TransactionNotFound;
-
-
-function InvalidInverseOperation(value) {
-   this.value = value;
-   this.toString = function() {
-      return this.value + this.message;
-   };
-}
-
-InvalidInverseOperation.prototype = Object.create(Error.prototype);
-InvalidInverseOperation.prototype.constructor = InvalidInverseOperation;
+var errorFactory = require('error-factory');
+var _ = require('lodash');
 
 module.exports.exceptions = _.defaults({
-    ValidationException: ValidationException,
-    BadImmutableOperation: BadImmutableOperation,
-    ForbiddenException: ForbiddenException,
-    UserNotFoundException: UserNotFoundException,
-    BadCredentialsException: BadCredentialsException,
-    BadParcelOperation: BadParcelOperation,
-    TransactionNotFound: TransactionNotFound,
-    InvalidInverseOperation: InvalidInverseOperation
+    ValidationException: errorFactory('ValidationException'),
+    BadImmutableOperation: errorFactory('BadImmutableOperation'),
+    ForbiddenException: errorFactory('ForbiddenException'),
+    UserNotFoundException: errorFactory('UserNotFoundException'),
+    BadCredentialsException: errorFactory('BadCredentialsException'),
+    BadParcelOperation: errorFactory('BadParcelOperation'),
+    TransactionNotFound: errorFactory('TransactionNotFound'),
+    InvalidInverseOperation: errorFactory('InvalidInverseOperation'),
+    CompanyImportException: errorFactory('CompanyImportException')
 }, require('sequelize/lib/errors'));
 
 
