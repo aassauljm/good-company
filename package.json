@@ -2,6 +2,7 @@
   "name": "good-company",
   "version": "0.0.1",
   "description": "Catalex's Company Manager",
+  "engines" : { "npm" : "~2.5.1" },
   "main": "index.js",
   "scripts": {
     "build-dev": "webpack --progress --colors --watch",
