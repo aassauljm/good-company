@@ -45,14 +45,6 @@ describe('Company Controller', function() {
                     done();
                 });
         });
-        it('Gets an error that company already exists for this user', function(done){
-            req.post('/api/company/import/companiesoffice/2109736')
-                .expect(500)
-                .then(function(res){
-                    console.log(res.body)
-                    done();
-                });
-        });
         it('Gets current stats', function(done){
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
@@ -61,5 +53,22 @@ describe('Company Controller', function() {
                     done();
                 });
         });
+        it('Gets an error that company already exists for this user', function(done){
+            req.post('/api/company/import/companiesoffice/2109736')
+                .expect(500)
+                .then(function(res){
+                    done();
+                });
+        });
+        it('Renames company', function(done){
+            req.post('/api/transaction/details/'+companyId)
+                .send({companyName: 'Pricewanker Limited', companyNumber: '666'})
+                .expect(200, done)
+        });
+        it('Does a successful stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/2109736')
+                .expect(200, done);
+        });
+
     });
 });
