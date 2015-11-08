@@ -7,6 +7,15 @@ import ButtonInput from './forms/buttonInput';
 import LookupCompany from  './lookupCompany';
 import AuthenticatedComponent from  './authenticated';
 import { Link } from 'react-router';
+import { PieChart } from 'react-d3/piechart';
+
+
+const pieData = [
+  {label: 'Margarita', value: 20.0},
+  {label: 'John', value: 55.0},
+  {label: 'Tim', value: 25.0 }
+];
+
 
 
 @connect((state, ownProps) => state.resources['/company/'+ownProps.params.id +'/get_info' ]|| {data: {}})
@@ -23,6 +32,20 @@ export default class Company extends React.Component {
 
     componentDidUpdate(){
         this.props.dispatch(requestResource('/company/'+this.key()+'/get_info'));
+    }
+
+    groupHoldings(companyState){
+        const total = companyState.totalAllocatedShares;
+        return companyState.holdings.map(holding => ({
+            value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
+            label: holding.holders.map(h => h.name).join(', ')
+        }));
+    }
+
+    componentWillReceiveProps(nextProps){
+        if(nextProps.data ){
+            this.setState({holdings: this.groupHoldings(nextProps.data.currentCompanyState)});
+        }
     }
 
     renderData(){
@@ -44,6 +67,18 @@ export default class Company extends React.Component {
                     <dt className="col-sm-3">Total Shares</dt>
                     <dd className="col-sm-9">{current.totalShares}</dd>
                 </dl>
+                <div className="row">
+                <div className="col-sm-6 text-center">
+                    <PieChart
+                          data={this.state.holdings}
+                          width={400}
+                          height={400}
+                          radius={100}
+                          innerRadius={20}
+                          sectorBorderColor="white"
+                        />
+                    </div>
+                </div>
             </div>
     }
 

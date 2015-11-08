@@ -12,6 +12,7 @@ let moment = require('moment');
 let DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
     PARTICULARS: 'PARTICULARS',
+    NAMA_CHANGE: 'NAME_CHANGE',
     UNKNOWN: 'UNKNOWN'
 };
 
@@ -185,6 +186,10 @@ let DOCUMENT_TYPE_MAP = {
     'Particulars of ultimate holding company': {
 
     },
+    'Particulars of Name Change': {
+        type: DOCUMENT_TYPES.NAME_CHANGE
+    },
+
     'Update Shares': {
         type: DOCUMENT_TYPES.UPDATE
     },

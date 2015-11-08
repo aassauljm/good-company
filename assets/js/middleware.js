@@ -55,17 +55,21 @@ export function callAPIMiddleware({
                     response: response,
                     type: successType
                 })))
-                .catch(error => error.response.json().then(response =>
-                       dispatch(Object.assign({}, payload, {
-                    response: response,
-                    error: true,
-                    type: failureType
-                }))))
-                .catch(error =>  dispatch(Object.assign({}, payload, {
-                    error: error,
-                    response: error.response,
-                    type: failureType
-                })))
+                .catch(error => {
+                    if(error.response)
+                        return error.response.json()
+                        .then(response =>
+                               dispatch(Object.assign({}, payload, {
+                            response: response,
+                            error: true,
+                            type: failureType
+                        })));
+                    return dispatch(Object.assign({}, payload, {
+                        error: error,
+                        response: error.response,
+                        type: failureType
+                    }));
+                })
         };
     };
 }

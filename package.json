@@ -2,7 +2,9 @@
   "name": "good-company",
   "version": "0.0.1",
   "description": "Catalex's Company Manager",
-  "engines" : { "npm" : "~2.5.1" },
+  "engines": {
+    "npm": "~2.5.1"
+  },
   "main": "index.js",
   "scripts": {
     "build-dev": "webpack --progress --colors --watch",
@@ -73,6 +75,7 @@
     "react": "^0.14.2",
     "react-addons-shallow-compare": "^0.14.2",
     "react-bootstrap": "^0.27.3",
+    "react-d3": "^0.4.0",
     "react-dom": "^0.14.2",
     "react-dropzone": "^2.1.0",
     "react-redux": "^3.0.1",
