@@ -49,7 +49,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    res.body.totalShares.should.be.equal(2719492);
+                    res.body.currentCompanyState.totalShares.should.be.equal(2719492);
                     done();
                 });
         });

@@ -68,8 +68,10 @@ module.exports = {
                 this.company = company;
                 return company.currentCompanyState.stats();
             })
-            .then(function(stats) {
-                res.json(_.merge({}, this.company.get(), stats))
+            .then(function(stats){
+                var json = this.company.get();
+                json.currentCompanyState = _.merge(json.currentCompanyState.toJSON(), stats);
+                res.json(json);
             }).catch(function(err) {
                 return res.serverError(err);
             });
@@ -84,9 +86,8 @@ module.exports = {
                 return companyState.stats();
             })
             .then(function(stats) {
-                res.json(_.merge({
-                    companyState: this.companyState.get()
-                }, stats))
+                var json = this.companyState.get();
+                res.json({companyState: _.merge(json, stats)});
             }).catch(function(err) {
                 return res.serverError(err);
             });

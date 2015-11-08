@@ -26,7 +26,7 @@ module.exports = {
         companyNumber: {
             type: Sequelize.TEXT
         },
-        nzba: {
+        nzbn: {
             type: Sequelize.TEXT
         },
         incorporationDate: {

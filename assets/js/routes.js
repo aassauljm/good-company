@@ -9,7 +9,7 @@ import Roles from './components/roles';
 import Documents from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
-import Company from './components/companies';
+import Company from './components/company';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -29,7 +29,7 @@ const routes = (<ReduxRouter>
                 <Route path="document/view/:id" component={ Document }  />
 
                 <Route path="companies" component={ Companies }  />
-                <Route path="companies/view/:id" component={ Company }  />
+                <Route path="company/view/:id" component={ Company }  />
 
                 <Route path="user/edit/:id" edit={true} component={ Account }  />
                 <Route path="user/set_password" edit={true} component={ SetPassword }  />

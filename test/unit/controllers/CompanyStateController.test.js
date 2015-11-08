@@ -64,7 +64,7 @@ describe('CompanyStateController', function() {
                 .expect(200)
                 .then(function(res){
                     firstSummary = res.body;
-                    firstSummary.totalAllocatedShares.should.be.equal(1122)
+                    firstSummary.currentCompanyState.totalAllocatedShares.should.be.equal(1122)
                     firstSummary.currentCompanyState.should.containSubset({
                         transaction: {
                             type: 'SEED'
@@ -132,7 +132,7 @@ describe('CompanyStateController', function() {
                 .expect(200)
                 .then(function(res){
                     secondSummary = res.body;
-                    res.body.totalAllocatedShares.should.be.equal(1325)
+                    res.body.currentCompanyState.totalAllocatedShares.should.be.equal(1325)
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
                             type: 'ISSUE'
@@ -185,7 +185,7 @@ describe('CompanyStateController', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    res.body.totalAllocatedShares.should.be.equal(2325);
+                    res.body.currentCompanyState.totalAllocatedShares.should.be.equal(2325);
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
                             type: 'ISSUE'
