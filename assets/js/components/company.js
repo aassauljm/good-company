@@ -18,7 +18,7 @@ class Holding extends React.Component {
                 <dd className="col-sm-6">{this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0)}</dd>
                 <dt className="col-sm-6">Holders</dt>
                 { this.props.holding.holders.map((holder, i) =>
-                    <dd className={"col-sm-6" + (i>0 ? "col-sm-offset-6" : '')}>{holder.name} </dd>) }
+                    <dd className={"col-sm-6" + (i>0 ? " col-sm-offset-6" : '')}>{holder.name} </dd>) }
             </dl>
         </div>
     }
@@ -86,6 +86,8 @@ export default class Company extends React.Component {
                           radius={100}
                           innerRadius={20}
                           sectorBorderColor="white"
+                          showInnerLabels={false}
+                          showOuterLabels={false}
                         />
                     </div>
                 </div>

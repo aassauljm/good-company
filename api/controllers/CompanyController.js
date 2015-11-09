@@ -95,40 +95,42 @@ module.exports = {
     import: function(req, res) {
         // for now, just companies office
         var data, company;
-        ScrapingService.fetch(req.params.companyNumber)
-            .then(ScrapingService.parseNZCompaniesOffice)
-            .tap(checkNameCollision.bind(null, req.user.id))
-            .then(function(_data) {
-                data = _data;
-                data.ownerId = req.user.id;
-                data.creatorId = req.user.id;
-                return data;
-            })
-            .then(ScrapingService.populateDB)
-            .then(function(_company) {
-                company = _company;
-                return ScrapingService.getDocumentSummaries(data)
-            })
-            .then(function(readDocuments) {
-                return Promise.each(data.documents, function(doc) {
-                    var docData = _.find(readDocuments, {
-                        documentId: doc.documentId
+        return sequelize.transaction(function(t){
+            ScrapingService.fetch(req.params.companyNumber)
+                .then(ScrapingService.parseNZCompaniesOffice)
+                .tap(checkNameCollision.bind(null, req.user.id))
+                .then(function(_data) {
+                    data = _data;
+                    data.ownerId = req.user.id;
+                    data.creatorId = req.user.id;
+                    return data;
+                })
+                .then(ScrapingService.populateDB)
+                .then(function(_company) {
+                    company = _company;
+                    return ScrapingService.getDocumentSummaries(data)
+                })
+                .then(function(readDocuments) {
+                    return Promise.each(data.documents, function(doc) {
+                        var docData = _.find(readDocuments, {
+                            documentId: doc.documentId
+                        });
+                        return ScrapingService.processDocument(doc, docData)
                     });
-                    return ScrapingService.processDocument(doc, docData)
-                });
-            })
-            .then(function(actions) {
-                sails.log.verbose('Processing ' + actions.length + ' actions');
-                return Promise.each(actions, function(action) {
-                    ScrapingService.populateHistory(action, company);
+                })
+                .then(function(actions) {
+                    sails.log.verbose('Processing ' + actions.length + ' actions');
+                    return Promise.each(actions, function(action) {
+                        ScrapingService.populateHistory(action, company);
+                    })
+                })
+                .then(function() {
+                    return res.json(company);
                 })
             })
-            .then(function() {
-                return res.json(company);
-            })
-            .catch(function(err) {
-                return res.serverError(err);
-            });
+        .catch(function(err) {
+            return res.serverError(err);
+        });
     },
     create: function(req, res) {
         var data = actionUtil.parseValues(req);

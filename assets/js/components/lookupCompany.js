@@ -5,7 +5,7 @@ import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import ListGroup from './forms/listGroup';
 import ListGroupItem from './forms/listGroupItem';
-import { lookupCompany, importCompany, addNotification } from '../actions';
+import { lookupCompany, importCompany, addNotification, requestResource } from '../actions';
 import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import { pushState, replaceState } from 'redux-router';
@@ -52,6 +52,7 @@ class LookupCompany extends React.Component {
                 result.error ?
                     this.props.dispatch(addNotification({message: 'Could not import company', error: true})) :
                     this.props.dispatch(addNotification({message: 'Company Imported'}));
+                this.props.dispatch(requestResource('companies', {refresh: true}));
             })
     }
     render() {

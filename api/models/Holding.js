@@ -12,7 +12,6 @@ module.exports = {
         rest: false
       },
     attributes: {
-
     },
     associations: function() {
         Holding.belongsTo(CompanyState, {

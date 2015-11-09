@@ -16,7 +16,7 @@ module.exports = {
             type: Sequelize.TEXT
         }
     },
-    associations: function() {
+    associations: function(){
         Holder.belongsToMany(Holding, {
             foreignKey: {
                 as: 'holdings',
@@ -24,6 +24,7 @@ module.exports = {
             },
             through: 'holdingJ'
         });
+
     },
     options: {
         freezeTableName: false,

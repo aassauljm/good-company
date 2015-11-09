@@ -34,10 +34,10 @@ export default class App extends React.Component {
         return  <div>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
                 <DropZone  onDrop={::this.onDrop} disableClick={true} style={{}}>
+             <Notifications/>
             <div className="container">
                     { this.props.children }
              </div>
-             <Notifications/>
             </DropZone>
         </div>
     }

@@ -110,15 +110,15 @@ const urls = {
     'companies': '/company'
 }
 
-export function requestResource(resource, form) {
+export function requestResource(resource, options = {}) {
     return {
         types: [RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => !state.resources[resource] || !state.resources[resource]._status,
-        payload: {key: resource, form: form}
+        shouldCallAPI: (state) => !state.resources[resource] || !state.resources[resource]._status || options.refresh,
+        payload: {key: resource, form: options.form}
     };
 }
 

@@ -73,19 +73,19 @@ export default class Account extends React.Component {
 
     componentDidMount(){
         if(this.props.route.edit){
-            this.props.dispatch(requestResource('/user/'+this.key(), 'account'));
+            this.props.dispatch(requestResource('/user/'+this.key(), {form: 'account'}));
         }
     }
 
     componentDidUpdate(){
         if(this.props.route.edit){
-            this.props.dispatch(requestResource('/user/'+this.key(), 'account'));
+            this.props.dispatch(requestResource('/user/'+this.key(), {form: 'account'}));
         }
     }
 
     submit(data) {
         if(this.props.route.edit){
-            this.props.dispatch(updateResource('/user/'+this.key(), data, 'account'))
+            this.props.dispatch(updateResource('/user/'+this.key(), data, {form: 'account'}))
                 .then(() => this.props.dispatch(addNotification({message: 'Account Updated'})))
         }
         else{
