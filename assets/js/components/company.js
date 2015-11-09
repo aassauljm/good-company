@@ -10,12 +10,19 @@ import { Link } from 'react-router';
 import { PieChart } from 'react-d3/piechart';
 
 
-const pieData = [
-  {label: 'Margarita', value: 20.0},
-  {label: 'John', value: 55.0},
-  {label: 'Tim', value: 25.0 }
-];
-
+class Holding extends React.Component {
+    render(){
+        return <div className="jumbotron">
+            <dl className="dl-horizontal">
+                <dt className="col-sm-6">Total Shares</dt>
+                <dd className="col-sm-6">{this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0)}</dd>
+                <dt className="col-sm-6">Holders</dt>
+                { this.props.holding.holders.map((holder, i) =>
+                    <dd className={"col-sm-6" + (i>0 ? "col-sm-offset-6" : '')}>{holder.name} </dd>) }
+            </dl>
+        </div>
+    }
+}
 
 
 @connect((state, ownProps) => state.resources['/company/'+ownProps.params.id +'/get_info' ]|| {data: {}})
@@ -68,6 +75,9 @@ export default class Company extends React.Component {
                     <dd className="col-sm-9">{current.totalShares}</dd>
                 </dl>
                 <div className="row">
+                <div className="col-sm-6">
+                    { current.holdings.map((holding, i) => <Holding key={i} holding={holding} />)}
+                </div>
                 <div className="col-sm-6 text-center">
                     <PieChart
                           data={this.state.holdings}
