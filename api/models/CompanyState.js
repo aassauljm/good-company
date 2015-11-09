@@ -92,6 +92,14 @@ module.exports = {
             },
             through: 'parcelCJ'
         });
+    /*    CompanyState.belongsToMany(Person, {
+            as: 'directors',
+            foreignKey: {
+                as: 'directors',
+                name: 'directorId'
+            },
+            through: 'directorJ'
+        });*/
         /*CompanyState.belongsToMany(Parcel, {
             as: 'overallocatedParcels',
             notNull: true,
@@ -116,7 +124,7 @@ module.exports = {
                             model: Parcel,
                             as: 'parcels'
                         }, {
-                            model: Holder,
+                            model: Person,
                             as: 'holders'
                         }]
                     },{
@@ -146,7 +154,7 @@ module.exports = {
                             as: 'parcels',
                             through: {attributes: []}
                         }, {
-                            model: Holder,
+                            model: Person,
                             as: 'holders',
                             through: {attributes: []}
                         }]
@@ -173,7 +181,7 @@ module.exports = {
                     return [
                         [{model: Holding, as: 'holdings'}, 'id', 'ASC'],
                         [{model: Holding, as: 'holdings'}, {model: Parcel, as: 'parcels'}, 'shareClass', 'ASC'],
-                        [{model: Holding, as: 'holdings'}, {model: Holder, as: 'holders'}, 'name', 'ASC'],
+                        [{model: Holding, as: 'holdings'}, {model: Person, as: 'holders'}, 'name', 'ASC'],
                     ]
                 }
             }
@@ -240,7 +248,7 @@ module.exports = {
                             // drop junction info
                             through: {attributes: []}
                         }, {
-                            model: Holder,
+                            model: Person,
                             as: 'holders',
                             through: {attributes: []}
                         }]

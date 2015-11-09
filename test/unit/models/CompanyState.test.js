@@ -46,7 +46,7 @@ describe('CompanyState Model', function() {
                             model: Parcel,
                             as: 'parcels'
                         }, {
-                            model: Holder,
+                            model: Person,
                             as: 'holders'
                         }]
 
@@ -117,7 +117,7 @@ describe('CompanyState Model', function() {
                             model: Parcel,
                             as: 'parcels'
                         }, {
-                            model: Holder,
+                            model: Person,
                             as: 'holders'
                         }]
                 }]})
@@ -176,7 +176,7 @@ describe('CompanyState Model', function() {
                             model: Parcel,
                             as: 'parcels'
                         }, {
-                            model: Holder,
+                            model: Person,
                             as: 'holders'
                         }]
                 }, {

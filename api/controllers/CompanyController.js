@@ -96,7 +96,7 @@ module.exports = {
         // for now, just companies office
         var data, company;
         return sequelize.transaction(function(t){
-            ScrapingService.fetch(req.params.companyNumber)
+            return ScrapingService.fetch(req.params.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
                 .tap(checkNameCollision.bind(null, req.user.id))
                 .then(function(_data) {

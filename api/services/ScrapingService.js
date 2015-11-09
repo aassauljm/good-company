@@ -387,7 +387,7 @@ module.exports = {
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
-                sails.log.verbose(JSON.stringify(ScrapingService.formatHolders(data), null , 4));
+                //sails.log.verbose(JSON.stringify(ScrapingService.formatHolders(data), null , 4));
                 return sails.controllers.companystate.transactions.seed({...data, ...ScrapingService.formatHolders(data)}, company);
             })
             .then(function(){
@@ -541,7 +541,7 @@ module.exports = {
                     holders: _.chunk($(this).find('.labelValue').get(), 2)
                         .map(function(chunk){
                             chunk = [$(chunk[0]), $(chunk[1])];
-                            let r = {name: _.trim(chunk[0].text()).replace(/\s\s+/g, ' '), address: _.trim(chunk[1].text()).replace('\n', '')};
+                            let r = {name: cleanString(chunk[0].text()), address: cleanString(chunk[1].text()) };
                             if(chunk[0].find('a').length){
                                 r['companyNumber'] = _.last(chunk[0].find('a').attr('href').split('/'));
                             }

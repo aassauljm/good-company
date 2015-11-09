@@ -29,7 +29,7 @@ module.exports = {
             },
             through: 'parcelJ'
         });
-        Holding.belongsToMany(Holder, {
+        Holding.belongsToMany(Person, {
             as: 'holders',
             foreignKey: {
                 as: 'holders',
@@ -43,7 +43,7 @@ module.exports = {
         tableName: 'holding',
         classMethods: {
             buildDeep: function(data){
-                return Holding.build(data, {include: [{model: Parcel, as: 'parcels'}, {model: Holder, as: 'holders'}]});
+                return Holding.build(data, {include: [{model: Parcel, as: 'parcels'}, {model: Person, as: 'holders'}]});
             }
         },
         instanceMethods: {
