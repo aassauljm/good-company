@@ -177,9 +177,10 @@ export function importCompany(companyNumber) {
         callAPI: () => fetch('/api/company/import/companiesoffice/' + companyNumber, {
             method: 'POST',
             headers: json_headers,
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            timeout
         }),
-        shouldCallAPI: (state) => !state.importCompany._status !== 'complete',
+        shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
         payload: {companyNumber: companyNumber}
     };
 }

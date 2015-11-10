@@ -8,6 +8,7 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 
+
 module.exports = {
     _config: {
         actions: false,
@@ -92,14 +93,14 @@ module.exports = {
             },
             through: 'parcelCJ'
         });
-    /*    CompanyState.belongsToMany(Person, {
+        CompanyState.belongsToMany(Person, {
             as: 'directors',
             foreignKey: {
                 as: 'directors',
                 name: 'directorId'
             },
-            through: 'directorJ'
-        });*/
+            through: DirectorJ
+        });
         /*CompanyState.belongsToMany(Parcel, {
             as: 'overallocatedParcels',
             notNull: true,

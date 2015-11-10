@@ -27,13 +27,13 @@ module.exports = {
             },
             through: 'holdingJ'
         });
-        /*Person.belongsToMany(CompanyState, {
+        Person.belongsToMany(CompanyState, {
             foreignKey: {
                 as: 'companyState',
                 name: 'companyStateId'
             },
-            through: 'directorJ'
-        });*/
+            through: DirectorJ
+        });
     },
     options: {
         freezeTableName: false,
