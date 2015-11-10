@@ -14,6 +14,7 @@ describe('Scraping Service', function() {
                 })
                 .then(ScrapingService.parseNZCompaniesOffice)
                 .then(function(result) {
+                    result.directors.should.deep.equal(data.directors);
                     result.should.deep.equal(data);
                     return data;
                 })
@@ -25,6 +26,7 @@ describe('Scraping Service', function() {
                     return company.getCurrentCompanyState({include: CompanyState.includes.full()});
                 })
                 .then(function(companyState){
+                    companyState.directors.length.should.be.eql(8);
                     done();
                 })
         })

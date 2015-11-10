@@ -22,6 +22,13 @@ function validateHoldings(newHoldings){
     });
 }
 
+function findOrCreatePersons(obj){
+    // persons can be in:
+    // obj.holdings.holders
+    // obj.directors.persons
+}
+
+
 
 var transactions = {
     seed: function(args, company) {

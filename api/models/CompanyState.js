@@ -93,13 +93,12 @@ module.exports = {
             },
             through: 'parcelCJ'
         });
-        CompanyState.belongsToMany(Person, {
+        CompanyState.hasMany(Director, {
             as: 'directors',
             foreignKey: {
+                name: 'companyStateId',
                 as: 'directors',
-                name: 'directorId'
-            },
-            through: DirectorJ
+            }
         });
         /*CompanyState.belongsToMany(Parcel, {
             as: 'overallocatedParcels',
@@ -143,6 +142,16 @@ module.exports = {
                                 as: 'childTransactions'
                             }
                         ]
+                    }, {
+                         model: Director,
+                         as: 'directors',
+                         include: [
+                            {
+                                model: Person,
+                                as: 'person'
+                            }
+                         ]
+
                     }]
                 },
                 fullNoJunctions: function(){
@@ -174,6 +183,16 @@ module.exports = {
                                 as: 'childTransactions'
                             }
                         ]
+                    }, {
+                         model: Director,
+                         as: 'directors',
+                         include: [
+                            {
+                                model: Person,
+                                as: 'person'
+                            }
+                         ]
+
                     }]
                 }
             },

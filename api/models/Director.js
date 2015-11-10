@@ -16,20 +16,26 @@ module.exports = {
         appointment: {
             type: Sequelize.DATE
         },
+        consentUrl: {
+            type: Sequelize.TEXT
+        }
     },
     associations: function(n) {
-        DirectorJ.belongsTo(Document, {
-            as: 'consent',
+        Director.belongsTo(CompanyState, {
+            as: 'companyState'
+        });
+        Director.belongsTo(Person, {
+            as: 'person',
             foreignKey: {
-                name: 'consentId',
-                as: 'consent'
+                as: 'person',
+                name: 'personId'
             }
         });
     },
 
     options: {
         freezeTableName: false,
-        tableName: 'directorj',
+        tableName: 'director',
         classMethods: {},
         instanceMethods: {},
         hooks: {}

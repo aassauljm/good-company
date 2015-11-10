@@ -1,1202 +1,147 @@
 {
-    "addressForService": "3 Market Lane, Wellington, 6011, New Zealand",
-    "addressForShareRegister": "Link Market Services Limited, Level 7, 21 Queen St, Auckland, 1010, New Zealand",
-    "arFilingMonth": "July",
     "companyName": "XERO LIMITED",
     "companyNumber": "1830488",
+    "nzbn": "9429034042984",
+    "incorporationDate": "06 Jul 2006",
     "companyStatus": "Registered",
-    "constitutionFiled": true,
-    "directors": [
-        {
-            "appointmentDate": "06 Jul 2006",
-            "fullName": "Rod DRURY",
-            "residentialAddress": "20-22 Munroe Street, Napier, 4110, New Zealand"
-        },
-        {
-            "appointmentDate": "20 Sep 2012",
-            "fullName": "Craig Wesley ELLIOTT",
-            "residentialAddress": "16199 Kennedy Road, Los Gatos California, 95032, United States of America"
-        },
-        {
-            "appointmentDate": "10 Apr 2014",
-            "fullName": "Lee HATTON",
-            "residentialAddress": "10 Tasman Street, Bondi, Nsw, 2026, Australia"
-        },
-        {
-            "appointmentDate": "12 Feb 2014",
-            "fullName": "Christopher LIDDELL",
-            "residentialAddress": "7 East 80th Street, New York, New York, 10075, United States of America"
-        },
-        {
-            "appointmentDate": "26 Mar 2007",
-            "fullName": "Gareth Samuel MORGAN",
-            "residentialAddress": "C/o Gibson Sheet Lawyers, Level 1, United Building, 107 Customhouse Quay, Wellington, 6011, New Zealand"
-        },
-        {
-            "appointmentDate": "25 Feb 2015",
-            "fullName": "Graham SMITH",
-            "residentialAddress": "2401 Oakdale Road, Hillsborough, California, 94010, United States of America"
-        },
-        {
-            "appointmentDate": "12 Feb 2014",
-            "fullName": "William Lewis VEGHTE",
-            "residentialAddress": "1015 Lemon Street, Menlo Park Ca, 94025, United States of America"
-        },
-        {
-            "appointmentDate": "21 May 2009",
-            "fullName": "Andrew Craig WINKLER",
-            "residentialAddress": "101 Collins Street, Melbourne, Australia"
-        }
-    ],
-    "documents": [
-        {
-            "date": "14 Aug 2015 15:32",
-            "documentId": "21486670",
-            "documentType": "Financial Statements",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/487A16FE02D98C6FEFFEC5918A3BDD27"
-        },
-        {
-            "date": "13 Aug 2015 14:17",
-            "documentId": "21480042",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/190DE0B46BA5AB2802020B3AB963596B"
-        },
-        {
-            "date": "13 Aug 2015 14:17",
-            "documentId": "21480033",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C82376E0C55266CA24208605BF18E777"
-        },
-        {
-            "date": "12 Aug 2015 11:19",
-            "documentId": "21472248",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "12 Aug 2015 10:44",
-            "documentId": "21471850",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "28 Jul 2015 11:40",
-            "documentId": "21386670",
-            "documentType": "File Annual Return"
-        },
-        {
-            "date": "28 Jul 2015 11:29",
-            "documentId": "21386429",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "28 Jul 2015 11:13",
-            "documentId": "21386031",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "28 Jul 2015 11:07",
-            "documentId": "21385898",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "28 Jul 2015 11:07",
-            "documentId": "21385896",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "28 Jul 2015 11:07",
-            "documentId": "21385893",
-            "documentType": "Particulars of ultimate holding company"
-        },
-        {
-            "date": "24 Jul 2015 09:26",
-            "documentId": "21368760",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "05 May 2015 08:49",
-            "documentId": "21000586",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "05 May 2015 08:30",
-            "documentId": "21000301",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "05 May 2015 08:29",
-            "documentId": "21000289",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "09 Apr 2015 15:49",
-            "documentId": "20896847",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/7FCB6F40405BAB78079A7F0411678FC7"
-        },
-        {
-            "date": "09 Apr 2015 15:48",
-            "documentId": "20896830",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0B7287D890707D19475AEFD4E7DEE37D"
-        },
-        {
-            "date": "09 Apr 2015 15:47",
-            "documentId": "20896820",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/E221D51FC0B735D99CB22BA1EA1403F1"
-        },
-        {
-            "date": "09 Apr 2015 15:46",
-            "documentId": "20896817",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/AF39CFCEF95865C64D704361DB07422E"
-        },
-        {
-            "date": "08 Apr 2015 11:02",
-            "documentId": "20886691",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0A2354F4DFE69CB94B6E2DEE0FFA3FD7"
-        },
-        {
-            "date": "08 Apr 2015 11:01",
-            "documentId": "20886663",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A54AE570BA3C2DB7E25AE5F3192AA84E"
-        },
-        {
-            "date": "08 Apr 2015 10:58",
-            "documentId": "20886634",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C67E5CF0D3DD48A1A8EE842AFF00C1F4"
-        },
-        {
-            "date": "08 Apr 2015 10:57",
-            "documentId": "20886611",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/5A2BFEF1968ADB9D01A1F4EA25011914"
-        },
-        {
-            "date": "02 Apr 2015 16:19",
-            "documentId": "20873150",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "02 Apr 2015 15:42",
-            "documentId": "20872796",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "02 Apr 2015 15:41",
-            "documentId": "20872773",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Mar 2015 10:25",
-            "documentId": "20769551",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "13 Mar 2015 10:20",
-            "documentId": "20769498",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Mar 2015 08:56",
-            "documentId": "20768661",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "13 Mar 2015 08:47",
-            "documentId": "20768593",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Mar 2015 08:45",
-            "documentId": "20768576",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Mar 2015 08:41",
-            "documentId": "20768551",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Mar 2015 08:37",
-            "documentId": "20768522",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Mar 2015 08:35",
-            "documentId": "20768499",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "04 Mar 2015 10:43",
-            "documentId": "20725785",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "04 Mar 2015 10:43",
-            "documentId": "20725849",
-            "documentType": "Director Consent",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9D8BB5C06A1A5C8BFAE4B0711AA48F8F"
-        },
-        {
-            "date": "21 Jan 2015 09:01",
-            "documentId": "20571232",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "21 Jan 2015 09:01",
-            "documentId": "20571231",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "06 Jan 2015 08:44",
-            "documentId": "20543320",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B06B437C9BA03D620A368B6736828B97"
-        },
-        {
-            "date": "06 Jan 2015 08:42",
-            "documentId": "20543307",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/EE3B906520EAFE54E38A75784433C0AE"
-        },
-        {
-            "date": "05 Jan 2015 15:55",
-            "documentId": "20542640",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "05 Jan 2015 15:55",
-            "documentId": "20542639",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9F95C786E86CF22E04A38DD036451896"
-        },
-        {
-            "date": "18 Dec 2014 12:47",
-            "documentId": "20525731",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "18 Dec 2014 12:46",
-            "documentId": "20525730",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "10 Nov 2014 15:03",
-            "documentId": "20382807",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/859F6EBCF6CD89D4A29983031CB92B3C"
-        },
-        {
-            "date": "07 Nov 2014 12:39",
-            "documentId": "20375574",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "07 Nov 2014 12:39",
-            "documentId": "20375573",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "21 Oct 2014 10:42",
-            "documentId": "20298383",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "01 Oct 2014 12:20",
-            "documentId": "20217533",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "01 Oct 2014 12:04",
-            "documentId": "20217439",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "01 Oct 2014 12:04",
-            "documentId": "20217438",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "14 Aug 2014 11:38",
-            "documentId": "20006848",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "14 Aug 2014 11:36",
-            "documentId": "20006810",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "04 Aug 2014 11:22",
-            "documentId": "19956597",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "04 Aug 2014 11:22",
-            "documentId": "19956596",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "04 Aug 2014 11:14",
-            "documentId": "19956484",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "08 Jul 2014 08:38",
-            "documentId": "19847037",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0424C419B077C6BF70DB434C6C835169"
-        },
-        {
-            "date": "07 Jul 2014 18:46",
-            "documentId": "19845941",
-            "documentType": "File Annual Return"
-        },
-        {
-            "date": "07 Jul 2014 18:32",
-            "documentId": "19845927",
-            "documentType": "Particulars of Company Address"
-        },
-        {
-            "date": "07 Jul 2014 18:30",
-            "documentId": "19845921",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "07 Jul 2014 18:27",
-            "documentId": "19845919",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "07 Jul 2014 18:25",
-            "documentId": "19845915",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "07 Jul 2014 18:23",
-            "documentId": "19845914",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "07 Jul 2014 16:09",
-            "documentId": "19845412",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F0B6AB06B3CD882B7CD9E6E22BF81390"
-        },
-        {
-            "date": "12 Jun 2014 15:20",
-            "documentId": "19729961",
-            "documentType": "Financial Statements",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/961280C4B5600DEBE995FFF3E6413134"
-        },
-        {
-            "date": "08 Jun 2014 18:20",
-            "documentId": "19708078",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "26 Apr 2014 23:59",
-            "documentId": "19519835",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "26 Apr 2014 23:57",
-            "documentId": "19519834",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "26 Apr 2014 23:50",
-            "documentId": "19519833",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "26 Apr 2014 23:48",
-            "documentId": "19519832",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "26 Apr 2014 23:39",
-            "documentId": "19519831",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "26 Apr 2014 23:35",
-            "documentId": "19519830",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "11 Apr 2014 08:00",
-            "documentId": "19466014",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "11 Apr 2014 07:59",
-            "documentId": "19466016",
-            "documentType": "Director Consent",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B291533661C9ADF530B8C9D887803FAB"
-        },
-        {
-            "date": "25 Feb 2014 13:28",
-            "documentId": "19227066",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/2D1FA30D8B0EA9607CEA2D39EE28FB0C"
-        },
-        {
-            "date": "24 Feb 2014 13:46",
-            "documentId": "19218458",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "24 Feb 2014 13:45",
-            "documentId": "19218457",
-            "documentType": "Director Consent"
-        },
-        {
-            "date": "24 Feb 2014 13:18",
-            "documentId": "19218260",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "13 Feb 2014 15:55",
-            "documentId": "19180530",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "13 Feb 2014 15:55",
-            "documentId": "19180531",
-            "documentType": "Director Consent"
-        },
-        {
-            "date": "13 Feb 2014 15:22",
-            "documentId": "19180278",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Feb 2014 14:49",
-            "documentId": "19179988",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "07 Jan 2014 07:56",
-            "documentId": "19079972",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F6B4B2AF339010954A9E5D54F8DC9F65"
-        },
-        {
-            "date": "06 Jan 2014 14:05",
-            "documentId": "19079169",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/ED4257C2AC1E4AEC0FF2E013648D8065"
-        },
-        {
-            "date": "02 Dec 2013 18:47",
-            "documentId": "19001984",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "14 Nov 2013 15:17",
-            "documentId": "18927859",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A828C35259402423F5A6570F1B7BC571"
-        },
-        {
-            "date": "22 Oct 2013 15:41",
-            "documentId": "18825321",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "22 Oct 2013 15:41",
-            "documentId": "18825320",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/2BABF938F7C6F278CFE3414F0B45C7CE"
-        },
-        {
-            "date": "03 Sep 2013 12:15",
-            "documentId": "18622096",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "31 Jul 2013 13:37",
-            "documentId": "18477780",
-            "documentType": "File Annual Return"
-        },
-        {
-            "date": "31 Jul 2013 13:14",
-            "documentId": "18477583",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "12 Jul 2013 11:04",
-            "documentId": "18402643",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/1A0D165EF6132DBE71E915BFCCC8C9C0"
-        },
-        {
-            "date": "11 Jul 2013 17:01",
-            "documentId": "18400196",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "11 Jul 2013 16:48",
-            "documentId": "18400101",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C1278E38CCCEECADC49CBD965ACA6FCD"
-        },
-        {
-            "date": "08 Jul 2013 11:13",
-            "documentId": "18378421",
-            "documentType": "Financial Statements",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/E24D06A3A8DFB362523D5FEA0638644F"
-        },
-        {
-            "date": "26 Mar 2013 16:38",
-            "documentId": "17905871",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/7EFC034115FE57D98957D3466DD9ADFE"
-        },
-        {
-            "date": "07 Jan 2013 16:14",
-            "documentId": "17623117",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/1C3B78B52360C9E57529814F1215931C"
-        },
-        {
-            "date": "17 Dec 2012 11:33",
-            "documentId": "17595195",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "17 Dec 2012 09:57",
-            "documentId": "17594395",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/2620724428A2D490B2E093D469093272"
-        },
-        {
-            "date": "09 Oct 2012 09:43",
-            "documentId": "17325508",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/179BE49CF2E760EE8A1BE739AB0813DB"
-        },
-        {
-            "date": "21 Sep 2012 10:04",
-            "documentId": "17249874",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "21 Sep 2012 10:04",
-            "documentId": "17250176",
-            "documentType": "Director Consent",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/BF8C5ACAC2281C0C994BE31871D546EB"
-        },
-        {
-            "date": "07 Aug 2012 22:20",
-            "documentId": "17083606",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/BCEB7539103D3DD666DC2AEDBE111884"
-        },
-        {
-            "date": "07 Aug 2012 22:15",
-            "documentId": "17083604",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "30 Jul 2012 15:46",
-            "documentId": "17048758",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "17 Jul 2012 11:33",
-            "documentId": "16991979",
-            "documentType": "Amendment of Prospectus",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/4849EC7CC53C3F7A449B3EC98E88DE1B"
-        },
-        {
-            "date": "12 Jul 2012 13:41",
-            "documentId": "16976531",
-            "documentType": "File Annual Return"
-        },
-        {
-            "date": "12 Jul 2012 13:40",
-            "documentId": "16976520",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "26 Jun 2012 13:52",
-            "documentId": "16898754",
-            "documentType": "Financial Statements",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/727891CDBF0A449376351FF12B829E11"
-        },
-        {
-            "date": "30 Apr 2012 13:46",
-            "documentId": "16636619",
-            "documentType": "Financial Statements",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/20A59EEE406CE15FF1889B9F6DBE1984"
-        },
-        {
-            "date": "25 Mar 2012 17:21",
-            "documentId": "16455621",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "25 Mar 2012 17:16",
-            "documentId": "16455614",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/EB8BAA1F9C3632A54A3A396299B3D1EB"
-        },
-        {
-            "date": "17 Mar 2012 00:00",
-            "documentId": "16432212",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/117115A89B97E8D2972F77D18BA5EF1B"
-        },
-        {
-            "date": "14 Mar 2012 00:00",
-            "documentId": "16432210",
-            "documentType": "Particulars of Company Address"
-        },
-        {
-            "date": "27 Feb 2012 00:00",
-            "documentId": "16432209",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F24BB22A2B951FCA0FA5260AFD71747E"
-        },
-        {
-            "date": "15 Dec 2011 00:00",
-            "documentId": "16432206",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "15 Dec 2011 00:00",
-            "documentId": "16432208",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "15 Dec 2011 00:00",
-            "documentId": "16432207",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "13 Dec 2011 00:00",
-            "documentId": "16432205",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "01 Aug 2011 00:00",
-            "documentId": "16432204",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "24 Jul 2011 00:00",
-            "documentId": "16432201",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "24 Jul 2011 00:00",
-            "documentId": "16432203",
-            "documentType": "File Annual Return"
-        },
-        {
-            "date": "24 Jul 2011 00:00",
-            "documentId": "16432202",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "10 Jul 2011 00:00",
-            "documentId": "16432200",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/1C142628B7CE8AB43D07F80575528BCE"
-        },
-        {
-            "date": "21 Dec 2010 00:00",
-            "documentId": "16432197",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "21 Dec 2010 00:00",
-            "documentId": "16432199",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "21 Dec 2010 00:00",
-            "documentId": "16432198",
-            "documentType": "Director Consent",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/4AF3D64F4162D19C69A4D21D3DF8585B"
-        },
-        {
-            "date": "01 Nov 2010 00:00",
-            "documentId": "16432196",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/249C0FB62979AD5B43833741EB7421CB"
-        },
-        {
-            "date": "03 Aug 2010 00:00",
-            "documentId": "14007382",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "03 Aug 2010 00:00",
-            "documentId": "14007384",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "03 Aug 2010 00:00",
-            "documentId": "14007383",
-            "documentType": "File Annual Return"
-        },
-        {
-            "date": "02 Aug 2010 00:00",
-            "documentId": "14007380",
-            "documentType": "Particulars of Company Address"
-        },
-        {
-            "date": "02 Aug 2010 00:00",
-            "documentId": "14007381",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "15 Jul 2010 00:00",
-            "documentId": "14007379",
-            "documentType": "Financial Statements",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C0F9FA28D9955718CD8A4DBAD73B974E"
-        },
-        {
-            "date": "12 Jul 2010 00:00",
-            "documentId": "14007376",
-            "documentType": "Update Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/5888235FBCFB9B01EA4A2CE94F682600"
-        },
-        {
-            "date": "06 Jul 2010 00:00",
-            "documentId": "14007372",
-            "documentType": "Particulars of Director"
-        },
-        {
-            "date": "06 Jul 2010 00:00",
-            "documentId": "14007373",
-            "documentType": "Update Shares"
-        },
-        {
-            "date": "17 Dec 2009 00:00",
-            "documentId": "14007347",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "12 Nov 2009 00:00",
-            "documentId": "14007363",
-            "documentType": "Annual Financial Statements",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/02B87CA9E52C7127D0EE4393FDED4FFE"
-        },
-        {
-            "date": "02 Sep 2009 00:00",
-            "documentId": "14007361",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "25 Aug 2009 00:00",
-            "documentId": "14007357",
-            "documentType": "Purchase/Acquisition Of Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F975B686A37EB5166B984D0C93CAA005"
-        },
-        {
-            "date": "25 Aug 2009 00:00",
-            "documentId": "14007358",
-            "documentType": "Purchase/Acquisition Of Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B1CBE3A93BA948C290CCE032B293231A"
-        },
-        {
-            "date": "11 Aug 2009 00:00",
-            "documentId": "14007360",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "22 Jun 2009 00:00",
-            "documentId": "14007337",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "22 Jun 2009 00:00",
-            "documentId": "14007338",
-            "documentType": "Online Annual Return"
-        },
-        {
-            "date": "07 Jun 2009 00:00",
-            "documentId": "14007333",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "07 Jun 2009 00:00",
-            "documentId": "14007336",
-            "documentType": "Notice Of Issue Of Shares"
-        },
-        {
-            "date": "07 Jun 2009 00:00",
-            "documentId": "14007335",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "07 Jun 2009 00:00",
-            "documentId": "14007334",
-            "documentType": "Notice Of Issue Of Shares"
-        },
-        {
-            "date": "02 Jun 2009 00:00",
-            "documentId": "14007355",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "02 Jun 2009 00:00",
-            "documentId": "14007356",
-            "documentType": "Consent of Director",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/BC07C52EA8E19BD0C843798A144EA7A0"
-        },
-        {
-            "date": "30 Apr 2009 00:00",
-            "documentId": "14007352",
-            "documentType": "Directors Certificate",
-            "original": "http://www.societies.govt.nz/scanned-images/26/BC10055992926.pdf"
-        },
-        {
-            "date": "30 Apr 2009 00:00",
-            "documentId": "14007353",
-            "documentType": "Directors Certificate",
-            "original": "http://www.societies.govt.nz/scanned-images/13/BC10055992813.pdf"
-        },
-        {
-            "date": "22 Apr 2009 00:00",
-            "documentId": "14007350",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "22 Apr 2009 00:00",
-            "documentId": "14007351",
-            "documentType": "Notice Of Issue Of Shares"
-        },
-        {
-            "date": "08 Sep 2008 00:00",
-            "documentId": "14007371",
-            "documentType": "Annual Financial Statements",
-            "original": "http://www.societies.govt.nz/scanned-images/45/BC10056312845.pdf"
-        },
-        {
-            "date": "25 Aug 2008 00:00",
-            "documentId": "14007365",
-            "documentType": "Online Particulars Of Company Address"
-        },
-        {
-            "date": "25 Aug 2008 00:00",
-            "documentId": "14007370",
-            "documentType": "Online Annual Return"
-        },
-        {
-            "date": "25 Aug 2008 00:00",
-            "documentId": "14007369",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "25 Aug 2008 00:00",
-            "documentId": "14007368",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "25 Aug 2008 00:00",
-            "documentId": "14007367",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "25 Aug 2008 00:00",
-            "documentId": "14007366",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "19 May 2008 00:00",
-            "documentId": "14007341",
-            "documentType": "Online Particulars Of Company Address"
-        },
-        {
-            "date": "19 May 2008 00:00",
-            "documentId": "14007344",
-            "documentType": "Notice Of Issue Of Shares"
-        },
-        {
-            "date": "19 May 2008 00:00",
-            "documentId": "14007343",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "19 May 2008 00:00",
-            "documentId": "14007342",
-            "documentType": "Online Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/26DE3DAB1E3522D8C4517B9253A551A6"
-        },
-        {
-            "date": "05 May 2008 00:00",
-            "documentId": "14007340",
-            "documentType": "Prospectus",
-            "original": "http://www.societies.govt.nz/scanned-images/00/BC10055741100.pdf"
-        },
-        {
-            "date": "30 Apr 2008 00:00",
-            "documentId": "14007339",
-            "documentType": "Online Change of Company Name"
-        },
-        {
-            "date": "13 Nov 2007 00:00",
-            "documentId": "14007324",
-            "documentType": "Online Particulars Of Company Address"
-        },
-        {
-            "date": "30 Jul 2007 00:00",
-            "documentId": "14007331",
-            "documentType": "Online Annual Return"
-        },
-        {
-            "date": "15 Jun 2007 00:00",
-            "documentId": "14007294",
-            "documentType": "Notice Of Issue Of Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/88A301D201B71CB2C536CCD11930A8CB"
-        },
-        {
-            "date": "15 Jun 2007 00:00",
-            "documentId": "14007295",
-            "documentType": "Directors Certificate",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/6F5FF95B945ACD52FBBB617F924371A1"
-        },
-        {
-            "date": "18 May 2007 00:00",
-            "documentId": "14007288",
-            "documentType": "Notice Of Issue Of Shares",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/D3F1A039FA919D4932FF8EC807EB5EB1"
-        },
-        {
-            "date": "17 May 2007 00:00",
-            "documentId": "14007287",
-            "documentType": "Adoption/Amendment Of Constitution",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0AB3639D8314C079FC4A8002D85BC7C6"
-        },
-        {
-            "date": "17 May 2007 00:00",
-            "documentId": "14007291",
-            "documentType": "Prospectus",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9C53F9768BC8A75038DD8D4E4A88FDFD"
-        },
-        {
-            "date": "11 May 2007 00:00",
-            "documentId": "14007289",
-            "documentType": "Prospectus",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/6C619F8F1C7045170933398EDFD2B83E"
-        },
-        {
-            "date": "12 Apr 2007 00:00",
-            "documentId": "14007325",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "12 Apr 2007 00:00",
-            "documentId": "14007328",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "12 Apr 2007 00:00",
-            "documentId": "14007327",
-            "documentType": "Notice Of Issue Of Shares"
-        },
-        {
-            "date": "12 Apr 2007 00:00",
-            "documentId": "14007326",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "29 Mar 2007 00:00",
-            "documentId": "14007286",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "29 Mar 2007 00:00",
-            "documentId": "14007323",
-            "documentType": "Consent of Director",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/FFEF8A45AEB36D81D09926070092A55E"
-        },
-        {
-            "date": "21 Mar 2007 00:00",
-            "documentId": "14007284",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "21 Mar 2007 00:00",
-            "documentId": "14007285",
-            "documentType": "Consent of Director",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A10F4AB1A1D7AF6F737A18C841EA6E61"
-        },
-        {
-            "date": "14 Feb 2007 00:00",
-            "documentId": "14007283",
-            "documentType": "Online Particulars Of Company Address"
-        },
-        {
-            "date": "13 Nov 2006 00:00",
-            "documentId": "14007318",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "13 Nov 2006 00:00",
-            "documentId": "14007321",
-            "documentType": "Consent of Director",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/72143499CE3775EBAE7C676B9C17965C"
-        },
-        {
-            "date": "13 Nov 2006 00:00",
-            "documentId": "14007320",
-            "documentType": "Consent of Director",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/7C6A5C47EA654BC29A4955472BFF2A4C"
-        },
-        {
-            "date": "13 Nov 2006 00:00",
-            "documentId": "14007319",
-            "documentType": "Online Particulars of Directors"
-        },
-        {
-            "date": "06 Nov 2006 00:00",
-            "documentId": "14007317",
-            "documentType": "Online Change of Company Name"
-        },
-        {
-            "date": "18 Sep 2006 00:00",
-            "documentId": "14007316",
-            "documentType": "Particulars of Shareholding"
-        },
-        {
-            "date": "08 Sep 2006 00:00",
-            "documentId": "14007322",
-            "documentType": "Online Particulars Of Company Address"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007299",
-            "documentType": "Adoption/Amendment Of Constitution",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9854345F8FF14AC4746B07B7871E2C07"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007300",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0ED051E681E06AC813BA91C543669728"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007301",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/49AB1549751379C1FAD961DDF4EBBD28"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007302",
-            "documentType": "Consent Of Director",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/D4E41EF8DA02A5C4A9AF0234EB5BB102"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007303",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9871D2588683CCE3C787D61337143E00"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007304",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A3E16747A7C684A351719D384318C4EA"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007305",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/82D864E176716E1496CFC02BD2A37F77"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007306",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/6AF989F56074A58CE31C3EF1B6C721BE"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007307",
-            "documentType": "Consent Of Director",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/292CD3FA0100D3BEB3FBE638DD6C1517"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007308",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A2A6A14691D1CB4F437416B3C73E4A3D"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007309",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/AE83F6622E19DA9A63DDED32BC42D3B7"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007310",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B9C5131452124D625ADAF0462AD50F6C"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007311",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/8ED5178A1361FF4D9B0EAEF6E8B609E3"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007313",
-            "documentType": "Application To Incorporate A Company"
-        },
-        {
-            "date": "06 Jul 2006 00:00",
-            "documentId": "14007314",
-            "documentType": "Consent Of Shareholder",
-            "original": "https://www.business.govt.nz/companies/app/service/services/documents/32D2B75E34694E9183600A06A85B5DDD"
-        }
-    ],
     "entityType": "NZ Limited Company",
-    "formerDirectors": [
-        {
-            "appointmentDate": "09 Nov 2006",
-            "ceasedDate": "22 Jul 2015",
-            "fullName": "Graham John SHAW",
-            "residentialAddress": "2/41 Aurora Terrace, Kelburn, Wellington, New Zealand"
-        },
-        {
-            "appointmentDate": "17 Dec 2010",
-            "ceasedDate": "12 Feb 2014",
-            "fullName": "Ian Samuel KNOWLES",
-            "residentialAddress": "39 Rawhiti Terrace, Kelburn, Wellington, 6012, New Zealand"
-        },
-        {
-            "appointmentDate": "09 Nov 2006",
-            "ceasedDate": "26 Jul 2012",
-            "fullName": "Philip John NORMAN",
-            "residentialAddress": "53 Garin Way, Stonefields, St Johns, Auckland, 1072, New Zealand"
-        },
-        {
-            "appointmentDate": "06 Jul 2006",
-            "ceasedDate": "12 Dec 2011",
-            "fullName": "Hamish EDWARDS",
-            "residentialAddress": "49 East Street, Greytown,"
-        },
-        {
-            "appointmentDate": "16 Mar 2007",
-            "ceasedDate": "17 Dec 2010",
-            "fullName": "John David Guy HADDLETON",
-            "residentialAddress": "67 Mccormick Lane, Atherton, Ca 94027, United States Of America,"
-        }
-    ],
+    "constitutionFiled": true,
+    "arFilingMonth": "July",
     "fraReportingMonth": "March",
+    "registeredCompanyAddress": "3 Market Lane, Wellington, 6011, New Zealand",
+    "addressForService": "3 Market Lane, Wellington, 6011, New Zealand",
+    "addressForShareRegister": "Link Market Services Limited, Level 7, 21 Queen St, Auckland, 1010, New Zealand",
+    "ultimateHoldingCompany": false,
+    "holdings": {
+        "total": 136595374,
+        "extensive": true,
+        "allocations": [
+            {
+                "name": "Allocation 1",
+                "shares": 39739580,
+                "holders": [
+                    {
+                        "name": "NEW ZEALAND CENTRAL SECURITIES DEPOSITORY LIMITED",
+                        "address": "2 The Terrace, Wellington, New Zealand",
+                        "companyNumber": "644859"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 2",
+                "shares": 21719779,
+                "holders": [
+                    {
+                        "name": "Anna DRURY",
+                        "address": "20-22 Munroe Street, Napier, 4110, New Zealand"
+                    },
+                    {
+                        "name": "Kenneth DRURY",
+                        "address": "20-22 Munroe Street, Napier, 4110, New Zealand"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 3",
+                "shares": 18454545,
+                "holders": [
+                    {
+                        "name": "GIVIA PTY LIMITED",
+                        "address": "101 Collins Street, Melbourne, Australia,"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 4",
+                "shares": 6643636,
+                "holders": [
+                    {
+                        "name": "AP Investments (HK) Limited",
+                        "address": "3806 Central Plaza, 18 Harbour Road, Wanchai, Hong Kong"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 5",
+                "shares": 5122609,
+                "holders": [
+                    {
+                        "name": "JASMINE INVESTMENT HOLDINGS LIMITED",
+                        "address": "Crowe Horwath, Level 6, Westfield Tower, 45 Knights Road, Lower Hutt, 5010, New Zealand",
+                        "companyNumber": "1797860"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 6",
+                "shares": 4135870,
+                "holders": [
+                    {
+                        "name": "Valar Ventures LP",
+                        "address": "1 Letterman Drive, Building C Suite 400, San Francisco, 94129, United States of America"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 7",
+                "shares": 4062068,
+                "holders": [
+                    {
+                        "name": "VV Xero Holdings LLC",
+                        "address": "One Letterman Drive, Building C, Suite 400, San Francisco, Ca, United States of America"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 8",
+                "shares": 3988899,
+                "holders": [
+                    {
+                        "name": "Hamish EDWARDS",
+                        "address": "49 East Street, Greytown, Greytown, 5712, New Zealand"
+                    },
+                    {
+                        "name": "Tineke EDWARDS",
+                        "address": "49 East Street, Greytown, Greytown, 5712, New Zealand"
+                    },
+                    {
+                        "name": "Andrew FINCH",
+                        "address": "65 Taylor Pass Road, Blenheim, New Zealand"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 9",
+                "shares": 1652893,
+                "holders": [
+                    {
+                        "name": "Credit Suisse Securities (Europe) Limited",
+                        "address": "1 Cabot Square, London, E144QJ, United Kingdom"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 10",
+                "shares": 1630399,
+                "holders": [
+                    {
+                        "name": "NICOLA JANE WILSON, DAVID JONATHAN WILSON AND CHRISTOPHER ELLIOT RITCHIE",
+                        "address": "43 Rawhiti Terrace, Kelburn, Wellington 6012,"
+                    }
+                ]
+            },
+            {
+                "name": "Allocation 11",
+                "shares": 1300000,
+                "holders": [
+                    {
+                        "name": "Graham And Delwyn SHAW",
+                        "address": "Flat 2, 41 Aurora Terrace, Kelburn, Wellington, 6012, New Zealand"
+                    }
+                ]
+            }
+        ]
+    },
     "historicHolders": [
         {
             "name": "Craig WALKER",
@@ -1403,138 +348,1198 @@
             "vacationDate": "12 Jul 2012"
         }
     ],
-    "holdings": {
-        "allocations": [
-            {
-                "holders": [
-                    {
-                        "address": "2 The Terrace, Wellington, New Zealand",
-                        "companyNumber": "644859",
-                        "name": "NEW ZEALAND CENTRAL SECURITIES DEPOSITORY LIMITED"
-                    }
-                ],
-                "name": "Allocation 1",
-                "shares": 39739580
-            },
-            {
-                "holders": [
-                    {
-                        "address": "20-22 Munroe Street, Napier, 4110, New Zealand",
-                        "name": "Anna DRURY"
-                    },
-                    {
-                        "address": "20-22 Munroe Street, Napier, 4110, New Zealand",
-                        "name": "Kenneth DRURY"
-                    }
-                ],
-                "name": "Allocation 2",
-                "shares": 21719779
-            },
-            {
-                "holders": [
-                    {
-                        "address": "101 Collins Street, Melbourne, Australia,",
-                        "name": "GIVIA PTY LIMITED"
-                    }
-                ],
-                "name": "Allocation 3",
-                "shares": 18454545
-            },
-            {
-                "holders": [
-                    {
-                        "address": "3806 Central Plaza, 18 Harbour Road, Wanchai, Hong Kong",
-                        "name": "AP Investments (HK) Limited"
-                    }
-                ],
-                "name": "Allocation 4",
-                "shares": 6643636
-            },
-            {
-                "holders": [
-                    {
-                        "address": "Crowe Horwath, Level 6, Westfield Tower, 45 Knights Road, Lower Hutt, 5010, New Zealand",
-                        "companyNumber": "1797860",
-                        "name": "JASMINE INVESTMENT HOLDINGS LIMITED"
-                    }
-                ],
-                "name": "Allocation 5",
-                "shares": 5122609
-            },
-            {
-                "holders": [
-                    {
-                        "address": "1 Letterman Drive, Building C Suite 400, San Francisco, 94129, United States of America",
-                        "name": "Valar Ventures LP"
-                    }
-                ],
-                "name": "Allocation 6",
-                "shares": 4135870
-            },
-            {
-                "holders": [
-                    {
-                        "address": "One Letterman Drive, Building C, Suite 400, San Francisco, Ca, United States of America",
-                        "name": "VV Xero Holdings LLC"
-                    }
-                ],
-                "name": "Allocation 7",
-                "shares": 4062068
-            },
-            {
-                "holders": [
-                    {
-                        "address": "49 East Street, Greytown, Greytown, 5712, New Zealand",
-                        "name": "Hamish EDWARDS"
-                    },
-                    {
-                        "address": "49 East Street, Greytown, Greytown, 5712, New Zealand",
-                        "name": "Tineke EDWARDS"
-                    },
-                    {
-                        "address": "65 Taylor Pass Road, Blenheim, New Zealand",
-                        "name": "Andrew FINCH"
-                    }
-                ],
-                "name": "Allocation 8",
-                "shares": 3988899
-            },
-            {
-                "holders": [
-                    {
-                        "address": "1 Cabot Square, London, E144QJ, United Kingdom",
-                        "name": "Credit Suisse Securities (Europe) Limited"
-                    }
-                ],
-                "name": "Allocation 9",
-                "shares": 1652893
-            },
-            {
-                "holders": [
-                    {
-                        "address": "43 Rawhiti Terrace, Kelburn, Wellington 6012,",
-                        "name": "NICOLA JANE WILSON, DAVID JONATHAN WILSON AND CHRISTOPHER ELLIOT RITCHIE"
-                    }
-                ],
-                "name": "Allocation 10",
-                "shares": 1630399
-            },
-            {
-                "holders": [
-                    {
-                        "address": "Flat 2, 41 Aurora Terrace, Kelburn, Wellington, 6012, New Zealand",
-                        "name": "Graham And Delwyn SHAW"
-                    }
-                ],
-                "name": "Allocation 11",
-                "shares": 1300000
-            }
-        ],
-        "extensive": true,
-        "total": 136595374
-    },
-    "incorporationDate": "06 Jul 2006",
-    "nzbn": "9429034042984",
-    "registeredCompanyAddress": "3 Market Lane, Wellington, 6011, New Zealand",
-    "ultimateHoldingCompany": false
+    "documents": [
+        {
+            "date": "14 Aug 2015 15:32",
+            "documentType": "Financial Statements",
+            "documentId": "21486670",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/487A16FE02D98C6FEFFEC5918A3BDD27"
+        },
+        {
+            "date": "13 Aug 2015 14:17",
+            "documentType": "Directors Certificate",
+            "documentId": "21480042",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/190DE0B46BA5AB2802020B3AB963596B"
+        },
+        {
+            "date": "13 Aug 2015 14:17",
+            "documentType": "Directors Certificate",
+            "documentId": "21480033",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C82376E0C55266CA24208605BF18E777"
+        },
+        {
+            "date": "12 Aug 2015 11:19",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "21472248"
+        },
+        {
+            "date": "12 Aug 2015 10:44",
+            "documentType": "Update Shares",
+            "documentId": "21471850"
+        },
+        {
+            "date": "28 Jul 2015 11:40",
+            "documentType": "File Annual Return",
+            "documentId": "21386670"
+        },
+        {
+            "date": "28 Jul 2015 11:29",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "21386429"
+        },
+        {
+            "date": "28 Jul 2015 11:13",
+            "documentType": "Particulars of Director",
+            "documentId": "21386031"
+        },
+        {
+            "date": "28 Jul 2015 11:07",
+            "documentType": "Particulars of Director",
+            "documentId": "21385898"
+        },
+        {
+            "date": "28 Jul 2015 11:07",
+            "documentType": "Particulars of Director",
+            "documentId": "21385896"
+        },
+        {
+            "date": "28 Jul 2015 11:07",
+            "documentType": "Particulars of ultimate holding company",
+            "documentId": "21385893"
+        },
+        {
+            "date": "24 Jul 2015 09:26",
+            "documentType": "Particulars of Director",
+            "documentId": "21368760"
+        },
+        {
+            "date": "05 May 2015 08:49",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "21000586"
+        },
+        {
+            "date": "05 May 2015 08:30",
+            "documentType": "Update Shares",
+            "documentId": "21000301"
+        },
+        {
+            "date": "05 May 2015 08:29",
+            "documentType": "Update Shares",
+            "documentId": "21000289"
+        },
+        {
+            "date": "09 Apr 2015 15:49",
+            "documentType": "Directors Certificate",
+            "documentId": "20896847",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/7FCB6F40405BAB78079A7F0411678FC7"
+        },
+        {
+            "date": "09 Apr 2015 15:48",
+            "documentType": "Directors Certificate",
+            "documentId": "20896830",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0B7287D890707D19475AEFD4E7DEE37D"
+        },
+        {
+            "date": "09 Apr 2015 15:47",
+            "documentType": "Directors Certificate",
+            "documentId": "20896820",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/E221D51FC0B735D99CB22BA1EA1403F1"
+        },
+        {
+            "date": "09 Apr 2015 15:46",
+            "documentType": "Directors Certificate",
+            "documentId": "20896817",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/AF39CFCEF95865C64D704361DB07422E"
+        },
+        {
+            "date": "08 Apr 2015 11:02",
+            "documentType": "Directors Certificate",
+            "documentId": "20886691",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0A2354F4DFE69CB94B6E2DEE0FFA3FD7"
+        },
+        {
+            "date": "08 Apr 2015 11:01",
+            "documentType": "Directors Certificate",
+            "documentId": "20886663",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A54AE570BA3C2DB7E25AE5F3192AA84E"
+        },
+        {
+            "date": "08 Apr 2015 10:58",
+            "documentType": "Directors Certificate",
+            "documentId": "20886634",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C67E5CF0D3DD48A1A8EE842AFF00C1F4"
+        },
+        {
+            "date": "08 Apr 2015 10:57",
+            "documentType": "Directors Certificate",
+            "documentId": "20886611",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/5A2BFEF1968ADB9D01A1F4EA25011914"
+        },
+        {
+            "date": "02 Apr 2015 16:19",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20873150"
+        },
+        {
+            "date": "02 Apr 2015 15:42",
+            "documentType": "Update Shares",
+            "documentId": "20872796"
+        },
+        {
+            "date": "02 Apr 2015 15:41",
+            "documentType": "Update Shares",
+            "documentId": "20872773"
+        },
+        {
+            "date": "13 Mar 2015 10:25",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20769551"
+        },
+        {
+            "date": "13 Mar 2015 10:20",
+            "documentType": "Update Shares",
+            "documentId": "20769498"
+        },
+        {
+            "date": "13 Mar 2015 08:56",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20768661"
+        },
+        {
+            "date": "13 Mar 2015 08:47",
+            "documentType": "Update Shares",
+            "documentId": "20768593"
+        },
+        {
+            "date": "13 Mar 2015 08:45",
+            "documentType": "Update Shares",
+            "documentId": "20768576"
+        },
+        {
+            "date": "13 Mar 2015 08:41",
+            "documentType": "Update Shares",
+            "documentId": "20768551"
+        },
+        {
+            "date": "13 Mar 2015 08:37",
+            "documentType": "Update Shares",
+            "documentId": "20768522"
+        },
+        {
+            "date": "13 Mar 2015 08:35",
+            "documentType": "Update Shares",
+            "documentId": "20768499"
+        },
+        {
+            "date": "04 Mar 2015 10:43",
+            "documentType": "Particulars of Director",
+            "documentId": "20725785"
+        },
+        {
+            "date": "04 Mar 2015 10:43",
+            "documentType": "Director Consent",
+            "documentId": "20725849",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9D8BB5C06A1A5C8BFAE4B0711AA48F8F"
+        },
+        {
+            "date": "21 Jan 2015 09:01",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20571232"
+        },
+        {
+            "date": "21 Jan 2015 09:01",
+            "documentType": "Update Shares",
+            "documentId": "20571231"
+        },
+        {
+            "date": "06 Jan 2015 08:44",
+            "documentType": "Directors Certificate",
+            "documentId": "20543320",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B06B437C9BA03D620A368B6736828B97"
+        },
+        {
+            "date": "06 Jan 2015 08:42",
+            "documentType": "Directors Certificate",
+            "documentId": "20543307",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/EE3B906520EAFE54E38A75784433C0AE"
+        },
+        {
+            "date": "05 Jan 2015 15:55",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20542640"
+        },
+        {
+            "date": "05 Jan 2015 15:55",
+            "documentType": "Update Shares",
+            "documentId": "20542639",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9F95C786E86CF22E04A38DD036451896"
+        },
+        {
+            "date": "18 Dec 2014 12:47",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20525731"
+        },
+        {
+            "date": "18 Dec 2014 12:46",
+            "documentType": "Update Shares",
+            "documentId": "20525730"
+        },
+        {
+            "date": "10 Nov 2014 15:03",
+            "documentType": "Directors Certificate",
+            "documentId": "20382807",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/859F6EBCF6CD89D4A29983031CB92B3C"
+        },
+        {
+            "date": "07 Nov 2014 12:39",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20375574"
+        },
+        {
+            "date": "07 Nov 2014 12:39",
+            "documentType": "Update Shares",
+            "documentId": "20375573"
+        },
+        {
+            "date": "21 Oct 2014 10:42",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20298383"
+        },
+        {
+            "date": "01 Oct 2014 12:20",
+            "documentType": "Update Shares",
+            "documentId": "20217533"
+        },
+        {
+            "date": "01 Oct 2014 12:04",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20217439"
+        },
+        {
+            "date": "01 Oct 2014 12:04",
+            "documentType": "Update Shares",
+            "documentId": "20217438"
+        },
+        {
+            "date": "14 Aug 2014 11:38",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "20006848"
+        },
+        {
+            "date": "14 Aug 2014 11:36",
+            "documentType": "Update Shares",
+            "documentId": "20006810"
+        },
+        {
+            "date": "04 Aug 2014 11:22",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19956597"
+        },
+        {
+            "date": "04 Aug 2014 11:22",
+            "documentType": "Update Shares",
+            "documentId": "19956596"
+        },
+        {
+            "date": "04 Aug 2014 11:14",
+            "documentType": "Update Shares",
+            "documentId": "19956484"
+        },
+        {
+            "date": "08 Jul 2014 08:38",
+            "documentType": "Directors Certificate",
+            "documentId": "19847037",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0424C419B077C6BF70DB434C6C835169"
+        },
+        {
+            "date": "07 Jul 2014 18:46",
+            "documentType": "File Annual Return",
+            "documentId": "19845941"
+        },
+        {
+            "date": "07 Jul 2014 18:32",
+            "documentType": "Particulars of Company Address",
+            "documentId": "19845927"
+        },
+        {
+            "date": "07 Jul 2014 18:30",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19845921"
+        },
+        {
+            "date": "07 Jul 2014 18:27",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19845919"
+        },
+        {
+            "date": "07 Jul 2014 18:25",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19845915"
+        },
+        {
+            "date": "07 Jul 2014 18:23",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19845914"
+        },
+        {
+            "date": "07 Jul 2014 16:09",
+            "documentType": "Update Shares",
+            "documentId": "19845412",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F0B6AB06B3CD882B7CD9E6E22BF81390"
+        },
+        {
+            "date": "12 Jun 2014 15:20",
+            "documentType": "Financial Statements",
+            "documentId": "19729961",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/961280C4B5600DEBE995FFF3E6413134"
+        },
+        {
+            "date": "08 Jun 2014 18:20",
+            "documentType": "Update Shares",
+            "documentId": "19708078"
+        },
+        {
+            "date": "26 Apr 2014 23:59",
+            "documentType": "Update Shares",
+            "documentId": "19519835"
+        },
+        {
+            "date": "26 Apr 2014 23:57",
+            "documentType": "Update Shares",
+            "documentId": "19519834"
+        },
+        {
+            "date": "26 Apr 2014 23:50",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19519833"
+        },
+        {
+            "date": "26 Apr 2014 23:48",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19519832"
+        },
+        {
+            "date": "26 Apr 2014 23:39",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19519831"
+        },
+        {
+            "date": "26 Apr 2014 23:35",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "19519830"
+        },
+        {
+            "date": "11 Apr 2014 08:00",
+            "documentType": "Particulars of Director",
+            "documentId": "19466014"
+        },
+        {
+            "date": "11 Apr 2014 07:59",
+            "documentType": "Director Consent",
+            "documentId": "19466016",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B291533661C9ADF530B8C9D887803FAB"
+        },
+        {
+            "date": "25 Feb 2014 13:28",
+            "documentType": "Directors Certificate",
+            "documentId": "19227066",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/2D1FA30D8B0EA9607CEA2D39EE28FB0C"
+        },
+        {
+            "date": "24 Feb 2014 13:46",
+            "documentType": "Particulars of Director",
+            "documentId": "19218458"
+        },
+        {
+            "date": "24 Feb 2014 13:45",
+            "documentType": "Director Consent",
+            "documentId": "19218457"
+        },
+        {
+            "date": "24 Feb 2014 13:18",
+            "documentType": "Particulars of Director",
+            "documentId": "19218260"
+        },
+        {
+            "date": "13 Feb 2014 15:55",
+            "documentType": "Particulars of Director",
+            "documentId": "19180530"
+        },
+        {
+            "date": "13 Feb 2014 15:55",
+            "documentType": "Director Consent",
+            "documentId": "19180531"
+        },
+        {
+            "date": "13 Feb 2014 15:22",
+            "documentType": "Update Shares",
+            "documentId": "19180278"
+        },
+        {
+            "date": "13 Feb 2014 14:49",
+            "documentType": "Particulars of Director",
+            "documentId": "19179988"
+        },
+        {
+            "date": "07 Jan 2014 07:56",
+            "documentType": "Directors Certificate",
+            "documentId": "19079972",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F6B4B2AF339010954A9E5D54F8DC9F65"
+        },
+        {
+            "date": "06 Jan 2014 14:05",
+            "documentType": "Update Shares",
+            "documentId": "19079169",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/ED4257C2AC1E4AEC0FF2E013648D8065"
+        },
+        {
+            "date": "02 Dec 2013 18:47",
+            "documentType": "Particulars of Director",
+            "documentId": "19001984"
+        },
+        {
+            "date": "14 Nov 2013 15:17",
+            "documentType": "Update Shares",
+            "documentId": "18927859",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A828C35259402423F5A6570F1B7BC571"
+        },
+        {
+            "date": "22 Oct 2013 15:41",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "18825321"
+        },
+        {
+            "date": "22 Oct 2013 15:41",
+            "documentType": "Update Shares",
+            "documentId": "18825320",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/2BABF938F7C6F278CFE3414F0B45C7CE"
+        },
+        {
+            "date": "03 Sep 2013 12:15",
+            "documentType": "Update Shares",
+            "documentId": "18622096"
+        },
+        {
+            "date": "31 Jul 2013 13:37",
+            "documentType": "File Annual Return",
+            "documentId": "18477780"
+        },
+        {
+            "date": "31 Jul 2013 13:14",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "18477583"
+        },
+        {
+            "date": "12 Jul 2013 11:04",
+            "documentType": "Directors Certificate",
+            "documentId": "18402643",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/1A0D165EF6132DBE71E915BFCCC8C9C0"
+        },
+        {
+            "date": "11 Jul 2013 17:01",
+            "documentType": "Particulars of Director",
+            "documentId": "18400196"
+        },
+        {
+            "date": "11 Jul 2013 16:48",
+            "documentType": "Update Shares",
+            "documentId": "18400101",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C1278E38CCCEECADC49CBD965ACA6FCD"
+        },
+        {
+            "date": "08 Jul 2013 11:13",
+            "documentType": "Financial Statements",
+            "documentId": "18378421",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/E24D06A3A8DFB362523D5FEA0638644F"
+        },
+        {
+            "date": "26 Mar 2013 16:38",
+            "documentType": "Update Shares",
+            "documentId": "17905871",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/7EFC034115FE57D98957D3466DD9ADFE"
+        },
+        {
+            "date": "07 Jan 2013 16:14",
+            "documentType": "Directors Certificate",
+            "documentId": "17623117",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/1C3B78B52360C9E57529814F1215931C"
+        },
+        {
+            "date": "17 Dec 2012 11:33",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "17595195"
+        },
+        {
+            "date": "17 Dec 2012 09:57",
+            "documentType": "Update Shares",
+            "documentId": "17594395",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/2620724428A2D490B2E093D469093272"
+        },
+        {
+            "date": "09 Oct 2012 09:43",
+            "documentType": "Directors Certificate",
+            "documentId": "17325508",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/179BE49CF2E760EE8A1BE739AB0813DB"
+        },
+        {
+            "date": "21 Sep 2012 10:04",
+            "documentType": "Particulars of Director",
+            "documentId": "17249874"
+        },
+        {
+            "date": "21 Sep 2012 10:04",
+            "documentType": "Director Consent",
+            "documentId": "17250176",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/BF8C5ACAC2281C0C994BE31871D546EB"
+        },
+        {
+            "date": "07 Aug 2012 22:20",
+            "documentType": "Update Shares",
+            "documentId": "17083606",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/BCEB7539103D3DD666DC2AEDBE111884"
+        },
+        {
+            "date": "07 Aug 2012 22:15",
+            "documentType": "Update Shares",
+            "documentId": "17083604"
+        },
+        {
+            "date": "30 Jul 2012 15:46",
+            "documentType": "Particulars of Director",
+            "documentId": "17048758"
+        },
+        {
+            "date": "17 Jul 2012 11:33",
+            "documentType": "Amendment of Prospectus",
+            "documentId": "16991979",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/4849EC7CC53C3F7A449B3EC98E88DE1B"
+        },
+        {
+            "date": "12 Jul 2012 13:41",
+            "documentType": "File Annual Return",
+            "documentId": "16976531"
+        },
+        {
+            "date": "12 Jul 2012 13:40",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "16976520"
+        },
+        {
+            "date": "26 Jun 2012 13:52",
+            "documentType": "Financial Statements",
+            "documentId": "16898754",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/727891CDBF0A449376351FF12B829E11"
+        },
+        {
+            "date": "30 Apr 2012 13:46",
+            "documentType": "Financial Statements",
+            "documentId": "16636619",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/20A59EEE406CE15FF1889B9F6DBE1984"
+        },
+        {
+            "date": "25 Mar 2012 17:21",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "16455621"
+        },
+        {
+            "date": "25 Mar 2012 17:16",
+            "documentType": "Update Shares",
+            "documentId": "16455614",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/EB8BAA1F9C3632A54A3A396299B3D1EB"
+        },
+        {
+            "date": "17 Mar 2012 00:00",
+            "documentType": "Update Shares",
+            "documentId": "16432212",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/117115A89B97E8D2972F77D18BA5EF1B"
+        },
+        {
+            "date": "14 Mar 2012 00:00",
+            "documentType": "Particulars of Company Address",
+            "documentId": "16432210"
+        },
+        {
+            "date": "27 Feb 2012 00:00",
+            "documentType": "Update Shares",
+            "documentId": "16432209",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F24BB22A2B951FCA0FA5260AFD71747E"
+        },
+        {
+            "date": "15 Dec 2011 00:00",
+            "documentType": "Particulars of Director",
+            "documentId": "16432206"
+        },
+        {
+            "date": "15 Dec 2011 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "16432208"
+        },
+        {
+            "date": "15 Dec 2011 00:00",
+            "documentType": "Update Shares",
+            "documentId": "16432207"
+        },
+        {
+            "date": "13 Dec 2011 00:00",
+            "documentType": "Particulars of Director",
+            "documentId": "16432205"
+        },
+        {
+            "date": "01 Aug 2011 00:00",
+            "documentType": "Update Shares",
+            "documentId": "16432204"
+        },
+        {
+            "date": "24 Jul 2011 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "16432201"
+        },
+        {
+            "date": "24 Jul 2011 00:00",
+            "documentType": "File Annual Return",
+            "documentId": "16432203"
+        },
+        {
+            "date": "24 Jul 2011 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "16432202"
+        },
+        {
+            "date": "10 Jul 2011 00:00",
+            "documentType": "Update Shares",
+            "documentId": "16432200",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/1C142628B7CE8AB43D07F80575528BCE"
+        },
+        {
+            "date": "21 Dec 2010 00:00",
+            "documentType": "Particulars of Director",
+            "documentId": "16432197"
+        },
+        {
+            "date": "21 Dec 2010 00:00",
+            "documentType": "Particulars of Director",
+            "documentId": "16432199"
+        },
+        {
+            "date": "21 Dec 2010 00:00",
+            "documentType": "Director Consent",
+            "documentId": "16432198",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/4AF3D64F4162D19C69A4D21D3DF8585B"
+        },
+        {
+            "date": "01 Nov 2010 00:00",
+            "documentType": "Update Shares",
+            "documentId": "16432196",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/249C0FB62979AD5B43833741EB7421CB"
+        },
+        {
+            "date": "03 Aug 2010 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007382"
+        },
+        {
+            "date": "03 Aug 2010 00:00",
+            "documentType": "Particulars of Director",
+            "documentId": "14007384"
+        },
+        {
+            "date": "03 Aug 2010 00:00",
+            "documentType": "File Annual Return",
+            "documentId": "14007383"
+        },
+        {
+            "date": "02 Aug 2010 00:00",
+            "documentType": "Particulars of Company Address",
+            "documentId": "14007380"
+        },
+        {
+            "date": "02 Aug 2010 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007381"
+        },
+        {
+            "date": "15 Jul 2010 00:00",
+            "documentType": "Financial Statements",
+            "documentId": "14007379",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/C0F9FA28D9955718CD8A4DBAD73B974E"
+        },
+        {
+            "date": "12 Jul 2010 00:00",
+            "documentType": "Update Shares",
+            "documentId": "14007376",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/5888235FBCFB9B01EA4A2CE94F682600"
+        },
+        {
+            "date": "06 Jul 2010 00:00",
+            "documentType": "Particulars of Director",
+            "documentId": "14007372"
+        },
+        {
+            "date": "06 Jul 2010 00:00",
+            "documentType": "Update Shares",
+            "documentId": "14007373"
+        },
+        {
+            "date": "17 Dec 2009 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007347"
+        },
+        {
+            "date": "12 Nov 2009 00:00",
+            "documentType": "Annual Financial Statements",
+            "documentId": "14007363",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/02B87CA9E52C7127D0EE4393FDED4FFE"
+        },
+        {
+            "date": "02 Sep 2009 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007361"
+        },
+        {
+            "date": "25 Aug 2009 00:00",
+            "documentType": "Purchase/Acquisition Of Shares",
+            "documentId": "14007357",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/F975B686A37EB5166B984D0C93CAA005"
+        },
+        {
+            "date": "25 Aug 2009 00:00",
+            "documentType": "Purchase/Acquisition Of Shares",
+            "documentId": "14007358",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B1CBE3A93BA948C290CCE032B293231A"
+        },
+        {
+            "date": "11 Aug 2009 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007360"
+        },
+        {
+            "date": "22 Jun 2009 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007337"
+        },
+        {
+            "date": "22 Jun 2009 00:00",
+            "documentType": "Online Annual Return",
+            "documentId": "14007338"
+        },
+        {
+            "date": "07 Jun 2009 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007333"
+        },
+        {
+            "date": "07 Jun 2009 00:00",
+            "documentType": "Notice Of Issue Of Shares",
+            "documentId": "14007336"
+        },
+        {
+            "date": "07 Jun 2009 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007335"
+        },
+        {
+            "date": "07 Jun 2009 00:00",
+            "documentType": "Notice Of Issue Of Shares",
+            "documentId": "14007334"
+        },
+        {
+            "date": "02 Jun 2009 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007355"
+        },
+        {
+            "date": "02 Jun 2009 00:00",
+            "documentType": "Consent of Director",
+            "documentId": "14007356",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/BC07C52EA8E19BD0C843798A144EA7A0"
+        },
+        {
+            "date": "30 Apr 2009 00:00",
+            "documentType": "Directors Certificate",
+            "documentId": "14007352",
+            "original": "http://www.societies.govt.nz/scanned-images/26/BC10055992926.pdf"
+        },
+        {
+            "date": "30 Apr 2009 00:00",
+            "documentType": "Directors Certificate",
+            "documentId": "14007353",
+            "original": "http://www.societies.govt.nz/scanned-images/13/BC10055992813.pdf"
+        },
+        {
+            "date": "22 Apr 2009 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007350"
+        },
+        {
+            "date": "22 Apr 2009 00:00",
+            "documentType": "Notice Of Issue Of Shares",
+            "documentId": "14007351"
+        },
+        {
+            "date": "08 Sep 2008 00:00",
+            "documentType": "Annual Financial Statements",
+            "documentId": "14007371",
+            "original": "http://www.societies.govt.nz/scanned-images/45/BC10056312845.pdf"
+        },
+        {
+            "date": "25 Aug 2008 00:00",
+            "documentType": "Online Particulars Of Company Address",
+            "documentId": "14007365"
+        },
+        {
+            "date": "25 Aug 2008 00:00",
+            "documentType": "Online Annual Return",
+            "documentId": "14007370"
+        },
+        {
+            "date": "25 Aug 2008 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007369"
+        },
+        {
+            "date": "25 Aug 2008 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007368"
+        },
+        {
+            "date": "25 Aug 2008 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007367"
+        },
+        {
+            "date": "25 Aug 2008 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007366"
+        },
+        {
+            "date": "19 May 2008 00:00",
+            "documentType": "Online Particulars Of Company Address",
+            "documentId": "14007341"
+        },
+        {
+            "date": "19 May 2008 00:00",
+            "documentType": "Notice Of Issue Of Shares",
+            "documentId": "14007344"
+        },
+        {
+            "date": "19 May 2008 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007343"
+        },
+        {
+            "date": "19 May 2008 00:00",
+            "documentType": "Online Directors Certificate",
+            "documentId": "14007342",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/26DE3DAB1E3522D8C4517B9253A551A6"
+        },
+        {
+            "date": "05 May 2008 00:00",
+            "documentType": "Prospectus",
+            "documentId": "14007340",
+            "original": "http://www.societies.govt.nz/scanned-images/00/BC10055741100.pdf"
+        },
+        {
+            "date": "30 Apr 2008 00:00",
+            "documentType": "Online Change of Company Name",
+            "documentId": "14007339"
+        },
+        {
+            "date": "13 Nov 2007 00:00",
+            "documentType": "Online Particulars Of Company Address",
+            "documentId": "14007324"
+        },
+        {
+            "date": "30 Jul 2007 00:00",
+            "documentType": "Online Annual Return",
+            "documentId": "14007331"
+        },
+        {
+            "date": "15 Jun 2007 00:00",
+            "documentType": "Notice Of Issue Of Shares",
+            "documentId": "14007294",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/88A301D201B71CB2C536CCD11930A8CB"
+        },
+        {
+            "date": "15 Jun 2007 00:00",
+            "documentType": "Directors Certificate",
+            "documentId": "14007295",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/6F5FF95B945ACD52FBBB617F924371A1"
+        },
+        {
+            "date": "18 May 2007 00:00",
+            "documentType": "Notice Of Issue Of Shares",
+            "documentId": "14007288",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/D3F1A039FA919D4932FF8EC807EB5EB1"
+        },
+        {
+            "date": "17 May 2007 00:00",
+            "documentType": "Adoption/Amendment Of Constitution",
+            "documentId": "14007287",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0AB3639D8314C079FC4A8002D85BC7C6"
+        },
+        {
+            "date": "17 May 2007 00:00",
+            "documentType": "Prospectus",
+            "documentId": "14007291",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9C53F9768BC8A75038DD8D4E4A88FDFD"
+        },
+        {
+            "date": "11 May 2007 00:00",
+            "documentType": "Prospectus",
+            "documentId": "14007289",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/6C619F8F1C7045170933398EDFD2B83E"
+        },
+        {
+            "date": "12 Apr 2007 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007325"
+        },
+        {
+            "date": "12 Apr 2007 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007328"
+        },
+        {
+            "date": "12 Apr 2007 00:00",
+            "documentType": "Notice Of Issue Of Shares",
+            "documentId": "14007327"
+        },
+        {
+            "date": "12 Apr 2007 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007326"
+        },
+        {
+            "date": "29 Mar 2007 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007286"
+        },
+        {
+            "date": "29 Mar 2007 00:00",
+            "documentType": "Consent of Director",
+            "documentId": "14007323",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/FFEF8A45AEB36D81D09926070092A55E"
+        },
+        {
+            "date": "21 Mar 2007 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007284"
+        },
+        {
+            "date": "21 Mar 2007 00:00",
+            "documentType": "Consent of Director",
+            "documentId": "14007285",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A10F4AB1A1D7AF6F737A18C841EA6E61"
+        },
+        {
+            "date": "14 Feb 2007 00:00",
+            "documentType": "Online Particulars Of Company Address",
+            "documentId": "14007283"
+        },
+        {
+            "date": "13 Nov 2006 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007318"
+        },
+        {
+            "date": "13 Nov 2006 00:00",
+            "documentType": "Consent of Director",
+            "documentId": "14007321",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/72143499CE3775EBAE7C676B9C17965C"
+        },
+        {
+            "date": "13 Nov 2006 00:00",
+            "documentType": "Consent of Director",
+            "documentId": "14007320",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/7C6A5C47EA654BC29A4955472BFF2A4C"
+        },
+        {
+            "date": "13 Nov 2006 00:00",
+            "documentType": "Online Particulars of Directors",
+            "documentId": "14007319"
+        },
+        {
+            "date": "06 Nov 2006 00:00",
+            "documentType": "Online Change of Company Name",
+            "documentId": "14007317"
+        },
+        {
+            "date": "18 Sep 2006 00:00",
+            "documentType": "Particulars of Shareholding",
+            "documentId": "14007316"
+        },
+        {
+            "date": "08 Sep 2006 00:00",
+            "documentType": "Online Particulars Of Company Address",
+            "documentId": "14007322"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Adoption/Amendment Of Constitution",
+            "documentId": "14007299",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9854345F8FF14AC4746B07B7871E2C07"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007300",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/0ED051E681E06AC813BA91C543669728"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007301",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/49AB1549751379C1FAD961DDF4EBBD28"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Director",
+            "documentId": "14007302",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/D4E41EF8DA02A5C4A9AF0234EB5BB102"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007303",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/9871D2588683CCE3C787D61337143E00"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007304",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A3E16747A7C684A351719D384318C4EA"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007305",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/82D864E176716E1496CFC02BD2A37F77"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007306",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/6AF989F56074A58CE31C3EF1B6C721BE"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Director",
+            "documentId": "14007307",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/292CD3FA0100D3BEB3FBE638DD6C1517"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007308",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/A2A6A14691D1CB4F437416B3C73E4A3D"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007309",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/AE83F6622E19DA9A63DDED32BC42D3B7"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007310",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/B9C5131452124D625ADAF0462AD50F6C"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007311",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/8ED5178A1361FF4D9B0EAEF6E8B609E3"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Application To Incorporate A Company",
+            "documentId": "14007313"
+        },
+        {
+            "date": "06 Jul 2006 00:00",
+            "documentType": "Consent Of Shareholder",
+            "documentId": "14007314",
+            "original": "https://www.business.govt.nz/companies/app/service/services/documents/32D2B75E34694E9183600A06A85B5DDD"
+        }
+    ],
+    "directors": [
+        {
+            "fullName": "Rod DRURY",
+            "residentialAddress": "20-22 Munroe Street, Napier, 4110, New Zealand",
+            "appointmentDate": "06 Jul 2006"
+        },
+        {
+            "fullName": "Craig Wesley ELLIOTT",
+            "residentialAddress": "16199 Kennedy Road, Los Gatos California, 95032, United States of America",
+            "appointmentDate": "20 Sep 2012",
+            "consentUrl": "https://www.business.govt.nz/companies/app/service/services/documents/BF8C5ACAC2281C0C994BE31871D546EB"
+        },
+        {
+            "fullName": "Lee HATTON",
+            "residentialAddress": "10 Tasman Street, Bondi, Nsw, 2026, Australia",
+            "appointmentDate": "10 Apr 2014",
+            "consentUrl": "https://www.business.govt.nz/companies/app/service/services/documents/B291533661C9ADF530B8C9D887803FAB"
+        },
+        {
+            "fullName": "Christopher LIDDELL",
+            "residentialAddress": "7 East 80th Street, New York, New York, 10075, United States of America",
+            "appointmentDate": "12 Feb 2014",
+            "consentUrl": "https://www.business.govt.nz/companies/app/service/services/documents/C2F5D1D6A20DCCC9A3BD34D86DB1E9CC"
+        },
+        {
+            "fullName": "Gareth Samuel MORGAN",
+            "residentialAddress": "C/o Gibson Sheet Lawyers, Level 1, United Building, 107 Customhouse Quay, Wellington, 6011, New Zealand",
+            "appointmentDate": "26 Mar 2007"
+        },
+        {
+            "fullName": "Graham SMITH",
+            "residentialAddress": "2401 Oakdale Road, Hillsborough, California, 94010, United States of America",
+            "appointmentDate": "25 Feb 2015",
+            "consentUrl": "https://www.business.govt.nz/companies/app/service/services/documents/9D8BB5C06A1A5C8BFAE4B0711AA48F8F"
+        },
+        {
+            "fullName": "William Lewis VEGHTE",
+            "residentialAddress": "1015 Lemon Street, Menlo Park Ca, 94025, United States of America",
+            "appointmentDate": "12 Feb 2014",
+            "consentUrl": "https://www.business.govt.nz/companies/app/service/services/documents/FC195AFB9D4CC79D434A766B639B7905"
+        },
+        {
+            "fullName": "Andrew Craig WINKLER",
+            "residentialAddress": "101 Collins Street, Melbourne, Australia",
+            "appointmentDate": "21 May 2009"
+        }
+    ],
+    "formerDirectors": [
+        {
+            "fullName": "Graham John SHAW",
+            "residentialAddress": "2/41 Aurora Terrace, Kelburn, Wellington, New Zealand",
+            "appointmentDate": "09 Nov 2006",
+            "ceasedDate": "22 Jul 2015"
+        },
+        {
+            "fullName": "Ian Samuel KNOWLES",
+            "residentialAddress": "39 Rawhiti Terrace, Kelburn, Wellington, 6012, New Zealand",
+            "appointmentDate": "17 Dec 2010",
+            "ceasedDate": "12 Feb 2014"
+        },
+        {
+            "fullName": "Philip John NORMAN",
+            "residentialAddress": "53 Garin Way, Stonefields, St Johns, Auckland, 1072, New Zealand",
+            "appointmentDate": "09 Nov 2006",
+            "ceasedDate": "26 Jul 2012"
+        },
+        {
+            "fullName": "Hamish EDWARDS",
+            "residentialAddress": "49 East Street, Greytown,",
+            "appointmentDate": "06 Jul 2006",
+            "ceasedDate": "12 Dec 2011"
+        },
+        {
+            "fullName": "John David Guy HADDLETON",
+            "residentialAddress": "67 Mccormick Lane, Atherton, Ca 94027, United States Of America,",
+            "appointmentDate": "16 Mar 2007",
+            "ceasedDate": "17 Dec 2010"
+        }
+    ]
 }

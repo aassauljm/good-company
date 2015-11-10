@@ -122,7 +122,7 @@ export function requestResource(resource, options = {}) {
     };
 }
 
-export function createResource(resource, data, form, stringify = true) {
+export function createResource(resource, data, options = {}, stringify = true) {
     return {
         types: [RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
@@ -131,11 +131,11 @@ export function createResource(resource, data, form, stringify = true) {
             body: stringify ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
-        payload: {key: resource, form}
+        payload: {key: resource, form: options.form}
     };
 }
 
-export function updateResource(resource, data, form) {
+export function updateResource(resource, data, options = {}) {
     return {
         types: [RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
@@ -144,7 +144,7 @@ export function updateResource(resource, data, form) {
             body: JSON.stringify(data),
             credentials: 'same-origin'
         }),
-        payload: {key: resource, form}
+        payload: {key: resource, form: options.form}
     };
 }
 
@@ -177,8 +177,8 @@ export function importCompany(companyNumber) {
         callAPI: () => fetch('/api/company/import/companiesoffice/' + companyNumber, {
             method: 'POST',
             headers: json_headers,
-            credentials: 'same-origin',
-            timeout
+            credentials: 'same-origin'
+
         }),
         shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
         payload: {companyNumber: companyNumber}

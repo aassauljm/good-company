@@ -387,8 +387,11 @@ module.exports = {
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
-                //sails.log.verbose(JSON.stringify(ScrapingService.formatHolders(data), null , 4));
-                return sails.controllers.companystate.transactions.seed({...data, ...ScrapingService.formatHolders(data)}, company);
+                return sails.controllers.companystate.transactions.seed({
+                    ...data,
+                    ...ScrapingService.formatHolders(data),
+                    ...ScrapingService.formatDirectors(data),
+                }, company);
             })
             .then(function(){
                 sails.log.verbose('CompanyState populated in DB');
@@ -459,6 +462,21 @@ module.exports = {
         if(difference > 0){
             result.unallocatedParcels = [{amount: difference}];
         }
+        return result;
+    },
+
+    formatDirectors: function(data){
+        let result = {};
+        result.directors = data.directors.map(function(d){
+                return {
+                    consentUrl: d.consentUrl,
+                    appointment: moment(d.appointmentDate, 'DD MMM YYYY HH:mm').toDate(),
+                    person: {
+                        name: d.fullName,
+                        address: d.residentialAddress
+                    }
+                };
+            });
         return result;
     },
 
@@ -586,6 +604,10 @@ module.exports = {
                     obj[f] = cleanString($el.find('label[for="'+f+'"]')[0].parentNode.lastChild.data)
                 }catch(e){};
             });
+            const link = $el.find('label[for="consent"]').next('.fileName');
+            if(link && link.length){
+                obj.consentUrl = link.attr('href');
+            }
             if(obj.ceasedDate){
                 formerDirectors.push(obj);
             }
@@ -596,7 +618,7 @@ module.exports = {
         })
         result['directors'] = directors;
         result['formerDirectors'] = formerDirectors;
-        sails.log.verbose('Parsed company: ', JSON.stringify(result));
+        sails.log.verbose('Parsed company: ', result);
         return result
     }
 

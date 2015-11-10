@@ -27,12 +27,12 @@ module.exports = {
             },
             through: 'holdingJ'
         });
-        Person.belongsToMany(CompanyState, {
+        Person.hasMany(Director, {
+            as: 'directorships',
             foreignKey: {
-                as: 'companyState',
-                name: 'companyStateId'
-            },
-            through: DirectorJ
+                name: 'personId',
+                as: 'directorships',
+            }
         });
     },
     options: {

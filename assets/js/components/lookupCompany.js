@@ -18,7 +18,7 @@ export class LookupCompanyForm extends React.Component {
     };
     submit(e){
         e.preventDefault();
-        if(this.props.valid){
+        if(this.props.valid && this.refs.query.getValue()){
             this.props.submit(this.refs.query.getValue());
         }
     }
