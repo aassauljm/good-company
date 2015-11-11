@@ -30,6 +30,7 @@ const routes = (<ReduxRouter>
 
                 <Route path="companies" component={ Companies }  />
                 <Route path="company/view/:id" component={ Company }  />
+                <Route path="company/view/:id/history/:generation" component={ Company }  />
 
                 <Route path="user/edit/:id" edit={true} component={ Account }  />
                 <Route path="user/set_password" edit={true} component={ SetPassword }  />

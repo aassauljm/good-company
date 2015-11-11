@@ -14,11 +14,11 @@ class Holding extends React.Component {
     render(){
         return <div className="jumbotron holding">
             <dl className="dl-horizontal">
-                <dt className="col-sm-6">Total Shares</dt>
-                <dd className="col-sm-6">{this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0)}</dd>
-                <dt className="col-sm-6">Holders</dt>
+                <dt className="col-sm-3">Total Shares</dt>
+                <dd className="col-sm-9">{this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0)}</dd>
+                <dt className="col-sm-3">Holders</dt>
                 { this.props.holding.holders.map((holder, i) =>
-                    <dd key={i} className={"col-sm-6" + (i>0 ? " col-sm-offset-6" : '')}>{holder.name} <br/>
+                    <dd key={i} className={"col-sm-9" + (i>0 ? " col-sm-offset-3" : '')}>{holder.name} <br/>
                     <span className="address">{holder.address}</span></dd>) }
             </dl>
         </div>
@@ -26,7 +26,14 @@ class Holding extends React.Component {
 }
 
 
-@connect((state, ownProps) => state.resources['/company/'+ownProps.params.id +'/get_info' ]|| {data: {}})
+@connect((state, ownProps) => {
+    if(ownProps.params.generation){
+        return state.resources['/company/'+ownProps.params.id +'/history/'+ownProps.params.generation] || {data: {}};
+    }
+    else{
+        return state.resources['/company/'+ownProps.params.id +'/get_info'] || {data: {}};;
+    }
+})
 @AuthenticatedComponent
 export default class Company extends React.Component {
 
@@ -34,12 +41,26 @@ export default class Company extends React.Component {
         return this.props.params.id
     }
 
-    componentDidMount(){
-        this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
+    isHistory() {
+        return !!this.props.params.generation;
     }
 
-    componentDidUpdate(){
-        this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
+    fetch() {
+        if(this.isHistory()){
+             this.props.dispatch(requestResource('/company/' + this.key() + '/history/' + this.props.params.generation));
+        }
+        else{
+            this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
+        }
+    }
+
+    componentDidMount() {
+        this.fetch();
+
+    }
+
+    componentDidUpdate() {
+        this.fetch();
     }
 
     groupHoldings(companyState){
@@ -50,13 +71,16 @@ export default class Company extends React.Component {
         }));
     }
 
-    renderData(){
-        if(!this.props.data || !this.props.data.currentCompanyState){
-            return
-                <div className="loading"></div>
+    renderData() {
+        const data = this.props.data || {};
+        const current = data.currentCompanyState || data.companyState;
+        if(!current){
+            return <div className="loading"></div>
         }
-        const current = this.props.data.currentCompanyState;
+        const generation = Number(this.props.params.generation) || 0;
         return <div>
+                { current.previousCompanyStateId ?
+                    <Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation+1)} >Previous Version</Link> : null}
                 <div className="jumbotron">
                     <h1>{current.companyName}</h1>
                     <h5>#{current.companyNumber}, {current.companyStatus}</h5>
@@ -76,7 +100,7 @@ export default class Company extends React.Component {
                 <div className="col-sm-6 text-center">
 
                     <PieChart
-                          data={this.groupHoldings(this.props.data.currentCompanyState)}
+                          data={this.groupHoldings(current)}
                           width={400}
                           height={400}
                           radius={100}
