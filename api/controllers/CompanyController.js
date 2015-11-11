@@ -111,18 +111,22 @@ module.exports = {
                     return ScrapingService.getDocumentSummaries(data)
                 })
                 .then(function(readDocuments) {
-                    return Promise.each(data.documents, function(doc) {
+                    return Promise.map(data.documents, function(doc) {
                         var docData = _.find(readDocuments, {
                             documentId: doc.documentId
                         });
-                        return ScrapingService.processDocument(doc, docData)
+                        return ScrapingService.processDocument(docData.text, doc)
                     });
                 })
-                .then(function(actions) {
-                    sails.log.verbose('Processing ' + actions.length + ' actions');
-                    return Promise.each(actions, function(action) {
-                        ScrapingService.populateHistory(action, company);
-                    })
+                .then(function(processedDocs) {
+                    sails.log.verbose('Processing ' + processedDocs.length + ' documents');
+                    return Promise.each(data.documents, function(doc) {
+                        var docData = _.find(processedDocs, {
+                            documentId: doc.documentId
+                        });
+                        console.log(JSON.stringify(docData, null ,4))
+                        return ScrapingService.populateHistory(docData, company);
+                    });
                 })
                 .then(function() {
                     return res.json(company);

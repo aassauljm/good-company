@@ -17,6 +17,9 @@ module.exports = {
         },
         address: {
             type: Sequelize.TEXT
+        },
+        attr: {
+            type: Sequelize.JSON
         }
     },
     associations: function(){

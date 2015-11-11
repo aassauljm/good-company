@@ -12,8 +12,8 @@ let moment = require('moment');
 let DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
     PARTICULARS: 'PARTICULARS',
-    NAMA_CHANGE: 'NAME_CHANGE',
-    UNKNOWN: 'UNKNOWN'
+    NAME_CHANGE: 'NAME_CHANGE',
+    UNKNOWN: 'UNKNOWN',
 };
 
 
@@ -148,6 +148,7 @@ let extractTypes = {
             }
 
         }).get();
+
         // a kludge to add companyNumbers from new/removeHolder to new/remove allocation
 
         let idMap = result.actions.reduce(function(acc, action){
@@ -170,7 +171,20 @@ let extractTypes = {
             }
         });
         return result;
-
+    },
+    [DOCUMENT_TYPES.NAME_CHANGE]: ($) => {
+        return {actions: [{
+            transactionType: Transaction.types.NAME_CHANGE,
+            newCompanyName: cleanString($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/New Company Name/);
+                })[0].nextSibling.nodeValue),
+            previousCompanyName: cleanString($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Previous Company Name/);
+                })[0].nextSibling.nodeValue),
+            effectiveDate:  moment($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Effective Date/);
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
+        }]}
     }
 }
 
@@ -186,7 +200,7 @@ let DOCUMENT_TYPE_MAP = {
     'Particulars of ultimate holding company': {
 
     },
-    'Particulars of Name Change': {
+    'Change of Company Name': {
         type: DOCUMENT_TYPES.NAME_CHANGE
     },
 
@@ -203,7 +217,7 @@ function processCompaniesOffice($){
     let result = {};
     let typeRegex =/^Document Type$/;
     result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
-    let docType = DOCUMENT_TYPE_MAP[result.label]
+    let docType = DOCUMENT_TYPE_MAP[result.label];
     if(docType && docType.type){
         result = {...result, ...extractTypes[docType.type]($)}
     }
@@ -219,6 +233,9 @@ function processBizNet($){
 
 function validateInverseAmend(amend, companyState){
     let holding = companyState.getMatchingHolding(amend.afterHolders);
+    if(!holding){
+        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holder not found')
+    }
     let sum = _.sum(holding.parcels, function(p){
         return p.amount;
     });
@@ -232,7 +249,7 @@ function validateInverseAmend(amend, companyState){
 }
 
 function validateInverseIssue(data, companyState){
-    companyState.stats()
+    return companyState.stats()
         .then(function(stats){
             if(!Number.isInteger(data.amount) || data.amount <= 0 ){
                 throw new sails.config.exceptions.InvalidInverseOperation('Amount must be postive integer')
@@ -241,6 +258,7 @@ function validateInverseIssue(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
             }
             if(stats.totalShares != data.toAmount){
+                console.log(stats, data)
                 throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue ')
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
@@ -251,10 +269,14 @@ function validateInverseIssue(data, companyState){
 
 
 function performInverseIssue(data, companyState){
-    validateInverseIssue(data, companyState);
+    return validateInverseIssue(data, companyState)
+        .then(() => {
+            console.log('subtracing')
+            companyState.subtractUnallocatedParcels({amount: data.amount});
+            return Transaction.build({type: data.transactionType, data: data})
+
+        })
     // In an issue we remove from unallocatedShares
-    companyState.subtractUnallocatedParcels({amount: data.amount});
-    return Transaction.build({type: data.transactionType, data: data})
 }
 
 function performInverseAmend(data, companyState){
@@ -270,13 +292,14 @@ function performInverseAmend(data, companyState){
         companyState.combineUnallocatedParcels(parcel);
         companyState.subtractHoldings([holding]);
     }
-    return Transaction.build({type: data.transactionType,  data: data})
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
 }
 
 
 function performInverseNewAllocation(data, companyState){
     companyState.combineUnallocatedParcels({amount: data.amount});
     let holding = companyState.getMatchingHolding(data.holders);
+
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation')
     }
@@ -287,14 +310,27 @@ function performInverseNewAllocation(data, companyState){
         throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocaiton')
     }
     companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, holding);
-    return Transaction.build({type: data.transactionType,  data: data})
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
 }
 
 function performInverseRemoveAllocation(data, companyState){
     companyState.subtractUnallocatedParcels({amount: data.amount});
     companyState.dataValues.holdings.push(Holding.buildDeep({
         holders: data.holders, parcels: [{amount: data.amount}]}));
-    return Transaction.build({type: data.transactionType,  data: data})
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
+}
+
+
+function validateInverseNameChange(data, companyState){
+    if(data.newCompanyName !== companyState.companyName){
+        console.log(data, companyState)
+        throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name')
+    }
+}
+
+function performInverseNameChange(data, companyState){
+    validateInverseNameChange(data, companyState);
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
 }
 
 module.exports = {
@@ -367,7 +403,7 @@ module.exports = {
                     return {
                         companyNumber: _.last($el.attr('href').split('/')),
                         companyName: $el[0].firstChild.data,
-                        structOff: !!$el.find('.struckoffAssertion').length,
+                        struckOff: !!$el.find('.struckoffAssertion').length,
                         notes: $el.next('.registryNote').map(function(){
                             return $(this).text();
                         }).get()
@@ -404,41 +440,54 @@ module.exports = {
             return;
         }
         let rootState, currentRoot, transactions;
-        return sequelize.transaction(function(t){
-            return company.getRootCompanyState()
-                .then(function(_rootState){
-                    currentRoot = _rootState;
-                    return currentRoot.buildPrevious({transaction:
-                        {type: Transaction.types.COMPOUND,
-                            data: _.omit(data, 'actions')
-                        }})
-                })
-                .then(function(_rootState){
-                    rootState = _rootState;
-                    return Promise.map(data.actions, function(action){
-                        switch(action.transactionType){
-                            case(Transaction.types.AMEND):
-                                return performInverseAmend(action, rootState);
-                            case(Transaction.types.ISSUE):
-                                return performInverseIssue(action, rootState);
-                            case(Transaction.types.NEW_ALLOCATION):
-                                return performInverseNewAllocation(action, rootState);
-                            case(Transaction.types.REMOVE_ALLOCATION):
-                                return performInverseRemoveAllocation(action, rootState);
-                            default:
+        return company.getRootCompanyState()
+            .then(function(_rootState){
+                currentRoot = _rootState;
+                return currentRoot.buildPrevious({transaction:
+                    {type: Transaction.types.COMPOUND,
+                        data: _.omit(data, 'actions')
+                    }})
+            })
+            .then(function(_rootState){
+                rootState = _rootState;
+                return Promise.reduce(data.actions, function(arr, action){
+                    sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId)
+                    let result;
+                    switch(action.transactionType){
+                        case(Transaction.types.AMEND):
+                            result = performInverseAmend(action, rootState);
+                            break;
+                        case(Transaction.types.ISSUE):
+                            result = performInverseIssue(action, rootState);
+                            break;
+                        case(Transaction.types.NEW_ALLOCATION):
+                            result = performInverseNewAllocation(action, rootState);
+                            break;
+                        case(Transaction.types.REMOVE_ALLOCATION):
+                            result = performInverseRemoveAllocation(action, rootState);
+                            break;
+                        case(Transaction.types.NAME_CHANGE):
+                            result = performInverseNameChange(action, rootState);
+                            break;
+                        default:
+                    }
+                    if(result){
+                        return result.then(function(r){
+                            arr.push(r);
+                            return arr;
+                        });
+                    }
+                    return arr;
+                }, [])
 
-                        }
-                    }, {concurrecy: 1})
-
-                })
-                .then(function(transactions){
-                    rootState.dataValues.transaction.dataValues.childTransactions = _.filter(transactions);
-                    return rootState.save();
-                })
-                .then(function(_rootState){
-                    currentRoot.setPreviousCompanyState(_rootState);
-                    return currentRoot.save();
-                })
+            })
+            .then(function(transactions){
+                rootState.dataValues.transaction.dataValues.childTransactions = _.filter(transactions);
+                return rootState.save();
+            })
+            .then(function(_rootState){
+                currentRoot.setPreviousCompanyState(_rootState);
+                return currentRoot.save();
             })
 
     },
@@ -484,7 +533,7 @@ module.exports = {
         return Promise.map(data.documents, function(document){
             return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
                 .then(function(data){
-                    return {...data, documentId: document.documentId}
+                    return {text: data.text, documentId: document.documentId}
                 })
         }, {concurrency: 3});
     },
@@ -498,8 +547,9 @@ module.exports = {
         });
     },
 
-    processDocument: function(html, info){
+    processDocument: function(html, info={}){
         const $ = cheerio.load(html);
+
         let result = {};
         if($('#page-body').length){
             result = processCompaniesOffice($)

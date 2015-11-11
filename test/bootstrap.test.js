@@ -85,7 +85,7 @@ before(function(done) {
         port: 1338,
         serverRender: true,
         log: {
-            level: 'error'
+            level: 'verbose'
         },
         models: {
             connection: 'pg_test',

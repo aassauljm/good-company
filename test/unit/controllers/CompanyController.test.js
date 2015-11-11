@@ -2,17 +2,24 @@ var Promise = require("bluebird");
 var request = require("supertest-as-promised");
 var fs = Promise.promisifyAll(require("fs"));
 
+var login = function(req){
+    return req
+        .post('/auth/local')
+        .send({'identifier': 'companycreator@email.com', 'password': 'testtest'})
+        .expect(200)
+        .then(function(){
+            return;
+        })
+}
+
+
 describe('Company Controller', function() {
-    var req;
 
     describe('Should perform validation', function() {
-        var companyId;
+        var req, companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
-            req
-                .post('/auth/local')
-                .send({'identifier': 'companycreator@email.com', 'password': 'testtest'})
-                .expect(200, done)
+            login(req).then(done);
         });
 
         it('Tries to create invalid companies', function(done) {
@@ -36,7 +43,11 @@ describe('Company Controller', function() {
     });
 
     describe('Test import from companies office', function(){
-        var companyId;
+        var req, companyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
         it('Does a stubbed import', function(done){
             req.post('/api/company/import/companiesoffice/2109736')
                 .expect(200)
@@ -70,5 +81,28 @@ describe('Company Controller', function() {
                 .expect(200, done);
         });
 
+    });
+    describe('Test import and previous state', function(){
+        var req, companyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/3523392')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+        it('Does gets previous version', function(done){
+            req.get('/api/company/'+companyId+'/history/1')
+                .expect(200)
+                .then(function(res){
+                    res.body.companyState.companyName.should.be.equal('TESTED ON CHILDREN LIMITED')
+                    done();
+                });
+        });
     });
 });

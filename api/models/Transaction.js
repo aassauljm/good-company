@@ -15,7 +15,8 @@ var types = {
     COMPOUND: 'COMPOUND',
     NEW_ALLOCATION: 'NEW_ALLOCATION',
     REMOVE_ALLOCATION: 'REMOVE_ALLOCATION',
-    DETAILS: 'DETAILS'
+    DETAILS: 'DETAILS',
+    NAME_CHANGE: 'NAME_CHANGE'
 };
 
 module.exports = {
@@ -31,6 +32,9 @@ module.exports = {
         },
         data: {
             type: Sequelize.JSON
+        },
+        effectiveDate: {
+            type: Sequelize.DATE
         }
     },
     associations: function() {

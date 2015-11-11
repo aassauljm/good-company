@@ -62,7 +62,15 @@ class LookupCompany extends React.Component {
             { this.props._status === 'complete' && !this.props.lookupCompany.list.length ? <span>No Results</span> : null}
              <ListGroup>
                 { this.props.lookupCompany.list.map((item, i) => {
-                    return <ListGroupItem key={i} onClick={this.importCompany.bind(this, i)}>{item.companyName}</ListGroupItem>
+                    return <ListGroupItem key={i} onClick={this.importCompany.bind(this, i)}>
+                    { item.companyName }
+                    { item.struckOff ? " (Struck Off)" : ''}
+                    <div className="notes">
+                        { (item.notes || []).map((note, i) => {
+                            return <span>{note}</span>
+                        }) }
+                     </div>
+                    </ListGroupItem>
                 }) }
               </ListGroup>
             </div>

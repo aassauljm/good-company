@@ -52,9 +52,17 @@ module.exports = {
                         return false;
                     }
                 var clean = function(list){
-                    return _.sortBy(list.map(function(s){ return _.pick(_.pick(s.get ? s.get() : s, 'name', 'companyNumber'), _.identity); }), 'name');
+                    // because of captials here: http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720700/entityFilingRequirement
+                    // we will now do case insensitive
+                    return _.sortBy(list.map(function(s){
+                        return _.pick(_.pick(s.get ? s.get() : s, 'name', 'companyNumber'), _.identity);
+                    }), 'name');
                 }
-                return _.isEqual(clean(other.holders), clean(this.holders));
+                return _.isEqual(clean(other.holders), clean(this.holders), function(a, b){
+                    if(a.toLowerCase){
+                        return (a||'').toLowerCase() === (b||'').toLowerCase();
+                    }
+                });
             },
             combineParcels: function(holding){
                 var newParcels = [];

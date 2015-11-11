@@ -17,6 +17,9 @@ module.exports = {
         },
         type: {
             type: Sequelize.TEXT
+        },
+        sourceUrl: {
+            type: Sequelize.TEXT
         }
     },
     associations: function() {

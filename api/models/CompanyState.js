@@ -130,10 +130,7 @@ module.exports = {
                     },{
                         model: Parcel,
                         as: 'unallocatedParcels'
-                    },/*{
-                        model: Parcel,
-                        as: 'overallocatedParcels'
-                    },*/{
+                    },{
                         model: Transaction,
                         as: 'transaction',
                         include: [
@@ -171,10 +168,7 @@ module.exports = {
                     },{
                         model: Parcel,
                         as: 'unallocatedParcels'
-                    },/*{
-                        model: Parcel,
-                        as: 'overallocatedParcels'
-                    },*/{
+                    },{
                         model: Transaction,
                         as: 'transaction',
                         include: [
@@ -204,6 +198,53 @@ module.exports = {
                         [{model: Holding, as: 'holdings'}, {model: Person, as: 'holders'}, 'name', 'ASC'],
                     ]
                 }
+            },
+
+            findOrCreatePersons: function(obj){
+                // persons can be in:
+                // obj.holdings.holders
+                // obj.directors.persons
+                return Promise.each(obj.holdings, function(holding){
+                    return Promise.map(holding.holders || [], function(holder){
+                        return Person.findOrCreate({where: holder, defaults: holder})
+                            .spread(function(holder){
+                                return holder;
+                            });
+                    })
+                    .then(function(holders){
+                        holding.holders = holders;
+                    });
+                })
+                .then(function(){
+                     return Promise.each(obj.directors || [], function(director){
+                        return Person.findOrCreate({where: director.person, defaults: director.person})
+                            .spread(function(person){
+                                director.person = person;
+                            })
+                     });
+                })
+                .then(function(){
+                    return obj;
+                })
+            },
+
+
+            createDedupPersons: function(args){
+                return CompanyState.findOrCreatePersons(args)
+                    .then(function(args){
+                        var state = CompanyState.build(args, {include: CompanyState.includes.full()});
+                        (state.get('holdings') || []).map(function(h){
+                            h.get('holders').map(function(h){
+                                h.isNewRecord = false;
+                                h._changed = {};
+                            })
+                        });
+                        (state.get('directors') || []).map(function(d){
+                            d.get('person').isNewRecord = false;
+                            d._changed = {};
+                        });
+                        return state.save();
+                    });
             }
         },
         instanceMethods: {
@@ -295,7 +336,7 @@ module.exports = {
                 return this.getUnallocatedParcels()
                     .then(function(parcels){
                         return {unallocatedParcels: parcels.map(function(p){
-                            return p;
+                            return p.get();
                         })};
                     });
             },
@@ -319,15 +360,18 @@ module.exports = {
                     .then(function(state){
                         // items with id are not newRecords
                         state.get('holdings').map(function(sh){
-                            sh.get('holders').map(function(holders){
-                                holders.isNewRecord = false;
+                            sh.get('holders').map(function(holder){
+                                holder.isNewRecord = false;
+                                holder._changed = {};
                             })
-                            sh.get('parcels').map(function(parcels){
-                                parcels.isNewRecord = false;
+                            sh.get('parcels').map(function(parcel){
+                                parcel.isNewRecord = false;
+                                parcel._changed = {}
                             })
                         });
                         state.get('unallocatedParcels').map(function(p){
                             p.isNewRecord = false;
+                            p._changed = {};
                         })
                         return state;
                     })
@@ -423,6 +467,7 @@ module.exports = {
                 var stats = {};
                 return Promise.join(this.totalAllocatedShares(), this.totalUnallocatedShares(),
                         function(total, totalUnallocated){
+
                         stats.totalUnallocatedShares = totalUnallocated;
                         stats.totalAllocatedShares = total;
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;

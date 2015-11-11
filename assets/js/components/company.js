@@ -30,16 +30,16 @@ class Holding extends React.Component {
 @AuthenticatedComponent
 export default class Company extends React.Component {
 
-    key(){
+    key() {
         return this.props.params.id
     }
 
     componentDidMount(){
-        this.props.dispatch(requestResource('/company/'+this.key()+'/get_info'));
+        this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
     }
 
     componentDidUpdate(){
-        this.props.dispatch(requestResource('/company/'+this.key()+'/get_info'));
+        this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
     }
 
     groupHoldings(companyState){
@@ -48,12 +48,6 @@ export default class Company extends React.Component {
             value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
             label: holding.holders.map(h => h.name).join(', ')
         }));
-    }
-
-    componentWillReceiveProps(nextProps){
-        if(nextProps.data ){
-            this.setState({holdings: this.groupHoldings(nextProps.data.currentCompanyState)});
-        }
     }
 
     renderData(){
@@ -80,8 +74,9 @@ export default class Company extends React.Component {
                     { current.holdings.map((holding, i) => <Holding key={i} holding={holding} />)}
                 </div>
                 <div className="col-sm-6 text-center">
+
                     <PieChart
-                          data={this.state.holdings}
+                          data={this.groupHoldings(this.props.data.currentCompanyState)}
                           width={400}
                           height={400}
                           radius={100}

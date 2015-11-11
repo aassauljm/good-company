@@ -22,13 +22,6 @@ function validateHoldings(newHoldings){
     });
 }
 
-function findOrCreatePersons(obj){
-    // persons can be in:
-    // obj.holdings.holders
-    // obj.directors.persons
-}
-
-
 
 var transactions = {
     seed: function(args, company) {
@@ -42,9 +35,9 @@ var transactions = {
         }*/
         return company.getCurrentCompanyState()
         .then(function(companyState){
+            //console.log('results', JSON.stringify(args, null, 4))
             var fields = companyState ? companyState.nonAssociativeFields(): {};
-            return CompanyState.create(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED}}),
-                                       {include: CompanyState.includes.full() })
+            return CompanyState.createDedupPersons(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED}}));
         })
         .then(function(state){
             this.state = state;
