@@ -119,19 +119,17 @@ module.exports = {
                     });
                 })
                 .then(function(processedDocs) {
+                    // Sort by date, then by documentId
+                    var sortedDocs = ScrapingService.sortDocuments(processedDocs)
                     sails.log.verbose('Processing ' + processedDocs.length + ' documents');
-                    return Promise.each(data.documents, function(doc) {
-                        var docData = _.find(processedDocs, {
-                            documentId: doc.documentId
-                        });
-                        console.log(JSON.stringify(docData, null ,4))
-                        return ScrapingService.populateHistory(docData, company);
+                    return Promise.each(sortedDocs, function(doc) {
+                        return ScrapingService.populateHistory(doc, company);
                     });
                 })
-                .then(function() {
-                    return res.json(company);
-                })
-            })
+        })
+        .then(function() {
+            return res.json(company);
+        })
         .catch(function(err) {
             return res.serverError(err);
         });

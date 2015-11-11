@@ -16,8 +16,18 @@ var types = {
     NEW_ALLOCATION: 'NEW_ALLOCATION',
     REMOVE_ALLOCATION: 'REMOVE_ALLOCATION',
     DETAILS: 'DETAILS',
-    NAME_CHANGE: 'NAME_CHANGE'
+    NAME_CHANGE: 'NAME_CHANGE',
+    TRANSFER: 'TRANSFER',
+    CONVERSION: 'CONVERSION'
 };
+
+/*
+Acquisition.
+Purchase
+Redemption
+Consolidation
+
+*/
 
 module.exports = {
     _config: {

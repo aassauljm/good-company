@@ -385,6 +385,7 @@ module.exports = {
                     })
             },
 
+
             combineHoldings: function(newHoldings, subtractHoldings){
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
@@ -414,6 +415,7 @@ module.exports = {
                     }
                 });
                 var newShares = newHoldings.map(function(sharesToAdd, i){
+                    // TODO, make sure persons are already looked up
                     return Holding.buildDeep(sharesToAdd)
                 });
                 if(subtractHoldings && newShares.length){

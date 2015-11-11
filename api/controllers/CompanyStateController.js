@@ -19,6 +19,10 @@ function validateHoldings(newHoldings){
         if(!holding.parcels || !holding.parcels.length){
             throw new sails.config.exceptions.ValidationException('Parcels are required');
         }
+        holding.parcels.forEach(function(parcel){
+            if(parcel.amount < 1)
+                throw new sails.config.exceptions.ValidationException('Parcels amounts must be positve');
+        });
     });
 }
 
@@ -35,7 +39,6 @@ var transactions = {
         }*/
         return company.getCurrentCompanyState()
         .then(function(companyState){
-            //console.log('results', JSON.stringify(args, null, 4))
             var fields = companyState ? companyState.nonAssociativeFields(): {};
             return CompanyState.createDedupPersons(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED}}));
         })

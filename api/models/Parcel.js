@@ -13,7 +13,7 @@ module.exports = {
         amount: {
             type: Sequelize.INTEGER,
             validate: {
-                min: 1
+                //min: 1
             }
         },
         shareClass: {

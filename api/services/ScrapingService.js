@@ -55,13 +55,13 @@ function divAfterParent($, query, regex){
         }catch(e){};
 }
 
-function parseIssue($){
+function parseIssue($, dateRegexP = 'Date of Issue:'){
     let fields = [
         ['fromAmount', 'Previous Number of Shares:', Number],
         ['byAmount', 'Increased Shares by:', Number],
         ['toAmount', 'New Number of Shares:', Number],
         ['amount', 'Number of Increased Shares:', Number],
-        ['issueDate', 'Date of Issue:', date => moment(date, 'DD MMM YYYY').toDate()]
+        ['date', dateRegexP, date => moment(date, 'DD MMM YYYY').toDate()]
     ];
     return fields.reduce(function(result, f){
         result[f[0]] = f[2](divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$')));
@@ -107,7 +107,8 @@ function parseHolder($, $el){
 let extractTypes = {
     [DOCUMENT_TYPES.UPDATE]: ($) => {
         let transactionMap = {
-            'Issue': Transaction.types.ISSUE
+            'Issue': Transaction.types.ISSUE,
+            'Conversion/Subdivision of Shares': Transaction.types.CONVERSION
         }
 
         let result = {};
@@ -117,6 +118,10 @@ let extractTypes = {
         switch(result.transactionType){
             case(Transaction.types.ISSUE):
                 result = {...result, ...parseIssue($)}
+                break;
+            case(Transaction.types.CONVERSION):
+                result = {...result, ...parseIssue($, 'Date of Conversion/Subdivision:')}
+                break;
             default:
         }
         return {actions: [result]};
@@ -181,7 +186,7 @@ let extractTypes = {
             previousCompanyName: cleanString($('.row.wideLabel label').filter(function(){
                     return $(this).text().match(/Previous Company Name/);
                 })[0].nextSibling.nodeValue),
-            effectiveDate:  moment($('.row.wideLabel label').filter(function(){
+            date:  moment($('.row.wideLabel label').filter(function(){
                     return $(this).text().match(/Effective Date/);
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
         }]}
@@ -242,7 +247,7 @@ function validateInverseAmend(amend, companyState){
     if(!Number.isSafeInteger(sum)){
         throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
     }
-    if(sum != amend.afterAmount){
+    if(amend.afterAmount && sum != amend.afterAmount){
         throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
     }
     return Promise.resolve();
@@ -258,10 +263,11 @@ function validateInverseIssue(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
             }
             if(stats.totalShares != data.toAmount){
-                console.log(stats, data)
+                sails.log.debug(stats)
                 throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue ')
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
+
                 throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up')
             }
         })
@@ -271,7 +277,6 @@ function validateInverseIssue(data, companyState){
 function performInverseIssue(data, companyState){
     return validateInverseIssue(data, companyState)
         .then(() => {
-            console.log('subtracing')
             companyState.subtractUnallocatedParcels({amount: data.amount});
             return Transaction.build({type: data.transactionType, data: data})
 
@@ -279,20 +284,44 @@ function performInverseIssue(data, companyState){
     // In an issue we remove from unallocatedShares
 }
 
+function performInverseConversion(data, companyState){
+    return validateInverseIssue(data, companyState)
+        .then(() => {
+            companyState.subtractUnallocatedParcels({amount: data.amount});
+            return Transaction.build({type: data.transactionType, data: data})
+
+        })
+    // In an issue we remove from unallocatedShares
+}
 function performInverseAmend(data, companyState){
     validateInverseAmend(data, companyState)
-    let difference = data.afterAmount - data.beforeAmount;
-    let parcel = {amount: Math.abs(difference)};
-    let holding = {holders: data.afterHolders, parcels: [parcel]};
-    if(difference < 0){
-        companyState.subtractUnallocatedParcels(parcel);
-        companyState.combineHoldings([holding]);
-    }
-    else{
-        companyState.combineUnallocatedParcels(parcel);
-        companyState.subtractHoldings([holding]);
-    }
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
+        .then(function(){
+            if(!data.afterAmount){
+
+                let current = companyState.getMatchingHolding(data.afterHolders);
+                let previous = companyState.getMatchingHolding(data.beforeHolders) || Holding.buildDeep({holders: data.beforeHolders});
+                previous.combineParcels(current);
+                companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, current);
+                if(!_.includes(companyState.dataValues.holdings, previous)){
+                    companyState.dataValues.holdings = companyState.dataValues.holdings.concat([previous])
+                }
+                return Transaction.build({type: Transaction.types.TRANSFER,  data: data});
+            }
+            else{
+                let difference = data.afterAmount - data.beforeAmount;
+                let parcel = {amount: Math.abs(difference)};
+                let holding = {holders: data.afterHolders, parcels: [parcel]};
+                if(difference < 0){
+                    companyState.subtractUnallocatedParcels(parcel);
+                    companyState.combineHoldings([holding]);
+                }
+                else{
+                    companyState.combineUnallocatedParcels(parcel);
+                    companyState.subtractHoldings([holding]);
+                }
+                return Transaction.build({type: data.transactionType,  data: data});
+            }
+        });
 }
 
 
@@ -307,7 +336,8 @@ function performInverseNewAllocation(data, companyState){
         return p.amount;
     });
     if(sum !== data.amount){
-        throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocaiton')
+        sails.log.debug(sum, data);
+        throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation')
     }
     companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, holding);
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
@@ -323,13 +353,13 @@ function performInverseRemoveAllocation(data, companyState){
 
 function validateInverseNameChange(data, companyState){
     if(data.newCompanyName !== companyState.companyName){
-        console.log(data, companyState)
         throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name')
     }
 }
 
 function performInverseNameChange(data, companyState){
     validateInverseNameChange(data, companyState);
+    companyState.set('companyName', data.previousCompanyName);
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
 }
 
@@ -460,6 +490,9 @@ module.exports = {
                         case(Transaction.types.ISSUE):
                             result = performInverseIssue(action, rootState);
                             break;
+                        case(Transaction.types.CONVERSION):
+                            result = performInverseConversion(action, rootState);
+                            break;
                         case(Transaction.types.NEW_ALLOCATION):
                             result = performInverseNewAllocation(action, rootState);
                             break;
@@ -558,6 +591,14 @@ module.exports = {
             result = processBizNet($)
         }
         return {...result, ...info, date: moment(info.date, 'DD MMM YYYY HH:mm').toDate()}
+    },
+
+    sortDocuments: function(docs){
+        _.map(docs, (d)=> {
+            let date = d.date;
+            d.effectiveDate = _.min(d.actions || [], (a) => a.date ? a.date : date).date || date;
+        });
+        return _.sortByAll(docs, 'effectiveDate', (d)=>parseInt(d.documentId, 10)).reverse();
     },
 
     parseNZCompaniesOffice: function(html){
