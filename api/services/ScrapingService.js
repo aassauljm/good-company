@@ -14,6 +14,7 @@ let DOCUMENT_TYPES = {
     PARTICULARS: 'PARTICULARS',
     NAME_CHANGE: 'NAME_CHANGE',
     ANNUAL_RETURN: 'ANNUAL_RETURN',
+    ADDRESS_CHANGE: 'ADDRESS_CHANGE',
     UNKNOWN: 'UNKNOWN',
 };
 
@@ -35,6 +36,9 @@ function chunkBy(array, func){
     }, [[]]), );
 }
 
+function normalizeAddress(address){
+    return (address || '').replace(/^C\/- /, '');
+}
 
 function parseName(text){
     text = cleanString(text);
@@ -207,6 +211,23 @@ const EXTRACT_DOCUMENT_MAP = {
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
         }]}
     },
+
+    [DOCUMENT_TYPES.ADDRESS_CHANGE]: ($) => {
+        const HEADING_MAP = {
+            'Updated Registered Office Address' : 'registeredCompanyAddress',
+            'Updated Address For Service': 'addressForService'
+        }
+
+        return {actions: $('#reviewContactChangesContent .panel').map((i, el)=>{
+            return {
+                transactionType: Transaction.types.ADDRESS_CHANGE,
+                previousAddress: cleanString($(el).find('.beforePanel .row').eq(1).text()),
+                newAddress: cleanString($(el).find('.afterPanel .row').eq(1).text()),
+                date: moment(cleanString($(el).find('.afterPanel .row').eq(2).text()), 'DD MMM YYYY').toDate(),
+                field: HEADING_MAP[cleanString($(el).find('.head').text())]
+        }}).get()};
+    },
+
     [DOCUMENT_TYPES.ANNUAL_RETURN]: ($) => {
         // This isn't really a transaction at the moment, but used for validation
         return {actions: [{
@@ -284,6 +305,9 @@ const DOCUMENT_TYPE_MAP = {
     },
     'File Annual Return': {
         type: DOCUMENT_TYPES.ANNUAL_RETURN
+    },
+    'Particulars of Company Address': {
+        type: DOCUMENT_TYPES.ADDRESS_CHANGE
     }
 };
 
@@ -323,19 +347,26 @@ function validateAnnualReturn(data, companyState, effectiveDate){
 
             }
 
-
             const currentHoldings = holdingToString(state.holdings)
             const expectedHoldings = holdingToString(data.holdings)
 
             if(JSON.stringify(currentDirectors) != JSON.stringify(expectedDirectors)){
-
+                sails.log.error(JSON.stringify(currentDirectors))
+                sails.log.error(JSON.stringify(expectedDirectors))
                 //throw new sails.config.exceptions.InvalidInverseOperation('Directors do not match: ' +data.documentId);
             }
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
                 sails.log.error(JSON.stringify(currentHoldings))
                 sails.log.error(JSON.stringify(expectedHoldings))
-                throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match: ' +data.documentId);
+                throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match, documentId: ' +data.documentId);
             }
+            if(normalizeAddress(state.registeredCompanyAddress) !== normalizeAddress(data.registeredCompanyAddress) ||
+                 normalizeAddress(state.addressForService) !== normalizeAddress(data.addressForService)){
+                sails.log.error(state.registeredCompanyAddress, data.registeredCompanyAddress)
+                sails.log.error(state.addressForService, data.addressForService)
+                throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match, documentId: ' +data.documentId);
+            }
+
         });
 };
 
@@ -466,6 +497,18 @@ function performInverseNameChange(data, companyState, effectiveDate){
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
+function validateInverseAddressChange(data, companyState, effectiveDate){
+    if(normalizeAddress(data.newAddress) !== normalizeAddress(companyState[data.field])){
+        throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected name')
+    }
+}
+
+function performInverseAddressChange(data, companyState, effectiveDate){
+    validateInverseAddressChange(data, companyState);
+    companyState.set(data.field, data.previousAddress);
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
+}
+
 module.exports = {
 
     fetch: function(companyNumber){
@@ -577,6 +620,7 @@ module.exports = {
             [Transaction.types.NEW_ALLOCATION]:  performInverseNewAllocation,
             [Transaction.types.REMOVE_ALLOCATION]: performInverseRemoveAllocation,
             [Transaction.types.NAME_CHANGE]: performInverseNameChange,
+            [Transaction.types.ADDRESS_CHANGE]: performInverseAddressChange,
             [Transaction.types.ANNUAL_RETURN]: validateAnnualReturn
         };
 
@@ -728,13 +772,11 @@ module.exports = {
             return obj;
         }, {}));
 
-        _.merge(result, ['registeredCompanyAddress2', 'addressForService1', 'addressForShareRegister0'].reduce(function(obj, f){
-            try{
-                obj[f.slice(0, -1)] = cleanString($('label[for="'+f+'"]').next().text())
-            }catch(e){};
-            return obj;
-        }, {}));
 
+
+        $('#addressPanel .addressLine').map(function(i, el){
+            result[$(el).prev().attr('for').slice(0, -1)] = cleanString($(el).text());
+        });
 
         result['ultimateHoldingCompany'] = _.trim($('#ultimateHoldingCompany').parent()[0].firstChild.data) === 'Yes';
 

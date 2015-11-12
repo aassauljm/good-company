@@ -150,9 +150,9 @@ describe('Scraping Service', function() {
 
                 })
                 .then(function(documentSummaries){
-                    return Promise.each(data.documents, function(doc){
-                        var action = _.find(documentSummaries, {documentId: doc.documentId});
-                        return ScrapingService.populateHistory(action, company);
+                    var sortedDocs = ScrapingService.sortDocuments(documentSummaries)
+                    return Promise.each(sortedDocs, function(doc){
+                        return ScrapingService.populateHistory(doc, company);
                     });
                 })
                 .then(function(){
