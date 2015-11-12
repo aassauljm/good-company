@@ -13,6 +13,7 @@ let DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
     PARTICULARS: 'PARTICULARS',
     NAME_CHANGE: 'NAME_CHANGE',
+    ANNUAL_RETURN: 'ANNUAL_RETURN',
     UNKNOWN: 'UNKNOWN',
 };
 
@@ -20,6 +21,20 @@ let DOCUMENT_TYPES = {
 function cleanString(str){
     return _.trim(str).replace(/[\n\r]/g, '').replace(/\s\s+/g, ' ')
 }
+
+
+function chunkBy(array, func){
+    return _.dropRight(_.reduce(array, (acc, el) => {
+        if(func(el)){
+            acc.push([]);
+        }
+        else{
+            _.last(acc).push(el);
+        }
+        return acc;
+    }, [[]]), );
+}
+
 
 function parseName(text){
     text = cleanString(text);
@@ -104,7 +119,8 @@ function parseHolder($, $el){
     }
 }
 
-let extractTypes = {
+
+const EXTRACT_DOCUMENT_MAP = {
     [DOCUMENT_TYPES.UPDATE]: ($) => {
         let transactionMap = {
             'Issue': Transaction.types.ISSUE,
@@ -190,12 +206,63 @@ let extractTypes = {
                     return $(this).text().match(/Effective Date/);
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
         }]}
+    },
+    [DOCUMENT_TYPES.ANNUAL_RETURN]: ($) => {
+        // This isn't really a transaction at the moment, but used for validation
+        return {actions: [{
+            transactionType: Transaction.types.ANNUAL_RETURN,
+
+            registeredCompanyAddress:  cleanString($('label[for="registeredAddress"]').next().text()),
+
+            addressForService:  cleanString($('label[for="addressForService"]').next().text()),
+
+            directors: chunkBy($('h3 span').filter(function(){
+                            return $(this).text().match(/Directors/);
+                        })
+                        .first()
+                        .parent()
+                        .nextUntil('.clear'), (el)=>$(el).is('hr')
+                        )
+                    .map(function(chunk){
+                    return {
+                        name: cleanString($(chunk[0]).find('label[for="fullName"]')[0].parentNode.lastChild.data),
+                        address: cleanString($(chunk[1]).find('.addressLine').text()),
+                        appointment: moment(cleanString(
+                            $(chunk[2]).find('label[for="appointmentDate"]')[0].parentNode.lastChild.data),
+                        'DD MMM YYYY').toDate()
+                    };
+                }),
+
+            totalShares: parseInt($('span.h3').filter(function(){
+                            return $(this).text().match(/Total Number of Shares:/);
+                        }).first().next().text(), 10),
+
+            holdings: chunkBy($('span').filter(function(){
+                            return $(this).text().match(/Shareholders in Allocation/);
+                        })
+                            .first()
+                            .parent()
+                            .nextUntil('.clear'), (el)=>$(el).is('hr')
+                        )
+                        .map((chunk) => {
+                            return {
+                            parcels: [{amount: parseInt($(chunk[0]).find('label').text().replace(' Shares', ''), 10)}],
+                            holders: _.chunk(chunk, 2).map(holder => ({
+                                    name: cleanString($(holder[0]).find('strong').text()),
+                                    address: cleanString($(holder[1]).find('.addressLine').text())
+                                }))
+                            }
+                        }),
+
+            date:  moment($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Registration Date and Time/);
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
+        }]}
     }
 }
 
 
-
-let DOCUMENT_TYPE_MAP = {
+const DOCUMENT_TYPE_MAP = {
     'Particulars of Director':{
 
     },
@@ -214,8 +281,12 @@ let DOCUMENT_TYPE_MAP = {
     },
     'Directors Certificate': {
 
+    },
+    'File Annual Return': {
+        type: DOCUMENT_TYPES.ANNUAL_RETURN
     }
 };
+
 
 
 function processCompaniesOffice($){
@@ -224,9 +295,8 @@ function processCompaniesOffice($){
     result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
     let docType = DOCUMENT_TYPE_MAP[result.label];
     if(docType && docType.type){
-        result = {...result, ...extractTypes[docType.type]($)}
+        result = {...result, ...EXTRACT_DOCUMENT_MAP[docType.type]($)}
     }
-
     return result
 }
 
@@ -235,20 +305,53 @@ function processBizNet($){
     return {}
 }
 
+function validateAnnualReturn(data, companyState, effectiveDate){
+    return companyState.stats()
+        .then(function(stats){
+            if(stats.totalShares != data.totalShares){
+                throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +documentId);
+            }
+            const state = companyState.toJSON();
+            // extract address and name for directors
+            const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directors, (d)=>_.pick(d.person, 'name', 'address')), 'name'));
+            const expectedDirectors = JSON.stringify(_.sortBy(_.map(data.directors, (d)=>_.pick(d, 'name', 'address')), 'name'));
+
+            function holdingToString(holdings){
+                return _.sortByAll(holdings.map((holding)=>{
+                    return  {holders: _.sortBy(holding.holders.map((p)=>_.pick(p, 'name')), 'name'), parcels: holding.parcels.map((p)=>_.pick(p, 'amount'))};
+                }), (holding) => -holding.parcels[0].amount, (holding) => holding.holders[0].name);
+
+            }
+
+
+            const currentHoldings = holdingToString(state.holdings)
+            const expectedHoldings = holdingToString(data.holdings)
+
+            if(JSON.stringify(currentDirectors) != JSON.stringify(expectedDirectors)){
+
+                //throw new sails.config.exceptions.InvalidInverseOperation('Directors do not match: ' +data.documentId);
+            }
+            if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
+                sails.log.error(JSON.stringify(currentHoldings))
+                sails.log.error(JSON.stringify(expectedHoldings))
+                throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match: ' +data.documentId);
+            }
+        });
+};
 
 function validateInverseAmend(amend, companyState){
     let holding = companyState.getMatchingHolding(amend.afterHolders);
     if(!holding){
-        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holder not found')
+        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holder not found, documentId: ' +data.documentId)
     }
     let sum = _.sum(holding.parcels, function(p){
         return p.amount;
     });
     if(!Number.isSafeInteger(sum)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
+        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
     }
     if(amend.afterAmount && sum != amend.afterAmount){
-        throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
+        throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend, documentId: ' +data.documentId)
     }
     return Promise.resolve();
 }
@@ -257,43 +360,43 @@ function validateInverseIssue(data, companyState){
     return companyState.stats()
         .then(function(stats){
             if(!Number.isInteger(data.amount) || data.amount <= 0 ){
-                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be postive integer')
+                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be postive integer, documentId: ' +data.documentId)
             }
             if(!Number.isSafeInteger(data.amount)){
-                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
+                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
             }
             if(stats.totalShares != data.toAmount){
                 sails.log.debug(stats)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue ')
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue, documentId: ' +data.documentId)
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
 
-                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up')
+                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up, documentId: ' +data.documentId)
             }
         })
 }
 
 
-function performInverseIssue(data, companyState){
+function performInverseIssue(data, companyState, effectiveDate){
     return validateInverseIssue(data, companyState)
         .then(() => {
             companyState.subtractUnallocatedParcels({amount: data.amount});
-            return Transaction.build({type: data.transactionType, data: data})
+            return Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
 
         })
     // In an issue we remove from unallocatedShares
 }
 
-function performInverseConversion(data, companyState){
+function performInverseConversion(data, companyState, effectiveDate){
     return validateInverseIssue(data, companyState)
         .then(() => {
             companyState.subtractUnallocatedParcels({amount: data.amount});
-            return Transaction.build({type: data.transactionType, data: data})
+            return Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
 
         })
     // In an issue we remove from unallocatedShares
 }
-function performInverseAmend(data, companyState){
+function performInverseAmend(data, companyState, effectiveDate){
     validateInverseAmend(data, companyState)
         .then(function(){
             if(!data.afterAmount){
@@ -319,48 +422,48 @@ function performInverseAmend(data, companyState){
                     companyState.combineUnallocatedParcels(parcel);
                     companyState.subtractHoldings([holding]);
                 }
-                return Transaction.build({type: data.transactionType,  data: data});
+                return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
             }
         });
 }
 
 
-function performInverseNewAllocation(data, companyState){
+function performInverseNewAllocation(data, companyState, effectiveDate){
     companyState.combineUnallocatedParcels({amount: data.amount});
     let holding = companyState.getMatchingHolding(data.holders);
 
     if(!holding){
-        throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation')
+        throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation, documentId: ' +data.documentId)
     }
     let sum = _.sum(holding.parcels, function(p){
         return p.amount;
     });
     if(sum !== data.amount){
         sails.log.debug(sum, data);
-        throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation')
+        throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation, documentId: ' +data.documentId)
     }
     companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, holding);
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
-function performInverseRemoveAllocation(data, companyState){
+function performInverseRemoveAllocation(data, companyState, effectiveDate){
     companyState.subtractUnallocatedParcels({amount: data.amount});
     companyState.dataValues.holdings.push(Holding.buildDeep({
         holders: data.holders, parcels: [{amount: data.amount}]}));
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
 
-function validateInverseNameChange(data, companyState){
+function validateInverseNameChange(data, companyState, effectiveDate){
     if(data.newCompanyName !== companyState.companyName){
         throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name')
     }
 }
 
-function performInverseNameChange(data, companyState){
+function performInverseNameChange(data, companyState, effectiveDate){
     validateInverseNameChange(data, companyState);
     companyState.set('companyName', data.previousCompanyName);
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data}))
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
 module.exports = {
@@ -466,6 +569,17 @@ module.exports = {
     },
 
     populateHistory: function(data, company){
+
+        const PERFORM_ACTION_MAP = {
+            [Transaction.types.AMEND]:  performInverseAmend,
+            [Transaction.types.ISSUE]:  performInverseIssue,
+            [Transaction.types.CONVERSION]:  performInverseConversion,
+            [Transaction.types.NEW_ALLOCATION]:  performInverseNewAllocation,
+            [Transaction.types.REMOVE_ALLOCATION]: performInverseRemoveAllocation,
+            [Transaction.types.NAME_CHANGE]: performInverseNameChange,
+            [Transaction.types.ANNUAL_RETURN]: validateAnnualReturn
+        };
+
         if(!data.actions){
             return;
         }
@@ -483,26 +597,10 @@ module.exports = {
                 return Promise.reduce(data.actions, function(arr, action){
                     sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId)
                     let result;
-                    switch(action.transactionType){
-                        case(Transaction.types.AMEND):
-                            result = performInverseAmend(action, rootState);
-                            break;
-                        case(Transaction.types.ISSUE):
-                            result = performInverseIssue(action, rootState);
-                            break;
-                        case(Transaction.types.CONVERSION):
-                            result = performInverseConversion(action, rootState);
-                            break;
-                        case(Transaction.types.NEW_ALLOCATION):
-                            result = performInverseNewAllocation(action, rootState);
-                            break;
-                        case(Transaction.types.REMOVE_ALLOCATION):
-                            result = performInverseRemoveAllocation(action, rootState);
-                            break;
-                        case(Transaction.types.NAME_CHANGE):
-                            result = performInverseNameChange(action, rootState);
-                            break;
-                        default:
+                    if(PERFORM_ACTION_MAP[action.transactionType]){
+                        result = PERFORM_ACTION_MAP[action.transactionType]({
+                            ...action, documentId: data.documentId
+                        }, rootState, data.effectiveDate);
                     }
                     if(result){
                         return result.then(function(r){
@@ -581,6 +679,7 @@ module.exports = {
     },
 
     processDocument: function(html, info={}){
+        sails.log.verbose('Processing file ', info.documentId)
         const $ = cheerio.load(html);
 
         let result = {};
@@ -646,7 +745,7 @@ module.exports = {
             allocations: $('div.allocationDetail').map(function(i, alloc){
                 return {
                     name: 'Allocation ' + $(this).find('span.allocationNumber').text(),
-                    shares: parseInt($(this).find('input[name="shares"]').val(), 0),
+                    shares: parseInt($(this).find('input[name="shares"]').val(), 10),
                     holders: _.chunk($(this).find('.labelValue').get(), 2)
                         .map(function(chunk){
                             chunk = [$(chunk[0]), $(chunk[1])];

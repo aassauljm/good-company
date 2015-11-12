@@ -324,8 +324,7 @@ module.exports = {
                             });
                             return {
                                 parcels: parcels,
-                                holders: holders,
-                                companyId: holding.companyId
+                                holders: holders
                             };
                         })};
 
@@ -341,6 +340,21 @@ module.exports = {
                     });
             },
 
+            cloneDirectors: function(){
+                return this.getDirectors({
+                        include: [{
+                            model: Person,
+                            as: 'person'
+                        }]
+                    })
+                    .then(function(directors){
+                        return {directors: directors.map(function(p){
+                            return p.get();
+                        })};
+                    });
+            },
+
+
             nonAssociativeFields: function(){
                 return _.omit(_.pick.apply(_, [this.dataValues].concat(_.keys(CompanyState.attributes))), 'id');
             },
@@ -348,12 +362,12 @@ module.exports = {
             buildNext: function(attr) {
                 var id = this.id;
                 var currentFields = this.nonAssociativeFields();
-                return Promise.join(this.cloneHoldings(), this.cloneUnallocated(),
-                        function(holdings, unallocatedParcels) {
+                return Promise.join(this.cloneHoldings(), this.cloneUnallocated(), this.cloneDirectors(),
+                        function(holdings, unallocatedParcels, directors) {
                         return CompanyState
                             .build(_.merge(currentFields, {
                                 previousCompanyStateId: id
-                            }, holdings, unallocatedParcels, attr), {
+                            }, holdings, unallocatedParcels, directors, attr), {
                                 include: CompanyState.includes.fullNoJunctions()
                             })
                     })
@@ -372,7 +386,11 @@ module.exports = {
                         state.get('unallocatedParcels').map(function(p){
                             p.isNewRecord = false;
                             p._changed = {};
-                        })
+                        });
+                        state.get('directors').map(function(p){
+                            p.isNewRecord = false;
+                            p._changed = {};
+                        });
                         return state;
                     })
             },
