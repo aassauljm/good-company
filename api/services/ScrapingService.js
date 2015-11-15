@@ -15,6 +15,7 @@ let DOCUMENT_TYPES = {
     NAME_CHANGE: 'NAME_CHANGE',
     ANNUAL_RETURN: 'ANNUAL_RETURN',
     ADDRESS_CHANGE: 'ADDRESS_CHANGE',
+    PARTICULARS_OF_DIRECTOR: 'PARTICULARS_OF_DIRECTOR',
     UNKNOWN: 'UNKNOWN',
 };
 
@@ -228,6 +229,21 @@ const EXTRACT_DOCUMENT_MAP = {
         }}).get()};
     },
 
+    [DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR]: ($) => {
+        const HEADING_MAP = {
+            'Updated Registered Office Address' : 'registeredCompanyAddress',
+            'Updated Address For Service': 'addressForService'
+        }
+
+        return {actions: $('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
+            return {
+                transactionType: $(el).is('#ceaseConfirm') ? Transaction.types.REMOVE_DIRECTOR : Transaction.types.NEW_DIRECTOR,
+                name: cleanString($(el).find('.directorName').text()),
+                address: cleanString($(el).find('.directorAddress').text()),
+                date: moment(cleanString($(el).find('.directorCeasedDate.value, .directorAppointmentDate').text()), 'DD/MM/YYYY').toDate(),
+        }}).get()};
+    },
+
     [DOCUMENT_TYPES.ANNUAL_RETURN]: ($) => {
         // This isn't really a transaction at the moment, but used for validation
         return {actions: [{
@@ -285,7 +301,7 @@ const EXTRACT_DOCUMENT_MAP = {
 
 const DOCUMENT_TYPE_MAP = {
     'Particulars of Director':{
-
+        type: DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR
     },
     'Particulars of Shareholding': {
         type: DOCUMENT_TYPES.PARTICULARS
@@ -337,8 +353,8 @@ function validateAnnualReturn(data, companyState, effectiveDate){
             }
             const state = companyState.toJSON();
             // extract address and name for directors
-            const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directors, (d)=>_.pick(d.person, 'name', 'address')), 'name'));
-            const expectedDirectors = JSON.stringify(_.sortBy(_.map(data.directors, (d)=>_.pick(d, 'name', 'address')), 'name'));
+            const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directors, (d)=>_.pick(d.person, 'name'/*, 'address'*/)), 'name'));
+            const expectedDirectors = JSON.stringify(_.sortBy(_.map(data.directors, (d)=>_.pick(d, 'name'/*, 'address'*/)), 'name'));
 
             function holdingToString(holdings){
                 return _.sortByAll(holdings.map((holding)=>{
@@ -351,8 +367,8 @@ function validateAnnualReturn(data, companyState, effectiveDate){
             const expectedHoldings = holdingToString(data.holdings)
 
             if(JSON.stringify(currentDirectors) != JSON.stringify(expectedDirectors)){
-                sails.log.error(JSON.stringify(currentDirectors))
-                sails.log.error(JSON.stringify(expectedDirectors))
+                sails.log.error('Current directors: '+JSON.stringify(currentDirectors) + 'documentId: ' +data.documentId)
+                sails.log.error('Expected directors: '+JSON.stringify(expectedDirectors))
                 //throw new sails.config.exceptions.InvalidInverseOperation('Directors do not match: ' +data.documentId);
             }
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
@@ -487,7 +503,7 @@ function performInverseRemoveAllocation(data, companyState, effectiveDate){
 
 function validateInverseNameChange(data, companyState, effectiveDate){
     if(data.newCompanyName !== companyState.companyName){
-        throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name')
+        throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name, documentId: ' +data.documentId)
     }
 }
 
@@ -499,13 +515,41 @@ function performInverseNameChange(data, companyState, effectiveDate){
 
 function validateInverseAddressChange(data, companyState, effectiveDate){
     if(normalizeAddress(data.newAddress) !== normalizeAddress(companyState[data.field])){
-        throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected name')
+        throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected name, documentId: ' +data.documentId)
     }
 }
 
 function performInverseAddressChange(data, companyState, effectiveDate){
     validateInverseAddressChange(data, companyState);
     companyState.set(data.field, data.previousAddress);
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
+}
+
+function validateNewDirector(data, companyState){
+    const director = _.find(companyState.dataValues.directors, function(d){
+        return d.person.name === data.name ; /*&& d.person.address === data.address */;
+    })
+    if(!director){
+        console.log(companyState.dataValues.directors.map(function(d){ return d.toJSON() }), data)
+        throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director, documentId: ' +data.documentId)
+    }
+}
+
+
+function performNewDirector(data, companyState, effectiveDate){
+    console.log("NEW", data)
+    validateNewDirector(data, companyState);
+    companyState.dataValues.directors = _.reject(companyState.dataValues.directors, function(d){
+        return d.person.name === data.name /*&&  && d.person.address == data.address */;
+    });
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
+}
+
+function performRemoveDirector(data, companyState, effectiveDate){
+    console.log("REMOVE", data)
+    companyState.dataValues.directors.push(Director.build({
+        appointment: effectiveDate, person: {name: data.name, address: data.address}},
+        {include: [{model: Person, as: 'person'}]}));
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
@@ -621,6 +665,8 @@ module.exports = {
             [Transaction.types.REMOVE_ALLOCATION]: performInverseRemoveAllocation,
             [Transaction.types.NAME_CHANGE]: performInverseNameChange,
             [Transaction.types.ADDRESS_CHANGE]: performInverseAddressChange,
+            [Transaction.types.NEW_DIRECTOR]: performNewDirector,
+            [Transaction.types.REMOVE_DIRECTOR]: performRemoveDirector,
             [Transaction.types.ANNUAL_RETURN]: validateAnnualReturn
         };
 
