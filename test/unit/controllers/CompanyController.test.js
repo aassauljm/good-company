@@ -71,15 +71,25 @@ describe('Company Controller', function() {
                     done();
                 });
         });
-        /*it('Renames company', function(done){
+        it('Renames company', function(done){
             req.post('/api/transaction/details/'+companyId)
                 .send({companyName: 'Pricewanker Limited', companyNumber: '666'})
                 .expect(200, done)
         });
-        it('Does a successful stubbed import', function(done){
+        it('Does a successful stubbed import without history', function(done){
             req.post('/api/company/import/companiesoffice/2109736')
-                .expect(200, done);
-        });*/
+                .send({history: false})
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+        });
+        it('Confirms no history is present', function(done){
+            req.get('/api/company/'+companyId+'/history/1')
+                .expect(500, done);
+        });
+
 
     });
     describe('Test import and previous state', function(){

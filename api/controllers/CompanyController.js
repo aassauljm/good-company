@@ -108,24 +108,26 @@ module.exports = {
                 .then(ScrapingService.populateDB)
                 .then(function(_company) {
                     company = _company;
-                    return ScrapingService.getDocumentSummaries(data)
-                })
-                .then(function(readDocuments) {
-                    return Promise.map(data.documents, function(doc) {
-                        var docData = _.find(readDocuments, {
-                            documentId: doc.documentId
-                        });
-                        return ScrapingService.processDocument(docData.text, doc)
-                    });
-                })
-                .then(function(processedDocs) {
-                    processedDocs = processedDocs.concat(ScrapingService.extraActions(data));
-                    var sortedDocs = ScrapingService.sortActions(processedDocs)
-                    sails.log.verbose('Processing ' + processedDocs.length + ' documents');
-                    return Promise.each(sortedDocs, function(doc) {
-                        return ScrapingService.populateHistory(doc, company);
-                    });
-                })
+                    if(actionUtil.parseValues(req)['history'] !== false){
+                        return ScrapingService.getDocumentSummaries(data)
+                        .then(function(readDocuments) {
+                            return Promise.map(data.documents, function(doc) {
+                                var docData = _.find(readDocuments, {
+                                    documentId: doc.documentId
+                                });
+                                return ScrapingService.processDocument(docData.text, doc)
+                            });
+                        })
+                        .then(function(processedDocs) {
+                            processedDocs = processedDocs.concat(ScrapingService.extraActions(data));
+                            var sortedDocs = ScrapingService.sortActions(processedDocs)
+                            sails.log.verbose('Processing ' + processedDocs.length + ' documents');
+                            return Promise.each(sortedDocs, function(doc) {
+                                return ScrapingService.populateHistory(doc, company);
+                            });
+                        })
+                    }
+                });
         })
         .then(function() {
             return res.json(company);
