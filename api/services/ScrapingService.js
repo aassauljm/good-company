@@ -676,7 +676,8 @@ module.exports = {
                 currentRoot = _rootState;
                 return currentRoot.buildPrevious({transaction:
                     {type: Transaction.types.COMPOUND,
-                        data: _.omit(data, 'actions')
+                        data: _.omit(data, 'actions'),
+                        effectiveDate: data.effectiveDate
                     }})
             })
             .then(function(_rootState){

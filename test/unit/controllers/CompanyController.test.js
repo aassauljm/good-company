@@ -110,7 +110,8 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/history/1')
                 .expect(200)
                 .then(function(res){
-                    res.body.companyState.companyName.should.be.equal('TESTED ON CHILDREN LIMITED')
+                    res.body.companyState.companyName.should.be.equal('TESTED ON CHILDREN LIMITED');
+                    res.body.companyState.directors.length.should.be.equal(2);
                     done();
                 });
         });

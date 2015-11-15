@@ -55,3 +55,15 @@ export function setFetch(func){
     _fetch = func;
 }
 
+
+export function numberWithCommas(x) {
+    const parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+}
+
+export function stringToDate(date){
+    const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const d = new Date(date);
+    return [d.getDate() , MONTHS[d.getMonth()] , g.getYear()].join(' ');
+}

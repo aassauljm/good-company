@@ -196,6 +196,7 @@ module.exports = {
                         [{model: Holding, as: 'holdings'}, 'id', 'ASC'],
                         [{model: Holding, as: 'holdings'}, {model: Parcel, as: 'parcels'}, 'shareClass', 'ASC'],
                         [{model: Holding, as: 'holdings'}, {model: Person, as: 'holders'}, 'name', 'ASC'],
+                        [{model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC'],
                     ]
                 }
             },
@@ -349,7 +350,7 @@ module.exports = {
                     })
                     .then(function(directors){
                         return {directors: directors.map(function(p){
-                            return p.get();
+                            return _.omit(p.get(), 'id', 'companyStateId');
                         })};
                     });
             },
@@ -388,8 +389,8 @@ module.exports = {
                             p._changed = {};
                         });
                         state.get('directors').map(function(p){
-                            p.isNewRecord = false;
-                            p._changed = {};
+                            p.person.isNewRecord = false;
+                            p.person._changed = {};
                         });
                         return state;
                     })
