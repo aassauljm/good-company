@@ -15,7 +15,7 @@ let DOCUMENT_TYPES = {
     NAME_CHANGE: 'NAME_CHANGE',
     ANNUAL_RETURN: 'ANNUAL_RETURN',
     ADDRESS_CHANGE: 'ADDRESS_CHANGE',
-    PARTICULARS_OF_DIRECTOR: 'PARTICULARS_OF_DIRECTOR',
+    //PARTICULARS_OF_DIRECTOR: 'PARTICULARS_OF_DIRECTOR',
     UNKNOWN: 'UNKNOWN',
 };
 
@@ -301,7 +301,7 @@ const EXTRACT_DOCUMENT_MAP = {
 
 const DOCUMENT_TYPE_MAP = {
     'Particulars of Director':{
-        type: DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR
+        //type: DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR
     },
     'Particulars of Shareholding': {
         type: DOCUMENT_TYPES.PARTICULARS
@@ -369,7 +369,7 @@ function validateAnnualReturn(data, companyState, effectiveDate){
             if(JSON.stringify(currentDirectors) != JSON.stringify(expectedDirectors)){
                 sails.log.error('Current directors: '+JSON.stringify(currentDirectors) + 'documentId: ' +data.documentId)
                 sails.log.error('Expected directors: '+JSON.stringify(expectedDirectors))
-                //throw new sails.config.exceptions.InvalidInverseOperation('Directors do not match: ' +data.documentId);
+                throw new sails.config.exceptions.InvalidInverseOperation('Directors do not match: ' +data.documentId);
             }
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
                 sails.log.error(JSON.stringify(currentHoldings))
@@ -530,14 +530,12 @@ function validateNewDirector(data, companyState){
         return d.person.name === data.name ; /*&& d.person.address === data.address */;
     })
     if(!director){
-        console.log(companyState.dataValues.directors.map(function(d){ return d.toJSON() }), data)
         throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director, documentId: ' +data.documentId)
     }
 }
 
 
 function performNewDirector(data, companyState, effectiveDate){
-    console.log("NEW", data)
     validateNewDirector(data, companyState);
     companyState.dataValues.directors = _.reject(companyState.dataValues.directors, function(d){
         return d.person.name === data.name /*&&  && d.person.address == data.address */;
@@ -546,7 +544,6 @@ function performNewDirector(data, companyState, effectiveDate){
 }
 
 function performRemoveDirector(data, companyState, effectiveDate){
-    console.log("REMOVE", data)
     companyState.dataValues.directors.push(Director.build({
         appointment: effectiveDate, person: {name: data.name, address: data.address}},
         {include: [{model: Person, as: 'person'}]}));
@@ -685,7 +682,7 @@ module.exports = {
             .then(function(_rootState){
                 rootState = _rootState;
                 return Promise.reduce(data.actions, function(arr, action){
-                    sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId)
+                    sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                     let result;
                     if(PERFORM_ACTION_MAP[action.transactionType]){
                         result = PERFORM_ACTION_MAP[action.transactionType]({
@@ -782,7 +779,49 @@ module.exports = {
         return {...result, ...info, date: moment(info.date, 'DD MMM YYYY HH:mm').toDate()}
     },
 
-    sortDocuments: function(docs){
+    extraActions: function(data){
+        // right now, this is just directorships
+
+        const results = [];
+
+        data.directors.forEach(d => {
+            const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
+            results.push({
+                actions: [{
+                    transactionType: Transaction.types.NEW_DIRECTOR,
+                    name: d.fullName,
+                    address: d.residentialAddress,
+                    date: date
+                }],
+                date: date,
+            });
+        });
+        data.formerDirectors.forEach(d => {
+            const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY').toDate(),
+                ceasedDate = moment(d.ceasedDate, 'DD MMM YYYY').toDate();
+            results.push({
+                actions: [{
+                    transactionType: Transaction.types.NEW_DIRECTOR,
+                    name: d.fullName,
+                    address: d.residentialAddress,
+                    date: appointmentDate
+                }],
+                date: appointmentDate,
+            });
+            results.push({
+                actions: [{
+                    transactionType: Transaction.types.REMOVE_DIRECTOR,
+                    name: d.fullName,
+                    address: d.residentialAddress,
+                    date: ceasedDate
+                }],
+                date: ceasedDate,
+            });
+        });
+        return results;
+    },
+
+    sortActions: function(docs){
         _.map(docs, (d)=> {
             let date = d.date;
             d.effectiveDate = _.min(d.actions || [], (a) => a.date ? a.date : date).date || date;

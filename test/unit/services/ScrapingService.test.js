@@ -150,7 +150,8 @@ describe('Scraping Service', function() {
 
                 })
                 .then(function(documentSummaries){
-                    var sortedDocs = ScrapingService.sortDocuments(documentSummaries)
+                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data));
+                    var sortedDocs = ScrapingService.sortActions(documentSummaries)
                     return Promise.each(sortedDocs, function(doc){
                         return ScrapingService.populateHistory(doc, company);
                     });

@@ -71,7 +71,7 @@ describe('Company Controller', function() {
                     done();
                 });
         });
-        it('Renames company', function(done){
+        /*it('Renames company', function(done){
             req.post('/api/transaction/details/'+companyId)
                 .send({companyName: 'Pricewanker Limited', companyNumber: '666'})
                 .expect(200, done)
@@ -79,7 +79,7 @@ describe('Company Controller', function() {
         it('Does a successful stubbed import', function(done){
             req.post('/api/company/import/companiesoffice/2109736')
                 .expect(200, done);
-        });
+        });*/
 
     });
     describe('Test import and previous state', function(){

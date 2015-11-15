@@ -119,8 +119,8 @@ module.exports = {
                     });
                 })
                 .then(function(processedDocs) {
-                    // Sort by date, then by documentId
-                    var sortedDocs = ScrapingService.sortDocuments(processedDocs)
+                    processedDocs = processedDocs.concat(ScrapingService.extraActions(data));
+                    var sortedDocs = ScrapingService.sortActions(processedDocs)
                     sails.log.verbose('Processing ' + processedDocs.length + ' documents');
                     return Promise.each(sortedDocs, function(doc) {
                         return ScrapingService.populateHistory(doc, company);
