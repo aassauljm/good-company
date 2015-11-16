@@ -7,7 +7,7 @@ import ButtonInput from './forms/buttonInput';
 import LookupCompany from  './lookupCompany';
 import AuthenticatedComponent from  './authenticated';
 import { Link } from 'react-router';
-
+import STRINGS from '../strings'
 
 @connect(state => state.resources.companies)
 @AuthenticatedComponent
@@ -22,12 +22,13 @@ export default class Companies extends React.Component {
     }
 
     render() {
-        const fields = ['id', 'companyName'];
+        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
         return <div>
         <LookupCompany />
-        <table className="table">
-        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th></tr></thead>
+        <div className="table-responsive">
+        <table className="table table-striped">
+        <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }<th></th></tr></thead>
         <tbody>
         { data.map(
             (row, i) => <tr key={i}>
@@ -37,6 +38,8 @@ export default class Companies extends React.Component {
         </tbody>
         </table>
         </div>
+        </div>
+
     }
 }
 
