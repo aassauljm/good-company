@@ -50,6 +50,7 @@ export const IMPORT_COMPANY_REQUEST = 'IMPORT_COMPANY_REQUEST';
 export const IMPORT_COMPANY_SUCCESS = 'IMPORT_COMPANY_SUCCESS';
 export const IMPORT_COMPANY_FAILURE = 'IMPORT_COMPANY_FAILURE';
 
+export const COMPANY_TAB_CHANGE = 'COMPANY_TAB_CHANGE';
 
 const json_headers = {
     'Accept': 'application/json',
@@ -59,6 +60,10 @@ const json_headers = {
 const accept_json_headers = {
     'Accept': 'application/json'
 };
+
+export function changeCompanyTab(tabIndex){
+    return {type: COMPANY_TAB_CHANGE, tabIndex};
+}
 
 export function addNotification(data){
     return {type: ADD_NOTIFICATION, data};

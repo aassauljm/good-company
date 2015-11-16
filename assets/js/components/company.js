@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import {requestResource, deleteResource} from '../actions';
+import {requestResource, changeCompanyTab} from '../actions';
 import { pureRender, numberWithCommas } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -8,14 +8,19 @@ import LookupCompany from  './lookupCompany';
 import AuthenticatedComponent from  './authenticated';
 import { Link } from 'react-router';
 import { PieChart } from 'react-d3/piechart';
+import Tabs from 'react-bootstrap/lib/Tabs';
+import Tab from 'react-bootstrap/lib/Tab';
+
 
 @pureRender
 class Holding extends React.Component {
     render(){
+        const total = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
+            percentage = (total/this.props.total*100).toFixed(2) + '%';
         return <div className="holding">
             <dl className="dl-horizontal">
                 <dt className="col-sm-3">Total Shares</dt>
-                <dd className="col-sm-9">{numberWithCommas(this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0))}</dd>
+                <dd className="col-sm-9">{numberWithCommas(total) + ' ' + percentage}</dd>
                 <dt className="col-sm-3">Holders</dt>
                 { this.props.holding.holders.map((holder, i) =>
                     <dd key={i} className={"col-sm-9" + (i>0 ? " col-sm-offset-3" : '')}>{holder.name} <br/>
@@ -27,7 +32,7 @@ class Holding extends React.Component {
 
 @pureRender
 class Director extends React.Component {
-    render(){
+    render() {
         return <div className="director">
             <dl className="dl-horizontal">
                 <dt className="col-sm-3">Name</dt>
@@ -41,14 +46,65 @@ class Director extends React.Component {
     }
 }
 
+@pureRender
+class Directors extends React.Component {
+    render() {
+        return <div className="row">
+            <div className="col-md-6">
+                { this.props.directors.map((director, i) => <Director key={i} director={director} />)}
+            </div>
+        </div>
+    }
+}
+
+@pureRender
+class Holdings extends React.Component {
+
+    groupHoldings() {
+        const total = this.props.totalAllocatedShares;
+        return this.props.holdings.map(holding => ({
+            value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
+            label: holding.holders.map(h => h.name).join(', ')
+        }));
+    }
+
+    render() {
+        return <div className="row">
+            <div className="col-md-6">
+                { this.props.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.totalShares}/>)}
+            </div>
+            <div className="col-md-6 text-center">
+
+            <PieChart
+                  data={this.groupHoldings()}
+                  width={400}
+                  height={400}
+                  radius={100}
+                  innerRadius={20}
+                  sectorBorderColor="white"
+                  showInnerLabels={false}
+                  showOuterLabels={false}
+                />
+            </div>
+        </div>
+    }
+}
+
+
+
+
+
 
 @connect((state, ownProps) => {
+    let comp;
     if(ownProps.params.generation){
-        return state.resources['/company/'+ownProps.params.id +'/history/'+ownProps.params.generation] || {data: {}};
+        comp = state.resources['/company/'+ownProps.params.id +'/history/'+ownProps.params.generation];
+
     }
     else{
-        return state.resources['/company/'+ownProps.params.id +'/get_info'] || {data: {}};;
+        comp = state.resources['/company/'+ownProps.params.id +'/get_info'];
     }
+    return {data: {}, companyPage: state.companyPage, ...comp};
 })
 @AuthenticatedComponent
 export default class Company extends React.Component {
@@ -79,15 +135,12 @@ export default class Company extends React.Component {
         this.fetch();
     }
 
-    groupHoldings(companyState){
-        const total = companyState.totalAllocatedShares;
-        return companyState.holdings.map(holding => ({
-            value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
-            label: holding.holders.map(h => h.name).join(', ')
-        }));
+    handleTabSelect(key) {
+        this.props.dispatch(changeCompanyTab(key));
     }
 
     renderData() {
+        console.log(this.props.companyPage)
         const data = this.props.data || {};
         const current = data.currentCompanyState || data.companyState;
         if(!current){
@@ -126,29 +179,14 @@ export default class Company extends React.Component {
 
 
                 </dl>
-                <div className="row">
-                    <div className="col-md-6">
-                        { current.directors.map((director, i) => <Director key={i} director={director} />)}
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-6">
-                        { current.holdings.map((holding, i) => <Holding key={i} holding={holding} />)}
-                    </div>
-                    <div className="col-md-6 text-center">
-
-                    <PieChart
-                          data={this.groupHoldings(current)}
-                          width={400}
-                          height={400}
-                          radius={100}
-                          innerRadius={20}
-                          sectorBorderColor="white"
-                          showInnerLabels={false}
-                          showOuterLabels={false}
-                        />
-                    </div>
-                </div>
+                <Tabs activeKey={this.props.companyPage.tabIndex } onSelect={::this.handleTabSelect}>
+                    <Tab eventKey={0} title="Shareholdings"><Holdings holdings={current.holdings}
+                        totalShares={current.totalShares}
+                        totalAllocatedShares={current.totalAllocatedShares}/></Tab>
+                    <Tab eventKey={1} title="Directors"><Directors directors={current.directors}/></Tab>
+                    <Tab eventKey={2} title="Documents"><Directors directors={current.directors}/></Tab>
+                    <Tab eventKey={3} title="History"><Directors directors={current.directors}/></Tab>
+                </Tabs>
             </div>
     }
 

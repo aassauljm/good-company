@@ -10,7 +10,8 @@ import {
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
-    IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE
+    IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
+    COMPANY_TAB_CHANGE
      } from './actions'
 import { reducer as formReducer } from 'redux-form';
 import { routerStateReducer } from 'redux-router';
@@ -90,6 +91,14 @@ function importCompany(state = {}, action){
     }
 }
 
+function companyPage(state = {tabIndex: 0}, action){
+    switch(action.type){
+        case COMPANY_TAB_CHANGE:
+            return {...state, tabIndex: action.tabIndex};
+        default:
+            return state;
+    }
+}
 
 
 const default_resources = {users: {}, roles: {}, documents: {}, companies: {}}
@@ -202,6 +211,7 @@ const form = formReducer.plugin({
 
 const appReducer = combineReducers({
   router: routerStateReducer,
+  companyPage,
   lookupCompany,
   importCompany,
   login,
