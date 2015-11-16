@@ -17,13 +17,13 @@ class Holding extends React.Component {
     render(){
         const total = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (total/this.props.total*100).toFixed(2) + '%';
-        return <div className="holding">
+        return <div className="holding well">
             <dl className="dl-horizontal">
-                <dt className="col-sm-3">Total Shares</dt>
-                <dd className="col-sm-9">{numberWithCommas(total) + ' ' + percentage}</dd>
-                <dt className="col-sm-3">Holders</dt>
+                <dt >Total Shares</dt>
+                <dd >{numberWithCommas(total) + ' ' + percentage}</dd>
+                <dt >Holders</dt>
                 { this.props.holding.holders.map((holder, i) =>
-                    <dd key={i} className={"col-sm-9" + (i>0 ? " col-sm-offset-3" : '')}>{holder.name} <br/>
+                    <dd key={i} >{holder.name} <br/>
                     <span className="address">{holder.address}</span></dd>) }
             </dl>
         </div>
@@ -33,14 +33,14 @@ class Holding extends React.Component {
 @pureRender
 class Director extends React.Component {
     render() {
-        return <div className="director">
+        return <div className="director well">
             <dl className="dl-horizontal">
-                <dt className="col-sm-3">Name</dt>
-                <dd className="col-sm-9">{ this.props.director.person.name}</dd>
-                <dt className="col-sm-3">Address</dt>
-                <dd className="col-sm-9"><span className="address">{ this.props.director.person.address}</span></dd>
-                <dt className="col-sm-3">Appointment</dt>
-                <dd className="col-sm-9">{ new Date(this.props.director.appointment).toDateString() }</dd>
+                <dt >Name</dt>
+                <dd >{ this.props.director.person.name}</dd>
+                <dt >Address</dt>
+                <dd ><span className="address">{ this.props.director.person.address}</span></dd>
+                <dt >Appointment</dt>
+                <dd >{ new Date(this.props.director.appointment).toDateString() }</dd>
             </dl>
         </div>
     }
@@ -90,8 +90,60 @@ class Holdings extends React.Component {
     }
 }
 
+@connect((state, ownProps) => {
+    return {data: {}, ...state.resources['/company/'+ownProps.companyId +'/transactions']}
+})
+class TransactionHistory extends React.Component {
 
+    fetch() {
+        return this.props.dispatch(requestResource('/company/'+this.props.companyId+'/transactions'))
+    }
 
+    componentDidMount() {
+        this.fetch();
+    }
+
+    componentDidUpdate() {
+        this.fetch();
+    }
+
+    rows(transactions) {
+        const rows = [];
+        transactions.map((t, i) => {
+            const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
+            rows.push(<tr key={i}>
+                <td rowSpan={rowSpan}>{ t.transaction.transactionId }</td>
+                <td rowSpan={rowSpan}>{ new Date(t.transaction.effectiveDate).toDateString() }</td>
+                <td rowSpan={rowSpan}>{ t.transaction.type }</td>
+            </tr>);
+            (t.transaction.subTransactions || []).map((t, j) => {
+                rows.push(<tr key={i+'-'+j} ><td>{t.type}</td></tr>)
+            });
+        });
+        console.log(rows)
+        return rows;
+    }
+
+    render() {
+        const transactions = (this.props.data || {}).transactions;
+        if(!transactions){
+            return <div className="loading"></div>
+        }
+        return <div>
+                <table className="table table-hover">
+                <thead><tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Subtype</th>
+                </tr></thead>
+                <tbody>
+                    {this.rows(transactions) }
+                </tbody>
+                </table>
+            </div>
+    }
+}
 
 
 
@@ -140,7 +192,6 @@ export default class Company extends React.Component {
     }
 
     renderData() {
-        console.log(this.props.companyPage)
         const data = this.props.data || {};
         const current = data.currentCompanyState || data.companyState;
         if(!current){
@@ -148,44 +199,49 @@ export default class Company extends React.Component {
         }
         const generation = Number(this.props.params.generation) || 0;
         return <div>
+                <ul className="pager">
                 { current.previousCompanyStateId ?
-                    <Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation+1)} >Previous Version</Link> : null}
+                    <li className="previous"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation+1)} >← Previous Version</Link></li> : null}
 
                 { generation > 1 ?
-                    <Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation-1)} >Next Version</Link> : null}
+                    <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation-1)} >Next Version →</Link></li> : null}
 
                 { generation === 1 ?
-                    <Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >Current Version</Link> : null}
+                    <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >Current Version</Link></li> : null}
 
+              </ul>
                 <div className="jumbotron">
+                { generation ? <h4>As at {new Date(current.transaction.effectiveDate).toDateString() }</h4> : null}
                     <h1>{current.companyName}</h1>
                     <h5>#{current.companyNumber}, {current.companyStatus}</h5>
                 </div>
+                <div className="well">
                 <dl className="dl-horizontal">
-                    <dt className="col-sm-3">NZ Business Number</dt>
-                    <dd className="col-sm-9">{current.nzbn ||  'Unknown'}</dd>
+                    <dt >NZ Business Number</dt>
+                    <dd >{current.nzbn ||  'Unknown'}</dd>
 
-                    <dt className="col-sm-3">Incorporation Date</dt>
-                    <dd className="col-sm-9">{new Date(current.incorporationDate).toDateString()}</dd>
+                    <dt >Incorporation Date</dt>
+                    <dd >{new Date(current.incorporationDate).toDateString()}</dd>
 
-                    <dt className="col-sm-3">Total Shares</dt>
-                    <dd className="col-sm-9">{numberWithCommas(current.totalShares)}</dd>
+                    <dt >Total Shares</dt>
+                    <dd >{numberWithCommas(current.totalShares)}</dd>
 
-                    <dt className="col-sm-3">AR Filing Month</dt>
-                    <dd className="col-sm-9">{current.arFilingMonth}</dd>
+                    <dt >AR Filing Month</dt>
+                    <dd >{current.arFilingMonth}</dd>
 
-                    <dt className="col-sm-3">Entity Type</dt>
-                    <dd className="col-sm-9">{current.entityType}</dd>
+                    <dt >Entity Type</dt>
+                    <dd >{current.entityType}</dd>
 
 
                 </dl>
+                </div>
                 <Tabs activeKey={this.props.companyPage.tabIndex } onSelect={::this.handleTabSelect}>
                     <Tab eventKey={0} title="Shareholdings"><Holdings holdings={current.holdings}
                         totalShares={current.totalShares}
                         totalAllocatedShares={current.totalAllocatedShares}/></Tab>
                     <Tab eventKey={1} title="Directors"><Directors directors={current.directors}/></Tab>
                     <Tab eventKey={2} title="Documents"><Directors directors={current.directors}/></Tab>
-                    <Tab eventKey={3} title="History"><Directors directors={current.directors}/></Tab>
+                    <Tab eventKey={3} title="History"><TransactionHistory companyId={this.key()} /></Tab>
                 </Tabs>
             </div>
     }

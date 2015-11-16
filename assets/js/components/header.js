@@ -101,7 +101,7 @@ export default class Header extends React.Component {
     render() {
         return  <nav className="navbar-dark bg-inverse navbar-static-top  navbar navbar-default">
             <div className="container">
-                <a className="navbar-brand" href="#">Title</a>
+                <a className="navbar-brand" href="#">Good Company</a>
                 {this.showMenus() }
                 <ul className="nav navbar-nav pull-right">
                 { this.showAccount() }

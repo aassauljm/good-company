@@ -69,7 +69,23 @@ module.exports = {
                     return CompanyState.findById(id[0]['root_company_state'],
                                                 {include: CompanyState.includes.fullNoJunctions(), order: CompanyState.ordering.full()});
                 });
-            }
+            },
+            getTransactionHistory: function(){
+                return sequelize.query("select  company_state_history_json(:id) as transaction",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId}})
+                .then(function(transactions){
+                    if(!transactions.length){
+                        throw new sails.config.exceptions.CompanyStateNotFound();
+                    }
+                    return transactions;
+                });
+            },
+
+
+
+
+
         },
         hooks: {
             afterCreate: [

@@ -92,6 +92,17 @@ module.exports = {
                 return res.serverError(err);
             });
     },
+    transactionHistory: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                return company.getTransactionHistory()
+            })
+            .then(function(transactions) {
+                res.json({transactions: transactions});
+            }).catch(function(err) {
+                return res.serverError(err);
+            });
+    },
     import: function(req, res) {
         // for now, just companies office
         var data, company;
