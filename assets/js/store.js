@@ -43,7 +43,7 @@ const createStoreWithMiddleware = __DEV__ ?
             // Provides support for DevTools:
                DevTools.instrument(),
               // Lets you write ?debug_session=<name> in address bar to persist debug sessions
-              persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
+              persistState('dev')
         )(createStore)
         :
         compose(
