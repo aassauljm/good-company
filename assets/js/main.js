@@ -5,6 +5,7 @@ import "../styles/style.scss";
 import Root from "./root"
 import configureStore from './store';
 import DevTools from './components/devTools'
+import 'react-date-picker/index.css';
 
 let mountNode = document.getElementById("main");
 if (mountNode){

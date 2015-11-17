@@ -26,7 +26,7 @@ module.exports = {
             loader: "babel-loader",
             query: {stage: 0}
         }, {
-            test: /\.scss$/,
+            test: /\.(scss|css)$/,
             loader: ExtractTextPlugin.extract(
                 // activate source maps via loader query
                 'css?sourceMap!' +

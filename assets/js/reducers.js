@@ -21,6 +21,14 @@ const initialState = {
 
 };
 
+function companySchema(){
+    return {
+        directors: [],
+        holders:[]
+    }
+}
+
+
 
 function login(state = {
     loggedIn: false
@@ -101,7 +109,7 @@ function companyPage(state = {tabIndex: 0}, action){
     }
 }
 
-function modals(state = {createCompany: {index: 0}}, action){
+function modals(state = {createCompany: {index: 0, data: companySchema() }}, action){
     switch(action.type){
         case START_CREATE_COMPANY:
             return {...state, showing: 'createCompany', createCompany: {index: 0}};
