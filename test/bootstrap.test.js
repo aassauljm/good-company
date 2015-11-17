@@ -55,7 +55,8 @@ function stubs(){
 }
 
 function dom(){
-    global.__DEV__ = process.env.NODE_ENV !== 'production';
+    global.__DEV__ = false;
+
 
     // setup the simplest document possible
     var doc = jsdom.jsdom('<!doctype html><html><body><div id="main"></div></body></html>', {url: 'http://localhost:1338/'});

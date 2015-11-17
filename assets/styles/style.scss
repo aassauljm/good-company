@@ -1,3 +1,5 @@
+// https://bootswatch.com/flatly/
+
 
 // Core variables and mixins
 //@import "~bootstrap-sass/assets/stylesheets/bootstrap/variables";
@@ -88,3 +90,8 @@ nav.navbar{
     font-size: 0.8em;
     font-style: italic;
 }
+
+.text-center.btn-toolbar .btn{
+    float:none;
+}
+

@@ -8,6 +8,7 @@ import { pushState, replaceState } from 'redux-router';
 import DropZone from 'react-dropzone';
 import { createResource } from '../actions'
 import Notifications from './notifications';
+import Modals from './modals';
 
 
 @connect(state => { return {login: state.login, userInfo: state.userInfo} })
@@ -35,8 +36,9 @@ export default class App extends React.Component {
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
                 <DropZone  onDrop={::this.onDrop} disableClick={true} style={{}}>
              <Notifications/>
+             <Modals />
             <div className="container">
-                    { this.props.children }
+                { this.props.children }
              </div>
             </DropZone>
         </div>

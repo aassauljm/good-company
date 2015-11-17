@@ -11,8 +11,9 @@ import {
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
-    COMPANY_TAB_CHANGE
-     } from './actions'
+    COMPANY_TAB_CHANGE,
+    START_CREATE_COMPANY, END_CREATE_COMPANY, NEXT_CREATE_COMPANY
+     } from './actions';
 import { reducer as formReducer } from 'redux-form';
 import { routerStateReducer } from 'redux-router';
 
@@ -95,6 +96,19 @@ function companyPage(state = {tabIndex: 0}, action){
     switch(action.type){
         case COMPANY_TAB_CHANGE:
             return {...state, tabIndex: action.tabIndex};
+        default:
+            return state;
+    }
+}
+
+function modals(state = {createCompany: {index: 0}}, action){
+    switch(action.type){
+        case START_CREATE_COMPANY:
+            return {...state, showing: 'createCompany', createCompany: {index: 0}};
+        case END_CREATE_COMPANY:
+            return {...state, showing: null};
+        case NEXT_CREATE_COMPANY:
+            return {...state,  createCompany: {index: state.createCompany.index + 1}};
         default:
             return state;
     }
@@ -206,7 +220,11 @@ const form = formReducer.plugin({
     },
     lookupCompany: (state, action) => {
         return state;
+    },
+    createCompany: (state, action) => {
+        return state;
     }
+
 });
 
 const appReducer = combineReducers({
@@ -218,7 +236,8 @@ const appReducer = combineReducers({
   userInfo,
   resources,
   form,
-  notifications
+  notifications,
+  modals
 });
 
 

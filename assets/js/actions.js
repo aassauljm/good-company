@@ -52,6 +52,11 @@ export const IMPORT_COMPANY_FAILURE = 'IMPORT_COMPANY_FAILURE';
 
 export const COMPANY_TAB_CHANGE = 'COMPANY_TAB_CHANGE';
 
+export const START_CREATE_COMPANY = 'START_CREATE_COMPANY';
+export const END_CREATE_COMPANY = 'END_CREATE_COMPANY';
+export const NEXT_CREATE_COMPANY = 'START_CREATE_COMPANY';
+
+
 const json_headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -188,4 +193,23 @@ export function importCompany(companyNumber) {
         shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
         payload: {companyNumber: companyNumber}
     };
+}
+
+
+export function startCreateCompany(){
+    return {
+        type: START_CREATE_COMPANY
+    }
+}
+
+export function endCreateCompany(){
+    return {
+        type: END_CREATE_COMPANY
+    }
+}
+
+export function nextCreateCompany(){
+    return {
+        type: NEXT_CREATE_COMPANY
+    }
 }

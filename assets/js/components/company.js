@@ -1,5 +1,5 @@
 "use strict";
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {requestResource, changeCompanyTab} from '../actions';
 import { pureRender, numberWithCommas } from '../utils';
 import { connect } from 'react-redux';
@@ -14,6 +14,9 @@ import Tab from 'react-bootstrap/lib/Tab';
 
 @pureRender
 class Holding extends React.Component {
+    static propTypes = {
+        holding: PropTypes.object.isRequired,
+    };
     render(){
         const total = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (total/this.props.total*100).toFixed(2) + '%';
@@ -32,6 +35,9 @@ class Holding extends React.Component {
 
 @pureRender
 class Director extends React.Component {
+    static propTypes = {
+        director: PropTypes.object.isRequired,
+    };
     render() {
         return <div className="director well">
             <dl className="dl-horizontal">
@@ -48,6 +54,9 @@ class Director extends React.Component {
 
 @pureRender
 class Directors extends React.Component {
+    static propTypes = {
+        directors: PropTypes.array.isRequired,
+    };
     render() {
         return <div className="row">
             <div className="col-md-6">
@@ -59,6 +68,9 @@ class Directors extends React.Component {
 
 @pureRender
 class Holdings extends React.Component {
+    static propTypes = {
+        holdings: PropTypes.array.isRequired,
+    };
 
     groupHoldings() {
         const total = this.props.totalAllocatedShares;
@@ -94,6 +106,9 @@ class Holdings extends React.Component {
     return {data: {}, ...state.resources['/company/'+ownProps.companyId +'/transactions']}
 })
 class TransactionHistory extends React.Component {
+    static propTypes = {
+        data: PropTypes.object.isRequired,
+    };
 
     fetch() {
         return this.props.dispatch(requestResource('/company/'+this.props.companyId+'/transactions'))
@@ -120,7 +135,6 @@ class TransactionHistory extends React.Component {
                 rows.push(<tr key={i+'-'+j} ><td>{t.type}</td></tr>)
             });
         });
-        console.log(rows)
         return rows;
     }
 
@@ -160,7 +174,10 @@ class TransactionHistory extends React.Component {
 })
 @AuthenticatedComponent
 export default class Company extends React.Component {
-
+    static propTypes = {
+        companyPage: PropTypes.object.isRequired,
+        data: PropTypes.object.isRequired
+    };
     key() {
         return this.props.params.id
     }

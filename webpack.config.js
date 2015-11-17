@@ -1,7 +1,7 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var webpack = require('webpack')
 var definePlugin = new webpack.DefinePlugin({
-  __DEV__: process.env.NODE_ENV!=='production'
+  __DEV__: process.env.NODE_ENV !=='production'
 });
 
 module.exports = {
