@@ -4,10 +4,14 @@ import ReactDOM from 'react-dom';
 import "../styles/style.scss";
 import Root from "./root"
 import configureStore from './store';
+import DevTools from './components/devTools'
 
 let mountNode = document.getElementById("main");
 if (mountNode){
-    ReactDOM.render(<Root store={configureStore()}/>, mountNode);
+    ReactDOM.render(<Root store={configureStore()}>
+                       { __DEV__  ?  <DevTools /> : null }
+                    </Root>
+                    , mountNode);
 }
 
 
