@@ -10,10 +10,7 @@ import STRINGS from '../strings'
 import DatePicker from 'react-date-picker';
 import { fieldStyle, requiredFields } from '../utils';
 
-//import bindActionData from 'redux-form/lib/bindActionData';
-//import {touch} from 'redux-form/lib/actions';
-//import readFields from 'redux-form/lib/readFields';
-
+// WARNING, REFHACKS needs to be removed and worked around, somehow
 
 
 export class Address extends React.Component {
@@ -21,7 +18,6 @@ export class Address extends React.Component {
         return <Input type="text" {...this.props}/>
     }
 }
-
 
 export class DateInput extends React.Component {
 
@@ -32,22 +28,95 @@ export class DateInput extends React.Component {
     }
 }
 
-
-export class DirectorForm extends React.Component {
+export class HoldingForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object
     };
 
     componentWillMount(nextProps) {
-        this.props.REFHACK.form = this;
+        this.props.register(this);
     };
 
     render() {
         const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
         const { fields: {name, address } } = this.props;
         return <div className="panel panel-default">
-            <div className="panel-heading">Director
-                <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={() => this.props.remove('directors', this.props.listKey)}><span aria-hidden="true">&times;</span></Button>
+                <div className="panel-heading">
+                    { this.props.title }
+                    <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={this.props.remove}><span aria-hidden="true">&times;</span></Button>
+                </div>
+                <div className="panel-body">
+                    Hi
+                </div>
+            </div>
+
+    }
+}
+
+const DecoratedHoldingForm = reduxForm({
+  form: 'holding',
+  fields: [],
+  destroyOnUnmount: false
+})(HoldingForm)
+
+
+export class HoldingsPage extends React.Component {
+    static propTypes = {
+        formData: React.PropTypes.object
+    };
+
+    REFHACK = {};
+
+    getKey(d) {
+        return `${this.props.formKey}.holdings[${d}]`;
+    }
+
+    touchAll() {
+        this.props.holdingKeys.map((d, i) => {
+            this.REFHACK[d].props.touchAll();
+        });
+    }
+
+    isValid() {
+        return  this.props.holdingKeys.map((d, i) => {
+            return this.REFHACK[d].props.valid;
+        }).every(x => x)
+    }
+
+    render() {
+        return <form className="form-horizontal">
+                   <fieldset>
+                    <legend>Shareholdings</legend>
+                        { this.props.holdingKeys.map((d, i) => {
+                            this.REFHACK[d] = this.REFHACK[d] || {};
+                            return <DecoratedHoldingForm ref={d} key={d} title={`Allocation #${i+1}`} formKey={this.getKey(d)}
+                            remove={() => this.props.removeListEntry('holdings', d)}
+                            register={(child) => this.REFHACK[d] = child} />
+                        })}
+                    <div className="text-center"><Button bsStyle="success" onClick={
+                        () => {this.props.addListEntry('holdings') }
+                    }>Add New Shareholding</Button></div>
+                </fieldset>
+            </form>
+    }
+}
+
+export class PersonForm extends React.Component {
+    static propTypes = {
+        fields: React.PropTypes.object
+    };
+
+    componentWillMount(nextProps) {
+        this.props.register(this);
+    };
+
+    render() {
+        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
+        const { fields: {name, address } } = this.props;
+        return <div className="panel panel-default">
+            <div className="panel-heading">
+                { this.props.title }
+                <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={this.props.remove}><span aria-hidden="true">&times;</span></Button>
             </div>
             <div className="panel-body">
                 <Input type="text" {...name} label={STRINGS['name']} bsStyle={fieldStyle(name)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
@@ -58,12 +127,12 @@ export class DirectorForm extends React.Component {
     }
 }
 
-const DecoratedDirectorForm = reduxForm({
-  form: 'director',
+const DecoratedPersonForm = reduxForm({
+  form: 'person',
   fields: ['name', 'address'],
   validate: requiredFields.bind(this, ['name', 'address']),
   destroyOnUnmount: false
-})(DirectorForm)
+})(PersonForm)
 
 
 export class DirectorsPage extends React.Component {
@@ -79,13 +148,13 @@ export class DirectorsPage extends React.Component {
 
     touchAll() {
         this.props.directorKeys.map((d, i) => {
-            this.REFHACK[d].form.props.touchAll();
+            this.REFHACK[d].props.touchAll();
         });
     }
 
     isValid() {
         return  this.props.directorKeys.map((d, i) => {
-            return this.REFHACK[d].form.props.valid;
+            return this.REFHACK[d].props.valid;
         }).every(x => x)
     }
 
@@ -95,7 +164,10 @@ export class DirectorsPage extends React.Component {
                     <legend>Directors</legend>
                         { this.props.directorKeys.map((d, i) => {
                             this.REFHACK[d] = {};
-                            return <DecoratedDirectorForm ref={d} key={d} listKey={d} formKey={this.getKey(d)} remove={this.props.removeListEntry} REFHACK={this.REFHACK[d]} />
+                            return <DecoratedPersonForm ref={d} key={d} formKey={this.getKey(d)} title='Director'
+                                remove={(key) => this.props.removeListEntry('directors', d)}
+                                register={(child) => this.REFHACK[d] = child}
+                                />
                         })}
                     <div className="text-center"><Button bsStyle="success" onClick={
                         () => {this.props.addListEntry('directors') }
@@ -113,7 +185,7 @@ export class CompanyFieldsForm extends React.Component {
     };
 
     componentWillMount(nextProps) {
-        this.props.REFHACK.form = this;
+        this.props.register(this);
     };
 
     render() {
@@ -134,21 +206,18 @@ export class CompanyFieldsForm extends React.Component {
 }
 
 export class CompanyFieldsPage extends React.Component {
-    constructor(props) {
-        super(props);
-        this.REFHACK = {};
-    }
+    REFHACK;
 
     touchAll() {
-        this.REFHACK.form.props.touchAll()
+        this.REFHACK.props.touchAll()
     }
 
     isValid(){
-        return this.REFHACK.form.props.valid;
+        return this.REFHACK.props.valid;
     }
 
     render() {
-        return <DecoratedCompanyFieldsForm REFHACK={this.REFHACK} formKey={this.props.formKey}  />
+        return <DecoratedCompanyFieldsForm formKey={this.props.formKey} register={(child) => this.REFHACK = child} />
     }
 }
 
@@ -162,12 +231,18 @@ const DecoratedCompanyFieldsForm = reduxForm({
 })(CompanyFieldsForm);
 
 
+
 @connect(state => ({formData: (state.form.companyFull || {}).createCompanyModal }))
 export class CreateCompanyModal extends React.Component {
 
-
-
     pages = [
+        function(){
+            const holdingKeys = this.props.formData.holdings.list;
+            return  <HoldingsPage ref="form" formKey='createCompanyModal'
+                addListEntry={(listType) => {this.props.dispatch(addListEntry('createCompany', 'createCompanyModal', listType))}}
+                removeListEntry={(listType, key) => {this.props.dispatch(removeListEntry('createCompany', 'createCompanyModal', listType, key))}}
+                holdingKeys={holdingKeys} />
+        },
         function(){
             const directorKeys = this.props.formData.directors.list;
             return  <DirectorsPage ref="form" formKey='createCompanyModal'
