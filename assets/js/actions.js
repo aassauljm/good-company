@@ -56,6 +56,9 @@ export const START_CREATE_COMPANY = 'START_CREATE_COMPANY';
 export const END_CREATE_COMPANY = 'END_CREATE_COMPANY';
 export const NEXT_CREATE_COMPANY = 'NEXT_CREATE_COMPANY';
 
+export const REMOVE_LIST_ENTRY= 'REMOVE_LIST_ENTRY';
+export const ADD_LIST_ENTRY= 'ADD_LIST_ENTRY';
+
 
 const json_headers = {
     'Accept': 'application/json',
@@ -211,5 +214,17 @@ export function endCreateCompany(){
 export function nextCreateCompany(){
     return {
         type: NEXT_CREATE_COMPANY
+    }
+}
+
+export function addListEntry(form, key){
+    return {
+        type: ADD_LIST_ENTRY, key, form
+    }
+}
+
+export function removeListEntry(form, key, index){
+    return {
+        type: REMOVE_LIST_ENTRY, key, form, index
     }
 }

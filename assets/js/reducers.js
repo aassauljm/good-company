@@ -12,7 +12,8 @@ import {
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     COMPANY_TAB_CHANGE,
-    START_CREATE_COMPANY, END_CREATE_COMPANY, NEXT_CREATE_COMPANY
+    START_CREATE_COMPANY, END_CREATE_COMPANY, NEXT_CREATE_COMPANY,
+    REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
      } from './actions';
 import { reducer as formReducer } from 'redux-form';
 import { routerStateReducer } from 'redux-router';
@@ -109,7 +110,7 @@ function companyPage(state = {tabIndex: 0}, action){
     }
 }
 
-function modals(state = {createCompany: {index: 0, data: companySchema() }}, action){
+function modals(state = {createCompany: {index: 0 }}, action){
     switch(action.type){
         case START_CREATE_COMPANY:
             return {...state, showing: 'createCompany', createCompany: {index: 0}};
@@ -230,8 +231,35 @@ const form = formReducer.plugin({
         return state;
     },
     createCompany: (state, action) => {
-        return state;
-    }
+        if(action.type === START_CREATE_COMPANY){
+            return {...state, directors: [0], directorIndex: 0, holdings: [0], holdingIndex: 0}
+        }
+        if(action.form !== 'createCompany'){
+            return state;
+        }
+        switch(action.type) {
+            case ADD_LIST_ENTRY:
+                if(action.key === 'director'){
+                    const directorIndex = state.directorIndex + 1;
+                    return {...state, directors: [...state.directors, directorIndex], directorIndex: directorIndex }
+                }
+                return state;
+
+            case REMOVE_LIST_ENTRY:
+                if(action.key === 'director'){
+                    const list = state.directors.slice();
+                    if(state.directors.indexOf(action.index) > -1){
+                        list.splice(list.indexOf(action.index), 1);
+                    }
+                    return {...state, directors: list }
+                }
+
+
+                return state;
+            default:
+                return state;
+        }
+    },
 
 });
 

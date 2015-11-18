@@ -45,6 +45,17 @@ export function fieldExistence(form){
     return errors;
 }
 
+export function requiredFields(fields, values){
+    const errors = {};
+    fields.map(f => {
+        if(!values[f]){
+            errors[f] = ['Required'];
+        }
+    });
+    return errors;
+}
+
+
 let _fetch = isoFetch;
 
 export function fetch(url, args){

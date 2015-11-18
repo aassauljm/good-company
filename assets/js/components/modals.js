@@ -3,12 +3,12 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import {nextCreateCompany, endCreateCompany} from '../actions';
+import {nextCreateCompany, endCreateCompany, addListEntry, removeListEntry} from '../actions';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import DatePicker from 'react-date-picker';
-
+import { fieldStyle, requiredFields } from '../utils';
 
 export class Address extends React.Component {
     render() {
@@ -20,7 +20,6 @@ export class Address extends React.Component {
 export class DateInput extends React.Component {
 
     render() {
-        console.log(this.props)
          return <Input {...this.props} >
                     <DatePicker {...this.props}  />
           </Input>
@@ -28,53 +27,116 @@ export class DateInput extends React.Component {
 }
 
 
+export class DirectorForm extends React.Component {
+    static propTypes = {
+        fields: React.PropTypes.object
+    };
 
-export class CreateCompanyForm extends React.Component {
+    render() {
+        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
+        const { fields: {name, address } } = this.props;
+        return <div className="panel panel-default">
+            <div className="panel-heading">Director
+                <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={() => this.props.remove('director', this.props.listIndex)}><span aria-hidden="true">&times;</span></Button>
+            </div>
+            <div className="panel-body">
+                <Input type="text" {...name} label={STRINGS['name']} bsStyle={fieldStyle(name)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
+                <Address type="text"  {...address}  label={STRINGS['address']} bsStyle={fieldStyle(address)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
+                </div>
+            </div>
+
+    }
+}
+
+function validateDirector(values){
+    const errors = {};
+    if(!values.name){
+        errors.name = ['Required']
+    }
+    if(!values.address){
+        errors.address = ['Required']
+    }
+    return errors;
+}
+
+const DecoratedDirectorForm = reduxForm({
+  form: 'director',
+  fields: ['name', 'address'],
+  validate: requiredFields.bind(this, ['name', 'address'])
+})(DirectorForm)
+
+
+export class DirectorsForm extends React.Component {
+    static propTypes = {
+        formData: React.PropTypes.object
+    };
+
+    getKey(d) {
+        return `${this.props.formKey}.directors[${d}]`;
+    }
+
+    render() {
+        return <form className="form-horizontal">
+                   <fieldset>
+                    <legend>Directors</legend>
+                        { this.props.formData.directors.map((d, i) => {
+                            return <DecoratedDirectorForm ref={d} key={d} listIndex={d} formKey={this.getKey()} remove={this.props.removeListEntry} />
+                        })}
+                    <div className="text-center"><Button bsStyle="success" onClick={() => {this.props.addListEntry('director') }}>Add New Director</Button></div>
+                </fieldset>
+            </form>
+        }
+    }
+
+
+
+export class CompanyFieldsForm extends React.Component {
+    static propTypes = {
+        fields: React.PropTypes.object
+    };
+
+    render() {
+        const { fields: {companyName, nzbn, incorporationDate, registeredCompanyAddress, addressForService} } = this.props;
+        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-9';
+        return  (
+         <form className="form-horizontal">
+              <fieldset>
+                <legend>Basic Info</legend>
+                    <Input type="text" ref="companyName" {...companyName} bsStyle={fieldStyle(companyName)} label={STRINGS['companyName']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
+                    <Input type="text" ref="nzbn" {...nzbn} bsStyle={fieldStyle(nzbn)} label={STRINGS['nzbn']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
+                    <DateInput ref="incorporationDate" {...incorporationDate} bsStyle={fieldStyle(incorporationDate)}  label={STRINGS['incorporationDate']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
+                    <Address ref="registeredCompanyAddress" {...registeredCompanyAddress} bsStyle={fieldStyle(registeredCompanyAddress)} label={STRINGS['registeredCompanyAddress']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
+                    <Address ref="addressForService" {...addressForService} bsStyle={fieldStyle(addressForService)} label={STRINGS['addressForService']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
+                </fieldset>
+        </form> )
+    }
+}
+
+
+const companyFields = ['companyName', 'nzbn', 'incorporationDate', 'addressForService', 'registeredCompanyAddress'];
+const DecoratedCompanyFieldsForm = reduxForm({
+    form: 'createCompany',
+    fields: companyFields,
+    validate: requiredFields.bind(null, companyFields)
+})(CompanyFieldsForm);
+
+
+@connect(state => ({formData: state.form.createCompany}))
+export class CreateCompanyModal extends React.Component {
 
     pages = [
         function(){
-            const { fields } = this.props;
-            const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-9';
-            const self  = this;
-
-            return  <form className="form-horizontal">
-                      <fieldset>
-                        <legend>Directors</legend>
-                            { Array(this.props.values.directorCount || 1).fill().map((item, index) => {
-                                const fieldName = name => { return `directors[${index}].${name}`; };
-                                return (
-                                  <div key={index}>
-                                    <Input type="text" {...fields[fieldName('name')]} label={STRINGS['name']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
-                                    <Address type="text"  {...fields[fieldName('address')]}  label={STRINGS['address']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                                  </div>
-                                );
-                            })
-                        }
-                        <Button bsStyle="success" onClick={::this.addNewDirector}>Add New</Button>
-                        </fieldset>
-                    </form>
+            return   <DecoratedCompanyFieldsForm ref="form" />
         },
         function(){
-            const { fields: {companyName, nzbn, incorporationDate, registeredCompanyAddress, addressForService} } = this.props;
-            const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-9';
-            return  <form className="form-horizontal">
-                      <fieldset>
-                        <legend>Basic Info</legend>
-                            <Input type="text" ref="companyName" {...companyName} label={STRINGS['companyName']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
-                            <Input type="text" ref="nzbn" {...nzbn} label={STRINGS['nzbn']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                            <DateInput ref="incorporationDate" {...incorporationDate} label={STRINGS['incorporationDate']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                            <Address ref="registeredCompanyAddress" {...registeredCompanyAddress} label={STRINGS['registeredCompanyAddress']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                            <Address ref="addressForService" {...addressForService} label={STRINGS['addressForService']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                        </fieldset>
-                    </form>
-        },
+            const directorKeys = this.props.formData.directors;
+            return  <DirectorsForm ref="form"  addListEntry={this.props.addListEntry} removeListEntry={this.props.removeListEntry} directorKeys={directorKeys} />
+        }
 
     ];
-
-    addNewDirector() {
-        this.props.fields.directorCount.onChange((this.props.values.directorCount || 1) + 1);
-    };
-
+    handleNext() {
+        console.log(this)
+    }
 
     render() {
         return  <Modal show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
@@ -88,47 +150,28 @@ export class CreateCompanyForm extends React.Component {
 
               <Modal.Footer>
                 <Button onClick={this.props.end} >Close</Button>
-                <Button onClick={this.props.next} bsStyle="primary">Next</Button>
+                <Button onClick={::this.handleNext} bsStyle="primary">Next</Button>
               </Modal.Footer>
             </Modal>
     }
 }
 
-const DecoratedCreateCompanyForm = reduxForm({form: 'createCompany'})(CreateCompanyForm);
 
-export class CreateCompany extends React.Component {
-    render() {
 
-        const directorFields = Array((this.props.formData.directorCount || {}).value || 1).fill().reduce((accumulator, item, index) => {
-            ['name', 'address'].map((key) => accumulator.push(`directors[${index}].${key}`));
-          return accumulator;
-        }, []);
-        const fields = ['directorCount', 'companyName', 'nzbn', 'incorporationDate', 'addressForService', 'registeredCompanyAddress'].concat(directorFields);
-        return <DecoratedCreateCompanyForm {...this.props} fields={fields} />
-    }
 
-}
-
-/*export const DecoratedCreateCompany  = reduxForm({
-  form: 'createCompany',
-  fields: ['companyName', 'nzbn', 'incorporationDate', 'addressForService', 'registeredCompanyAddress']
-})(CreateCompany)*/
-/*         const itemFields = this.state.user.items.reduce((accumulator, item, index) => {
-              Object.keys(item).map((key) => accumulator.push(`items[${index}].${key}`));
-              return accumulator;
-            }, []);*/
-
-@connect(state => ({...state.modals, form: state.form.createCompany}))
+@connect(state => state.modals)
 export default class Modals extends React.Component {
     render() {
         if(!this.props.showing){
             return false;
         }
         if(this.props.showing === 'createCompany'){
-            return <CreateCompany index={this.props.createCompany.index}
+            return <CreateCompanyModal index={this.props.createCompany.index}
                 next={() => {this.props.dispatch(nextCreateCompany())} }
                 end={() => {this.props.dispatch(endCreateCompany())} }
-                formData={this.props.form}
+                //formData={this.props.formData}
+                removeListEntry={(key, index) => {this.props.dispatch(removeListEntry('createCompany', key, index))} }
+                addListEntry={(key) => {this.props.dispatch(addListEntry('createCompany', key))} }
             />
         }
     }

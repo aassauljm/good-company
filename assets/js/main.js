@@ -10,7 +10,7 @@ import 'react-date-picker/index.css';
 let mountNode = document.getElementById("main");
 if (mountNode){
     ReactDOM.render(<Root store={configureStore()}>
-                       { __DEV__  ?  <DevTools /> : null }
+                       { __DEV__ && false  ?  <DevTools /> : null }
                     </Root>
                     , mountNode);
 }
