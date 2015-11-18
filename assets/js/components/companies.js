@@ -29,7 +29,7 @@ export default class Companies extends React.Component {
     }
 
     handleNew() {
-        this.props.dispatch(startCreateCompany())
+        this.props.dispatch(startCreateCompany('createCompanyModal'))
     }
 
     render() {

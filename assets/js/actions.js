@@ -54,7 +54,8 @@ export const COMPANY_TAB_CHANGE = 'COMPANY_TAB_CHANGE';
 
 export const START_CREATE_COMPANY = 'START_CREATE_COMPANY';
 export const END_CREATE_COMPANY = 'END_CREATE_COMPANY';
-export const NEXT_CREATE_COMPANY = 'NEXT_CREATE_COMPANY';
+export const NEXT_MODAL = 'NEXT_MODAL';
+export const PREVIOUS_MODAL = 'PREVIOUS_MODAL';
 
 export const REMOVE_LIST_ENTRY= 'REMOVE_LIST_ENTRY';
 export const ADD_LIST_ENTRY= 'ADD_LIST_ENTRY';
@@ -199,9 +200,9 @@ export function importCompany(companyNumber) {
 }
 
 
-export function startCreateCompany(){
+export function startCreateCompany(formKey){
     return {
-        type: START_CREATE_COMPANY
+        type: START_CREATE_COMPANY, formKey
     }
 }
 
@@ -211,20 +212,26 @@ export function endCreateCompany(){
     }
 }
 
-export function nextCreateCompany(){
+export function nextModal(modal){
     return {
-        type: NEXT_CREATE_COMPANY
+        type: NEXT_MODAL, modal
     }
 }
 
-export function addListEntry(form, key){
+export function previousModal(modal){
     return {
-        type: ADD_LIST_ENTRY, key, form
+        type: PREVIOUS_MODAL, modal
     }
 }
 
-export function removeListEntry(form, key, index){
+export function addListEntry(form, formKey, listType){
     return {
-        type: REMOVE_LIST_ENTRY, key, form, index
+        type: ADD_LIST_ENTRY, form, formKey, listType
+    }
+}
+
+export function removeListEntry(form, formKey, listType, key){
+    return {
+        type: REMOVE_LIST_ENTRY, form, formKey, listType, key
     }
 }
