@@ -24,7 +24,7 @@ export class ShareClassForm extends React.Component {
 }
 
 const DecoratedShareClassForm = reduxForm({
-  form: 'shareclass',
+  form: 'shareClass',
   fields: ['label'],
   destroyOnUnmount: false
 })(ShareClassForm)

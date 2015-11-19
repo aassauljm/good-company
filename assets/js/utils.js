@@ -29,30 +29,13 @@ export function pureRender(component) {
 
 
 /**
- * Will help interface with a wrapped form
- *
- */
-export function formWrapperHelper(component){
-    component.prototype.touchAll = function(){
-        this.subForms.map((ref)=>{
-            this.refs[ref].touchAll()
-        });
-    };
-
-    component.prototype.isValid = function(){
-        return this.subForms.map((ref)=>{
-            return this.refs[ref].isValid()
-        }).every(x => x);
-    };
-}
-
-
-
-/**
 * The next functions are super lame, im hiding dodgy code in them.
 *
 * They allow a formProxy to access a formProxyable, when a react-forms wrapper
 * is sitting in between them.
+*
+* REPLACE WITH SOME ACTION DISPATCHES
+* will get rid of getValues first, thats easist
 */
 export function formProxyable(component){
     const mount = component.prototype.componentWillMount;
@@ -74,26 +57,59 @@ export function formProxy(component){
     }
 
     component.prototype.touchAll = function(){
+        if(!this.subForms && !this.props.keyList){
+            return this._REFHACK.props.touchAll();
+        }
+        if(this.subForms){
+            return this.subForms.map((ref)=>{
+                this.refs[ref].touchAll()
+            });
+        }
         this.props.keyList.map((d, i) => {
             this._REFHACK[d].touchAll ? this._REFHACK[d].touchAll() : this._REFHACK[d].props.touchAll();
         });
     }
 
     component.prototype.isValid = function(){
+        if(!this.subForms && !this.props.keyList){
+            return this._REFHACK.props.valid;
+        }
+        if(this.subForms){
+            return this.subForms.map((ref)=>{
+                return this.refs[ref].isValid()
+            }).every(x => x);
+        }
         return  this.props.keyList.map((d, i) => {
             return this._REFHACK[d].isValid ? this._REFHACK[d].isValid() :  this._REFHACK[d].props.valid;
         }).every(x => x)
     }
 
     component.prototype.getValues = function(){
-       // do in morning
+        if(!this.subForms && !this.props.keyList){
+            return this._REFHACK.props.values;
+        }
+        if(this.subForms){
+            // do in morning
+            return this.subForms.reduce((acc, ref)=>{
+                acc[ref] = this.refs[ref].getValues();
+                return acc;
+            }, {})
+        }
+        return this.props.keyList.map((d, i) => {
+            return this._REFHACK[d].getValues ? this._REFHACK[d].getValues():  this._REFHACK[d].props.values
+        })
     }
 
     component.prototype.register = function(key){
         const self = this;
         prep.call(this);
         return (child) => {
-            self._REFHACK[key] = child;
+            if(key){
+                self._REFHACK[key] = child;
+            }
+            else{
+                self._REFHACK = child;
+            }
         }
     }
     component.prototype.unregister = function(key){
