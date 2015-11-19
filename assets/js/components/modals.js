@@ -231,10 +231,21 @@ export class CreateCompanyModal extends React.Component {
 
     ];
 
+    getValues() {
+        this.props.formData;
+        (function getValues(formData, path = []){
+            Object.keys(formData).reduce((acc, key) => {
+                acc[key] = formData[key].list ? formData[1] : formData[key].value;
+            }, acc);
+        })(this.props.formData)
+    }
+
+
     handleNext() {
         this.refs.form.touchAll();
         if(this.refs.form.isValid()){
             console.log(this.refs.form.getValues())
+           // this.getValues();
             this.props.next();
         }
     };
