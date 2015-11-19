@@ -5,18 +5,14 @@ import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { fieldStyle, requiredFields } from '../utils';
+import { fieldStyle, requiredFields, formProxyable, formProxy } from '../utils';
 import Address from './forms/address'
 
+@formProxyable
 export class PersonForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object
     };
-
-    componentWillMount(nextProps) {
-        this.props.register(this);
-    };
-
     render() {
         const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
         const { fields: {name, address } } = this.props;
@@ -41,25 +37,12 @@ const DecoratedPersonForm = reduxForm({
   destroyOnUnmount: false
 })(PersonForm)
 
+
+@formProxy
 export default class PersonsForm extends React.Component {
     static propTypes = {
         keyList: React.PropTypes.array
     };
-
-
-    REFHACK = {};
-
-    touchAll() {
-        this.props.keyList.map((d, i) => {
-            this.REFHACK[d].props.touchAll();
-        });
-    }
-
-    isValid() {
-        return  this.props.keyList.map((d, i) => {
-            return this.REFHACK[d].props.valid;
-        }).every(x => x)
-    }
 
     getKey(d) {
         return  `${this.props.formKey}.person.${d}`;
@@ -71,7 +54,7 @@ export default class PersonsForm extends React.Component {
             return <DecoratedPersonForm ref={d} key={d} formKey={this.getKey(d)}
                 title={this.props.title}
                 remove={() => this.props.remove(d)}
-                register={(child) => this.REFHACK[d] = child} />
+                register={this.register(d)} unregister={this.unregister(d)} />
             }) }
             </div>
     }

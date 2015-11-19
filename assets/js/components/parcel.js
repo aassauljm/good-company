@@ -5,18 +5,14 @@ import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { fieldStyle, requiredFields } from '../utils';
+import { fieldStyle, requiredFields, formProxyable, formProxy } from '../utils';
 
 
+@formProxyable
 export class ParcelForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object
     };
-
-    componentWillMount(nextProps) {
-        this.props.register(this);
-    };
-
     render() {
         const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
         const { fields: {amount, shareClass} } = this.props;
@@ -37,41 +33,27 @@ export class ParcelForm extends React.Component {
 const DecoratedParcelForm = reduxForm({
   form: 'parcel',
   fields: ['amount', 'shareClass'],
-  validate: requiredFields.bind(this, ['amount', 'class']),
+  validate: requiredFields.bind(this, ['amount']),
   destroyOnUnmount: false
 })(ParcelForm)
 
+
+@formProxy
 export default class ParcelsForm extends React.Component {
     static propTypes = {
         keyList: React.PropTypes.array
     };
 
-
-    REFHACK = {};
-
-    touchAll() {
-        this.props.keyList.map((d, i) => {
-            this.REFHACK[d].props.touchAll();
-        });
-    }
-
-    isValid() {
-        return  this.props.keyList.map((d, i) => {
-            return this.REFHACK[d].props.valid;
-        }).every(x => x)
-    }
-
     getKey(d) {
         return  `${this.props.formKey}.parcel.${d}`;
     }
-
     render(){
         return <div>
             { this.props.keyList.map((d, i) => {
             return <DecoratedParcelForm ref={d} key={d} formKey={this.getKey(d)}
                 title={this.props.title}
                 remove={() => this.props.remove(d)}
-                register={(child) => this.REFHACK[d] = child} />
+                register={this.register(d)} unregister={this.unregister(d)} />
             }) }
             </div>
     }

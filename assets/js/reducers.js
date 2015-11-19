@@ -197,7 +197,7 @@ function addChildren(type){
         case 'holdings':
             return {holders: {list: ['0'], counter: 0}, parcels: {list: ['0'], counter: 0}}
         case 'companyFull':
-            return {directors: {list: ['0'], counter: 0}, holdings: {list: ['0'], counter: 0, '0': addChildren('holdings')}}
+            return {directors: {list: ['0'], counter: 0}, shareClasses: {list: ['0'], counter: 0}, holdings: {list: ['0'], counter: 0, '0': addChildren('holdings')}}
         default:
             return {};
     }

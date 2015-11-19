@@ -28,6 +28,83 @@ export function pureRender(component) {
 }
 
 
+/**
+ * Will help interface with a wrapped form
+ *
+ */
+export function formWrapperHelper(component){
+    component.prototype.touchAll = function(){
+        this.subForms.map((ref)=>{
+            this.refs[ref].touchAll()
+        });
+    };
+
+    component.prototype.isValid = function(){
+        return this.subForms.map((ref)=>{
+            return this.refs[ref].isValid()
+        }).every(x => x);
+    };
+}
+
+
+
+/**
+* The next functions are super lame, im hiding dodgy code in them.
+*
+* They allow a formProxy to access a formProxyable, when a react-forms wrapper
+* is sitting in between them.
+*/
+export function formProxyable(component){
+    const mount = component.prototype.componentWillMount;
+    component.prototype.componentWillMount = function(nextProps) {
+        this.props.register(this);
+        mount && mount.call(this, nextProps);
+    };
+    const unmount = component.prototype.componentWillUnmount;
+    component.prototype.componentWillUnmount = function(nextProps) {
+        unmount && unmount.call(this, nextProps);
+        this.props.unregister(this);
+    };
+}
+
+export function formProxy(component){
+
+    function prep(){
+        this._REFHACK = this._REFHACK || {};
+    }
+
+    component.prototype.touchAll = function(){
+        this.props.keyList.map((d, i) => {
+            this._REFHACK[d].touchAll ? this._REFHACK[d].touchAll() : this._REFHACK[d].props.touchAll();
+        });
+    }
+
+    component.prototype.isValid = function(){
+        return  this.props.keyList.map((d, i) => {
+            return this._REFHACK[d].isValid ? this._REFHACK[d].isValid() :  this._REFHACK[d].props.valid;
+        }).every(x => x)
+    }
+
+    component.prototype.getValues = function(){
+       // do in morning
+    }
+
+    component.prototype.register = function(key){
+        const self = this;
+        prep.call(this);
+        return (child) => {
+            self._REFHACK[key] = child;
+        }
+    }
+    component.prototype.unregister = function(key){
+        const self = this;
+        return () => {
+            delete self._REFHACK[key]
+        }
+    }
+}
+
+
 export function* objectValues(obj) {
   for (let prop of Object.keys(obj)) {
     yield obj[prop];

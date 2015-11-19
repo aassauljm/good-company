@@ -8,11 +8,11 @@ import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import DatePicker from 'react-date-picker';
-import { fieldStyle, requiredFields } from '../utils';
+import { fieldStyle, requiredFields, formWrapperHelper, formProxyable, formProxy } from '../utils';
 import PersonsForm from './person'
 import ParcelsForm from './parcel'
+import ShareClassesForm from './shareClass'
 import Address from './forms/address'
-// WARNING, REFHACKS needs to be removed and worked around, somehow
 
 
 export class DateInput extends React.Component {
@@ -24,15 +24,15 @@ export class DateInput extends React.Component {
     }
 }
 
+@formWrapperHelper
+@formProxyable
 export class HoldingForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object,
         holders: React.PropTypes.object
     };
 
-    componentWillMount(nextProps) {
-        this.props.register(this);
-    };
+    subForms = ['parcels', 'holders'];
 
     render() {
         return <div className="panel panel-default">
@@ -42,13 +42,13 @@ export class HoldingForm extends React.Component {
                 </div>
                 <div className="panel-body">
                     <div className="col-xs-6">
-                         <ParcelsForm formKey={this.props.formKey} ref="form" title='Parcel' keyList={this.props.formData.parcels.list || []} remove={(...args)=>this.props.removeListEntry('parcels', ...args) } />
+                         <ParcelsForm formKey={this.props.formKey} ref="parcels" title='Parcel' keyList={this.props.formData.parcels.list || []} remove={(...args)=>this.props.removeListEntry('parcels', ...args) } />
                         <div className="text-center"><Button bsStyle="success" onClick={
                             () => {this.props.addListEntry('parcels') }
                         }>Add Parcel</Button></div>
                     </div>
                     <div className='col-xs-6'>
-                        <PersonsForm formKey={this.props.formKey} ref="form" title='Shareholder' keyList={this.props.formData.holders.list || []} remove={(...args)=>this.props.removeListEntry('holders', ...args) } />
+                        <PersonsForm formKey={this.props.formKey} ref="holders" title='Shareholder' keyList={this.props.formData.holders.list || []} remove={(...args)=>this.props.removeListEntry('holders', ...args) } />
                         <div className="text-center"><Button bsStyle="success"
                             onClick={() => {this.props.addListEntry('holders') }
                         }>Add Holder</Button></div>
@@ -65,35 +65,14 @@ const DecoratedHoldingForm = reduxForm({
 })(HoldingForm)
 
 
-
-export class HoldingsPage extends React.Component {
-    static propTypes = {
-        formData: React.PropTypes.object
-    };
-
-    REFHACK = {};
-
-    touchAll() {
-        this.props.formData.list.map((d, i) => {
-            this.REFHACK[d].props.touchAll();
-        });
-    }
-
-    isValid() {
-        return  this.props.formData.list.map((d, i) => {
-            return this.REFHACK[d].props.valid;
-        }).every(x => x)
-    }
-
+@formProxy
+export class HoldingsForm extends React.Component {
     getKey(d) {
         return  `${this.props.formKey}.holdings.${d}`;
     }
-
     render() {
-        return <form className="form-horizontal">
-                   <fieldset>
-                    <legend>Shareholdings</legend>
-                        { this.props.formData.list.map((d, i) => {
+        return  <div>
+            { this.props.formData.list.map((d, i) => {
                             return <DecoratedHoldingForm ref={d} key={d}
                             title={`Allocation #${i+1}`}
                             formKey={this.getKey(d)}
@@ -101,8 +80,32 @@ export class HoldingsPage extends React.Component {
                             remove={(...args) => this.props.removeListEntry('holdings', d, ...args)}
                             addListEntry={(...args) => this.props.addListEntry('holdings', d, ...args) }
                             removeListEntry={(...args) => this.props.removeListEntry('holdings', d, ...args)}
-                            register={(child) => this.REFHACK[d] = child} />
+                            register={this.register(d)}
+                            unregister={this.unregister(d)} />
                         })}
+        </div>
+    }
+}
+
+
+
+@formWrapperHelper
+export class HoldingsPage extends React.Component {
+    static propTypes = {
+        formData: React.PropTypes.object
+    };
+    subForms = ['form']
+
+    render() {
+        return <form className="form-horizontal">
+                   <fieldset>
+                    <legend>Shareholdings</legend>
+                    <HoldingsForm ref="form"
+                    keyList={this.props.formData.list}
+                    formKey={this.props.formKey}
+                    formData={this.props.formData}
+                    addListEntry={this.props.addListEntry}
+                    removeListEntry={this.props.removeListEntry}   />
                     <div className="text-center"><Button bsStyle="success" onClick={
                         () => {this.props.addListEntry('holdings') }
                     }>Add New Shareholding</Button></div>
@@ -111,20 +114,12 @@ export class HoldingsPage extends React.Component {
     }
 }
 
-
+@formWrapperHelper
 export class DirectorsPage extends React.Component {
     static propTypes = {
         formData: React.PropTypes.object
     };
-
-    touchAll() {
-        return this.refs.form.touchAll();
-    };
-
-    isValid() {
-        return this.refs.form.isValid();
-    };
-
+    subForms = ['form']
     render() {
         return <form className="form-horizontal">
                    <fieldset>
@@ -139,8 +134,29 @@ export class DirectorsPage extends React.Component {
                 </fieldset>
             </form>
     }
-}
+};
 
+@formWrapperHelper
+export class ShareClassesPage extends React.Component {
+    static propTypes = {
+        formData: React.PropTypes.object
+    };
+    subForms = ['form'];
+    render() {
+        return <form className="form-horizontal">
+                   <fieldset>
+                    <legend>Share Classes</legend>
+                    <ShareClassesForm ref="form"
+                    keyList={this.props.formData.list}
+                    formKey={this.props.formKey}
+                    remove={(key) => this.props.removeListEntry('shareClasses', key)} />
+                    <div className="text-center"><Button bsStyle="success" onClick={
+                        () => {this.props.addListEntry('shareClasses') }
+                    }>Add New Share Class</Button></div>
+                </fieldset>
+            </form>
+    }
+}
 
 
 export class CompanyFieldsForm extends React.Component {
@@ -171,15 +187,12 @@ export class CompanyFieldsForm extends React.Component {
 
 export class CompanyFieldsPage extends React.Component {
     REFHACK;
-
     touchAll() {
         this.REFHACK.props.touchAll()
     }
-
     isValid(){
         return this.REFHACK.props.valid;
     }
-
     render() {
         return <DecoratedCompanyFieldsForm formKey={this.props.formKey} register={(child) => this.REFHACK = child} />
     }
@@ -201,16 +214,23 @@ export class CreateCompanyModal extends React.Component {
 
     pages = [
         function(){
+            return  <HoldingsPage ref="form" formKey='createCompanyModal'
+                addListEntry={(...args) => {this.props.dispatch(addListEntry('companyFull', 'createCompanyModal', ...args))}}
+                removeListEntry={(...args) => {this.props.dispatch(removeListEntry('companyFull', 'createCompanyModal', ...args))}}
+                shareClasses={{}}
+                formData={this.props.formData.holdings} />
+        },
+        function(){
+            return  <ShareClassesPage ref="form" formKey='createCompanyModal'
+                addListEntry={(...args) => {this.props.dispatch(addListEntry('companyFull', 'createCompanyModal',  ...args))}}
+                removeListEntry={(...args) => {this.props.dispatch(removeListEntry('companyFull', 'createCompanyModal', ...args))}}
+                formData={this.props.formData.shareClasses} />
+        },
+        function(){
             return  <DirectorsPage ref="form" formKey='createCompanyModal'
                 addListEntry={(...args) => {this.props.dispatch(addListEntry('companyFull', 'createCompanyModal',  ...args))}}
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry('companyFull', 'createCompanyModal', ...args))}}
                 formData={this.props.formData.directors} />
-        },
-        function(){
-            return  <HoldingsPage ref="form" formKey='createCompanyModal'
-                addListEntry={(...args) => {this.props.dispatch(addListEntry('companyFull', 'createCompanyModal', ...args))}}
-                removeListEntry={(...args) => {this.props.dispatch(removeListEntry('companyFull', 'createCompanyModal', ...args))}}
-                formData={this.props.formData.holdings} />
         },
         function(){
             return  <CompanyFieldsPage ref="form" formKey={'createCompanyModal'} />
