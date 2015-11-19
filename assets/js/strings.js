@@ -7,5 +7,8 @@ export default {
     registeredCompanyAddress: 'Registered Company Address',
     incorporationDate: 'Incorporation Date',
     name: 'Full Name',
-    address: 'Address'
+    address: 'Address',
+    parcel: 'Parcel',
+    amount: 'Amount',
+    shareClass: 'Class'
 }

@@ -191,29 +191,66 @@ function processResource(state, action){
       }
 }
 
-function addListEntry(formData, listType){
-    const index = formData[listType].counter + 1;
-    // TODO, got to add nested data structures
-    return {...formData, [listType]: {list: [...formData[listType].list, index.toString()], counter: index }}
+
+function addChildren(type){
+    switch(type){
+        case 'holdings':
+            return {holders: {list: ['0'], counter: 0}, parcels: {list: ['0'], counter: 0}}
+        case 'companyFull':
+            return {directors: {list: ['0'], counter: 0}, holdings: {list: ['0'], counter: 0, '0': addChildren('holdings')}}
+        default:
+            return {};
+    }
 }
 
-function removeListEntry(formData, listType, key){
-    const list = formData[listType].list.slice();
-    list.splice(list.indexOf(key), 1);
-    let index = formData[listType].counter
-    if(!list.length){
-        index = index + 1;
-        list.push(index.toString());
+function traverse(state, path, cb){
+    const key = path.shift();
+    if(path.length){
+        return {...state, [key]: traverse(state[key], path, cb)};
     }
-    return {...formData, [listType]: {list: list, counter: index}}
+    return {...state, [key]: cb(state[key], key)};
+}
+
+
+function addListEntry(state, path){
+    const _path = [...path];
+    state = traverse(state, _path, (obj, key) => {
+        const counter = obj.counter + 1;
+        // counter is just for unique formKey strings
+        const label = counter.toString();
+        return {
+                ...obj,
+                counter,
+                list: [...obj.list, label],
+                [label] : addChildren(key)
+            }
+    });
+    return state;
+}
+
+
+function removeListEntry(state, path){
+    path = [...path];
+    const key = path.pop();
+    return traverse(state, path, (obj) => {
+        const list = [...obj.list];
+        list.splice(list.indexOf(key), 1);
+        obj = {...obj};
+        delete obj[key];
+        return {
+                ...obj,
+                list
+            };
+    });
+
 }
 
 function reduceListChange(state, action){
     switch(action.type) {
         case ADD_LIST_ENTRY:
-            return {...state, [action.formKey]: addListEntry(state[action.formKey], action.listType)}
+            return addListEntry(state, action.path);
         case REMOVE_LIST_ENTRY:
-            return {...state, [action.formKey]: removeListEntry(state[action.formKey], action.listType, action.key)}
+            return removeListEntry(state, action.path);
         default:
             return state;
     }
@@ -263,9 +300,9 @@ const form = formReducer.plugin({
     },
     companyFull: (state, action) => {
         if(action.type === START_CREATE_COMPANY){
-            return {...state, [action.formKey]: { directors: {list: ['0'], counter: 0}, holdings: {list: ['0'], counter: 0, children: {}}}}
+            return {...state, [action.formKey]: addChildren('companyFull')}
         }
-        if(action.form !== 'createCompany'){
+        if(action.form !== 'companyFull'){
             return state;
         }
         return reduceListChange(state, action)

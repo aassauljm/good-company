@@ -224,14 +224,14 @@ export function previousModal(modal){
     }
 }
 
-export function addListEntry(form, formKey, listType){
+export function addListEntry(form, ...path){
     return {
-        type: ADD_LIST_ENTRY, form, formKey, listType
+        type: ADD_LIST_ENTRY, form, path
     }
 }
 
-export function removeListEntry(form, formKey, listType, key){
+export function removeListEntry(form, ...path){
     return {
-        type: REMOVE_LIST_ENTRY, form, formKey, listType, key
+        type: REMOVE_LIST_ENTRY, form, path
     }
 }
