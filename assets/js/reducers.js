@@ -193,6 +193,7 @@ function processResource(state, action){
 
 function addListEntry(formData, listType){
     const index = formData[listType].counter + 1;
+    // TODO, got to add nested data structures
     return {...formData, [listType]: {list: [...formData[listType].list, index.toString()], counter: index }}
 }
 
@@ -206,6 +207,19 @@ function removeListEntry(formData, listType, key){
     }
     return {...formData, [listType]: {list: list, counter: index}}
 }
+
+function reduceListChange(state, action){
+    switch(action.type) {
+        case ADD_LIST_ENTRY:
+            return {...state, [action.formKey]: addListEntry(state[action.formKey], action.listType)}
+        case REMOVE_LIST_ENTRY:
+            return {...state, [action.formKey]: removeListEntry(state[action.formKey], action.listType, action.key)}
+        default:
+            return state;
+    }
+}
+
+
 
 const form = formReducer.plugin({
     account: (state, action) => {
@@ -249,20 +263,21 @@ const form = formReducer.plugin({
     },
     companyFull: (state, action) => {
         if(action.type === START_CREATE_COMPANY){
-            return {...state, [action.formKey]: { directors: {list: ['0'], counter: 0}, holdings: {list: ['0'], counter: 0}}}
+            return {...state, [action.formKey]: { directors: {list: ['0'], counter: 0}, holdings: {list: ['0'], counter: 0, children: {}}}}
         }
         if(action.form !== 'createCompany'){
             return state;
         }
-        switch(action.type) {
-            case ADD_LIST_ENTRY:
-                return {...state, [action.formKey]: addListEntry(state[action.formKey], action.listType)}
-            case REMOVE_LIST_ENTRY:
-                return {...state, [action.formKey]: removeListEntry(state[action.formKey], action.listType, action.key)}
-            default:
-                return state;
-        }
+        return reduceListChange(state, action)
+
+
     },
+    holding: (state, action) => {
+        if(action.form !== 'holding'){
+            return state;
+        }
+        return reduceListChange(state, action)
+    }
 });
 
 const appReducer = combineReducers({

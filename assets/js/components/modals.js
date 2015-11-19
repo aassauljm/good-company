@@ -28,25 +28,39 @@ export class DateInput extends React.Component {
     }
 }
 
+
 export class HoldingForm extends React.Component {
     static propTypes = {
-        fields: React.PropTypes.object
+        fields: React.PropTypes.object,
+        holders: React.PropTypes.object
     };
+
+    REFHACK = {};
 
     componentWillMount(nextProps) {
         this.props.register(this);
     };
 
     render() {
-        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
-        const { fields: {name, address } } = this.props;
         return <div className="panel panel-default">
                 <div className="panel-heading">
                     { this.props.title }
                     <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={this.props.remove}><span aria-hidden="true">&times;</span></Button>
                 </div>
                 <div className="panel-body">
-                    Hi
+                    <div className="col-xs-6">
+                    <div className="text-center"><Button bsStyle="success" onClick={
+                        () => {this.props.addListEntry('holding', this.props.formKey, 'parcels') }
+                    }>Add Parcel</Button></div>
+                    </div>
+                    <div className='col-xs-6'>
+                        <PersonsForm ref="form" title='Shareholder' keys={this.props.formData.holders.list} remove={(key) => this.props.removeListEntry('holding')} />
+                        <div className="text-center"><Button bsStyle="success" onClick={
+                            () => {this.props.addListEntry('holding', this.props.formKey, 'holders') }
+                        }>Add Holder</Button></div>
+                    </div>
+
+
                 </div>
             </div>
 
@@ -55,11 +69,12 @@ export class HoldingForm extends React.Component {
 
 const DecoratedHoldingForm = reduxForm({
   form: 'holding',
-  fields: [],
+  fields: [], //maybe name
   destroyOnUnmount: false
 })(HoldingForm)
 
 
+@connect(state => ({formData: state.form.holding }))
 export class HoldingsPage extends React.Component {
     static propTypes = {
         formData: React.PropTypes.object
@@ -84,17 +99,23 @@ export class HoldingsPage extends React.Component {
     }
 
     render() {
+        console.log();
         return <form className="form-horizontal">
                    <fieldset>
                     <legend>Shareholdings</legend>
                         { this.props.holdingKeys.map((d, i) => {
-                            this.REFHACK[d] = this.REFHACK[d] || {};
-                            return <DecoratedHoldingForm ref={d} key={d} title={`Allocation #${i+1}`} formKey={this.getKey(d)}
-                            remove={() => this.props.removeListEntry('holdings', d)}
+                            return <DecoratedHoldingForm ref={d} key={d}
+
+                            title={`Allocation #${i+1}`}
+                            formKey={this.getKey(d)}
+                            formData={this.props.formData[this.getKey(d)]}
+                            remove={() => this.props.removeHoldingEntry(d)}
+                            addListEntry={this.props.addListEntry}
+                            removeListEntry={this.props.removeListEntry}
                             register={(child) => this.REFHACK[d] = child} />
                         })}
                     <div className="text-center"><Button bsStyle="success" onClick={
-                        () => {this.props.addListEntry('holdings') }
+                        () => {this.props.addHoldingEntry() }
                     }>Add New Shareholding</Button></div>
                 </fieldset>
             </form>
@@ -135,10 +156,7 @@ const DecoratedPersonForm = reduxForm({
 })(PersonForm)
 
 
-export class DirectorsPage extends React.Component {
-    static propTypes = {
-        formData: React.PropTypes.object
-    };
+export class PersonsForm extends React.Component {
 
     REFHACK = {};
 
@@ -158,17 +176,36 @@ export class DirectorsPage extends React.Component {
         }).every(x => x)
     }
 
+    render(){
+        return <div>
+            { this.props.keys.map((d, i) => {
+            return <DecoratedPersonForm ref={d} key={d} formKey={this.getKey(d)}
+                title={this.props.title}
+                remove={() => this.props.removeListEntry(d)}
+                register={(child) => this.REFHACK[d] = child} />
+            }) }
+            </div>
+    }
+}
+
+export class DirectorsPage extends React.Component {
+    static propTypes = {
+        formData: React.PropTypes.object
+    };
+
+    touchAll() {
+        return this.refs.form.touchAll();
+    };
+
+    isValid() {
+        return this.refs.form.isValid();
+    };
+
     render() {
         return <form className="form-horizontal">
                    <fieldset>
                     <legend>Directors</legend>
-                        { this.props.directorKeys.map((d, i) => {
-                            this.REFHACK[d] = {};
-                            return <DecoratedPersonForm ref={d} key={d} formKey={this.getKey(d)} title='Director'
-                                remove={(key) => this.props.removeListEntry('directors', d)}
-                                register={(child) => this.REFHACK[d] = child}
-                                />
-                        })}
+                    <PersonsForm ref="form" title='Director' keys={this.props.directorKeys} remove={(key) => this.props.removeListEntry('directors', key)} />
                     <div className="text-center"><Button bsStyle="success" onClick={
                         () => {this.props.addListEntry('directors') }
                     }>Add New Director</Button></div>
@@ -238,9 +275,14 @@ export class CreateCompanyModal extends React.Component {
     pages = [
         function(){
             const holdingKeys = this.props.formData.holdings.list;
+            console.log(holdingKeys)
             return  <HoldingsPage ref="form" formKey='createCompanyModal'
-                addListEntry={(listType) => {this.props.dispatch(addListEntry('createCompany', 'createCompanyModal', listType))}}
-                removeListEntry={(listType, key) => {this.props.dispatch(removeListEntry('createCompany', 'createCompanyModal', listType, key))}}
+                addHoldingEntry={() => {this.props.dispatch(addListEntry('createCompany', 'createCompanyModal', 'holdings'))}}
+                removeHoldingEntry={(key) => {this.props.dispatch(removeListEntry('createCompany', 'createCompanyModal', 'holdings', key))}}
+
+                addListEntry={(form, formKey, listType) => {this.props.dispatch(addListEntry(form, formKey, listType))}}
+                removeListEntry={(form, formKey, listType, key) => {this.props.dispatch(removeListEntry(form, formKey, listType, key))}}
+
                 holdingKeys={holdingKeys} />
         },
         function(){
