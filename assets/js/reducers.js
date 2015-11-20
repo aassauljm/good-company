@@ -15,8 +15,9 @@ import {
     START_CREATE_COMPANY, END_CREATE_COMPANY, NEXT_MODAL, PREVIOUS_MODAL,
     REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
      } from './actions';
-import { reducer as formReducer } from 'redux-form';
+import formReducer from './customFormReducer';
 import { routerStateReducer } from 'redux-router';
+
 
 const initialState = {
 
@@ -257,8 +258,19 @@ function reduceListChange(state, action){
 }
 
 
-
-const form = formReducer.plugin({
+const form = formReducer.normalize({
+    parcel: {
+        amount: function(value, previousValue){
+            console.log('value', value)
+            if(!value) {
+                return value;
+            }
+            const onlyNums = value.replace(/[^\d]/g, '');
+            console.log(value, onlyNums)
+            return onlyNums;
+        }
+    }
+}).plugin({
     account: (state, action) => {
       if (action.form !== 'account'){
         return state;
@@ -315,7 +327,10 @@ const form = formReducer.plugin({
         }
         return reduceListChange(state, action)
     }
-});
+})
+
+
+
 
 const appReducer = combineReducers({
   router: routerStateReducer,
@@ -325,7 +340,7 @@ const appReducer = combineReducers({
   login,
   userInfo,
   resources,
-  form,
+  form: form,
   notifications,
   modals
 });

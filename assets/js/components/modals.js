@@ -48,7 +48,7 @@ export class HoldingForm extends React.Component {
                         }>Add Parcel</Button></div>
                     </div>
                     <div className='col-xs-6'>
-                        <PersonsForm formKey={this.props.formKey} ref="holders" title='Shareholder' keyList={this.props.formData.holders.list || []} remove={(...args)=>this.props.removeListEntry('holders', ...args) } />
+                        <PersonsForm formKey={this.props.formKey} ref="holders" descriptor="holders" title='Shareholder' keyList={this.props.formData.holders.list || []} remove={(...args)=>this.props.removeListEntry('holders', ...args) } />
                         <div className="text-center"><Button bsStyle="success"
                             onClick={() => {this.props.addListEntry('holders') }
                         }>Add Holder</Button></div>
@@ -124,7 +124,7 @@ export class DirectorsPage extends React.Component {
         return <form className="form-horizontal">
                    <fieldset>
                     <legend>Directors</legend>
-                    <PersonsForm ref="directors" title='Director'
+                    <PersonsForm ref="directors" descriptor="directors" title='Director'
                     keyList={this.props.formData.list}
                     formKey={this.props.formKey}
                     remove={(key) => this.props.removeListEntry('directors', key)} />
@@ -197,55 +197,47 @@ const DecoratedCompanyFieldsForm = reduxForm({
     fields: companyFields,
     validate: requiredFields.bind(null, companyFields),
     destroyOnUnmount: false
-})(CompanyFieldsForm);
+}/*, {
+    state => ({ // mapStateToProps
+      initialValues: state.account.data // will pull state into form's initialValues
+    }),
+}*/)(CompanyFieldsForm);
 
 
 
-@connect(state => ({formData: (state.form.companyFull || {}).createCompanyModal }))
+@connect(state => ({formData: (state.form.companyFull || {}).createCompanyModal}))
 export class CreateCompanyModal extends React.Component {
 
     pages = [
         function(){
-            return  <CompanyFieldsPage ref="form" formKey={'createCompanyModal'} />
+            return  <ShareClassesPage ref="form" formKey={this.props.formKey}
+                addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey,  ...args))}}
+                removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
+                formData={this.props.formData.shareClasses} />
         },
         function(){
             // you can get shareClass etc from formData
-            return  <HoldingsPage ref="form" formKey='createCompanyModal'
-                addListEntry={(...args) => {this.props.dispatch(addListEntry('companyFull', 'createCompanyModal', ...args))}}
-                removeListEntry={(...args) => {this.props.dispatch(removeListEntry('companyFull', 'createCompanyModal', ...args))}}
+            return  <HoldingsPage ref="form" formKey={this.props.formKey}
+                addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey, ...args))}}
+                removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
                 shareClasses={{}}
                 formData={this.props.formData.holdings} />
         },
         function(){
-            return  <ShareClassesPage ref="form" formKey='createCompanyModal'
-                addListEntry={(...args) => {this.props.dispatch(addListEntry('companyFull', 'createCompanyModal',  ...args))}}
-                removeListEntry={(...args) => {this.props.dispatch(removeListEntry('companyFull', 'createCompanyModal', ...args))}}
-                formData={this.props.formData.shareClasses} />
+            return  <CompanyFieldsPage ref="form" formKey={this.props.formKey} />
         },
         function(){
-            return  <DirectorsPage ref="form" formKey='createCompanyModal'
-                addListEntry={(...args) => {this.props.dispatch(addListEntry('companyFull', 'createCompanyModal',  ...args))}}
-                removeListEntry={(...args) => {this.props.dispatch(removeListEntry('companyFull', 'createCompanyModal', ...args))}}
+            return  <DirectorsPage ref="form" formKey={this.props.formKey}
+                addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey,  ...args))}}
+                removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
                 formData={this.props.formData.directors} />
         },
 
     ];
 
-    getValues() {
-        this.props.formData;
-        (function getValues(formData, path = []){
-            Object.keys(formData).reduce((acc, key) => {
-                acc[key] = formData[key].list ? formData[1] : formData[key].value;
-            }, acc);
-        })(this.props.formData)
-    }
-
-
     handleNext() {
         this.refs.form.touchAll();
         if(this.refs.form.isValid()){
-            console.log(this.refs.form.getValues())
-           // this.getValues();
             this.props.next();
         }
     };
@@ -262,14 +254,63 @@ export class CreateCompanyModal extends React.Component {
 
               <Modal.Footer>
                 <Button onClick={this.props.end} >Close</Button>
-                { this.props.index > 0 &&    <Button onClick={this.props.previous} bsStyle="primary">Previous</Button> }
+                { this.props.index > 0 && <Button onClick={this.props.previous} bsStyle="primary">Previous</Button> }
                 <Button onClick={::this.handleNext} bsStyle="primary">Next</Button>
               </Modal.Footer>
             </Modal>
     }
 }
 
+@connect(state => ({ form: state.form }))
+export class FormReduce extends React.Component {
 
+    getValues() {
+        const rootForms = this.props.form;
+        function getFormModel(path, index){
+            return rootForms[{
+                'directors': 'person',
+                'holders': 'person',
+                'shareClasses': 'shareClass',
+                'holdings': 'holding'
+            }[path[path.length-1]] || path[path.length-1]] || {}
+        }
+        const values = (function getValues(formData, path = []){
+            if(!formData){
+                return {};
+            }
+            function getDeep(path, id){
+                const formModel = getFormModel(path);
+                const currentForm = formModel[[...path, id].join('.')]
+                return currentForm || {}
+            }
+            return Object.keys(formData).reduce((acc, key) => {
+                if(key[0] === "_"){
+                    return acc;
+                }
+                if(formData[key].list){
+                    acc[key] =  formData[key].list.map(id => {
+                        return {...getValues(getDeep([...path, key], id)), ...getValues(formData[key][id], [...path, key, id]) }
+                    })
+                }
+                else{
+                    acc[key] = formData[key].value
+                }
+                return acc;
+            }, {});
+
+        })(this.props.form[this.props.formName][this.props.formKey], [this.props.formKey]);
+        return values;
+    }
+
+    render() {
+        const formValues = this.getValues();
+
+        return <div>{ React.Children.map(this.props.children, child => {
+            return React.cloneElement(child, {formValues: formValues, formName: this.props.formName, formKey: this.props.formKey});
+        }) }
+    </div>
+    }
+}
 
 
 @connect(state => state.modals)
@@ -279,11 +320,12 @@ export default class Modals extends React.Component {
             return false;
         }
         if(this.props.showing === 'createCompany'){
-            return <CreateCompanyModal index={this.props.createCompany.index}
+            return <FormReduce formName="companyFull" formKey="createCompanyModal">
+                <CreateCompanyModal index={this.props.createCompany.index}
                 next={() => {this.props.dispatch(nextModal('createCompany'))} }
                 previous={() => {this.props.dispatch(previousModal('createCompany'))} }
-                end={() => {this.props.dispatch(endCreateCompany())} }
-            />
+                end={() => {this.props.dispatch(endCreateCompany())} } />
+                </FormReduce>
         }
     }
 }

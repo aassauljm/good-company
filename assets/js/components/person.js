@@ -45,7 +45,7 @@ export default class PersonsForm extends React.Component {
     };
 
     getKey(d) {
-        return  `${this.props.formKey}.person.${d}`;
+        return  `${this.props.formKey}.${this.props.descriptor}.${d}`;
     }
 
     render(){

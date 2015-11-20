@@ -51,7 +51,7 @@ export default class ShareClassesForm extends React.Component {
     }
 
     getKey(d) {
-        return  `${this.props.formKey}.shareClass.${d}`;
+        return  `${this.props.formKey}.shareClasses.${d}`;
     }
 
     render(){
