@@ -89,6 +89,11 @@ module.exports.routes = {
         action: 'find'
     },
 
+    'POST /api/company/import/validate': {
+        controller: 'CompanyController',
+        action: 'validate'
+    },
+
     'POST /api/transaction/:type/:companyId': {
         controller: 'CompanyStateController',
         action: 'create'

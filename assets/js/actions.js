@@ -50,6 +50,11 @@ export const IMPORT_COMPANY_REQUEST = 'IMPORT_COMPANY_REQUEST';
 export const IMPORT_COMPANY_SUCCESS = 'IMPORT_COMPANY_SUCCESS';
 export const IMPORT_COMPANY_FAILURE = 'IMPORT_COMPANY_FAILURE';
 
+export const VALIDATE_COMPANY_REQUEST = 'VALIDATE_COMPANY_REQUEST';
+export const VALIDATE_COMPANY_SUCCESS = 'VALIDATE_COMPANY_SUCCESS';
+export const VALIDATE_COMPANY_FAILURE = 'VALIDATE_COMPANY_FAILURE';
+
+
 export const COMPANY_TAB_CHANGE = 'COMPANY_TAB_CHANGE';
 
 export const START_CREATE_COMPANY = 'START_CREATE_COMPANY';
@@ -182,6 +187,19 @@ export function lookupCompany(query) {
             credentials: 'same-origin'
         }),
         payload: {query: query}
+    };
+}
+
+export function validateCompany(data, options = {}) {
+    return {
+        types: [VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE],
+        callAPI: () => fetch('/api/company/import/validate', {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        }),
+        payload: {form: options.form}
     };
 }
 

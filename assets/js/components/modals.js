@@ -3,7 +3,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import {nextModal, previousModal, endCreateCompany, addListEntry, removeListEntry} from '../actions';
+import {nextModal, previousModal, endCreateCompany, addListEntry, removeListEntry, validateCompany} from '../actions';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
@@ -191,11 +191,19 @@ export class CompanyFieldsPage extends React.Component {
 }
 
 
+function validateCompanyFieldsAsync(data, dispatch){
+    return dispatch(validateCompany(data))
+}
+
+
+
 const companyFields = ['companyName', 'nzbn', 'incorporationDate', 'addressForService', 'registeredCompanyAddress'];
 const DecoratedCompanyFieldsForm = reduxForm({
     form: 'companyFull',
     fields: companyFields,
     validate: requiredFields.bind(null, companyFields),
+    asyncValidate: validateCompanyFieldsAsync,
+    asyncBlurFields: ['companyName', 'companyNumber'],
     destroyOnUnmount: false
 }/*, {
     state => ({ // mapStateToProps
@@ -210,6 +218,9 @@ export class CreateCompanyModal extends React.Component {
 
     pages = [
         function(){
+            return  <CompanyFieldsPage ref="form" formKey={this.props.formKey} />
+        },
+        function(){
             return  <ShareClassesPage ref="form" formKey={this.props.formKey}
                 addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey,  ...args))}}
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
@@ -222,9 +233,6 @@ export class CreateCompanyModal extends React.Component {
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
                 shareClasses={{}}
                 formData={this.props.formData.holdings} />
-        },
-        function(){
-            return  <CompanyFieldsPage ref="form" formKey={this.props.formKey} />
         },
         function(){
             return  <DirectorsPage ref="form" formKey={this.props.formKey}

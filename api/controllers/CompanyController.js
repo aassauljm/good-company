@@ -172,5 +172,14 @@ module.exports = {
             }).catch(function(err) {
                 return res.negotiate(err);
             });
+    },
+    validate: function(req, res){
+        checkNameCollision(req.user.id, req.params)
+            .then(function(){
+                return res.ok()
+            })
+            .catch(function(err){
+                return res.negotiate(err);
+            })
     }
 };
