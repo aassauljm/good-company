@@ -257,16 +257,14 @@ function reduceListChange(state, action){
     }
 }
 
+const normalizeNumber = (value) => {
+    return value ? value.replace(/[^\d]/g, '') : value
+}
+
 
 const form = formReducer.normalize({
     parcel: {
-        amount: function(value, previousValue){
-            if(!value) {
-                return value;
-            }
-            const onlyNums = value.replace(/[^\d]/g, '');
-            return onlyNums;
-        }
+        amount: normalizeNumber
     }
 }).plugin({
     account: (state, action) => {

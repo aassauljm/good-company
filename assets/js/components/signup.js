@@ -8,26 +8,36 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { pushState, replaceState } from 'redux-router';
-import { fieldStyle, objectValues } from '../utils';
+import { fieldStyle, fieldHelp, objectValues, validateWithSchema } from '../utils';
 import { createResource, validateUser } from '../actions';
 import Promise from 'bluebird'
+import validator from 'validator'
 
-function signUpValidate(form){
-    const error = {};
-    if(!form.email){
-        error.email = ['Email required'];
-    }
-    if(!form.username){
-        error.username= ['Username required'];
-    }
-    if(!form.password){
-        error.password = ['Password required'];
-    }
-    if(!form.repeatPassword){
-        error.repeatPassword = ['Password required'];
-    }
-    return error;
-}
+var signUpSchema = {
+    email: [{
+            test: (value) => validator.isEmail(value),
+            message: 'A valid email is required'
+        }],
+    username: [
+        {test: (value) => value,
+            message: 'A username is required'
+        }, {test: (value) => validator.isLength(value, 5),
+            message: 'Username is too short'
+        },
+    ],
+    password: [
+        {test: (value) => value,
+            message: 'A password is required'
+        }, {test: (value) => validator.isLength(value, 5),
+            message: 'Password is too short'
+        }],
+    repeatPassword: [
+        {test: (value) => value,
+            message: 'Please repeat password'
+        }, {test: (value, form) => value === form.password,
+            message: 'Passwords do not match'
+        }],
+};
 
 function asyncValidate(form, dispatch){
     return dispatch(validateUser(form))
@@ -48,7 +58,7 @@ function asyncValidate(form, dispatch){
 @reduxForm({
   form: 'signup',
   fields: ['email', 'username', 'password', 'repeatPassword'],
-  validate: signUpValidate,
+  validate: validateWithSchema(signUpSchema),
   asyncValidate,
   asyncBlurFields: ['email', 'username']
 })
@@ -68,11 +78,15 @@ export default class SignUpForm extends React.Component {
         const { fields: {email, username, password, repeatPassword} } = this.props;
 
          return  <div className="col-md-6 col-md-offset-3"><form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
-            <Input type="text" ref="email" {...email} bsStyle={fieldStyle(this.props.fields.email)} label="Email" hasFeedback />
-            <Input type="text" ref="username" {...username} bsStyle={fieldStyle(this.props.fields.username)} label="Username" hasFeedback />
-            <Input type="password" ref="password" {...password} bsStyle={fieldStyle(this.props.fields.password)}label="Password"  hasFeedback />
-            <Input type="password" ref="repeatPassword" {...repeatPassword} bsStyle={fieldStyle(this.props.fields.repeatPassword)} label="Repeat Password" hasFeedback  />
-            <ButtonInput type='submit' value='Sign Up' />
+            <Input type="text" ref="email" {...email} bsStyle={fieldStyle(email)}
+            label="Email" hasFeedback help={fieldHelp(email)} />
+            <Input type="text" ref="username" {...username} bsStyle={fieldStyle(this.props.fields.username)}
+            label="Username" hasFeedback help={fieldHelp(username)} />
+            <Input type="password" ref="password" {...password} bsStyle={fieldStyle(this.props.fields.password)}
+            label="Password"  hasFeedback help={fieldHelp(password)} />
+            <Input type="password" ref="repeatPassword" {...repeatPassword} bsStyle={fieldStyle(this.props.fields.repeatPassword)}
+            label="Repeat Password" hasFeedback help={fieldHelp(repeatPassword)}  />
+            <ButtonInput type='submit' bsStyle="primary" value='Sign Up' />
             </form></div>
     }
 }

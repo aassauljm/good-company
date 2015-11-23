@@ -13,6 +13,32 @@ export function fieldStyle(field){
     }
 }
 
+export function fieldHelp(field){
+    if(!field.touched){
+        return;
+    }
+    if(field.error){
+        return field.error[0];
+    }
+}
+
+
+function validateWithSchema(schema){
+    return (form) => {
+        const errors = {};
+        Object.keys(signUpSchema).map(key=>{
+            schema[key].map(validation => {
+                if(!validation.test(form[key], form)){
+                    errors[key] = [...(errors[key] || []), validation.message]
+                }
+            })
+        });
+        return errors;
+    }
+}
+
+
+
 var shallowCompare = require('react-addons-shallow-compare');
 
 /**
