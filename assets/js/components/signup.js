@@ -3,7 +3,7 @@ import React from 'react';
 import { pureRender } from '../utils';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
-import { requestLogin } from '../actions';
+import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
@@ -28,7 +28,7 @@ var signUpSchema = {
     password: [
         {test: (value) => value,
             message: 'A password is required'
-        }, {test: (value) => validator.isLength(value, 5),
+        }, {test: (value) => validator.isLength(value, 8),
             message: 'Password is too short'
         }],
     repeatPassword: [
@@ -43,7 +43,6 @@ function asyncValidate(form, dispatch){
     return dispatch(validateUser(form))
         .then(function(result){
             if(result.error){
-
                 return Promise.reject({
                     email: [result.response.message],
                     username: [result.response.message]
@@ -53,7 +52,6 @@ function asyncValidate(form, dispatch){
         })
 
 }
-
 
 @reduxForm({
   form: 'signup',
@@ -67,16 +65,11 @@ export default class SignUpForm extends React.Component {
         e.preventDefault();
         this.props.touchAll();
         if(this.props.valid){
-            this.props.submit({
-                email: this.refs.email.getValue(),
-                username: this.refs.username.getValue(),
-                password: this.refs.password.getValue()
-           });
+            this.props.submit(this.props.values);
         }
     }
     render() {
         const { fields: {email, username, password, repeatPassword} } = this.props;
-
          return  <div className="col-md-6 col-md-offset-3"><form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
             <Input type="text" ref="email" {...email} bsStyle={fieldStyle(email)}
             label="Email" hasFeedback help={fieldHelp(email)} />
@@ -96,7 +89,15 @@ export default class SignUpForm extends React.Component {
 class Signup extends React.Component {
     static propTypes = { login: React.PropTypes.object };
     submit(data) {
-        this.props.dispatch(createResource('/user/signup', data, {form: 'signup'}))
+        return this.props.dispatch(createResource('/user/signup', data, {form: 'signup'}))
+            .then((result) => {
+                if(result.error){
+                    this.props.dispatch(addNotification({error: true, message: result.response.message}));
+                }
+                else{
+                    this.props.dispatch(pushState(null, '/'))
+                }
+            })
     }
     componentDidMount() {
         this.nav()

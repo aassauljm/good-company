@@ -48,7 +48,7 @@ module.exports = {
         }).then(function(matchingRecords) {
             res.ok(matchingRecords);
         }).catch(function(err) {
-            return res.serverError(err);
+            return res.notFound(err);
         });
     },
 
@@ -73,7 +73,7 @@ module.exports = {
                 json.currentCompanyState = _.merge(json.currentCompanyState.toJSON(), stats);
                 res.json(json);
             }).catch(function(err) {
-                return res.serverError(err);
+                return res.notFound(err);
             });
     },
     history: function(req, res) {
@@ -89,7 +89,7 @@ module.exports = {
                 var json = this.companyState.get();
                 res.json({companyState: _.merge(json, stats)});
             }).catch(function(err) {
-                return res.serverError(err);
+                return res.badRequest(err);
             });
     },
     transactionHistory: function(req, res) {
@@ -100,7 +100,7 @@ module.exports = {
             .then(function(transactions) {
                 res.json({transactions: transactions});
             }).catch(function(err) {
-                return res.serverError(err);
+                return res.badRequest(err);
             });
     },
     import: function(req, res) {
@@ -179,7 +179,7 @@ module.exports = {
                 return res.ok({})
             })
             .catch(function(err){
-                return res.negotiate(err);
+                return res.badRequest(err);
             })
     }
 };

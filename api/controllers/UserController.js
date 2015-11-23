@@ -16,7 +16,7 @@ function checkNameCollision(data) {
         })
         .then(function(results) {
             if (results.length) {
-                throw new sails.config.exceptions.CompanyImportException('A User with that name or email number already exists');
+                throw new sails.config.exceptions.ValidationException('A User with that name or email number already exists');
             }
         })
 }
@@ -65,7 +65,7 @@ module.exports = {
                 res.ok({})
             })
             .catch(function(err){
-                res.negotiate(err)
+                res.badRequest(err);
             })
     },
     signup: function(req, res) {
