@@ -7,22 +7,13 @@ import {nextModal, previousModal, endCreateCompany, addListEntry, removeListEntr
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import DatePicker from 'react-date-picker';
+import DateInput from './forms/dateInput';
 import { fieldStyle, requiredFields, formProxyable, formProxy } from '../utils';
 import PersonsForm from './person'
 import ParcelsForm from './parcel'
 import ShareClassesForm from './shareClass'
 import Address from './forms/address'
 import { pushState } from 'redux-router';
-
-export class DateInput extends React.Component {
-
-    render() {
-         return <Input {...this.props} >
-                    <DatePicker {...this.props}  />
-          </Input>
-    }
-}
 
 @formProxy
 @formProxyable

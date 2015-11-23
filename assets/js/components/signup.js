@@ -70,7 +70,8 @@ export default class SignUpForm extends React.Component {
     }
     render() {
         const { fields: {email, username, password, repeatPassword} } = this.props;
-         return  <div className="col-md-6 col-md-offset-3"><form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
+         return  <div className="col-md-6 col-md-offset-3">
+         <form ref="form"  onSubmit={::this.submit}>
             <Input type="text" ref="email" {...email} bsStyle={fieldStyle(email)}
             label="Email" hasFeedback help={fieldHelp(email)} />
             <Input type="text" ref="username" {...username} bsStyle={fieldStyle(this.props.fields.username)}

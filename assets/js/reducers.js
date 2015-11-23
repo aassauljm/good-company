@@ -15,6 +15,11 @@ import {
     START_CREATE_COMPANY, END_CREATE_COMPANY, NEXT_MODAL, PREVIOUS_MODAL,
     REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
      } from './actions';
+
+import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
+  STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
+
+
 import formReducer from './customFormReducer';
 import { routerStateReducer } from 'redux-router';
 import validator from 'validator'
@@ -281,9 +286,19 @@ const form = formReducer.normalize({
     login: (state, action) => {
         switch(action.type) {
             case LOGIN_SUCCESS:
-                return {...state, ...{password: {}}};
+                return {...state, password: {}};
             case LOGIN_FAILURE:
-                return {...state, ...{_error: 'Invalid Credentials'}};
+                return {...state, _error: 'Invalid Credentials'};
+            default:
+        }
+        if (action.form !== 'login'){
+            return state;
+        }
+        console.log('action');
+        switch(action.type){
+            case CHANGE:
+            case RESET:
+                return {...state, _error: null};
             default:
                 return state;
         }

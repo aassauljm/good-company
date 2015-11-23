@@ -4,7 +4,7 @@ import { pureRender } from '../utils';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
-import { requestLogin } from '../actions';
+import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import { Link } from 'react-router';
@@ -16,31 +16,28 @@ export class LoginForm extends React.Component {
     submit(e){
         e.preventDefault();
         if(this.props.valid){
-            this.props.submit({
-                identifier: this.refs.email.getValue(),
-                password: this.refs.password.getValue()
-           });
+            this.props.submit(this.props.values);
         }
     }
 
     render() {
-        const { fields: {email, password} } = this.props;
-         return  <div className="col-md-6 col-md-offset-3"> <form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
+        const { fields: {identifier, password} } = this.props;
+         return  <div className="col-md-6 col-md-offset-3"> <form ref="form"  onSubmit={::this.submit}>
             { this.props.error ?    <div className="alert alert-danger" role="alert">{this.props.error }</div> : null }
-            <Input type="text" ref="email" {...email} label="Email" />
+            <Input type="text" ref="identifier" {...identifier} label="Email" />
             <Input type="password" ref="password" {...password} label="Password"  />
-            </form>
             <ButtonToolbar className="text-center">
-                <button type='submit' className="btn btn-primary" ref="submit" onClick={::this.submit}>Sign In</button>
+                <button type='submit' className="btn btn-primary" ref="submit" >Sign In</button>
                 <Link activeClassName="active" className="nav-link btn btn-info" to={'/signup'}>Sign Up</Link>
             </ButtonToolbar>
+            </form>
             </div>
     }
 }
 
 export const DecoratedLoginForm = reduxForm({
   form: 'login',
-  fields: ['email', 'password']
+  fields: ['identifier', 'password']
 })(LoginForm)
 
 @connect(state => state.login)
