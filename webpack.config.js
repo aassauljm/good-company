@@ -16,7 +16,7 @@ module.exports = {
     output: {
         filename: "main.js",
         chunkFilename: "[name].[id].js",
-        path: __dirname + "/.tmp/public/js",
+        path: __dirname + "/.tmp/public/js"
     },
     devtool: 'source-map',
     module: {
@@ -32,7 +32,8 @@ module.exports = {
                 'css?sourceMap!' +
                 'sass?sourceMap'
             )
-        }],
+        },
+      { test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,    loader: "file?name=../css/[name].[ext]" }],
     },
     plugins: [
         definePlugin,

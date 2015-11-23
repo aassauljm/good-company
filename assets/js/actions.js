@@ -54,6 +54,10 @@ export const VALIDATE_COMPANY_REQUEST = 'VALIDATE_COMPANY_REQUEST';
 export const VALIDATE_COMPANY_SUCCESS = 'VALIDATE_COMPANY_SUCCESS';
 export const VALIDATE_COMPANY_FAILURE = 'VALIDATE_COMPANY_FAILURE';
 
+export const VALIDATE_USER_REQUEST = 'VALIDATE_USER_REQUEST';
+export const VALIDATE_USER_SUCCESS = 'VALIDATE_USER_SUCCESS';
+export const VALIDATE_USER_FAILURE = 'VALIDATE_USER_FAILURE';
+
 
 export const COMPANY_TAB_CHANGE = 'COMPANY_TAB_CHANGE';
 
@@ -194,6 +198,19 @@ export function validateCompany(data, options = {}) {
     return {
         types: [VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE],
         callAPI: () => fetch('/api/company/import/validate', {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        }),
+        payload: {form: options.form}
+    };
+}
+
+export function validateUser(data, options = {}) {
+    return {
+        types: [VALIDATE_USER_REQUEST, VALIDATE_USER_SUCCESS, VALIDATE_USER_FAILURE],
+        callAPI: () => fetch('/api/user/validate', {
             method: 'POST',
             headers: json_headers,
             body: JSON.stringify(data),

@@ -41,6 +41,7 @@ module.exports.policies = {
     UserController: {
         'setPassword': ['passport', 'sessionAuth'],
         'signup': true,
+        'validateUser': true,
     },
     ModelController:{
         'create': false,

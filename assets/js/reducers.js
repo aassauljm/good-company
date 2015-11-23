@@ -261,12 +261,10 @@ function reduceListChange(state, action){
 const form = formReducer.normalize({
     parcel: {
         amount: function(value, previousValue){
-            console.log('value', value)
             if(!value) {
                 return value;
             }
             const onlyNums = value.replace(/[^\d]/g, '');
-            console.log(value, onlyNums)
             return onlyNums;
         }
     }

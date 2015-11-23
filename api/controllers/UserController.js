@@ -5,6 +5,21 @@ var Promise = require("bluebird");
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 
+function checkNameCollision(data) {
+    return User.findAll({
+            where: {
+                $or: {
+                    email: data.email,
+                    username: data.username
+                }
+            }
+        })
+        .then(function(results) {
+            if (results.length) {
+                throw new sails.config.exceptions.CompanyImportException('A User with that name or email number already exists');
+            }
+        })
+}
 
 module.exports = {
 
@@ -41,6 +56,16 @@ module.exports = {
                 res.badRequest({
                     'newPassword': [err]
                 });
+            })
+    },
+    validateUser: function(req, res){
+        var data = actionUtil.parseValues(req);
+        checkNameCollision(data)
+            .then(function(){
+                res.ok({})
+            })
+            .catch(function(err){
+                res.negotiate(err)
             })
     },
     signup: function(req, res) {

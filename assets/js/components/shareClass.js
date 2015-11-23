@@ -14,14 +14,16 @@ export class ShareClassForm extends React.Component {
         fields: React.PropTypes.object
     };
     render() {
-        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
         const { fields: {label} } = this.props;
-        return <div>
-            <Input type="text" {...label} label={STRINGS['label']} bsStyle={fieldStyle(label)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
-            <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={this.props.remove}><span aria-hidden="true">&times;</span></Button>
+        return <div className="col-md-6 col-md-offset-3">
+            <Input type="text" {...label} label={STRINGS['label']}
+                bsStyle={fieldStyle(label)}
+                buttonAfter={ <Button aria-label="Remove" bsStyle='danger' onClick={this.props.remove}><span aria-hidden="true">&times;</span></Button>}
+                />
         </div>
     }
 }
+
 
 const DecoratedShareClassForm = reduxForm({
   form: 'shareClass',
@@ -35,9 +37,6 @@ export default class ShareClassesForm extends React.Component {
     static propTypes = {
         keyList: React.PropTypes.array
     };
-
-    REFHACK = {};
-
     touchAll() {
         this.props.keyList.map((d, i) => {
             this.REFHACK[d].props.touchAll();

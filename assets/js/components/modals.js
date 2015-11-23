@@ -3,7 +3,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import {nextModal, previousModal, endCreateCompany, addListEntry, removeListEntry, validateCompany} from '../actions';
+import {nextModal, previousModal, endCreateCompany, addListEntry, removeListEntry, validateCompany, createResource, addNotification} from '../actions';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
@@ -13,7 +13,7 @@ import PersonsForm from './person'
 import ParcelsForm from './parcel'
 import ShareClassesForm from './shareClass'
 import Address from './forms/address'
-
+import { pushState } from 'redux-router';
 
 export class DateInput extends React.Component {
 
@@ -35,19 +35,23 @@ export class HoldingForm extends React.Component {
     subForms = ['parcels', 'holders'];
 
     render() {
-        return <div className="panel panel-default">
+        return <div className="panel panel-primary">
                 <div className="panel-heading">
                     { this.props.title }
                     <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={() => this.props.remove()}><span aria-hidden="true">&times;</span></Button>
                 </div>
                 <div className="panel-body">
-                    <div className="col-xs-6">
-                         <ParcelsForm formKey={this.props.formKey} ref="parcels" title='Parcel' keyList={this.props.formData.parcels.list || []} remove={(...args)=>this.props.removeListEntry('parcels', ...args) } />
-                        <div className="text-center"><Button bsStyle="success" onClick={
+                    <div className="col-md-6 parcel-col">
+                         <ParcelsForm formKey={this.props.formKey} ref="parcels" title='Parcel'
+                            shareClasses={this.props.shareClasses}
+                            keyList={this.props.formData.parcels.list || []}
+                            remove={(...args)=>this.props.removeListEntry('parcels', ...args) } />
+
+                        <div className="text-center btn-toolbar"><Button bsStyle="success" onClick={
                             () => {this.props.addListEntry('parcels') }
                         }>Add Parcel</Button></div>
                     </div>
-                    <div className='col-xs-6'>
+                    <div className='col-md-6 person-col'>
                         <PersonsForm formKey={this.props.formKey} ref="holders" descriptor="holders" title='Shareholder' keyList={this.props.formData.holders.list || []} remove={(...args)=>this.props.removeListEntry('holders', ...args) } />
                         <div className="text-center"><Button bsStyle="success"
                             onClick={() => {this.props.addListEntry('holders') }
@@ -80,6 +84,7 @@ export class HoldingsForm extends React.Component {
                     remove={(...args) => this.props.removeListEntry('holdings', d, ...args)}
                     addListEntry={(...args) => this.props.addListEntry('holdings', d, ...args) }
                     removeListEntry={(...args) => this.props.removeListEntry('holdings', d, ...args)}
+                    shareClasses={this.props.shareClasses}
                     register={this.register(d)}
                     unregister={this.unregister(d)} />
                     })}
@@ -105,6 +110,7 @@ export class HoldingsPage extends React.Component {
                     formKey={this.props.formKey}
                     formData={this.props.formData}
                     addListEntry={this.props.addListEntry}
+                    shareClasses={this.props.shareClasses}
                     removeListEntry={this.props.removeListEntry}   />
                     <div className="text-center"><Button bsStyle="success" onClick={
                         () => {this.props.addListEntry('holdings') }
@@ -150,7 +156,8 @@ export class ShareClassesPage extends React.Component {
                     keyList={this.props.formData.list}
                     formKey={this.props.formKey}
                     remove={(key) => this.props.removeListEntry('shareClasses', key)} />
-                    <div className="text-center"><Button bsStyle="success" onClick={
+
+                    <div className="text-center col-md-6 col-md-offset-3"><Button bsStyle="success" onClick={
                         () => {this.props.addListEntry('shareClasses') }
                     }>Add New Share Class</Button></div>
                 </fieldset>
@@ -217,10 +224,7 @@ const DecoratedCompanyFieldsForm = reduxForm({
 export class CreateCompanyModal extends React.Component {
 
     pages = [
-        function(){
-            return  <CompanyFieldsPage ref="form" formKey={this.props.formKey} />
-        },
-        function(){
+        /*function(){
             return  <ShareClassesPage ref="form" formKey={this.props.formKey}
                 addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey,  ...args))}}
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
@@ -231,22 +235,34 @@ export class CreateCompanyModal extends React.Component {
             return  <HoldingsPage ref="form" formKey={this.props.formKey}
                 addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey, ...args))}}
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
-                shareClasses={{}}
+                shareClasses={this.props.formValues.shareClasses}
                 formData={this.props.formData.holdings} />
-        },
+        },*/
         function(){
+            return  <CompanyFieldsPage ref="form" formKey={this.props.formKey} />
+        },
+       /* function(){
             return  <DirectorsPage ref="form" formKey={this.props.formKey}
                 addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey,  ...args))}}
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
                 formData={this.props.formData.directors} />
-        },
+        },*/
 
     ];
 
     handleNext() {
         this.refs.form.touchAll();
         if(this.refs.form.isValid()){
-            this.props.next();
+            if(this.props.index < this.pages.length -1){
+                this.props.next();
+            }
+            else{
+                this.props.dispatch(createResource('/company', this.props.formValues))
+                    .then((action) => this.props.dispatch(pushState(null, '/company/view/'+action.response.id)))
+                    .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
+                    .then(() => this.props.end())
+
+            }
         }
     };
 
@@ -257,13 +273,13 @@ export class CreateCompanyModal extends React.Component {
               </Modal.Header>
 
               <Modal.Body>
-                    { this.pages[this.props.index].call(this) }
+                { this.pages[this.props.index].call(this) }
               </Modal.Body>
 
               <Modal.Footer>
                 <Button onClick={this.props.end} >Close</Button>
                 { this.props.index > 0 && <Button onClick={this.props.previous} bsStyle="primary">Previous</Button> }
-                <Button onClick={::this.handleNext} bsStyle="primary">Next</Button>
+                 <Button onClick={::this.handleNext} bsStyle="primary">{ this.props.index < this.pages.length -1 ? 'Next' : 'Submit' }</Button>
               </Modal.Footer>
             </Modal>
     }
@@ -271,7 +287,6 @@ export class CreateCompanyModal extends React.Component {
 
 @connect(state => ({ form: state.form }))
 export class FormReduce extends React.Component {
-
     getValues() {
         const rootForms = this.props.form;
         function getFormModel(path, index){
@@ -298,7 +313,7 @@ export class FormReduce extends React.Component {
                 if(formData[key].list){
                     acc[key] =  formData[key].list.map(id => {
                         return {...getValues(getDeep([...path, key], id)), ...getValues(formData[key][id], [...path, key, id]) }
-                    })
+                    }).filter(x => x.label)
                 }
                 else{
                     acc[key] = formData[key].value
@@ -308,6 +323,10 @@ export class FormReduce extends React.Component {
 
         })(this.props.form[this.props.formName][this.props.formKey], [this.props.formKey]);
         return values;
+    }
+
+    componentWillUnmount() {
+        // destroy involved forms, maybe
     }
 
     render() {

@@ -13,9 +13,22 @@ export class ParcelForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object
     };
+
+    renderShareClasses() {
+        const labelClassName = 'col-md-3', wrapperClassName = 'col-md-8';
+        const { fields: { shareClass} } = this.props;
+        if(this.props.shareClasses.length){
+            return <Input type="select"  {...shareClass}  label={STRINGS['shareClass']} bsStyle={fieldStyle(shareClass)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}>
+                { this.props.shareClasses.map((s, i) => {
+                    return <option value={s.label} key={i}>{s.label}</option>
+                })}
+            </Input>
+        }
+    }
+
     render() {
-        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
-        const { fields: {amount, shareClass} } = this.props;
+        const labelClassName = 'col-md-3', wrapperClassName = 'col-md-8';
+        const { fields: {amount } } = this.props;
         return <div className="panel panel-warning">
             <div className="panel-heading">
                 { this.props.title }
@@ -23,7 +36,7 @@ export class ParcelForm extends React.Component {
             </div>
             <div className="panel-body">
                 <Input type="text" {...amount} label={STRINGS['amount']} bsStyle={fieldStyle(amount)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
-                <Input type="text"  {...shareClass}  label={STRINGS['shareClass']} bsStyle={fieldStyle(shareClass)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
+                { this.renderShareClasses()}
                 </div>
             </div>
 
@@ -41,7 +54,8 @@ const DecoratedParcelForm = reduxForm({
 @formProxy
 export default class ParcelsForm extends React.Component {
     static propTypes = {
-        keyList: React.PropTypes.array
+        keyList: React.PropTypes.array,
+        shareClasses: React.PropTypes.array
     };
 
     getKey(d) {
@@ -52,6 +66,7 @@ export default class ParcelsForm extends React.Component {
             { this.props.keyList.map((d, i) => {
             return <DecoratedParcelForm ref={d} key={d} formKey={this.getKey(d)}
                 title={this.props.title}
+                shareClasses={this.props.shareClasses}
                 remove={() => this.props.remove(d)}
                 register={this.register(d)} unregister={this.unregister(d)} />
             }) }

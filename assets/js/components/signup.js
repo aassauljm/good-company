@@ -9,7 +9,8 @@ import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { pushState, replaceState } from 'redux-router';
 import { fieldStyle, objectValues } from '../utils';
-import { createResource } from '../actions';
+import { createResource, validateUser } from '../actions';
+import Promise from 'bluebird'
 
 function signUpValidate(form){
     const error = {};
@@ -28,10 +29,28 @@ function signUpValidate(form){
     return error;
 }
 
+function asyncValidate(form, dispatch){
+    return dispatch(validateUser(form))
+        .then(function(result){
+            if(result.error){
+
+                return Promise.reject({
+                    email: [result.response.message],
+                    username: [result.response.message]
+                })
+            }
+            return {};
+        })
+
+}
+
+
 @reduxForm({
   form: 'signup',
   fields: ['email', 'username', 'password', 'repeatPassword'],
-  validate: signUpValidate
+  validate: signUpValidate,
+  asyncValidate,
+  asyncBlurFields: ['email', 'username']
 })
 export default class SignUpForm extends React.Component {
     submit(e){
@@ -45,27 +64,16 @@ export default class SignUpForm extends React.Component {
            });
         }
     }
-    errors(){
-        const errors = [];
-        let i = 0;
-        for(let field of objectValues(this.props.fields)){
-            errors.push(...(field.error || []).map((m) => (
-                <div className="alert alert-danger" role="alert" key={i++}>{m}</div>
-                )
-            ));
-        }
-        return errors;
-    }
     render() {
         const { fields: {email, username, password, repeatPassword} } = this.props;
-         return  <form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
-            { this.errors() }
-            <Input type="text" ref="email" {...email} bsStyle={fieldStyle(this.props.fields.email)} label="Email" />
-            <Input type="text" ref="username" {...username} bsStyle={fieldStyle(this.props.fields.username)} label="Username" />
-            <Input type="password" ref="password" {...password} bsStyle={fieldStyle(this.props.fields.password)}label="Password"  />
-            <Input type="password" ref="repeatPassword" {...repeatPassword} bsStyle={fieldStyle(this.props.fields.repeatPassword)} label="Repeat Password"  />
+
+         return  <div className="col-md-6 col-md-offset-3"><form ref="form" method="post" action="login" target="auth/local" onSubmit={::this.submit}>
+            <Input type="text" ref="email" {...email} bsStyle={fieldStyle(this.props.fields.email)} label="Email" hasFeedback />
+            <Input type="text" ref="username" {...username} bsStyle={fieldStyle(this.props.fields.username)} label="Username" hasFeedback />
+            <Input type="password" ref="password" {...password} bsStyle={fieldStyle(this.props.fields.password)}label="Password"  hasFeedback />
+            <Input type="password" ref="repeatPassword" {...repeatPassword} bsStyle={fieldStyle(this.props.fields.repeatPassword)} label="Repeat Password" hasFeedback  />
             <ButtonInput type='submit' value='Sign Up' />
-        </form>
+            </form></div>
     }
 }
 
@@ -74,7 +82,7 @@ export default class SignUpForm extends React.Component {
 class Signup extends React.Component {
     static propTypes = { login: React.PropTypes.object };
     submit(data) {
-        this.props.dispatch(createResource('/user/signup', data, 'signup'))
+        this.props.dispatch(createResource('/user/signup', data, {form: 'signup'}))
     }
     componentDidMount() {
         this.nav()

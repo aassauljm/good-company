@@ -176,7 +176,7 @@ module.exports = {
     validate: function(req, res){
         checkNameCollision(req.user.id, req.params)
             .then(function(){
-                return res.ok()
+                return res.ok({})
             })
             .catch(function(err){
                 return res.negotiate(err);

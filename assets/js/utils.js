@@ -2,7 +2,15 @@ import isoFetch from 'isomorphic-fetch';
 
 
 export function fieldStyle(field){
-    return field.error && field.touched ? 'error': null;
+    if(!field.touched){
+        return;
+    }
+    if(field.error){
+        return 'error';
+    }
+    if(field.valid){
+        return 'success';
+    }
 }
 
 var shallowCompare = require('react-addons-shallow-compare');

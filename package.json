@@ -60,6 +60,7 @@
     "connect-redis": "1.4.5",
     "continuation-local-storage": "^3.1.4",
     "error-factory": "^0.1.6",
+    "file-loader": "^0.8.4",
     "fnv-plus": "^1.2.12",
     "grunt": "0.4.2",
     "grunt-sync": "~0.0.4",
@@ -100,6 +101,7 @@
     "sequelize-fixtures": "^0.4.8",
     "sinon": "^1.17.2",
     "url": "^0.11.0",
+    "url-loader": "^0.5.6",
     "waterline-criteria": "^0.11.2",
     "webpack": "^1.12.2"
   }
