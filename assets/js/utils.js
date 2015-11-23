@@ -23,10 +23,10 @@ export function fieldHelp(field){
 }
 
 
-function validateWithSchema(schema){
+export function validateWithSchema(schema){
     return (form) => {
         const errors = {};
-        Object.keys(signUpSchema).map(key=>{
+        Object.keys(schema).map(key=>{
             schema[key].map(validation => {
                 if(!validation.test(form[key], form)){
                     errors[key] = [...(errors[key] || []), validation.message]

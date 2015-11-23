@@ -17,7 +17,7 @@ import {
      } from './actions';
 import formReducer from './customFormReducer';
 import { routerStateReducer } from 'redux-router';
-
+import validator from 'validator'
 
 const initialState = {
 
@@ -265,6 +265,11 @@ const normalizeNumber = (value) => {
 const form = formReducer.normalize({
     parcel: {
         amount: normalizeNumber
+    },
+    signup: {
+        email: (value) => {
+            return value ? value.toLowerCase(): value
+        }
     }
 }).plugin({
     account: (state, action) => {
