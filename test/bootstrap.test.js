@@ -81,7 +81,7 @@ function dom(){
 }
 
 
-before(function(done) {
+function lift(cb){
     Sails.lift({
         port: 1338,
         serverRender: true,
@@ -103,31 +103,47 @@ before(function(done) {
         session: {adapter: 'memory'},
         babel: {stage: 0, compile: false},
         test: true
-    }, function(err, server) {
-        if (err) return done(err);
-        sails = server;
-        sails.log.info('Sails Lifted');
-        sequelize_fixtures.loadFiles(['test/fixtures/user.json',
-                                     'test/fixtures/passport.json',
-                                     'test/fixtures/companyState.json',
-                                     'test/fixtures/company.json'], sails.models)
-            .then(function(){
-                fs.readFileAsync('config/db/functions.sql', 'utf8')
-                .then(function(sql){
-                    return sequelize.query(sql)
-                })
+    }, cb);
+}
+
+before(function(done) {
+    if(!process.env.SKIP_SAILS){
+        lift(function(err, server) {
+            if (err) return done(err);
+            sails = server;
+            sails.log.info('Sails Lifted');
+            sequelize_fixtures.loadFiles([
+                 'test/fixtures/user.json',
+                 'test/fixtures/passport.json',
+                 'test/fixtures/companyState.json',
+                 'test/fixtures/company.json'], sails.models)
                 .then(function(){
-                    return sequelize.query('SELECT reset_sequences();')
-                })
-                .then(function(){
-                    stubs();
-                    done();
+                    fs.readFileAsync('config/db/functions.sql', 'utf8')
+                    .then(function(sql){
+                        return sequelize.query(sql)
+                    })
+                    .then(function(){
+                        return sequelize.query('SELECT reset_sequences();')
+                    })
+                    .then(function(){
+                        stubs();
+                        done();
+                    });
                 });
-    });
             });
+    }
+    else{
+        console.log('Skipping sails lift');
+        done();
+    }
 });
 
 after(function(done) {
     console.log(); // Skip a line before displaying Sails lowering logs
-    sails.lower(done);
+    if(!process.env.SKIP_SAILS){
+        sails.lower(done);
+    }
+    else{
+        done();
+    }
 });

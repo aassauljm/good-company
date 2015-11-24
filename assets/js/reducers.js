@@ -280,7 +280,7 @@ const normalizeNumber = (value) => {
 }
 
 
-const form = formReducer.normalize({
+export const form = formReducer.normalize({
     parcel: {
         amount: normalizeNumber
     },
@@ -357,6 +357,7 @@ const form = formReducer.normalize({
         return reduceListChange(state, action)
     }
 })
+
 
 
 
