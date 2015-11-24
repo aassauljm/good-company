@@ -60,8 +60,7 @@ describe('Creates a nested form and modifies it', () => {
         state = form(state, removeListEntry('companyFull', 'test', 'holdings', '0', 'holders', '0'));
         state.companyFull.test.holdings['0'].holders.list.length.should.be.equal(1);
         state.companyFull.test.holdings['0'].holders.list[0].should.be.equal('1');
+        console.log(JSON.stringify(done, null, 4))
         done();
     });
-
-
 });
