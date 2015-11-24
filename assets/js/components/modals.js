@@ -41,7 +41,8 @@ export class HoldingForm extends React.Component {
                         }>Add Parcel</Button></div>
                     </div>
                     <div className='col-md-6 person-col'>
-                        <PersonsForm formKey={this.props.formKey} ref="holders" descriptor="holders" title='Shareholder' keyList={this.props.formData.holders.list || []} remove={(...args)=>this.props.removeListEntry('holders', ...args) } />
+                        <PersonsForm formKey={this.props.formKey} ref="holders" descriptor="holders" title='Shareholder'
+                        keyList={this.props.formData.holders.list || []} remove={(...args)=>this.props.removeListEntry('holders', ...args) } />
                         <div className="text-center"><Button bsStyle="success"
                             onClick={() => {this.props.addListEntry('holders') }
                         }>Add Holder</Button></div>

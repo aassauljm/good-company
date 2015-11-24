@@ -20,10 +20,10 @@ import {
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
   STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
 
-
 import formReducer from './customFormReducer';
 import { routerStateReducer } from 'redux-router';
 import validator from 'validator'
+
 
 const initialState = {
 
@@ -162,7 +162,7 @@ function resources(state = default_resources, action){
         case RESOURCE_CREATE_FAILURE:
         case RESOURCE_UPDATE_FAILURE:
         case RESOURCE_DELETE_FAILURE:
-            return {...state, ...{[action.key]: {...{data: action.response, _status: 'error'}}}};
+            return {...state, ...{[action.key]: {...{error: action.response, _status: 'error'}}}};
 
 
         case RESOURCE_CREATE_SUCCESS:
@@ -275,6 +275,16 @@ function reduceListChange(state, action){
     }
 }
 
+function handleKeyedFormRemoval(state, action){
+    if(action.type === REMOVE_LIST_ENTRY){
+        if(state[action.path.join('.')]){
+            return {...state, [action.path.join('.')]: undefined}
+        }
+    }
+    return state;
+}
+
+
 const normalizeNumber = (value) => {
     return value ? value.replace(/[^\d]/g, '') : value
 }
@@ -340,6 +350,7 @@ export const form = formReducer.normalize({
         return state;
     },
     companyFull: (state, action) => {
+        state = handleKeyedFormRemoval(state, action);
         if(action.type === START_CREATE_COMPANY){
             return {...state, [action.formKey]: addChildren('companyFull')}
         }
@@ -351,10 +362,19 @@ export const form = formReducer.normalize({
 
     },
     holding: (state, action) => {
+        state = handleKeyedFormRemoval(state, action);
         if(action.form !== 'holding'){
             return state;
         }
         return reduceListChange(state, action)
+    },
+    person: (state, action) => {
+        state = handleKeyedFormRemoval(state, action);
+        return state;
+    },
+    parcel: (state, action) => {
+        state = handleKeyedFormRemoval(state, action);
+        return state;
     }
 })
 
