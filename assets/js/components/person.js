@@ -5,28 +5,25 @@ import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { fieldStyle, requiredFields, formProxyable, formProxy } from '../utils';
+import { fieldStyle, requiredFields, formFieldProps, formProxyable, formProxy } from '../utils';
+import Panel from './panel';
 import Address from './forms/address'
 
+
 @formProxyable
+@formFieldProps({
+    labelClassName: 'col-xs-3',
+    wrapperClassName: 'col-xs-9'
+})
 export class PersonForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object
     };
     render() {
-        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-8';
-        const { fields: {name, address } } = this.props;
-        return <div className="panel panel-info">
-            <div className="panel-heading">
-                { this.props.title }
-                <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={this.props.remove}><span aria-hidden="true">&times;</span></Button>
-            </div>
-            <div className="panel-body">
-                <Input type="text" {...name} label={STRINGS['name']} bsStyle={fieldStyle(name)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
-                <Address type="text"  {...address}  label={STRINGS['address']} bsStyle={fieldStyle(address)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                </div>
-            </div>
-
+        return <Panel title={this.props.title} remove={this.props.remove} panelType="info">
+                <Input type="text" {...this.formFieldProps('name')}  />
+                <Address type="text"  {...this.formFieldProps('address')} />
+                </Panel>
     }
 }
 

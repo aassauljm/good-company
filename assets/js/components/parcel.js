@@ -5,20 +5,23 @@ import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { fieldStyle, requiredFields, formProxyable, formProxy } from '../utils';
+import { fieldStyle, requiredFields, formFieldProps, formProxyable, formProxy } from '../utils';
+import Panel from './panel';
 
 
 @formProxyable
+@formFieldProps({
+    labelClassName: 'col-md-3',
+    wrapperClassName: 'col-md-9'
+})
 export class ParcelForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object
     };
 
     renderShareClasses() {
-        const labelClassName = 'col-md-3', wrapperClassName = 'col-md-8';
-        const { fields: { shareClass} } = this.props;
         if(this.props.shareClasses.length){
-            return <Input type="select"  {...shareClass}  label={STRINGS['shareClass']} bsStyle={fieldStyle(shareClass)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}>
+            return <Input type="select"  {...this.formFieldProps('shareClass')}  >
                 { this.props.shareClasses.map((s, i) => {
                     return <option value={s.label} key={i}>{s.label}</option>
                 })}
@@ -27,18 +30,10 @@ export class ParcelForm extends React.Component {
     }
 
     render() {
-        const labelClassName = 'col-md-3', wrapperClassName = 'col-md-8';
-        const { fields: {amount } } = this.props;
-        return <div className="panel panel-warning">
-            <div className="panel-heading">
-                { this.props.title }
-                <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={this.props.remove}><span aria-hidden="true">&times;</span></Button>
-            </div>
-            <div className="panel-body">
-                <Input type="text" {...amount} label={STRINGS['amount']} bsStyle={fieldStyle(amount)} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
+        return <Panel title={this.props.title} remove={this.props.remove} panelType="warning">
+                <Input type="text" {...this.formFieldProps('amount')}  />
                 { this.renderShareClasses()}
-                </div>
-            </div>
+                </Panel>
 
     }
 }

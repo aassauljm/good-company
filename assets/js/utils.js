@@ -1,5 +1,5 @@
 import isoFetch from 'isomorphic-fetch';
-
+import STRINGS from './strings'
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -151,6 +151,23 @@ export function formProxy(component){
         return () => {
             delete self._REFHACK[key]
         }
+    }
+}
+
+export function formFieldProps(args){
+    return (component) => {
+        component.prototype.formFieldProps = function(name) {
+            return {
+                 ...this.props.fields[name],
+                    bsStyle: fieldStyle(this.props.fields[name]),
+                    label: STRINGS[name],
+                    labelClassName: args.labelClassName,
+                    wrapperClassName: args.wrapperClassName,
+                    hasFeedback: true,
+                    help: fieldHelp(this.props.fields[name])
+                }
+        }
+       return component;
     }
 }
 

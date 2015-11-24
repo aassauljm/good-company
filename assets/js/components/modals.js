@@ -8,12 +8,14 @@ import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import DateInput from './forms/dateInput';
-import { fieldStyle, fieldHelp, requiredFields, formProxyable, formProxy } from '../utils';
+import { fieldStyle, fieldHelp, requiredFields, formFieldProps, formProxyable, formProxy } from '../utils';
 import PersonsForm from './person'
 import ParcelsForm from './parcel'
 import ShareClassesForm from './shareClass'
 import Address from './forms/address'
 import { pushState } from 'redux-router';
+import Panel from './panel'
+
 
 @formProxy
 @formProxyable
@@ -26,12 +28,8 @@ export class HoldingForm extends React.Component {
     subForms = ['parcels', 'holders'];
 
     render() {
-        return <div className="panel panel-primary">
-                <div className="panel-heading">
-                    { this.props.title }
-                    <Button className="pull-right" bsSize='xs' aria-label="Close" onClick={() => this.props.remove()}><span aria-hidden="true">&times;</span></Button>
-                </div>
-                <div className="panel-body">
+        return <Panel title={this.props.title} remove={this.props.remove} panelType='success'>
+
                     <div className="col-md-6 parcel-col">
                          <ParcelsForm formKey={this.props.formKey} ref="parcels" title='Parcel'
                             shareClasses={this.props.shareClasses}
@@ -48,8 +46,8 @@ export class HoldingForm extends React.Component {
                             onClick={() => {this.props.addListEntry('holders') }
                         }>Add Holder</Button></div>
                     </div>
-                </div>
-            </div>
+
+                    </Panel>
     }
 }
 
@@ -78,7 +76,7 @@ export class HoldingsForm extends React.Component {
                     shareClasses={this.props.shareClasses}
                     register={this.register(d)}
                     unregister={this.unregister(d)} />
-                    })}
+                })}
         </div>
     }
 }
@@ -157,37 +155,27 @@ export class ShareClassesPage extends React.Component {
 }
 
 @formProxyable
+@formFieldProps({
+    labelClassName: 'col-xs-3',
+    wrapperClassName: 'col-xs-9'
+})
 export class CompanyFieldsForm extends React.Component {
     static propTypes = {
         fields: React.PropTypes.object
     };
 
     render() {
-        const { fields: {companyName, nzbn, incorporationDate, registeredCompanyAddress, addressForService} } = this.props;
-        const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-9';
         console.log('render form', this.props);
-
-        const props = (name) => {
-            return {
-                 ...this.props.fields[name],
-                    bsStyle: fieldStyle(this.props.fields[name]),
-                    label: STRINGS[name],
-                    labelClassName: labelClassName,
-                    wrapperClassName: wrapperClassName,
-                    hasFeedback: true,
-                    help: fieldHelp(this.props.fields[name])
-                }
-        }
 
         return  (
          <form className="form-horizontal">
               <fieldset>
                 <legend>Basic Info</legend>
-                    <Input type="text" {...props('companyName')} />
-                    <Input type="text" {...props('nzbn') } />
-                    <DateInput {...props('incorporationDate') }/>
-                    <Address {...props('registeredCompanyAddress') }/>
-                    <Address {...props('addressForService') } />
+                    <Input type="text" {...this.formFieldProps('companyName')} />
+                    <Input type="text" {...this.formFieldProps('nzbn') } />
+                    <DateInput {...this.formFieldProps('incorporationDate') }/>
+                    <Address {...this.formFieldProps('registeredCompanyAddress') }/>
+                    <Address {...this.formFieldProps('addressForService') } />
                 </fieldset>
         </form> )
     }
@@ -241,7 +229,7 @@ export class CreateCompanyModal extends React.Component {
                 addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey,  ...args))}}
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
                 formData={this.props.formData.shareClasses} />
-        },
+        },*/
         function(){
             // you can get shareClass etc from formData
             return  <HoldingsPage ref="form" formKey={this.props.formKey}
@@ -249,16 +237,16 @@ export class CreateCompanyModal extends React.Component {
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
                 shareClasses={this.props.formValues.shareClasses}
                 formData={this.props.formData.holdings} />
-        },*/
-        function(){
-            return  <CompanyFieldsPage ref="form" formKey={this.props.formKey} />
         },
-       /* function(){
+        function(){
             return  <DirectorsPage ref="form" formKey={this.props.formKey}
                 addListEntry={(...args) => {this.props.dispatch(addListEntry(this.props.formName, this.props.formKey,  ...args))}}
                 removeListEntry={(...args) => {this.props.dispatch(removeListEntry(this.props.formName, this.props.formKey, ...args))}}
                 formData={this.props.formData.directors} />
-        },*/
+        },
+        function(){
+            return  <CompanyFieldsPage ref="form" formKey={this.props.formKey} />
+        },
 
     ];
 
@@ -269,10 +257,11 @@ export class CreateCompanyModal extends React.Component {
                 this.props.next();
             }
             else{
-                this.props.dispatch(createResource('/company', this.props.formValues))
-                    .then((action) => this.props.dispatch(pushState(null, '/company/view/'+action.response.id)))
-                    .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
-                    .then(() => this.props.end())
+
+                //this.props.dispatch(createResource('/company', this.props.formValues))
+                   // .then((action) => this.props.dispatch(pushState(null, '/company/view/'+action.response.id)))
+                 //   .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
+                 //   .then(() => this.props.end())
 
             }
         }
@@ -301,12 +290,13 @@ export class CreateCompanyModal extends React.Component {
 export class FormReduce extends React.Component {
     getValues() {
         const rootForms = this.props.form;
-        function getFormModel(path, index){
+        function getFormModel(path){
             return rootForms[{
                 'directors': 'person',
                 'holders': 'person',
-                'shareClasses': 'shareClass',
-                'holdings': 'holding'
+                //'shareClasses': 'shareClass',
+                //'parcels': 'parcel',
+               // 'holdings': 'holding'
             }[path[path.length-1]] || path[path.length-1]] || {}
         }
         const values = (function getValues(formData, path = []){
