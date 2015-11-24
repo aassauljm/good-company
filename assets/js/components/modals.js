@@ -8,7 +8,7 @@ import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import DateInput from './forms/dateInput';
-import { fieldStyle, requiredFields, formProxyable, formProxy } from '../utils';
+import { fieldStyle, fieldHelp, requiredFields, formProxyable, formProxy } from '../utils';
 import PersonsForm from './person'
 import ParcelsForm from './parcel'
 import ShareClassesForm from './shareClass'
@@ -165,16 +165,29 @@ export class CompanyFieldsForm extends React.Component {
     render() {
         const { fields: {companyName, nzbn, incorporationDate, registeredCompanyAddress, addressForService} } = this.props;
         const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-9';
-        console.log('render form', this.props)
+        console.log('render form', this.props);
+
+        const props = (name) => {
+            return {
+                 ...this.props.fields[name],
+                    bsStyle: fieldStyle(this.props.fields[name]),
+                    label: STRINGS[name],
+                    labelClassName: labelClassName,
+                    wrapperClassName: wrapperClassName,
+                    hasFeedback: true,
+                    help: fieldHelp(this.props.fields[name])
+                }
+        }
+
         return  (
          <form className="form-horizontal">
               <fieldset>
                 <legend>Basic Info</legend>
-                    <Input type="text" ref="companyName" {...companyName} bsStyle={fieldStyle(companyName)} label={STRINGS['companyName']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}  />
-                    <Input type="text" ref="nzbn" {...nzbn} bsStyle={fieldStyle(nzbn)} label={STRINGS['nzbn']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                    <DateInput ref="incorporationDate" {...incorporationDate} bsStyle={fieldStyle(incorporationDate)}  label={STRINGS['incorporationDate']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                    <Address ref="registeredCompanyAddress" {...registeredCompanyAddress} bsStyle={fieldStyle(registeredCompanyAddress)} label={STRINGS['registeredCompanyAddress']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
-                    <Address ref="addressForService" {...addressForService} bsStyle={fieldStyle(addressForService)} label={STRINGS['addressForService']} labelClassName={labelClassName} wrapperClassName={wrapperClassName}/>
+                    <Input type="text" {...props('companyName')} />
+                    <Input type="text" {...props('nzbn') } />
+                    <DateInput {...props('incorporationDate') }/>
+                    <Address {...props('registeredCompanyAddress') }/>
+                    <Address {...props('addressForService') } />
                 </fieldset>
         </form> )
     }
@@ -192,6 +205,13 @@ export class CompanyFieldsPage extends React.Component {
 
 function validateCompanyFieldsAsync(data, dispatch){
     return dispatch(validateCompany(data))
+        .then((result) => {
+            if(result.error){
+                return {
+                    companyName: [result.response.message]
+                }
+            }
+        })
 }
 
 
@@ -202,7 +222,7 @@ const DecoratedCompanyFieldsForm = reduxForm({
     fields: companyFields,
     validate: requiredFields.bind(null, companyFields),
     asyncValidate: validateCompanyFieldsAsync,
-    asyncBlurFields: ['companyName', 'companyNumber'],
+    asyncBlurFields: ['companyName'],
     destroyOnUnmount: false
 }/*, {
     state => ({ // mapStateToProps

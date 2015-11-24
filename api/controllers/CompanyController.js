@@ -18,16 +18,13 @@ function checkNameCollision(ownerId, data) {
                 as: 'currentCompanyState',
                 include: CompanyState.includes.fullNoJunctions(),
                 where: {
-                    $or: {
-                        companyName: data.companyName,
-                        companyNumber: data.companyNumber
-                    }
+                    companyName: data.companyName
                 }
             }]
         })
         .then(function(results) {
             if (results.length) {
-                throw new sails.config.exceptions.CompanyImportException('A company with that name or company number already exists');
+                throw new sails.config.exceptions.CompanyImportException('A company with that name already exists');
             }
         })
 }
@@ -174,7 +171,8 @@ module.exports = {
             });
     },
     validate: function(req, res){
-        checkNameCollision(req.user.id, req.params)
+        var data = actionUtil.parseValues(req);
+        checkNameCollision(req.user.id, data)
             .then(function(){
                 return res.ok({})
             })

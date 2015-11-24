@@ -182,3 +182,7 @@ $rw-version:          "4.1.0";
     }
   }
 }
+
+.form-group.has-feedback .rw-datetimepicker + .form-control-feedback{
+    right:60px;
+}
