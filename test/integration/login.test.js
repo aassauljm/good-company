@@ -16,9 +16,9 @@ describe('Renders full ', () => {
     it('gets log in menu', function(done){
         const dom = this.dom,
             form = findRenderedComponentWithType(this.tree, LoginForm),
-            input = findRenderedDOMComponentWithTag(form.refs.email, 'input'),
+            input = findRenderedDOMComponentWithTag(form.refs.identifier, 'input'),
             password = findRenderedDOMComponentWithTag(form.refs.password, 'input'),
-            submit = findRenderedDOMComponentWithTag(form.refs.submit, 'input');
+            submit = findRenderedDOMComponentWithTag(form, 'button');
 
         should.not.equal(null, this.dom.querySelector('a[href="/login"]'));
         should.equal(null, this.dom.querySelector('a[href="/logout"]'));
@@ -35,6 +35,6 @@ describe('Renders full ', () => {
             .then(function(el){
                 el.innerHTML.should.equal('integrate');
                 done();
-            })
+            });
    });
 });

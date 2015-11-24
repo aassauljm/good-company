@@ -87,7 +87,7 @@ describe('Company Controller', function() {
         });
         it('Confirms no history is present', function(done){
             req.get('/api/company/'+companyId+'/history/1')
-                .expect(500, done);
+                .expect(400, done);
         });
 
 

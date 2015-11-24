@@ -27,7 +27,7 @@ export class LoginForm extends React.Component {
             <Input type="text" ref="identifier" {...identifier} label="Email" />
             <Input type="password" ref="password" {...password} label="Password"  />
             <ButtonToolbar className="text-center">
-                <button type='submit' className="btn btn-primary" ref="submit" >Sign In</button>
+                <button type='submit' className="btn btn-primary" ref="submit" onClick={::this.submit}>Sign In</button>
                 <Link activeClassName="active" className="nav-link btn btn-info" to={'/signup'}>Sign Up</Link>
             </ButtonToolbar>
             </form>
