@@ -6,6 +6,9 @@
 @import "variables";
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 
+$input-border-width: 2px;
+
+
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/mixins";
 
 // Reset and dependencies
@@ -56,6 +59,7 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
 
 @import "bootswatch";
+@import "reactWidgets";
 
 body{
 	margin:0;
@@ -100,3 +104,15 @@ nav.navbar{
     margin-bottom:2em;
 }
 
+
+
+
+
+/*
+<div class="input-group">
+      <span class="input-group-addon">$</span>
+      <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
+      <span class="input-group-addon">.00</span>
+    </div>
+
+  */

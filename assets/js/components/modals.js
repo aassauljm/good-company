@@ -165,6 +165,7 @@ export class CompanyFieldsForm extends React.Component {
     render() {
         const { fields: {companyName, nzbn, incorporationDate, registeredCompanyAddress, addressForService} } = this.props;
         const labelClassName = 'col-xs-3', wrapperClassName = 'col-xs-9';
+        console.log('render form', this.props)
         return  (
          <form className="form-horizontal">
               <fieldset>

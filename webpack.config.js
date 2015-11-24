@@ -32,8 +32,16 @@ module.exports = {
                 'css?sourceMap!' +
                 'sass?sourceMap'
             )
+        }, {
+            test: /\.(less)$/,
+            loader: ExtractTextPlugin.extract(
+                // activate source maps via loader query
+                'css?sourceMap!' +
+                'less?sourceMap'
+            )
         },
-      { test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,    loader: "file?name=../css/[name].[ext]" }],
+        { test: /\.gif$/, loader: "url-loader?mimetype=image/png" },
+        { test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,    loader: "file?name=../css/[name].[ext]" }],
     },
     plugins: [
         definePlugin,
