@@ -54,7 +54,7 @@ export default class ParcelsForm extends React.Component {
     };
 
     getKey(d) {
-        return  `${this.props.formKey}.parcel.${d}`;
+        return  `${this.props.formKey}.parcels.${d}`;
     }
     render(){
         return <div>

@@ -8,6 +8,7 @@ import {
     RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE,
     RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE,
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
+    TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE,
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
@@ -131,6 +132,18 @@ function modals(state = {createCompany: {index: 0}}, action){
     }
 }
 
+function transactions(state = {}, action){
+    switch(action.type){
+        case TRANSACTION_REQUEST:
+            return {...state, _status: 'fetching'};
+        case TRANSACTION_SUCCESS:
+            return {...state, data: action.response, _status: 'complete'};
+        case TRANSACTION_FAILURE:
+            return {...state, data: action.response, _status: 'error'};
+        default:
+            return state;
+        }
+}
 
 const default_resources = {users: {}, roles: {}, documents: {}, companies: {}}
 
@@ -351,6 +364,7 @@ const form = formReducer.normalize({
 const appReducer = combineReducers({
   router: routerStateReducer,
   companyPage,
+  transactions,
   lookupCompany,
   importCompany,
   login,

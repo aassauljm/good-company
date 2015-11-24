@@ -3,7 +3,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import {nextModal, previousModal, endCreateCompany, addListEntry, removeListEntry, validateCompany, createResource, addNotification} from '../actions';
+import {nextModal, previousModal, endCreateCompany, addListEntry, removeListEntry, validateCompany, createResource, addNotification, companyTransaction} from '../actions';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
@@ -257,11 +257,15 @@ export class CreateCompanyModal extends React.Component {
                 this.props.next();
             }
             else{
-
-                //this.props.dispatch(createResource('/company', this.props.formValues))
-                   // .then((action) => this.props.dispatch(pushState(null, '/company/view/'+action.response.id)))
-                 //   .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
-                 //   .then(() => this.props.end())
+                let companyId;
+                this.props.dispatch(createResource('/company', this.props.formValues))
+                    .then((action) => {
+                        companyId = action.response.id;
+                        return this.props.dispatch(companyTransaction('seed',companyId, this.props.formValues))
+                    })
+                    .then((action) => this.props.dispatch(pushState(null, '/company/view/'+companyId)))
+                   .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
+                    .then(() => this.props.end())
 
             }
         }
@@ -294,9 +298,9 @@ export class FormReduce extends React.Component {
             return rootForms[{
                 'directors': 'person',
                 'holders': 'person',
-                //'shareClasses': 'shareClass',
-                //'parcels': 'parcel',
-               // 'holdings': 'holding'
+                'shareClasses': 'shareClass',
+                'parcels': 'parcel',
+                'holdings': 'holding'
             }[path[path.length-1]] || path[path.length-1]] || {}
         }
         const values = (function getValues(formData, path = []){
@@ -315,7 +319,7 @@ export class FormReduce extends React.Component {
                 if(formData[key].list){
                     acc[key] =  formData[key].list.map(id => {
                         return {...getValues(getDeep([...path, key], id)), ...getValues(formData[key][id], [...path, key, id]) }
-                    }).filter(x => x.label)
+                    })
                 }
                 else{
                     acc[key] = formData[key].value
@@ -324,11 +328,12 @@ export class FormReduce extends React.Component {
             }, {});
 
         })(this.props.form[this.props.formName][this.props.formKey], [this.props.formKey]);
+        console.log(values)
         return values;
     }
 
     componentWillUnmount() {
-        // destroy involved forms, maybe
+        // destroy involved forms
     }
 
     render() {

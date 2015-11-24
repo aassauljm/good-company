@@ -37,6 +37,9 @@ export const RESOURCE_DELETE_REQUEST = 'RESOURCE_DELETE_REQUEST';
 export const RESOURCE_DELETE_SUCCESS = 'RESOURCE_DELETE_SUCCESS';
 export const RESOURCE_DELETE_FAILURE = 'RESOURCE_DELETE_FAILURE';
 
+export const TRANSATION_REQUEST = 'TRANSATION_REQUEST';
+export const TRANSATION_SUCCESS = 'TRANSATION_SUCCESS';
+export const TRANSATION_FAILURE = 'TRANSATION_FAILURE';
 
 export const ADD_NOTIFICATION = 'ADD_NOTIFICATION';
 export const HIDE_NOTIFICATION = 'HIDE_NOTIFICATION';
@@ -207,6 +210,8 @@ export function validateCompany(data, options = {}) {
     };
 }
 
+
+
 export function validateUser(data, options = {}) {
     return {
         types: [VALIDATE_USER_REQUEST, VALIDATE_USER_SUCCESS, VALIDATE_USER_FAILURE],
@@ -231,6 +236,21 @@ export function importCompany(companyNumber) {
         }),
         shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
         payload: {companyNumber: companyNumber}
+    };
+}
+
+export function companyTransaction(transactionType, companyId, data) {
+    return {
+        types: [IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE],
+        callAPI: () => fetch('/api/transaction/'+transactionType+'/' +companyId, {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+
+        }),
+        shouldCallAPI: (state) => state.transactions._status !== 'fetching',
+        payload: {companyId: companyId}
     };
 }
 
