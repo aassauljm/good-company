@@ -20,9 +20,9 @@ export class ParcelForm extends React.Component {
     };
 
     renderShareClasses() {
-        if(this.props.shareClasses.length){
+        if(this.props.shareClasses.filter(x => x.label).length){
             return <Input type="select"  {...this.formFieldProps('shareClass')}  >
-                { this.props.shareClasses.map((s, i) => {
+                { this.props.shareClasses.filter(x => x.label).map((s, i) => {
                     return <option value={s.label} key={i}>{s.label}</option>
                 })}
             </Input>

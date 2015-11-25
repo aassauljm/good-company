@@ -255,15 +255,15 @@ export function companyTransaction(transactionType, companyId, data) {
 }
 
 
-export function startCreateCompany(formKey){
+export function startCreateCompany(formKey, data){
     return {
-        type: START_CREATE_COMPANY, formKey
+        type: START_CREATE_COMPANY, formKey, data
     }
 }
 
-export function endCreateCompany(){
+export function endCreateCompany(formKey){
     return {
-        type: END_CREATE_COMPANY
+        type: END_CREATE_COMPANY, formKey
     }
 }
 

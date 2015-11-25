@@ -211,12 +211,35 @@ function processResource(state, action){
 }
 
 
-function addChildren(type){
+function addChildren(type, data = {}){
+    const genList = (key, defaultSub = []) => {
+        const count = len(data[key]);
+        const keyList = Array(count).fill().map((x, i) => i.toString());
+
+        return {
+            list: keyList,
+            counter: keyList.length-1,
+            ...((data[key] || defaultSub).reduce((acc, value, index) => {
+                acc[index.toString()] = addChildren(key) //, data[key])
+                return acc;
+            }, {}))
+        }
+    }
+    const len = (array, defaultLength = 1) =>{
+        return array ? array.length || defaultLength : defaultLength;
+    }
     switch(type){
         case 'holdings':
-            return {holders: {list: ['0'], counter: 0}, parcels: {list: ['0'], counter: 0}}
+            return {
+                holders: genList('holders'),
+                parcels: genList('parcels')
+            };
         case 'companyFull':
-            return {directors: {list: ['0'], counter: 0}, shareClasses: {list: ['0'], counter: 0}, holdings: {list: ['0'], counter: 0, '0': addChildren('holdings')}}
+            return {
+                directors: genList('directors'),
+                shareClasses: genList('shareClasses'),
+                holdings: genList('holdings', [null])
+            };
         default:
             return {};
     }
@@ -290,7 +313,7 @@ const normalizeNumber = (value) => {
 }
 
 
-export const form = formReducer.normalize({
+export const formBase = formReducer.normalize({
     parcel: {
         amount: normalizeNumber
     },
@@ -317,7 +340,6 @@ export const form = formReducer.normalize({
         if (action.form !== 'login'){
             return state;
         }
-        console.log('action');
         switch(action.type){
             case CHANGE:
             case RESET:
@@ -351,9 +373,7 @@ export const form = formReducer.normalize({
     },
     companyFull: (state, action) => {
         state = handleKeyedFormRemoval(state, action);
-        if(action.type === START_CREATE_COMPANY){
-            return {...state, [action.formKey]: addChildren('companyFull')}
-        }
+
         if(action.form !== 'companyFull'){
             return state;
         }
@@ -378,9 +398,26 @@ export const form = formReducer.normalize({
     }
 })
 
+export function formWithCleanup(state = {}, action){
+    // todo, destroy all linked forms
+    return formBase(state, action);
+}
 
 
+function populateCompanyFull(state, formKey, data){
+    //state = {state.companyFull}
+}
 
+
+export function formPopulation(state = {}, action){
+    if(action.type === START_CREATE_COMPANY){
+        state = {...state, companyFull: {...state.companyFull, [action.formKey]: addChildren('companyFull', action.data)}}
+
+    }
+    return formWithCleanup(state, action);
+}
+
+export const form = formPopulation;
 
 const appReducer = combineReducers({
   router: routerStateReducer,

@@ -1,5 +1,5 @@
 import {form} from '../../assets/js/reducers';
-import {startCreateCompany, addListEntry, removeListEntry} from '../../assets/js/actions';
+import {startCreateCompany, endCreateCompany, addListEntry, removeListEntry} from '../../assets/js/actions';
 import {initialize} from 'redux-form/lib/actions';
 var chai = require('chai'),
     should = chai.should();
@@ -9,6 +9,7 @@ describe('Form reducers', () => {
         it('Seeds form', done => {
             let state = {};
             state = form(state, startCreateCompany('test'));
+            console.log(state)
             state.companyFull.test.should.be.an('object');
             state.companyFull.test.shareClasses.should.be.an('object');
             state.companyFull.test.shareClasses.list.should.be.an('array');
@@ -89,4 +90,36 @@ describe('Form reducers', () => {
         });
     });
 
+    describe('Loads data into form', () => {
+        it('Initializes companyFull with data', done => {
+            let state = {};
+            state = form(state, startCreateCompany('test',
+                         {holdings: [{
+                            holders: [{name: 'john'}],
+                            parcels: [{amount: 10}]
+                        },{
+                            holders: [{name: 'bill'}],
+                            parcels: [{amount: 100}]
+                        }],
+                         directors: [{
+                            name: 'mike',
+                            address: 'home'
+                         }]
+                     }));
+            state.person[['test', 'directors', '0'].join('.')].should.exist();
+            done();
+        });
+    });
+
+    describe('End form action cleans up form data', () => {
+        it('Initializes subform, adds data, removes it, confirms destruction', done => {
+            let state = {};
+            state = form(state, startCreateCompany('test'));
+            state = form(state, endCreateCompany('test'));
+            should.not.exist(state.person[['test', 'directors', '0'].join('.')]);
+            should.not.exist(state.parcel[['test', 'holdings', '0', 'parcels', '0'].join('.')]);
+            should.not.exist(state.shareClass[['test', 'shareClasses', '0'].join('.')]);
+            done();
+        });
+    });
 });
