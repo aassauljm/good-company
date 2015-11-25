@@ -104,6 +104,20 @@ nav.navbar{
     margin-bottom:2em;
 }
 
-.panel-heading{
-
+.loading{
+    font-size: 2em;
+    text-align: center;
+}
+.spin {
+  animation: spin 1000ms infinite linear;
+}
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
 }

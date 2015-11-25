@@ -13,9 +13,11 @@ import {
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     COMPANY_TAB_CHANGE,
-    START_CREATE_COMPANY, END_CREATE_COMPANY, NEXT_MODAL, PREVIOUS_MODAL,
+    START_CREATE_COMPANY, END_CREATE_COMPANY,
+    START_IMPORT_COMPANY, END_IMPORT_COMPANY,
+    NEXT_MODAL, PREVIOUS_MODAL,
     REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
-     } from './actions';
+     } from './actionTypes';
 
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
   STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
@@ -122,7 +124,15 @@ function modals(state = {createCompany: {index: 0}}, action){
         case START_CREATE_COMPANY:
             return {...state, showing: 'createCompany', createCompany: {index: 0}};
         case END_CREATE_COMPANY:
-            return {...state, showing: null};
+            if(state.showing === 'createCompany')
+                return {...state, showing: null};
+            return state;
+        case START_IMPORT_COMPANY:
+            return {...state, showing: 'importCompany', importCompany: {index: 0}};
+        case END_IMPORT_COMPANY:
+            if(state.showing === 'importCompany')
+                return {...state, showing: null};
+            return state;
         case NEXT_MODAL:
             return {...state,  [action.modal]: {index: state[action.modal].index + 1}};
         case PREVIOUS_MODAL:

@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import {requestResource, deleteResource, startCreateCompany} from '../actions';
+import {requestResource, deleteResource, startCreateCompany, startImportCompany} from '../actions';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -32,13 +32,17 @@ export default class Companies extends React.Component {
         this.props.dispatch(startCreateCompany('createCompanyModal'))
     }
 
+    handleImport() {
+        this.props.dispatch(startImportCompany('importCompanyModal'))
+    }
+
     render() {
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
         return <div>
            <ButtonToolbar className="text-center">
                 <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button>
-                <Button bsStyle="info" >Import Company</Button>
+                <Button bsStyle="info" onClick={::this.handleImport}>Import Company</Button>
             </ButtonToolbar>
             <div className="table-responsive">
             <table className="table table-striped table-hover">

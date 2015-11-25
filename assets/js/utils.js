@@ -222,3 +222,15 @@ export function stringToDate(date){
     const d = new Date(date);
     return [d.getDate() , MONTHS[d.getMonth()] , g.getYear()].join(' ');
 }
+
+export function debounce(func, delay = 100) {
+    let timeout;
+    return function(){
+        const args = arguments;
+        if (timeout)
+            clearTimeout(timeout)
+        timeout = setTimeout(() => {
+            func(...args);
+        }, delay);
+    };
+}
