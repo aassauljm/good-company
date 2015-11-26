@@ -21,7 +21,7 @@ let DOCUMENT_TYPES = {
 
 
 function cleanString(str){
-    return _.trim(str).replace(/[\n\r]/g, '').replace(/\s\s+/g, ' ')
+    return _.trim(str).replace(/[\n\r]/g, '').replace(/\s\s+/g, ' ').replace(/\s,/g, ',').replace(/,$/, '')
 }
 
 
@@ -38,8 +38,9 @@ function chunkBy(array, func){
 }
 
 function normalizeAddress(address){
-    return (address || '').replace(/^C\/- /, '');
+    return (address || '').replace(/^C\/- /, '').replace(/, \d{4,5}, /, ', ');
 }
+
 
 function parseName(text){
     text = cleanString(text);

@@ -47,7 +47,7 @@
                 "holders": [
                     {
                         "name": "GIVIA PTY LIMITED",
-                        "address": "101 Collins Street, Melbourne, Australia,"
+                        "address": "101 Collins Street, Melbourne, Australia"
                     }
                 ]
             },
@@ -126,7 +126,7 @@
                 "holders": [
                     {
                         "name": "NICOLA JANE WILSON, DAVID JONATHAN WILSON AND CHRISTOPHER ELLIOT RITCHIE",
-                        "address": "43 Rawhiti Terrace, Kelburn, Wellington 6012,"
+                        "address": "43 Rawhiti Terrace, Kelburn, Wellington 6012"
                     }
                 ]
             },
@@ -1531,13 +1531,13 @@
         },
         {
             "fullName": "Hamish EDWARDS",
-            "residentialAddress": "49 East Street, Greytown,",
+            "residentialAddress": "49 East Street, Greytown",
             "appointmentDate": "06 Jul 2006",
             "ceasedDate": "12 Dec 2011"
         },
         {
             "fullName": "John David Guy HADDLETON",
-            "residentialAddress": "67 Mccormick Lane, Atherton, Ca 94027, United States Of America,",
+            "residentialAddress": "67 Mccormick Lane, Atherton, Ca 94027, United States Of America",
             "appointmentDate": "16 Mar 2007",
             "ceasedDate": "17 Dec 2010"
         }
