@@ -70,6 +70,13 @@ export function callAPIMiddleware({
                         type: failureType
                     }));
                 })
+                .catch(error => {
+                    return dispatch(Object.assign({}, payload, {
+                        error: error,
+                        response: error.response,
+                        type: failureType
+                    }));
+                })
         };
     };
 }

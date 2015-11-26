@@ -1,36 +1,78 @@
 "use strict";
-import React from 'react';
+import React, {PropTypes} from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import {createResource, addNotification, companyTransaction} from '../actions';
+import {importCompany, addNotification, requestResource } from '../actions';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import { fieldStyle, fieldHelp, requiredFields, formFieldProps, formProxyable, formProxy } from '../utils';
 import { pushState } from 'redux-router';
 import LookupCompany from './lookupCompany';
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 
 
-
+@connect(state => ({importCompany: state.importCompany}))
 export default class ImportCompanyModal extends React.Component {
-
-    handleNext() {
-        if(this.props.index < this.pages.length -1){
-            this.props.next();
-        }
+    static propTypes = {
+        next: PropTypes.func.isRequired,
+        previous: PropTypes.func.isRequired,
+        end: PropTypes.func.isRequired
     };
 
     pages = [
         function(){
-            return  <LookupCompany />
+            return  <LookupCompany next={this.props.next}/>
+        },
+        function(){
+            return <div className="well">
+                <dl className="dl-horizontal">
+                    <dt >Company Name</dt>
+                    <dd >{this.props.modalData.companyName}</dd>
+                    <dt >Company Number</dt>
+                    <dd >{this.props.modalData.companyNumber}</dd>
+                    <dt >Status</dt>
+                    <dd >{this.props.modalData.struckOff ? 'Struck Off': 'Registered'}</dd>
+                    <dt >Notes</dt>
+                    <dd >{ (this.props.modalData.notes || []).map((note, i) => {
+                            return <span key={i}>{note}</span>
+                        }) }</dd>
+                    </dl>
+                    <div className="text-center">
+                        <Button bsStyle="primary" onClick={::this.importCompany} >Import this Company</Button>
+                        </div>
+            </div>
+        },
+        function(){
+            return <div>
+                <div className="text-center">Importing Company.  This may take a few moments...</div>
+                <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+                </div>
         }
 
     ];
+    importCompany(){
+        this.props.next();
+        this.props.dispatch(importCompany(this.props.modalData.companyNumber))
+            .then((result) => {
+                if(result.error){
+                    this.props.dispatch(addNotification({message: `Could not import company, Reason: ${result.response.message}`, error: true}));
+                    this.props.end();
+                }
+                else{
+                    this.props.dispatch(addNotification({message: 'Company Imported'}));
+                    this.props.dispatch(requestResource('companies', {refresh: true}));
+                    this.props.dispatch(pushState(null, '/company/view/'+result.response.id))
+                    this.props.end();
+                }
+            });
+    };
 
     render() {
         const valid = false;
+        console.log(this.props)
         return  <Modal show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>Import from the New Zealand Companies Office</Modal.Title>
@@ -42,9 +84,7 @@ export default class ImportCompanyModal extends React.Component {
 
               <Modal.Footer>
                 <Button onClick={this.props.end} >Close</Button>
-                { this.props.index > 0 && <Button onClick={this.props.previous} bsStyle="primary">Previous</Button> }
-
-                 <Button onClick={::this.handleNext} disabled={!valid} bsStyle="primary">{ this.props.index < this.pages.length -1 ? 'Next' : 'Import' }</Button>
+                { this.props.index > 0 && !this.props._status !== 'fetching' && <Button onClick={this.props.previous} bsStyle="primary">Previous</Button> }
               </Modal.Footer>
             </Modal>
     }

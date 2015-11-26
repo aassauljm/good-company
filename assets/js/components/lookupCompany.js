@@ -5,7 +5,7 @@ import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import ListGroup from './forms/listGroup';
 import ListGroupItem from './forms/listGroupItem';
-import { lookupCompany, importCompany, addNotification, requestResource } from '../actions';
+import { lookupCompany } from '../actions';
 import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import { pushState, replaceState } from 'redux-router';
@@ -55,16 +55,6 @@ class LookupCompany extends React.Component {
     lookup(data) {
         this.props.dispatch(lookupCompany(data))
     }
-
-    importCompany(i) {
-        this.props.dispatch(importCompany(this.props.lookupCompany.list[i].companyNumber))
-            .then((result) => {
-                result.error ?
-                    this.props.dispatch(addNotification({message: 'Could not import company', error: true})) :
-                    this.props.dispatch(addNotification({message: 'Company Imported'}));
-                this.props.dispatch(requestResource('companies', {refresh: true}));
-            })
-    }
     render() {
         return <div>
             <DecoratedLookupCompanyForm submit={this._debouncedLookup} />
@@ -72,7 +62,7 @@ class LookupCompany extends React.Component {
             { this.props.lookupCompany._status === 'complete' && !this.props.lookupCompany.list.length ? <span>No Results</span> : null}
              <ListGroup>
                 { this.props.lookupCompany.list.map((item, i) => {
-                    return <ListGroupItem key={i} onClick={this.importCompany.bind(this, i)}>
+                    return <ListGroupItem key={i} onClick={() => this.props.next(item)}>
                     { item.companyName }
                     { item.struckOff ? " (Struck Off)" : ''}
                     <div className="notes">

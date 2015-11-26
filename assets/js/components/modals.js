@@ -15,14 +15,16 @@ export default class Modals extends React.Component {
         if(this.props.showing === 'createCompany'){
             return <FormReducer formName="companyFull" formKey="createCompanyModal">
                 <CreateCompanyModal index={this.props.createCompany.index}
-                next={() => {this.props.dispatch(nextModal('createCompany'))} }
+                next={(...args) => {this.props.dispatch(nextModal('createCompany', ...args))} }
                 previous={() => {this.props.dispatch(previousModal('createCompany'))} }
                 end={() => {this.props.dispatch(endCreateCompany())} } />
                 </FormReducer>
         }
         if(this.props.showing === 'importCompany'){
-            return <ImportCompanyModal index={this.props.importCompany.index}
-                next={() => {this.props.dispatch(nextModal('importCompany'))} }
+            return <ImportCompanyModal
+                index={this.props.importCompany.index}
+                modalData={this.props.importCompany.data}
+                next={(...args) => {this.props.dispatch(nextModal('importCompany', ...args))} }
                 previous={() => {this.props.dispatch(previousModal('importCompany'))} }
                 end={() => {this.props.dispatch(endImportCompany())} } />
         }

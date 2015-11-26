@@ -13,6 +13,7 @@ import {
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
+    VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE,
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
@@ -28,6 +29,11 @@ const json_headers = {
 const accept_json_headers = {
     'Accept': 'application/json'
 };
+
+function retryOnError(status){
+    return !status || status === 'error';
+}
+
 
 export function changeCompanyTab(tabIndex){
     return {type: COMPANY_TAB_CHANGE, tabIndex};
@@ -72,7 +78,7 @@ export function requestUserInfo() {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => state.login.loggedIn && !state.userInfo._status
+        shouldCallAPI: (state) => state.login.loggedIn && retryOnError(state.userInfo._status)
     };
 }
 
@@ -90,7 +96,7 @@ export function requestResource(resource, options = {}) {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => !state.resources[resource] || !state.resources[resource]._status || options.refresh,
+        shouldCallAPI: (state) => !state.resources[resource] || retryOnError(state.resources[resource]._status) || options.refresh,
         payload: {key: resource, form: options.form}
     };
 }
@@ -226,9 +232,9 @@ export function endImportCompany(formKey){
     }
 }
 
-export function nextModal(modal){
+export function nextModal(modal, data){
     return {
-        type: NEXT_MODAL, modal
+        type: NEXT_MODAL, modal, data
     }
 }
 
