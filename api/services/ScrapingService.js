@@ -200,18 +200,22 @@ const EXTRACT_DOCUMENT_MAP = {
         return result;
     },
     [DOCUMENT_TYPES.NAME_CHANGE]: ($) => {
-        return {actions: [{
-            transactionType: Transaction.types.NAME_CHANGE,
-            newCompanyName: cleanString($('.row.wideLabel label').filter(function(){
-                    return $(this).text().match(/New Company Name/);
-                })[0].nextSibling.nodeValue),
-            previousCompanyName: cleanString($('.row.wideLabel label').filter(function(){
-                    return $(this).text().match(/Previous Company Name/);
-                })[0].nextSibling.nodeValue),
-            date:  moment($('.row.wideLabel label').filter(function(){
-                    return $(this).text().match(/Effective Date/);
-                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
-        }]}
+        try{
+            return {actions: [{
+                transactionType: Transaction.types.NAME_CHANGE,
+                newCompanyName: cleanString($('.row.wideLabel label').filter(function(){
+                        return $(this).text().match(/New Company Name/);
+                    })[0].nextSibling.nodeValue),
+                previousCompanyName: cleanString($('.row.wideLabel label').filter(function(){
+                        return $(this).text().match(/Previous Company Name/);
+                    })[0].nextSibling.nodeValue),
+                date:  moment($('.row.wideLabel label').filter(function(){
+                        return $(this).text().match(/Effective Date/);
+                    })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
+            }]}
+        }catch(e){
+            return {}
+        }
     },
 
     [DOCUMENT_TYPES.ADDRESS_CHANGE]: ($) => {

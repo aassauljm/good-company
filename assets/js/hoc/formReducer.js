@@ -1,20 +1,14 @@
 "use strict";
 import React from 'react';
 import { connect } from 'react-redux';
-
+import {relationNameToModel} from '../schemas';
 /** Collects form data from multiple connected forms.
 */
 export class FormReducer extends React.Component {
     getValues() {
         const rootForms = this.props.form;
         function getFormModel(path){
-            return rootForms[{
-                'directors': 'person',
-                'holders': 'person',
-                'shareClasses': 'shareClass',
-                'parcels': 'parcel',
-                'holdings': 'holding'
-            }[path[path.length-1]] || path[path.length-1]] || {}
+            return rootForms[relationNameToModel(path[path.length-1])] || {}
         }
         const values = (function getValues(formData, path = []){
             if(!formData){

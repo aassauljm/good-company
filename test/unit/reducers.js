@@ -9,7 +9,6 @@ describe('Form reducers', () => {
         it('Seeds form', done => {
             let state = {};
             state = form(state, startCreateCompany('test'));
-            console.log(state)
             state.companyFull.test.should.be.an('object');
             state.companyFull.test.shareClasses.should.be.an('object');
             state.companyFull.test.shareClasses.list.should.be.an('array');
@@ -94,7 +93,8 @@ describe('Form reducers', () => {
         it('Initializes companyFull with data', done => {
             let state = {};
             state = form(state, startCreateCompany('test',
-                         {holdings: [{
+                         {companyName: 'test company',
+                         holdings: [{
                             holders: [{name: 'john'}],
                             parcels: [{amount: 10}]
                         },{
@@ -106,7 +106,10 @@ describe('Form reducers', () => {
                             address: 'home'
                          }]
                      }));
-            state.person[['test', 'directors', '0'].join('.')].should.exist();
+            should.exist(state.person[['test', 'directors', '0'].join('.')]);
+            should.exist(state.parcel[['test', 'holdings', '0', 'parcels', '0'].join('.')]);
+            should.exist(state.person[['test', 'holdings', '0', 'holders', '0'].join('.')]);
+            should.exist(state.person[['test', 'holdings', '1', 'holders', '0'].join('.')]);
             done();
         });
     });
@@ -114,7 +117,20 @@ describe('Form reducers', () => {
     describe('End form action cleans up form data', () => {
         it('Initializes subform, adds data, removes it, confirms destruction', done => {
             let state = {};
-            state = form(state, startCreateCompany('test'));
+            state = form(state, startCreateCompany('test',
+                         {companyName: 'test company',
+                         holdings: [{
+                            holders: [{name: 'john'}],
+                            parcels: [{amount: 10}]
+                        },{
+                            holders: [{name: 'bill'}],
+                            parcels: [{amount: 100}]
+                        }],
+                         directors: [{
+                            name: 'mike',
+                            address: 'home'
+                         }]
+                     }))
             state = form(state, endCreateCompany('test'));
             should.not.exist(state.person[['test', 'directors', '0'].join('.')]);
             should.not.exist(state.parcel[['test', 'holdings', '0', 'parcels', '0'].join('.')]);

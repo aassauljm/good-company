@@ -10,6 +10,8 @@ import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
 import { pushState, replaceState } from 'redux-router';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import silenceEvent from 'redux-form/lib/events/silenceEvent';
+
 
 export class LookupCompanyForm extends React.Component {
     static propTypes = {
@@ -31,7 +33,7 @@ export class LookupCompanyForm extends React.Component {
 
     render() {
         const { fields: {query} } = this.props;
-         return  <form ref="form">
+         return  <form ref="form" onSubmit={silenceEvent}>
             <Input type="text" ref="query" {...query} placeholder="Search company name or number" onChange={::this.handleChange}/>
         </form>
     }

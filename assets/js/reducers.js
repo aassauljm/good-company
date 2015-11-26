@@ -25,7 +25,7 @@ import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION
 import formReducer from './customFormReducer';
 import { routerStateReducer } from 'redux-router';
 import validator from 'validator'
-
+import { relationNameToModel } from './schemas';
 
 const initialState = {
 
@@ -405,24 +405,72 @@ export const formBase = formReducer.normalize({
     parcel: (state, action) => {
         state = handleKeyedFormRemoval(state, action);
         return state;
-    }
+    },
+    shareClass: (state, action) => {
+        state = handleKeyedFormRemoval(state, action);
+        return state;
+    },
 })
 
-export function formWithCleanup(state = {}, action){
-    // todo, destroy all linked forms
-    return formBase(state, action);
-}
 
 
 function populateCompanyFull(state, formKey, data){
-    //state = {state.companyFull}
+    // TODO, refactor
+    const toValues = (data) => {
+        return Object.keys(data).reduce((acc, key) => {
+            // if is not an object or array
+            if(data[key] !== Object(data[key])){
+                acc[key] = {initialValue: data[key], value: data[key]}
+            }
+            return acc;
+        }, {})
+    }
+    state = {...state, companyFull: {...state.companyFull, [formKey]: {...state.companyFull[formKey], ...toValues(data)} }};
+    ['directors', 'shareClasses'].map(name => {
+        (data[name] || []).map((item, i) => {
+            const key = `${formKey}.${name}.${i}`;
+            state = {...state, [relationNameToModel(name)]: {...state[relationNameToModel(name)], [key]: toValues(item)}}
+        })
+    });
+    (data.holdings || []).map((holding, i) => {
+        ['parcels', 'holders'].map(name => {
+            (holding[name] || []).map((item, j) => {
+                const key = `${formKey}.holdings.${i}.${name}.${j}`;
+                state = {...state, [relationNameToModel(name)]: {...state[relationNameToModel(name)], [key]: toValues(item)}}
+            });
+        });
+    });
+    return state;
 }
 
+function depopulateCompanyFull(state, formKey){
+    // will do dumb way for now
+    return Object.keys(state).reduce((acc, form) => {
+        acc[form] = Object.keys(state[form]).reduce((acc, key) => {
+            if(key !== formKey && key.indexOf(`${formKey}.`) !== 0){
+                acc[key] = state[form][key];
+            }
+            return acc;
+        }, {})
+        return acc;
+    }, {});
+}
+
+
+export function formWithCleanup(state = {}, action){
+    // todo, destroy all linked forms
+    if(action.type === END_CREATE_COMPANY){
+        state = depopulateCompanyFull(state, action.formKey);
+    }
+    return formBase(state, action);
+}
 
 export function formPopulation(state = {}, action){
     if(action.type === START_CREATE_COMPANY){
         state = {...state, companyFull: {...state.companyFull, [action.formKey]: addChildren('companyFull', action.data)}}
-
+        if(action.data){
+            state = populateCompanyFull(state, action.formKey, action.data);
+        }
     }
     return formWithCleanup(state, action);
 }
