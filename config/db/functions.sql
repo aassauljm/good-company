@@ -52,8 +52,11 @@ WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") 
     FROM companystate t, prev_transactions tt
     WHERE t.id = tt."previousCompanyStateId"
 )
-SELECT row_to_json(q) from (SELECT "transactionId", type, t."effectiveDate", t.data,
-    (select array_to_json(array_agg(row_to_json(d))) from (select * from transaction tt where t.id = tt."parentTransactionId") as d) as "subTransactions" from prev_transactions pt
+SELECT row_to_json(q) from (SELECT "transactionId", type, to_char(t."effectiveDate" at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "effectiveDate", t.data,
+    (select array_to_json(array_agg(row_to_json(d))) from (
+    select *,  to_char(tt."effectiveDate" at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "effectiveDate"
+    from transaction tt where t.id = tt."parentTransactionId"
+    ) as d) as "subTransactions" from prev_transactions pt
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;

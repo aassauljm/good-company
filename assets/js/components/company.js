@@ -10,12 +10,23 @@ import { Link } from 'react-router';
 import { PieChart } from 'react-d3/piechart';
 import Tabs from 'react-bootstrap/lib/Tabs';
 import Tab from 'react-bootstrap/lib/Tab';
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import moment from 'moment'
+
+class NotFound extends React.Component {
+    static propTypes = {
+        descriptor: PropTypes.string.isRequired
+    };
+    render() {
+        return <div className="container"><h4 className="text-center">{this.props.descriptor} Not Found</h4></div>
+    }
+};
 
 
 @pureRender
 class Holding extends React.Component {
     static propTypes = {
-        holding: PropTypes.object.isRequired,
+        holding: PropTypes.object.isRequired
     };
     render(){
         const total = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
@@ -211,27 +222,30 @@ export default class Company extends React.Component {
     renderData() {
         const data = this.props.data || {};
         const current = data.currentCompanyState || data.companyState;
+        console.log(this.props)
+        if(this.props._status==='error'){
+            return <NotFound descriptor="Company"/>
+        }
         if(!current){
-            return <div className="loading"></div>
+            return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
         const generation = Number(this.props.params.generation) || 0;
         return <div>
-                <ul className="pager">
-                { current.previousCompanyStateId ?
-                    <li className="previous"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation+1)} >← Previous Version</Link></li> : null}
-
-                { generation > 1 ?
-                    <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation-1)} >Next Version →</Link></li> : null}
-
-                { generation === 1 ?
-                    <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >Current Version</Link></li> : null}
-
-              </ul>
                 <div className="jumbotron">
                 { generation ? <h4>As at {new Date(current.transaction.effectiveDate).toDateString() }</h4> : null}
                     <h1>{current.companyName}</h1>
                     <h5>#{current.companyNumber}, {current.companyStatus}</h5>
                 </div>
+                <ul className="pager">
+                    { current.previousCompanyStateId ?
+                        <li className="previous"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation+1)} >← Previous Version</Link></li> : null}
+
+                    { generation > 1 ?
+                        <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation-1)} >Next Version →</Link></li> : null}
+
+                    { generation === 1 ?
+                        <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >Current Version</Link></li> : null}
+              </ul>
                 <div className="well">
                 <dl className="dl-horizontal">
                     <dt >NZ Business Number</dt>

@@ -713,7 +713,7 @@ module.exports = {
                     ...data,
                     ...ScrapingService.formatHolders(data),
                     ...ScrapingService.formatDirectors(data),
-                }, company);
+                }, company, new Date());
             })
             .then(function(){
                 sails.log.verbose('CompanyState populated in DB');
@@ -920,7 +920,9 @@ module.exports = {
 
 
         $('#addressPanel .addressLine').map(function(i, el){
-            result[$(el).prev().attr('for').slice(0, -1)] = cleanString($(el).text());
+            if($(el).prev().attr('for')){
+                result[$(el).prev().attr('for').slice(0, -1)] = cleanString($(el).text());
+            }
         });
 
         result['ultimateHoldingCompany'] = _.trim($('#ultimateHoldingCompany').parent()[0].firstChild.data) === 'Yes';

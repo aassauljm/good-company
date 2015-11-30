@@ -200,7 +200,7 @@ export function importCompany(companyNumber) {
             credentials: 'same-origin'
 
         }),
-        shouldCallAPI: (state) => !state.importCompany._status,
+        shouldCallAPI: (state) => state.importCompany._status !== 'fetch',
         payload: {companyNumber: companyNumber}
     };
 }

@@ -1,3 +1,6 @@
+"use strict";
+import Promise from 'bluebird';
+
 
 function checkStatus(response) {
   if (response.status >= 200 && response.status <= 304) {
@@ -40,7 +43,7 @@ export function callAPIMiddleware({
                 throw new Error('Expected fetch to be a function.');
             }
             if (!shouldCallAPI(getState())) {
-                return;
+                return Promise.resolve({'shouldCallRejected': true});
             }
 
             const [requestType, successType, failureType] = types;

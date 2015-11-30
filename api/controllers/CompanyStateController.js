@@ -28,7 +28,7 @@ function validateHoldings(newHoldings){
 
 
 var transactions = {
-    seed: function(args, company) {
+    seed: function(args, company, date) {
         if (!args.holdings || !args.holdings.length) {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
@@ -40,7 +40,7 @@ var transactions = {
         return company.getCurrentCompanyState()
         .then(function(companyState){
             var fields = companyState ? companyState.nonAssociativeFields(): {};
-            return CompanyState.createDedupPersons(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED}}));
+            return CompanyState.createDedupPersons(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: date}}));
         })
         .then(function(state){
             this.state = state;
