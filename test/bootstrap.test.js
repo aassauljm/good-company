@@ -133,6 +133,14 @@ before(function(done) {
             });
     }
     else{
+        global.sails = {
+            log: {
+                verbose: function(){},
+                silly: function(){},
+                error: console.log,
+                info: console.log,
+            }
+        }
         console.log('Skipping sails lift');
         done();
     }

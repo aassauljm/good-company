@@ -82,7 +82,7 @@ function parseIssue($, dateRegexP = 'Date of Issue:'){
         ['byAmount', 'Increased Shares by:', Number],
         ['toAmount', 'New Number of Shares:', Number],
         ['amount', 'Number of Increased Shares:', Number],
-        ['date', dateRegexP, date => moment(date, 'DD MMM YYYY').toDate()]
+        ['effectiveDate', dateRegexP, date => moment(date, 'DD MMM YYYY').toDate()]
     ];
     return fields.reduce(function(result, f){
         result[f[0]] = f[2](divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$')));
@@ -209,7 +209,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 previousCompanyName: cleanString($('.row.wideLabel label').filter(function(){
                         return $(this).text().match(/Previous Company Name/);
                     })[0].nextSibling.nodeValue),
-                date:  moment($('.row.wideLabel label').filter(function(){
+                effectiveDate:  moment($('.row.wideLabel label').filter(function(){
                         return $(this).text().match(/Effective Date/);
                     })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
             }]}
@@ -239,7 +239,7 @@ const EXTRACT_DOCUMENT_MAP = {
                     transactionType: Transaction.types.ADDRESS_CHANGE,
                     previousAddress: cleanString($(el).find('.beforePanel .row').eq(1).text()),
                     newAddress: cleanString($(el).find('.afterPanel .row').eq(1).text()),
-                    date: moment(cleanString($(el).find('.afterPanel .row').eq(2).text()), 'DD MMM YYYY').toDate(),
+                    effectiveDate: moment(cleanString($(el).find('.afterPanel .row').eq(2).text()), 'DD MMM YYYY').toDate(),
                     field: HEADING_MAP[cleanString($(el).find('.head').text())]
                 }
             }
@@ -248,7 +248,7 @@ const EXTRACT_DOCUMENT_MAP = {
                     transactionType: Transaction.types.ADDRESS_CHANGE,
                     previousAddress: cleanString($(el).find('.row').eq(0).text()),
                     newAddress: null,
-                    date: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
+                    effectiveDate: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
                     field: HEADING_MAP[cleanString($(el).find('.head').text())]
                 }
             }
@@ -256,7 +256,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 transactionType: Transaction.types.ADDRESS_CHANGE,
                 previousAddress: null,
                 newAddress: cleanString($(el).find('.row').eq(0).text()),
-                date: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
+                effectiveDate: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
                 field: HEADING_MAP[cleanString($(el).find('.head').text())]
             }
         }).get()};
@@ -268,7 +268,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 transactionType: $(el).is('#ceaseConfirm') ? Transaction.types.REMOVE_DIRECTOR : Transaction.types.NEW_DIRECTOR,
                 name: cleanString($(el).find('.directorName').text()),
                 address: cleanString($(el).find('.directorAddress').text()),
-                date: moment(cleanString($(el).find('.directorCeasedDate.value, .directorAppointmentDate').text()), 'DD/MM/YYYY').toDate(),
+                effectiveDate: moment(cleanString($(el).find('.directorCeasedDate.value, .directorAppointmentDate').text()), 'DD/MM/YYYY').toDate(),
         }}).get()};
     },
 
@@ -319,7 +319,7 @@ const EXTRACT_DOCUMENT_MAP = {
                             }
                         }),
 
-            date:  moment($('.row.wideLabel label').filter(function(){
+            effectiveDate:  moment($('.row.wideLabel label').filter(function(){
                     return $(this).text().match(/Registration Date and Time/);
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
         }]}
@@ -578,6 +578,47 @@ function performRemoveDirector(data, companyState, effectiveDate){
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
+function inferDirectorshipActions(data){
+    // The appointment and removal of directorships
+    const results = [];
+    data.directors.forEach(d => {
+        const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
+        results.push({
+            actions: [{
+                transactionType: Transaction.types.NEW_DIRECTOR,
+                name: d.fullName,
+                address: d.residentialAddress,
+                date: date
+            }],
+            date: date,
+        });
+    });
+    data.formerDirectors.forEach(d => {
+        const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY').toDate(),
+            ceasedDate = moment(d.ceasedDate, 'DD MMM YYYY').toDate();
+        results.push({
+            actions: [{
+                transactionType: Transaction.types.NEW_DIRECTOR,
+                name: d.fullName,
+                address: d.residentialAddress,
+                date: appointmentDate
+            }],
+            date: appointmentDate,
+        });
+        results.push({
+            actions: [{
+                transactionType: Transaction.types.REMOVE_DIRECTOR,
+                name: d.fullName,
+                address: d.residentialAddress,
+                date: ceasedDate
+            }],
+            date: ceasedDate,
+        });
+    });
+    return results;
+}
+
+
 module.exports = {
 
     fetch: function(companyNumber){
@@ -809,53 +850,43 @@ module.exports = {
     },
 
     extraActions: function(data){
-        // right now, this is just directorships
-
-        const results = [];
-
-        data.directors.forEach(d => {
-            const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
-            results.push({
-                actions: [{
-                    transactionType: Transaction.types.NEW_DIRECTOR,
-                    name: d.fullName,
-                    address: d.residentialAddress,
-                    date: date
-                }],
-                date: date,
-            });
-        });
-        data.formerDirectors.forEach(d => {
-            const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY').toDate(),
-                ceasedDate = moment(d.ceasedDate, 'DD MMM YYYY').toDate();
-            results.push({
-                actions: [{
-                    transactionType: Transaction.types.NEW_DIRECTOR,
-                    name: d.fullName,
-                    address: d.residentialAddress,
-                    date: appointmentDate
-                }],
-                date: appointmentDate,
-            });
-            results.push({
-                actions: [{
-                    transactionType: Transaction.types.REMOVE_DIRECTOR,
-                    name: d.fullName,
-                    address: d.residentialAddress,
-                    date: ceasedDate
-                }],
-                date: ceasedDate,
-            });
-        });
+        // This are INFERED actions
+        const results = inferDirectorshipActions(data);
         return results;
     },
 
-    sortActions: function(docs){
-        _.map(docs, (d)=> {
-            let date = d.date;
-            d.effectiveDate = _.min(d.actions || [], (a) => a.date ? a.date : date).date || date;
-        });
-        return _.sortByAll(docs, 'effectiveDate', (d)=>parseInt(d.documentId, 10)).reverse();
+
+    segmentActions: function(docs){
+        // split group actions by date,
+
+        docs = docs.reduce((acc, doc) =>{
+            const docDate = doc.date;
+            const groups = _.groupBy(doc.actions, action => action.effectiveDate);
+
+            const copyDoc = (doc) => {
+                return _.omit(doc, 'actions');
+            }
+
+            const setDate = (doc) => {
+                doc.effectiveDate = _.min(doc.actions || [], (a) => a.effectiveDate ? a.effectiveDate : docDate).effectiveDate || docDate;
+                return doc;
+            }
+
+            if(Object.keys(groups).length > 1){
+                Object.keys(groups).map(k => {
+                    const newDoc = copyDoc(doc);
+                    newDoc.actions = groups[k];
+                    acc.push(setDate(newDoc));
+                });
+            }
+            else{
+                acc.push(setDate(doc));
+            }
+            return acc;
+        }, []);
+
+        docs = _.sortByAll(docs, 'effectiveDate', (d)=>parseInt(d.documentId, 10)).reverse();
+        return docs;
     },
 
     parseNZCompaniesOffice: function(html){

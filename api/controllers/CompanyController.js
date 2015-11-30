@@ -128,9 +128,9 @@ module.exports = {
                         })
                         .then(function(processedDocs) {
                             processedDocs = processedDocs.concat(ScrapingService.extraActions(data));
-                            var sortedDocs = ScrapingService.sortActions(processedDocs)
+                            processedDocs = ScrapingService.segmentActions(processedDocs);
                             sails.log.verbose('Processing ' + processedDocs.length + ' documents');
-                            return Promise.each(sortedDocs, function(doc) {
+                            return Promise.each(processedDocs, function(doc) {
                                 return ScrapingService.populateHistory(doc, company);
                             });
                         })

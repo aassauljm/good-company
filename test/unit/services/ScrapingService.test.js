@@ -1,5 +1,8 @@
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
+var ScrapingService = require('../../../api/services/ScrapingService');
+var moment = require('moment');
+
 
 describe('Scraping Service', function() {
 
@@ -38,7 +41,7 @@ describe('Scraping Service', function() {
             fs.readFileAsync('test/fixtures/companies_office/xero.json', 'utf8')
                 .then(JSON.parse)
                 .then(function(data){
-                    return Promise.map(data.documents, function(document){
+                    return Promise.map(data.documents.slice(0, 30), function(document){
                         return fs.readFileAsync('test/fixtures/companies_office/documents/'+document.documentId+'.html', 'utf8')
                             .then(function(data){
                                 return ScrapingService.processDocument(data, document);
@@ -151,8 +154,8 @@ describe('Scraping Service', function() {
                 })
                 .then(function(documentSummaries){
                     documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data));
-                    var sortedDocs = ScrapingService.sortActions(documentSummaries)
-                    return Promise.each(sortedDocs, function(doc){
+                    var docs = ScrapingService.segmentActions(documentSummaries)
+                    return Promise.each(docs, function(doc){
                         return ScrapingService.populateHistory(doc, company);
                     });
                 })
@@ -172,13 +175,50 @@ describe('Scraping Service', function() {
     });
 
     describe('Should get live query results', function() {
-        it('enters test string into live query', function(done){
+        it('enters test string into live query', function(done) {
             ScrapingService.getSearchResults('test')
-                .then(function(results){
+                .then(function(results) {
                     results.length.should.be.equal(15);
+                    results[0].should.be.deep.equal({
+                        companyNumber: '3523392',
+                        companyName: 'BUY A SMILE LIMITED - 3523392 - NZBN: 9429030973022 ',
+                        struckOff: true,
+                        notes: ['(previously known as TESTED ON CHILDREN LIMITED)']
+                    });
                     done();
                 })
         });
+    });
+    describe('Should segment actions', function() {
+        it('Splits a transaction with multiple dates', function(done){
+            const results = ScrapingService.segmentActions([{
+                actions:
+                    [{data: 'first', effectiveDate: moment('05 May 2000', 'DD MMM YYYY').toDate()},
+                        {data: 'second', effectiveDate: moment('06 May 2000', 'DD MMM YYYY').toDate()},
+                        {data: 'first', effectiveDate: moment('05 May 2000', 'DD MMM YYYY').toDate()}]
+            }]);
+            results.length.should.be.equal(2);
+            results[0].actions.length.should.be.equal(1);
+            results[1].actions.length.should.be.equal(2);
+            results[1].actions[0].data.should.be.equal('first');
+            done();
+        });
+        it('actions take parents date and group if not defined', function(done){
+            const results = ScrapingService.segmentActions([{
+                date: moment('05 May 2000', 'DD MMM YYYY').toDate(),
+
+                actions:
+                    [{data: 'first'},
+                        {data: 'second', effectiveDate: moment('06 May 2000', 'DD MMM YYYY').toDate()},
+                        {data: 'first'}]
+            }]);
+            results.length.should.be.equal(2);
+            results[0].actions.length.should.be.equal(1);
+            results[1].actions.length.should.be.equal(2);
+            results[1].actions[0].data.should.be.equal('first');
+            done();
+        });
 
     });
+
 });
