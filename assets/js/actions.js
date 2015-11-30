@@ -80,7 +80,7 @@ export function requestUserInfo() {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => state.login.loggedIn && retryOnError(state.userInfo._status)
+        shouldCallAPI: (state) => state.login.loggedIn && !state.userInfo._status
     };
 }
 
@@ -98,7 +98,7 @@ export function requestResource(resource, options = {}) {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => !state.resources[resource] || retryOnError(state.resources[resource]._status) || options.refresh,
+        shouldCallAPI: (state) => !state.resources[resource] || !state.resources[resource]._status || options.refresh,
         payload: {key: resource, form: options.form}
     };
 }
@@ -200,7 +200,7 @@ export function importCompany(companyNumber) {
             credentials: 'same-origin'
 
         }),
-        shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
+        shouldCallAPI: (state) => !state.importCompany._status,
         payload: {companyNumber: companyNumber}
     };
 }
@@ -215,7 +215,7 @@ export function companyTransaction(transactionType, companyId, data) {
             credentials: 'same-origin'
 
         }),
-        shouldCallAPI: (state) => state.transactions._status !== 'fetching',
+        shouldCallAPI: (state) => !state.transactions._status,
         payload: {companyId: companyId}
     };
 }
