@@ -250,6 +250,15 @@ export default class Company extends React.Component {
                     <dd >{current.entityType}</dd>
 
 
+                    { current.registeredCompanyAddress && <dt>Company Address</dt> }
+                    { current.registeredCompanyAddress && <dd>{current.registeredCompanyAddress }</dd> }
+
+                    { current.addressForShareRegister && <dt>Address for Share Register</dt> }
+                    { current.addressForShareRegister && <dd>{current.addressForShareRegister }</dd> }
+
+                    { current.addressForService && <dt>Address For Service</dt> }
+                    { current.addressForService && <dd>{current.addressForService}</dd> }
+
                 </dl>
                 </div>
                 <Tabs activeKey={this.props.companyPage.tabIndex } onSelect={::this.handleTabSelect}>

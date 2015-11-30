@@ -12,11 +12,13 @@ import {
     TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE,
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
+    LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE,
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
+    SHOW_MODAL, END_MODAL,
     NEXT_MODAL, PREVIOUS_MODAL,
     REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
      } from './actionTypes';
@@ -150,6 +152,17 @@ export function lookupCompany(query) {
     };
 }
 
+export function lookupAddress(query) {
+    return {
+        types: [LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE],
+        callAPI: () => fetch('/api/address/lookup/' + encodeURIComponent(query), {
+            headers: json_headers,
+            credentials: 'same-origin'
+        }),
+        payload: {query: query}
+    };
+}
+
 export function validateCompany(data, options = {}) {
     return {
         types: [VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE],
@@ -229,6 +242,18 @@ export function startImportCompany(formKey, data){
 export function endImportCompany(formKey){
     return {
         type: END_IMPORT_COMPANY, formKey
+    }
+}
+
+export function showModal(modal, data){
+    return {
+        type: SHOW_MODAL, modal, data
+    }
+}
+
+export function endModal(modal){
+    return {
+        type: END_MODAL, modal
     }
 }
 

@@ -1,10 +1,11 @@
 "use strict";
 import React from 'react';
 import { connect } from 'react-redux';
-import {nextModal, previousModal, endCreateCompany, endImportCompany} from '../actions';
+import {nextModal, previousModal, endCreateCompany, endImportCompany, endModal} from '../actions';
 import FormReducer from '../hoc/formReducer';
 import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
+import {TransactionViewModal} from './transaction';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {
@@ -29,5 +30,15 @@ export default class Modals extends React.Component {
                 previous={() => {this.props.dispatch(previousModal('importCompany'))} }
                 end={() => {this.props.dispatch(endImportCompany())} } />
         }
+        if(this.props.showing === 'transaction'){
+            return <TransactionViewModal
+                index={this.props.transaction.index}
+                modalData={this.props.transaction.data}
+                next={(...args) => {this.props.dispatch(nextModal('transaction', ...args))} }
+                previous={() => {this.props.dispatch(previousModal('transaction'))} }
+                end={() => {this.props.dispatch(endModal('transaction'))} } />
+        }
+
+
     }
 }

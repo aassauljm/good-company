@@ -15,12 +15,13 @@ import {
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
+    SHOW_MODAL, END_MODAL,
     NEXT_MODAL, PREVIOUS_MODAL,
     REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
      } from './actionTypes';
 
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
-  STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
+STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
 
 import formReducer from './customFormReducer';
 import { routerStateReducer } from 'redux-router';
@@ -133,6 +134,11 @@ function modals(state = {createCompany: {index: 0}}, action){
             if(state.showing === 'importCompany')
                 return {...state, showing: null};
             return state;
+
+        case SHOW_MODAL:
+            return {...state, showing: action.modal, [action.modal]: {index: 0, data: action.data}};
+        case END_MODAL:
+            return {...state, showing: null, [action.modal]: null};
         case NEXT_MODAL:
             return {...state,  [action.modal]: {index: state[action.modal].index + 1, data: action.data}};
         case PREVIOUS_MODAL:

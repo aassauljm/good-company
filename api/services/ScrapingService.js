@@ -221,25 +221,48 @@ const EXTRACT_DOCUMENT_MAP = {
     [DOCUMENT_TYPES.ADDRESS_CHANGE]: ($) => {
         const HEADING_MAP = {
             'Updated Registered Office Address' : 'registeredCompanyAddress',
-            'Updated Address For Service': 'addressForService'
+            'Removed Registered Office Address' : 'registeredCompanyAddress',
+            'New Registered Office Address' : 'registeredCompanyAddress',
+
+            'Updated Address For Service': 'addressForService',
+            'Removed Address For Service': 'addressForService',
+            'New Address For Service': 'addressForService',
+
+            'Updated Address For Share Register': 'addressForShareRegister',
+            'Removed Address For Share Register': 'addressForShareRegister',
+            'New Address For Share Register': 'addressForShareRegister'
         }
 
         return {actions: $('#reviewContactChangesContent .panel').map((i, el)=>{
+            if($(el).find('.afterPanel .row').length){
+                return {
+                    transactionType: Transaction.types.ADDRESS_CHANGE,
+                    previousAddress: cleanString($(el).find('.beforePanel .row').eq(1).text()),
+                    newAddress: cleanString($(el).find('.afterPanel .row').eq(1).text()),
+                    date: moment(cleanString($(el).find('.afterPanel .row').eq(2).text()), 'DD MMM YYYY').toDate(),
+                    field: HEADING_MAP[cleanString($(el).find('.head').text())]
+                }
+            }
+            if($(el).find('.head').text().indexOf('Removed') === 0){
+                return {
+                    transactionType: Transaction.types.ADDRESS_CHANGE,
+                    previousAddress: cleanString($(el).find('.row').eq(0).text()),
+                    newAddress: null,
+                    date: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
+                    field: HEADING_MAP[cleanString($(el).find('.head').text())]
+                }
+            }
             return {
                 transactionType: Transaction.types.ADDRESS_CHANGE,
-                previousAddress: cleanString($(el).find('.beforePanel .row').eq(1).text()),
-                newAddress: cleanString($(el).find('.afterPanel .row').eq(1).text()),
-                date: moment(cleanString($(el).find('.afterPanel .row').eq(2).text()), 'DD MMM YYYY').toDate(),
+                previousAddress: null,
+                newAddress: cleanString($(el).find('.row').eq(0).text()),
+                date: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
                 field: HEADING_MAP[cleanString($(el).find('.head').text())]
-        }}).get()};
+            }
+        }).get()};
     },
 
     [DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR]: ($) => {
-        const HEADING_MAP = {
-            'Updated Registered Office Address' : 'registeredCompanyAddress',
-            'Updated Address For Service': 'addressForService'
-        }
-
         return {actions: $('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
             return {
                 transactionType: $(el).is('#ceaseConfirm') ? Transaction.types.REMOVE_DIRECTOR : Transaction.types.NEW_DIRECTOR,

@@ -56,7 +56,7 @@ export default class ImportCompanyModal extends React.Component {
     importCompany(){
         this.props.next();
         this.props.dispatch(importCompany(this.props.modalData.companyNumber))
-            .then((result) => {
+            .then((result = {response: {message: 'No connection'}}) => {
                 if(result.error){
                     this.props.dispatch(addNotification({message: `Could not import company, Reason: ${result.response.message}`, error: true}));
                     this.props.end();
@@ -72,7 +72,6 @@ export default class ImportCompanyModal extends React.Component {
 
     render() {
         const valid = false;
-        console.log(this.props)
         return  <Modal show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>Import from the New Zealand Companies Office</Modal.Title>

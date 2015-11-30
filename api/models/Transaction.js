@@ -30,7 +30,6 @@ Acquisition.
 Purchase
 Redemption
 Consolidation
-
 */
 
 module.exports = {
