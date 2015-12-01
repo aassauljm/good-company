@@ -41,6 +41,12 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION format_iso_date(d timestamp with time zone)
+    RETURNS text
+    AS $$
+    SELECT to_char($1 at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+$$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION company_state_history_json(companyStateId integer)
     RETURNS SETOF JSON
@@ -52,11 +58,42 @@ WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") 
     FROM companystate t, prev_transactions tt
     WHERE t.id = tt."previousCompanyStateId"
 )
-SELECT row_to_json(q) from (SELECT "transactionId", type, to_char(t."effectiveDate" at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "effectiveDate", t.data,
+SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
     (select array_to_json(array_agg(row_to_json(d))) from (
-    select *,  to_char(tt."effectiveDate" at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "effectiveDate"
+    select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
     from transaction tt where t.id = tt."parentTransactionId"
     ) as d) as "subTransactions" from prev_transactions pt
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY t."effectiveDate" DESC) as q;
+$$ LANGUAGE SQL;
+
+
+--- creates a flat list of transactions
+CREATE OR REPLACE FUNCTION company_state_filtered_history_json(companyStateId integer, type_filter enum_transaction_type[])
+    RETURNS SETOF JSON
+    AS $$
+WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") as (
+    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
+    UNION ALL
+    SELECT t.id, t."previousCompanyStateId", t."transactionId"
+    FROM companystate t, prev_transactions tt
+    WHERE t.id = tt."previousCompanyStateId"
+)
+SELECT row_to_json(q) from (
+
+    SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", data, "parentTransactionId" from (
+    SELECT "transactionId", t.type, t."effectiveDate", t.data, null as "parentTransactionId"
+        from prev_transactions pt
+        inner join transaction t on pt."transactionId" = t.id
+        where t.type = any($2)
+
+    UNION ALL
+
+        SELECT "transactionId", tt.type, tt."effectiveDate", tt.data, tt."parentTransactionId"
+        from prev_transactions pt
+        inner join transaction t on pt."transactionId" = t.id and t.type = 'COMPOUND'
+        left outer join transaction tt on t.id =  tt."parentTransactionId"
+        where tt.type = any($2)
+
+   ) t ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;

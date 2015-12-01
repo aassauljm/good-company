@@ -118,6 +118,11 @@ module.exports.routes = {
         action: 'transactionHistory',
         modelIdentity: 'company'
     },
+    'GET /api/company/:id/issues': {
+        controller: 'CompanyController',
+        action: 'issueHistory',
+        modelIdentity: 'company'
+    },
     'POST /api/company/import/companiesoffice/:companyNumber': {
         controller: 'CompanyController',
         action: 'import'

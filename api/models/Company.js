@@ -82,7 +82,17 @@ module.exports = {
                 });
             },
 
-
+            getFilteredTransactionHistory: function(types){
+                return sequelize.query("select  company_state_filtered_history_json(:id, :filter::enum_transaction_type[]) as transaction",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId, filter: types}})
+                .then(function(transactions){
+                    if(!transactions.length){
+                        throw new sails.config.exceptions.CompanyStateNotFound();
+                    }
+                    return transactions;
+                });
+            },
 
 
 

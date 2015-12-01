@@ -231,7 +231,7 @@ export default class Company extends React.Component {
         }
         const generation = Number(this.props.params.generation) || 0;
         return <div>
-                <div className="jumbotron">
+                <div className="well">
                 { generation ? <h4>As at {new Date(current.transaction.effectiveDate).toDateString() }</h4> : null}
                     <h1>{current.companyName}</h1>
                     <h5>#{current.companyNumber}, {current.companyStatus}</h5>

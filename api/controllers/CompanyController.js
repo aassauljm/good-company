@@ -100,6 +100,17 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+    issueHistory: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                return company.getFilteredTransactionHistory(['ISSUE']);
+            })
+            .then(function(transactions) {
+                res.json({transactions: transactions});
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
     import: function(req, res) {
         // for now, just companies office
         var data, company;

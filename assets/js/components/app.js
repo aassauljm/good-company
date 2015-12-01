@@ -9,12 +9,7 @@ import DropZone from 'react-dropzone';
 import { createResource } from '../actions'
 import Notifications from './notifications';
 import Modals from './modals';
-
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
-
-
-
-
 
 
 @connect(state => { return {login: state.login, userInfo: state.userInfo} })
