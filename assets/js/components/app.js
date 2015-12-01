@@ -10,6 +10,12 @@ import { createResource } from '../actions'
 import Notifications from './notifications';
 import Modals from './modals';
 
+import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
+
+
+
+
+
 
 @connect(state => { return {login: state.login, userInfo: state.userInfo} })
 export default class App extends React.Component {
@@ -32,13 +38,18 @@ export default class App extends React.Component {
     }
 
     render() {
+        const name = this.props.location.pathname;
         return  <div>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
                 <DropZone  onDrop={::this.onDrop} disableClick={true} style={{}}>
              <Notifications/>
              <Modals />
-            <div className="container">
+            <div className="container app-container" >
+              <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={200} transitionLeaveTimeout={200}>
+              <div key={name}>
                 { this.props.children }
+                </div>
+                </ReactCSSTransitionGroup>
              </div>
             </DropZone>
         </div>

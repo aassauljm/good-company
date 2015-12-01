@@ -14,10 +14,11 @@ import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
 import SignUp from './components/signup';
-
 import { ReduxRouter } from 'redux-router';
 
-const routes = (<ReduxRouter>
+
+const routes = (
+                <ReduxRouter>
                 <Route component={ App }>
                 <Route path="login" component={ Login }  />
                 <Route path="signup" component={ SignUp }  />
@@ -37,7 +38,8 @@ const routes = (<ReduxRouter>
                 <Route path="user/create" component={ Account }  />
                 <Route path="*" component={ NotFound } />
                 </Route>
-            </ReduxRouter>);
+            </ReduxRouter>
+            );
 
 
 export default routes;
