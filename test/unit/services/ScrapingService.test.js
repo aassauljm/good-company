@@ -150,7 +150,6 @@ describe('Scraping Service', function() {
                                 return ScrapingService.processDocument(data, document);
                             });
                         }, {concurrency: 10})
-
                 })
                 .then(function(documentSummaries){
                     documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data));
@@ -169,6 +168,68 @@ describe('Scraping Service', function() {
                     stats.totalUnallocatedShares.should.be.equal(0)
                     stats.totalAllocatedShares.should.be.equal(1000)
                     stats.totalShares.should.be.equal(1000)
+                    done();
+                })
+        })
+    });
+
+    describe('Should get all fields from Evolution html doc', function() {
+        // THIS TEST CASE HAS AMBIGUITY FROM DUPLICATE HOLDERS
+        it('passes doc to scraping service', function(done) {
+            var data, company;
+            return fs.readFileAsync('test/fixtures/companies_office/Evolution.html', 'utf8')
+
+                .then(ScrapingService.parseNZCompaniesOffice)
+                .then(function(_data){
+                    data = _data;
+                    return data;
+                })
+                .then(ScrapingService.populateDB)
+                .then(function(_company){
+                    company = _company;
+                    return company.getCurrentCompanyState({include: CompanyState.includes.full()});
+                })
+                .then(function(state){
+                    state.holdings[0].parcels[0].amount.should.be.equal(50);
+                    state.holdings[1].parcels[0].amount.should.be.equal(50);
+                    state.holdings[2].parcels[0].amount.should.be.equal(50);
+                    state.holdings[3].parcels[0].amount.should.be.equal(50);
+                    return state.stats();
+                })
+                .then(function(stats){
+                    stats.totalUnallocatedShares.should.be.equal(0)
+                    stats.totalAllocatedShares.should.be.equal(200)
+                    stats.totalShares.should.be.equal(200)
+                })
+                .then(function(){
+                    return Promise.map(data.documents, function(document){
+                        return fs.readFileAsync('test/fixtures/companies_office/documents/'+document.documentId+'.html', 'utf8')
+                            .then(function(data){
+                                return ScrapingService.processDocument(data, document);
+                            });
+                        }, {concurrency: 10});
+                })
+                .then(function(documentSummaries){
+                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data));
+                    var docs = ScrapingService.segmentActions(documentSummaries)
+                    return Promise.each(docs, function(doc){
+                        return ScrapingService.populateHistory(doc, company);
+                    });
+                })
+                .then(function(){
+                    return company.getRootCompanyState()
+                })
+                .then(function(state){
+                    state.holdings.length.should.be.equal(2);
+                    state.holdings[0].parcels.length.should.be.equal(1);
+                    state.holdings[0].parcels[0].amount.should.be.equal(100);
+                    state.holdings[1].parcels[0].amount.should.be.equal(100);
+                    return state.stats();
+                })
+                .then(function(stats){
+                    stats.totalUnallocatedShares.should.be.equal(0)
+                    stats.totalAllocatedShares.should.be.equal(200)
+                    stats.totalShares.should.be.equal(200)
                     done();
                 })
         })

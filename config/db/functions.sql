@@ -67,9 +67,8 @@ SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."eff
     ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;
 
-
---- creates a flat list of transactions
-CREATE OR REPLACE FUNCTION company_state_filtered_history_json(companyStateId integer, type_filter enum_transaction_type[])
+-- is text because of dependencies.  sigh.
+CREATE OR REPLACE FUNCTION company_state_type_filter_history_json(companyStateId integer, types text[])
     RETURNS SETOF JSON
     AS $$
 WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") as (
@@ -79,21 +78,13 @@ WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") 
     FROM companystate t, prev_transactions tt
     WHERE t.id = tt."previousCompanyStateId"
 )
-SELECT row_to_json(q) from (
-
-    SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", data, "parentTransactionId" from (
-    SELECT "transactionId", t.type, t."effectiveDate", t.data, null as "parentTransactionId"
-        from prev_transactions pt
-        inner join transaction t on pt."transactionId" = t.id
-        where t.type = any($2)
-
-    UNION ALL
-
-        SELECT "transactionId", tt.type, tt."effectiveDate", tt.data, tt."parentTransactionId"
-        from prev_transactions pt
-        inner join transaction t on pt."transactionId" = t.id and t.type = 'COMPOUND'
-        left outer join transaction tt on t.id =  tt."parentTransactionId"
-        where tt.type = any($2)
-
-   ) t ORDER BY t."effectiveDate" DESC) as q;
+SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
+    (select array_to_json(array_agg(row_to_json(d))) from (
+    select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
+    from transaction tt where t.id = tt."parentTransactionId"
+    ) as d) as "subTransactions" from prev_transactions pt
+    inner join transaction t on pt."transactionId" = t.id
+    WHERE t.type = any($2::enum_transaction_type[])
+    ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;
+

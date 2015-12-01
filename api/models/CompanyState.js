@@ -405,7 +405,7 @@ module.exports = {
             },
 
 
-            combineHoldings: function(newHoldings, subtractHoldings){
+            combineHoldings: function(newHoldings, parcelHint, subtractHoldings){
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
                 }
@@ -415,7 +415,8 @@ module.exports = {
                     var toRemove;
                     newHoldings.forEach(function(sharesToAdd, i){
                         sharesToAdd = Holding.buildDeep(sharesToAdd);
-                        if(nextHolding.holdersMatch(sharesToAdd)){
+                        if(nextHolding.holdersMatch(sharesToAdd) &&
+                           (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(sharesToAdd);
                             }
@@ -445,13 +446,12 @@ module.exports = {
                 // unaccounted for, alter unallocated shares
                 return this;
             },
-            subtractHoldings: function(subtractHoldings){
-                return this.combineHoldings(subtractHoldings, true);
+            subtractHoldings: function(subtractHoldings, parcelHint){
+                return this.combineHoldings(subtractHoldings, parcelHint, true);
             },
-
-            getMatchingHolding: function(holders){
+            getMatchingHolding: function(holders, parcelHint){
                 return _.find(this.dataValues.holdings, function(holding){
-                    return holding.holdersMatch({holders: holders})
+                    return holding.holdersMatch({holders: holders}) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
                 });
             },
             combineUnallocatedParcels: function(parcel, subtract){

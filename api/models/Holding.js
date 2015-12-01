@@ -59,11 +59,22 @@ module.exports = {
                         return _.pick(_.pick(s.get ? s.get() : s, 'name', 'companyNumber'), _.identity);
                     }), 'name');
                 }
-                return _.isEqual(clean(other.holders), clean(this.holders), function(a, b){
+                return _.isEqual(clean(other.holders), clean(this.dataValues.holders), function(a, b){
                     if(a.toLowerCase){
                         return (a||'').toLowerCase() === (b||'').toLowerCase();
                     }
                 });
+            },
+            parcelsMatch: function(other){
+                if(!other.parcels){
+                    return false;
+                }
+                var clean = function(list){
+                    return _.sortBy(list.map(function(s){
+                        return _.pick(_.pick(s.get ? s.get() : s, 'amount', 'shareClass'), _.identity);
+                    }), 'amount');
+                }
+                return _.isEqual(clean(other.parcels), clean(this.dataValues.parcels));
             },
             combineParcels: function(holding){
                 var newParcels = [];
