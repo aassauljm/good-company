@@ -277,9 +277,11 @@ export default class CreateCompanyModal extends React.Component {
             }
         }
     };
-
+    componentWillUnmount() {
+        this.refs.modal._onHide();
+    }
     render() {
-        return  <Modal show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>Create a new Company</Modal.Title>
               </Modal.Header>

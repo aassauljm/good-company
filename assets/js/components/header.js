@@ -4,7 +4,11 @@ import { pureRender }  from '../utils';
 import Router from 'react-router'
 import { Link } from 'react-router';
 import Actions from '../actions';
-
+import Navbar from 'react-bootstrap/lib/Navbar'
+import Collapse from 'react-bootstrap/lib/Collapse'
+import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
+import NavbarToggle from 'react-bootstrap/lib/NavbarToggle';
+import NavbarCollapse from 'react-bootstrap/lib/NavbarCollapse';
 
 function RoleAllows(roles = [], menu){
     let rules = {
@@ -98,10 +102,17 @@ export default class Header extends React.Component {
         return  this.props.loggedIn ? <li className="nav-item"><a className="nav-link" href="/logout">Log out</a></li> : null;
     }
 
+
     render() {
-        return  <nav className="navbar-dark bg-inverse navbar-static-top  navbar navbar-default">
+        console.log(NavbarHeader, Collapse);
+        return  <Navbar inverse>
+                <NavbarHeader>
+                      <a className="navbar-brand" href="#">Good Company</a>
+                      <NavbarToggle />
+                    </NavbarHeader>
+
+             <NavbarCollapse>
             <div className="container">
-                <a className="navbar-brand" href="#">Good Company</a>
                 {this.showMenus() }
                 <ul className="nav navbar-nav pull-right">
                 { this.showAccount() }
@@ -109,8 +120,9 @@ export default class Header extends React.Component {
                 { this.showLogin() }
                 { this.showSignUp() }
                 </ul>
-                </div>
-            </nav>
+            </div>
+         </NavbarCollapse>
+  </Navbar>
 
     }
 }

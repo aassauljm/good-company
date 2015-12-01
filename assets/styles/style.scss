@@ -2,8 +2,8 @@
 
 
 // Core variables and mixins
-//@import "~bootstrap-sass/assets/stylesheets/bootstrap/variables";
-@import "variables";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/variables";
+//@import "variables";
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 
 $input-border-width: 2px;
@@ -58,7 +58,7 @@ $input-border-width: 2px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
 
-@import "bootswatch";
+//@import "bootswatch";
 @import "reactWidgets";
 
 body{

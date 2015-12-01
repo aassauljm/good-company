@@ -69,10 +69,12 @@ export default class ImportCompanyModal extends React.Component {
                 }
             });
     };
-
+    componentWillUnmount() {
+        this.refs.modal._onHide();
+    }
     render() {
         const valid = false;
-        return  <Modal show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>Import from the New Zealand Companies Office</Modal.Title>
               </Modal.Header>
