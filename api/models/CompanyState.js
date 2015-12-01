@@ -324,6 +324,8 @@ module.exports = {
                                 return p.get()
                             });
                             return {
+                                holdingId: holding.holdingId,
+                                name: holding.name,
                                 parcels: parcels,
                                 holders: holders
                             };

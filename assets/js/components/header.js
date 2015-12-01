@@ -104,7 +104,6 @@ export default class Header extends React.Component {
 
 
     render() {
-        console.log(NavbarHeader, Collapse);
         return  <Navbar inverse>
                 <NavbarHeader>
                       <a className="navbar-brand" href="#">Good Company</a>
@@ -114,7 +113,7 @@ export default class Header extends React.Component {
              <NavbarCollapse>
             <div className="container">
                 {this.showMenus() }
-                <ul className="nav navbar-nav pull-right">
+                <ul className="nav navbar-nav navbar-right">
                 { this.showAccount() }
                 { this.showLogout() }
                 { this.showLogin() }

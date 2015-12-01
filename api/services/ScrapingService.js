@@ -206,7 +206,6 @@ const EXTRACT_DOCUMENT_MAP = {
         }
 
 
-
         // a kludge to add companyNumbers from new/removeHolder to new/remove allocation
 
         let idMap = result.actions.reduce(function(acc, action){
@@ -825,6 +824,7 @@ module.exports = {
                 return {
                     parcels: [{amount: holding.shares}],
                     holders: holding.holders,
+                    name: holding.name
                 }
             })
         let difference = total - counted;

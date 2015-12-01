@@ -12,6 +12,9 @@ module.exports = {
         name: {
             type: Sequelize.TEXT
         },
+        personId: {
+            type: Sequelize.INTEGER
+        },
         companyNumber: {
             type: Sequelize.TEXT
         },
@@ -43,7 +46,17 @@ module.exports = {
         tableName: 'person',
         classMethods: {},
         instanceMethods: {},
-        hooks: {}
+        hooks: {
+            afterSync: [function addAutoIncrement(){
+                return sequelize.query(`CREATE SEQUENCE person_id_sequence;
+                                       ALTER TABLE person ALTER COLUMN "personId" SET DEFAULT nextval('person_id_sequence');
+                                       ALTER SEQUENCE person_id_sequence OWNED BY person."personId"; `)
+                    .catch(function(){
+                        // sequence exists, ignore
+                    })
+
+            }]
+        }
     }
 
 };

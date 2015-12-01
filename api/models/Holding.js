@@ -12,6 +12,13 @@ module.exports = {
         rest: false
       },
     attributes: {
+        // will turn to sequence in hook
+        holdingId: {
+            type: Sequelize.INTEGER
+        },
+        name: {
+            type: Sequelize.TEXT
+        }
     },
     associations: function() {
         Holding.belongsTo(CompanyState, {
@@ -108,7 +115,18 @@ module.exports = {
                 this.dataValues.parcels = newParcels;
             }
         },
-        hooks: {}
+        hooks: {
+            afterSync: [function addAutoIncrement(){
+                return sequelize.query(`CREATE SEQUENCE holding_id_sequence;
+                                       ALTER TABLE holding ALTER COLUMN "holdingId" SET DEFAULT nextval('holding_id_sequence');
+                                       ALTER SEQUENCE holding_id_sequence OWNED BY holding."holdingId"; `)
+                    .catch(function(){
+                        // sequence exists, ignore
+                    })
+
+            }]
+
+        }
     }
 
 
