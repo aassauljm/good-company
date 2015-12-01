@@ -185,6 +185,25 @@ const EXTRACT_DOCUMENT_MAP = {
         // if sum of all amounts is 0, then a transfer took place
         // BUT, we can't trace who got what
 
+        function isIssue(result){
+            return _.every(result.actions, (action) => {
+            const issue_types = [, Transaction.types.AMEND]
+            switch(action.type){
+                case Transaction.types.AMEND:
+                    return action.beforeAmount < action.afterAmount;
+                case Transaction.types.NEW_ALLOCATION:
+                    return true;
+                case undefined:
+                    return true;
+                default:
+                    return false;
+                }
+            });
+        }
+
+        if(isIssue(result)){
+            result.transactionType = Transaction.types.ISSUE;
+        }
 
 
 
@@ -757,8 +776,8 @@ module.exports = {
                 currentRoot = _rootState;
                 return currentRoot.buildPrevious({transaction:
                     // TODO type defined by document
-                    {type: Transaction.types.COMPOUND,
-                        data: _.omit(data, 'actions'),
+                        {type: data.transactionType || Transaction.types.COMPOUND,
+                        data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
                         effectiveDate: data.effectiveDate
                     }})
             })
