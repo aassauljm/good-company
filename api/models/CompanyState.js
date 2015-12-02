@@ -408,6 +408,7 @@ module.exports = {
 
 
             combineHoldings: function(newHoldings, parcelHint, subtractHoldings){
+                // add these holdings to current holdings
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
                 }
@@ -415,15 +416,15 @@ module.exports = {
                 " Match all holders in a holding, then an issue will increase the parcels on that holding "
                 _.some(this.dataValues.holdings, function(nextHolding){
                     var toRemove;
-                    newHoldings.forEach(function(sharesToAdd, i){
-                        sharesToAdd = Holding.buildDeep(sharesToAdd);
-                        if(nextHolding.holdersMatch(sharesToAdd) &&
+                    newHoldings.forEach(function(holdingToAdd, i){
+                        holdingToAdd = Holding.buildDeep(holdingToAdd);
+                        if(nextHolding.holdersMatch(holdingToAdd) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             if(subtractHoldings){
-                                nextHolding.subtractParcels(sharesToAdd);
+                                nextHolding.subtractParcels(holdingToAdd);
                             }
                             else{
-                                nextHolding.combineParcels(sharesToAdd);
+                                nextHolding.combineParcels(holdingToAdd);
                             }
                             toRemove = i;
                             return false;
@@ -436,21 +437,53 @@ module.exports = {
                         return true;
                     }
                 });
-                var newShares = newHoldings.map(function(sharesToAdd, i){
+                var extraHoldings = newHoldings.map(function(holdingToAdd, i){
                     // TODO, make sure persons are already looked up
-                    return Holding.buildDeep(sharesToAdd)
+                    return Holding.buildDeep(holdingToAdd)
                 });
-                if(subtractHoldings && newShares.length){
+                if(subtractHoldings && extraHoldings.length){
                     throw new sails.config.exceptions.InvalidInverseOperation('Unknown holders to issue to');
                 }
-                this.dataValues.holdings = this.dataValues.holdings.concat(newShares);
-
+                this.dataValues.holdings = this.dataValues.holdings.concat(extraHoldings);
                 // unaccounted for, alter unallocated shares
                 return this;
             },
             subtractHoldings: function(subtractHoldings, parcelHint){
                 return this.combineHoldings(subtractHoldings, parcelHint, true);
             },
+            mutateHolders: function(holding, newHolders){
+                //these new holders may have new members or address changes or something
+                var existingHolders = [];
+                _.some(holding.dataValues.holders, function(holder){
+                    var toRemove;
+                    newHolders.forEach(function(newHolder, i){
+                        if(holder.detailChange(newHolder)){
+                            existingHolders.push(holder.replaceWith(newHolder))
+
+                            toRemove = i;
+                            return false;
+                        }
+                        if(holder.isEqual(newHolder)){
+                            existingHolders.push(holder);
+                            toRemove = i;
+                            return false;
+                        }
+                    });
+                    if(toRemove !== undefined){
+                        newHolders.splice(toRemove, 1);
+                    }
+                    if(!newHolders.length){
+                        return true;
+                    }
+                });
+                var extraHolders = newHolders.map(function(holderToAdd, i){
+                    // TODO, make sure persons are already looked up
+                    return Person.build(holderToAdd)
+                })
+                holding.dataValues.holders = existingHolders.concat(extraHolders);
+                return this;
+            },
+
             getMatchingHolding: function(holders, parcelHint){
                 return _.find(this.dataValues.holdings, function(holding){
                     return holding.holdersMatch({holders: holders}) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));

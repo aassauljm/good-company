@@ -45,7 +45,23 @@ module.exports = {
         freezeTableName: false,
         tableName: 'person',
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            detailChange: function(other){
+                // if name is same, but other details change
+                return this.dataValues.name === other.name &&
+                    (this.dataValues.companyNumber !== other.companyNumber ||
+                    this.dataValues.address !== other.address);
+            },
+            isEqual: function(other){
+                return this.dataValues.name === other.name &&
+                    this.dataValues.companyNumber === other.companyNumber &&
+                    this.dataValues.address === other.address;
+            },
+            replaceWith: function(other){
+                return Person.build(_.merge({personId: this.dataValues.personId}, other));
+            }
+
+        },
         hooks: {
             afterSync: [function addAutoIncrement(){
                 return sequelize.query(`CREATE SEQUENCE person_id_sequence;

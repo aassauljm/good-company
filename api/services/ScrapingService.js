@@ -521,14 +521,26 @@ function performInverseAmend(data, companyState, effectiveDate){
 }
 
 function performInverseHoldingChange(data, companyState, effectiveDate){
-    let current = companyState.getMatchingHolding(data.afterHolders);
-    let previous = companyState.getMatchingHolding(data.beforeHolders) || Holding.buildDeep({holders: data.beforeHolders});
-    previous.combineParcels(current);
-    companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, current);
-    if(!_.includes(companyState.dataValues.holdings, previous)){
-        companyState.dataValues.holdings = companyState.dataValues.holdings.concat([previous])
-    }
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+    return Promise.resolve({})
+        .then(()=>{
+            let current = companyState.getMatchingHolding(data.afterHolders);
+            if(!current){
+                 throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
+            }
+            companyState.mutateHolders(current, data.beforeHolders)
+            return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+
+        })
+
+    // can't build, NEED current state.
+    //let previous = companyState.getMatchingHolding(data.beforeHolders) || Holding.buildDeep({holders: data.beforeHolders});
+    //if(current.get('holdingId') && !previous.get('holdingId')){
+    //    previous.set('holdingId', current.get('holdingId'));
+    //}
+    //previous = current.transformHolders(data.beforeHolders);
+    //previous.combineParcels(current);
+    //companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, current);
+    //companyState.dataValues.holdings.push(previous)
 }
 
 

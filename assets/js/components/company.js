@@ -172,6 +172,7 @@ class TransactionHistory extends React.Component {
 
 
 
+
 @connect((state, ownProps) => {
     let comp;
     if(ownProps.params.generation){

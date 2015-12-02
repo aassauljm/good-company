@@ -51,7 +51,9 @@ module.exports = {
         classMethods: {
             buildDeep: function(data){
                 // NEEDS NOT CREATE NEW PERSONS IF THEY HAVE IDS,
-                return Holding.build(data, {include: [{model: Parcel, as: 'parcels'}, {model: Person, as: 'holders'}]});
+                var holding = Holding.build(data, {include: [{model: Parcel, as: 'parcels'}, {model: Person, as: 'holders'}]});
+                return holding;
+
             }
         },
         instanceMethods: {
