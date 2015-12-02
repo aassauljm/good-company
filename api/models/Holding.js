@@ -102,6 +102,8 @@ module.exports = {
                 this.dataValues.parcels = newParcels.concat(holding.dataValues.parcels);
             },
             subtractParcels: function(holding){
+                // subtract isn't quite the opposite of combine, and there must be an
+                // existing matching parcel
                 var newParcels = [];
                 _.some(this.dataValues.parcels, function(currentP, i){
                     var match = _.some(holding.dataValues.parcels, function(addP){

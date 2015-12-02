@@ -149,6 +149,9 @@ describe('CompanyState Model', function() {
                 this.second_state.holdings[0].holders.length.should.be.eql(1);
                 this.first_state.holdings[0].holders[0].id.should.be.eql(
                     this.second_state.holdings[0].holders[0].id);
+                this.first_state.holdings[0].holders[0].personId.should.be.eql(
+                    this.second_state.holdings[0].holders[0].personId);
+
                 done();
             });
         });
@@ -190,5 +193,62 @@ describe('CompanyState Model', function() {
 
                 })
         })
+    });
+    describe('Basic transformations of company state', function() {
+        var initialState = {
+                companyName: 'Party Sisters',
+                holdings: [{
+                    name: 'Allocation 1',
+                    parcels: [{
+                        amount: 10,
+                        shareClass: 'A'
+                    }, {
+                        amount: 1,
+                        shareClass: 'B'
+                    }],
+                    holders: [{
+                        name: 'Sally Slimjim'
+                    },{
+                        name: 'Mickey Twofists'
+                    }]
+                },{
+                    name: 'Allocation 2',
+                    parcels: [{
+                        amount: 1,
+                        shareClass: 'A'
+                    }, {
+                        amount: 1,
+                        shareClass: 'B'
+                    }],
+                    holders: [{
+                        name: 'Mickey Twofists'
+                    }, {
+                        name: 'Johansen McKenzie'
+                    }]
+                }
+                ]
+            };
+
+        it('populates company state and confirms person deduplication and associations', function(done){
+            CompanyState.createDedupPersons(initialState)
+                .then(function(companyState){
+                    var firstMicky = _.find(companyState.holdings[0].holders, {name: 'Mickey Twofists'});
+                    var secondMicky = _.find(companyState.holdings[1].holders, {name: 'Mickey Twofists'});
+                    firstMicky.dataValues.should.be.deep.equal(secondMicky.dataValues);
+                    return firstMicky.getHoldings()
+                })
+                .then(function(holdings){
+                    holdings.length.should.be.equal(2);
+                    var firstAlloc = _.find(holdings, {name: 'Allocation 1'});
+                    return firstAlloc.getParcels()
+                })
+                .then(function(parcels){
+                    parcels.length.should.be.equal(2);
+                    _.find(parcels, {amount: 10}).shareClass.should.be.equal('A');
+                    done();
+                });
+        });
+
+
     });
 });
