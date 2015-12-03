@@ -12,6 +12,7 @@ import Tabs from 'react-bootstrap/lib/Tabs';
 import Tab from 'react-bootstrap/lib/Tab';
 import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import { pushState } from 'redux-router';
 import moment from 'moment'
 
 class NotFound extends React.Component {
@@ -44,7 +45,6 @@ class ShareholdingsPanel extends React.Component {
        return length;
     };
     countHolders() {
-        console.log('here', this.props.holdings)
        const length = new Set(this.props.holdings.reduce((acc, holding) => {
             return [...acc, ...holding.holders.map(p => p.personId)]
        }, [])).size;
@@ -53,14 +53,14 @@ class ShareholdingsPanel extends React.Component {
     render(){
         const classCount = this.countClasses();
         const holderCount = this.countHolders();
-        return <div className={"panel panel-info"} >
+        return <div className="panel panel-info actionable">
             <div className="panel-heading">
-            <strong>Current Shareholdings</strong>
+            <h3 className="panel-title">Current Shareholdings</h3>
             </div>
             <div className="panel-body">
                 <div className="row">
                     <div className="col-xs-6">
-                    <div><strong>{this.props.totalShares}</strong> Total Shares</div>
+                    <div><strong>{numberWithCommas(this.props.totalShares)}</strong> Total Shares</div>
                     <div><strong>{this.props.holdings.length}</strong> Holdings</div>
                     <div><strong>{holderCount}</strong> Shareholder{holderCount !== 1 && 's'}</div>
                     <div><strong>{classCount}</strong> Share Class{classCount !== 1 && 'es'}</div>
@@ -70,7 +70,7 @@ class ShareholdingsPanel extends React.Component {
                           data={this.groupHoldings()}
                           width={100}
                           height={100}
-                          radius={40}
+                          radius={50}
                           innerRadius={0}
                           sectorBorderColor="white"
                           showInnerLabels={false}
@@ -90,9 +90,9 @@ class ShareRegisterPanel extends React.Component {
         //holding: PropTypes.object.isRequired
     };
     render(){
-        return <div className={"panel panel-success"} >
+        return <div className="panel panel-success actionable" >
             <div className="panel-heading">
-            <strong>Share Register</strong>
+            <h3 className="panel-title">Share Register</h3>
             </div>
             <div className="panel-body">
                 { }
@@ -105,20 +105,38 @@ class ShareRegisterPanel extends React.Component {
 @pureRender
 class Holding extends React.Component {
     static propTypes = {
-        holding: PropTypes.object.isRequired
+        holding: PropTypes.object.isRequired,
+        total: PropTypes.number.isRequired
     };
     render(){
         const total = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (total/this.props.total*100).toFixed(2) + '%';
         return <div className="holding well">
-            <dl className="dl-horizontal">
-                <dt >Total Shares</dt>
-                <dd >{numberWithCommas(total) + ' ' + percentage}</dd>
-                <dt >Holders</dt>
-                { this.props.holding.holders.map((holder, i) =>
-                    <dd key={i} >{holder.name} <br/>
-                    <span className="address">{holder.address}</span></dd>) }
-            </dl>
+            <div className="row">
+                <div className="col-xs-10">
+                <dl className="dl-horizontal">
+                    <dt >Name</dt>
+                    <dd >{ this.props.holding.name }</dd>
+                    <dt >Total Shares</dt>
+                    <dd >{numberWithCommas(total) + ' ' + percentage}</dd>
+                    <dt >Holders</dt>
+                    { this.props.holding.holders.map((holder, i) =>
+                        <dd key={i} >{holder.name} <br/>
+                        <span className="address">{holder.address}</span></dd>) }
+                </dl>
+                </div>
+                <div className="col-xs-2">
+                 <PieChart
+                          data={[{value: total}, {value: this.props.total}]}
+                          width={60}
+                          height={60}
+                          radius={30}
+                          innerRadius={0}
+                          sectorBorderColor="white"
+                          showInnerLabels={false}
+                          showOuterLabels={false} />
+                    </div>
+            </div>
         </div>
     }
 }
@@ -157,14 +175,14 @@ class Directors extends React.Component {
 }
 
 @pureRender
-class Holdings extends React.Component {
+export class Shareholdings extends React.Component {
     static propTypes = {
-        holdings: PropTypes.array.isRequired,
+        companyState: PropTypes.object,
     };
 
     groupHoldings() {
-        const total = this.props.totalAllocatedShares;
-        return this.props.holdings.map(holding => ({
+        const total = this.props.companyState.totalAllocatedShares;
+        return this.props.companyState.holdings.map(holding => ({
             value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
             label: holding.holders.map(h => h.name).join(', ')
         }));
@@ -173,7 +191,7 @@ class Holdings extends React.Component {
     render() {
         return <div className="row">
             <div className="col-md-6">
-                { this.props.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.totalShares}/>)}
+                { this.props.companyState.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.companyState.totalShares}/>)}
             </div>
             <div className="col-md-6 text-center">
 
@@ -413,24 +431,34 @@ export default class Company extends React.Component {
         if(!current){
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
-        const generation = Number(this.props.params.generation) || 0;
         return <div>
                 <div className="well">
                     <h1>{current.companyName}</h1>
                     <h5>#{current.companyNumber}, {current.companyStatus}</h5>
                      <h5>{new Date(current.transaction.effectiveDate).toDateString() }</h5>
                 </div>
-                <div className="row">
-                <div className="col-md-6">
-                     <ShareRegisterPanel />
-                </div>
-                 <div className="col-md-6">
-                     <ShareholdingsPanel
-                        holdings={current.holdings}
-                        totalShares={current.totalShares}
-                        totalAllocatedShares={current.totalAllocatedShares}/>
-                </div>
-                </div>
+                { this.props.children && <ul className="pager">
+                            <li><Link className="nav-link" className="nav-link" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>
+                            </ul>
+                        }
+
+                { this.props.children && React.cloneElement(this.props.children, {
+                        companyState: current
+                })}
+                { !this.props.children &&
+                    <div className="row">
+                        <div className="col-md-6">
+                             <ShareRegisterPanel />
+                        </div>
+                         <div className="col-md-6">
+                    <Link to={this.props.location.pathname +'/shareholdings'}>
+                             <ShareholdingsPanel
+                                holdings={current.holdings}
+                                totalShares={current.totalShares}
+                                totalAllocatedShares={current.totalAllocatedShares} />
+                                </Link>
+                        </div>
+                    </div> }
         </div>
     }
 }
