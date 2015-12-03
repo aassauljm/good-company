@@ -531,7 +531,7 @@ module.exports = {
                         stats.totalUnallocatedShares = totalUnallocated;
                         stats.totalAllocatedShares = total;
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
-                        stats.transactions = transactionSummary;
+                        stats.transactions = transactionSummary[0].transaction_summary;
                         return stats
                     });
             }

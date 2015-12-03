@@ -165,3 +165,14 @@ $pageTransitionEasing: ease-in-out;
     transform: rotate(359deg);
   }
 }
+
+
+
+// graphs
+.hide-graph-labels{
+    .arc{
+        polyline{
+            display:none;
+        }
+    }
+}

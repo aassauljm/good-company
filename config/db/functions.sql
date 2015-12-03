@@ -89,7 +89,7 @@ SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."eff
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION transaction_summary(companyStateId integer)
-    RETURNS SETOF JSON
+    RETURNS JSON
     AS $$
 WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") as (
     SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
@@ -98,11 +98,10 @@ WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") 
     FROM companystate t, prev_transactions tt
     WHERE t.id = tt."previousCompanyStateId"
 )
-SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate",
+SELECT array_to_json(array_agg(row_to_json(q))) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate",
     (select count(*) from transaction tt where t.id = tt."parentTransactionId") as "actionCount"
     from prev_transactions pt
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;
-
 

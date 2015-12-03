@@ -10,7 +10,7 @@ import Roles from './components/roles';
 import Documents from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
-import Company, { Shareholdings, CompanyDetails, CompanyTransactions } from './components/company';
+import Company, { Shareholdings, CompanyDetails, CompanyTransactions, ShareRegister } from './components/company';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -35,6 +35,7 @@ const routes = (
                     <Route path="shareholdings" component={ Shareholdings } />
                     <Route path="details" component={ CompanyDetails } />
                     <Route path="transactions" component={ CompanyTransactions } />
+                    <Route path="shareregister" component={ ShareRegister } />
                 </Route>
                 <Route path="company/view/:id/history/:generation" component={ Company }  />
 

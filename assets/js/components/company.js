@@ -7,8 +7,8 @@ import ButtonInput from './forms/buttonInput';
 import LookupCompany from  './lookupCompany';
 import AuthenticatedComponent from  './authenticated';
 import { Link } from 'react-router';
-import { PieChart } from 'react-d3/piechart';
-import { BarChart } from 'react-d3/barchart';
+import PieChart  from 'react-d3-components/lib/piechart';
+import BarChart  from 'react-d3-components/lib/barchart';
 import Tabs from 'react-bootstrap/lib/Tabs';
 import Tab from 'react-bootstrap/lib/Tab';
 import Panel from './panel';
@@ -35,10 +35,10 @@ class ShareholdingsPanel extends React.Component {
     };
     groupHoldings() {
         const total = this.props.totalAllocatedShares;
-        return this.props.holdings.map(holding => ({
-            value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
-            label: holding.holders.map(h => h.name).join(', ')
-        }));
+        return {values: this.props.holdings.map(holding => ({
+            y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
+            x: holding.name
+        }))};
     };
     countClasses() {
        const length = new Set(this.props.holdings.reduce((acc, holding) => {
@@ -68,15 +68,16 @@ class ShareholdingsPanel extends React.Component {
                     <div><strong>{classCount}</strong> Share Class{classCount !== 1 && 'es'}</div>
                     </div>
                     <div className="col-xs-6 text-center">
-                        <PieChart
+                       <div className="hide-graph-labels">
+                         <PieChart
                           data={this.groupHoldings()}
                           width={100}
                           height={100}
-                          radius={50}
-                          innerRadius={0}
-                          sectorBorderColor="white"
+                          innerRadius={0.0001}
+                          outerRadius={50}
                           showInnerLabels={false}
                           showOuterLabels={false} />
+                          </div>
                     </div>
                 </div>
             </div>
@@ -96,17 +97,22 @@ class TransactionsPanel extends React.Component {
     }
     render(){
         const data = this.groupTransactionDates(this.props.transactions)
+
         return <div className="panel panel-success" >
             <div className="panel-heading">
             <h3 className="panel-title">Transactions</h3>
             </div>
             <div className="panel-body">
-                    <BarChart
-                    groupedBars
-                    data={data}
-                    width={400}
-                    height={100}
-                    margin={{top: 10, bottom: 50, left: 50, right: 10}}/>
+            <div><strong>Last Transaction </strong>
+            {this.props.transactions[0].type+' ' }
+             {new Date(this.props.transactions[0].effectiveDate).toDateString()}</div>
+            <BarChart
+                groupedBars
+                data={this.groupTransactionDates()}
+                width={300}
+                height={100}
+                yAxis={{tickArguments: [], tickValues: [], label: ""}}
+                margin={{top: 10, bottom: 50, left: 50, right: 10}}/>
             </div>
         </div>
     }
@@ -167,6 +173,7 @@ class Holding extends React.Component {
     render(){
         const total = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (total/this.props.total*100).toFixed(2) + '%';
+
         return <div className="holding well">
             <div className="row">
                 <div className="col-xs-10">
@@ -182,15 +189,14 @@ class Holding extends React.Component {
                 </dl>
                 </div>
                 <div className="col-xs-2">
+                   <div className="hide-graph-labels">
                  <PieChart
-                          data={[{value: total}, {value: this.props.total}]}
+                          data={{values: [{y: total, x: 'this'}, {y: this.props.total-total, x: 'other'}]}}
+                          innerRadius={0.001}
+                          outerRadius={30}
                           width={60}
-                          height={60}
-                          radius={30}
-                          innerRadius={0}
-                          sectorBorderColor="white"
-                          showInnerLabels={false}
-                          showOuterLabels={false} />
+                          height={60} />
+                    </div>
                     </div>
             </div>
         </div>
@@ -223,9 +229,9 @@ class Directors extends React.Component {
     };
     render() {
         return <div className="row">
-            <div className="col-md-6">
-                { this.props.directors.map((director, i) => <Director key={i} director={director} />)}
-            </div>
+        <div className="text-center"><h3>Directors</h3></div>
+        { this.props.directors.map((director, i) => <div className="col-md-6"><Director key={i} director={director} /></div>)}
+
         </div>
     }
 }
@@ -238,28 +244,27 @@ export class Shareholdings extends React.Component {
 
     groupHoldings() {
         const total = this.props.companyState.totalAllocatedShares;
-        return this.props.companyState.holdings.map(holding => ({
-            value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
-            label: holding.holders.map(h => h.name).join(', ')
-        }));
-    }
-
+        return {values: this.props.companyState.holdings.map(holding => ({
+            y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
+            x: holding.name
+        }))};
+    };
     render() {
         return <div className="row">
             <div className="col-md-6">
                 { this.props.companyState.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.companyState.totalShares}/>)}
             </div>
             <div className="col-md-6 text-center">
-
-            <PieChart
+   <div className="hide-graph-labels">
+               <PieChart
                   data={this.groupHoldings()}
-                  width={400}
-                  height={400}
-                  radius={100}
-                  innerRadius={20}
-                  sectorBorderColor="white"
+                  width={100}
+                  height={100}
+                  innerRadius={0.0001}
+                  outerRadius={50}
                   showInnerLabels={false}
                   showOuterLabels={false} />
+                  </div>
             </div>
         </div>
     }
@@ -273,7 +278,7 @@ export class CompanyDetails extends React.Component {
 
     render() {
         const current = this.props.companyState;
-        return <div className="well">
+        return <div><div className="well">
                 <dl className="dl-horizontal">
                     <dt >NZ Business Number</dt>
                     <dd >{current.nzbn ||  'Unknown'}</dd>
@@ -302,6 +307,23 @@ export class CompanyDetails extends React.Component {
 
                 </dl>
             </div>
+            <Directors directors={current.directors}/>
+            </div>
+    }
+}
+
+@pureRender
+export class ShareRegister extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object,
+    };
+
+    render() {
+        const current = this.props.companyState;
+        return <div><div className="well">
+            COMING SOON
+        </div>
+            </div>
     }
 }
 
@@ -309,7 +331,7 @@ export class CompanyDetails extends React.Component {
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/transactions']}
 })
-class TransactionHistory extends React.Component {
+export class CompanyTransactions extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
@@ -546,7 +568,9 @@ export default class Company extends React.Component {
                 { !this.props.children &&
                     <div className="row">
                         <div className="col-md-6">
+                        <Link to={this.props.location.pathname +'/shareregister'}>
                              <ShareRegisterPanel />
+                                 </Link>
                         </div>
                          <div className="col-md-6">
                         <Link to={this.props.location.pathname +'/shareholdings'}>
