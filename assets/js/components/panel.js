@@ -7,7 +7,7 @@ export default class Panel extends React.Component {
         return <div className={"panel panel-"+(this.props.panelType || 'default')} >
             <div className="panel-heading">
                 { this.props.title }
-                <Button className="close" aria-label="Close" onClick={() => this.props.remove() }><Glyphicon glyph="remove" /></Button>
+                {this.props.remove && <Button className="close" aria-label="Close" onClick={() => this.props.remove() }><Glyphicon glyph="remove" /></Button>}
             </div>
             <div className="panel-body">
                 { this.props.children }

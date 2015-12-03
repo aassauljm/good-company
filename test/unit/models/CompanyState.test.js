@@ -211,7 +211,7 @@ describe('CompanyState Model', function() {
                     },{
                         name: 'Mickey Twofists'
                     }]
-                },{
+                }, {
                     name: 'Allocation 2',
                     parcels: [{
                         amount: 1,
@@ -225,8 +225,7 @@ describe('CompanyState Model', function() {
                     }, {
                         name: 'Johansen McKenzie'
                     }]
-                }
-                ]
+                }]
             };
 
         it('populates company state and confirms person deduplication and associations', function(done){

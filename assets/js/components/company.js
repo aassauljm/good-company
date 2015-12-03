@@ -10,6 +10,7 @@ import { Link } from 'react-router';
 import { PieChart } from 'react-d3/piechart';
 import Tabs from 'react-bootstrap/lib/Tabs';
 import Tab from 'react-bootstrap/lib/Tab';
+import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment'
 
@@ -21,6 +22,84 @@ class NotFound extends React.Component {
         return <div className="container"><h4 className="text-center">{this.props.descriptor} Not Found</h4></div>
     }
 };
+
+@pureRender
+class ShareholdingsPanel extends React.Component {
+    static propTypes = {
+        holdings: PropTypes.array.isRequired,
+        totalShares: PropTypes.number.isRequired,
+        totalAllocatedShares: PropTypes.number.isRequired
+    };
+    groupHoldings() {
+        const total = this.props.totalAllocatedShares;
+        return this.props.holdings.map(holding => ({
+            value: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
+            label: holding.holders.map(h => h.name).join(', ')
+        }));
+    };
+    countClasses() {
+       const length = new Set(this.props.holdings.reduce((acc, holding) => {
+            return [...acc, ...holding.parcels.map(p => p.shareClass)]
+       }, [])).size;
+       return length;
+    };
+    countHolders() {
+        console.log('here', this.props.holdings)
+       const length = new Set(this.props.holdings.reduce((acc, holding) => {
+            return [...acc, ...holding.holders.map(p => p.personId)]
+       }, [])).size;
+       return length;
+    };
+    render(){
+        const classCount = this.countClasses();
+        const holderCount = this.countHolders();
+        return <div className={"panel panel-info"} >
+            <div className="panel-heading">
+            <strong>Current Shareholdings</strong>
+            </div>
+            <div className="panel-body">
+                <div className="row">
+                    <div className="col-xs-6">
+                    <div><strong>{this.props.totalShares}</strong> Total Shares</div>
+                    <div><strong>{this.props.holdings.length}</strong> Holdings</div>
+                    <div><strong>{holderCount}</strong> Shareholder{holderCount !== 1 && 's'}</div>
+                    <div><strong>{classCount}</strong> Share Class{classCount !== 1 && 'es'}</div>
+                    </div>
+                    <div className="col-xs-6 text-center">
+                        <PieChart
+                          data={this.groupHoldings()}
+                          width={100}
+                          height={100}
+                          radius={40}
+                          innerRadius={0}
+                          sectorBorderColor="white"
+                          showInnerLabels={false}
+                          showOuterLabels={false} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+
+@pureRender
+class ShareRegisterPanel extends React.Component {
+    static propTypes = {
+        //holding: PropTypes.object.isRequired
+    };
+    render(){
+        return <div className={"panel panel-success"} >
+            <div className="panel-heading">
+            <strong>Share Register</strong>
+            </div>
+            <div className="panel-body">
+                { }
+            </div>
+        </div>
+    }
+}
 
 
 @pureRender
@@ -185,7 +264,7 @@ class TransactionHistory extends React.Component {
     return {data: {}, companyPage: state.companyPage, ...comp};
 })
 @AuthenticatedComponent
-export default class Company extends React.Component {
+export class CompanyHistory extends React.Component {
     static propTypes = {
         companyPage: PropTypes.object.isRequired,
         data: PropTypes.object.isRequired
@@ -223,7 +302,6 @@ export default class Company extends React.Component {
     renderData() {
         const data = this.props.data || {};
         const current = data.currentCompanyState || data.companyState;
-        console.log(this.props)
         if(this.props._status==='error'){
             return <NotFound descriptor="Company"/>
         }
@@ -294,3 +372,65 @@ export default class Company extends React.Component {
     }
 }
 
+
+
+@connect((state, ownProps) => {
+    return {data: {}, companyPage: state.companyPage, ...state.resources['/company/'+ownProps.params.id +'/get_info']};
+})
+@AuthenticatedComponent
+export default class Company extends React.Component {
+    static propTypes = {
+        companyPage: PropTypes.object.isRequired,
+        data: PropTypes.object.isRequired
+    };
+    key() {
+        return this.props.params.id
+    }
+
+    isHistory() {
+        return !!this.props.params.generation;
+    }
+
+    fetch() {
+        this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
+    }
+
+    componentDidMount() {
+        this.fetch();
+
+    }
+
+    componentDidUpdate() {
+        this.fetch();
+    }
+
+    render(){
+        const data = this.props.data || {};
+        const current = data.currentCompanyState || data.companyState;
+        if(this.props._status==='error'){
+            return <NotFound descriptor="Company"/>
+        }
+        if(!current){
+            return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+        }
+        const generation = Number(this.props.params.generation) || 0;
+        return <div>
+                <div className="well">
+                    <h1>{current.companyName}</h1>
+                    <h5>#{current.companyNumber}, {current.companyStatus}</h5>
+                     <h5>{new Date(current.transaction.effectiveDate).toDateString() }</h5>
+                </div>
+                <div className="row">
+                <div className="col-md-6">
+                     <ShareRegisterPanel />
+                </div>
+                 <div className="col-md-6">
+                     <ShareholdingsPanel
+                        holdings={current.holdings}
+                        totalShares={current.totalShares}
+                        totalAllocatedShares={current.totalAllocatedShares}/>
+                </div>
+                </div>
+        </div>
+    }
+}
