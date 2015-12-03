@@ -35,7 +35,7 @@ module.exports = {
   //   level: "silent"
   // }
    models: {
-     connection: 'pg'
+     connection: 'pg_test'
    },
    hookTimeout: 60000, // 60 seconds
    serverRender: true

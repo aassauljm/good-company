@@ -558,7 +558,7 @@ export default class Company extends React.Component {
                      <h5>{new Date(current.transaction.effectiveDate).toDateString() }</h5>
                 </div>
                 { this.props.children && <ul className="pager">
-                            <li><Link className="nav-link" className="nav-link" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>
+                            <li><Link className="nav-link" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>
                             </ul>
                         }
 
