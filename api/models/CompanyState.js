@@ -249,6 +249,11 @@ module.exports = {
             }
         },
         instanceMethods: {
+            getTransactionSummary: function(){
+                return sequelize.query('select transaction_summary(:id)',
+                                       { type: sequelize.QueryTypes.SELECT,
+                                            replacements: { id: this.id}});
+            },
             groupShares: function() {
                 return this.getHoldings({
                         include: [{
@@ -521,14 +526,14 @@ module.exports = {
             },
             stats: function(){
                 var stats = {};
-                return Promise.join(this.totalAllocatedShares(), this.totalUnallocatedShares(),
-                        function(total, totalUnallocated){
-
+                return Promise.join(this.totalAllocatedShares(), this.totalUnallocatedShares(), this.getTransactionSummary(),
+                        function(total, totalUnallocated, transactionSummary){
                         stats.totalUnallocatedShares = totalUnallocated;
                         stats.totalAllocatedShares = total;
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
+                        stats.transactions = transactionSummary;
                         return stats
-                    })
+                    });
             }
 
         },

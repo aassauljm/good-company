@@ -8,12 +8,14 @@ import LookupCompany from  './lookupCompany';
 import AuthenticatedComponent from  './authenticated';
 import { Link } from 'react-router';
 import { PieChart } from 'react-d3/piechart';
+import { BarChart } from 'react-d3/barchart';
 import Tabs from 'react-bootstrap/lib/Tabs';
 import Tab from 'react-bootstrap/lib/Tab';
 import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { pushState } from 'redux-router';
 import moment from 'moment'
+
 
 class NotFound extends React.Component {
     static propTypes = {
@@ -85,22 +87,76 @@ class ShareholdingsPanel extends React.Component {
 
 
 @pureRender
-class ShareRegisterPanel extends React.Component {
+class TransactionsPanel extends React.Component {
     static propTypes = {
-        //holding: PropTypes.object.isRequired
+        transactions: PropTypes.array.isRequired
     };
+    groupTransactionDates(){
+        return [{label: '10', values: [{x: 'SomethingA', y: 2}]}]
+    }
     render(){
-        return <div className="panel panel-success actionable" >
+        const data = this.groupTransactionDates(this.props.transactions)
+        return <div className="panel panel-success" >
             <div className="panel-heading">
-            <h3 className="panel-title">Share Register</h3>
+            <h3 className="panel-title">Transactions</h3>
             </div>
             <div className="panel-body">
-                { }
+                    <BarChart
+                    groupedBars
+                    data={data}
+                    width={400}
+                    height={100}
+                    margin={{top: 10, bottom: 50, left: 50, right: 10}}/>
             </div>
         </div>
     }
 }
 
+@pureRender
+class DetailsPanel extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object.isRequired
+    };
+    render(){
+
+        const current = this.props.companyState;
+        return <div className="panel panel-warning" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Company Details</h3>
+            </div>
+            <div className="panel-body">
+            <div className="row">
+            <div className="col-xs-6">
+                    <div><strong>Name</strong> {current.companyName}</div>
+                    <div><strong>NZ Business Number</strong> {current.nzbn ||  'Unknown'}</div>
+                    <div><strong>Incorporation Date</strong> {new Date(current.incorporationDate).toDateString()}</div>
+                    </div>
+            <div className="col-xs-6">
+                    <div><strong>AR Filing Month</strong> {current.arFilingMonth ||  'Unknown'}</div>
+                    <div><strong>Entity Type</strong> {current.entityType ||  'Unknown' }</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@pureRender
+class ShareRegisterPanel extends React.Component {
+    static propTypes = {
+    };
+    render(){
+
+        return <div className="panel panel-danger" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Share Register</h3>
+            </div>
+            <div className="panel-body">
+
+            </div>
+        </div>
+    }
+}
 
 @pureRender
 class Holding extends React.Component {
@@ -203,23 +259,65 @@ export class Shareholdings extends React.Component {
                   innerRadius={20}
                   sectorBorderColor="white"
                   showInnerLabels={false}
-                  showOuterLabels={false}
-                />
+                  showOuterLabels={false} />
             </div>
         </div>
     }
 }
 
+@pureRender
+export class CompanyDetails extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object,
+    };
+
+    render() {
+        const current = this.props.companyState;
+        return <div className="well">
+                <dl className="dl-horizontal">
+                    <dt >NZ Business Number</dt>
+                    <dd >{current.nzbn ||  'Unknown'}</dd>
+
+                    <dt >Incorporation Date</dt>
+                    <dd >{new Date(current.incorporationDate).toDateString()}</dd>
+
+                    <dt >Total Shares</dt>
+                    <dd >{numberWithCommas(current.totalShares)}</dd>
+
+                    <dt >AR Filing Month</dt>
+                    <dd >{current.arFilingMonth}</dd>
+
+                    <dt >Entity Type</dt>
+                    <dd >{current.entityType}</dd>
+
+
+                    { current.registeredCompanyAddress && <dt>Company Address</dt> }
+                    { current.registeredCompanyAddress && <dd>{current.registeredCompanyAddress }</dd> }
+
+                    { current.addressForShareRegister && <dt>Address for Share Register</dt> }
+                    { current.addressForShareRegister && <dd>{current.addressForShareRegister }</dd> }
+
+                    { current.addressForService && <dt>Address For Service</dt> }
+                    { current.addressForService && <dd>{current.addressForService}</dd> }
+
+                </dl>
+            </div>
+    }
+}
+
+
 @connect((state, ownProps) => {
-    return {data: {}, ...state.resources['/company/'+ownProps.companyId +'/transactions']}
+    return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/transactions']}
 })
 class TransactionHistory extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
-
+    key() {
+        return this.props.params.id
+    }
     fetch() {
-        return this.props.dispatch(requestResource('/company/'+this.props.companyId+'/transactions'))
+        return this.props.dispatch(requestResource('/company/'+this.key()+'/transactions'))
     }
 
     componentDidMount() {
@@ -451,11 +549,23 @@ export default class Company extends React.Component {
                              <ShareRegisterPanel />
                         </div>
                          <div className="col-md-6">
-                    <Link to={this.props.location.pathname +'/shareholdings'}>
+                        <Link to={this.props.location.pathname +'/shareholdings'}>
                              <ShareholdingsPanel
                                 holdings={current.holdings}
                                 totalShares={current.totalShares}
                                 totalAllocatedShares={current.totalAllocatedShares} />
+                                </Link>
+                        </div>
+                         <div className="col-md-6">
+                        <Link to={this.props.location.pathname +'/details'}>
+                             <DetailsPanel
+                                companyState={current} />
+                                </Link>
+                        </div>
+                          <div className="col-md-6">
+                        <Link to={this.props.location.pathname +'/transactions'}>
+                             <TransactionsPanel
+                                transactions={current.transactions} />
                                 </Link>
                         </div>
                     </div> }

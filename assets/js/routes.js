@@ -1,3 +1,4 @@
+"use strict";
 import { Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import App from './components/app';
@@ -9,7 +10,7 @@ import Roles from './components/roles';
 import Documents from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
-import Company, { Shareholdings } from './components/company';
+import Company, { Shareholdings, CompanyDetails, CompanyTransactions } from './components/company';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -32,6 +33,8 @@ const routes = (
                 <Route path="companies" component={ Companies }  />
                 <Route path="company/view/:id" component={ Company }>
                     <Route path="shareholdings" component={ Shareholdings } />
+                    <Route path="details" component={ CompanyDetails } />
+                    <Route path="transactions" component={ CompanyTransactions } />
                 </Route>
                 <Route path="company/view/:id/history/:generation" component={ Company }  />
 
