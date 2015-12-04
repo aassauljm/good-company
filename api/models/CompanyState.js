@@ -489,6 +489,20 @@ module.exports = {
                 holding.dataValues.holders = existingHolders.concat(extraHolders);
                 return this;
             },
+            replaceHolder: function(currentHolder, newHolder){
+                _.some(this.dataValues.holdings, function(holding){
+                    // TODO, collect all?
+                    var index = _.findIndex(holding.dataValues.holders, function(h, i){
+                        return h.isEqual(currentHolder);
+                    });
+                    if(index > -1){
+                        holding.dataValues.holders[index] = holding.dataValues.holders[index].replaceWith(newHolder);
+                        return true;
+                    }
+                });
+                return this;
+            },
+
 
             getMatchingHolding: function(holders, parcelHint){
                 return _.find(this.dataValues.holdings, function(holding){

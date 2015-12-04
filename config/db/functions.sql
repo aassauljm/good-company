@@ -126,11 +126,11 @@ WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
     FROM companystate t, prev_transactions tt
     WHERE t.id = tt."previousCompanyStateId"
 )
-SELECT array_to_json(array_agg(row_to_json(q))) from
+SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q.name)) from
 
     (SELECT DISTINCT ON ("personId") "personId",
     first_value(p.name) OVER wnd as name,
-    first_value(p."companyNumber") OVER wnd as address,
+    first_value(p."companyNumber") OVER wnd as "companyNumber",
     first_value(p.address) OVER wnd as address,
     first_value(p.id) OVER wnd as id,
     first_value(h."holdingId") OVER wnd as "lastHoldingId",

@@ -108,6 +108,18 @@ function parseAmendAllocation($, $el){
     return result;
 }
 
+function parseAmendHolder($, $el){
+   const result =  {
+        beforeHolder: $el.find('.beforePanel .value.shareholderName').map(function(){
+            return {...parseName($(this).text()), address: cleanString($(this).parent().next().text())};
+        }).get()[0],
+        afterHolder: $el.find('.afterPanel .value.shareholderName').map(function(){
+            return {...parseName($(this).text()), address: cleanString($(this).parent().next().text())};
+        }).get()[0],
+    }
+    return result;
+}
+
 function parseAllocation($, $el){
    return {
         amount:  Number(cleanString($el.find('.value.shareNumber').text().replace(' Shares', ''))),
@@ -157,6 +169,7 @@ const EXTRACT_DOCUMENT_MAP = {
         result.actions = $('#reviewContactChangesContent .panel').map(function(){
             let $el = $(this);
             let amendAllocRegex = /^\s*Amended Share Allocation\s*$/;
+            let amendHolderRegex = /^\s*Amended Shareholder\s*$/;
             let newAllocRegex = /^\s*New Share Allocation\s*$/;
             let removedAllocRegex = /^\s*Removed Share Allocation\s*$/;
             let newHolderRegex = /^\s*New Shareholder\s*$/;
@@ -164,6 +177,9 @@ const EXTRACT_DOCUMENT_MAP = {
             let head = cleanString($el.find('.head').text());
             if(head.match(amendAllocRegex)){
                 return parseAmendAllocation($, $el);
+            }
+            else if(head.match(amendHolderRegex)){
+                return {...parseAmendHolder($, $el), transactionType: Transaction.types.HOLDER_CHANGE};
             }
             else if(head.match(newAllocRegex)){
                 return {...parseAllocation($, $el), transactionType: Transaction.types.NEW_ALLOCATION};
@@ -531,18 +547,21 @@ function performInverseHoldingChange(data, companyState, effectiveDate){
             return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
 
         })
-
-    // can't build, NEED current state.
-    //let previous = companyState.getMatchingHolding(data.beforeHolders) || Holding.buildDeep({holders: data.beforeHolders});
-    //if(current.get('holdingId') && !previous.get('holdingId')){
-    //    previous.set('holdingId', current.get('holdingId'));
-    //}
-    //previous = current.transformHolders(data.beforeHolders);
-    //previous.combineParcels(current);
-    //companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, current);
-    //companyState.dataValues.holdings.push(previous)
 }
 
+function performInverseHolderChange(data, companyState, effectiveDate){
+    return Promise.resolve({})
+        .then(()=>{
+            // NEED TO UPDATE EVERY HOLDING THAT THIS HOLDER IS IN
+            companyState.replaceHolder(data.afterHolder, data.beforeHolder)
+            return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+
+        })
+        .catch((e)=>{
+            sails.log.error(e);
+            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change, documentId: ' +data.documentId)
+        });
+}
 
 function performInverseNewAllocation(data, companyState, effectiveDate){
     companyState.combineUnallocatedParcels({amount: data.amount});
@@ -767,6 +786,7 @@ module.exports = {
         const PERFORM_ACTION_MAP = {
             [Transaction.types.AMEND]:  performInverseAmend,
             [Transaction.types.HOLDING_CHANGE]:  performInverseHoldingChange,
+            [Transaction.types.HOLDER_CHANGE]:  performInverseHolderChange,
             [Transaction.types.ISSUE]:  performInverseIssue,
             [Transaction.types.CONVERSION]:  performInverseConversion,
             [Transaction.types.NEW_ALLOCATION]:  performInverseNewAllocation,

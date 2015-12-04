@@ -14,7 +14,7 @@ import Tab from 'react-bootstrap/lib/Tab';
 import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { pushState } from 'redux-router';
-import moment from 'moment'
+import moment from 'moment';
 
 
 class NotFound extends React.Component {
