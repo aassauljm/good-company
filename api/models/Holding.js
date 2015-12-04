@@ -40,9 +40,9 @@ module.exports = {
             as: 'holders',
             foreignKey: {
                 as: 'holders',
-                name: 'holderId'
+                name: 'holdingId'
             },
-            through: 'holdingJ'
+            through: 'holderJ'
         });
     },
     options: {

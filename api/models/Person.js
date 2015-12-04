@@ -29,9 +29,9 @@ module.exports = {
         Person.belongsToMany(Holding, {
             foreignKey: {
                 as: 'holdings',
-                name: 'holdingId'
+                name: 'holderId'
             },
-            through: 'holdingJ'
+            through: 'holderJ'
         });
         Person.hasMany(Director, {
             as: 'directorships',
@@ -49,8 +49,8 @@ module.exports = {
             detailChange: function(other){
                 // if name is same, but other details change
                 return this.dataValues.name === other.name &&
-                    (this.dataValues.companyNumber !== other.companyNumber ||
-                    this.dataValues.address !== other.address);
+                    this.dataValues.companyNumber === other.companyNumber &&
+                    (this.dataValues.address !== other.address);
             },
             isEqual: function(other){
                 return this.dataValues.name === other.name &&

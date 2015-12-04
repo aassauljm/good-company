@@ -458,6 +458,7 @@ module.exports = {
             },
             mutateHolders: function(holding, newHolders){
                 //these new holders may have new members or address changes or something
+                newHolders = newHolders.slice()
                 var existingHolders = [];
                 _.some(holding.dataValues.holders, function(holder){
                     var toRemove;
