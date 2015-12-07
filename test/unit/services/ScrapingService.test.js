@@ -165,6 +165,7 @@ describe('Scraping Service', function() {
                     return state.stats();
                 })
                 .then(function(stats){
+                    console.log(stats)
                     stats.totalUnallocatedShares.should.be.equal(0)
                     stats.totalAllocatedShares.should.be.equal(1000)
                     stats.totalShares.should.be.equal(1000)

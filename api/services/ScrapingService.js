@@ -15,26 +15,47 @@ let DOCUMENT_TYPES = {
     NAME_CHANGE: 'NAME_CHANGE',
     ANNUAL_RETURN: 'ANNUAL_RETURN',
     ADDRESS_CHANGE: 'ADDRESS_CHANGE',
+    INCORPORATION: 'INCORPORATION',
     //PARTICULARS_OF_DIRECTOR: 'PARTICULARS_OF_DIRECTOR',
     UNKNOWN: 'UNKNOWN',
 };
 
+const toInt = function (value) {
+  if(/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
+    return Number(value);
+  return NaN;
+}
 
 function cleanString(str){
     return _.trim(str).replace(/[\n\r]/g, '').replace(/\s\s+/g, ' ').replace(/\s,/g, ',').replace(/,$/, '')
 }
 
+function invertName(str){
+   const match = /([^,]*), (.*)/.exec(str));
+    if(match){
+        return `${match[2]} ${match[1]}`;
+    }
+    return str;
 
-function chunkBy(array, func){
-    return _.dropRight(_.reduce(array, (acc, el) => {
-        if(func(el)){
-            acc.push([]);
+}
+
+function chunkBy(array, func, include){
+    const result = _.reduce(array, (acc, el, i) => {
+        if(func(el, i)){
+            if(include)
+                acc.push([el]);
+            else
+                acc.push([]);
         }
         else{
             _.last(acc).push(el);
         }
         return acc;
-    }, [[]]), );
+    }, [[]]);
+    if(!_.last(acc)){
+        return _.dropRight(result);
+    }
+    return result;
 }
 
 function normalizeAddress(address){
@@ -335,6 +356,110 @@ const EXTRACT_DOCUMENT_MAP = {
         }}).get()};
     },
 
+    [DOCUMENT_TYPES.INCORPORATION]: ($) => {
+        const match = (match) => {
+            try{
+                return cleanString($('.row.wideLabel label').filter(function(){
+                        return $(this).text().match(match);
+                    })[0].nextSibling.nodeValue)
+            }catch(e){
+                return null;
+            }
+        }
+
+        const matchMultline = (match) => {
+            try{
+                let el = $('.row.wideLabel').filter(function(){
+                        return $(this).find('label').text().match(match);
+                    });
+                const parts = [el];
+                console.log(el.next().find('label').text());
+                while(el.next().find('label').length && !cleanString(el.next().find('label').text())){
+                    el = el.next();
+                    parts.push(el);
+                }
+                const text = parts.map(p => {
+                    return cleanString(p.find('label')[0].nextSibling.nodeValue);
+                });
+                return text;
+            }catch(e){
+                return [];
+            }
+        }
+
+        const date = moment(match(/Incorporated/), 'DD MMM YYYY').toDate();
+        const result = {
+            transactionType: Transaction.types.INCORPORATION,
+            effectiveDate: date,
+            actions: [{
+                companyNumber: match(/Company number/),
+                companyName: match(/Company name/),
+                incorporationDate: date,
+                companyStatus:  match(/Company Status/),
+                constiutionFiled: match(/Constitution filed/),
+                arFilingMonth: match(/Annual return filing month/),
+                ultimateHoldingCompany: cleanString($('.row.wideLabel h2').filter(function(){
+                    return $(this).text().match(/Ultimate Holding Company/);
+                })[0].nextSibling.nodeValue) !== 'Yes',
+                registeredCompanyAddress:  matchMultline(/Registered office address/).join(', ') || null,
+                addressForShareRegister:  matchMultline(/Address for share register/).join(', ')|| null,
+                addressForService:  matchMultline(/Address for service/).join(', ') || null,
+                transactionType: Transaction.types.DETAILS,
+                effectiveDate: date
+
+            }]
+        }
+        const holdings = matchMultline(/Total Number of Company Shares/);
+
+        if(holdings.length){
+            const total = toInt(holdings[0]);
+            result.actions.push({
+                fromAmount: 0,
+                toAmount: total,
+                byAmount: total,
+                amount: total,
+                transactionType: Transaction.types.ISSUE
+            });
+
+            const chunks = chunkBy(holdings.slice(1), (value, i) => {
+                return i && toInt(value) && toInt(value) < total
+            }, true);
+
+            console.log(holdings.slice(1));
+            const getHolders = (rows) => {
+                const results = [];
+                let i = 0;
+                while(i < rows.length){
+                    const holder = {name: invertName(rows[i]), address: rows[i+1]}
+                    i += 2;
+                    // Is company Number
+                    if(toInt(rows[i])){
+                        holder.companyNumber = rows[i];
+                        i++;
+                    }
+                    results.push(holder);
+                }
+                return results;
+
+            }
+
+
+            console.log(chunks);
+
+            chunks.map(chunk => {
+                result.actions.push({
+                    transactionType: Transaction.types.NEW_ALLOCATION,
+                    amount: parseInt(chunk[0], 10),
+                    holders: getHolders(chunk.slice(1))
+                })
+            })
+
+
+        }
+        console.log(JSON.stringify(result, null, 4));
+        return result;
+    },
+
     [DOCUMENT_TYPES.ANNUAL_RETURN]: ($) => {
         // This isn't really a transaction at the moment, but used for validation
         return {actions: [{
@@ -415,6 +540,9 @@ const DOCUMENT_TYPE_MAP = {
     },
     'Particulars of Company Address': {
         type: DOCUMENT_TYPES.ADDRESS_CHANGE
+    },
+    'New Company Incorporation': {
+        type: DOCUMENT_TYPES.INCORPORATION
     }
 };
 
