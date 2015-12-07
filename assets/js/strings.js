@@ -10,5 +10,16 @@ export default {
     address: 'Address',
     parcel: 'Parcel',
     amount: 'Amount',
-    shareClass: 'Class'
+    shareClass: 'Class',
+    shareRegister: {
+        shareClass: 'Class of Share',
+        name: 'Name of Person',
+        address: 'Address',
+        restrictions: 'Restrictions and Limitations',
+        totalShares: 'Total No. of Shares Held',
+        issueHistory: 'Date and No. of Shares Issued by Company',
+        repurchaseHistory: 'Date and No. of Repurchase or Redemption',
+        transferHistoryTransferor: 'Date of transfer of Shares to the Shareholder',
+        transferHistoryTransferee: 'Date of transfer of Shares from the Shareholder'
+    }
 }

@@ -22,6 +22,13 @@ module.exports = {
         },
     },
     associations: function() {
+        Parcel.belongsToMany(Holding, {
+            foreignKey: {
+                as: 'parcels',
+                name: 'parcelId'
+            },
+            through: 'parcelJ'
+        });
     },
     options: {
         freezeTableName: false,

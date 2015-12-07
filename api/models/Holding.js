@@ -44,6 +44,13 @@ module.exports = {
             },
             through: 'holderJ'
         });
+        Holding.belongsTo(Transaction, {
+            as: 'transaction',
+            foreignKey: {
+                name: 'transactionId',
+                as: 'transaction'
+            }
+        });
     },
     options: {
         freezeTableName: false,
@@ -51,7 +58,10 @@ module.exports = {
         classMethods: {
             buildDeep: function(data){
                 // NEEDS NOT CREATE NEW PERSONS IF THEY HAVE IDS,
-                var holding = Holding.build(data, {include: [{model: Parcel, as: 'parcels'}, {model: Person, as: 'holders'}]});
+                var holding = Holding.build(data, {include: [
+                            {model: Parcel, as: 'parcels'},
+                            {model: Person, as: 'holders'},
+                            {model: Transaction, as: 'transaction'}]});
                 return holding;
 
             }
@@ -87,11 +97,14 @@ module.exports = {
             },
             combineParcels: function(holding){
                 var newParcels = [];
+                if(holding.get){
+                    holding = holding.get();
+                }
                 _.some(this.dataValues.parcels, function(currentP, i){
-                    var match = _.some(holding.dataValues.parcels, function(addP){
+                    var match = _.some(holding.parcels, function(addP){
                         if(Parcel.match(addP, currentP)){
                             newParcels.push(currentP.combine(addP));
-                            holding.dataValues.parcels = _.without(holding.dataValues.parcels, addP)
+                            holding.parcels = _.without(holding.parcels, addP)
                             return true;
                         }
                     });
@@ -99,14 +112,17 @@ module.exports = {
                         newParcels.push(currentP);
                     }
                 });
-                this.dataValues.parcels = newParcels.concat(holding.dataValues.parcels);
+                this.dataValues.parcels = newParcels.concat(holding.parcels.map(p => Parcel.build(p)));
             },
             subtractParcels: function(holding){
                 // subtract isn't quite the opposite of combine, and there must be an
                 // existing matching parcel
+                if(holding.get){
+                    holding = holding.get();
+                }
                 var newParcels = [];
                 _.some(this.dataValues.parcels, function(currentP, i){
-                    var match = _.some(holding.dataValues.parcels, function(addP){
+                    var match = _.some(holding.parcels, function(addP){
                         if(Parcel.match(addP, currentP)){
                             newParcels.push(currentP.subtract(addP));
                             return true;

@@ -65,7 +65,8 @@ var transactions = {
             return currentCompanyState.buildNext({transaction: {type: Transaction.types.ISSUE}})
          })
         .then(function(companyState){
-            return companyState.combineHoldings(args.holdings).save()
+            companyState.combineHoldings(args.holdings);
+            return companyState.save()
         })
          .then(function(nextCompanyState){
             return company.setCurrentCompanyState(nextCompanyState);

@@ -164,6 +164,9 @@ module.exports = {
                             model: Person,
                             as: 'holders',
                             through: {attributes: []}
+                        },{
+                            model: Transaction,
+                            as: 'transaction',
                         }]
                     },{
                         model: Parcel,
@@ -412,7 +415,7 @@ module.exports = {
             },
 
 
-            combineHoldings: function(newHoldings, parcelHint, subtractHoldings){
+            combineHoldings: function(newHoldings, parcelHint, transaction, subtractHoldings){
                 // add these holdings to current holdings
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
@@ -422,14 +425,17 @@ module.exports = {
                 _.some(this.dataValues.holdings, function(nextHolding){
                     var toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
-                        holdingToAdd = Holding.buildDeep(holdingToAdd);
+                        //holdingToAdd = Holding.buildDeep(holdingToAdd);
+
                         if(nextHolding.holdersMatch(holdingToAdd) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
+                                nextHolding.dataValues.transaction = transaction;
                             }
                             else{
                                 nextHolding.combineParcels(holdingToAdd);
+                                nextHolding.dataValues.transaction = transaction;
                             }
                             toRemove = i;
                             return false;
@@ -444,7 +450,9 @@ module.exports = {
                 });
                 var extraHoldings = newHoldings.map(function(holdingToAdd, i){
                     // TODO, make sure persons are already looked up
-                    return Holding.buildDeep(holdingToAdd)
+                    const extraHolding = Holding.buildDeep(holdingToAdd)
+                    extraHolding.dataValues.transaction = transaction;
+                    return extraHolding;
                 });
                 if(subtractHoldings && extraHoldings.length){
                     throw new sails.config.exceptions.InvalidInverseOperation('Unknown holders to issue to');
@@ -453,10 +461,10 @@ module.exports = {
                 // unaccounted for, alter unallocated shares
                 return this;
             },
-            subtractHoldings: function(subtractHoldings, parcelHint){
-                return this.combineHoldings(subtractHoldings, parcelHint, true);
+            subtractHoldings: function(subtractHoldings, parcelHint, transaction){
+                return this.combineHoldings(subtractHoldings, parcelHint, transaction, true);
             },
-            mutateHolders: function(holding, newHolders){
+            mutateHolders: function(holding, newHolders, transaction){
                 //these new holders may have new members or address changes or something
                 newHolders = newHolders.slice()
                 var existingHolders = [];
@@ -465,7 +473,6 @@ module.exports = {
                     newHolders.forEach(function(newHolder, i){
                         if(holder.detailChange(newHolder)){
                             existingHolders.push(holder.replaceWith(newHolder))
-
                             toRemove = i;
                             return false;
                         }
@@ -487,9 +494,10 @@ module.exports = {
                     return Person.build(holderToAdd)
                 })
                 holding.dataValues.holders = existingHolders.concat(extraHolders);
+                holding.dataValues.transaction = transaction;
                 return this;
             },
-            replaceHolder: function(currentHolder, newHolder){
+            replaceHolder: function(currentHolder, newHolder, transaction){
                 _.some(this.dataValues.holdings, function(holding){
                     // TODO, collect all?
                     var index = _.findIndex(holding.dataValues.holders, function(h, i){
@@ -497,6 +505,7 @@ module.exports = {
                     });
                     if(index > -1){
                         holding.dataValues.holders[index] = holding.dataValues.holders[index].replaceWith(newHolder);
+                        holding.dataValues.transaction = transaction;
                         return true;
                     }
                 });

@@ -26,7 +26,7 @@ export default class Users extends React.Component {
 
     render() {
         let fields = ['id', 'name', 'createdAt', 'updatedAt'];
-        return <table className="table">
+        return <div className="container"><table className="table">
         <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th></tr></thead>
         <tbody>
         {this.props.data ? this.props.data.map(
@@ -38,6 +38,7 @@ export default class Users extends React.Component {
         : null}
         </tbody>
         </table>
+        </div>
     }
 }
 

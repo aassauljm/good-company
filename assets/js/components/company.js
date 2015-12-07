@@ -15,7 +15,7 @@ import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { pushState } from 'redux-router';
 import moment from 'moment';
-
+import STRINGS from '../strings';
 
 class NotFound extends React.Component {
     static propTypes = {
@@ -25,14 +25,30 @@ class NotFound extends React.Component {
         return <div className="container"><h4 className="text-center">{this.props.descriptor} Not Found</h4></div>
     }
 };
+class LawBrowserLink extends React.Component {
+    static propTypes = {
+        title: PropTypes.string,
+        location: PropTypes.string
+    };
+    formatLink() {
+        return `https://browser.catalex.nz/open_article/query?doc_type=instrument&title=${this.props.title}&find=location&location=${this.props.location}`
+    }
+    render() {
+        return <a href={this.formatLink()} target="_blank">{ this.props.children }</a>
+    }
+};
+
+
 
 @pureRender
 class ShareholdingsPanel extends React.Component {
+
     static propTypes = {
         holdings: PropTypes.array.isRequired,
         totalShares: PropTypes.number.isRequired,
         totalAllocatedShares: PropTypes.number.isRequired
     };
+
     groupHoldings() {
         const total = this.props.totalAllocatedShares;
         return {values: this.props.holdings.map(holding => ({
@@ -40,18 +56,21 @@ class ShareholdingsPanel extends React.Component {
             x: holding.name
         }))};
     };
+
     countClasses() {
        const length = new Set(this.props.holdings.reduce((acc, holding) => {
             return [...acc, ...holding.parcels.map(p => p.shareClass)]
        }, [])).size;
        return length;
     };
+
     countHolders() {
        const length = new Set(this.props.holdings.reduce((acc, holding) => {
             return [...acc, ...holding.holders.map(p => p.personId)]
        }, [])).size;
        return length;
     };
+
     render(){
         const classCount = this.countClasses();
         const holderCount = this.countHolders();
@@ -250,12 +269,12 @@ export class Shareholdings extends React.Component {
         }))};
     };
     render() {
-        return <div className="row">
+        return <div className="container"><div className="row">
             <div className="col-md-6">
                 { this.props.companyState.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.companyState.totalShares}/>)}
             </div>
             <div className="col-md-6 text-center">
-   <div className="hide-graph-labels">
+                <div className="hide-graph-labels">
                <PieChart
                   data={this.groupHoldings()}
                   width={100}
@@ -266,6 +285,7 @@ export class Shareholdings extends React.Component {
                   showOuterLabels={false} />
                   </div>
             </div>
+        </div>
         </div>
     }
 }
@@ -278,7 +298,7 @@ export class CompanyDetails extends React.Component {
 
     render() {
         const current = this.props.companyState;
-        return <div><div className="well">
+        return <div className="container"><div className="well">
                 <dl className="dl-horizontal">
                     <dt >NZ Business Number</dt>
                     <dd >{current.nzbn ||  'Unknown'}</dd>
@@ -312,18 +332,64 @@ export class CompanyDetails extends React.Component {
     }
 }
 
-@pureRender
+{
+
+}
+
+
+@connect((state, ownProps) => {
+    return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/historical_holders']}
+})
 export class ShareRegister extends React.Component {
     static propTypes = {
-        companyState: PropTypes.object,
+        data: PropTypes.object.isRequired,
+    };
+    fields = ['shareClass', 'name', 'address', 'restrictions', 'totalShares', 'issueHistory', 'repurchaseHistory', 'transferHistoryTransferor', 'transferHistoryTransferee'];
+    key() {
+        return this.props.params.id
     };
 
+    fetch() {
+        return this.props.dispatch(requestResource('/company/'+this.key()+'/historical_holders'))
+    };
+
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+    renderTable() {
+        return <table className="table table-responsive">
+            <thead>
+                <tr>{ this.fields.map((f, i) => {
+                    return <th key={i}>{STRINGS.shareRegister[f]}</th>
+                })}</tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    }
+
     render() {
-        const current = this.props.companyState;
-        return <div><div className="well">
-            COMING SOON
-        </div>
-            </div>
+        const holders = (this.props.data || {}).holders;
+        if(!holders){
+            return <div className="loading"></div>
+        }
+        return <div>
+                    <div className="container">
+                        <div className="well">
+                            <h3>Share Register</h3>
+                            <LawBrowserLink title="Companies Act 1993" location="s 87">s 87 of the Companies Act 1993</LawBrowserLink>
+                        </div>
+                    </div>
+                    <div className="container-fluid">
+                            {this.renderTable()}
+                    </div>
+                </div>
     }
 }
 
@@ -335,20 +401,22 @@ export class CompanyTransactions extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
+
     key() {
         return this.props.params.id
     }
+
     fetch() {
         return this.props.dispatch(requestResource('/company/'+this.key()+'/transactions'))
-    }
+    };
 
     componentDidMount() {
         this.fetch();
-    }
+    };
 
     componentDidUpdate() {
         this.fetch();
-    }
+    };
 
     rows(transactions) {
         const rows = [];
@@ -371,7 +439,7 @@ export class CompanyTransactions extends React.Component {
         if(!transactions){
             return <div className="loading"></div>
         }
-        return <div>
+        return <div className="container">
                 <table className="table table-hover">
                 <thead><tr>
                     <th>#</th>
@@ -447,7 +515,7 @@ export class CompanyHistory extends React.Component {
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
         const generation = Number(this.props.params.generation) || 0;
-        return <div>
+        return <div className="container">
                 <div className="well">
                 { generation ? <h4>As at {new Date(current.transaction.effectiveDate).toDateString() }</h4> : null}
                     <h1>{current.companyName}</h1>
@@ -552,6 +620,7 @@ export default class Company extends React.Component {
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
         return <div>
+                <div className="container">
                 <div className="well">
                     <h1>{current.companyName}</h1>
                     <h5>#{current.companyNumber}, {current.companyStatus}</h5>
@@ -561,11 +630,12 @@ export default class Company extends React.Component {
                             <li><Link className="nav-link" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>
                             </ul>
                         }
-
+                </div>
                 { this.props.children && React.cloneElement(this.props.children, {
                         companyState: current
                 })}
                 { !this.props.children &&
+                    <div className="container">
                     <div className="row">
                         <div className="col-md-6">
                         <Link to={this.props.location.pathname +'/shareregister'}>
@@ -591,6 +661,7 @@ export default class Company extends React.Component {
                              <TransactionsPanel
                                 transactions={current.transactions} />
                                 </Link>
+                        </div>
                         </div>
                     </div> }
         </div>

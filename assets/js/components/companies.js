@@ -39,7 +39,7 @@ export default class Companies extends React.Component {
     render() {
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
-        return <div>
+        return <div className="container">
            <ButtonToolbar className="text-center">
                 <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button>
                 <Button bsStyle="info" onClick={::this.handleImport}>Import Company</Button>

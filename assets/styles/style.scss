@@ -166,8 +166,10 @@ $pageTransitionEasing: ease-in-out;
   }
 }
 
-
-
+a, a:hover{
+    text-decoration: none;
+    color: $text-color;
+}
 // graphs
 .hide-graph-labels{
     .arc{

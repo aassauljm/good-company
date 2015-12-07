@@ -39,7 +39,7 @@ export default class App extends React.Component {
                 <DropZone  onDrop={::this.onDrop} disableClick={true} style={{}}>
              <Notifications/>
              <Modals />
-            <div className="container app-container" >
+            <div className="app-container" >
               <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={200} transitionLeaveTimeout={200}>
               <div key={name}>
                 { this.props.children }

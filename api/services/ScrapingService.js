@@ -201,26 +201,43 @@ const EXTRACT_DOCUMENT_MAP = {
         // if sum of all amounts is 0, then a transfer took place
         // BUT, we can't trace who got what
 
-        function isIssue(result){
-            return _.every(result.actions, (action) => {
-            const issue_types = [, Transaction.types.AMEND]
-            switch(action.type){
-                case Transaction.types.AMEND:
-                    return action.beforeAmount < action.afterAmount;
-                case Transaction.types.NEW_ALLOCATION:
-                    return true;
-                case undefined:
-                    return true;
-                default:
-                    return false;
+        const totalShares = result.actions.reduce((acc, action) => {
+                switch(action.type){
+                    case Transaction.types.AMEND:
+                        return acc + (action.afterAmount - action.beforeAmount)
+                    case Transaction.types.NEW_ALLOCATION:
+                        return acc + amount;
+                    case Transaction.types.REMOVE_ALLOCATION:
+                        return acc - amount;
+                    default:
+                        return acc;
                 }
-            });
-        }
+            }, 0);
 
-        if(isIssue(result)){
+        // TODO, read previous share update doc
+
+        if(totalShares > 0){
             result.transactionType = Transaction.types.ISSUE;
+            result.actions.map(a => {
+                a.transactionSubType = Transaction.types.ISSUE_TO;
+            })
         }
 
+        if(totalShares === 0){
+            result.transactionType = Transaction.types.TRANSFER;
+            result.actions.map(a => {
+                if(a.transactionType === Transaction.types.NEW_ALLOCATION){
+                    a.transactionSubType = Transaction.types.TRANSFER_TO;
+                }
+                else if(a.transactionType === Transaction.types.REMOVE_ALLOCATION){
+                    a.transactionSubType = Transaction.types.TRANSFER_FROM;
+                }
+                else if(a.transactionType === Transaction.types.AMEND){
+                    a.transactionSubType  = a.afterAmount > a.beforeAmount ? Transaction.types.TRANSFER_TO : Transaction.types.TRANSFER_FROM;
+                }
+            })
+
+        }
 
         // a kludge to add companyNumbers from new/removeHolder to new/remove allocation
 
@@ -501,8 +518,9 @@ function validateInverseIssue(data, companyState){
 function performInverseIssue(data, companyState, effectiveDate){
     return validateInverseIssue(data, companyState)
         .then(() => {
-            companyState.subtractUnallocatedParcels({amount: data.amount});
-            return Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
+            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
+            companyState.subtractUnallocatedParcels({amount: data.amount}, transaction);
+            return transaction;
 
         })
     // In an issue we remove from unallocatedShares
@@ -511,9 +529,9 @@ function performInverseIssue(data, companyState, effectiveDate){
 function performInverseConversion(data, companyState, effectiveDate){
     return validateInverseIssue(data, companyState)
         .then(() => {
-            companyState.subtractUnallocatedParcels({amount: data.amount});
-            return Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
-
+            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
+            companyState.subtractUnallocatedParcels({amount: data.amount}, transaction);
+            return transaction;
         })
     // In an issue we remove from unallocatedShares
 }
@@ -524,15 +542,17 @@ function performInverseAmend(data, companyState, effectiveDate){
             let difference = data.afterAmount - data.beforeAmount;
             let parcel = {amount: Math.abs(difference)};
             let holding = {holders: data.afterHolders, parcels: [parcel]};
+            let transactionType  = data.transactionSubType || data.transactionType;
+            const transaction = Transaction.build({type: transactionType,  data: data, effectiveDate: effectiveDate});
             if(difference < 0){
                 companyState.subtractUnallocatedParcels(parcel);
-                companyState.combineHoldings([holding], [{amount: data.afterAmount}]);
+                companyState.combineHoldings([holding], [{amount: data.afterAmount}], transaction);
             }
             else{
                 companyState.combineUnallocatedParcels(parcel);
-                companyState.subtractHoldings([holding], [{amount: data.afterAmount}]);
+                companyState.subtractHoldings([holding], [{amount: data.afterAmount}], transaction);
             }
-            return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+            return transaction;
         });
 }
 
@@ -540,21 +560,22 @@ function performInverseHoldingChange(data, companyState, effectiveDate){
     return Promise.resolve({})
         .then(()=>{
             let current = companyState.getMatchingHolding(data.afterHolders);
+            const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
             if(!current){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
-            companyState.mutateHolders(current, data.beforeHolders)
-            return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
-
+            companyState.mutateHolders(current, data.beforeHolders, transaction);
+            return Promise.resolve(transaction);
         })
 }
 
 function performInverseHolderChange(data, companyState, effectiveDate){
     return Promise.resolve({})
         .then(()=>{
+            const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
             // NEED TO UPDATE EVERY HOLDING THAT THIS HOLDER IS IN
-            companyState.replaceHolder(data.afterHolder, data.beforeHolder)
-            return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+            companyState.replaceHolder(data.afterHolder, data.beforeHolder, transaction)
+            return Promise.resolve(transaction);
 
         })
         .catch((e)=>{
@@ -578,14 +599,14 @@ function performInverseNewAllocation(data, companyState, effectiveDate){
         throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation, documentId: ' +data.documentId)
     }
     companyState.dataValues.holdings = _.without(companyState.dataValues.holdings, holding);
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
+    return Promise.resolve(Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
 function performInverseRemoveAllocation(data, companyState, effectiveDate){
     companyState.subtractUnallocatedParcels({amount: data.amount});
     companyState.dataValues.holdings.push(Holding.buildDeep({
         holders: data.holders, parcels: [{amount: data.amount}]}));
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
+    return Promise.resolve(Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
 
@@ -785,9 +806,11 @@ module.exports = {
 
         const PERFORM_ACTION_MAP = {
             [Transaction.types.AMEND]:  performInverseAmend,
+            [Transaction.types.TRANSFER]:  performInverseAmend,
             [Transaction.types.HOLDING_CHANGE]:  performInverseHoldingChange,
             [Transaction.types.HOLDER_CHANGE]:  performInverseHolderChange,
             [Transaction.types.ISSUE]:  performInverseIssue,
+            [Transaction.types.ISSUE_TO]:  performInverseAmend,
             [Transaction.types.CONVERSION]:  performInverseConversion,
             [Transaction.types.NEW_ALLOCATION]:  performInverseNewAllocation,
             [Transaction.types.REMOVE_ALLOCATION]: performInverseRemoveAllocation,
