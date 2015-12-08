@@ -64,7 +64,7 @@
     "fnv-plus": "^1.2.12",
     "grunt": "0.4.2",
     "grunt-sync": "~0.0.4",
-    "history": "^1.9.1",
+    "history": "1.13.1",
     "isomorphic-fetch": "^2.1.1",
     "less": "^2.5.3",
     "less-loader": "^2.2.1",

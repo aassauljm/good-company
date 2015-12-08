@@ -338,19 +338,19 @@ export class CompanyDetails extends React.Component {
 
 
 @connect((state, ownProps) => {
-    return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/historical_holders']}
+    return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/share_register']}
 })
 export class ShareRegister extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
-    fields = ['shareClass', 'name', 'address', 'restrictions', 'totalShares', 'issueHistory', 'repurchaseHistory', 'transferHistoryTransferor', 'transferHistoryTransferee'];
+    fields = ['shareClass', 'name', 'address', 'restrictions', 'amount', 'issueHistory', 'repurchaseHistory', 'transferHistoryTransferor', 'transferHistoryTransferee'];
     key() {
         return this.props.params.id
     };
 
     fetch() {
-        return this.props.dispatch(requestResource('/company/'+this.key()+'/historical_holders'))
+        return this.props.dispatch(requestResource('/company/'+this.key()+'/share_register'))
     };
 
     componentDidMount() {
@@ -361,7 +361,7 @@ export class ShareRegister extends React.Component {
         this.fetch();
     };
 
-    renderTable() {
+    renderTable(shareRegister) {
         return <table className="table table-responsive">
             <thead>
                 <tr>{ this.fields.map((f, i) => {
@@ -369,14 +369,18 @@ export class ShareRegister extends React.Component {
                 })}</tr>
             </thead>
             <tbody>
-
+                { shareRegister.map((s, i) => {
+                    return <tr key={i}>{ this.fields.map((f, j) => {
+                        return <td key={j}>{ shareRegister[i][f] }</td>
+                    })}</tr>
+                }) }
             </tbody>
         </table>
     }
 
     render() {
-        const holders = (this.props.data || {}).holders;
-        if(!holders){
+        const shareRegister = (this.props.data || {}).shareRegister;
+        if(!shareRegister){
             return <div className="loading"></div>
         }
         return <div>
@@ -387,7 +391,7 @@ export class ShareRegister extends React.Component {
                         </div>
                     </div>
                     <div className="container-fluid">
-                            {this.renderTable()}
+                            {this.renderTable(shareRegister)}
                     </div>
                 </div>
     }

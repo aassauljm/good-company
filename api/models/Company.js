@@ -98,7 +98,7 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}})
                 .then(function(register){
-                    return register;
+                    return {shareRegister: register[0].share_register};
                 });
             },
 

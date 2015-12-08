@@ -16,7 +16,7 @@ export default {
         name: 'Name of Person',
         address: 'Address',
         restrictions: 'Restrictions and Limitations',
-        totalShares: 'Total No. of Shares Held',
+        amount: 'Total No. of Shares Held',
         issueHistory: 'Date and No. of Shares Issued by Company',
         repurchaseHistory: 'Date and No. of Repurchase or Redemption',
         transferHistoryTransferor: 'Date of transfer of Shares to the Shareholder',
