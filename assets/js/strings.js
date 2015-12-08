@@ -15,6 +15,7 @@ export default {
         shareClass: 'Class of Share',
         name: 'Name of Person',
         address: 'Address',
+        current: 'Current Holder',
         restrictions: 'Restrictions and Limitations',
         amount: 'Total No. of Shares Held',
         issueHistory: 'Date and No. of Shares Issued by Company',

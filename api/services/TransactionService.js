@@ -152,8 +152,7 @@ export function performInverseHolderChange(data, companyState, previousState, ef
     return Promise.resolve({})
         .then(()=>{
             const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-            // NEED TO UPDATE EVERY HOLDING THAT THIS HOLDER IS IN
-            companyState.replaceHolder(data.afterHolder, data.beforeHolder)
+            companyState.replaceHolder(data.afterHolder, data.beforeHolder);
             return Promise.resolve(transaction);
 
         })
@@ -170,7 +169,7 @@ export function performInverseNewAllocation(data, companyState, previousState, e
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation, documentId: ' +data.documentId)
     }
-    let sum = _.sum(holding.parcels, (p) =>{
+    let sum = _.sum(holding.parcels, (p) => {
         return p.amount;
     });
     if(sum !== data.amount){
@@ -190,9 +189,14 @@ export function performInverseNewAllocation(data, companyState, previousState, e
 }
 
 export function performInverseRemoveAllocation(data, companyState, previousState, effectiveDate){
-    companyState.subtractUnallocatedParcels({amount: data.amount});
-    companyState.dataValues.holdings.push(Holding.buildDeep({
-        holders: data.holders, parcels: [{amount: data.amount}]}));
+    companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+    const holding = Holding.buildDeep({holders: data.holders,
+        parcels: [{amount: data.amount, shareClass: data.shareClass}]});
+    // replace holders
+    holding.dataValues.holders = holding.dataValues.holders.map((h) => {
+        return previousState.getHolderBy(h.get()) || h;
+    });
+    companyState.dataValues.holdings.push(holding);
     return Promise.resolve(Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 

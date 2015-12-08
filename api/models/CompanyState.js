@@ -510,21 +510,23 @@ module.exports = {
                     return Person.build(holderToAdd)
                 })
                 holding.dataValues.holders = existingHolders.concat(extraHolders);
-                if(transaction)
+                if(transaction){
                     holding.dataValues.transaction = transaction;
+                }
                 return this;
             },
             replaceHolder: function(currentHolder, newHolder, transaction){
-                _.some(this.dataValues.holdings, function(holding){
-                    // TODO, collect all?
+                var builtNewHolder;
+                this.dataValues.holdings.map(function(holding){
                     var index = _.findIndex(holding.dataValues.holders, function(h, i){
                         return h.isEqual(currentHolder);
                     });
                     if(index > -1){
-                        holding.dataValues.holders[index] = holding.dataValues.holders[index].replaceWith(newHolder);
-                        if(transaction)
+                        holding.dataValues.holders[index] = builtNewHolder || holding.dataValues.holders[index].replaceWith(newHolder);
+                        builtNewHolder = holding.dataValues.holders[index];
+                        if(transaction){
                             holding.dataValues.transaction = transaction;
-                        return true;
+                        }
                     }
                 });
                 return this;
@@ -541,6 +543,21 @@ module.exports = {
                 return _.find(this.dataValues.holdings, function(holding){
                     return _.isMatch(holding.get(), data)
                 });
+            },
+
+            getHolderBy: function(data){
+                // probably has to collapse whole tree for this to work
+                var result;
+                 _.some(this.dataValues.holdings, function(holding){
+                    return _.some(holding.dataValues.holders, function(holder){
+                        if(holder.isEqual(data)){
+                            result = holder;
+                            return result;
+                        }
+                    });
+                });
+
+                return result;
             },
 
             combineUnallocatedParcels: function(parcel, subtract){

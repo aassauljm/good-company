@@ -122,6 +122,7 @@ function parseAmendAllocation($, $el){
     if(!result.beforeAmount && !result.afterAmount){
         result.transactionType = Transaction.types.HOLDING_CHANGE;
     }
+    result.amount = Math.abs(result.beforeAmount - result.afterAmount)
     return result;
 }
 

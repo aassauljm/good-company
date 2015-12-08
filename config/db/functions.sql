@@ -199,7 +199,7 @@ SELECT *,
       holding_history_json("lastHoldingId", ARRAY['TRANSFER_FROM'])  as "transferHistoryFrom"
 from
 
-    (SELECT DISTINCT ON ("personId",  "shareClass")
+    (SELECT DISTINCT ON ("personId", "lastHoldingId", "shareClass")
     "personId",
     first_value(p.name) OVER wnd as name,
     first_value(p."companyNumber") OVER wnd as "companyNumber",
@@ -219,7 +219,7 @@ from
     left outer join "holderJ" hj on h.id = hj."holdingId"
     left outer join person p on hj."holderId" = p.id
      WINDOW wnd AS (
-       PARTITION BY "personId", pp."shareClass" ORDER BY generation asc
+       PARTITION BY "personId", h."holdingId", pp."shareClass" ORDER BY generation asc
      )) as q
     ) as q
 

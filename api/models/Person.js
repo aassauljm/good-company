@@ -58,7 +58,7 @@ module.exports = {
                     this.dataValues.address === other.address;
             },
             replaceWith: function(other){
-                return Person.build(_.merge({personId: this.dataValues.personId}, other));
+                return Person.build(_.merge(other, {personId: this.dataValues.personId}));
             }
 
         },
