@@ -444,11 +444,13 @@ module.exports = {
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
-                                nextHolding.dataValues.transaction = transaction;
+                                if(transaction)
+                                    nextHolding.dataValues.transaction = transaction;
                             }
                             else{
                                 nextHolding.combineParcels(holdingToAdd);
-                                nextHolding.dataValues.transaction = transaction;
+                                if(transaction)
+                                    nextHolding.dataValues.transaction = transaction;
                             }
                             toRemove = i;
                             return false;
@@ -464,7 +466,8 @@ module.exports = {
                 var extraHoldings = newHoldings.map(function(holdingToAdd, i){
                     // TODO, make sure persons are already looked up
                     const extraHolding = Holding.buildDeep(holdingToAdd)
-                    extraHolding.dataValues.transaction = transaction;
+                    if(transaction)
+                        extraHolding.dataValues.transaction = transaction;
                     return extraHolding;
                 });
                 if(subtractHoldings && extraHoldings.length){
@@ -507,7 +510,8 @@ module.exports = {
                     return Person.build(holderToAdd)
                 })
                 holding.dataValues.holders = existingHolders.concat(extraHolders);
-                holding.dataValues.transaction = transaction;
+                if(transaction)
+                    holding.dataValues.transaction = transaction;
                 return this;
             },
             replaceHolder: function(currentHolder, newHolder, transaction){
@@ -518,7 +522,8 @@ module.exports = {
                     });
                     if(index > -1){
                         holding.dataValues.holders[index] = holding.dataValues.holders[index].replaceWith(newHolder);
-                        holding.dataValues.transaction = transaction;
+                        if(transaction)
+                            holding.dataValues.transaction = transaction;
                         return true;
                     }
                 });
@@ -531,6 +536,13 @@ module.exports = {
                     return holding.holdersMatch({holders: holders}) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
                 });
             },
+
+            getHoldingBy: function(data){
+                return _.find(this.dataValues.holdings, function(holding){
+                    return _.isMatch(holding.get(), data)
+                });
+            },
+
             combineUnallocatedParcels: function(parcel, subtract){
                 var match, result;
                 var parcel = Parcel.build(parcel);

@@ -168,11 +168,7 @@ AS $$
         GROUP BY p."shareClass", pj."holdingId"
     ), issues as (
         SELECT * FROM transaction t
-        WHERE t.type = ANY(ARRAY['ISSUE']::enum_transaction_type[])
-        UNION ALL
-        SELECT t.* FROM transaction t
-        JOIN transaction tt on t."parentTransactionId" = tt.id
-        WHERE tt.type = ANY(ARRAY['ISSUE']::enum_transaction_type[]) and t.type = ANY(ARRAY['AMEND']::enum_transaction_type[])
+        WHERE t.type = ANY(ARRAY['ISSUE_TO']::enum_transaction_type[])
     ), redemptions as (
         SELECT * FROM transaction t
         WHERE t.type = ANY(ARRAY['REDEMPTION', 'REPURCHASE']::enum_transaction_type[])

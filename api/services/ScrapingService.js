@@ -219,20 +219,19 @@ const EXTRACT_DOCUMENT_MAP = {
         // BUT, we can't trace who got what
 
         const totalShares = result.actions.reduce((acc, action) => {
-                switch(action.type){
+                switch(action.transactionType){
                     case Transaction.types.AMEND:
                         return acc + (action.afterAmount - action.beforeAmount)
                     case Transaction.types.NEW_ALLOCATION:
-                        return acc + amount;
+                        return acc + action.amount;
                     case Transaction.types.REMOVE_ALLOCATION:
-                        return acc - amount;
+                        return acc - action.amount;
                     default:
                         return acc;
                 }
             }, 0);
 
         // TODO, read previous share update doc
-
         if(totalShares > 0){
             result.transactionType = Transaction.types.ISSUE;
             result.actions.map(a => {
@@ -438,6 +437,7 @@ const EXTRACT_DOCUMENT_MAP = {
             chunks.map(chunk => {
                 result.actions.push({
                     transactionType: Transaction.types.NEW_ALLOCATION,
+                    transactionSubType: Transaction.types.ISSUE_TO,
                     amount: parseInt(chunk[0], 10),
                     holders: getHolders(chunk.slice(1))
                 })
