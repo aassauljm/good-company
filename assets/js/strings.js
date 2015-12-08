@@ -19,7 +19,7 @@ export default {
         amount: 'Total No. of Shares Held',
         issueHistory: 'Date and No. of Shares Issued by Company',
         repurchaseHistory: 'Date and No. of Repurchase or Redemption',
-        transferHistoryTransferor: 'Date of transfer of Shares to the Shareholder',
-        transferHistoryTransferee: 'Date of transfer of Shares from the Shareholder'
+        transferHistoryTo: 'Date of transfer of Shares to the Shareholder',
+        transferHistoryFrom: 'Date of transfer of Shares from the Shareholder'
     }
 }

@@ -344,7 +344,7 @@ export class ShareRegister extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
-    fields = ['shareClass', 'name', 'address', 'restrictions', 'amount', 'issueHistory', 'repurchaseHistory', 'transferHistoryTransferor', 'transferHistoryTransferee'];
+    fields = ['shareClass', 'name', 'address', 'restrictions', 'amount', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
     key() {
         return this.props.params.id
     };
@@ -371,7 +371,7 @@ export class ShareRegister extends React.Component {
             <tbody>
                 { shareRegister.map((s, i) => {
                     return <tr key={i}>{ this.fields.map((f, j) => {
-                        return <td key={j}>{ shareRegister[i][f] }</td>
+                        return <td key={j}>{ Array.isArray(shareRegister[i][f]) ? JSON.stringify(shareRegister[i][f]) : shareRegister[i][f]  }</td>
                     })}</tr>
                 }) }
             </tbody>

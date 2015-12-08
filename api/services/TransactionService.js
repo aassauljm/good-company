@@ -63,7 +63,7 @@ export function validateInverseAmend(amend, companyState){
     if(amend.afterAmount && (sum !== amend.afterAmount)){
         throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend, documentId: ' +amend.documentId)
     }
-    return Promise.resolve();
+    return Promise.resolve(holding);
 }
 
 export function validateInverseIssue(data, companyState){
@@ -107,27 +107,28 @@ export function performInverseConversion(data, companyState, previousState, effe
 }
 
 export function performInverseAmend(data, companyState, previousState, effectiveDate){
-    let transaction;
+    let transaction, holding;
     return validateInverseAmend(data, companyState)
-        .then(() =>{
+        .then((_holding) =>{
+            holding = _holding;
             let difference = data.afterAmount - data.beforeAmount;
             let parcel = {amount: Math.abs(difference)};
-            let holding = {holders: data.afterHolders, parcels: [parcel]};
+            let newHolding = {holders: data.afterHolders, parcels: [parcel]};
             let transactionType  = data.transactionSubType || data.transactionType;
             if(difference < 0){
                 companyState.subtractUnallocatedParcels(parcel);
-                companyState.combineHoldings([holding], [{amount: data.afterAmount}]);
+                companyState.combineHoldings([newHolding], [{amount: data.afterAmount}]);
             }
             else{
                 companyState.combineUnallocatedParcels(parcel);
-                companyState.subtractHoldings([holding], [{amount: data.afterAmount}]);
+                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount}]);
             }
             transaction = Transaction.build({type: transactionType,  data: data, effectiveDate: effectiveDate});
             return transaction.save();
         })
         .then(() => {
-            const holding = previousState.getMatchingHolding(data.afterHolders, [{amount: data.afterAmount}]);
-            return holding.setTransaction(transaction.id);
+            const prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
+            return prevHolding.setTransaction(transaction.id);
         })
         .then(() => {
             return transaction;
@@ -180,7 +181,6 @@ export function performInverseNewAllocation(data, companyState, previousState, e
     return transaction.save()
         .then((transaction) => {
             const prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
-            console.log(transaction.id)
             return prevHolding.setTransaction(transaction.id);
         })
         .then(() => {

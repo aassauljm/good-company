@@ -150,75 +150,78 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q.name)) from
  )) as q;
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION holding_history(id integer)
+    RETURNS SETOF transaction
+    AS $$
+WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
+    SELECT t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
+    FROM companystate as t
+    left outer JOIN holding h on h."companyStateId" = t.id
+    where h.id = $1
+    UNION ALL
+    SELECT t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
+    FROM companystate t, prev_transactions tt
+    left outer JOIN holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
+    WHERE t.id = tt."previousCompanyStateId"
+   )
+SELECT t.* from transaction t join prev_transactions pt on t.id = pt."transactionId";
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION holding_history_json(integer, text[])
+    RETURNS JSON
+    AS $$
+    SELECT array_to_json(array_agg(row_to_json(q))) from holding_history($1) q where $2 is null or q.type = ANY($2::enum_transaction_type[]);
+$$ LANGUAGE SQL STABLE;
 
 
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
-    WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
-        SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
-        UNION ALL
-        SELECT t.id, t."previousCompanyStateId", generation + 1
-        FROM companystate t, prev_transactions tt
-        WHERE t.id = tt."previousCompanyStateId"
-    ), parcels as (
-        SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
-        FROM "parcelJ" pj
-        LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
-        GROUP BY p."shareClass", pj."holdingId"
-    ), issues as (
-        SELECT * FROM transaction t
-        WHERE t.type = ANY(ARRAY['ISSUE_TO']::enum_transaction_type[])
-    ), redemptions as (
-        SELECT * FROM transaction t
-        WHERE t.type = ANY(ARRAY['REDEMPTION', 'REPURCHASE']::enum_transaction_type[])
-        UNION ALL
-        SELECT t.* FROM transaction t
-        JOIN transaction tt on t."parentTransactionId" = tt.id
-        WHERE tt.type = ANY(ARRAY['REDEMPTION', 'REPURCHASE']::enum_transaction_type[]) and t.type = ANY(ARRAY['AMEND']::enum_transaction_type[])
-    ), transfer_to as (
-        SELECT * FROM transaction t
-        WHERE t.type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[])
-        UNION ALL
-        SELECT t.* FROM transaction t
-        JOIN transaction tt on t."parentTransactionId" = tt.id
-        WHERE tt.type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[])
-    ), transfer_from as (
-        SELECT * FROM transaction t
-        WHERE t.type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[])
-        UNION ALL
-        SELECT t.* FROM transaction t
-        JOIN transaction tt on t."parentTransactionId" = tt.id
-        WHERE tt.type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[])
-    )
-    SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q.name))
-        FROM
-        (SELECT DISTINCT ON ("personId") "personId",
+WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
+    SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
+    UNION ALL
+    SELECT t.id, t."previousCompanyStateId", generation + 1
+    FROM companystate t, prev_transactions tt
+    WHERE t.id = tt."previousCompanyStateId"
+), parcels as (
+    SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
+    FROM "parcelJ" pj
+    LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
+    GROUP BY p."shareClass", pj."holdingId"
+)
+SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 
-        first_value(p.name) OVER wnd as name,
-        first_value(p."companyNumber") OVER wnd as "companyNumber",
-        first_value(p.address) OVER wnd as address,
-        first_value(pp.amount) OVER wnd as amount,
-         first_value(pp."shareClass") OVER wnd as "shareClass",
-        --first_value(p.id) OVER wnd as id,
-        first_value(h."holdingId") OVER wnd as "lastHoldingId",
-        first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
-        format_iso_date(t."effectiveDate") as "lastEffectiveDate",
-        generation = 0 as current,
-        (SELECT row_to_json(i) FROM issues i WHERE i.id = h."transactionId")  as "issues",
-        (SELECT row_to_json(i) FROM redemptions i WHERE i.id = h."transactionId")  as "redemptions",
-        (SELECT row_to_json(i) FROM transfer_to i WHERE i.id = h."transactionId")  as "transfer_to",
-        (SELECT row_to_json(i) FROM transfer_from i WHERE i.id = h."transactionId")  as "transfer_from"
-        from prev_transactions pt
-        join companystate cs on pt.id = cs.id
-        join transaction t on cs."transactionId" = t.id
-        left outer join holding h on h."companyStateId" = pt.id
-        join parcels pp on pp."holdingId" = h.id
-        left outer join "holderJ" hj on h.id = hj."holdingId"
-        left outer join person p on hj."holderId" = p.id
-         WINDOW wnd AS (
-           PARTITION BY "personId" ORDER BY generation asc
-           ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-         )) as q
+FROM (
+SELECT *,
+      holding_history_json("lastHoldingId", ARRAY['ISSUE_TO'])  as "issueHistory",
+      holding_history_json("lastHoldingId", ARRAY['REDEMPTION', 'REPURCHASE'])  as "repurchaseHistory",
+      holding_history_json("lastHoldingId", ARRAY['TRANSFER_TO'])  as "transferHistoryTo",
+      holding_history_json("lastHoldingId", ARRAY['TRANSFER_FROM'])  as "transferHistoryFrom"
+from
+
+    (SELECT DISTINCT ON ("personId", "lastHoldingId", "shareClass")
+    "personId",
+    first_value(p.name) OVER wnd as name,
+    first_value(p."companyNumber") OVER wnd as "companyNumber",
+    first_value(p.address) OVER wnd as address,
+    first_value(pp.amount) OVER wnd as amount,
+     pp."shareClass" as  "shareClass",
+    first_value(h."holdingId") OVER wnd as "holdingId",
+    first_value(h."id") OVER wnd as "lastHoldingId",
+    first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
+    format_iso_date(t."effectiveDate") as "lastEffectiveDate",
+    generation = 0 as current
+    from prev_transactions pt
+    join companystate cs on pt.id = cs.id
+    join transaction t on cs."transactionId" = t.id
+    left outer join holding h on h."companyStateId" = pt.id
+    left outer join parcels pp on pp."holdingId" = h.id
+    left outer join "holderJ" hj on h.id = hj."holdingId"
+    left outer join person p on hj."holderId" = p.id
+     WINDOW wnd AS (
+       PARTITION BY "personId", h."holdingId", pp."shareClass" ORDER BY generation asc
+     )) as q
+    ) as q
+
 $$ LANGUAGE SQL;
 
