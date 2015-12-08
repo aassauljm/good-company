@@ -152,7 +152,7 @@ describe('Scraping Service', function() {
                         }, {concurrency: 10})
                 })
                 .then(function(documentSummaries){
-                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data));
+                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data, documentSummaries));
                     var docs = ScrapingService.segmentActions(documentSummaries)
                     return Promise.each(docs, function(doc){
                         return ScrapingService.populateHistory(doc, company);
@@ -165,10 +165,9 @@ describe('Scraping Service', function() {
                     return state.stats();
                 })
                 .then(function(stats){
-                    console.log(stats)
                     stats.totalUnallocatedShares.should.be.equal(0)
-                    stats.totalAllocatedShares.should.be.equal(1000)
-                    stats.totalShares.should.be.equal(1000)
+                    stats.totalAllocatedShares.should.be.equal(0)
+                    stats.totalShares.should.be.equal(0)
                     done();
                 })
         })
@@ -211,14 +210,15 @@ describe('Scraping Service', function() {
                         }, {concurrency: 10});
                 })
                 .then(function(documentSummaries){
-                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data));
+                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data, documentSummaries));
                     var docs = ScrapingService.segmentActions(documentSummaries)
                     return Promise.each(docs, function(doc){
                         return ScrapingService.populateHistory(doc, company);
                     });
                 })
                 .then(function(){
-                    return company.getRootCompanyState()
+                    //return company.getRootCompanyState()
+                    return company.getPreviousCompanyState(1)
                 })
                 .then(function(state){
                     state.holdings.length.should.be.equal(2);

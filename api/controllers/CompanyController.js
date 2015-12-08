@@ -149,7 +149,7 @@ module.exports = {
                             });
                         })
                         .then(function(processedDocs) {
-                            processedDocs = processedDocs.concat(ScrapingService.extraActions(data));
+                            processedDocs = processedDocs.concat(ScrapingService.extraActions(data, processedDocs));
                             processedDocs = ScrapingService.segmentActions(processedDocs);
                             sails.log.verbose('Processing ' + processedDocs.length + ' documents');
                             return Promise.each(processedDocs, function(doc) {

@@ -31,7 +31,7 @@ function cleanString(str){
 }
 
 function invertName(str){
-   const match = /([^,]*), (.*)/.exec(str));
+   const match = /([^,]*), (.*)/.exec(str);
     if(match){
         return `${match[2]} ${match[1]}`;
     }
@@ -52,14 +52,17 @@ function chunkBy(array, func, include){
         }
         return acc;
     }, [[]]);
-    if(!_.last(acc)){
-        return _.dropRight(result);
+
+    while(result.length && !_.last(result).length){
+         result.pop();
     }
     return result;
 }
 
 function normalizeAddress(address){
-    return (address || '').replace(/^C\/- /, '').replace(/, \d{4,5}, /, ', ');
+    address = (address || '').replace(/^C\/- /, '').replace(/, \d{4,5}, /, ', ');
+    return address.replace(/, NZ$/, ', New Zealand')
+
 }
 
 
@@ -373,7 +376,6 @@ const EXTRACT_DOCUMENT_MAP = {
                         return $(this).find('label').text().match(match);
                     });
                 const parts = [el];
-                console.log(el.next().find('label').text());
                 while(el.next().find('label').length && !cleanString(el.next().find('label').text())){
                     el = el.next();
                     parts.push(el);
@@ -425,27 +427,23 @@ const EXTRACT_DOCUMENT_MAP = {
                 return i && toInt(value) && toInt(value) < total
             }, true);
 
-            console.log(holdings.slice(1));
             const getHolders = (rows) => {
                 const results = [];
                 let i = 0;
                 while(i < rows.length){
-                    const holder = {name: invertName(rows[i]), address: rows[i+1]}
-                    i += 2;
-                    // Is company Number
+                    const holder = {};
                     if(toInt(rows[i])){
                         holder.companyNumber = rows[i];
                         i++;
                     }
+                    holder.name = invertName(rows[i])
+                    holder.address = rows[i+1];
+                    i += 2;
                     results.push(holder);
                 }
                 return results;
 
             }
-
-
-            console.log(chunks);
-
             chunks.map(chunk => {
                 result.actions.push({
                     transactionType: Transaction.types.NEW_ALLOCATION,
@@ -453,10 +451,25 @@ const EXTRACT_DOCUMENT_MAP = {
                     holders: getHolders(chunk.slice(1))
                 })
             })
-
-
         }
-        console.log(JSON.stringify(result, null, 4));
+        const directors = chunkBy($('h2').filter(function(){
+                return $(this).text().match(/Directors/)
+            })
+            .nextUntil('hr')
+            .map((i, d) => {
+                return cleanString($(d).text());
+            }).get(), (d) => {
+                return !d
+            }).map(d => {
+                result.actions.push({
+                    transactionType: Transaction.types.NEW_DIRECTOR,
+                    name: invertName(d[0]),
+                    address: d[1],
+                    effectiveDate: date
+                })
+            })
+
+
         return result;
     },
 
@@ -787,42 +800,60 @@ function performRemoveDirector(data, companyState, effectiveDate){
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 }
 
-function inferDirectorshipActions(data){
+function inferDirectorshipActions(data, docs){
     // The appointment and removal of directorships
+    const doesNotContain = (action) => {
+        // make sure we haven't described this action yet
+        return !_.some(docs, doc=>{
+            return _.find(doc.actions, a => {
+                return a.type === action.type && a.date === action.date && a.name === action.name;
+            })
+        });
+    }
     const results = [];
     data.directors.forEach(d => {
         const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
-        results.push({
-            actions: [{
+        const action = {
                 transactionType: Transaction.types.NEW_DIRECTOR,
                 name: d.fullName,
                 address: d.residentialAddress,
-                date: date
-            }],
-            date: date,
-        });
+                effectiveDate: date
+            };
+        if(doesNotContain(action)){
+            results.push({
+                actions: [action],
+                // maybe infered transaction type
+                effectiveDate: date,
+            });
+        }
     });
     data.formerDirectors.forEach(d => {
         const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY').toDate(),
             ceasedDate = moment(d.ceasedDate, 'DD MMM YYYY').toDate();
-        results.push({
-            actions: [{
+        let action = {
                 transactionType: Transaction.types.NEW_DIRECTOR,
                 name: d.fullName,
                 address: d.residentialAddress,
-                date: appointmentDate
-            }],
-            date: appointmentDate,
-        });
-        results.push({
-            actions: [{
+                effectiveDate: appointmentDate
+            };
+        if(doesNotContain(action)){
+            results.push({
+                actions: [action],
+                effectiveDate: appointmentDate,
+            });
+        }
+        action = {
                 transactionType: Transaction.types.REMOVE_DIRECTOR,
                 name: d.fullName,
                 address: d.residentialAddress,
-                date: ceasedDate
-            }],
-            date: ceasedDate,
-        });
+                effectiveDate: ceasedDate
+            };
+        if(doesNotContain(action)){
+            results.push({
+                actions: [action],
+                effectiveDate: ceasedDate,
+            });
+        }
     });
     return results;
 }
@@ -1064,9 +1095,9 @@ module.exports = {
         return {...result, ...info, date: moment(info.date, 'DD MMM YYYY HH:mm').toDate()}
     },
 
-    extraActions: function(data){
+    extraActions: function(data, docs){
         // This are INFERED actions
-        const results = inferDirectorshipActions(data);
+        const results = inferDirectorshipActions(data, docs);
         return results;
     },
 
