@@ -80,7 +80,10 @@ module.exports = {
         freezeTableName: true,
         tableName: 'transaction',
         classMethods: {
-            types: types
+            types: types,
+            buildDeep: function(data){
+                return Transaction.build(data, {include: [{model: Transaction, as: 'childTransactions'}]});
+            }
         },
         instanceMethods: {}
     }

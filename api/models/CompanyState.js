@@ -414,6 +414,19 @@ module.exports = {
                     })
             },
 
+            createPrevious: function(attr){
+                var self = this, prev;
+                return this.buildPrevious(_.merge(attr, {transactionId: null, transaction: null}))
+                    .then(function(_prev){
+                        prev = _prev;
+                        return prev.save();
+                    })
+                    .then(function(prev){
+                        self.setPreviousCompanyState(prev);
+                        return self.save();
+                    });
+            },
+
 
             combineHoldings: function(newHoldings, parcelHint, transaction, subtractHoldings){
                 // add these holdings to current holdings

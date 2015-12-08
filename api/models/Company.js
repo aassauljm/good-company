@@ -101,6 +101,13 @@ module.exports = {
                     return {shareRegister: register[0].share_register};
                 });
             },
+            createPrevious: function(){
+                return this.getRootCompanyState()
+                    .then(function(root){
+                        return root.createPrevious();
+                    });
+
+            }
 
 
 

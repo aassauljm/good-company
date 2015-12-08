@@ -98,6 +98,7 @@ describe('Scraping Service', function() {
                 .then(function(stats){
                     stats.totalShares.should.be.equal(startStats.totalShares - issue.actions[0].amount);
                     stats.totalUnallocatedShares.should.be.equal(secondStats.totalUnallocatedShares - issue.actions[0].amount)
+                    return company.createPrevious();
                 })
                 .then(function(){
                     return Promise.each(['21386429', '21000586', '21000301', '21000289'], function(documentId){
@@ -142,6 +143,7 @@ describe('Scraping Service', function() {
                 })
                 .then(function(stats){
                     stats.totalShares.should.equal(1365670);
+                    return company.createPrevious();
                 })
                 .then(function(){
                     return Promise.map(data.documents, function(document){
@@ -176,7 +178,7 @@ describe('Scraping Service', function() {
     describe('Should get all fields from Evolution html doc', function() {
         // THIS TEST CASE HAS AMBIGUITY FROM DUPLICATE HOLDERS
         it('passes doc to scraping service', function(done) {
-            var data, company;
+            var data, company, docs;
             return fs.readFileAsync('test/fixtures/companies_office/Evolution.html', 'utf8')
 
                 .then(ScrapingService.parseNZCompaniesOffice)
@@ -211,14 +213,17 @@ describe('Scraping Service', function() {
                 })
                 .then(function(documentSummaries){
                     documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data, documentSummaries));
-                    var docs = ScrapingService.segmentActions(documentSummaries)
+                    docs = ScrapingService.segmentActions(documentSummaries);
+                    return company.createPrevious();
+                })
+                .then(function(){
                     return Promise.each(docs, function(doc){
                         return ScrapingService.populateHistory(doc, company);
                     });
                 })
                 .then(function(){
                     //return company.getRootCompanyState()
-                    return company.getPreviousCompanyState(1)
+                    return company.getPreviousCompanyState(2)
                 })
                 .then(function(state){
                     state.holdings.length.should.be.equal(2);

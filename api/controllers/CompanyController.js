@@ -124,7 +124,7 @@ module.exports = {
     },
     import: function(req, res) {
         // for now, just companies office
-        var data, company;
+        var data, company, rootState, processedDocs;
         return sequelize.transaction(function(t){
             return ScrapingService.fetch(req.params.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
@@ -148,10 +148,14 @@ module.exports = {
                                 return ScrapingService.processDocument(docData.text, doc)
                             });
                         })
-                        .then(function(processedDocs) {
-                            processedDocs = processedDocs.concat(ScrapingService.extraActions(data, processedDocs));
+                        .then(function(_processedDocs) {
+                            processedDocs = _processedDocs.concat(ScrapingService.extraActions(data, _processedDocs));
                             processedDocs = ScrapingService.segmentActions(processedDocs);
-                            sails.log.verbose('Processing ' + processedDocs.length + ' documents');
+                            // create a state before SEED
+                            return company.createPrevious();
+                        })
+                        .then(function(){
+                            sails.log.info('Processing ' + processedDocs.length + ' documents');
                             return Promise.each(processedDocs, function(doc) {
                                 return ScrapingService.populateHistory(doc, company);
                             });

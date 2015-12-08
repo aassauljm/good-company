@@ -104,7 +104,8 @@ WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") 
     FROM companystate t, prev_transactions tt
     WHERE t.id = tt."previousCompanyStateId"
 )
-SELECT array_to_json(array_agg(row_to_json(q))) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate",
+SELECT array_to_json(array_agg(row_to_json(q))) from (
+    SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate",
     (select count(*) from transaction tt where t.id = tt."parentTransactionId") as "actionCount"
     from prev_transactions pt
     inner join transaction t on pt."transactionId" = t.id
@@ -146,7 +147,7 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q.name)) from
      WINDOW wnd AS (
        PARTITION BY "personId" ORDER BY generation asc
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-     )) as q;
+ )) as q;
 $$ LANGUAGE SQL;
 
 

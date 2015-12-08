@@ -399,9 +399,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 registeredCompanyAddress:  matchMultline(/Registered office address/).join(', ') || null,
                 addressForShareRegister:  matchMultline(/Address for share register/).join(', ')|| null,
                 addressForService:  matchMultline(/Address for service/).join(', ') || null,
-                transactionType: Transaction.types.DETAILS,
-                effectiveDate: date
-
+                transactionType: Transaction.types.DETAILS
             }]
         }
         const holdings = matchMultline(/Total Number of Company Shares/);
@@ -457,12 +455,9 @@ const EXTRACT_DOCUMENT_MAP = {
                 result.actions.push({
                     transactionType: Transaction.types.NEW_DIRECTOR,
                     name: invertName(d[0]),
-                    address: d[1],
-                    effectiveDate: date
+                    address: d[1]
                 })
             })
-
-
         return result;
     },
 
@@ -753,26 +748,23 @@ module.exports = {
         if(!data.actions){
             return;
         }
-        let rootState, currentRoot, transactions;
+        let nextState, currentRoot, transactions;
         return company.getRootCompanyState()
             .then(function(_rootState){
                 currentRoot = _rootState;
-                return currentRoot.buildPrevious({transaction:
-                    // TODO type defined by document
-                        {type: data.transactionType || Transaction.types.COMPOUND,
-                        data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
-                        effectiveDate: data.effectiveDate
-                    }})
+                return currentRoot.buildPrevious({transaction: null, transactionId: null});
             })
-            .then(function(_rootState){
-                rootState = _rootState;
+            .then(function(_nextState){
+                nextState = _nextState;
+                nextState.dataValues.transactionId = null;
+                nextState.dataValues.transaction = null;
                 return Promise.reduce(data.actions, function(arr, action){
                     sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                     let result;
                     if(PERFORM_ACTION_MAP[action.transactionType]){
                         result = PERFORM_ACTION_MAP[action.transactionType]({
                             ...action, documentId: data.documentId
-                        }, rootState, currentRoot, data.effectiveDate);
+                        }, nextState, currentRoot, data.effectiveDate);
                     }
                     if(result){
                         return result.then(function(r){
@@ -785,15 +777,22 @@ module.exports = {
 
             })
             .then(function(transactions){
-                currentRoot.dataValues.transaction.dataValues.childTransactions = _.filter(transactions);
-                return currentRoot.save();
+                const tran = Transaction.buildDeep({
+                        type: data.transactionType || Transaction.types.COMPOUND,
+                        data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
+                        effectiveDate: data.effectiveDate,
+                });
+                tran.dataValues.childTransactions = _.filter(transactions);
+                return tran.save();
             })
-            .then(function(){
-                return rootState.save();
+            .then(function(transaction){
+                return currentRoot.setTransaction(transaction.id);
             })
-            .then(function(_rootState){
-                currentRoot.setPreviousCompanyState(_rootState);
-                return currentRoot.save();
+            .then(function(currentRoot){
+                return nextState.save();
+            })
+            .then(function(_nextState){
+                return currentRoot.setPreviousCompanyState(_nextState);
             })
 
     },

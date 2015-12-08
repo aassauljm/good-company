@@ -107,7 +107,7 @@ describe('Company Controller', function() {
                 });
         });
         it('Does gets previous version', function(done){
-            req.get('/api/company/'+companyId+'/history/1')
+            req.get('/api/company/'+companyId+'/history/2')
                 .expect(200)
                 .then(function(res){
                     res.body.companyState.companyName.should.be.equal('TESTED ON CHILDREN LIMITED');
