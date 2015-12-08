@@ -192,7 +192,7 @@ export function performInverseRemoveAllocation(data, companyState, previousState
     companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
     const holding = Holding.buildDeep({holders: data.holders,
         parcels: [{amount: data.amount, shareClass: data.shareClass}]});
-    // replace holders
+    // replace holders with look up
     holding.dataValues.holders = holding.dataValues.holders.map((h) => {
         return previousState.getHolderBy(h.get()) || h;
     });

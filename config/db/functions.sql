@@ -167,12 +167,13 @@ WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "holdingId", "tra
 SELECT t.* from transaction t join prev_transactions pt on t.id = pt."transactionId";
 $$ LANGUAGE SQL;
 
+
 CREATE OR REPLACE FUNCTION holding_history_json(integer, text[])
     RETURNS JSON
     AS $$
-    SELECT array_to_json(array_agg(row_to_json(q))) from holding_history($1) q where $2 is null or q.type = ANY($2::enum_transaction_type[]);
+    SELECT array_to_json(array_agg(row_to_json(qq)))
+    FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from holding_history($1)  where $2 is null or type = ANY($2::enum_transaction_type[]))  qq;
 $$ LANGUAGE SQL STABLE;
-
 
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer)
 RETURNS SETOF JSON
@@ -193,7 +194,7 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 
 FROM (
 SELECT *,
-      holding_history_json("lastHoldingId", ARRAY['ISSUE_TO'])  as "issueHistory",
+      ( SELECT * FROM holding_history_json("lastHoldingId", ARRAY['ISSUE_TO'])  as "issueHistory"),
       holding_history_json("lastHoldingId", ARRAY['REDEMPTION', 'REPURCHASE'])  as "repurchaseHistory",
       holding_history_json("lastHoldingId", ARRAY['TRANSFER_TO'])  as "transferHistoryTo",
       holding_history_json("lastHoldingId", ARRAY['TRANSFER_FROM'])  as "transferHistoryFrom"
@@ -223,5 +224,5 @@ from
      )) as q
     ) as q
 
-$$ LANGUAGE SQL;
+$$ LANGUAGE SQL STABLE;
 
