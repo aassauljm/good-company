@@ -1,0 +1,23 @@
+// transitions
+$pageTransitionTime: .2s;
+$pageTransitionEasing: ease-in-out;
+.page-transition-enter {
+  transition: opacity $pageTransitionTime $pageTransitionEasing;
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.page-transition-enter.page-transition-enter-active {
+  opacity: 1;
+}
+.page-transition-leave {
+  transition: opacity $pageTransitionTime $pageTransitionEasing;
+  opacity: 1;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.page-transition-leave.page-transition-leave-active {
+  opacity: 0;
+}

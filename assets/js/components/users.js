@@ -26,7 +26,7 @@ export default class Users extends React.Component {
 
     render() {
         let fields = ['id', 'username', 'createdAt', 'updatedAt'];
-        return <div>
+        return <div className="container">
             <table className="table">
             <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th><th></th></tr></thead>
             <tbody>

@@ -690,7 +690,7 @@ module.exports = {
         return this.fetchSearchResults(query)
             .then(function(html){
                 const $ = cheerio.load(html);
-                return $('.LSRow.registered a, .LSRow.struckoff a').map(function(){
+                return $('.LSRow.registered a, .LSRow.struckoff a, .LSRow.externaladministration a').map(function(){
                     const $el = $(this);
                     return {
                         companyNumber: _.last($el.attr('href').split('/')),

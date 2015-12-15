@@ -384,7 +384,7 @@ export class ShareRegister extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
-    fields = ['shareClass', 'name', 'address', 'restrictions', 'current', 'amount', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
+    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'restrictions', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
     key() {
         return this.props.params.id
     };

@@ -175,6 +175,7 @@ CREATE OR REPLACE FUNCTION holding_history_json(integer, text[])
     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from holding_history($1)  where $2 is null or type = ANY($2::enum_transaction_type[]))  qq;
 $$ LANGUAGE SQL STABLE;
 
+
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
@@ -208,6 +209,7 @@ from
     first_value(pp.amount) OVER wnd as amount,
      pp."shareClass" as  "shareClass",
     first_value(h."holdingId") OVER wnd as "holdingId",
+    first_value(h."name") OVER wnd as "holdingName",
     first_value(h."id") OVER wnd as "lastHoldingId",
     first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
     format_iso_date(t."effectiveDate") as "lastEffectiveDate",

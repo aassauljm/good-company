@@ -8,7 +8,9 @@ import AuthenticatedComponent from  './authenticated';
 export default class Landing extends React.Component{
 
     render() {
-        return  <div >Landing</div>
+        return  <div className="container">
+                    Hello.  Puts some things here.
+                </div>
     }
 }
 
