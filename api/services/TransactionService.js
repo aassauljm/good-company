@@ -161,7 +161,7 @@ export const performInverseHolderChange = Promise.method(function(data, companyS
         });
 });
 
-export function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
+export const performInverseNewAllocation = Promise.method(function(data, companyState, previousState, effectiveDate){
     companyState.combineUnallocatedParcels({amount: data.amount});
     const holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}]);
     if(!holding){
@@ -184,9 +184,9 @@ export function performInverseNewAllocation(data, companyState, previousState, e
             return transaction;
         });
 
-}
+});
 
-export function performInverseRemoveAllocation(data, companyState, previousState, effectiveDate){
+export const performInverseRemoveAllocation = Promise.method(function(data, companyState, previousState, effectiveDate){
     companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
     const holding = Holding.buildDeep({holders: data.holders,
         parcels: [{amount: data.amount, shareClass: data.shareClass}]});
@@ -195,8 +195,8 @@ export function performInverseRemoveAllocation(data, companyState, previousState
         return previousState.getHolderBy(h.get()) || h;
     });
     companyState.dataValues.holdings.push(holding);
-    return Promise.resolve(Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate}))
-}
+    return Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
+});
 
 
 export function validateInverseNameChange(data, companyState,  effectiveDate){
@@ -226,11 +226,11 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
     }
 }
 
-export function performInverseAddressChange(data, companyState, previousState, effectiveDate){
+export const performInverseAddressChange = Promise.method(function(data, companyState, previousState, effectiveDate){
     validateInverseAddressChange(data, companyState);
     companyState.set(data.field, data.previousAddress);
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
-}
+    return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+});
 
 export function validateNewDirector(data, companyState){
     const director = _.find(companyState.dataValues.directors, (d)=> {
@@ -241,20 +241,21 @@ export function validateNewDirector(data, companyState){
     }
 }
 
-export function performNewDirector(data, companyState, previousState, effectiveDate){
+export const performNewDirector = Promise.method(function(data, companyState, previousState, effectiveDate){
     validateNewDirector(data, companyState);
     companyState.dataValues.directors = _.reject(companyState.dataValues.directors, (d) => {
         return d.person.name === data.name /*&&  && d.person.address == data.address */;
     });
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
-}
+});
 
-export function performRemoveDirector(data, companyState, previousState, effectiveDate){
+export const performRemoveDirector = Promise.method(function(data, companyState, previousState, effectiveDate){
+    // find them as a share holder?
     companyState.dataValues.directors.push(Director.build({
         appointment: effectiveDate, person: {name: data.name, address: data.address}},
         {include: [{model: Person, as: 'person'}]}));
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
-}
+});
 
 
 /**

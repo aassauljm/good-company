@@ -4,9 +4,10 @@ var moment = require('moment');
 
 
 
-describe('Transaction Service', function() {
+describe('Transaction Service, inverse transactions', function() {
     var rootState, initialState = {
         companyName: 'dingbat limited',
+        addressForService: 'china',
         holdings: [{
             holders: [{
                 name: 'mike'
@@ -17,6 +18,8 @@ describe('Transaction Service', function() {
         }]
     };
 
+
+
     before(function(){
         return CompanyState.createDedupPersons(initialState)
             .then(function(_companyState){
@@ -25,7 +28,7 @@ describe('Transaction Service', function() {
     })
 
 
-    describe('Set up companystate and apply inverse transactions', function() {
+    describe('Change name transaction', function() {
         it('renames company, fail validation (wrong current name)', function() {
             return rootState.buildPrevious()
                 .then(function(companyState){
@@ -56,7 +59,7 @@ describe('Transaction Service', function() {
                 });
         });
         it('renames company, success', function() {
-            let prevState;
+            var prevState;
             return rootState.buildPrevious()
                 .then(function(companyState){
                     prevState = companyState;
@@ -66,8 +69,39 @@ describe('Transaction Service', function() {
                         previousCompanyName: 'dingbat unlimited'
                     }, companyState, rootState).should.eventually.be.fulfilled;
                 })
-                .then(function(){
+                .then(function(transaction){
+                    transaction.type.should.be.equal(Transaction.types.NAME_CHANGE);
                     prevState.companyName.should.be.equal('dingbat unlimited');
+                })
+        });
+    });
+
+    describe('Change address transaction', function() {
+        it('renames company, fail validation (wrong current address)', function() {
+            return rootState.buildPrevious()
+                .then(function(companyState){
+                    return TransactionService.performInverseAddressChange({
+                        transactionType: Transaction.types.NAME_CHANGE,
+                        oldAddress: 'japan',
+                        newAddress: 'chinatown',
+                        field: 'addressForService',
+                    }, companyState, rootState).should.eventually.be.rejected;
+                })
+        });
+        it('renames company, fail validation, success', function() {
+            var prevState;
+            return rootState.buildPrevious()
+                .then(function(companyState){
+                    prevState = companyState;
+                    return TransactionService.performInverseAddressChange({
+                        transactionType: Transaction.types.NAME_CHANGE,
+                        previousAddress: 'japan',
+                        newAddress: 'china',
+                        field: 'addressForService',
+                    }, companyState, rootState).should.eventually.be.fulfilled;
+                })
+                .then(function(){
+                    prevState.addressForService.should.be.equal('japan');
                 })
         });
     });
