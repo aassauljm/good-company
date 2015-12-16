@@ -237,7 +237,7 @@ class Directors extends React.Component {
     render() {
         return <div className="row">
         <div className="text-center"><h3>Directors</h3></div>
-        { this.props.directors.map((director, i) => <div className="col-md-6"><Director key={i} director={director} /></div>)}
+        { this.props.directors.map((director, i) => <div className="col-md-6" key={i}><Director director={director} /></div>)}
 
         </div>
     }
