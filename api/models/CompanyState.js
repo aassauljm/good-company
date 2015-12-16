@@ -208,6 +208,7 @@ module.exports = {
                 // persons can be in:
                 // obj.holdings.holders
                 // obj.directors.persons
+                obj = _.cloneDeep(obj)
                 return Promise.each(obj.holdings, function(holding){
                     return Promise.map(holding.holders || [], function(holder){
                         return Person.findOrCreate({where: holder, defaults: holder})

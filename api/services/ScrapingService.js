@@ -708,10 +708,7 @@ module.exports = {
         return  Company.create({
             ownerId: data.ownerId,
             creatorId: data.creatorId,
-            seedCompanyState: data
-        },
-            {include: [{model: CompanyState, as: 'seedCompanyState'}]}
-            )
+            })
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
@@ -728,74 +725,7 @@ module.exports = {
     },
 
     populateHistory: function(data, company){
-
-        const PERFORM_ACTION_MAP = {
-            [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
-            [Transaction.types.TRANSFER]:  TransactionService.performInverseAmend,
-            [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
-            [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
-            [Transaction.types.ISSUE]:  TransactionService.performInverseIssue,
-            [Transaction.types.ISSUE_TO]:  TransactionService.performInverseAmend,
-            [Transaction.types.CONVERSION]:  TransactionService.performInverseConversion,
-            [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
-            [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
-            [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
-            [Transaction.types.ADDRESS_CHANGE]: TransactionService.performInverseAddressChange,
-            [Transaction.types.NEW_DIRECTOR]: TransactionService.performNewDirector,
-            [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performRemoveDirector,
-            [Transaction.types.ANNUAL_RETURN]: TransactionService.validateAnnualReturn
-        };
-
-        if(!data.actions){
-            return;
-        }
-        let nextState, currentRoot, transactions;
-        return company.getRootCompanyState()
-            .then(function(_rootState){
-                currentRoot = _rootState;
-                return currentRoot.buildPrevious({transaction: null, transactionId: null});
-            })
-            .then(function(_nextState){
-                nextState = _nextState;
-                nextState.dataValues.transactionId = null;
-                nextState.dataValues.transaction = null;
-                return Promise.reduce(data.actions, function(arr, action){
-                    sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
-                    let result;
-                    if(PERFORM_ACTION_MAP[action.transactionType]){
-                        result = PERFORM_ACTION_MAP[action.transactionType]({
-                            ...action, documentId: data.documentId
-                        }, nextState, currentRoot, data.effectiveDate);
-                    }
-                    if(result){
-                        return result.then(function(r){
-                            arr.push(r);
-                            return arr;
-                        });
-                    }
-                    return arr;
-                }, [])
-
-            })
-            .then(function(transactions){
-                const tran = Transaction.buildDeep({
-                        type: data.transactionType || Transaction.types.COMPOUND,
-                        data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
-                        effectiveDate: data.effectiveDate,
-                });
-                tran.dataValues.childTransactions = _.filter(transactions);
-                return tran.save();
-            })
-            .then(function(transaction){
-                return currentRoot.setTransaction(transaction.id);
-            })
-            .then(function(currentRoot){
-                return nextState.save();
-            })
-            .then(function(_nextState){
-                return currentRoot.setPreviousCompanyState(_nextState);
-            })
-
+        return TransactionService.performInverseTransaction(data, company);
     },
 
     canonicalizeNZCompaniesData: function(data){

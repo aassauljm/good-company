@@ -115,22 +115,7 @@ module.exports = {
         hooks: {
             afterCreate: [
                 function addSeedCompanyState(company) {
-                    if(!company.get('seedCompanyStateId')){
-                        sails.log.verbose('company.addSeedCompanyState', company.get());
-                        return CompanyState.create({
-                                transaction: {type: Transaction.types.SEED}
-                            }, {include: [{model: Transaction, as: 'transaction'}]})
-                        .then(function(state){
-                            this.state = state;
-                            return company.setSeedCompanyState(state)
-                            })
-                        .then(function(){
-                            return company.setCurrentCompanyState(this.state)
-                            })
-                        .catch(function(e) {
-                            sails.log.error(e);
-                        });
-                    }else{
+                    if(company.get('seedCompanyStateId')){
                         company.set('currentCompanyStateId', company.get('seedCompanyStateId'));
                         return company.save();
                     }

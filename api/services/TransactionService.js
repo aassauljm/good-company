@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const moment = require('moment');
+const Promise = require('bluebird');
 
 
 function normalizeAddress(address){
@@ -135,37 +136,34 @@ export function performInverseAmend(data, companyState, previousState, effective
         });
 }
 
-export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
-    return Promise.resolve({})
-        .then(()=>{
-            let current = companyState.getMatchingHolding(data.afterHolders);
-            const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
-            if(!current){
-                 throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
-            }
-            companyState.mutateHolders(current, data.beforeHolders);
-            return Promise.resolve(transaction);
-        })
-}
+export const performInverseHoldingChange = Promise.method(function(data, companyState, previousState, effectiveDate){
 
-export function performInverseHolderChange(data, companyState, previousState, effectiveDate){
+    const current = companyState.getMatchingHolding(data.afterHolders);
+    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
+    if(!current){
+         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
+    }
+    companyState.mutateHolders(current, data.beforeHolders);
+    return transaction;
+});
+
+export const performInverseHolderChange = Promise.method(function(data, companyState, previousState, effectiveDate){
     return Promise.resolve({})
         .then(()=>{
             const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
             companyState.replaceHolder(data.afterHolder, data.beforeHolder);
-            return Promise.resolve(transaction);
+            return transaction;
 
         })
         .catch((e)=>{
             sails.log.error(e);
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change, documentId: ' +data.documentId)
         });
-}
+});
 
 export function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
     companyState.combineUnallocatedParcels({amount: data.amount});
-    let holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}]);
-
+    const holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}]);
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation, documentId: ' +data.documentId)
     }
@@ -207,11 +205,11 @@ export function validateInverseNameChange(data, companyState,  effectiveDate){
     }
 }
 
-export function performInverseNameChange(data, companyState, previousState, effectiveDate){
+export const performInverseNameChange = Promise.method(function(data, companyState, previousState, effectiveDate){
     validateInverseNameChange(data, companyState);
     companyState.set('companyName', data.previousCompanyName);
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
-}
+    return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
+});
 
 export function validateInverseAddressChange(data, companyState, effectiveDate){
     if(normalizeAddress(data.newAddress) !== normalizeAddress(companyState[data.field])){
@@ -234,7 +232,6 @@ export function validateNewDirector(data, companyState){
     }
 }
 
-
 export function performNewDirector(data, companyState, previousState, effectiveDate){
     validateNewDirector(data, companyState);
     companyState.dataValues.directors = _.reject(companyState.dataValues.directors, (d) => {
@@ -248,4 +245,81 @@ export function performRemoveDirector(data, companyState, previousState, effecti
         appointment: effectiveDate, person: {name: data.name, address: data.address}},
         {include: [{model: Person, as: 'person'}]}));
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
+}
+
+
+/**
+    Seed is a special cause, it doesn't care about previousState
+*/
+export function performSeed(data, companyState, previousState, effectiveDate){
+
+}
+
+
+export function performInverseTransaction(data, company){
+    const PERFORM_ACTION_MAP = {
+        [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
+        [Transaction.types.TRANSFER]:  TransactionService.performInverseAmend,
+        [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
+        [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
+        [Transaction.types.ISSUE]:  TransactionService.performInverseIssue,
+        [Transaction.types.ISSUE_TO]:  TransactionService.performInverseAmend,
+        [Transaction.types.CONVERSION]:  TransactionService.performInverseConversion,
+        [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
+        [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
+        [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
+        [Transaction.types.ADDRESS_CHANGE]: TransactionService.performInverseAddressChange,
+        [Transaction.types.NEW_DIRECTOR]: TransactionService.performNewDirector,
+        [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performRemoveDirector,
+        [Transaction.types.ANNUAL_RETURN]: TransactionService.validateAnnualReturn
+    };
+    if(!data.actions){
+        return;
+    }
+    let nextState, currentRoot, transactions;
+    return company.getRootCompanyState()
+        .then(function(_rootState){
+            currentRoot = _rootState;
+            return currentRoot.buildPrevious({transaction: null, transactionId: null});
+        })
+        .then(function(_nextState){
+            nextState = _nextState;
+            nextState.dataValues.transactionId = null;
+            nextState.dataValues.transaction = null;
+            return Promise.reduce(data.actions, function(arr, action){
+                sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
+                let result;
+                if(PERFORM_ACTION_MAP[action.transactionType]){
+                    result = PERFORM_ACTION_MAP[action.transactionType]({
+                        ...action, documentId: data.documentId
+                    }, nextState, currentRoot, data.effectiveDate);
+                }
+                if(result){
+                    return result.then(function(r){
+                        arr.push(r);
+                        return arr;
+                    });
+                }
+                return arr;
+            }, [])
+
+        })
+        .then(function(transactions){
+            const tran = Transaction.buildDeep({
+                    type: data.transactionType || Transaction.types.COMPOUND,
+                    data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
+                    effectiveDate: data.effectiveDate,
+            });
+            tran.dataValues.childTransactions = _.filter(transactions);
+            return tran.save();
+        })
+        .then(function(transaction){
+            return currentRoot.setTransaction(transaction.id);
+        })
+        .then(function(currentRoot){
+            return nextState.save();
+        })
+        .then(function(_nextState){
+            return currentRoot.setPreviousCompanyState(_nextState);
+        })
 }

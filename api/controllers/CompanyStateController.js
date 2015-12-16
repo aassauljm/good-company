@@ -26,35 +26,34 @@ function validateHoldings(newHoldings){
     });
 }
 
-
+// TODO, move to transaction service
 var transactions = {
-    seed: function(args, company) {
+    seed: function(args, company, date) {
         if (!args.holdings || !args.holdings.length) {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
-        /*var data = { holdings: args.holdings,
-                    ;
+        /*
         if(args.unallocatedParcels){
             data.unallocatedParcels = args.unallocatedParcels
         }*/
         return company.getCurrentCompanyState()
-        .then(function(companyState){
-            var fields = companyState ? companyState.nonAssociativeFields(): {};
-            return CompanyState.createDedupPersons(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: new Date()}}));
-        })
-        .then(function(state){
-            this.state = state;
-            return company.setSeedCompanyState(this.state)
-        })
-        .then(function(company){
-            return company.setCurrentCompanyState(this.state)
-        })
-        .then(function(){
-            return company.save();
-        })
-        .then(function(){
-            return;
-        })
+            .then(function(companyState){
+                var fields = companyState ? companyState.nonAssociativeFields(): {};
+                return CompanyState.createDedupPersons(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: date || new Date()}}));
+            })
+            .then(function(state){
+                this.state = state;
+                return company.setSeedCompanyState(this.state)
+            })
+            .then(function(company){
+                return company.setCurrentCompanyState(this.state)
+            })
+            .then(function(){
+                return company.save();
+            })
+            .then(function(){
+                return;
+            })
     },
     issue: function(args, company){
         " For now, using name equivilency to match holders (and companyId) "

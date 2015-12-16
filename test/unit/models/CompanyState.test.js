@@ -247,7 +247,5 @@ describe('CompanyState Model', function() {
                     done();
                 });
         });
-
-
     });
 });
