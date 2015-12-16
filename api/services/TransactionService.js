@@ -203,12 +203,21 @@ export function validateInverseNameChange(data, companyState,  effectiveDate){
     if(data.newCompanyName !== companyState.companyName){
         throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name, documentId: ' +data.documentId)
     }
+    if(data.previousCompanyName === data.newCompanyName){
+        throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ, documentId: ' +data.documentId)
+    }
 }
 
 export const performInverseNameChange = Promise.method(function(data, companyState, previousState, effectiveDate){
     validateInverseNameChange(data, companyState);
     companyState.set('companyName', data.previousCompanyName);
-    return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
+    return companyState.validate()
+        .then(function(errors){
+            if(errors){
+                return Promise.reject(errors);
+            }
+            return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
+        });
 });
 
 export function validateInverseAddressChange(data, companyState, effectiveDate){
