@@ -3,6 +3,10 @@ node_js:
   - "4.2.2"
 addons:
   postgresql: "9.3"
+  sources:
+  - ubuntu-toolchain-r-test
+  packages:
+  - g++-4.8
 services:
   - redis-server
 before_install:
@@ -10,3 +14,5 @@ before_install:
   - 'npm install'
 script:
   - 'npm test'
+env:
+  - CXX=g++-4.8
