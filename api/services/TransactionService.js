@@ -61,30 +61,15 @@ export function validateInverseAmend(amend, companyState){
     if(!Number.isSafeInteger(sum)){
         throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +amend.documentId)
     }
+    if(amend.beforeAmount < 0 || amend.afterAmount < 0){
+        throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ), documentId: ' +data.documentId)
+    }
     if(amend.afterAmount && (sum !== amend.afterAmount)){
         throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend, documentId: ' +amend.documentId)
     }
     return Promise.resolve(holding);
 }
 
-export function validateInverseIssue(data, companyState){
-    return companyState.stats()
-        .then((stats) =>{
-            if(!Number.isInteger(data.amount) || data.amount <= 0 ){
-                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be postive integer, documentId: ' +data.documentId)
-            }
-            if(!Number.isSafeInteger(data.amount)){
-                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
-            }
-            if(stats.totalShares != data.toAmount){
-                sails.log.debug(stats)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue, documentId: ' +data.documentId)
-            }
-            if(data.fromAmount + data.amount !== data.toAmount ){
-                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up, documentId: ' +data.documentId)
-            }
-        })
-}
 
 
 export function performInverseIssue(data, companyState, previousState, effectiveDate){
@@ -107,7 +92,26 @@ export function performInverseConversion(data, companyState, previousState, effe
     // In an issue we remove from unallocatedShares
 }
 
-export function performInverseAmend(data, companyState, previousState, effectiveDate){
+export function validateInverseIssue(data, companyState){
+    return companyState.stats()
+        .then((stats) =>{
+            if(!Number.isInteger(data.amount) || data.amount <= 0){
+                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
+            }
+            if(!Number.isSafeInteger(data.amount)){
+                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
+            }
+            if(stats.totalShares !== data.toAmount){
+                sails.log.debug(stats)
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue, documentId: ' +data.documentId)
+            }
+            if(data.fromAmount + data.amount !== data.toAmount ){
+                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up, documentId: ' +data.documentId)
+            }
+        })
+}
+
+export const performInverseAmend = Promise.method(function(data, companyState, previousState, effectiveDate){
     let transaction, holding;
     return validateInverseAmend(data, companyState)
         .then((_holding) =>{
@@ -134,7 +138,7 @@ export function performInverseAmend(data, companyState, previousState, effective
         .then(() => {
             return transaction;
         });
-}
+});
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const current = companyState.getMatchingHolding(data.afterHolders);
@@ -283,10 +287,10 @@ export function performInverseTransaction(data, company){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.TRANSFER]:  TransactionService.performInverseAmend,
+        [Transaction.types.ISSUE_TO]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
         [Transaction.types.ISSUE]:  TransactionService.performInverseIssue,
-        [Transaction.types.ISSUE_TO]:  TransactionService.performInverseAmend,
         [Transaction.types.CONVERSION]:  TransactionService.performInverseConversion,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,

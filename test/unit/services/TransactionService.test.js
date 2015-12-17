@@ -222,7 +222,7 @@ describe('Transaction Service, inverse transactions', function() {
                 }).then(function(transaction){
                     transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
                     transaction.effectiveDate.should.be.eql(date);
-                })
+                });
         });
     });
 
@@ -258,6 +258,42 @@ describe('Transaction Service, inverse transactions', function() {
                 holdings.length.should.be.equal(4);
             })
         })
+    });
+
+    describe('amend holding transactions', function() {
+        it('amend holding with issue, fail to find matching holding', function() {
+            return rootStateMultiple.buildPrevious()
+                .then(function(companyState){
+                    return TransactionService.performInverseAmend({
+                        transactionType: Transaction.types.ISSUE_TO,
+                        afterHolders: [{name: 'mike'}, {name: 'cindy'}],
+                        beforeAmount: 0,
+                        afterAmount: 1
+                    }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                });
+        });
+        it('amend holding with issue, fail due to negative value', function() {
+            return rootStateMultiple.buildPrevious()
+                .then(function(companyState){
+                    return TransactionService.performInverseAmend({
+                        transactionType: Transaction.types.ISSUE_TO,
+                        afterHolders: [{name: 'mike'}],
+                        beforeAmount: -1,
+                        afterAmount: 1
+                    }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                });
+        });
+        it('amend holding with issue, fail due non matching value', function() {
+            return rootStateMultiple.buildPrevious()
+                .then(function(companyState){
+                    return TransactionService.performInverseAmend({
+                        transactionType: Transaction.types.ISSUE_TO,
+                        afterHolders: [{name: 'mike'}],
+                        beforeAmount: 0,
+                        afterAmount: 2
+                    }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                });
+        });
     });
 
 });
