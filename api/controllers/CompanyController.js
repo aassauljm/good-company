@@ -155,6 +155,10 @@ module.exports = {
                             return company.createPrevious();
                         })
                         .then(function(){
+                            company.set('historicalActions', processedDocs);
+                            return company.save();
+                        })
+                        .then(function(){
                             sails.log.info('Processing ' + processedDocs.length + ' documents');
                             return Promise.each(processedDocs, function(doc) {
                                 return ScrapingService.populateHistory(doc, company);

@@ -7,9 +7,11 @@
 
 module.exports = {
     attributes: {
+        historicalActions: {
+            type: Sequelize.JSON
+        }
     },
     associations: function() {
-
         Company.belongsTo(User, {
             foreignKey: {
                 onDelete: 'cascade',

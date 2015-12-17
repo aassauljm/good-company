@@ -125,7 +125,11 @@ module.exports = {
                             as: 'parcels'
                         }, {
                             model: Person,
-                            as: 'holders'
+                            as: 'holders',
+                            include: [{
+                                model: Transaction,
+                                as: 'transaction',
+                            }]
                         }]
                     },{
                         model: Parcel,
@@ -163,7 +167,11 @@ module.exports = {
                         }, {
                             model: Person,
                             as: 'holders',
-                            through: {attributes: []}
+                            through: {attributes: []},
+                            include: [{
+                                model: Transaction,
+                                as: 'transaction',
+                            }]
                         },{
                             model: Transaction,
                             as: 'transaction',
@@ -478,9 +486,11 @@ module.exports = {
                 // unaccounted for, alter unallocated shares
                 return this;
             },
+
             subtractHoldings: function(subtractHoldings, parcelHint, transaction){
                 return this.combineHoldings(subtractHoldings, parcelHint, transaction, true);
             },
+
             mutateHolders: function(holding, newHolders, transaction){
                 //these new holders may have new members or address changes or something
                 newHolders = newHolders.slice()
@@ -516,6 +526,7 @@ module.exports = {
                 }
                 return this;
             },
+
             replaceHolder: function(currentHolder, newHolder, transaction){
                 var builtNewHolder;
                 this.dataValues.holdings.map(function(holding){

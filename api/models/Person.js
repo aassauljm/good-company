@@ -40,6 +40,13 @@ module.exports = {
                 as: 'directorships',
             }
         });
+        Person.belongsTo(Transaction, {
+            as: 'transaction',
+            foreignKey: {
+                name: 'transactionId',
+                as: 'transaction'
+            }
+        });
     },
     options: {
         freezeTableName: false,
@@ -53,9 +60,10 @@ module.exports = {
                     (this.dataValues.address !== other.address);
             },
             isEqual: function(other){
+                // undefined !== null
                 return this.dataValues.name === other.name &&
-                    this.dataValues.companyNumber === other.companyNumber &&
-                    this.dataValues.address === other.address;
+                    this.dataValues.companyNumber === (other.companyNumber || null) &&
+                    this.dataValues.address === (other.address || null);
             },
             replaceWith: function(other){
                 return Person.build(_.merge(other, {personId: this.dataValues.personId}));

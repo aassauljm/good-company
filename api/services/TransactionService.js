@@ -136,30 +136,43 @@ export function performInverseAmend(data, companyState, previousState, effective
         });
 }
 
-export const performInverseHoldingChange = Promise.method(function(data, companyState, previousState, effectiveDate){
-
+export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const current = companyState.getMatchingHolding(data.afterHolders);
-    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
-    if(!current){
-         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
-    }
-    companyState.mutateHolders(current, data.beforeHolders);
-    return transaction;
-});
+    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    return transaction.save()
+        .then(() => {
+            if(!current){
+                 throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
+            }
+            companyState.mutateHolders(current, data.beforeHolders);
+            const previousHolding = previousState.getMatchingHolding(data.afterHolders);
+            previousHolding.setTransaction(transaction);
+            return previousHolding.save();
+        })
+        .then(() => {
+            return transaction;
+        });
+};
 
-export const performInverseHolderChange = Promise.method(function(data, companyState, previousState, effectiveDate){
+export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate){
+    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     return Promise.resolve({})
         .then(()=>{
-            const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
             companyState.replaceHolder(data.afterHolder, data.beforeHolder);
-            return transaction;
+            return transaction.save();
 
+        })
+        .then(function(){
+            // find previousState person instance, attach mutating transaction
+            const holder = previousState.getHolderBy(data.afterHolder);
+            holder.setTransaction(transaction);
+            return holder.save();
         })
         .catch((e)=>{
             sails.log.error(e);
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change, documentId: ' +data.documentId)
         });
-});
+};
 
 export const performInverseNewAllocation = Promise.method(function(data, companyState, previousState, effectiveDate){
     companyState.combineUnallocatedParcels({amount: data.amount});

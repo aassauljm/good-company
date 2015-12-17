@@ -1,6 +1,6 @@
 import React from 'react';
 import Promise from "bluebird";
-import {PasswordForm} from '../../../assets/js/components/setPassword';
+import { PasswordForm } from '../../../assets/js/components/setPassword';
 import TestUtils from 'react/lib/ReactTestUtils';
 
 describe('Tests setPassword form', () => {
