@@ -140,9 +140,11 @@ AS $$
             "address",
             "companyNumber",
             bool_or("current") as "current",
+            "firstHoldingId",
             (SELECT array_to_json(array_agg(row_to_json(s))) from parcels s where "holdingId" = ANY(ARRAY_AGG(q."lastHoldingId"))) as parcels,
             format_iso_date(max("lastEffectiveDate")) as "lastEffectiveDate",
-        (SELECT format_iso_date(min("effectiveDate")) from transaction t join holding h on t.id = h."transactionId" where h.id = ANY(ARRAY_AGG(q."firstHoldingId"))) as "firstEffectiveDate"
+        (SELECT format_iso_date(COALESCE(min("effectiveDate"), min("firstEffectiveDate")))
+            from transaction t join holding h on t.id = h."transactionId" where h.id = ANY(ARRAY_AGG(q."firstHoldingId"))) as "firstEffectiveDate"
             FROM (
                  SELECT DISTINCT ON ("personId","holdingId")
                 "personId",
@@ -153,8 +155,9 @@ AS $$
                 first_value(h."name") OVER wnd as "holdingName",
                 first_value(h."id") OVER wnd as "lastHoldingId",
                 last_value(h."id") OVER wnd as "firstHoldingId",
+                last_value(t."effectiveDate") OVER wnd as "firstEffectiveDate",
                 first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
-                t."effectiveDate" as "lastEffectiveDate",
+                first_value(t."effectiveDate") OVER wnd as "lastEffectiveDate",
                 generation = 0 as current
                 from prev_transactions pt
                 join companystate cs on pt.id = cs.id
@@ -166,7 +169,7 @@ AS $$
                    PARTITION BY "personId", h."holdingId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                  )
             ) as q
-            GROUP BY "personId", q.name, q."companyNumber", q.address
+            GROUP BY "personId", q.name, q."companyNumber", q.address, "firstHoldingId"
         ) as qq
 $$ LANGUAGE SQL STABLE;
 
