@@ -11,6 +11,7 @@ export default {
     parcel: 'Parcel',
     amount: 'Amount',
     shareClass: 'Class',
+    defaultShareClass: 'Ordinary',
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

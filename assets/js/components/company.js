@@ -382,6 +382,33 @@ export class CompanyTransactions extends React.Component {
     }
 }
 
+export class Shareholder extends React.Component {
+    static propTypes = {
+        shareholder: PropTypes.object.isRequired,
+    };
+
+    render() {
+        return <div className="shareholder well">
+            <dl className="dl-horizontal">
+                <dt>Name</dt>
+                <dd>{ this.props.shareholder.name}</dd>
+                <dt>Address</dt>
+                <dd><span className="address">{ this.props.shareholder.address}</span></dd>
+                <dt>Shareholder since</dt>
+                <dd>{ new Date(this.props.shareholder.firstEffectiveDate).toDateString() }</dd>
+                { this.props.shareholder.current && <dt>Current Parcels</dt> }
+                { this.props.shareholder.current &&  this.props.shareholder.parcels.map(p => {
+                    const shareClass = p.shareClass || STRINGS.defaultShareClass;
+                    const amount = numberWithCommas(p.amount);
+                    return <dd>{`${amount} ${shareClass} shares`}</dd> ;
+                }) }
+                { !this.props.shareholder.current && <dt>Shareholder until</dt> }
+                { !this.props.shareholder.current && <dd>{ new Date(this.props.shareholder.lastEffectiveDate).toDateString() }</dd> }
+            </dl>
+        </div>
+    }
+}
+
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/shareholders']}
 })
@@ -407,12 +434,20 @@ export class Shareholders extends React.Component {
     };
 
     render() {
-        const transactions = (this.props.data || {}).transactions;
-        if(!transactions){
+        const shareholders = (this.props.data || {}).shareholders;
+        if(!shareholders){
             return <div className="loading"></div>
         }
         return <div className="container">
-
+                 <div className="row">
+                <div className="text-center"><h3>Current Shareholders</h3></div>
+                { shareholders.filter(s => s.current).map((shareholder, i) => <div key={i}><Shareholder shareholder={shareholder} /></div>)}
+                </div>
+                { shareholders.filter(s => !s.current).length !== 0 &&
+                 <div className="row">
+                    <div className="text-center"><h3>Former Shareholders</h3></div>
+                    { shareholders.filter(s => !s.current).map((shareholder, i) => <div  key={i}><Shareholder shareholder={shareholder} /></div>)}
+                </div> }
             </div>
     }
 }

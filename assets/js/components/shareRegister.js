@@ -7,9 +7,8 @@ import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
 
 function renderShareClass(shareClass){
-    return shareClass || 'Ordinary'
+    return shareClass || STRINGS.defaultShareClass
 }
-
 
 function renderIssue(action){
     const date = new Date(action.effectiveDate).toDateString();

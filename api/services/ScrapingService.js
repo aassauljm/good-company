@@ -659,7 +659,7 @@ function insertIntermediateActions(docs){
             results.push(removals);
             results.push(rest);
         }
-    })
+    });
 
     return results;
 }

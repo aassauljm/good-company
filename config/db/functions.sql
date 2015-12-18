@@ -121,7 +121,7 @@ CREATE OR REPLACE FUNCTION historical_holders(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
     WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
-        SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  10058
+        SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
         UNION ALL
         SELECT t.id, t."previousCompanyStateId", generation + 1
         FROM companystate t, prev_transactions tt
@@ -135,10 +135,16 @@ AS $$
     SELECT array_to_json(array_agg(row_to_json(qq) ORDER BY qq.name))
     FROM
         (SELECT
-            q.*,
-            (SELECT array_to_json(array_agg(row_to_json(s))) from parcels s where "holdingId" = q."lastHoldingId") as parcels
+            "personId",
+            "name",
+            "address",
+            "companyNumber",
+            bool_or("current") as "current",
+            (SELECT array_to_json(array_agg(row_to_json(s))) from parcels s where "holdingId" = ANY(ARRAY_AGG(q."lastHoldingId"))) as parcels,
+            format_iso_date(max("lastEffectiveDate")) as "lastEffectiveDate",
+        (SELECT format_iso_date(min("effectiveDate")) from transaction t join holding h on t.id = h."transactionId" where h.id = ANY(ARRAY_AGG(q."firstHoldingId"))) as "firstEffectiveDate"
             FROM (
-                 SELECT DISTINCT ON ("personId", "lastHoldingId")
+                 SELECT DISTINCT ON ("personId","holdingId")
                 "personId",
                 first_value(p.name) OVER wnd as name,
                 first_value(p."companyNumber") OVER wnd as "companyNumber",
@@ -146,8 +152,9 @@ AS $$
                 first_value(h."holdingId") OVER wnd as "holdingId",
                 first_value(h."name") OVER wnd as "holdingName",
                 first_value(h."id") OVER wnd as "lastHoldingId",
+                last_value(h."id") OVER wnd as "firstHoldingId",
                 first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
-                format_iso_date(t."effectiveDate") as "lastEffectiveDate",
+                t."effectiveDate" as "lastEffectiveDate",
                 generation = 0 as current
                 from prev_transactions pt
                 join companystate cs on pt.id = cs.id
@@ -156,9 +163,10 @@ AS $$
                 left outer join "holderJ" hj on h.id = hj."holdingId"
                 left outer join person p on hj."holderId" = p.id
                  WINDOW wnd AS (
-                   PARTITION BY "personId", h."holdingId" ORDER BY generation asc
+                   PARTITION BY "personId", h."holdingId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                  )
             ) as q
+            GROUP BY "personId", q.name, q."companyNumber", q.address
         ) as qq
 $$ LANGUAGE SQL STABLE;
 
