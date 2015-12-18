@@ -726,7 +726,7 @@ module.exports = {
     },
 
     getSearchResults: function(query){
-        return this.fetchSearchResults(query)
+        return ScrapingService.fetchSearchResults(query)
             .then(function(html){
                 const $ = cheerio.load(html);
                 return $('.LSRow.registered a, .LSRow.struckoff a, .LSRow.externaladministration a').map(function(){
