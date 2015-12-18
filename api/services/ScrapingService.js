@@ -236,7 +236,10 @@ const EXTRACT_DOCUMENT_MAP = {
         if(totalShares > 0){
             result.transactionType = Transaction.types.ISSUE;
             result.actions.map(a => {
-                a.transactionSubType = Transaction.types.ISSUE_TO;
+                if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
+                   a.transactionType === Transaction.types.AMEND){
+                    a.transactionSubType = Transaction.types.ISSUE_TO;
+                }
             })
         }
 
@@ -625,6 +628,42 @@ function inferDirectorshipActions(data, docs){
 }
 
 
+
+function insertIntermediateActions(docs){
+    const results = [];
+    // primarily split removeAllocations into amend to zero, then removeAllocation
+    docs.map((doc, i) => {
+        const removalActions = _.filter(doc.actions, a => {
+            return a.transactionType === Transaction.types.REMOVE_ALLOCATION;
+        });
+        if(!removalActions.length){
+            results.push(doc);
+        } else {
+            const removals = _.cloneDeep(doc);
+            removals.actions = removalActions;
+            const rest = _.cloneDeep(doc);
+            rest.actions = _.filter(doc.actions, a => {
+                return a.transactionType !== Transaction.types.REMOVE_ALLOCATION;
+            });
+            removals.actions.map(a => {
+                rest.actions.push({
+                    effectiveDate: a.effectiveDate,
+                    beforeHolders: a.holders,
+                    afterHolders: a.holders,
+                    beforeAmount: a.amount,
+                    afterAmount: 0,
+                    transactionType: Transaction.types.AMEND,
+                    transactionSubType: Transaction.types.REMOVE_ALLOCATION
+                })
+            });
+            results.push(removals);
+            results.push(rest);
+        }
+    })
+
+    return results;
+}
+
 module.exports = {
 
     fetch: function(companyNumber){
@@ -800,7 +839,7 @@ module.exports = {
 
     extraActions: function(data, docs){
         // This are INFERED actions
-        const results = inferDirectorshipActions(data, docs);
+        let results = inferDirectorshipActions(data, docs);
         return results;
     },
 
@@ -835,6 +874,7 @@ module.exports = {
         }, []);
 
         docs = _.sortByAll(docs, 'effectiveDate', (d)=>parseInt(d.documentId, 10)).reverse();
+        docs = insertIntermediateActions(docs);
         return docs;
     },
 

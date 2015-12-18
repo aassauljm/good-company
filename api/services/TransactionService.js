@@ -128,7 +128,7 @@ export const performInverseAmend = Promise.method(function(data, companyState, p
                 companyState.combineUnallocatedParcels(parcel);
                 companyState.subtractHoldings([newHolding], [{amount: data.afterAmount}]);
             }
-            transaction = Transaction.build({type: transactionType,  data: data, effectiveDate: effectiveDate});
+            transaction = Transaction.build({type: data.transactionSubType || transactionType,  data: data, effectiveDate: effectiveDate});
             return transaction.save();
         })
         .then(() => {
@@ -204,9 +204,9 @@ export const performInverseNewAllocation = Promise.method(function(data, company
 });
 
 export const performInverseRemoveAllocation = Promise.method(function(data, companyState, previousState, effectiveDate){
-    companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+    //companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
     const holding = Holding.buildDeep({holders: data.holders,
-        parcels: [{amount: data.amount, shareClass: data.shareClass}]});
+        parcels: [{amount: 0, shareClass: data.shareClass}]});
     // replace holders with look up
     holding.dataValues.holders = holding.dataValues.holders.map((h) => {
         return previousState.getHolderBy(h.get()) || h;
