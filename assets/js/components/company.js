@@ -382,6 +382,41 @@ export class CompanyTransactions extends React.Component {
     }
 }
 
+@connect((state, ownProps) => {
+    return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/shareholders']}
+})
+export class Shareholders extends React.Component {
+    static propTypes = {
+        data: PropTypes.object.isRequired,
+    };
+
+    key() {
+        return this.props.params.id
+    }
+
+    fetch() {
+        return this.props.dispatch(requestResource('/company/'+this.key()+'/shareholders'))
+    };
+
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+    render() {
+        const transactions = (this.props.data || {}).transactions;
+        if(!transactions){
+            return <div className="loading"></div>
+        }
+        return <div className="container">
+
+            </div>
+    }
+}
+
 @pureRender
 class ShareholdersPanel extends React.Component {
     static propTypes = {

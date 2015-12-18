@@ -294,7 +294,7 @@ describe('Transaction Service, inverse transactions', function() {
                     }, companyState, rootStateMultiple).should.eventually.be.rejected;
                 });
         });
-        it('amend holding with issue, fail due non matching value', function() {
+        it('amend holding with issue, success', function() {
             let prevState;
             return rootStateMultiple.buildPrevious()
                 .then(function(companyState){

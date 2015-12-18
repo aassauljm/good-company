@@ -73,7 +73,7 @@ module.exports = {
                 });
             },
             getTransactionHistory: function(){
-                return sequelize.query("select  company_state_history_json(:id) as transaction",
+                return sequelize.query("select company_state_history_json(:id) as transaction",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}})
                 .then(function(transactions){
@@ -85,7 +85,7 @@ module.exports = {
             },
 
             getFilteredTransactionHistory: function(types){
-                return sequelize.query("select  company_state_type_filter_history_json(:id, :filter) as transaction",
+                return sequelize.query("select company_state_type_filter_history_json(:id, :filter) as transaction",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId, filter: types}})
                 .then(function(transactions){
@@ -96,11 +96,19 @@ module.exports = {
                 });
             },
             getShareRegister: function(){
-                return sequelize.query("select  share_register(:id) as share_register",
+                return sequelize.query("select share_register(:id) as share_register",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}})
                 .then(function(register){
                     return {shareRegister: register[0].share_register};
+                });
+            },
+            getShareholders: function(){
+                return sequelize.query("select historical_holders(:id) as shareholders",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId}})
+                .then(function(register){
+                    return {shareholders: register[0].shareholders};
                 });
             },
             createPrevious: function(){

@@ -208,6 +208,9 @@ export const performInverseRemoveAllocation = Promise.method(function(data, comp
     const holding = Holding.buildDeep({holders: data.holders,
         parcels: [{amount: 0, shareClass: data.shareClass}]});
     // replace holders with look up
+    if(!holding){
+        throw new sails.config.exceptions.InvalidInverseOperation('Could not find holding for remove allocation documentId: ' +data.documentId)
+    }
     holding.dataValues.holders = holding.dataValues.holders.map((h) => {
         return previousState.getHolderBy(h.get()) || h;
     });

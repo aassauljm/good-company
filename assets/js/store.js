@@ -38,11 +38,11 @@ try{
 const createStoreWithMiddleware = __DEV__ ?
         compose(
             middleware,
-            // Provides support for DevTools:
-            DevTools.instrument(),
             // Lets you write ?debug_session=<name> in address bar to persist debug sessions
              // persistState('dev')
-            reduxReactRouter({ createHistory })
+            reduxReactRouter({ createHistory }),
+            // Provides support for DevTools:
+            DevTools.instrument()
         )(createStore)
         :
         compose(

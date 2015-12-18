@@ -122,6 +122,17 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+    shareholders: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                return company.getShareholders();
+            })
+            .then(function(holders) {
+                res.json(holders);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
     import: function(req, res) {
         // for now, just companies office
         var data, company, rootState, processedDocs;

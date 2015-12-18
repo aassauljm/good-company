@@ -116,39 +116,52 @@ $$ LANGUAGE SQL;
 -- for every person who has been a holder, get their latest details,
 -- where latest is defined as being in the most recent companyState generation.
 -- TODO: get the personIds from each join will ALL persons, in case they have
---       updated outside of the context of this company
+--       updated (after they were no longer holders) outside of the context of this company
 CREATE OR REPLACE FUNCTION historical_holders(companyStateId integer)
-    RETURNS SETOF JSON
-    AS $$
-WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
-    SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
-    UNION ALL
-    SELECT t.id, t."previousCompanyStateId", generation + 1
-    FROM companystate t, prev_transactions tt
-    WHERE t.id = tt."previousCompanyStateId"
-)
-SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q.name)) from
+RETURNS SETOF JSON
+AS $$
+    WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
+        SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  10058
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM companystate t, prev_transactions tt
+        WHERE t.id = tt."previousCompanyStateId"
+    ), parcels as (
+        SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
+        FROM "parcelJ" pj
+        LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
+        GROUP BY p."shareClass", pj."holdingId"
+    )
+    SELECT array_to_json(array_agg(row_to_json(qq) ORDER BY qq.name))
+    FROM
+        (SELECT
+            q.*,
+            (SELECT array_to_json(array_agg(row_to_json(s))) from parcels s where "holdingId" = q."lastHoldingId") as parcels
+            FROM (
+                 SELECT DISTINCT ON ("personId", "lastHoldingId")
+                "personId",
+                first_value(p.name) OVER wnd as name,
+                first_value(p."companyNumber") OVER wnd as "companyNumber",
+                first_value(p.address) OVER wnd as address,
+                first_value(h."holdingId") OVER wnd as "holdingId",
+                first_value(h."name") OVER wnd as "holdingName",
+                first_value(h."id") OVER wnd as "lastHoldingId",
+                first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
+                format_iso_date(t."effectiveDate") as "lastEffectiveDate",
+                generation = 0 as current
+                from prev_transactions pt
+                join companystate cs on pt.id = cs.id
+                join transaction t on cs."transactionId" = t.id
+                left outer join holding h on h."companyStateId" = pt.id
+                left outer join "holderJ" hj on h.id = hj."holdingId"
+                left outer join person p on hj."holderId" = p.id
+                 WINDOW wnd AS (
+                   PARTITION BY "personId", h."holdingId" ORDER BY generation asc
+                 )
+            ) as q
+        ) as qq
+$$ LANGUAGE SQL STABLE;
 
-    (SELECT DISTINCT ON ("personId") "personId",
-    first_value(p.name) OVER wnd as name,
-    first_value(p."companyNumber") OVER wnd as "companyNumber",
-    first_value(p.address) OVER wnd as address,
-    first_value(p.id) OVER wnd as id,
-    first_value(h."holdingId") OVER wnd as "lastHoldingId",
-    first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
-    format_iso_date(t."effectiveDate") as "lastEffectiveDate",
-    generation = 0 as current
-    from prev_transactions pt
-    join companystate cs on pt.id = cs.id
-    join transaction t on cs."transactionId" = t.id
-    left outer join holding h on h."companyStateId" = pt.id
-    left outer join "holderJ" hj on h.id = hj."holdingId"
-    left outer join person p on hj."holderId" = p.id
-     WINDOW wnd AS (
-       PARTITION BY "personId" ORDER BY generation asc
-       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
- )) as q;
-$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION holding_history(id integer)
     RETURNS SETOF transaction
@@ -207,7 +220,7 @@ from
     first_value(p."companyNumber") OVER wnd as "companyNumber",
     first_value(p.address) OVER wnd as address,
     first_value(pp.amount) OVER wnd as amount,
-     pp."shareClass" as  "shareClass",
+    pp."shareClass" as  "shareClass",
     first_value(h."holdingId") OVER wnd as "holdingId",
     first_value(h."name") OVER wnd as "holdingName",
     first_value(h."id") OVER wnd as "lastHoldingId",
