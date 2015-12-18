@@ -130,6 +130,9 @@ module.exports = {
                                 model: Transaction,
                                 as: 'transaction',
                             }]
+                        },{
+                            model: Transaction,
+                            as: 'transaction',
                         }]
                     },{
                         model: Parcel,

@@ -1,12 +1,12 @@
-var Promise = require("bluebird");
-var fs = Promise.promisifyAll(require("fs"));
-var moment = require('moment');
+import Promise from "bluebird";
+const fs = Promise.promisifyAll(require("fs"));
+import moment from 'moment';
 import chai from 'chai';
 const should = chai.should();
 
 
 describe('Transaction Service, inverse transactions', function() {
-    var rootStateSimple, initialStateSimple = {
+    let rootStateSimple, initialStateSimple = {
         companyName: 'dingbat limited',
         addressForService: 'china',
         holdings: [{
@@ -49,7 +49,7 @@ describe('Transaction Service, inverse transactions', function() {
                 name: 'mike'
             }],
             parcels: [{
-                amount: 1
+                amount: 3
             }]
         }]
     };
@@ -100,7 +100,7 @@ describe('Transaction Service, inverse transactions', function() {
         });
 
         it('renames company, success', function() {
-            var prevState;
+            let prevState;
             return rootStateSimple.buildPrevious()
                 .then(function(companyState){
                     prevState = companyState;
@@ -132,7 +132,7 @@ describe('Transaction Service, inverse transactions', function() {
         });
 
         it('renames company, success', function() {
-            var prevState;
+            let prevState;
             return rootStateSimple.buildPrevious()
                 .then(function(companyState){
                     prevState = companyState;
@@ -164,7 +164,7 @@ describe('Transaction Service, inverse transactions', function() {
         });
 
         it('changes address, success', function() {
-            var prevState;
+            let prevState;
             return rootStateSimple.buildPrevious()
                 .then(function(companyState){
                     prevState = companyState;
@@ -203,7 +203,7 @@ describe('Transaction Service, inverse transactions', function() {
         });
 
         it('change holding, success', function() {
-            var prevState, date = new Date();
+            let prevState, date = new Date();
             return rootStateSimple.buildPrevious()
                 .then(function(companyState){
                     prevState = companyState;
@@ -228,7 +228,7 @@ describe('Transaction Service, inverse transactions', function() {
 
     describe('change holder transactions', function() {
         it('changes a holder, confirms all holdings updated', function() {
-            var prevState;
+            let prevState;
             return rootStateMultiple.buildPrevious()
                 .then(function(companyState){
                     prevState = companyState;
@@ -292,6 +292,26 @@ describe('Transaction Service, inverse transactions', function() {
                         beforeAmount: 0,
                         afterAmount: 2
                     }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                });
+        });
+        it('amend holding with issue, fail due non matching value', function() {
+            let prevState;
+            return rootStateMultiple.buildPrevious()
+                .then(function(companyState){
+                    prevState = companyState;
+                    return TransactionService.performInverseAmend({
+                        transactionType: Transaction.types.ISSUE_TO,
+                        afterHolders: [{name: 'mike'}],
+                        beforeAmount: 0,
+                        afterAmount: 1
+                    }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
+                })
+                .then(function(){
+                    return rootStateMultiple.reload();
+                })
+                .then(function(){
+                    const holding = rootStateMultiple.getMatchingHolding([{name: 'mike'}], [{amount: 1}]);
+                    holding.transaction.type.should.be.equal(Transaction.types.ISSUE_TO);
                 });
         });
     });
