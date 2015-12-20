@@ -560,7 +560,6 @@ export class CompanyHistory extends React.Component {
                     <dt >Entity Type</dt>
                     <dd >{current.entityType}</dd>
 
-
                     { current.registeredCompanyAddress && <dt>Company Address</dt> }
                     { current.registeredCompanyAddress && <dd>{current.registeredCompanyAddress }</dd> }
 
@@ -631,12 +630,13 @@ export default class Company extends React.Component {
         if(!current){
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
+        const companiesOfficeUrl = `http://www.business.govt.nz/companies/app/ui/pages/companies/${current.companyNumber}`;
         return <div>
                 <div className="container">
                 <div className="well">
                     <h1>{current.companyName}</h1>
-                    <h5>#{current.companyNumber}, {current.companyStatus}</h5>
-                     <h5>{new Date(current.transaction.effectiveDate).toDateString() }</h5>
+                    { current.companyNumber && <h5><a target="_blank" href={ companiesOfficeUrl }>#{current.companyNumber}, {current.companyStatus}</a></h5> }
+                    <h5>As at {new Date(current.transaction.effectiveDate).toDateString() }</h5>
                 </div>
                 { this.props.children && <ul className="pager">
                             <li><Link className="nav-link" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>

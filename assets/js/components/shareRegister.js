@@ -10,20 +10,22 @@ function renderShareClass(shareClass){
     return shareClass || STRINGS.defaultShareClass
 }
 
+// all the same
 function renderIssue(action){
     const date = new Date(action.effectiveDate).toDateString();
-    return `${action.data.amount} ${renderShareClass(action.data.shareClass)} on ${date}`
+    return `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
 
 function renderTransferTo(action){
     const date = new Date(action.effectiveDate).toDateString();
-    return  `${action.data.amount} ${renderShareClass(action.data.shareClass)} on ${date}`
+    return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
 
 function renderTransferFrom(action){
     const date = new Date(action.effectiveDate).toDateString();
-    return  `${action.data.afterAmount} ${renderShareClass(action.data.shareClass)} on ${date}`
+    return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
+
 
 class RenderActions extends React.Component {
 
@@ -57,12 +59,13 @@ export class ShareRegister extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
-    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'restrictions', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
+    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sum', 'restrictions', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
+    wideFields = {'name': 1, 'address': 1, 'issueHistory': 1, 'repurchaseHistory': 1, 'transferHistoryFrom': 1, 'transferHistoryTo': 1};
     key() {
         return this.props.params.id
     };
 
-fetch() {
+    fetch() {
         return this.props.dispatch(requestResource('/company/'+this.key()+'/share_register'))
     };
 
@@ -82,7 +85,11 @@ fetch() {
             case 'shareClass':
                 return renderShareClass(data);
             case 'current':
-                return data ? 'Yes': 'No'
+                return data ? 'Yes': 'No';
+            case 'amount':
+            case 'sum':
+                console.log(data)
+                return numberWithCommas(data);
             default:
                 return data;
         }
@@ -90,10 +97,10 @@ fetch() {
     }
 
     renderTable(shareRegister) {
-        return <table className="table table-responsive">
+        return <table className="table share-register">
             <thead>
                 <tr>{ this.fields.map((f, i) => {
-                    return <th key={i}>{STRINGS.shareRegister[f]}</th>
+                    return <th className={this.wideFields[f] ? 'wide' : null } key={i}>{STRINGS.shareRegister[f]}</th>
                 })}</tr>
             </thead>
             <tbody>
@@ -119,7 +126,9 @@ fetch() {
                         </div>
                     </div>
                     <div className="container-fluid">
+                        <div className="table-responsive">
                             {this.renderTable(shareRegister)}
+                            </div>
                     </div>
                 </div>
     }

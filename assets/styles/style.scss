@@ -142,3 +142,16 @@ a, a:hover{
     }
 }
 
+//shareregister
+
+.share-register.table{
+    ul{
+        padding-left:0;
+        li{
+            list-style:none;
+        }
+    }
+    .wide{
+        min-width: 20em;
+    }
+}

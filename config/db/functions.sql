@@ -41,6 +41,7 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
     SELECT id from find_state where "previousCompanyStateId" is null;
 $$ LANGUAGE SQL;
 
+
 -- So that we get dates in the same format as sequelize
 CREATE OR REPLACE FUNCTION format_iso_date(d timestamp with time zone)
     RETURNS text
@@ -48,22 +49,23 @@ CREATE OR REPLACE FUNCTION format_iso_date(d timestamp with time zone)
     SELECT to_char($1 at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
 $$ LANGUAGE SQL;
 
+
 -- Summary of all transactions in json, used for client tables
 CREATE OR REPLACE FUNCTION company_state_history_json(companyStateId integer)
     RETURNS SETOF JSON
     AS $$
-WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") as (
+WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
     SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", t."transactionId"
-    FROM companystate t, prev_transactions tt
+    FROM companystate t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
 SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
     (select array_to_json(array_agg(row_to_json(d))) from (
     select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
     from transaction tt where t.id = tt."parentTransactionId"
-    ) as d) as "subTransactions" from prev_transactions pt
+    ) as d) as "subTransactions" from prev_company_states pt
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;
@@ -75,18 +77,18 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION company_state_type_filter_history_json(companyStateId integer, types text[])
     RETURNS SETOF JSON
     AS $$
-WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") as (
+WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
     SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", t."transactionId"
-    FROM companystate t, prev_transactions tt
+    FROM companystate t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
 SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
     (select array_to_json(array_agg(row_to_json(d))) from (
     select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
     from transaction tt where t.id = tt."parentTransactionId"
-    ) as d) as "subTransactions" from prev_transactions pt
+    ) as d) as "subTransactions" from prev_company_states pt
     inner join transaction t on pt."transactionId" = t.id
     WHERE t.type = any($2::enum_transaction_type[])
     ORDER BY t."effectiveDate" DESC) as q;
@@ -97,17 +99,17 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION transaction_summary(companyStateId integer)
     RETURNS JSON
     AS $$
-WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "transactionId") as (
+WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
     SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", t."transactionId"
-    FROM companystate t, prev_transactions tt
+    FROM companystate t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
 SELECT array_to_json(array_agg(row_to_json(q))) from (
     SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate",
     (select count(*) from transaction tt where t.id = tt."parentTransactionId") as "actionCount"
-    from prev_transactions pt
+    from prev_company_states pt
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;
@@ -120,11 +122,11 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION historical_holders(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
-    WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
         SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
         UNION ALL
         SELECT t.id, t."previousCompanyStateId", generation + 1
-        FROM companystate t, prev_transactions tt
+        FROM companystate t, prev_company_states tt
         WHERE t.id = tt."previousCompanyStateId"
     ), parcels as (
         SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
@@ -159,7 +161,7 @@ AS $$
                 first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
                 first_value(t."effectiveDate") OVER wnd as "lastEffectiveDate",
                 generation = 0 as current
-                from prev_transactions pt
+                from prev_company_states pt
                 join companystate cs on pt.id = cs.id
                 join transaction t on cs."transactionId" = t.id
                 left outer join holding h on h."companyStateId" = pt.id
@@ -177,18 +179,18 @@ $$ LANGUAGE SQL STABLE;
 CREATE OR REPLACE FUNCTION holding_history(id integer)
     RETURNS SETOF transaction
     AS $$
-WITH RECURSIVE prev_transactions(id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
+WITH RECURSIVE prev_holdings(id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
     SELECT t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
     FROM companystate as t
     left outer JOIN holding h on h."companyStateId" = t.id
     where h.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
-    FROM companystate t, prev_transactions tt
+    FROM companystate t, prev_holdings tt
     left outer JOIN holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
     WHERE t.id = tt."previousCompanyStateId"
    )
-SELECT t.* from transaction t join prev_transactions pt on t.id = pt."transactionId";
+SELECT t.* from transaction t join prev_holdings pt on t.id = pt."transactionId";
 $$ LANGUAGE SQL;
 
 
@@ -203,13 +205,24 @@ $$ LANGUAGE SQL STABLE;
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
-WITH RECURSIVE prev_transactions(id, "previousCompanyStateId",  generation) as (
+WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
     SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", generation + 1
-    FROM companystate t, prev_transactions tt
+    FROM companystate t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
-), parcels as (
+), prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
+    SELECT h.id as "startId", t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
+    FROM companystate as t
+    left outer JOIN holding h on h."companyStateId" = t.id
+    UNION ALL
+    SELECT "startId", t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
+    FROM companystate t, prev_holdings tt
+    left outer JOIN holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
+    WHERE t.id = tt."previousCompanyStateId"
+ ), prev_holding_transactions as (
+    SELECT t.*, "startId" FROM transaction t join prev_holdings pt on t.id = pt."transactionId"
+ ), parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
     FROM "parcelJ" pj
     LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
@@ -219,11 +232,27 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 
 FROM (
 SELECT *,
-      ( SELECT * FROM holding_history_json("lastHoldingId", ARRAY['ISSUE_TO'])  as "issueHistory"),
-      holding_history_json("lastHoldingId", ARRAY['REDEMPTION', 'REPURCHASE'])  as "repurchaseHistory",
-      holding_history_json("lastHoldingId", ARRAY['TRANSFER_TO'])  as "transferHistoryTo",
-      holding_history_json("lastHoldingId", ARRAY['TRANSFER_FROM'])  as "transferHistoryFrom"
-from
+    ( SELECT array_to_json(array_agg(row_to_json(qq)))
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO']::enum_transaction_type[]))  qq)
+        as "issueHistory",
+    ( SELECT array_to_json(array_agg(row_to_json(qq)))
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['REDEMPTION', 'REPURCHASE']::enum_transaction_type[]))  qq)
+         as "repurchaseHistory",
+    ( SELECT array_to_json(array_agg(row_to_json(qq)))
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]))  qq)
+        as "transferHistoryTo",
+    ( SELECT array_to_json(array_agg(row_to_json(qq)))
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]))  qq)
+        as "transferHistoryFrom",
+    ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO']::enum_transaction_type[]))  qq)
+        as "sum"
+FROM
 
     (SELECT DISTINCT ON ("personId", "lastHoldingId", "shareClass")
     "personId",
@@ -238,7 +267,7 @@ from
     first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
     format_iso_date(t."effectiveDate") as "lastEffectiveDate",
     generation = 0 as current
-    from prev_transactions pt
+    from prev_company_states pt
     join companystate cs on pt.id = cs.id
     join transaction t on cs."transactionId" = t.id
     left outer join holding h on h."companyStateId" = pt.id
@@ -251,4 +280,6 @@ from
     ) as q
 
 $$ LANGUAGE SQL STABLE;
+
+select * from share_register('10048');
 
