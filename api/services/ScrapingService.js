@@ -15,7 +15,7 @@ const DOCUMENT_TYPES = {
     ANNUAL_RETURN: 'ANNUAL_RETURN',
     ADDRESS_CHANGE: 'ADDRESS_CHANGE',
     INCORPORATION: 'INCORPORATION',
-    //PARTICULARS_OF_DIRECTOR: 'PARTICULARS_OF_DIRECTOR',
+    PARTICULARS_OF_DIRECTOR: 'PARTICULARS_OF_DIRECTOR',
     UNKNOWN: 'UNKNOWN',
 };
 
@@ -346,13 +346,31 @@ const EXTRACT_DOCUMENT_MAP = {
     },
 
     [DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR]: ($) => {
-        return {actions: $('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
+        const transactionType = ($el) => {
+            if($el.is('#amendmentConfirm')){
+                return Transaction.types.UPDATE_DIRECTOR;
+            }
+            else if($el.is('#ceaseConfirm')){
+                return Transaction.types.REMOVE_DIRECTOR;
+            }
+            return Transaction.types.NEW_DIRECTOR;
+        }
+        return {actions: [
+            ...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
             return {
-                transactionType: $(el).is('#ceaseConfirm') ? Transaction.types.REMOVE_DIRECTOR : Transaction.types.NEW_DIRECTOR,
+                transactionType: transactionType($(el)),
                 name: cleanString($(el).find('.directorName').text()),
-                address: cleanString($(el).find('.directorAddress').text()),
+                address: cleanString($(el).find(' .directorAddress').text()),
                 effectiveDate: moment(cleanString($(el).find('.directorCeasedDate.value, .directorAppointmentDate').text()), 'DD/MM/YYYY').toDate(),
-        }}).get()};
+        }}).get(),
+            ...$('#amendmentConfirm').map((i, el)=>{
+            return {
+                transactionType: Transaction.types.UPDATE_DIRECTOR,
+                beforeName: cleanString($(el).find('.before .directorName').text()),
+                beforeAddress: cleanString($(el).find('.before .directorAddress').text()),
+                afterName: cleanString($(el).find('.after .directorName').text()),
+                afterAddress: cleanString($(el).find('.after .directorAddress').text())
+        }}).get()]};
     },
 
     [DOCUMENT_TYPES.INCORPORATION]: ($) => {
@@ -522,7 +540,7 @@ const EXTRACT_DOCUMENT_MAP = {
 
 const DOCUMENT_TYPE_MAP = {
     'Particulars of Director':{
-        //type: DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR
+        type: DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR
     },
     'Particulars of Shareholding': {
         type: DOCUMENT_TYPES.PARTICULARS

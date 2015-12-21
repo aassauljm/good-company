@@ -547,6 +547,18 @@ module.exports = {
                 return this;
             },
 
+            replaceDirector: function(currentDirector, newDirector, transaction){
+                var index = _.findIndex(this.dataValues.directors, function(d, i){
+                        return d.person.isEqual(currentDirector);
+                });
+                if(index > -1){
+                    holding.dataValues.directors[i].person = holding.dataValues.directors[i].person.replaceWith(newDirector);
+                    if(transaction){
+                        holding.dataValues.directors[i].person.dataValues.transaction =transaction
+                    }
+                }
+                return this;
+            },
 
             getMatchingHolding: function(holders, parcelHint){
                 return _.find(this.dataValues.holdings, function(holding){

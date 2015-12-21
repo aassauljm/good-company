@@ -164,7 +164,6 @@ export const performInverseHolderChange = function(data, companyState, previousS
         .then(()=>{
             companyState.replaceHolder(data.afterHolder, data.beforeHolder);
             return transaction.save();
-
         })
         .then(function(){
             // find previousState person instance, attach mutating transaction
@@ -277,6 +276,21 @@ export const performRemoveDirector = Promise.method(function(data, companyState,
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 });
 
+export function performUpdateDirector(data, companyState, previousState, effectiveDate){
+    // find them as a share holder?
+    const transaction = Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
+    return transaction.save()
+        .then(() => {
+            companyState.replaceDirector({name: data.afterName, address: normalizeAddress(data.afterAddress)},{name: data.beforeName, address: normalizeAddress(data.beforeAddress)});
+            return _.find(previousState.dataValues.directors, function(d, i){
+                return d.person.isEqual({name: data.afterName, address: data.afterAddress}) || d.person.isEqual({name: data.afterName, address: normalizeAddress(data.afterAddress)});
+            }).setTransaction(transaction)
+        })
+        .then(() => {
+            return transaction;
+        })
+
+};
 
 /**
     Seed is a special cause, it doesn't care about previousState
@@ -301,6 +315,7 @@ export function performInverseTransaction(data, company){
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performInverseAddressChange,
         [Transaction.types.NEW_DIRECTOR]: TransactionService.performNewDirector,
         [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performRemoveDirector,
+        [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performUpdateDirector,
         [Transaction.types.ANNUAL_RETURN]: TransactionService.validateAnnualReturn
     };
     if(!data.actions){
