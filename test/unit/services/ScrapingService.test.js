@@ -223,7 +223,7 @@ describe('Scraping Service', function() {
                 })
                 .then(function(){
                     //return company.getRootCompanyState()
-                    return company.getPreviousCompanyState(2)
+                    return company.getPreviousCompanyState(3)
                 })
                 .then(function(state){
                     state.holdings.length.should.be.equal(2);

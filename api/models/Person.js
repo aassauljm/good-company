@@ -62,8 +62,8 @@ module.exports = {
             isEqual: function(other){
                 // undefined !== null
                 return this.dataValues.name === other.name &&
-                    this.dataValues.companyNumber === (other.companyNumber || null) &&
-                    this.dataValues.address === (other.address || null);
+                    (this.dataValues.companyNumber || null) === (other.companyNumber || null) &&
+                    (this.dataValues.address || null) === (other.address || null);
             },
             replaceWith: function(other){
                 return Person.build(_.merge(other, {personId: this.dataValues.personId}));

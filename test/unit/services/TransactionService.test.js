@@ -119,7 +119,7 @@ describe('Transaction Service, inverse transactions', function() {
 
     describe('Change address transaction', function() {
 
-        it('renames company, fail validation (wrong current address)', function() {
+        it('Change address, fail validation (wrong current address)', function() {
             return rootStateSimple.buildPrevious()
                 .then(function(companyState){
                     return TransactionService.performInverseAddressChange({
@@ -131,7 +131,7 @@ describe('Transaction Service, inverse transactions', function() {
                 })
         });
 
-        it('renames company, success', function() {
+        it('Change address, success', function() {
             let prevState;
             return rootStateSimple.buildPrevious()
                 .then(function(companyState){

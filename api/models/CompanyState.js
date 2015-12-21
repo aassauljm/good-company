@@ -222,9 +222,13 @@ module.exports = {
                 obj = _.cloneDeep(obj)
                 return Promise.each(obj.holdings, function(holding){
                     return Promise.map(holding.holders || [], function(holder){
-                        return Person.findOrCreate({where: holder, defaults: holder})
-                            .spread(function(holder){
-                                return holder;
+                        return AddressService.normalizeAddress(holder.address)
+                            .then(function(address){
+                                holder = _.merge({}, holder, {address: address})
+                                return Person.findOrCreate({where: holder, defaults: holder})
+                                    .spread(function(holder){
+                                        return holder;
+                                    });
                             });
                     })
                     .then(function(holders){
@@ -233,10 +237,14 @@ module.exports = {
                 })
                 .then(function(){
                      return Promise.each(obj.directors || [], function(director){
-                        return Person.findOrCreate({where: director.person, defaults: director.person})
-                            .spread(function(person){
-                                director.person = person;
-                            })
+                        return AddressService.normalizeAddress(director.person.address)
+                            .then(function(address){
+                                director.person = _.merge({}, director.person, {address: address});
+                                return Person.findOrCreate({where: director.person, defaults: director.person})
+                                .spread(function(person){
+                                    director.person = person;
+                                })
+                            });
                      });
                 })
                 .then(function(){
@@ -552,9 +560,9 @@ module.exports = {
                         return d.person.isEqual(currentDirector);
                 });
                 if(index > -1){
-                    holding.dataValues.directors[i].person = holding.dataValues.directors[i].person.replaceWith(newDirector);
+                    this.dataValues.directors[index].person = this.dataValues.directors[index].person.replaceWith(newDirector);
                     if(transaction){
-                        holding.dataValues.directors[i].person.dataValues.transaction =transaction
+                        thisg.dataValues.directors[index].person.dataValues.transaction =transaction
                     }
                 }
                 return this;
@@ -614,9 +622,11 @@ module.exports = {
                 });
                 return this;
             },
+
             subtractUnallocatedParcels: function(parcel){
                 return this.combineUnallocatedParcels(parcel, true);
             },
+
             stats: function(){
                 var stats = {};
                 return Promise.join(this.totalAllocatedShares(), this.totalUnallocatedShares(), this.getTransactionSummary(),
@@ -630,6 +640,20 @@ module.exports = {
             }
 
         },
-        hooks: {}
+        hooks: {
+            beforeCreate: function(companyState){
+                return Promise.join(
+                                    AddressService.normalizeAddress(companyState.registeredCompanyAddress),
+                                    AddressService.normalizeAddress(companyState.addressForShareRegister),
+                                    AddressService.normalizeAddress(companyState.addressForService))
+                    .spread(function(registeredCompanyAddress, addressForShareRegister, addressForService){
+                        companyState.registeredCompanyAddress = registeredCompanyAddress;
+                        companyState.addressForShareRegister = addressForShareRegister;
+                        companyState.addressForService = addressForService;
+                    })
+
+            }
+
+        }
     }
 };

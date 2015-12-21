@@ -2,20 +2,13 @@ const _ = require('lodash');
 const moment = require('moment');
 const Promise = require('bluebird');
 
-
-function normalizeAddress(address){
-    address = (address || '').replace(/^C\/- /, '').replace(/, \d{4,5}, /, ', ');
-    return address.replace(/, NZ$/, ', New Zealand')
-
-}
-
 export function validateAnnualReturn(data, companyState, effectiveDate){
+    const state = companyState.toJSON();
     return companyState.stats()
         .then((stats) => {
             if(stats.totalShares != data.totalShares){
                 throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +documentId);
             }
-            const state = companyState.toJSON();
             // extract address and name for directors
             const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directors, (d)=>_.pick(d.person, 'name'/*, 'address'*/)), 'name'));
             const expectedDirectors = JSON.stringify(_.sortBy(_.map(data.directors, (d)=>_.pick(d, 'name'/*, 'address'*/)), 'name'));
@@ -40,13 +33,19 @@ export function validateAnnualReturn(data, companyState, effectiveDate){
                 sails.log.error(JSON.stringify(expectedHoldings))
                 throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match, documentId: ' +data.documentId);
             }
-            if(normalizeAddress(state.registeredCompanyAddress) !== normalizeAddress(data.registeredCompanyAddress) ||
-                 normalizeAddress(state.addressForService) !== normalizeAddress(data.addressForService)){
-                sails.log.error(state.registeredCompanyAddress, data.registeredCompanyAddress)
-                sails.log.error(state.addressForService, data.addressForService)
+            return Promise.join(
+                         AddressService.normalizeAddress(data.registeredCompanyAddress),
+                         AddressService.normalizeAddress(data.addressForService)
+                         )
+            })
+        .spread((registeredCompanyAddress, addressForService) => {
+             if(state.registeredCompanyAddress !== registeredCompanyAddress ||
+                 state.addressForService !== addressForService){
+                sails.log.error(state.registeredCompanyAddress, registeredCompanyAddress)
+                sails.log.error(state.addressForService, addressForService)
                 throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match, documentId: ' +data.documentId);
-            }
 
+             }
         });
 };
 
@@ -159,15 +158,19 @@ export function performInverseHoldingChange(data, companyState, previousState, e
 };
 
 export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate){
+    const normalizedData = _.cloneDeep(data);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-    return Promise.resolve({})
-        .then(()=>{
-            companyState.replaceHolder(data.afterHolder, data.beforeHolder);
+    return Promise.join(AddressService.normalizeAddress(data.afterHolder.address),
+                        AddressService.normalizeAddress(data.beforeHolder.address))
+        .spread((afterAddress, beforeAddress) => {
+            normalizedData.afterHolder.address = afterAddress;
+            normalizedData.beforeHolder.address = beforeAddress;
+            companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder);
             return transaction.save();
         })
         .then(function(){
             // find previousState person instance, attach mutating transaction
-            const holder = previousState.getHolderBy(data.afterHolder);
+            const holder = previousState.getHolderBy(normalizedData.afterHolder);
             holder.setTransaction(transaction);
             return holder.save();
         })
@@ -240,16 +243,24 @@ export const performInverseNameChange = Promise.method(function(data, companySta
 });
 
 export function validateInverseAddressChange(data, companyState, effectiveDate){
-    if(normalizeAddress(data.newAddress) !== normalizeAddress(companyState[data.field])){
-        throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected name, documentId: ' +data.documentId)
-    }
+    return AddressService.normalizeAddress(data.newAddress)
+    .then((newAddress) => {
+        if(newAddress !== companyState[data.field]){
+            throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected name, documentId: ' +data.documentId)
+        }
+    })
 }
 
-export const performInverseAddressChange = Promise.method(function(data, companyState, previousState, effectiveDate){
-    validateInverseAddressChange(data, companyState);
-    companyState.set(data.field, data.previousAddress);
-    return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-});
+export function performInverseAddressChange(data, companyState, previousState, effectiveDate){
+    return validateInverseAddressChange(data, companyState)
+    .then(function(){
+        return AddressService.normalizeAddress(data.previousAddress);
+    })
+    .then((previousAddress) => {
+        companyState.set(data.field, previousAddress);
+        return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    });
+};
 
 export function validateNewDirector(data, companyState){
     const director = _.find(companyState.dataValues.directors, (d)=> {
@@ -268,23 +279,29 @@ export const performNewDirector = Promise.method(function(data, companyState, pr
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 });
 
-export const performRemoveDirector = Promise.method(function(data, companyState, previousState, effectiveDate){
+export function performRemoveDirector(data, companyState, previousState, effectiveDate){
     // find them as a share holder?
-    companyState.dataValues.directors.push(Director.build({
-        appointment: effectiveDate, person: {name: data.name, address: data.address}},
-        {include: [{model: Person, as: 'person'}]}));
-    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
-});
+    return AddressService.normalizeAddress(data.address)
+        .then(address => {
+            companyState.dataValues.directors.push(Director.build({
+            appointment: effectiveDate, person: {name: data.name, address: address}},
+            {include: [{model: Person, as: 'person'}]}));
+        return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
+    });
+}
 
 export function performUpdateDirector(data, companyState, previousState, effectiveDate){
     // find them as a share holder?
     const transaction = Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
     return transaction.save()
         .then(() => {
-            companyState.replaceDirector({name: data.afterName, address: normalizeAddress(data.afterAddress)},{name: data.beforeName, address: normalizeAddress(data.beforeAddress)});
+            return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
+        })
+        .spread((afterAddress, beforeAddress) => {
+            companyState.replaceDirector({name: data.afterName, address: afterAddress},{name: data.beforeName, address: beforeAddress});
             return _.find(previousState.dataValues.directors, function(d, i){
-                return d.person.isEqual({name: data.afterName, address: data.afterAddress}) || d.person.isEqual({name: data.afterName, address: normalizeAddress(data.afterAddress)});
-            }).setTransaction(transaction)
+                return d.person.isEqual({name: data.afterName, address: afterAddress});
+            }).person.setTransaction(transaction)
         })
         .then(() => {
             return transaction;

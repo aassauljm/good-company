@@ -356,13 +356,14 @@ const EXTRACT_DOCUMENT_MAP = {
             return Transaction.types.NEW_DIRECTOR;
         }
         return {actions: [
-            ...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
+            // removing, instead getting info from summary
+            /*...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
             return {
                 transactionType: transactionType($(el)),
                 name: cleanString($(el).find('.directorName').text()),
                 address: cleanString($(el).find(' .directorAddress').text()),
                 effectiveDate: moment(cleanString($(el).find('.directorCeasedDate.value, .directorAppointmentDate').text()), 'DD/MM/YYYY').toDate(),
-        }}).get(),
+        }}).get(),*/
             ...$('#amendmentConfirm').map((i, el)=>{
             return {
                 transactionType: Transaction.types.UPDATE_DIRECTOR,
