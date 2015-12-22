@@ -559,11 +559,16 @@ module.exports = {
                 var index = _.findIndex(this.dataValues.directors, function(d, i){
                         return d.person.isEqual(currentDirector);
                 });
+
                 if(index > -1){
-                    this.dataValues.directors[index].person = this.dataValues.directors[index].person.replaceWith(newDirector);
+                    this.dataValues.directors[index].personId = null;
+                    this.dataValues.directors[index].dataValues.person = this.dataValues.directors[index].dataValues.person.replaceWith(newDirector);
                     if(transaction){
-                        thisg.dataValues.directors[index].person.dataValues.transaction =transaction
+                        this.dataValues.directors[index].person.dataValues.transaction =transaction
                     }
+                }
+                else{
+                    throw new sails.config.exceptions.InvalidInverseOperation('Unknown director to replace');
                 }
                 return this;
             },

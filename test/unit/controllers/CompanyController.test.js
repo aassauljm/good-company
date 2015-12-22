@@ -89,9 +89,24 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/history/1')
                 .expect(400, done);
         });
-
-
     });
+
+    describe.skip('Test import from companies office, pew holdings', function(){
+        var req, companyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/239639')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+    });
+
     describe('Test import and previous state', function(){
         var req, companyId;
         it('should login successfully', function(done) {

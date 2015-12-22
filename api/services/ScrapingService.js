@@ -683,7 +683,7 @@ function insertIntermediateActions(docs){
     return results;
 }
 
-module.exports = {
+const ScrapingService = {
 
     fetch: function(companyNumber){
         const url = 'https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/detail';
@@ -830,7 +830,7 @@ module.exports = {
                 .then(function(data){
                     return {text: data.text, documentId: document.documentId}
                 })
-        }, {concurrency: 3});
+        }, {concurrency: 5});
     },
 
     writeDocumentSummaries: function(data){
@@ -841,7 +841,9 @@ module.exports = {
             });
         });
     },
-
+    writeRootDocument: function(companyNumber, data){
+        return fs.writeFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', data.text, 'utf-8');
+    },
     processDocument: function(html, info={}){
         sails.log.verbose('Processing file ', info.documentId)
         const $ = cheerio.load(html);
@@ -1008,5 +1010,6 @@ module.exports = {
         sails.log.verbose('Parsed company: ', result);
         return result
     }
+};
 
-}
+export default ScrapingService;

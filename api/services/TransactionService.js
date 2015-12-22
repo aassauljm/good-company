@@ -298,7 +298,7 @@ export function performUpdateDirector(data, companyState, previousState, effecti
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            companyState.replaceDirector({name: data.afterName, address: afterAddress},{name: data.beforeName, address: beforeAddress});
+            companyState.replaceDirector({name: data.afterName, address: afterAddress}, {name: data.beforeName, address: beforeAddress});
             return _.find(previousState.dataValues.directors, function(d, i){
                 return d.person.isEqual({name: data.afterName, address: afterAddress});
             }).person.setTransaction(transaction)
@@ -306,6 +306,10 @@ export function performUpdateDirector(data, companyState, previousState, effecti
         .then(() => {
             return transaction;
         })
+        .catch(() => {
+            sails.log.error(JSON.stringify(previousState.toJSON().directors, null, 4));
+            throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
+        });
 
 };
 
