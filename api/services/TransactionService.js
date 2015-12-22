@@ -39,8 +39,8 @@ export function validateAnnualReturn(data, companyState, effectiveDate){
                          )
             })
         .spread((registeredCompanyAddress, addressForService) => {
-             if(state.registeredCompanyAddress !== registeredCompanyAddress ||
-                 state.addressForService !== addressForService){
+             if(!AddressService.compareAddresses(state.registeredCompanyAddress, registeredCompanyAddress) ||
+                 !AddressService.compareAddresses(state.addressForService, addressForService)){
                 sails.log.error(state.registeredCompanyAddress, registeredCompanyAddress)
                 sails.log.error(state.addressForService, addressForService)
                 throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match, documentId: ' +data.documentId);
@@ -245,7 +245,7 @@ export const performInverseNameChange = Promise.method(function(data, companySta
 export function validateInverseAddressChange(data, companyState, effectiveDate){
     return AddressService.normalizeAddress(data.newAddress)
     .then((newAddress) => {
-        if(newAddress !== companyState[data.field]){
+        if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
             throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected name, documentId: ' +data.documentId)
         }
     })

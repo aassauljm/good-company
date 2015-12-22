@@ -107,6 +107,22 @@ describe('Company Controller', function() {
         });
     });
 
+    describe.skip('Test import from companies office, private health care limited ', function(){
+        var req, companyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/547018')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+    });
+
     describe('Test import and previous state', function(){
         var req, companyId;
         it('should login successfully', function(done) {
