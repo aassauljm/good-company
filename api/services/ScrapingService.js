@@ -905,6 +905,16 @@ const ScrapingService = {
             return acc;
         }, []);
 
+        /*const transactionOrder = {
+            [Transaction.types.HOLDER_CHANGE]: 1
+        }
+
+        // prioritize certain actions
+        docs.forEach((doc) => {
+            doc.actions = _.sortByAll(doc.actions, (a) => transactionOrder[a.transactionType] || 1000)
+        })*/
+
+
         docs = _.sortByAll(docs,
                            'effectiveDate',
                            (d) => parseInt(d.documentId, 10)).reverse();

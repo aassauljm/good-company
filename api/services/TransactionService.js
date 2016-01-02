@@ -127,6 +127,13 @@ export const performInverseAmend = Promise.method(function(data, companyState, p
                 companyState.combineUnallocatedParcels(parcel);
                 companyState.subtractHoldings([newHolding], [{amount: data.afterAmount}]);
             }
+            const current = companyState.getMatchingHolding(data.afterHolders)
+
+            // If holders have changed too
+            if(!current.holdersMatch({holders: data.beforeHolders})){
+                companyState.mutateHolders(current, data.beforeHolders);
+            }
+
             transaction = Transaction.build({type: data.transactionSubType || transactionType,  data: data, effectiveDate: effectiveDate});
             return transaction.save();
         })

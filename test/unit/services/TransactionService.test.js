@@ -267,6 +267,7 @@ describe('Transaction Service, inverse transactions', function() {
                     return TransactionService.performInverseAmend({
                         transactionType: Transaction.types.ISSUE_TO,
                         afterHolders: [{name: 'mike'}, {name: 'cindy'}],
+                        beforeHolders: [{name: 'mike'}, {name: 'cindy'}],
                         beforeAmount: 0,
                         afterAmount: 1
                     }, companyState, rootStateMultiple).should.eventually.be.rejected;
@@ -278,6 +279,7 @@ describe('Transaction Service, inverse transactions', function() {
                     return TransactionService.performInverseAmend({
                         transactionType: Transaction.types.ISSUE_TO,
                         afterHolders: [{name: 'mike'}],
+                        beforeHolders: [{name: 'mike'}],
                         beforeAmount: -1,
                         afterAmount: 1
                     }, companyState, rootStateMultiple).should.eventually.be.rejected;
@@ -289,6 +291,7 @@ describe('Transaction Service, inverse transactions', function() {
                     return TransactionService.performInverseAmend({
                         transactionType: Transaction.types.ISSUE_TO,
                         afterHolders: [{name: 'mike'}],
+                        beforeHolders: [{name: 'mike'}],
                         beforeAmount: 0,
                         afterAmount: 2
                     }, companyState, rootStateMultiple).should.eventually.be.rejected;
@@ -302,6 +305,7 @@ describe('Transaction Service, inverse transactions', function() {
                     return TransactionService.performInverseAmend({
                         transactionType: Transaction.types.ISSUE_TO,
                         afterHolders: [{name: 'mike'}],
+                        beforeHolders: [{name: 'mike'}],
                         beforeAmount: 0,
                         afterAmount: 1
                     }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
