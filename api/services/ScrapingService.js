@@ -825,10 +825,21 @@ const ScrapingService = {
     },
 
     getDocumentSummaries: function(data){
+        let text;
         return Promise.map(data.documents, function(document){
-            return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
-                .then(function(data){
-                    return {text: data.text, documentId: document.documentId}
+            return fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8')
+                .then((text) => {
+                    return {text: text, documentId: document.documentId}
+                })
+                .catch(() => {
+                    return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
+                        .then((data) => {
+                            text = data.text;
+                            return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, text, 'utf-8')
+                        })
+                        .then((data) => {
+                            return {text: text, documentId: document.documentId}
+                        })
                 })
         }, {concurrency: 5});
     },
@@ -894,7 +905,9 @@ const ScrapingService = {
             return acc;
         }, []);
 
-        docs = _.sortByAll(docs, 'effectiveDate', (d)=>parseInt(d.documentId, 10)).reverse();
+        docs = _.sortByAll(docs,
+                           'effectiveDate',
+                           (d) => parseInt(d.documentId, 10)).reverse();
         docs = insertIntermediateActions(docs);
         return docs;
     },

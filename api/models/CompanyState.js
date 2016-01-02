@@ -215,12 +215,31 @@ module.exports = {
                 }
             },
 
+            populatePersonIds: function(persons){
+                // TODO, collaspse, subset of graph
+                persons = _.cloneDeep(persons)
+                return Promise.map(persons || [], function(person){
+                    return AddressService.normalizeAddress(person.address)
+                        .then(function(address){
+                            return Person.find({where: person})
+                            .then(function(p){
+                                if(p){
+                                    person.personId = p.personId
+                                }
+                            })
+                        })
+                })
+                .then(function(){
+                    return persons;
+                })
+            },
+
             findOrCreatePersons: function(obj){
                 // persons can be in:
                 // obj.holdings.holders
                 // obj.directors.persons
                 obj = _.cloneDeep(obj)
-                return Promise.each(obj.holdings, function(holding){
+                return Promise.each(obj.holdings || [], function(holding){
                     return Promise.map(holding.holders || [], function(holder){
                         return AddressService.normalizeAddress(holder.address)
                             .then(function(address){
@@ -486,8 +505,9 @@ module.exports = {
                 var extraHoldings = newHoldings.map(function(holdingToAdd, i){
                     // TODO, make sure persons are already looked up
                     const extraHolding = Holding.buildDeep(holdingToAdd)
-                    if(transaction)
+                    if(transaction){
                         extraHolding.dataValues.transaction = transaction;
+                    }
                     return extraHolding;
                 });
                 if(subtractHoldings && extraHoldings.length){

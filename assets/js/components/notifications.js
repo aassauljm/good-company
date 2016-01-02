@@ -6,9 +6,22 @@ import { hideNotification } from '../actions'
 import AuthenticatedComponent from  './authenticated';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 
+const NOTIFICATION_TIMEOUT = 10000;
+
+
 @pureRender
 class Notification extends React.Component {
     static propTypes = { notification: React.PropTypes.object.isRequired };
+
+    componentDidMount() {
+        this._timeout = setTimeout(() => {
+            this.props.close();
+        }, NOTIFICATION_TIMEOUT);
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this._timeout);
+    }
 
     render(){
         const type = this.props.notification.error ? 'alert-danger' : 'alert-success';

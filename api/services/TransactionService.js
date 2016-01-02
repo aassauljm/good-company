@@ -29,8 +29,8 @@ export function validateAnnualReturn(data, companyState, effectiveDate){
                 throw new sails.config.exceptions.InvalidInverseOperation('Directors do not match: ' +data.documentId);
             }
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
-                sails.log.error(JSON.stringify(currentHoldings))
-                sails.log.error(JSON.stringify(expectedHoldings))
+                sails.log.error('Current', JSON.stringify(currentHoldings))
+                sails.log.error('Expected', JSON.stringify(expectedHoldings))
                 throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match, documentId: ' +data.documentId);
             }
             return Promise.join(
@@ -205,20 +205,20 @@ export const performInverseNewAllocation = Promise.method(function(data, company
 
 });
 
-export const performInverseRemoveAllocation = Promise.method(function(data, companyState, previousState, effectiveDate){
-    //companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-    const holding = Holding.buildDeep({holders: data.holders,
-        parcels: [{amount: 0, shareClass: data.shareClass}]});
+export function performInverseRemoveAllocation(data, companyState, previousState, effectiveDate){
     // replace holders with look up
-    if(!holding){
-        throw new sails.config.exceptions.InvalidInverseOperation('Could not find holding for remove allocation documentId: ' +data.documentId)
-    }
-    holding.dataValues.holders = holding.dataValues.holders.map((h) => {
-        return previousState.getHolderBy(h.get()) || h;
+    return CompanyState.populatePersonIds(data.holders)
+        .then(function(personData){
+        const holding = Holding.buildDeep({holders: personData,
+            parcels: [{amount: 0, shareClass: data.shareClass}]});
+
+        //holding.dataValues.holders = holding.dataValues.holders.map((h) => {
+        //    return previousState.getHolderBy(h.get()) || h;
+        //});
+        companyState.dataValues.holdings.push(holding);
+        return Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
     });
-    companyState.dataValues.holdings.push(holding);
-    return Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
-});
+}
 
 
 export function validateInverseNameChange(data, companyState,  effectiveDate){
@@ -246,7 +246,7 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
     return AddressService.normalizeAddress(data.newAddress)
     .then((newAddress) => {
         if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
-            throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected name, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected, documentId: ' +data.documentId)
         }
     })
 }
@@ -359,6 +359,7 @@ export function performInverseTransaction(data, company){
                     result = PERFORM_ACTION_MAP[action.transactionType]({
                         ...action, documentId: data.documentId
                     }, nextState, currentRoot, data.effectiveDate);
+                    sails.log.verbose(' Immediate state', JSON.stringify(nextState, null, 4))
                 }
                 if(result){
                     return result.then(function(r){
@@ -383,6 +384,7 @@ export function performInverseTransaction(data, company){
             return currentRoot.setTransaction(transaction.id);
         })
         .then(function(currentRoot){
+            sails.log.verbose('Current state', JSON.stringify(nextState, null, 4))
             return nextState.save();
         })
         .then(function(_nextState){

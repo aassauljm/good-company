@@ -17,8 +17,8 @@ module.exports = {
    * environment (see config/connections.js and config/models.js )           *
    ***************************************************************************/
     hookTimeout: 40000,
-   models: {
-     connection: 'pg_test'
-   }
-
+    models: {
+        connection: 'pg_test'
+    },
+    CACHE_DIR: '/tmp/.gc'
 };

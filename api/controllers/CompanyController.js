@@ -182,6 +182,7 @@ module.exports = {
             return res.json(company);
         })
         .catch(function(err) {
+            sails.log.error(err)
             return res.serverError(err);
         });
     },
