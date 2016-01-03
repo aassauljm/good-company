@@ -40,6 +40,12 @@ function stubs(){
         return fs.readFileAsync('test/fixtures/companies_office/queries/'+query+'.html', 'utf8')
     }
 
+    ScrapingService.getDocumentSummaries = function(data){
+        return Promise.map(data.documents, function(document){
+            return ScrapingService.fetchDocument(data.companyNumber, document.documentId);
+        }, {concurrency: 5});
+    }
+
     var cookie;
     // This function will allow cookie authentication to persist on the server side
     setFetch(function(url, args){

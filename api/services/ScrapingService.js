@@ -861,23 +861,27 @@ const ScrapingService = {
         return result;
     },
 
+    getCachedDocumentSummary: function(docment){
+        return fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8')
+            .then((text) => {
+                return {text: text, documentId: document.documentId}
+            })
+            .catch(() => {
+                return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
+                    .then((data) => {
+                        text = data.text;
+                        return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, text, 'utf-8')
+                    })
+                    .then((data) => {
+                        return {text: text, documentId: document.documentId}
+                    })
+            })
+    },
+
     getDocumentSummaries: function(data){
         let text;
         return Promise.map(data.documents, function(document){
-            return fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8')
-                .then((text) => {
-                    return {text: text, documentId: document.documentId}
-                })
-                .catch(() => {
-                    return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
-                        .then((data) => {
-                            text = data.text;
-                            return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, text, 'utf-8')
-                        })
-                        .then((data) => {
-                            return {text: text, documentId: document.documentId}
-                        })
-                })
+            return ScrapingService.getCachedDocumentSummary(document);
         }, {concurrency: 5});
     },
 
