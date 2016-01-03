@@ -67,7 +67,7 @@ module.exports = {
             }
         },
         instanceMethods: {
-            holdersMatch: function(other){
+            holdersMatch: function(other, ignoreCompanyNumber){
                 if(!other.holders){
                         return false;
                     }
@@ -75,7 +75,7 @@ module.exports = {
                     // because of captials here: http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720700/entityFilingRequirement
                     // we will now do case insensitive
                     return _.sortBy(list.map(function(s){
-                        return _.pick(_.pick(s.get ? s.get() : s, 'name', 'companyNumber'), _.identity);
+                        return _.pick(_.pick(s.get ? s.get() : s, 'name', ignoreCompanyNumber ? null : 'companyNumber'), _.identity);
                     }), 'name');
                 }
                 return _.isEqual(clean(other.holders), clean(this.dataValues.holders), function(a, b){

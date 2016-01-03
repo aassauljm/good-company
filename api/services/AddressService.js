@@ -11,7 +11,24 @@ export function compareAddresses(first, second){
     if(first === second){
         return true;
     }
-    else if(first.replace(/,/g, '') === second.replace(/,/g, '')){
+    first =  first.replace(/,/g, '');
+    second = second.replace(/,/g, '');
+
+    if(first === second){
+        return true;
+    }
+
+    first =  first.replace(/\./g, ' ');
+    second = second.replace(/\./g, ' ');
+
+    if(first === second){
+        return true;
+    }
+
+    first =  first.replace(/ /g, '');
+    second = second.replace(/ /g, '');
+
+    if(first === second){
         return true;
     }
     return false;

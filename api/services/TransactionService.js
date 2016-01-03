@@ -44,9 +44,11 @@ export function validateAnnualReturn(data, companyState, effectiveDate){
                 sails.log.error(state.registeredCompanyAddress, registeredCompanyAddress)
                 sails.log.error(state.addressForService, addressForService)
                 throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match, documentId: ' +data.documentId);
-
              }
-        });
+        })
+        /*.catch(() => {
+            sails.log.error('FAILED annual return validation')
+        })*/
 };
 
 export function validateInverseAmend(amend, companyState){
@@ -71,26 +73,6 @@ export function validateInverseAmend(amend, companyState){
 
 
 
-export function performInverseIssue(data, companyState, previousState, effectiveDate){
-    return validateInverseIssue(data, companyState)
-        .then(() => {
-            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
-            companyState.subtractUnallocatedParcels({amount: data.amount});
-            return transaction;
-        })
-    // In an issue we remove from unallocatedShares
-}
-
-export function performInverseConversion(data, companyState, previousState, effectiveDate){
-    return validateInverseIssue(data, companyState)
-        .then(() => {
-            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
-            companyState.subtractUnallocatedParcels({amount: data.amount});
-            return transaction;
-        })
-    // In an issue we remove from unallocatedShares
-}
-
 export function validateInverseIssue(data, companyState){
     return companyState.stats()
         .then((stats) =>{
@@ -107,6 +89,45 @@ export function validateInverseIssue(data, companyState){
             if(data.fromAmount + data.amount !== data.toAmount ){
                 throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up, documentId: ' +data.documentId)
             }
+        })
+}
+
+export function validateInverseAcquistion(data, companyState){
+    return companyState.stats()
+        .then((stats) =>{
+            if(!Number.isInteger(data.amount) || data.amount <= 0){
+                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
+            }
+            if(!Number.isSafeInteger(data.amount)){
+                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
+            }
+            if(stats.totalShares !== data.toAmount){
+                sails.log.debug(stats)
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue, documentId: ' +data.documentId)
+            }
+            if(data.fromAmount - data.amount !== data.toAmount ){
+                throw new sails.config.exceptions.InvalidInverseOperation('Acquisition amount sums to not add up, documentId: ' +data.documentId)
+            }
+        })
+}
+
+export function performInverseIssue(data, companyState, previousState, effectiveDate){
+    return validateInverseIssue(data, companyState)
+        .then(() => {
+            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
+            companyState.subtractUnallocatedParcels({amount: data.amount});
+            return transaction;
+        })
+    // In an issue we remove from unallocatedShares
+}
+
+
+export function performInverseAcquisition(data, companyState, previousState, effectiveDate){
+    return validateInverseAcquistion(data, companyState)
+        .then(() => {
+            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
+            companyState.combineUnallocatedParcels({amount: data.amount});
+            return transaction;
         })
 }
 
@@ -189,7 +210,13 @@ export const performInverseHolderChange = function(data, companyState, previousS
 
 export const performInverseNewAllocation = Promise.method(function(data, companyState, previousState, effectiveDate){
     companyState.combineUnallocatedParcels({amount: data.amount});
-    const holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}]);
+    let holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}]);
+    if(!holding){
+        // if fail, ignore company number
+        sails.log.error('Could not find matching holding, trying with ignored companyNumber')
+        holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}], true);
+
+    }
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation, documentId: ' +data.documentId)
     }
@@ -336,7 +363,8 @@ export function performInverseTransaction(data, company){
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
         [Transaction.types.ISSUE]:  TransactionService.performInverseIssue,
-        [Transaction.types.CONVERSION]:  TransactionService.performInverseConversion,
+        [Transaction.types.CONVERSION]:  TransactionService.performInverseIssue,
+        [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
         [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
@@ -349,24 +377,24 @@ export function performInverseTransaction(data, company){
     if(!data.actions){
         return;
     }
-    let nextState, currentRoot, transactions;
+    let prevState, currentRoot, transactions;
     return company.getRootCompanyState()
         .then(function(_rootState){
             currentRoot = _rootState;
             return currentRoot.buildPrevious({transaction: null, transactionId: null});
         })
-        .then(function(_nextState){
-            nextState = _nextState;
-            nextState.dataValues.transactionId = null;
-            nextState.dataValues.transaction = null;
+        .then(function(_prevState){
+            prevState = _prevState;
+            prevState.dataValues.transactionId = null;
+            prevState.dataValues.transaction = null;
             return Promise.reduce(data.actions, function(arr, action){
                 sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;
                 if(PERFORM_ACTION_MAP[action.transactionType]){
                     result = PERFORM_ACTION_MAP[action.transactionType]({
                         ...action, documentId: data.documentId
-                    }, nextState, currentRoot, data.effectiveDate);
-                    sails.log.verbose(' Immediate state', JSON.stringify(nextState, null, 4))
+                    }, prevState, currentRoot, data.effectiveDate);
+                    //sails.log.verbose(' Immediate state', JSON.stringify(prevState, null, 4))
                 }
                 if(result){
                     return result.then(function(r){
@@ -391,10 +419,10 @@ export function performInverseTransaction(data, company){
             return currentRoot.setTransaction(transaction.id);
         })
         .then(function(currentRoot){
-            sails.log.verbose('Current state', JSON.stringify(nextState, null, 4))
-            return nextState.save();
+            return prevState.save();
         })
-        .then(function(_nextState){
-            return currentRoot.setPreviousCompanyState(_nextState);
+        .then(function(_prevState){
+            sails.log.verbose('Current state', JSON.stringify(prevState, null, 4));
+            return currentRoot.setPreviousCompanyState(_prevState);
         })
 }

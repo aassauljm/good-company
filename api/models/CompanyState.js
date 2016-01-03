@@ -593,9 +593,9 @@ module.exports = {
                 return this;
             },
 
-            getMatchingHolding: function(holders, parcelHint){
+            getMatchingHolding: function(holders, parcelHint, ignoreCompanyNumber){
                 return _.find(this.dataValues.holdings, function(holding){
-                    return holding.holdersMatch({holders: holders}) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
+                    return holding.holdersMatch({holders: holders}, ignoreCompanyNumber) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
                 });
             },
 

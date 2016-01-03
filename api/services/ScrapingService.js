@@ -107,6 +107,21 @@ function parseIssue($, dateRegexP = 'Date of Issue:'){
     }, {})
 }
 
+function parseAcquisition($, dateRegexP = 'Date of Acquistion:'){
+    let fields = [
+        ['fromAmount', 'Previous Number of Shares:', Number],
+        ['byAmount', 'Decreased Shares by:', Number],
+        ['toAmount', 'New Number of Shares:', Number],
+        ['amount', 'Number of Decreased Shares:', Number],
+        ['effectiveDate', dateRegexP, date => moment(date, 'DD MMM YYYY').toDate()]
+    ];
+    return fields.reduce(function(result, f){
+        result[f[0]] = f[2](divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$')));
+        return result;
+    }, {})
+}
+
+
 function parseAmendAllocation($, $el){
    const result =  {
         beforeAmount: Number(cleanString($el.find('.beforePanel .before.value.shareNumber').text().replace(' Shares', ''))),
@@ -164,7 +179,8 @@ const EXTRACT_DOCUMENT_MAP = {
     [DOCUMENT_TYPES.UPDATE]: ($) => {
         let transactionMap = {
             'Issue': Transaction.types.ISSUE,
-            'Conversion/Subdivision of Shares': Transaction.types.CONVERSION
+            'Conversion/Subdivision of Shares': Transaction.types.CONVERSION,
+            'Acquisition': Transaction.types.ACQUISITION,
         }
 
         let result = {};
@@ -177,6 +193,9 @@ const EXTRACT_DOCUMENT_MAP = {
                 break;
             case(Transaction.types.CONVERSION):
                 result = {...result, ...parseIssue($, 'Date of Conversion/Subdivision:')}
+                break;
+            case(Transaction.types.ACQUISITION):
+                result = {...result, ...parseAcquisition($)}
                 break;
             default:
         }
@@ -436,6 +455,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 transactionType: Transaction.types.ISSUE
             });
 
+
             const chunks = chunkBy(holdings.slice(1), (value, i) => {
                 return i && toInt(value) && toInt(value) < total
             }, true);
@@ -589,23 +609,41 @@ function processBizNet($){
 }
 
 function inferDirectorshipActions(data, docs){
-    // The appointment and removal of directorships
+    // The appointment and removal of directorships, inferred from start/end dates
     const doesNotContain = (action) => {
         // make sure we haven't described this action yet
-        return !_.some(docs, doc=>{
+        return !_.some(docs, doc => {
             return _.find(doc.actions, a => {
                 return a.type === action.type && a.date === action.date && a.name === action.name;
             })
         });
     }
+
+    const firstDetails = (fullName, address) => {
+        // If the director changed name/address, then use that
+        docs.map(doc => {
+            (doc.actions || []).map((action) => {
+                if(action.transactionType === Transaction.types.UPDATE_DIRECTOR && action.afterName === fullName){
+                    fullName = action.beforeName;
+                    address = action.beforeAddress;
+                }
+            })
+        })
+        return {
+            name: fullName,
+            address: address
+        }
+
+    }
+
     const results = [];
     data.directors.forEach(d => {
         const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
+
         const action = {
                 transactionType: Transaction.types.NEW_DIRECTOR,
-                name: d.fullName,
-                address: d.residentialAddress,
-                effectiveDate: date
+                effectiveDate: date,
+                ...firstDetails(d.fullName, d.residentialAddress)
             };
         if(doesNotContain(action)){
             results.push({
@@ -679,7 +717,6 @@ function insertIntermediateActions(docs){
             results.push(rest);
         }
     });
-
     return results;
 }
 
