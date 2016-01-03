@@ -8,6 +8,7 @@ const fetch = require("isomorphic-fetch");
 const fs = Promise.promisifyAll(require("fs"));
 const moment = require('moment');
 
+
 const DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
     PARTICULARS: 'PARTICULARS',
@@ -455,9 +456,20 @@ const EXTRACT_DOCUMENT_MAP = {
                 transactionType: Transaction.types.ISSUE
             });
 
+            // get array of all integers
+            const ints = holdings.slice(1)
+                .map((value) => toInt(value))
+                .filter((value) => value);
+
+            // get numbers which comprise sum
+            const subset = UtilService.subsetSum(ints, total).vals;
 
             const chunks = chunkBy(holdings.slice(1), (value, i) => {
-                return i && toInt(value) && toInt(value) < total
+                const intValue = toInt(value);
+                if(i && intValue && subset.indexOf(intValue) > -1){
+                    subset.splice(subset.indexOf(intValue), 1);
+                    return true;
+                }
             }, true);
 
             const getHolders = (rows) => {
@@ -486,6 +498,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 })
             })
         }
+
         const directors = chunkBy($('h2').filter(function(){
                 return $(this).text().match(/Directors/)
             })
@@ -861,7 +874,7 @@ const ScrapingService = {
         return result;
     },
 
-    getCachedDocumentSummary: function(docment){
+    getCachedDocumentSummary: function(document){
         return fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8')
             .then((text) => {
                 return {text: text, documentId: document.documentId}
