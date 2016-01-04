@@ -337,6 +337,11 @@ const EXTRACT_DOCUMENT_MAP = {
         }
 
         return {actions: $('#reviewContactChangesContent .panel').map((i, el)=>{
+            // all records, ignore for now
+            if($(el).find('.head').text().indexOf('Address For Records') > -1){
+                return false;
+            }
+            // update
             if($(el).find('.afterPanel .row').length){
                 return {
                     transactionType: Transaction.types.ADDRESS_CHANGE,
@@ -346,6 +351,7 @@ const EXTRACT_DOCUMENT_MAP = {
                     field: HEADING_MAP[cleanString($(el).find('.head').text())]
                 }
             }
+            // Removed
             if($(el).find('.head').text().indexOf('Removed') === 0){
                 return {
                     transactionType: Transaction.types.ADDRESS_CHANGE,
@@ -355,6 +361,7 @@ const EXTRACT_DOCUMENT_MAP = {
                     field: HEADING_MAP[cleanString($(el).find('.head').text())]
                 }
             }
+            // New
             return {
                 transactionType: Transaction.types.ADDRESS_CHANGE,
                 previousAddress: null,
@@ -362,7 +369,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 effectiveDate: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
                 field: HEADING_MAP[cleanString($(el).find('.head').text())]
             }
-        }).get()};
+        }).get().filter(action => !!action)};
     },
 
     [DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR]: ($) => {
@@ -874,7 +881,8 @@ const ScrapingService = {
         return result;
     },
 
-    getCachedDocumentSummary: function(document){
+    getCachedDocumentSummary: function(data, document){
+        let text;
         return fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8')
             .then((text) => {
                 return {text: text, documentId: document.documentId}
@@ -892,9 +900,8 @@ const ScrapingService = {
     },
 
     getDocumentSummaries: function(data){
-        let text;
         return Promise.map(data.documents, function(document){
-            return ScrapingService.getCachedDocumentSummary(document);
+            return ScrapingService.getCachedDocumentSummary(data, document);
         }, {concurrency: 5});
     },
 

@@ -624,8 +624,8 @@ export default class Company extends React.Component {
     render(){
         const data = this.props.data || {};
         const current = data.currentCompanyState || data.companyState;
-        if(this.props._status==='error'){
-            return <NotFound descriptor="Company"/>
+        if(this.props._status === 'error'){
+            return <NotFound descriptor="Company" />
         }
         if(!current){
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
