@@ -12,10 +12,14 @@ describe('Utility Services', function() {
             subsetSum([1,2,3], 6).should.be.deep.equal({sum: 6, vals: [1, 2,3]});
             should.Throw(() => subsetSum([1,2,3], 7));
             should.Throw(() => subsetSum([1,2,3,100], 7));
+            subsetSum([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], 15).should.be.deep.equal({sum: 15, vals: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]});
             subsetSum([1,1,1,1,1,100], 101).should.be.deep.equal({sum: 101, vals: [1,100]});
             subsetSum([1,1,1,1,1,100], 104).should.be.deep.equal({sum: 104, vals: [1,1,1,1,100]});
             subsetSum([456,3254,4356,678,345,234,6578,34,23436], 26924).should.be.deep.equal({sum: 26924, vals: [3254,234,23436]});
+            subsetSum([456,3254,4356,678,345,234,6578,34,23436], 26958).should.be.deep.equal({sum: 26958, vals: [3254,234,34,23436]});
+            subsetSum([456,3254,4356,678,345,234,6578,34,23436], 3522).should.be.deep.equal({sum: 3522, vals: [3254,234,34]});
             done();
         });
     });
+
 });
