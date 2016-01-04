@@ -1,11 +1,11 @@
 "use strict";
 import React from 'react';
 import { connect } from 'react-redux';
-import {nextModal, previousModal, endCreateCompany, endImportCompany, endModal} from '../actions';
+import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal } from '../actions';
 import FormReducer from '../hoc/formReducer';
 import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
-import {TransactionViewModal} from './transaction';
+import { TransactionViewModal } from './transaction';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {

@@ -25,5 +25,31 @@ export default {
         repurchaseHistory: 'Date and No. of Repurchase or Redemption',
         transferHistoryTo: 'Date of transfer of Shares to the Shareholder',
         transferHistoryFrom: 'Date of transfer of Shares from the Shareholder'
+    },
+    transactionTypes: {
+        SEED: 'Seed from Companies Office',
+        INCORPORATION: 'Incorporation',
+        ISSUE: 'Issue',
+        ISSUE_TO: 'Issue to',
+        AMEND: 'Amend',
+        COMPOUND: 'Compound Transaction',
+        NEW_ALLOCATION: 'New Allocation',
+        REMOVE_ALLOCATION: 'Remove Allocation',
+        DETAILS: 'Details',
+        NAME_CHANGE: 'Company Name Change',
+        ADDRESS_CHANGE: 'Company Address Change',
+        HOLDING_CHANGE: 'Shareholding Detail Change',
+        HOLDER_CHANGE: 'Shareholder Change',
+        TRANSFER: 'Transfer',
+        TRANSFER_TO: 'Transfer To',
+        TRANSFER_FROM: 'Transfer From',
+        CONVERSION: 'Conversion',
+        ACQUISITION: 'Acquisition',
+        ANNUAL_RETURN: 'Annual Return',
+        NEW_DIRECTOR: 'New Director',
+        REMOVE_DIRECTOR: 'Remove Director',
+        UPDATE_DIRECTOR: 'Update Director',
+        REPURCHASE: 'Repurchase',
+        REDEMPTION: 'Redemption'
     }
 }

@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import {requestResource, changeCompanyTab} from '../actions';
+import {requestResource, changeCompanyTab, showModal } from '../actions';
 import { pureRender, numberWithCommas } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -345,17 +345,22 @@ export class CompanyTransactions extends React.Component {
         this.fetch();
     };
 
+    show(data) {
+        this.props.dispatch(showModal('transaction', data));
+    }
+
     rows(transactions) {
         const rows = [];
         transactions.map((t, i) => {
             const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
-            rows.push(<tr key={i}>
+            rows.push(<tr key={i} onClick={() => this.show(t.transaction)}>
                 <td rowSpan={rowSpan}>{ t.transaction.transactionId }</td>
                 <td rowSpan={rowSpan}>{ new Date(t.transaction.effectiveDate).toDateString() }</td>
-                <td rowSpan={rowSpan}>{ t.transaction.type }</td>
+                <td rowSpan={rowSpan}>{ STRINGS.transactionTypes[t.transaction.type] }</td>
+                { !t.transaction.subTransactions && <td></td> }
             </tr>);
             (t.transaction.subTransactions || []).map((t, j) => {
-                rows.push(<tr key={i+'-'+j} ><td>{t.type}</td></tr>)
+                rows.push(<tr key={i+'-'+j} onClick={() => this.show(t)}><td>{STRINGS.transactionTypes[t.type]}</td></tr>)
             });
         });
         return rows;

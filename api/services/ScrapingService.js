@@ -254,7 +254,7 @@ const EXTRACT_DOCUMENT_MAP = {
 
         // TODO, read previous share update doc
         if(totalShares > 0){
-            result.transactionType = Transaction.types.ISSUE;
+            //result.transactionType = Transaction.types.ISSUE_TO;
             result.actions.map(a => {
                 if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
                    a.transactionType === Transaction.types.AMEND){
@@ -278,6 +278,8 @@ const EXTRACT_DOCUMENT_MAP = {
             })
 
         }
+
+        // TODO < 0
 
         // a kludge to add companyNumbers from new/removeHolder to new/remove allocation
 
