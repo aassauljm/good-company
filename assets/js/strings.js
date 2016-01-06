@@ -12,6 +12,7 @@ export default {
     amount: 'Amount',
     shareClass: 'Class',
     defaultShareClass: 'Ordinary',
+    effectiveDate: 'Effective Date',
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

@@ -103,7 +103,7 @@ class NewTransactionPanel extends React.Component {
             <h3 className="panel-title">Update Company</h3>
             </div>
             <div className="panel-body">
-                Change details, issue or repurchase shares, transfer shares...
+                Change details, issue or purchase shares, transfer shares...
             </div>
         </div>
     }

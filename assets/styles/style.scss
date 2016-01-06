@@ -158,3 +158,38 @@ a, a:hover{
         min-width: 20em;
     }
 }
+
+
+
+// newTransaction
+.new-transaction{
+    ul{
+        margin:0;
+        padding:0;
+    }
+    li {
+        list-style: none;
+        float: left;
+        width: 25%;
+        max-width:228px;
+        height: 115px;
+        padding: 10px;
+        font-size: 10px;
+        line-height: 1.4;
+        text-align: center;
+        background-color: $gray-lighter;
+        border: 1px solid #fff;;
+        border-radius:4px;
+    }
+    .glyphicon {
+        margin-top: 5px;
+        margin-bottom: 10px;
+        font-size: 30px;
+    }
+    .transaction-button-text{
+        display: block;
+        text-align: center;
+        word-wrap: break-word;
+        font-size:16px;
+    }
+}
