@@ -12,6 +12,7 @@ import Document from './components/document';
 import Companies from './components/companies';
 import Company, { Shareholdings, CompanyDetails, CompanyTransactions, Shareholders } from './components/company';
 import { ShareRegister } from './components/shareRegister';
+import { NewTransaction } from './components/newTransaction';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -36,6 +37,7 @@ const routes = (
                     <Route path="shareholdings" component={ Shareholdings } />
                     <Route path="details" component={ CompanyDetails } />
                     <Route path="transactions" component={ CompanyTransactions } />
+                    <Route path="new_transaction" component={ NewTransaction } />
                     <Route path="shareregister" component={ ShareRegister } />
                     <Route path="shareholders" component={ Shareholders } />
                 </Route>

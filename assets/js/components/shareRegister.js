@@ -88,7 +88,6 @@ export class ShareRegister extends React.Component {
                 return data ? 'Yes': 'No';
             case 'amount':
             case 'sum':
-                console.log(data)
                 return numberWithCommas(data);
             default:
                 return data;

@@ -16,6 +16,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { pushState } from 'redux-router';
 import moment from 'moment';
 import STRINGS from '../strings';
+import LawBrowserLink from './lawBrowserLink'
+
 
 class NotFound extends React.Component {
     static propTypes = {
@@ -92,6 +94,20 @@ class ShareholdingsPanel extends React.Component {
     }
 }
 
+@pureRender
+class NewTransactionPanel extends React.Component {
+
+    render(){
+        return <div className="panel panel-info" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Update Company</h3>
+            </div>
+            <div className="panel-body">
+                Change details, issue or repurchase shares, transfer shares...
+            </div>
+        </div>
+    }
+}
 
 
 @pureRender
@@ -165,7 +181,7 @@ class ShareRegisterPanel extends React.Component {
             <h3 className="panel-title">Share Register</h3>
             </div>
             <div className="panel-body">
-
+                View your Share Register, as defined under section 87 of the Companies Act 1993
             </div>
         </div>
     }
@@ -402,10 +418,10 @@ export class Shareholder extends React.Component {
                 <dt>Shareholder since</dt>
                 <dd>{ new Date(this.props.shareholder.firstEffectiveDate).toDateString() }</dd>
                 { this.props.shareholder.current && <dt>Current Parcels</dt> }
-                { this.props.shareholder.current &&  this.props.shareholder.parcels.map(p => {
+                { this.props.shareholder.current &&  this.props.shareholder.parcels.map((p, i) => {
                     const shareClass = p.shareClass || STRINGS.defaultShareClass;
                     const amount = numberWithCommas(p.amount);
-                    return <dd>{`${amount} ${shareClass} shares`}</dd> ;
+                    return <dd key={i}>{`${amount} ${shareClass} shares`}</dd> ;
                 }) }
                 { !this.props.shareholder.current && <dt>Shareholder until</dt> }
                 { !this.props.shareholder.current && <dd>{ new Date(this.props.shareholder.lastEffectiveDate).toDateString() }</dd> }
@@ -443,15 +459,27 @@ export class Shareholders extends React.Component {
         if(!shareholders){
             return <div className="loading"></div>
         }
+        const current = shareholders.filter(s => s.current).map((shareholder, i) => <div key={i}><Shareholder shareholder={shareholder} /></div>);
+        const previous = shareholders.filter(s => !s.current).map((shareholder, i) => <div  key={i}><Shareholder shareholder={shareholder} /></div>);
         return <div className="container">
                  <div className="row">
                 <div className="text-center"><h3>Current Shareholders</h3></div>
-                { shareholders.filter(s => s.current).map((shareholder, i) => <div key={i}><Shareholder shareholder={shareholder} /></div>)}
+                    <div className="col-md-6">
+                        { current.slice(0, current.length/2)}
+                    </div>
+                    <div className="col-md-6">
+                        { current.slice(current.length/2) }
+                    </div>
                 </div>
                 { shareholders.filter(s => !s.current).length !== 0 &&
                  <div className="row">
                     <div className="text-center"><h3>Former Shareholders</h3></div>
-                    { shareholders.filter(s => !s.current).map((shareholder, i) => <div  key={i}><Shareholder shareholder={shareholder} /></div>)}
+                    <div className="col-md-6">
+                        { previous.slice(0, previous.length/2) }
+                    </div>
+                    <div className="col-md-6">
+                        { previous.slice(previous.length/2) }
+                    </div>
                 </div> }
             </div>
     }
@@ -468,7 +496,7 @@ class ShareholdersPanel extends React.Component {
             <h3 className="panel-title">Shareholders</h3>
             </div>
             <div className="panel-body">
-
+                View all past and present shareholders
             </div>
         </div>
     }
@@ -654,12 +682,14 @@ export default class Company extends React.Component {
                 { !this.props.children &&
                     <div className="container">
                     <div className="row">
-                        <div className="col-md-6">
+                         <div className="col-md-6">
+                        <Link to={this.props.location.pathname +'/details'}>
+                             <DetailsPanel
+                                companyState={current} />
+                                </Link>
                         <Link to={this.props.location.pathname +'/shareregister'}>
                              <ShareRegisterPanel />
                                  </Link>
-                        </div>
-                         <div className="col-md-6">
                         <Link to={this.props.location.pathname +'/shareholdings'}>
                              <ShareholdingsPanel
                                 holdings={current.holdings}
@@ -667,19 +697,15 @@ export default class Company extends React.Component {
                                 totalAllocatedShares={current.totalAllocatedShares} />
                                 </Link>
                         </div>
-                         <div className="col-md-6">
-                        <Link to={this.props.location.pathname +'/details'}>
-                             <DetailsPanel
-                                companyState={current} />
-                                </Link>
-                        </div>
                           <div className="col-md-6">
+                        <Link to={this.props.location.pathname +'/new_transaction'}>
+                             <NewTransactionPanel />
+                                </Link>
                         <Link to={this.props.location.pathname +'/transactions'}>
                              <TransactionsPanel
                                 transactions={current.transactions} />
                                 </Link>
-                        </div>
-                          <div className="col-md-6">
+
                         <Link to={this.props.location.pathname +'/shareholders'}>
                              <ShareholdersPanel
                                 transactions={current.transactions} />
