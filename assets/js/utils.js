@@ -157,14 +157,15 @@ export function formProxy(component){
 export function formFieldProps(args){
     return (component) => {
         component.prototype.formFieldProps = function(name) {
+            const field = this.props.fields ? this.props.fields[name] : this.props[name];
             return {
-                 ...this.props.fields[name],
-                    bsStyle: fieldStyle(this.props.fields[name]),
+                 ...field,
+                    bsStyle: fieldStyle(field),
                     label: STRINGS[name],
                     labelClassName: args.labelClassName,
                     wrapperClassName: args.wrapperClassName,
                     hasFeedback: true,
-                    help: fieldHelp(this.props.fields[name])
+                    help: fieldHelp(field)
                 }
         }
        return component;
@@ -189,6 +190,7 @@ export function fieldExistence(form){
     return errors;
 }
 
+//TODO, replace with below
 export function requiredFields(fields, values){
     const errors = {};
     fields.map(f => {
@@ -198,6 +200,14 @@ export function requiredFields(fields, values){
     });
     return errors;
 }
+
+export const requireFields = (...names) => data =>
+  names.reduce((errors, name) => {
+    if (!data || !data[name]) {
+      errors[name] = ['Required'];
+    }
+    return errors;
+  }, {});
 
 
 let _fetch = isoFetch;

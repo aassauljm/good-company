@@ -23,7 +23,8 @@ import {
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
 STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
 
-import formReducer from './customFormReducer';
+//import formReducer from './customFormReducer';
+import {reducer as formReducer} from 'redux-form';
 import { routerStateReducer } from 'redux-router';
 import validator from 'validator'
 import { relationNameToModel } from './schemas';
@@ -330,8 +331,12 @@ const normalizeNumber = (value) => {
 
 
 export const formBase = formReducer.normalize({
-    parcel: {
+    /*parcel: {
         amount: normalizeNumber
+    },*/
+    issue: {
+         'parcel.amount': normalizeNumber,
+
     },
     signup: {
         email: (value) => {
@@ -394,8 +399,6 @@ export const formBase = formReducer.normalize({
             return state;
         }
         return reduceListChange(state, action)
-
-
     },
     holding: (state, action) => {
         state = handleKeyedFormRemoval(state, action);
