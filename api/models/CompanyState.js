@@ -483,7 +483,6 @@ module.exports = {
                         if(((holdingToAdd.holderId && nextHolding.holderId === holdingToAdd.holderId ) ||
                             nextHolding.holdersMatch(holdingToAdd)) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
-                            sails.log.verbose('Found match', holdingToAdd, nextHolding.toJSON())
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
                                 if(transaction)

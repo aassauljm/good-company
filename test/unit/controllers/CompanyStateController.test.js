@@ -135,7 +135,7 @@ describe('CompanyStateController', function() {
                     res.body.currentCompanyState.totalAllocatedShares.should.be.equal(1325)
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
-                            type: 'ISSUE'
+                            type: 'COMPOUND'
                         },
                         holdings: [
                             {
@@ -186,9 +186,10 @@ describe('CompanyStateController', function() {
                 .expect(200)
                 .then(function(res){
                     res.body.currentCompanyState.totalAllocatedShares.should.be.equal(2325);
+
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
-                            type: 'ISSUE'
+                            type: 'COMPOUND'
                         },
                         holdings: [
                             {
