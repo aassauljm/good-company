@@ -72,7 +72,7 @@ describe('Form reducers', () => {
         it('Initializes subform, removes it, confirms destruction', done => {
             let state = {};
             state = form(state, startCreateCompany('test'));
-            state = form(state, {form: 'person', key: ['test', 'directors', '0'].join('.'), ...initialize()});
+            state = form(state, {form: 'person', key: ['test', 'directors', '0'].join('.'), ...initialize({}, [])});
             state.person[['test', 'directors', '0'].join('.')].should.be.an('object');
             state = form(state, removeListEntry('companyFull', 'test', 'directors', '0'));
             should.not.exist(state.person[['test', 'directors', '0'].join('.')]);
@@ -81,7 +81,7 @@ describe('Form reducers', () => {
         it('Same again but with subsubform Initializes subform', done => {
             let state = {};
             state = form(state, startCreateCompany('test'));
-            state = form(state, {form: 'person', key: ['test', 'directors', '0'].join('.'), ...initialize()});
+            state = form(state, {form: 'person', key: ['test', 'directors', '0'].join('.'), ...initialize({}, [])});
             state.person[['test', 'directors', '0'].join('.')].should.be.an('object');
             state = form(state, removeListEntry('companyFull', 'test', 'directors', '0'));
             should.not.exist(state.person[['test', 'directors', '0'].join('.')]);
