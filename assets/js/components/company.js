@@ -677,7 +677,8 @@ export default class Company extends React.Component {
                         }
                 </div>
                 { this.props.children && React.cloneElement(this.props.children, {
-                        companyState: current
+                        companyState: current,
+                        companyId: this.key()
                 })}
                 { !this.props.children &&
                     <div className="container">

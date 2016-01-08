@@ -2,8 +2,6 @@
 import React, {PropTypes} from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
-import { connect } from 'react-redux';
-import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import { numberWithCommas } from '../utils';

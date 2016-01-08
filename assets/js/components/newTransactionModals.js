@@ -12,7 +12,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import DateInput from './forms/dateInput';
 import Panel from './panel';
 import { TransactionView } from './transaction';
-
+import { companyTransaction, addNotification } from '../actions';
 
 const defaultShareClass = '___default';
 
@@ -62,6 +62,8 @@ export class ParcelFields extends React.Component {
     }
 }
 
+
+//TODO, holdings should have list of parcels to add
 @formFieldProps({
     labelClassName: 'col-xs-3',
     wrapperClassName: 'col-xs-9'
@@ -221,6 +223,8 @@ export const IssueFormConnected = reduxForm({
 
 
 
+const dummy = {}
+@connect(state => dummy)
 @formProxy
 export class IssueModal extends React.Component {
 
@@ -282,15 +286,31 @@ export class IssueModal extends React.Component {
                         h.shareClass = undefined;
                     }
                     h.holdingId = parseInt(h.holding, 10);
+                    h.parcels = [{amount: parseInt(h.amount, 10), shareClass: h.shareClass}]
                     h.holders = this.props.modalData.companyState.holdings.filter(f=>{
                         return f.holdingId === h.holdingId;
                     })[0].holders;
                 });
                 this.props.next({
                     transaction: values,
+                    companyId: this.props.modalData.companyId,
                     companyState: this.props.modalData.companyState
                 });
             }
+        }
+        else{
+            this.props.dispatch(companyTransaction('issue',
+                                this.props.modalData.companyId,
+                                this.props.modalData.transaction))
+                    .then((r) => {
+                        if(r.error){
+                            return this.props.dispatch(addNotification({message: r.response.message, error: r.error}));
+                        }
+                        else{
+                            return this.props.dispatch(addNotification({message: 'Shares Issued'}));
+                        }
+                    })
+                    .then(() => this.props.end())
         }
     }
 

@@ -69,8 +69,8 @@ module.exports = {
         instanceMethods: {
             holdersMatch: function(other, ignoreCompanyNumber){
                 if(!other.holders){
-                        return false;
-                    }
+                    return false;
+                }
                 var clean = function(list){
                     // because of captials here: http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720700/entityFilingRequirement
                     // we will now do case insensitive

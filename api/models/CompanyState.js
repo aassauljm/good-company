@@ -472,6 +472,7 @@ module.exports = {
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
                 }
+                sails.log.verbose('Adding holdings to companystate')
                 " For now, using name equivilency to match holders (and companyId) "
                 " Match all holders in a holding, then an issue will increase the parcels on that holding "
                 _.some(this.dataValues.holdings, function(nextHolding){
@@ -479,8 +480,10 @@ module.exports = {
                     newHoldings.forEach(function(holdingToAdd, i){
                         //holdingToAdd = Holding.buildDeep(holdingToAdd);
 
-                        if(nextHolding.holdersMatch(holdingToAdd) &&
+                        if(((holdingToAdd.holderId && nextHolding.holderId === holdingToAdd.holderId ) ||
+                            nextHolding.holdersMatch(holdingToAdd)) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
+                            sails.log.verbose('Found match', holdingToAdd, nextHolding.toJSON())
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
                                 if(transaction)

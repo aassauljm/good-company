@@ -167,6 +167,7 @@ const default_resources = {users: {}, roles: {}, documents: {}, companies: {}}
 function resources(state = default_resources, action){
     switch(action.type){
         case LOGIN_SUCCESS:
+        case TRANSACTION_SUCCESS:
             return default_resources;
         case RESOURCE_REQUEST:
         case RESOURCE_CREATE_REQUEST:

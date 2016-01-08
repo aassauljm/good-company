@@ -61,9 +61,10 @@ var transactions = {
         validateHoldings(args.holdings)
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
-            return currentCompanyState.buildNext({transaction: {type: Transaction.types.ISSUE, data: args, effectiveDate: new Date() }})
+            return currentCompanyState.buildNext({transaction: {type: Transaction.types.COMPOUND, data: args, effectiveDate: new Date() }})
          })
         .then(function(companyState){
+            //TODO add transaction
             companyState.combineHoldings(args.holdings);
             return companyState.save()
         })

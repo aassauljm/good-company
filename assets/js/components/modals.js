@@ -14,7 +14,6 @@ export default class Modals extends React.Component {
         if(!this.props.showing){
             return false;
         }
-        console.log(this.props)
         switch(this.props.showing){
             case 'createCompany' :
                 const formKey = "createCompanyModal";

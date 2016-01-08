@@ -20,6 +20,7 @@ import LawBrowserLink from './lawBrowserLink'
 export class NewTransaction extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
+        companyId: PropTypes.string,
     };
 
     render() {
@@ -31,7 +32,7 @@ export class NewTransaction extends React.Component {
                     </div>
                     <div className="container">
                         <ul>
-                            <li className="actionable" onClick={() => this.props.dispatch(showModal('issue', {companyState: this.props.companyState}))}>
+                            <li className="actionable" onClick={() => this.props.dispatch(showModal('issue', {companyState: this.props.companyState, companyId: this.props.companyId}))}>
                                 <span className="glyphicon glyphicon-export"></span>
                                 <span className="transaction-button-text">Issue Shares</span>
                             </li>

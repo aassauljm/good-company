@@ -207,7 +207,7 @@ export function importCompany(companyNumber) {
 
 export function companyTransaction(transactionType, companyId, data) {
     return {
-        types: [IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE],
+        types: [TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE],
         callAPI: () => fetch('/api/transaction/'+transactionType+'/' +companyId, {
             method: 'POST',
             headers: json_headers,
