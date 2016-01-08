@@ -53,7 +53,7 @@ function renderAddressChange(data, effectiveDate) {
 }
 
 
-function renderIssueTo(data, effectiveDate) {
+export function renderIssueTo(data, effectiveDate) {
     return (
         <div className="panel panel-default">
             <div className="panel-heading">
@@ -65,8 +65,7 @@ function renderIssueTo(data, effectiveDate) {
             <dd>{ renderParcelString(data.amount, data.shareClass) }</dd>
 
             <dt>To:</dt>
-            { renderHolders(data.holders) }
-
+            { renderHolders(data.afterHolders) }
             <dt>Effective Date:</dt>
             <dd>{ new Date(effectiveDate).toDateString() }</dd>
             </dl>
@@ -76,26 +75,51 @@ function renderIssueTo(data, effectiveDate) {
 
 
 // TODO
-function renderIssue(data, effectiveDate) {
+export function renderIssue(data, effectiveDate) {
     return (
         <div className="panel panel-default">
             <div className="panel-heading">
-                <h3 className="panel-title">Issue To</h3>
+                <h3 className="panel-title">Issue</h3>
             </div>
             <div className="panel-body">
             <dl>
             <dt>Amount:</dt>
             <dd>{ renderParcelString(data.amount, data.shareClass) }</dd>
-
-            <dt>To:</dt>
-            { renderHolders(data.holders) }
-
             <dt>Effective Date:</dt>
             <dd>{ new Date(effectiveDate).toDateString() }</dd>
             </dl>
             </div>
         </div>)
 }
+
+export class TransactionView extends React.Component {
+    static propTypes = {
+        transaction: PropTypes.object.isRequired,
+    };
+
+    renderTransaction(transaction) {
+        switch(transaction.type){
+            case 'SEED':
+                return renderSeed(transaction.data, transaction.effectiveDate);
+            case 'ISSUE':
+                return renderIssue(transaction.data, transaction.effectiveDate);
+            case 'COMPOUND':
+                return (transaction.subTransactions || []).map((t, i) => <div key={i}>{ this.renderTransaction(t) }</div>);
+            case 'ADDRESS_CHANGE':
+                return renderAddressChange(transaction.data, transaction.effectiveDate)
+            case 'ISSUE_TO':
+                return renderIssueTo(transaction.data, transaction.effectiveDate)
+            default:
+                return 'Unknown'
+        }
+    };
+
+    render() {
+        return <div>{ this.renderTransaction(this.props.transaction) }</div>
+    }
+
+};
+
 
 export class TransactionViewModal extends React.Component {
 
@@ -107,32 +131,15 @@ export class TransactionViewModal extends React.Component {
         this.refs.modal._onHide();
     }
 
-    renderBody(transaction) {
-        switch(transaction.type){
-            case 'SEED':
-                return renderSeed(transaction.data, transaction.effectiveDate);
-            case 'ISSUE':
-                return renderIssue(transaction.data, transaction.effectiveDate);
-            case 'COMPOUND':
-                return (transaction.subTransactions || []).map((t, i) => <div key={i}>{ this.renderBody(t) }</div>);
-            case 'ADDRESS_CHANGE':
-                return renderAddressChange(transaction.data, transaction.effectiveDate)
-            case 'ISSUE_TO':
-                return renderIssueTo(transaction.data, transaction.effectiveDate)
-            default:
-                return 'Unknown'
-        }
-    }
 
     render() {
-        console.log(this.props)
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>{ STRINGS.transactionTypes[this.props.modalData.type] }</Modal.Title>
               </Modal.Header>
 
               <Modal.Body>
-                { this.renderBody(this.props.modalData) }
+                    <TransactionView transaction={this.props.modalData} />
               </Modal.Body>
 
               <Modal.Footer>

@@ -10,7 +10,6 @@ export default class DateInput extends React.Component {
 
     render() {
         const format="DD/MM/YYYY";
-        //console.log(this.props.value)
          return <Input {...this.props} >
 
             <DateTimePicker {...this.props}
@@ -22,7 +21,6 @@ export default class DateInput extends React.Component {
                 }
             }}
             onBlur={() => {
-                console.log('settings', this.props.value)
                 this.props.onBlur(this.props.value)
             }}
             format={format} />

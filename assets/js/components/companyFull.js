@@ -271,9 +271,8 @@ export default class CreateCompanyModal extends React.Component {
                         return this.props.dispatch(companyTransaction('seed',companyId, values))
                     })
                     .then((action) => this.props.dispatch(pushState(null, '/company/view/'+companyId)))
-                   .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
+                    .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
                     .then(() => this.props.end())
-
             }
         }
     };

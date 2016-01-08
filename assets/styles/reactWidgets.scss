@@ -25,6 +25,8 @@ $rw-version:          "4.1.0";
   text-transform: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+    top: 1px;
+    font-weight: 400;
 }
 
 .#{$rw-css-prefix}-caret-down:before { content: '\e803'; }
@@ -48,6 +50,8 @@ $rw-version:          "4.1.0";
         button{
             @extend .btn;
             @extend .btn-default;
+            // TODO remove this hack
+            height: 34px;
         }
     }
 }

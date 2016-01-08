@@ -179,6 +179,7 @@ export function* objectValues(obj) {
   }
 }
 
+// delete
 export function fieldExistence(form){
     const errors = {};
     if(!form.email){

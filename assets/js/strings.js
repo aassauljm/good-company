@@ -13,6 +13,7 @@ export default {
     shareClass: 'Class',
     defaultShareClass: 'Ordinary',
     effectiveDate: 'Effective Date',
+    holding: 'Shareholding',
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

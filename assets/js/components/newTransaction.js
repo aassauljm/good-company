@@ -31,7 +31,7 @@ export class NewTransaction extends React.Component {
                     </div>
                     <div className="container">
                         <ul>
-                            <li className="actionable" onClick={() => this.props.dispatch(showModal('issue', this.props.companyState))}>
+                            <li className="actionable" onClick={() => this.props.dispatch(showModal('issue', {companyState: this.props.companyState}))}>
                                 <span className="glyphicon glyphicon-export"></span>
                                 <span className="transaction-button-text">Issue Shares</span>
                             </li>
