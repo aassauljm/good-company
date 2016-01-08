@@ -179,7 +179,7 @@ function parseHolder($, $el){
 const EXTRACT_DOCUMENT_MAP = {
     [DOCUMENT_TYPES.UPDATE]: ($) => {
         let transactionMap = {
-            'Issue': Transaction.types.ISSUE,
+            'Issue': Transaction.types.ISSUE_UNALLOCATED,
             'Conversion/Subdivision of Shares': Transaction.types.CONVERSION,
             'Acquisition': Transaction.types.ACQUISITION,
         }
@@ -189,7 +189,7 @@ const EXTRACT_DOCUMENT_MAP = {
         result.originaltransactionType = divAfterParent($, '.row .wideLabel label', regex);
         result.transactionType = transactionMap[result.originaltransactionType];
         switch(result.transactionType){
-            case(Transaction.types.ISSUE):
+            case(Transaction.types.ISSUE_UNALLOCATED):
                 result = {...result, ...parseIssue($)}
                 break;
             case(Transaction.types.CONVERSION):
@@ -462,7 +462,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 toAmount: total,
                 byAmount: total,
                 amount: total,
-                transactionType: Transaction.types.ISSUE
+                transactionType: Transaction.types.ISSUE_UNALLOCATED
             });
 
             // get array of all integers

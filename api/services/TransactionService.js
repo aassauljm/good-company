@@ -7,7 +7,8 @@ export function validateAnnualReturn(data, companyState, effectiveDate){
     return companyState.stats()
         .then((stats) => {
             if(stats.totalShares != data.totalShares){
-                throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +documentId);
+                sails.log.error('stats: ', stats, data.totalShares)
+                throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +data.documentId);
             }
             // extract address and name for directors
             const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directors, (d)=>_.pick(d.person, 'name'/*, 'address'*/)), 'name'));
@@ -111,16 +112,23 @@ export function validateInverseAcquistion(data, companyState){
         })
 }
 
-export function performInverseIssue(data, companyState, previousState, effectiveDate){
+export function performInverseIssueUnallocated(data, companyState, previousState, effectiveDate){
     return validateInverseIssue(data, companyState)
         .then(() => {
             const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
-            companyState.subtractUnallocatedParcels({amount: data.amount});
+            companyState.subtractUnallocatedParcels({amount: data.amount/*, shareClass: data.shareClass*/});
+            return transaction;
+        })
+}
+export function performIssue(data, nextState, previousState, effectiveDate){
+    return validateIssue(data, companyState)
+        .then(() => {
+            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
+            companyState.combineUnallocatedParcels({amount: data.amount/*, shareClass: data.shareClass*/});
             return transaction;
         })
     // In an issue we remove from unallocatedShares
 }
-
 
 export function performInverseAcquisition(data, companyState, previousState, effectiveDate){
     return validateInverseAcquistion(data, companyState)
@@ -362,8 +370,8 @@ export function performInverseTransaction(data, company){
         [Transaction.types.ISSUE_TO]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
-        [Transaction.types.ISSUE]:  TransactionService.performInverseIssue,
-        [Transaction.types.CONVERSION]:  TransactionService.performInverseIssue,
+        [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performInverseIssueUnallocated,
+        [Transaction.types.CONVERSION]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
