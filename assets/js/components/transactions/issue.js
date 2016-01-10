@@ -4,15 +4,15 @@ import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import Input from './forms/input';
-import STRINGS from '../strings'
-import { numberWithCommas, fieldStyle, fieldHelp, formFieldProps, requireFields, formProxyable, formProxy } from '../utils';
+import Input from '../forms/input';
+import STRINGS from '../../strings'
+import { numberWithCommas, fieldStyle, fieldHelp, formFieldProps, requireFields, formProxyable, formProxy } from '../../utils';
 import { pushState } from 'redux-router';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import DateInput from './forms/dateInput';
-import Panel from './panel';
-import { TransactionView } from './transaction';
-import { companyTransaction, addNotification } from '../actions';
+import DateInput from '../forms/dateInput';
+import Panel from '../panel';
+import { TransactionView } from '../transaction';
+import { companyTransaction, addNotification } from '../../actions';
 
 const defaultShareClass = '___default';
 
@@ -230,7 +230,9 @@ export const IssueFormConnected = reduxForm({
 
 
 
-const dummy = {}
+const dummy = {};
+
+
 @connect(state => dummy)
 @formProxy
 export class IssueModal extends React.Component {

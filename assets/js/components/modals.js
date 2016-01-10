@@ -6,7 +6,7 @@ import FormReducer from '../hoc/formReducer';
 import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
-import { IssueModal } from './newTransactionModals';
+import { IssueModal } from './transactions/issue';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {
