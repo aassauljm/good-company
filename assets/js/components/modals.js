@@ -6,7 +6,8 @@ import FormReducer from '../hoc/formReducer';
 import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
-import { IssueModal } from './transactions/issue';
+import IssueModal from './transactions/issue';
+import TransferModal from './transactions/transfer';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {
@@ -47,7 +48,13 @@ export default class Modals extends React.Component {
                     next={(...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))} }
                     previous={() => {this.props.dispatch(previousModal(this.props.showing))} }
                     end={() => {this.props.dispatch(endModal(this.props.showing))} } />
-
+            case 'transfer':
+                return <TransferModal
+                    index={this.props.issue.index}
+                    modalData={this.props.issue.data}
+                    next={(...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))} }
+                    previous={() => {this.props.dispatch(previousModal(this.props.showing))} }
+                    end={() => {this.props.dispatch(endModal(this.props.showing))} } />
         }
 
     }

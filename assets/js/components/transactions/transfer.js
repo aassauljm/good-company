@@ -16,13 +16,10 @@ import { companyTransaction, addNotification } from '../../actions';
 
 const defaultShareClass = '___default';
 
-const issueFields = [
+const transferFields = [
     'effectiveDate',
     'parcels[].amount',
     'parcels[].shareClass',
-    'holdings[].holding',
-    'holdings[].parcels[].amount',
-    'holdings[].parcels[].shareClass'
 ];
 
 function shareClassOptions(shareClasses){
@@ -100,7 +97,7 @@ export class HoldingFields extends React.Component {
     labelClassName: 'col-xs-3',
     wrapperClassName: 'col-xs-9'
 })
-export class IssueForm extends React.Component {
+export class TransferForm extends React.Component {
     static propTypes = {
         holdings: PropTypes.array.isRequired,
     };
@@ -167,7 +164,7 @@ export class IssueForm extends React.Component {
     }
 }
 
-const validateIssue = data => {
+const validateTransfer = data => {
     const remainder = {};
     data.parcels.map(p => {
         remainder[p.shareClass || defaultShareClass] = (remainder[p.shareClass || defaultShareClass] || 0) + (parseInt(p.amount, 10) || 0);
@@ -222,11 +219,11 @@ const validateIssue = data => {
 
 
 const now = new Date()
-export const IssueFormConnected = reduxForm({
-    form: 'issue', fields: issueFields, validate: validateIssue
+export const TransferFormConnected = reduxForm({
+    form: 'transfer', fields: transferFields, validate: validateTransfer
 }, state => ({
-    initialValues: {effectiveDate: now, parcels: [{}], holdings: [{parcels: [{}]}]}
-}))(IssueForm);
+    initialValues: {effectiveDate: now, parcels: [{}]}
+}))(TransferForm);
 
 
 
@@ -235,7 +232,7 @@ const dummy = {};
 
 @connect(state => dummy)
 @formProxy
-export default class IssueModal extends React.Component {
+export default class TransferModal extends React.Component {
 
     static propTypes = {
         modalData: PropTypes.object.isRequired,
@@ -336,7 +333,7 @@ export default class IssueModal extends React.Component {
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
-                <Modal.Title>Issue Shares</Modal.Title>
+                <Modal.Title>Transfer Shares</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                    { this.pages[this.props.index].call(this) }

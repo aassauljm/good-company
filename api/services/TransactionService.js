@@ -116,19 +116,11 @@ export function performInverseIssueUnallocated(data, companyState, previousState
     return validateInverseIssue(data, companyState)
         .then(() => {
             const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
-            companyState.subtractUnallocatedParcels({amount: data.amount/*, shareClass: data.shareClass*/});
+            companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
             return transaction;
         })
 }
-export function performIssue(data, nextState, previousState, effectiveDate){
-    return validateIssue(data, companyState)
-        .then(() => {
-            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
-            companyState.combineUnallocatedParcels({amount: data.amount/*, shareClass: data.shareClass*/});
-            return transaction;
-        })
-    // In an issue we remove from unallocatedShares
-}
+
 
 export function performInverseAcquisition(data, companyState, previousState, effectiveDate){
     return validateInverseAcquistion(data, companyState)
@@ -150,11 +142,11 @@ export const performInverseAmend = Promise.method(function(data, companyState, p
             let transactionType  = data.transactionSubType || data.transactionType;
             if(difference < 0){
                 companyState.subtractUnallocatedParcels(parcel);
-                companyState.combineHoldings([newHolding], [{amount: data.afterAmount}]);
+                companyState.combineHoldings([newHolding], [{amount: data.afterAmount, shareClass: data.shareClass}]);
             }
             else{
                 companyState.combineUnallocatedParcels(parcel);
-                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount}]);
+                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount, shareClass: data.shareClass}]);
             }
             const current = companyState.getMatchingHolding(data.afterHolders)
 
@@ -355,6 +347,68 @@ export function performUpdateDirector(data, companyState, previousState, effecti
 
 };
 
+
+
+function validateIssue(data){
+    const newHoldings = data.holdings;
+    if (!newHoldings || !newHoldings.length) {
+        throw new sails.config.exceptions.ValidationException('Holdings are required');
+    }
+    newHoldings.forEach(function(holding){
+        if(!holding.holders || !holding.holders.length){
+            throw new sails.config.exceptions.ValidationException('Holders are required');
+        }
+        if(!holding.parcels || !holding.parcels.length){
+            throw new sails.config.exceptions.ValidationException('Parcels are required');
+        }
+        holding.parcels.forEach(function(parcel){
+            if(parcel.amount < 1)
+                throw new sails.config.exceptions.ValidationException('Parcels amounts must be positve');
+        });
+    });
+}
+
+export function performIssueUnallocated(data, nextState, previousState, effectiveDate){
+    return validateIssue(data, companyState)
+        .then(() => {
+            const transaction = Transaction.build({type: Transaction.types.ISSUE, data: data, effectiveDate: effectiveDate})
+            companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+            return transaction;
+        })
+    // In an issue we remove from unallocatedShares
+}
+
+
+export const performAmend = Promise.method(function(data, companyState, previousState, effectiveDate){
+    let transaction, holding;
+    return validateInverseAmend(data, companyState)
+        .then((_holding) =>{
+            holding = _holding;
+            let difference = data.afterAmount - data.beforeAmount;
+            let parcel = {amount: Math.abs(difference)};
+            let newHolding = {holders: data.afterHolders, parcels: [parcel]};
+            let transactionType  = data.transactionSubType || data.transactionType;
+            transaction = Transaction.build({type: data.transactionSubType || transactionType,  data: data, effectiveDate: effectiveDate});
+            if(difference < 0){
+                companyState.subtractUnallocatedParcels(parcel);
+                companyState.combineHoldings([newHolding], [{amount: data.afterAmount}]);
+            }
+            else{
+                companyState.combineUnallocatedParcels(parcel);
+                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount}]);
+            }
+            const current = companyState.getMatchingHolding(data.afterHolders)
+
+            // If holders have changed too
+            if(!current.holdersMatch({holders: data.beforeHolders})){
+                companyState.mutateHolders(current, data.beforeHolders);
+            }
+        })
+        .then(() => {
+            return transaction;
+        });
+});
+
 /**
     Seed is a special cause, it doesn't care about previousState
 */
@@ -433,4 +487,62 @@ export function performInverseTransaction(data, company){
             sails.log.verbose('Current state', JSON.stringify(prevState, null, 4));
             return currentRoot.setPreviousCompanyState(_prevState);
         })
+}
+
+
+export function performTransaction(data, company){
+    const PERFORM_ACTION_MAP = {
+        [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performIssueUnallocated,
+        [Transaction.types.ISSUE_TO]:  TransactionService.performIssueTo,
+    };
+    if(!data.actions){
+        return;
+    }
+    let nextState, current, transactions;
+    return company.getCurrentCompanyState()
+        .then(function(_state){
+            current = _state;
+            return currentRoot.buildNext({});
+        })
+        .then(function(_nextState){
+            nextState = _nextState;
+            return Promise.reduce(data.actions, function(arr, action){
+                sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
+                let result;
+                if(PERFORM_ACTION_MAP[action.transactionType]){
+                    result = PERFORM_ACTION_MAP[action.transactionType]({
+                        ...action, documentId: data.documentId
+                    }, nextState, current, data.effectiveDate);
+                }
+                if(result){
+                    return result.then(function(r){
+                        arr.push(r);
+                        return arr;
+                    });
+                }
+                return arr;
+            }, [])
+
+        })
+        .then(function(transactions){
+            const tran = Transaction.buildDeep({
+                    type: data.transactionType || Transaction.types.COMPOUND,
+                    data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
+                    effectiveDate: data.effectiveDate,
+            });
+            tran.dataValues.childTransactions = _.filter(transactions);
+            return tran.save();
+        })
+        .then(function(transaction){
+            return nextState.setTransaction(transaction.id);
+        })
+        .then(function(){
+            nextState.save();
+        })
+        .then(function(){
+            return company.setCurrentCompanyState(nextState);
+         })
+         .then(function(){
+            return company.save();
+         });
 }
