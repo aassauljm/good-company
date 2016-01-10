@@ -61,9 +61,8 @@ export function renderIssueTo(data, effectiveDate) {
             <dl>
             <dt>Amount:</dt>
             <dd>{ renderParcelString(data.amount, data.shareClass) }</dd>
-
             <dt>To:</dt>
-            { renderHolders(data.afterHolders) }
+            { renderHolders(data.afterHolders || data.holders) }
             <dt>Effective Date:</dt>
             <dd>{ new Date(effectiveDate).toDateString() }</dd>
             </dl>
@@ -72,8 +71,7 @@ export function renderIssueTo(data, effectiveDate) {
 }
 
 
-// TODO
-export function renderIssue(data, effectiveDate) {
+export function renderIssueUnallocated(data, effectiveDate) {
     return (
         <div className="panel panel-default">
             <div className="panel-heading">
@@ -99,8 +97,9 @@ export class TransactionView extends React.Component {
         switch(transaction.type){
             case 'SEED':
                 return renderSeed(transaction.data, transaction.effectiveDate);
+            case 'ISSUE_UNALLOCATED':
+                return renderIssueUnallocated(transaction.data, transaction.effectiveDate);
             case 'ISSUE':
-                return renderIssue(transaction.data, transaction.effectiveDate);
             case 'COMPOUND':
                 return (transaction.subTransactions || []).map((t, i) => <div key={i}>{ this.renderTransaction(t) }</div>);
             case 'ADDRESS_CHANGE':

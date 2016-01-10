@@ -32,6 +32,7 @@ export default {
         SEED: 'Seed from Companies Office',
         INCORPORATION: 'Incorporation',
         ISSUE: 'Issue',
+        ISSUE_UNALLOCATED: 'Issue',
         ISSUE_TO: 'Issue to',
         AMEND: 'Amend',
         COMPOUND: 'Compound Transaction',
