@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { pushState, replaceState } from 'redux-router';
+import { routeActions } from 'react-router-redux'
 
 export default (ComposedComponent) => {
     @connect(state => state.login)
@@ -13,7 +13,7 @@ export default (ComposedComponent) => {
         }
         nav() {
             if(!this.props.loggedIn){
-                this.props.dispatch(pushState(null, '/login'));
+                this.props.dispatch(routeActions.push('/login'));
             }
         }
         render() {

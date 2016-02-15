@@ -7,7 +7,7 @@ import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
-import { pushState, replaceState } from 'redux-router';
+import { routeActions } from 'react-router-redux'
 import { fieldStyle, fieldHelp, objectValues, validateWithSchema } from '../utils';
 import { createResource, validateUser } from '../actions';
 import Promise from 'bluebird'
@@ -96,7 +96,7 @@ class Signup extends React.Component {
                     this.props.dispatch(addNotification({error: true, message: result.response.message}));
                 }
                 else{
-                    this.props.dispatch(pushState(null, '/'))
+                    this.props.dispatch(routeActions.push('/'))
                 }
             })
     }
@@ -108,7 +108,7 @@ class Signup extends React.Component {
     }
     nav() {
         if(this.props.loggedIn){
-            this.props.dispatch(pushState(null, '/'));
+            this.props.dispatch(routeActions.push('/'));
         }
     }
     render() {

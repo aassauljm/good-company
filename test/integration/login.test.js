@@ -5,8 +5,8 @@ import {
   findRenderedDOMComponentWithTag,
   Simulate
 } from 'react-addons-test-utils';
-import {prepareApp, waitFor} from './helpers';
-import {LoginForm} from ".../../../../assets/js/components/login.js";
+import { prepareApp, waitFor } from './helpers';
+import { LoginForm } from ".../../../../assets/js/components/login.js";
 import chai from 'chai';
 const should = chai.should();
 

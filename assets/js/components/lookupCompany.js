@@ -8,7 +8,6 @@ import ListGroupItem from './forms/listGroupItem';
 import { lookupCompany } from '../actions';
 import { connect } from 'react-redux';
 import {reduxForm} from 'redux-form';
-import { pushState, replaceState } from 'redux-router';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import silenceEvent from 'redux-form/lib/events/silenceEvent';
 

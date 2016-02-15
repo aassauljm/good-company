@@ -5,7 +5,6 @@ import Button from 'react-bootstrap/lib/Button';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import { numberWithCommas } from '../utils';
-import { pushState } from 'redux-router';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 

@@ -4,7 +4,6 @@ import Login from './login';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { requestUserInfo } from '../actions';
-import { pushState, replaceState } from 'redux-router';
 import DropZone from 'react-dropzone';
 import { createResource } from '../actions'
 import Notifications from './notifications';
@@ -36,16 +35,16 @@ export default class App extends React.Component {
         const name = this.props.location.pathname;
         return  <div>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
-                <DropZone  onDrop={::this.onDrop} disableClick={true} style={{}}>
-             <Notifications/>
-             <Modals />
-            <div className="app-container" >
-              <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={200} transitionLeaveTimeout={200}>
-              <div key={name}>
-                { this.props.children }
-                </div>
-                </ReactCSSTransitionGroup>
-             </div>
+            <DropZone  onDrop={::this.onDrop} disableClick={true} style={{}}>
+                 <Notifications/>
+                 <Modals />
+                <div className="app-container" >
+                  <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={200} transitionLeaveTimeout={200}>
+                  <div key={name}>
+                    { this.props.children }
+                    </div>
+                    </ReactCSSTransitionGroup>
+                 </div>
             </DropZone>
         </div>
     }

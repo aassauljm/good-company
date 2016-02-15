@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import { reduxForm } from 'redux-form';
-import { initialize } from 'redux-form';
+import { reset} from 'redux-form';
 import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
 import AuthenticatedComponent from  './authenticated';
@@ -33,7 +33,7 @@ export default class AccountForm extends React.Component {
     }
 
     componentWillUnmount(){
-        this.props.dispatch(initialize('account', {}));
+        this.props.dispatch(reset('account'));
     }
 
     errors(){

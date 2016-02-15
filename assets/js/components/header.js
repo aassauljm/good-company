@@ -1,7 +1,6 @@
 "use strict"
 import React from 'react'
 import { pureRender }  from '../utils';
-import Router from 'react-router'
 import { Link } from 'react-router';
 import Actions from '../actions';
 import Navbar from 'react-bootstrap/lib/Navbar'

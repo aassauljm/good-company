@@ -25,9 +25,9 @@ STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
 
 //import formReducer from './customFormReducer';
 import {reducer as formReducer} from 'redux-form';
-import { routerStateReducer } from 'redux-router';
 import validator from 'validator'
 import { relationNameToModel } from './schemas';
+import { routeReducer } from 'react-router-redux'
 
 const initialState = {
 
@@ -490,17 +490,17 @@ export function formPopulation(state = {}, action){
 export const form = formPopulation;
 
 const appReducer = combineReducers({
-  router: routerStateReducer,
-  companyPage,
-  transactions,
-  lookupCompany,
-  importCompany,
-  login,
-  userInfo,
-  resources,
-  form: form,
-  notifications,
-  modals
+    routing: routeReducer,
+    companyPage,
+    transactions,
+    lookupCompany,
+    importCompany,
+    login,
+    userInfo,
+    resources,
+    form: form,
+    notifications,
+    modals
 });
 
 

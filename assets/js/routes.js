@@ -17,39 +17,36 @@ import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
 import SignUp from './components/signup';
-import { ReduxRouter } from 'redux-router';
+
 
 
 const routes = (
-                <ReduxRouter>
-                <Route component={ App }>
-                <Route path="login" component={ Login }  />
-                <Route path="signup" component={ SignUp }  />
-                <Route path="/" component={ Landing }  />
-                <Route path="home" component={ Home }  />
-                <Route path="users" component={ Users }  />
-                <Route path="roles" component={ Roles }  />
-                <Route path="documents" component={ Documents }  />
-                <Route path="document/view/:id" component={ Document }  />
+    <Route component={ App }>
+        <Route path="login" component={ Login }  />
+        <Route path="signup" component={ SignUp }  />
+        <Route path="/" component={ Landing }  />
+        <Route path="home" component={ Home }  />
+        <Route path="users" component={ Users }  />
+        <Route path="roles" component={ Roles }  />
+        <Route path="documents" component={ Documents }  />
+        <Route path="document/view/:id" component={ Document }  />
 
-                <Route path="companies" component={ Companies }  />
-                <Route path="company/view/:id" component={ Company }>
-                    <Route path="shareholdings" component={ Shareholdings } />
-                    <Route path="details" component={ CompanyDetails } />
-                    <Route path="transactions" component={ CompanyTransactions } />
-                    <Route path="new_transaction" component={ NewTransaction } />
-                    <Route path="shareregister" component={ ShareRegister } />
-                    <Route path="shareholders" component={ Shareholders } />
-                </Route>
-                <Route path="company/view/:id/history/:generation" component={ Company }  />
+        <Route path="companies" component={ Companies }  />
+        <Route path="company/view/:id" component={ Company }>
+            <Route path="shareholdings" component={ Shareholdings } />
+            <Route path="details" component={ CompanyDetails } />
+            <Route path="transactions" component={ CompanyTransactions } />
+            <Route path="new_transaction" component={ NewTransaction } />
+            <Route path="shareregister" component={ ShareRegister } />
+            <Route path="shareholders" component={ Shareholders } />
+        </Route>
+        <Route path="company/view/:id/history/:generation" component={ Company }  />
 
-                <Route path="user/edit/:id" edit={true} component={ Account }  />
-                <Route path="user/set_password" edit={true} component={ SetPassword }  />
-                <Route path="user/create" component={ Account }  />
-                <Route path="*" component={ NotFound } />
-                </Route>
-            </ReduxRouter>
-            );
+        <Route path="user/edit/:id" edit={true} component={ Account }  />
+        <Route path="user/set_password" edit={true} component={ SetPassword }  />
+        <Route path="user/create" component={ Account }  />
+        <Route path="*" component={ NotFound } />
+    </Route>);
 
 
 export default routes;

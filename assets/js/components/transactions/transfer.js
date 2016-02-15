@@ -7,7 +7,6 @@ import { reduxForm } from 'redux-form';
 import Input from '../forms/input';
 import STRINGS from '../../strings'
 import { numberWithCommas, fieldStyle, fieldHelp, formFieldProps, requireFields, formProxyable, formProxy } from '../../utils';
-import { pushState } from 'redux-router';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import DateInput from '../forms/dateInput';
 import Panel from '../panel';

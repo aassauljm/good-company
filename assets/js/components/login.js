@@ -6,9 +6,9 @@ import ButtonInput from './forms/buttonInput';
 import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
 import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
-import {reduxForm} from 'redux-form';
+import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
-import { pushState, replaceState } from 'redux-router';
+import { routeActions } from 'react-router-redux'
 
 
 
@@ -55,7 +55,7 @@ class Login extends React.Component {
     }
     nav() {
         if(this.props.loggedIn){
-            this.props.dispatch(pushState(null, '/'));
+            this.props.dispatch(routeActions.push('/'));
         }
     }
     render() {

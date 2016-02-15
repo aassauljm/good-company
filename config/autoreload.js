@@ -5,7 +5,6 @@ module.exports.autoreload = {
     "api/models",
     "api/controllers",
     "api/services",
-    "api/responses",
     "config/locales",
   ],
   ignored: [

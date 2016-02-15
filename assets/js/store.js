@@ -1,28 +1,31 @@
 "use strict";
 import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
-import createHistory from 'history/lib/createBrowserHistory';
-import { reduxReactRouter } from 'redux-router';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { stopSubmit } from 'redux-form/lib/actions';
 import { callAPIMiddleware } from './middleware';
 import { devTools, persistState } from 'redux-devtools';
 import DevTools from './components/devTools';
+import { syncHistory } from 'react-router-redux';
+import { browserHistory } from 'react-router'
 
 let middleware;
 
+const reduxRouterMiddleware = syncHistory(browserHistory);
 
 if(__DEV__){
     const loggerMiddleware = createLogger();
     middleware = applyMiddleware(
           thunkMiddleware,
           loggerMiddleware,
+          reduxRouterMiddleware,
           callAPIMiddleware)
 }
 else{
     middleware = applyMiddleware(
           thunkMiddleware,
+          reduxRouterMiddleware,
           callAPIMiddleware)
 }
 
@@ -35,23 +38,23 @@ try{
 }
 
 
+
 const createStoreWithMiddleware = __DEV__ ?
         compose(
             middleware,
             // Lets you write ?debug_session=<name> in address bar to persist debug sessions
-             // persistState('dev')
-            reduxReactRouter({ createHistory }),
+            // persistState('dev')
             // Provides support for DevTools:
             DevTools.instrument()
         )(createStore)
         :
         compose(
             middleware,
-            reduxReactRouter({ createHistory }),
-
         )(createStore);
 
 
 export default function configureStore(initialState=data) {
-  return createStoreWithMiddleware(appReducer, initialState);
+    const store = createStoreWithMiddleware(appReducer, initialState);
+    reduxRouterMiddleware.listenForReplays(store);
+    return store;
 }

@@ -3,12 +3,14 @@ import ReactDOM from 'react-dom';
 import {
   renderIntoDocument
 } from 'react-addons-test-utils';
-import {configureHistoriedStore} from ".../../../../assets/js/serverStore";
+import { configureHistoriedStore } from ".../../../../assets/js/serverStore";
 import Root from ".../../../../assets/js/root";
 import Promise from "bluebird";
-
+import { createMemoryHistory } from 'react-router'
 const LOOP = 20;
 const DOMTIMEOUT = 1000;
+
+
 
 export function waitFor(msg, sel, dom){
     let interval,
@@ -33,7 +35,8 @@ export function waitFor(msg, sel, dom){
 }
 
 export function prepareApp(){
-    const store = configureHistoriedStore();
-    this.tree = renderIntoDocument(<Root store={store}/>);
+    const history = createMemoryHistory('/');
+    const store = configureHistoriedStore(history);
+    this.tree = renderIntoDocument(<Root store={store} history={history}/>);
     this.dom = ReactDOM.findDOMNode(this.tree);
 }

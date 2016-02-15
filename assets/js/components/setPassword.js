@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { reduxForm}  from 'redux-form';
 import { fieldStyle } from '../utils';
 import AuthenticatedComponent from  './authenticated';
-import { pushState, replaceState } from 'redux-router';
+
 
 function validatePasswordMatch(form){
     if(form.newPassword !== form.repeatPassword){
