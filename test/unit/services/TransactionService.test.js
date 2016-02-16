@@ -150,38 +150,6 @@ describe('Transaction Service, inverse transactions', function() {
             });
         });
 
-        describe('Change address transaction', function() {
-
-            it('changes address, fail validation (wrong current address)', function() {
-                return rootStateSimple.buildPrevious()
-                    .then(function(companyState){
-                        return TransactionService.performInverseAddressChange({
-                            transactionType: Transaction.types.NAME_CHANGE,
-                            oldAddress: 'japan',
-                            newAddress: 'chinatown',
-                            field: 'addressForService',
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
-                    })
-            });
-
-            it('changes address, success', function() {
-                let prevState;
-                return rootStateSimple.buildPrevious()
-                    .then(function(companyState){
-                        prevState = companyState;
-                        return TransactionService.performInverseAddressChange({
-                            transactionType: Transaction.types.NAME_CHANGE,
-                            previousAddress: 'japan',
-                            newAddress: 'china',
-                            field: 'addressForService',
-                        }, companyState, rootStateSimple).should.eventually.be.fulfilled;
-                    })
-                    .then(function(){
-                        prevState.addressForService.should.be.equal('japan');
-                    })
-            });
-        });
-
         describe('change holding transactions', function() {
 
             it('changes holding, fail validation (wrong current holding), confirm revert', function() {
@@ -468,6 +436,42 @@ describe('Transaction Service, inverse transactions', function() {
             });
         });
 
+        describe('change holding transactions', function() {
+
+            it('changes holding, fail validation (wrong current holding)', function() {
+                return rootStateSimple.buildNext()
+                    .then(function(companyState){
+                        return TransactionService.performHoldingChange({
+                            transactionType: Transaction.types.HOLDING_CHANGE,
+                            beforeHolders: [{name: 'john'}],
+                            afterHolders: [{name: 'mike'}]
+                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                    })
+
+            });
+
+            it('change holding, success', function() {
+                let nextState, date = new Date();
+                return rootStateSimple.buildNext()
+                    .then(function(companyState){
+                        nextState = companyState;
+                        return TransactionService.performHoldingChange({
+                            transactionType: Transaction.types.HOLDING_CHANGE,
+                            beforeHolders: [{name: 'mike'}],
+                            afterHolders: [{name: 'john'}]
+                        }, companyState, rootStateSimple, date).should.eventually.be.fulfilled;
+                    })
+                    .then(function(e){
+                        const _nextState = nextState.toJSON();
+                        _nextState.holdings.length.should.be.equal(1);
+                        _nextState.holdings[0].holders[0].name.should.be.equal('john');
+                        _nextState.holdings[0].parcels[0].amount.should.be.equal(1);
+                        const transaction = nextState.dataValues.holdings[0].dataValues.transaction;
+                        transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
+                        transaction.effectiveDate.should.be.eql(date);
+                    });
+            });
+        });
 
     });
 });

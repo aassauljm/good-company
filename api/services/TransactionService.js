@@ -185,6 +185,19 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         });
 };
 
+export function performHoldingChange(data, companyState, previousState, effectiveDate){
+    const current = companyState.getMatchingHolding(data.beforeHolders);
+    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    return transaction.save()
+        .then(() => {
+            if(!current){
+                 throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
+            }
+            companyState.mutateHolders(current, data.afterHolders, transaction);
+            return transaction;
+        });
+};
+
 export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate){
     const normalizedData = _.cloneDeep(data);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -548,6 +561,8 @@ export function performTransaction(data, company){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performIssueUnallocated,
         [Transaction.types.ISSUE_TO]:  TransactionService.performIssueTo,
+        [Transaction.types.NAME_CHANGE]: TransactionService.performNameChange,
+        [Transaction.types.ADDRESS_CHANGE]: TransactionService.performAddressChange,
     };
     if(!data.actions){
         return;
