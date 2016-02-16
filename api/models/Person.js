@@ -66,7 +66,12 @@ module.exports = {
                     (this.dataValues.address || null) === (other.address || null);
             },
             replaceWith: function(other){
-                return Person.build(_.merge(other, {personId: this.dataValues.personId}));
+                return Person.build(_.merge(other, {personId: this.dataValues.personId}), {
+                                include: [{
+                                    model: Transaction,
+                                    as: 'transaction',
+                                }]
+                            });
             }
 
         },

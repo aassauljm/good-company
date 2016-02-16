@@ -221,6 +221,27 @@ export const performInverseHolderChange = function(data, companyState, previousS
         });
 };
 
+export const performHolderChange = function(data, companyState, previousState, effectiveDate){
+    const normalizedData = _.cloneDeep(data);
+    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    return Promise.join(AddressService.normalizeAddress(data.afterHolder.address),
+                        AddressService.normalizeAddress(data.beforeHolder.address))
+        .spread((afterAddress, beforeAddress) => {
+            normalizedData.afterHolder.address = afterAddress;
+            normalizedData.beforeHolder.address = beforeAddress;
+            return transaction.save()
+        })
+        .then(function(){
+            companyState.replaceHolder(normalizedData.beforeHolder, normalizedData.afterHolder, transaction);
+            return transaction;
+        })
+        .catch((e)=>{
+            sails.log.error(e);
+            throw new sails.config.exceptions.InvalidOperation('Cannot find holder, holder change')
+        });
+};
+
+
 export const performInverseNewAllocation = Promise.method(function(data, companyState, previousState, effectiveDate){
     companyState.combineUnallocatedParcels({amount: data.amount});
     let holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}]);
@@ -563,6 +584,8 @@ export function performTransaction(data, company){
         [Transaction.types.ISSUE_TO]:  TransactionService.performIssueTo,
         [Transaction.types.NAME_CHANGE]: TransactionService.performNameChange,
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performAddressChange,
+        [Transaction.types.HOLDING_CHANGE]:  TransactionService.performHoldingChange,
+        [Transaction.types.HOLDER_CHANGE]:  TransactionService.performHolderChange,
     };
     if(!data.actions){
         return;

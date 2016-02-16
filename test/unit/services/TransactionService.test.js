@@ -405,7 +405,6 @@ describe('Transaction Service, inverse transactions', function() {
         });
 
         describe('Change address transaction', function() {
-
             it('Change address, fail validation (wrong current address)', function() {
                 return rootStateSimple.buildNext()
                     .then(function(companyState){
@@ -437,7 +436,6 @@ describe('Transaction Service, inverse transactions', function() {
         });
 
         describe('change holding transactions', function() {
-
             it('changes holding, fail validation (wrong current holding)', function() {
                 return rootStateSimple.buildNext()
                     .then(function(companyState){
@@ -471,6 +469,36 @@ describe('Transaction Service, inverse transactions', function() {
                         transaction.effectiveDate.should.be.eql(date);
                     });
             });
+        });
+
+        describe('change holder transactions', function() {
+            it('changes a holder, confirms all holdings updated', function() {
+                let nextState;
+                return rootStateMultiple.buildNext()
+                    .then(function(companyState){
+                        nextState = companyState;
+                        return TransactionService.performHolderChange({
+                            transactionType: Transaction.types.HOLDING_CHANGE,
+                            afterHolder: {name: 'michael'},
+                            beforeHolder: {name: 'mike'}
+                        }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
+                })
+                .then(function(){
+                    return nextState.save();
+                })
+                .then(function(){
+                    return nextState.reload();
+                })
+                .then(function(){
+                    const _rootStateMultiple = rootStateMultiple.toJSON();
+                    rootStateMultiple.getHolderBy({name: 'mike'}).should.not.be.equal(null);
+                    should.equal(rootStateMultiple.getHolderBy({name: 'michael'}), undefined);
+                    nextState.getHolderBy({name: 'michael'}).should.not.be.equal(null);
+                    should.equal(nextState.getHolderBy({name: 'mike'}), undefined);
+                    rootStateMultiple.getHolderBy({name: 'mike'}).personId.should.be.equal(nextState.getHolderBy({name: 'michael'}).personId)
+                    nextState.getHolderBy({name: 'michael'}).transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
+                })
+            })
         });
 
     });

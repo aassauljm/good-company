@@ -570,7 +570,7 @@ module.exports = {
                         holding.dataValues.holders[index] = builtNewHolder || holding.dataValues.holders[index].replaceWith(newHolder);
                         builtNewHolder = holding.dataValues.holders[index];
                         if(transaction){
-                            holding.dataValues.transaction = transaction;
+                            builtNewHolder.dataValues.transaction = transaction;
                         }
                     }
                 });
