@@ -176,13 +176,15 @@ module.exports = {
                             });
                         })
                     }
-                });
+                })
         })
         .then(function() {
             return res.json(company);
         })
+        .catch(sails.config.exceptions.CompanyImportException, function(err) {
+            return res.badRequest(err);
+        })
         .catch(function(err) {
-            sails.log.error(err)
             return res.serverError(err);
         });
     },

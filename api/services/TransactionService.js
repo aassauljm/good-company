@@ -276,11 +276,39 @@ export const performInverseNameChange = Promise.method(function(data, companySta
         });
 });
 
+export function validateNameChange(data, companyState,  effectiveDate){
+    if(data.previousCompanyName !== companyState.companyName){
+        throw new sails.config.exceptions.InvalidInverseOperation('Previous company name does not match expected name, documentId: ' +data.documentId)
+    }
+    if(data.previousCompanyName === data.newCompanyName){
+        throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ, documentId: ' +data.documentId)
+    }
+}
+
+
+export const performNameChange = Promise.method(function(data, nextState, previousState, effectiveDate){
+    validateNameChange(data, nextState);
+    nextState.set('companyName', data.newCompanyName);
+    return nextState.validate()
+        .then(function(errors){
+            if(errors){
+                return Promise.reject(errors);
+            }
+            return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
+        })
+});
+
+
 export function validateInverseAddressChange(data, companyState, effectiveDate){
     return AddressService.normalizeAddress(data.newAddress)
     .then((newAddress) => {
         if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
             throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected, documentId: ' +data.documentId)
+        }
+        if(['registeredCompanyAddress',
+            'addressForShareRegister',
+            'addressForService'].indexOf(data.field) === -1){
+            throw new sails.config.exceptions.InvalidInverseOperation('Address field not valid, documentId: ' +data.documentId)
         }
     })
 }
@@ -296,7 +324,33 @@ export function performInverseAddressChange(data, companyState, previousState, e
     });
 };
 
-export function validateNewDirector(data, companyState){
+export function validateAddressChange(data, companyState, effectiveDate){
+    return AddressService.normalizeAddress(data.previousAddress)
+    .then((previousAddress) => {
+        if(!AddressService.compareAddresses(previousAddress, companyState[data.field])){
+            throw new sails.config.exceptions.InvalidOperation('Previous address does not match expected')
+        }
+        if(['registeredCompanyAddress',
+            'addressForShareRegister',
+            'addressForService'].indexOf(data.field) === -1){
+            throw new sails.config.exceptions.InvalidOperation('Address field not valid, documentId: ' +data.documentId)
+        }
+    })
+}
+
+export function performAddressChange(data, companyState, previousState, effectiveDate){
+    return validateAddressChange(data, companyState)
+    .then(function(){
+        return AddressService.normalizeAddress(data.newAddress);
+    })
+    .then((newAddress) => {
+        companyState.set(data.field, newAddress);
+        return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    })
+};
+
+
+export function validateInverseNewDirector(data, companyState){
     const director = _.find(companyState.dataValues.directors, (d)=> {
         return d.person.name === data.name ; /*&& d.person.address === data.address */;
     })
@@ -305,15 +359,15 @@ export function validateNewDirector(data, companyState){
     }
 }
 
-export const performNewDirector = Promise.method(function(data, companyState, previousState, effectiveDate){
-    validateNewDirector(data, companyState);
+export const performInverseNewDirector = Promise.method(function(data, companyState, previousState, effectiveDate){
+    validateInverseNewDirector(data, companyState);
     companyState.dataValues.directors = _.reject(companyState.dataValues.directors, (d) => {
         return d.person.name === data.name /*&&  && d.person.address == data.address */;
     });
     return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}))
 });
 
-export function performRemoveDirector(data, companyState, previousState, effectiveDate){
+export function performInverseRemoveDirector(data, companyState, previousState, effectiveDate){
     // find them as a share holder?
     return AddressService.normalizeAddress(data.address)
         .then(address => {
@@ -324,7 +378,7 @@ export function performRemoveDirector(data, companyState, previousState, effecti
     });
 }
 
-export function performUpdateDirector(data, companyState, previousState, effectiveDate){
+export function performInverseUpdateDirector(data, companyState, previousState, effectiveDate){
     // find them as a share holder?
     const transaction = Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
     return transaction.save()
@@ -431,9 +485,9 @@ export function performInverseTransaction(data, company){
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
         [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performInverseAddressChange,
-        [Transaction.types.NEW_DIRECTOR]: TransactionService.performNewDirector,
-        [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performRemoveDirector,
-        [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performUpdateDirector,
+        [Transaction.types.NEW_DIRECTOR]: TransactionService.performInverseNewDirector,
+        [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performInverseRemoveDirector,
+        [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
         [Transaction.types.ANNUAL_RETURN]: TransactionService.validateAnnualReturn
     };
     if(!data.actions){
@@ -506,6 +560,8 @@ export function performTransaction(data, company){
         })
         .then(function(_nextState){
             nextState = _nextState;
+            // TODO, serviously consider having EACH action create a persistant graph
+            // OR, force each transaction set to be pre grouped
             return Promise.reduce(data.actions, function(arr, action){
                 sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;

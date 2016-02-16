@@ -10,6 +10,7 @@ module.exports.exceptions = _.defaults({
     BadParcelOperation: errorFactory('BadParcelOperation'),
     TransactionNotFound: errorFactory('TransactionNotFound'),
     InvalidInverseOperation: errorFactory('InvalidInverseOperation'),
+    InvalidOperation: errorFactory('InvalidOperation'),
     InvalidHoldingOperation: errorFactory('InvalidHolding'),
     CompanyImportException: errorFactory('CompanyImportException')
 }, require('sequelize/lib/errors'));

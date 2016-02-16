@@ -66,7 +66,7 @@ describe('Company Controller', function() {
         });
         it('Gets an error that company already exists for this user', function(done){
             req.post('/api/company/import/companiesoffice/2109736')
-                .expect(500)
+                .expect(400)
                 .then(function(res){
                     done();
                 });
