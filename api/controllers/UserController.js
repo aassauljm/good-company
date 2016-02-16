@@ -69,9 +69,10 @@ module.exports = {
             })
     },
     signup: function(req, res) {
-        sails.services.passport.protocols.local.register(req.body)
+        Promise.resolve()
+            .then(() => sails.services.passport.protocols.local.register(req.body))
             .then(function(user) {
-                var passport = sails.services.passport;
+                const passport = sails.services.passport;
                 // Initialize Passport
                 passport.initialize()(req, res, function() {
                     // Use the built-in sessions

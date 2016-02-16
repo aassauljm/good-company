@@ -40,7 +40,7 @@ exports.createUser = function(_user) {
     var password = _user.password;
     var user;
     delete _user.password;
-    return sequelize.transaction(function (t) {
+    return sequelize.transaction(function(t) {
         return User.create(_user, {transaction: t})
             .then(function(__user) {
                 user = __user;
@@ -57,10 +57,10 @@ exports.createUser = function(_user) {
             .then(function(){
                 return user;
             })
-            .catch(function(err) {
-                throw new sails.config.exceptions.ValidationError(err.message);
-            })
-        });
+        })
+        /*.catch(function(err) {
+            throw new sails.config.exceptions.ValidationError(err.message);
+        })*/
 };
 /**
  * Assign local Passport to user

@@ -20,6 +20,6 @@ module.exports = {
     models: {
         connection: 'pg_test'
     },
-    serverRender: true,
+    //serverRender: true,
     CACHE_DIR: '/tmp/.gc'
 };

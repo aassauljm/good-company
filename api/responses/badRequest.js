@@ -21,7 +21,6 @@ module.exports = function badRequest(data, options) {
   var req = this.req;
   var res = this.res;
   var sails = req._sails;
-
   // Set status code
   res.status(400);
 
@@ -30,6 +29,7 @@ module.exports = function badRequest(data, options) {
     sails.log.verbose('Sending 400 ("Bad Request") response: \n',data);
   }
   else sails.log.verbose('Sending 400 ("Bad Request") response');
+  data = data || {};
 
   // Only include errors in response if application environment
   // is not set to 'production'.  In production, we shouldn't
@@ -39,7 +39,7 @@ module.exports = function badRequest(data, options) {
   }
   // If the user-agent wants JSON, always respond with JSON
   if (req.wantsJSON) {
-    return res.jsonx(data);
+    return res.jsonx({message: data.message});
   }
 
   // If second argument is a string, we take that to mean it refers to a view.

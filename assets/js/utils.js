@@ -18,7 +18,7 @@ export function fieldHelp(field){
         return;
     }
     if(field.error){
-        return field.error[0];
+        return Array.isArray(field.error) ? field.error[0] : field.error;
     }
 }
 

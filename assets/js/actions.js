@@ -15,6 +15,7 @@ import {
     LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE,
+    VALIDATE_USER_REQUEST, VALIDATE_USER_SUCCESS, VALIDATE_USER_FAILURE,
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
@@ -103,13 +104,13 @@ export function requestResource(resource, options = {}) {
     };
 }
 
-export function createResource(resource, data, options = {}, stringify = true) {
+export function createResource(resource, data, options = {stringify: true}) {
     return {
         types: [RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
             method: 'POST',
-            headers: stringify ? json_headers : accept_json_headers,
-            body: stringify ? JSON.stringify(data) : data,
+            headers: options.stringify ? json_headers : accept_json_headers,
+            body: options.stringify ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
         payload: {key: resource, form: options.form}
@@ -175,7 +176,6 @@ export function validateCompany(data, options = {}) {
         payload: {form: options.form}
     };
 }
-
 
 
 export function validateUser(data, options = {}) {
