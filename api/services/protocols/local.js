@@ -58,9 +58,9 @@ exports.createUser = function(_user) {
                 return user;
             })
         })
-        /*.catch(function(err) {
+        .catch(function(err) {
             throw new sails.config.exceptions.ValidationError(err.message);
-        })*/
+        })
 };
 /**
  * Assign local Passport to user
