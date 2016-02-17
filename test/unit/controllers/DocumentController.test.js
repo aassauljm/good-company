@@ -46,7 +46,7 @@ describe('DocumentController', function() {
                 .then(function(f){
                     JSON.stringify(res.body).should.be.eql(JSON.stringify(new Buffer(f, 'binary')));
                     done();
-                });
+                })
             });
     });
     it('should get document preview', function(done) {

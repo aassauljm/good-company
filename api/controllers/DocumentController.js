@@ -9,26 +9,20 @@ var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var PDFImage = require("pdf-image").PDFImage;
 
-function hexEncode(sails){
-    return sails.config.models.connection.indexOf('pg') === 0 ;
-}
 
-function readBinary(sails, fd){
-    return fs.readFileAsync(fd, hexEncode(sails) ? 'hex' : 'binary')
+function readBinary(fd){
+    return fs.readFileAsync(fd)
     .then(function(file){
-        if(hexEncode(sails)){
-            file = '\\x' + file;
-        }
         return file;
     })
 }
 
 
-function makePreview(sails, fd, type){
+function makePreview(fd, type){
     var pdfImage = new PDFImage(fd, {convertOptions: {'-resize': '256x'}});
     return pdfImage.convertPage(0)
         .then(function(fd){
-            return readBinary(sails, fd);
+            return readBinary(fd);
         });
 }
 
@@ -48,8 +42,8 @@ module.exports = {
             }
 
             var type = uploadedFiles[0].filename.split('.').pop();
-            Promise.join(readBinary(sails, uploadedFiles[0].fd),
-                        makePreview(sails, uploadedFiles[0].fd, type))
+            Promise.join(readBinary(uploadedFiles[0].fd),
+                        makePreview(uploadedFiles[0].fd, type))
                 .spread(function(file, preview){
                     sails.log.debug('Uploaded, saving to db');
                     return Document.create({
@@ -71,13 +65,13 @@ module.exports = {
                     sails.log.debug('Saved to db');
                     // If we have the pubsub hook, use the model class's publish method
                     // to notify all subscribers about the created item
-                    if (req._sails.hooks.pubsub) {
+                    /*if (req._sails.hooks.pubsub) {
                         if (req.isSocket) {
                             Document.subscribe(req, newInstance);
                             Document.introduce(newInstance);
                         }
                         Document.publishCreate(newInstance.toJSON(), !req.options.mirror && req);
-                    }
+                    }*/
                     res.created({id: newInstance.id });
                 })
 
@@ -88,7 +82,7 @@ module.exports = {
             .then(function(doc){
                 if (!doc) return res.notFound();
                 res.attachment(doc.filename)
-                res.write(new Buffer(doc.documentData.data, 'binary'));
+                res.write(doc.documentData.data);
                 res.end();
             })
             .catch(function(err){
@@ -100,7 +94,7 @@ module.exports = {
             .then(function(doc){
                 if (!doc) return res.notFound();
                 res.contentType('image/png');
-                res.write(new Buffer(doc.documentPreview.data, 'binary'));
+                res.write(doc.documentPreview.data);
                 res.end();
             })
             .catch(function(err){

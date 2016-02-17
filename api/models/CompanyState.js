@@ -5,9 +5,9 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 var _ = require('lodash');
-var Promise = require('bluebird');
+var Promise = require('sequelize/lib/promise');
 var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
-
+var getNamespace = require('continuation-local-storage').getNamespace;
 
 module.exports = {
     _config: {
@@ -250,7 +250,7 @@ module.exports = {
                 // persons can be in:
                 // obj.holdings.holders
                 // obj.directors.persons
-                obj = _.cloneDeep(obj)
+                obj = _.cloneDeep(obj);
                 return Promise.each(obj.holdings || [], function(holding){
                     return Promise.map(holding.holders || [], function(holder){
                         return AddressService.normalizeAddress(holder.address)
@@ -267,25 +267,31 @@ module.exports = {
                     });
                 })
                 .then(function(){
-                     return Promise.each(obj.directors || [], function(director){
-                        return AddressService.normalizeAddress(director.person.address)
-                            .then(function(address){
-                                director.person = _.merge({}, director.person, {address: address});
-                                return Person.findOrCreate({where: director.person, defaults: director.person})
-                                .spread(function(person){
-                                    director.person = person;
-                                })
-                            });
-                     });
+                    if(obj.directors && obj.directors.length){
+                        return Promise.each(obj.directors || [], function(director){
+                            return AddressService.normalizeAddress(director.person.address)
+                                .then(function(address){
+                                    director.person = _.merge({}, director.person, {address: address});
+                                    return Person.findOrCreate({where: director.person, defaults: director.person})
+                                    .spread(function(person){
+                                        director.person = person;
+                                    })
+                                });
+                         });
+                    }
+                    return null;
                 })
-                .then(function(){
+                .then(function(r){
                     return obj;
                 })
             },
 
 
             createDedupPersons: function(args){
-                return CompanyState.findOrCreatePersons(args)
+                return Promise.resolve()
+                    .then(function(){
+                        return CompanyState.findOrCreatePersons(args)
+                    })
                     .then(function(args){
                         var state = CompanyState.build(args, {include: CompanyState.includes.full()});
                         (state.get('holdings') || []).map(function(h){
@@ -298,6 +304,7 @@ module.exports = {
                             d.get('person').isNewRecord = false;
                             d._changed = {};
                         });
+
                         return state.save();
                     });
             }
@@ -573,23 +580,23 @@ module.exports = {
             },
 
             replaceHolder: function(currentHolder, newHolder, transaction){
-                let personId, newPerson;
+                let personId, newPerson, state = this;
                 return CompanyState.findPersonId(newHolder)
-                    .then(id => {
+                    .then(function(id){
                         if(!id) return CompanyState.findPersonId(currentHolder);
                         return id
                     })
-                    .then(id => {
+                    .then(function(id){
                         return Person.buildFull(_.merge(newHolder, {personId: id})).save()
                     })
-                    .then(person => {
+                    .then(function(person){
                         newPerson = person;
                         if(transaction){
                             return newPerson.setTransaction(transaction)
                         }
                     })
-                    .then(() => {
-                        this.dataValues.holdings.map(function(holding){
+                    .then(function(){
+                        state.dataValues.holdings.map(function(holding){
                             var index = _.findIndex(holding.dataValues.holders, function(h, i){
                                 return h.isEqual(currentHolder);
                             });
@@ -597,7 +604,7 @@ module.exports = {
                                 holding.dataValues.holders[index] = newPerson;
                             }
                         });
-                        return this;
+                        return state;
                     });
             },
 

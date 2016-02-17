@@ -26,6 +26,7 @@ function validateHoldings(newHoldings){
     });
 }
 
+
 // TODO, move to transaction service
 var transactions = {
     seed: function(args, company, date) {
@@ -50,9 +51,6 @@ var transactions = {
             })
             .then(function(){
                 return company.save();
-            })
-            .then(function(){
-                return;
             })
     },
     issue: function(args, company){
