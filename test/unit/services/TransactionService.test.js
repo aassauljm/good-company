@@ -52,7 +52,11 @@ describe('Transaction Service, inverse transactions', function() {
                 parcels: [{
                     amount: 3
                 }]
-            }]
+            }],
+            directors: [
+                {person: {name: 'mike'}},
+                {person: {name: 'jim'}}
+            ]
         };
 
         before(function(){
@@ -64,7 +68,6 @@ describe('Transaction Service, inverse transactions', function() {
                 .then(function(_companyState){
                     rootStateMultiple = _companyState;
                 });
-
         });
 
         describe('Change name transaction', function() {
@@ -196,6 +199,7 @@ describe('Transaction Service, inverse transactions', function() {
         });
 
         describe('change holder transactions', function() {
+
             it('changes a holder, confirms all holdings updated', function() {
                 let prevState;
                 return rootStateMultiple.buildPrevious()
@@ -220,7 +224,7 @@ describe('Transaction Service, inverse transactions', function() {
                     prevState.getHolderBy({name: 'michael'}).should.not.be.equal(null);
                     should.equal(prevState.getHolderBy({name: 'mike'}), undefined);
                     rootStateMultiple.getHolderBy({name: 'mike'}).personId.should.be.equal(prevState.getHolderBy({name: 'michael'}).personId)
-                    rootStateMultiple.getHolderBy({name: 'mike'}).transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE)
+                    rootStateMultiple.getHolderBy({name: 'mike'}).transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
                     return prevState.getHolderBy({name: 'michael'}).getHoldings()
                 })
                 .then(function(holdings){
@@ -288,6 +292,23 @@ describe('Transaction Service, inverse transactions', function() {
                     });
             });
         });
+
+            //director transactions, should effect a shareholder, maybe
+
+        /* describe('director transaction', function() {
+                it('new director, should fail', function() {
+                    return rootStateMultiple.buildPrevious()
+                        .then(function(companyState){
+                            return TransactionService.performInverseNewDirector({
+                                transactionType: Transaction.types.ISSUE_TO,
+                                afterHolders: [{name: 'mike'}, {name: 'cindy'}],
+                                beforeHolders: [{name: 'mike'}, {name: 'cindy'}],
+                                beforeAmount: 0,
+                                afterAmount: 1
+                            }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                        });
+                });
+        });*/
     });
 
 
@@ -338,7 +359,11 @@ describe('Transaction Service, inverse transactions', function() {
                 parcels: [{
                     amount: 3
                 }]
-            }]
+            }],
+            directors: [
+                {person: {name: 'mike'}},
+                {person: {name: 'jim'}},
+            ]
         };
 
         before(function(){
@@ -479,7 +504,7 @@ describe('Transaction Service, inverse transactions', function() {
                         nextState = companyState;
                         return TransactionService.performHolderChange({
                             transactionType: Transaction.types.HOLDING_CHANGE,
-                            afterHolder: {name: 'michael'},
+                            afterHolder: {name: 'mitchel'},
                             beforeHolder: {name: 'mike'}
                         }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
                 })
@@ -492,11 +517,11 @@ describe('Transaction Service, inverse transactions', function() {
                 .then(function(){
                     const _rootStateMultiple = rootStateMultiple.toJSON();
                     rootStateMultiple.getHolderBy({name: 'mike'}).should.not.be.equal(null);
-                    should.equal(rootStateMultiple.getHolderBy({name: 'michael'}), undefined);
-                    nextState.getHolderBy({name: 'michael'}).should.not.be.equal(null);
+                    should.equal(rootStateMultiple.getHolderBy({name: 'mitchel'}), undefined);
+                    nextState.getHolderBy({name: 'mitchel'}).should.not.be.equal(null);
                     should.equal(nextState.getHolderBy({name: 'mike'}), undefined);
-                    rootStateMultiple.getHolderBy({name: 'mike'}).personId.should.be.equal(nextState.getHolderBy({name: 'michael'}).personId)
-                    nextState.getHolderBy({name: 'michael'}).transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
+                    rootStateMultiple.getHolderBy({name: 'mike'}).personId.should.be.equal(nextState.getHolderBy({name: 'mitchel'}).personId)
+                    nextState.getHolderBy({name: 'mitchel'}).transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
                 })
             })
         });

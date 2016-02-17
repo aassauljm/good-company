@@ -215,7 +215,7 @@ module.exports = {
                 }
             },
 
-            populatePersonIds: function(persons){
+            populatePersonIds: function(persons, user_id){
                 // TODO, collaspse, subset of graph
                 persons = _.cloneDeep(persons)
                 return Promise.map(persons || [], function(person){
@@ -231,6 +231,18 @@ module.exports = {
                 })
                 .then(function(){
                     return persons;
+                })
+            },
+
+            findPersonId: function(person, user_id){
+                return AddressService.normalizeAddress(person.address)
+                        .then(function(address){
+                            return Person.find({where: person})
+                        .then(function(p){
+                            if(p){
+                                return p.personId
+                            }
+                    })
                 })
             },
 
@@ -561,27 +573,38 @@ module.exports = {
             },
 
             replaceHolder: function(currentHolder, newHolder, transaction){
-                var builtNewHolder;
-                this.dataValues.holdings.map(function(holding){
-                    var index = _.findIndex(holding.dataValues.holders, function(h, i){
-                        return h.isEqual(currentHolder);
-                    });
-                    if(index > -1){
-                        holding.dataValues.holders[index] = builtNewHolder || holding.dataValues.holders[index].replaceWith(newHolder);
-                        builtNewHolder = holding.dataValues.holders[index];
+                let personId, newPerson;
+                return CompanyState.findPersonId(newHolder)
+                    .then(id => {
+                        if(!id) return CompanyState.findPersonId(currentHolder);
+                        return id
+                    })
+                    .then(id => {
+                        return Person.buildFull(_.merge(newHolder, {personId: id})).save()
+                    })
+                    .then(person => {
+                        newPerson = person;
                         if(transaction){
-                            builtNewHolder.dataValues.transaction = transaction;
+                            return newPerson.setTransaction(transaction)
                         }
-                    }
-                });
-                return this;
+                    })
+                    .then(() => {
+                        this.dataValues.holdings.map(function(holding){
+                            var index = _.findIndex(holding.dataValues.holders, function(h, i){
+                                return h.isEqual(currentHolder);
+                            });
+                            if(index > -1){
+                                holding.dataValues.holders[index] = newPerson;
+                            }
+                        });
+                        return this;
+                    });
             },
 
             replaceDirector: function(currentDirector, newDirector, transaction){
                 var index = _.findIndex(this.dataValues.directors, function(d, i){
                         return d.person.isEqual(currentDirector);
                 });
-
                 if(index > -1){
                     this.dataValues.directors[index].personId = null;
                     this.dataValues.directors[index].dataValues.person = this.dataValues.directors[index].dataValues.person.replaceWith(newDirector);

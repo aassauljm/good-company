@@ -206,7 +206,9 @@ export const performInverseHolderChange = function(data, companyState, previousS
         .spread((afterAddress, beforeAddress) => {
             normalizedData.afterHolder.address = afterAddress;
             normalizedData.beforeHolder.address = beforeAddress;
-            companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder);
+            return companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder);
+        })
+        .then(function(){
             return transaction.save();
         })
         .then(function(){
@@ -232,7 +234,9 @@ export const performHolderChange = function(data, companyState, previousState, e
             return transaction.save()
         })
         .then(function(){
-            companyState.replaceHolder(normalizedData.beforeHolder, normalizedData.afterHolder, transaction);
+            return companyState.replaceHolder(normalizedData.beforeHolder, normalizedData.afterHolder, transaction);
+        })
+        .then(function(){
             return transaction;
         })
         .catch((e)=>{
@@ -402,7 +406,7 @@ export const performInverseNewDirector = Promise.method(function(data, companySt
 });
 
 export function performInverseRemoveDirector(data, companyState, previousState, effectiveDate){
-    // find them as a share holder?
+    // find them as a share holder? and vice versa?
     return AddressService.normalizeAddress(data.address)
         .then(address => {
             companyState.dataValues.directors.push(Director.build({

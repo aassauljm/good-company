@@ -100,7 +100,7 @@
     "sails-hook-sequelize-blueprints": "^0.1.0",
     "sails-hook-validation": "lykmapipo/sails-hook-validation",
     "sails-postgresql": "^0.10.16",
-    "sequelize": "3.13.0",
+    "sequelize": "3.19.2",
     "sequelize-fixtures": "^0.4.8",
     "sinon": "^1.17.2",
     "url": "^0.11.0",

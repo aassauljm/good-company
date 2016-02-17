@@ -1,6 +1,5 @@
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
-var ScrapingService = require('../../../api/services/ScrapingService');
 var moment = require('moment');
 
 

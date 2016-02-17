@@ -51,7 +51,16 @@ module.exports = {
     options: {
         freezeTableName: false,
         tableName: 'person',
-        classMethods: {},
+        classMethods: {
+            buildFull: function(data){
+                return Person.build(data, {
+                        include: [{
+                            model: Transaction,
+                            as: 'transaction',
+                        }]
+                    });
+            }
+        },
         instanceMethods: {
             detailChange: function(other){
                 // if name is same, but other details change
@@ -61,17 +70,21 @@ module.exports = {
             },
             isEqual: function(other){
                 // undefined !== null
+                if(other.personId && other.personId === this.dataValues.personId){
+                    return true;
+                }
                 return this.dataValues.name === other.name &&
                     (this.dataValues.companyNumber || null) === (other.companyNumber || null) &&
                     (this.dataValues.address || null) === (other.address || null);
             },
             replaceWith: function(other){
-                return Person.build(_.merge(other, {personId: this.dataValues.personId}), {
+                const person = Person.build(_.merge(other, {personId: this.dataValues.personId}), {
                                 include: [{
                                     model: Transaction,
                                     as: 'transaction',
                                 }]
                             });
+                return person;
             }
 
         },
