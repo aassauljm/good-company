@@ -5,10 +5,6 @@ var _ = require('lodash');
 
 
 module.exports = {
-  autoCreatedBy: false,
-  autoCreatedAt: false,
-  autoUpdatedAt: false,
-
   attributes: {
     name: {
       type: Sequelize.STRING,
@@ -28,6 +24,7 @@ module.exports = {
    	tableName: 'model',
    	classMethods: {},
    	instanceMethods: {},
-   	hooks: {}
+   	hooks: {},
+    timestamps: false,
    }
 };

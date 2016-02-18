@@ -12,6 +12,54 @@ CREATE OR REPLACE FUNCTION reset_sequences()
     END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION insert_entity()
+RETURNS INTEGER AS $$
+INSERT INTO entity DEFAULT VALUES returning id;
+$$ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION insert_person_entity()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW."personId" IS NULL THEN
+    NEW."personId" := (SELECT insert_entity());
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION insert_holding_entity()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW."holdingId" IS NULL THEN
+    NEW."holdingId" := (SELECT insert_entity());
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION insert_director_entity()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW."directorId" IS NULL THEN
+    NEW."directorId" := (SELECT insert_entity());
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
+
+DROP TRIGGER IF EXISTS person_entity ON person;
+CREATE TRIGGER person_entity BEFORE INSERT ON person
+FOR EACH ROW
+EXECUTE PROCEDURE insert_person_entity();
+
+DROP TRIGGER IF EXISTS holding_entity ON holding;
+CREATE TRIGGER holding_entity BEFORE INSERT ON holding
+FOR EACH ROW
+EXECUTE PROCEDURE insert_holding_entity();
+
+DROP TRIGGER IF EXISTS director_entity ON director;
+CREATE TRIGGER director_entity BEFORE INSERT ON director
+FOR EACH ROW
+EXECUTE PROCEDURE insert_director_entity();
+
 
 -- Recurse throw x generations of companyState and return that id
 CREATE OR REPLACE FUNCTION previous_company_state(companyStateId integer, generation integer)

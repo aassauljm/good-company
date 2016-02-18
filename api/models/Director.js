@@ -31,6 +31,14 @@ module.exports = {
                 name: 'personId'
             }
         });
+
+        Director.belongsTo(Entity, {
+            as: 'entity',
+            foreignKey: {
+                name: 'directorId',
+                as: 'entity'
+            }
+        });
     },
 
     options: {

@@ -7,7 +7,7 @@
 var _ = require('lodash');
 var Promise = require('sequelize/lib/promise');
 var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
-var getNamespace = require('continuation-local-storage').getNamespace;
+
 
 module.exports = {
     _config: {
@@ -288,10 +288,7 @@ module.exports = {
 
 
             createDedupPersons: function(args){
-                return Promise.resolve()
-                    .then(function(){
-                        return CompanyState.findOrCreatePersons(args)
-                    })
+                return CompanyState.findOrCreatePersons(args)
                     .then(function(args){
                         var state = CompanyState.build(args, {include: CompanyState.includes.full()});
                         (state.get('holdings') || []).map(function(h){

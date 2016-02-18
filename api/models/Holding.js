@@ -13,9 +13,9 @@ module.exports = {
       },
     attributes: {
         // will turn to sequence in hook
-        holdingId: {
+        /*holdingId: {
             type: Sequelize.INTEGER
-        },
+        },*/
         name: {
             type: Sequelize.TEXT
         }
@@ -49,6 +49,13 @@ module.exports = {
             foreignKey: {
                 name: 'transactionId',
                 as: 'transaction'
+            }
+        });
+        Holding.belongsTo(Entity, {
+            as: 'entity',
+            foreignKey: {
+                name: 'holdingId',
+                as: 'entity'
             }
         });
     },
@@ -136,16 +143,6 @@ module.exports = {
             }
         },
         hooks: {
-            afterSync: [function addAutoIncrement(){
-                return sequelize.query(`CREATE SEQUENCE holding_id_sequence;
-                                       ALTER TABLE holding ALTER COLUMN "holdingId" SET DEFAULT nextval('holding_id_sequence');
-                                       ALTER SEQUENCE holding_id_sequence OWNED BY holding."holdingId"; `)
-                    .catch(function(){
-                        // sequence exists, ignore
-                    })
-
-            }]
-
         }
     }
 

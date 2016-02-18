@@ -12,9 +12,9 @@ module.exports = {
         name: {
             type: Sequelize.TEXT
         },
-        personId: {
+       /* personId: {
             type: Sequelize.INTEGER
-        },
+        },*/
         companyNumber: {
             type: Sequelize.TEXT
         },
@@ -45,6 +45,13 @@ module.exports = {
             foreignKey: {
                 name: 'transactionId',
                 as: 'transaction'
+            }
+        });
+        Person.belongsTo(Entity, {
+            as: 'entity',
+            foreignKey: {
+                name: 'personId',
+                as: 'entity'
             }
         });
     },
@@ -89,15 +96,6 @@ module.exports = {
 
         },
         hooks: {
-            afterSync: [function addAutoIncrement(){
-                return sequelize.query(`CREATE SEQUENCE person_id_sequence;
-                                       ALTER TABLE person ALTER COLUMN "personId" SET DEFAULT nextval('person_id_sequence');
-                                       ALTER SEQUENCE person_id_sequence OWNED BY person."personId"; `)
-                    .catch(function(){
-                        // sequence exists, ignore
-                    })
-
-            }]
         }
     }
 
