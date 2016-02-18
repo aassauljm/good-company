@@ -21,7 +21,7 @@ module.exports = {
     },
     options: {
         freezeTableName: false,
-        tableName: 'documentData',
+        tableName: 'document_data',
         classMethods: {},
         instanceMethods: {},
         hooks: {}

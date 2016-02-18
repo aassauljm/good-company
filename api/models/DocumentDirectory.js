@@ -18,7 +18,7 @@ module.exports = {
     },
     options: {
         freezeTableName: false,
-        tableName: 'documentDirectory',
+        tableName: 'document_directory',
         classMethods: {},
         instanceMethods: {},
         hooks: {}
