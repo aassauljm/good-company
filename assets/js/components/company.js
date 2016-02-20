@@ -501,6 +501,22 @@ class ShareholdersPanel extends React.Component {
     }
 }
 
+@pureRender
+class InterestsRegisterPanel extends React.Component {
+    static propTypes = {
+    };
+    render(){
+
+        return <div className="panel panel-warning" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Interests Register</h3>
+            </div>
+            <div className="panel-body">
+                View and create entry in the Interests Register.
+            </div>
+        </div>
+    }
+}
 
 @connect((state, ownProps) => {
     let comp;
@@ -709,6 +725,10 @@ export default class Company extends React.Component {
                         <Link to={this.props.location.pathname +'/shareholders'}>
                              <ShareholdersPanel
                                 transactions={current.transactions} />
+                                </Link>
+
+                        <Link to={this.props.location.pathname +'/interests_register'}>
+                             <InterestsRegisterPanel />
                                 </Link>
                         </div>
 

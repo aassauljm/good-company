@@ -69,5 +69,8 @@ module.exports.bootstrap = function(cb) {
     // with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
+    sails.on('lifted', function() {
+        //sails.log.verbose(sails.config.routes)
+    });
     cb();
 };

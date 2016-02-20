@@ -61,6 +61,7 @@ export class ShareRegister extends React.Component {
     };
     fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sum', 'restrictions', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
     wideFields = {'name': 1, 'address': 1, 'issueHistory': 1, 'repurchaseHistory': 1, 'transferHistoryFrom': 1, 'transferHistoryTo': 1};
+
     key() {
         return this.props.params.id
     };

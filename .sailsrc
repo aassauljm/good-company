@@ -1,21 +1,23 @@
 {
-"port": 5667,
-    "log": {"level": "verbose"},
-  "generators": {
-    "modules": {
-      "permissions-api": "sails-permissions/generator"
-    }
-  },
- "hooks": {
- "orm": false,
- "pubsub": false,
- "blueprints": false,
-"permissions": false
-  },
-  "babel": {
-    "stage": 0
-  },
-  "models":{
-    "migrate": "alter"
-  }
+    "babel": {
+        "stage": 0
+    },
+    "generators": {
+        "modules": {
+            "permissions-api": "sails-permissions/generator"
+        }
+    },
+    "hooks": {
+        "blueprints": false,
+        "orm": false,
+        "permissions": false,
+        "pubsub": false
+    },
+    "log": {
+        "level": "verbose"
+    },
+    "models": {
+        "migrate": "alter"
+    },
+    "port": 5667
 }

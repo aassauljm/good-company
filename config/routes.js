@@ -128,6 +128,11 @@ module.exports.routes = {
         action: 'shareRegister',
         modelIdentity: 'company'
     },
+    'GET /api/company/:id/interests_register': {
+        controller: 'CompanyController',
+        action: 'interestsRegister',
+        modelIdentity: 'company'
+    },
     'GET /api/company/:id/shareholders': {
         controller: 'CompanyController',
         action: 'shareholders',

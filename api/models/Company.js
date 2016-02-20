@@ -119,8 +119,6 @@ module.exports = {
 
             }
 
-
-
         },
         hooks: {
             afterCreate: [

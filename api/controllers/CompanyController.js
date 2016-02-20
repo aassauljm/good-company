@@ -133,6 +133,24 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+    interestsRegister: function(req, res) {
+        Company.findById(req.params.id, {
+                include: [{
+                    model: CompanyState,
+                    as: 'currentCompanyState',
+                    include: CompanyState.includes.interestsRegister(),
+                }],
+                order: CompanyState.ordering.interestsRegister().map((e) => [{
+                    model: CompanyState,
+                    as: 'currentCompanyState'
+                }, ...e])
+            })
+            .then(function(company) {
+                res.json(company.currentCompanyState.interestsRegister);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
     import: function(req, res) {
         // for now, just companies office
         var data, company, rootState, processedDocs;

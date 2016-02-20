@@ -5,14 +5,19 @@ var _ = require('lodash');
 module.exports = {
 
     attributes: {
-        date: {
-            type: Sequelize.DATE
-        },
-        details: {
-            type: Sequelize.TEXT
-        }
     },
     associations: function(){
+        InterestsRegister.belongsToMany(InterestsEntry, {
+            as: 'entries',
+            foreignKey: 'register_id',
+            through: 'ie_ir_j'
+        });
+        InterestsRegister.belongsToMany(CompanyState, {
+            as: 'companyState',
+            notNull: true,
+            foreignKey: 'register_id',
+            through: 'ir_j'
+        });
     },
     options: {
         freezeTableName: false,

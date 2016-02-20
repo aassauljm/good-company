@@ -96,23 +96,23 @@ module.exports = {
         CompanyState.hasMany(Director, {
             as: 'directors',
             foreignKey: {
-                name: 'companyStateId',
                 as: 'directors',
+                name: 'companyStateId'
             }
         });
-        /*CompanyState.belongsToMany(Parcel, {
-            as: 'overallocatedParcels',
+        CompanyState.belongsToMany(InterestsRegister, {
+            as: 'interestsRegister',
             notNull: true,
             foreignKey: {
-                as: 'parcelss',
+                as: 'interestsRegister',
                 name: 'companyStateId'
             },
-            through: 'parcelCCJ'
-        });*/
+            through: 'ir_j'
+        });
     },
     options: {
         freezeTableName: true,
-        tableName: 'companystate',
+        tableName: 'company_state',
         classMethods: {
             includes: {
                 full: function(){
@@ -202,6 +202,17 @@ module.exports = {
                          ]
 
                     }]
+                },
+                interestsRegister: function(){
+                    return [{
+                        model: InterestsRegister,
+                        as: 'interestsRegister',
+                        include: [{
+                            model: InterestsEntry,
+                            as: 'entries',
+                            through: {attributes: []}
+                        }]
+                    }]
                 }
             },
             ordering: {
@@ -212,6 +223,9 @@ module.exports = {
                         [{model: Holding, as: 'holdings'}, {model: Person, as: 'holders'}, 'name', 'ASC'],
                         [{model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC'],
                     ]
+                },
+                interestsRegister: function() {
+                    return [[{model: InterestsRegister, as: 'interestsRegister'}, {model: InterestsEntry, as: 'entries'}, 'date', 'ASC']];
                 }
             },
 

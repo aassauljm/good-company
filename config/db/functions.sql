@@ -66,10 +66,10 @@ CREATE OR REPLACE FUNCTION previous_company_state(companyStateId integer, genera
     RETURNS INTEGER
     AS $$
     WITH RECURSIVE find_state(id, "previousCompanyStateId", generation) as (
-        SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id = $1
+        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id = $1
         UNION ALL
         SELECT t.id, t."previousCompanyStateId", generation + 1
-        FROM companystate t, find_state tt
+        FROM company_state t, find_state tt
         WHERE t.id = tt."previousCompanyStateId"
     )
     SELECT id from find_state where generation = $2;
@@ -80,10 +80,10 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
     RETURNS INTEGER
     AS $$
     WITH RECURSIVE find_state(id, "previousCompanyStateId") as (
-        SELECT t.id, t."previousCompanyStateId" FROM companystate as t where t.id = $1
+        SELECT t.id, t."previousCompanyStateId" FROM company_state as t where t.id = $1
         UNION ALL
         SELECT t.id, t."previousCompanyStateId"
-        FROM companystate t, find_state tt
+        FROM company_state t, find_state tt
         WHERE t.id = tt."previousCompanyStateId"
     )
     SELECT id from find_state where "previousCompanyStateId" is null;
@@ -103,10 +103,10 @@ CREATE OR REPLACE FUNCTION company_state_history_json(companyStateId integer)
     RETURNS SETOF JSON
     AS $$
 WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
-    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
+    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", t."transactionId"
-    FROM companystate t, prev_company_states tt
+    FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
 SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
@@ -126,10 +126,10 @@ CREATE OR REPLACE FUNCTION company_state_type_filter_history_json(companyStateId
     RETURNS SETOF JSON
     AS $$
 WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
-    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
+    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", t."transactionId"
-    FROM companystate t, prev_company_states tt
+    FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
 SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
@@ -148,10 +148,10 @@ CREATE OR REPLACE FUNCTION transaction_summary(companyStateId integer)
     RETURNS JSON
     AS $$
 WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
-    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM companystate as t where t.id = $1
+    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", t."transactionId"
-    FROM companystate t, prev_company_states tt
+    FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
 SELECT array_to_json(array_agg(row_to_json(q))) from (
@@ -171,10 +171,10 @@ CREATE OR REPLACE FUNCTION historical_holders(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
-        SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
+        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
         UNION ALL
         SELECT t.id, t."previousCompanyStateId", generation + 1
-        FROM companystate t, prev_company_states tt
+        FROM company_state t, prev_company_states tt
         WHERE t.id = tt."previousCompanyStateId"
     ), parcels as (
         SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
@@ -210,7 +210,7 @@ AS $$
                 first_value(t."effectiveDate") OVER wnd as "lastEffectiveDate",
                 generation = 0 as current
                 from prev_company_states pt
-                join companystate cs on pt.id = cs.id
+                join company_state cs on pt.id = cs.id
                 join transaction t on cs."transactionId" = t.id
                 left outer join holding h on h."companyStateId" = pt.id
                 left outer join "holderJ" hj on h.id = hj."holdingId"
@@ -229,12 +229,12 @@ CREATE OR REPLACE FUNCTION holding_history(id integer)
     AS $$
 WITH RECURSIVE prev_holdings(id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
     SELECT t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
-    FROM companystate as t
+    FROM company_state as t
     left outer JOIN holding h on h."companyStateId" = t.id
     where h.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
-    FROM companystate t, prev_holdings tt
+    FROM company_state t, prev_holdings tt
     left outer JOIN holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
     WHERE t.id = tt."previousCompanyStateId"
    )
@@ -254,18 +254,18 @@ CREATE OR REPLACE FUNCTION share_register(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
 WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
-    SELECT t.id, t."previousCompanyStateId", 0 FROM companystate as t where t.id =  $1
+    SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", generation + 1
-    FROM companystate t, prev_company_states tt
+    FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 ), prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
     SELECT h.id as "startId", t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
-    FROM companystate as t
+    FROM company_state as t
     left outer JOIN holding h on h."companyStateId" = t.id
     UNION ALL
     SELECT "startId", t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
-    FROM companystate t, prev_holdings tt
+    FROM company_state t, prev_holdings tt
     left outer JOIN holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
     WHERE t.id = tt."previousCompanyStateId"
  ), prev_holding_transactions as (
@@ -316,7 +316,7 @@ FROM
     format_iso_date(t."effectiveDate") as "lastEffectiveDate",
     generation = 0 as current
     from prev_company_states pt
-    join companystate cs on pt.id = cs.id
+    join company_state cs on pt.id = cs.id
     join transaction t on cs."transactionId" = t.id
     left outer join holding h on h."companyStateId" = pt.id
     left outer join parcels pp on pp."holdingId" = h.id
