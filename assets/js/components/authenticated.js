@@ -5,6 +5,9 @@ import { routeActions } from 'react-router-redux'
 export default (ComposedComponent) => {
     @connect(state => state.login)
     class AuthenticatedComponent extends React.Component {
+        componentWillMount() {
+            this.nav()
+        }
         componentDidMount() {
             this.nav()
         }
@@ -12,12 +15,17 @@ export default (ComposedComponent) => {
             this.nav()
         }
         nav() {
+            const redirectAfterLogin = this.props.location.pathname;
             if(!this.props.loggedIn){
-                this.props.dispatch(routeActions.push('/login'));
+                this.props.dispatch(routeActions.push(`/login?next=${redirectAfterLogin}`));
             }
         }
         render() {
-          return ( <ComposedComponent {...this.props }/>);
+            if(this.props.loggedIn){
+                return  <ComposedComponent {...this.props }/>;
+            }
+            return false;
+
         }
 
     }
