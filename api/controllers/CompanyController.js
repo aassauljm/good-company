@@ -138,15 +138,15 @@ module.exports = {
                 include: [{
                     model: CompanyState,
                     as: 'currentCompanyState',
-                    include: CompanyState.includes.interestsRegister(),
+                    include: CompanyState.includes.iRegister(),
                 }],
-                order: CompanyState.ordering.interestsRegister().map((e) => [{
+                order: CompanyState.ordering.iRegister().map((e) => [{
                     model: CompanyState,
                     as: 'currentCompanyState'
                 }, ...e])
             })
             .then(function(company) {
-                res.json((company.currentCompanyState.interestsRegister||{}).entries || []);
+                res.json((company.currentCompanyState.iRegister||{}).entries || []);
             }).catch(function(err) {
                 return res.badRequest(err);
             });

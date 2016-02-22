@@ -136,6 +136,13 @@ export class InterestsRegisterCreate extends React.Component {
     }
 }
 
+function renderDocumentLinks(list){
+    return list.map((d, i) =>
+        <Link key={i} activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
+            {d.filename}
+        </Link>);
+}
+
 
 @connect((state, ownProps) => {
     return {data: [], ...state.resources['/company/'+ownProps.params.id +'/interests_register']}
@@ -147,12 +154,11 @@ export class InterestsRegister extends React.Component {
     static fields = ['date', 'parties', 'details', 'documents']
 
     renderField(key, data) {
-        if(Array.isArray(data)){
-            return  data.join(', ');
-        }
         switch(key){
             case 'date':
                 return new Date(data).toDateString();
+            case 'documents':
+                return renderDocumentLinks(data || [])
             case 'details':
             default:
                 return data;

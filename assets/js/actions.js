@@ -1,7 +1,7 @@
 import { fetch } from './utils';
 
 import {
-    LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
+    LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
     SIGNUP_REQUEST, SIGNUP_SUCCESS, SIGNUP_FAILURE,
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
     SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE,
@@ -37,6 +37,9 @@ function retryOnError(status){
     return !status || status === 'error';
 }
 
+export function loginStart(){
+    return {type: LOGIN_START};
+}
 
 export function changeCompanyTab(tabIndex){
     return {type: COMPANY_TAB_CHANGE, tabIndex};

@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux'
+import { pureRender } from '../utils';
+import { loginStart} from '../actions';
 
 export default (ComposedComponent) => {
     @connect(state => state.login)
@@ -16,7 +18,8 @@ export default (ComposedComponent) => {
         }
         nav() {
             const redirectAfterLogin = this.props.location.pathname;
-            if(!this.props.loggedIn){
+            if(!this.props.loggedIn && !this.props.loginStarted){
+                this.props.dispatch(loginStart());
                 this.props.dispatch(routeActions.push(`/login?next=${redirectAfterLogin}`));
             }
         }

@@ -101,10 +101,10 @@ module.exports = {
             }
         });
         CompanyState.belongsTo(InterestsRegister, {
-            as: 'interestsRegister',
+            as: 'iRegister',
             notNull: true,
             foreignKey: {
-                as: 'interestsRegister',
+                as: 'iRegister',
                 name: 'register_id'
             }
         });
@@ -202,19 +202,23 @@ module.exports = {
 
                     }]
                 },
-                interestsRegister: function(){
+                iRegister: function(){
                     return [{
                         model: InterestsRegister,
-                        as: 'interestsRegister',
+                        as: 'iRegister',
                         include: [{
                             model: InterestsEntry,
                             as: 'entries',
                             through: {attributes: []},
-                            include: {
+                            include: [{
                                 model: Person,
                                 as: 'persons',
                                 through: {attributes: []}
-                            }
+                            }, {
+                                model: Document,
+                                as: 'documents',
+                                through: {attributes: []}
+                            }]
                         }]
                     }]
                 }
@@ -228,8 +232,8 @@ module.exports = {
                         [{model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC'],
                     ]
                 },
-                interestsRegister: function() {
-                    return [[{model: InterestsRegister, as: 'interestsRegister'}, {model: InterestsEntry, as: 'entries'}, 'date', 'ASC']];
+                iRegister: function() {
+                    return [[{model: InterestsRegister, as: 'iRegister'}, {model: InterestsEntry, as: 'entries'}, 'date', 'ASC']];
                 }
             },
 

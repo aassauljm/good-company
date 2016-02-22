@@ -7,6 +7,8 @@
 var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
+var fs = Promise.promisifyAll(require("fs"));
+
 
 function validateHoldings(newHoldings){
     if (!newHoldings || !newHoldings.length) {
@@ -99,7 +101,7 @@ function createRegisterEntry(data, company){
         })
         .then(function(cs){
             companyState = cs;
-            return companyState.getInterestsRegister();
+            return companyState.getIRegister();
         })
         .then(function(register){
             if(!register){
@@ -113,8 +115,13 @@ function createRegisterEntry(data, company){
         .then(function(r){
             register = r;
             console.log(data)
-            return InterestsEntry.create(data, {include: [{model: Document, as: 'documents'}]});
+            return InterestsEntry.create(data, {include: [{model: Document, as: 'documents', include: [
+                                            {model: DocumentData, as: 'documentData'}
+                                        ]}]})
         })
+        /*.then(function(entry){
+            return entry.setDocuments(data.documents);
+        })*/
         .then(function(entry){
             return register.addEntry(entry)
         })
@@ -172,21 +179,23 @@ module.exports = {
                         return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
                     })
                     .then(function() {
-                        const values = actionUtil.parseValues(req);
-                        const files = (uploadedFiles || []).map(f => {
-                            const type = f.filename.split('.').pop();
-                            return Document.build({
-                                filename: f.filename,
-                                createdById: req.user.id,
-                                ownerId: req.user.id,
-                                type: type,
-                                documentData: {
-                                    data: f,
-                                },
-                                include: [
-                                        {model: DocumentData, as: 'documentData'}
-                                ]});
+                        return Promise.map(uploadedFiles || [], f => {
+                            return fs.readFileAsync(f.fd)
+                                .then(readFile => {
+                                    return {
+                                        filename: f.filename,
+                                        createdById: req.user.id,
+                                        ownerId: req.user.id,
+                                        type: f.type,
+                                        documentData: {
+                                            data: readFile,
+                                        }
+                                    };
                             });
+                        })
+                    })
+                    .then(function(files){
+                        const values = actionUtil.parseValues(req);
                         values.documents = files;
                         return createRegisterEntry(values, company);
                     })

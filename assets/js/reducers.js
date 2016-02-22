@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import {
-    LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
+    LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
     SIGNUP_REQUEST, SIGNUP_SUCCESS, SIGNUP_FAILURE,
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
     SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE,
@@ -45,15 +45,17 @@ function login(state = {
     loggedIn: false
 }, action){
     switch(action.type){
+        case LOGIN_START:
+            return {...state, loginStarted: true}
         case LOGIN_REQUEST:
             return state;
         case LOGIN_SUCCESS:
-            return {...state, ...{loggedIn: true}};
+            return {...state, loggedIn: true, loginStarted: false};
         case LOGIN_FAILURE:
-            return {...state, ...{loggedIn: false}};
+            return {...state, loggedIn: false};
         case RESOURCE_CREATE_SUCCESS:
             if(action.form === 'signup'){
-                return {...state, ...{loggedIn: true}};
+                return {...state, loggedIn: true, loginStarted: false};
             }
             return state;
         default:

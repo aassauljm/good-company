@@ -93,6 +93,12 @@ module.exports = {
         Document.findOne({where: {id: req.param('id')}, include: [{model: DocumentData, as: 'documentPreview'}]})
             .then(function(doc){
                 if (!doc) return res.notFound();
+                if(!doc.documentPreview){
+                    //generate preview
+                }
+                return doc;
+            })
+            .then(function(doc){
                 res.contentType('image/png');
                 res.write(doc.documentPreview.data);
                 res.end();

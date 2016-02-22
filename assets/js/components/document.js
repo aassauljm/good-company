@@ -18,33 +18,35 @@ export default class Account extends React.Component {
     }
 
     componentDidMount(){
-        if(this.props.route.edit){
-            this.props.dispatch(requestResource('/document/'+this.key()));
-        }
+        this.props.dispatch(requestResource('/document/'+this.key()));
     }
 
     componentDidUpdate(){
-        if(this.props.route.edit){
-            this.props.dispatch(requestResource('/document/'+this.key()));
-        }
+        this.props.dispatch(requestResource('/document/'+this.key()));
     }
-
-    validation(key){
-        if(!this.props.data || !this.props.data.invalidAttributes || !this.props.data.invalidAttributes[key]){
-            return;
-        }
-        if(this.props.data.invalidAttributes[key].length){
-            return 'error';
-        }
-    }
-
     isOwnAccount(){
         return this.key() === this.props.id+'';
     }
 
     render() {
-        return <div>
-            <img src={"/api/document/get_document_preview/"+ this.key()}/>
+        const data = this.props.data || {};
+        console.log(this.props)
+        return <div className="container">
+            <div className="col-md-6">
+                <img src={"/api/document/get_document_preview/"+ this.key()}/>
+            </div>
+             <div className="col-md-6">
+             <dl>
+                  <dt>ID</dt>
+                  <dd>{data.id}</dd>
+                  <dt>Filename</dt>
+                  <dd>{data.filename}</dd>
+                  <dt>Type</dt>
+                  <dd>{data.type}</dd>
+                  <dt>Date Created</dt>
+                  <dd>{new Date(data.createdAt).toDateString()}</dd>
+                </dl>
+            </div>
         </div>
     }
 }
