@@ -30,7 +30,6 @@ export default class Account extends React.Component {
 
     render() {
         const data = this.props.data || {};
-        console.log(this.props)
         return <div className="container">
             <div className="col-md-6">
                 <img src={"/api/document/get_document_preview/"+ this.key()}/>

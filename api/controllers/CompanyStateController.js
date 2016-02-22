@@ -114,14 +114,14 @@ function createRegisterEntry(data, company){
         })
         .then(function(r){
             register = r;
-            console.log(data)
             return InterestsEntry.create(data, {include: [{model: Document, as: 'documents', include: [
                                             {model: DocumentData, as: 'documentData'}
                                         ]}]})
         })
-        /*.then(function(entry){
-            return entry.setDocuments(data.documents);
-        })*/
+        .then(function(entry){
+            return entry.setPersons(data.persons)
+                .then(() => entry)
+        })
         .then(function(entry){
             return register.addEntry(entry)
         })
@@ -197,6 +197,7 @@ module.exports = {
                     .then(function(files){
                         const values = actionUtil.parseValues(req);
                         values.documents = files;
+                        values.persons = values.persons.split(',').map(p => parseInt(p, 10));
                         return createRegisterEntry(values, company);
                     })
                 })

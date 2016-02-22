@@ -14,23 +14,33 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import { routeActions } from 'react-router-redux'
 import DropZone from 'react-dropzone';
+import FormControl from 'react-bootstrap/lib/FormControls';
+
 
 export const fields = [
-  'parties[].name',
+  'persons[]',
   'date',
   'details',
   'documents'
 ];
 
 const validateFields = requireFields('date', 'details');
-const validateParty = requireFields('name');
+
 
 const validate = (values) => {
     const errors = validateFields(values);
-    errors.parties = values.parties.map(p => validateParty(p));
-    if(!values.parties.length){
-        errors.parties = [];
-        errors.parties._error = ['At least one required.'];
+    const persons = [];
+    errors.persons = values.persons.map(p => {
+        if(p && persons.indexOf(p) > -1){
+            return ['Person already included'];
+        }
+        persons.push(p);
+        return !p && ['Person required.']
+    });
+
+    if(!values.persons.length){
+        errors.persons = [];
+        errors.persons._error = ['At least one required.'];
     }
     return errors;
 }
@@ -53,10 +63,10 @@ class EntryForm extends React.Component {
 
     submit(data) {
         const body = new FormData();
-        ['date', 'details'].forEach(( key ) => {
+        ['date', 'details', 'persons'].forEach(( key ) => {
             body.append(key, data[key]);
         });
-        data.documents.map(d => {
+        (data.documents ||[]).map(d => {
             body.append('documents', d, d.name);
         })
 
@@ -87,27 +97,41 @@ class EntryForm extends React.Component {
             invalid,
             submitting
         } = this.props;
+
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
             <legend>Create Interests Registry Entry</legend>
-            { fields.parties.map((n, i) => {
-                return <Input type="text" key={i} {...n.name} bsStyle={fieldStyle(n.name)} help={fieldHelp(n.name)} label="Name"
+            { fields.persons.map((n, i) => {
+                return <Input type="select" key={i} {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Name"
                 hasFeedback groupClassName='has-group'
-                buttonAfter={<button className="btn btn-default" onClick={() => fields.parties.removeField(i)}><Glyphicon glyph='trash'/></button>}/>
+                buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
+                    <option></option>
+                    { this.props.companyState.directors.map((d, i) => {
+                        return <option value={d.person.id}>{d.person.name}</option>
+                    })}
+                </Input>
             }) }
-            { fields.parties.error && fields.parties.error.map(e => {
+            { fields.persons.error && fields.persons.error.map(e => {
                 return <span className="help-block">{ e} </span>
             })}
-            <ButtonInput onClick={() => {
-                fields.parties.addField();    // pushes empty child field onto the end of the array
-            }}>Add Party</ButtonInput>
+            <div className="button-row"><ButtonInput onClick={() => {
+                fields.persons.addField();    // pushes empty child field onto the end of the array
+            }}>Add Person</ButtonInput></div>
              <DateInput {...fields.date} bsStyle={fieldStyle(fields.date)} help={fieldHelp(fields.date)} label="Date" hasFeedback />
             <Input type="textarea" rows="6" {...fields.details} bsStyle={fieldStyle(fields.details)} help={fieldHelp(fields.details)} label="Details" hasFeedback />
               <DropZone className="dropzone" { ...fields.documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
                   onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
                   <div>Try dropping some files here, or click to select files to upload.</div>
             </DropZone>
-            <div>{((this.props.fields.documents|| {}).value || []).map((file, i) => <div key={i}>{file.name}</div> )}</div>
+
+
+           {/* <div>{((this.props.fields.documents|| {}).value || []).map((file, i) => {
+                return  <Input type="static" key={i} label="File"
+                hasFeedback groupClassName='has-group'
+                buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
+                </Input> <div key={i}>{file.name}</div>
+                })
+            </div>*/}
             </fieldset>
             <div className="button-row">
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
@@ -122,7 +146,7 @@ const ConnectedForm = reduxForm({
     fields,
     validate
 }, state => ({
-    initialValues: {parties: [{name: '1'}], details: '1'}
+    initialValues: {persons: [{}], }
 }), {
     addValue: addArrayValue
 })(EntryForm);
@@ -131,7 +155,7 @@ const ConnectedForm = reduxForm({
 export class InterestsRegisterCreate extends React.Component {
     render() {
         return  <div className="col-md-6 col-md-offset-3">
-                <ConnectedForm companyId={this.props.companyId}/>
+                <ConnectedForm companyId={this.props.companyId} companyState={this.props.companyState}/>
         </div>
     }
 }
@@ -151,7 +175,7 @@ function renderDocumentLinks(list){
 })
 export class InterestsRegister extends React.Component {
 
-    static fields = ['date', 'parties', 'details', 'documents']
+    static fields = ['date', 'persons', 'details', 'documents']
 
     renderField(key, data) {
         switch(key){
@@ -159,6 +183,8 @@ export class InterestsRegister extends React.Component {
                 return new Date(data).toDateString();
             case 'documents':
                 return renderDocumentLinks(data || [])
+            case 'persons':
+                return data.map(d => d.name).join(', ')
             case 'details':
             default:
                 return data;
@@ -211,7 +237,8 @@ export class InterestsRegister extends React.Component {
                     <div className="container">
                         { !this.props.children && this.renderList(interestsRegister) }
                          { this.props.children && React.cloneElement(this.props.children, {
-                                companyId: this.key()
+                                companyId: this.key(),
+                                companyState: this.props.companyState
                         }) }
                     </div>
                 </div>

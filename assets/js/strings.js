@@ -57,7 +57,7 @@ export default {
     },
     interestsRegister: {
         date: 'Date',
-        parties: 'Parties',
+        persons: 'Persons',
         details: 'Details',
         documents: 'Documents'
     }
