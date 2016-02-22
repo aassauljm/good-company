@@ -54,5 +54,11 @@ export default {
         UPDATE_DIRECTOR: 'Update Director',
         REPURCHASE: 'Repurchase',
         REDEMPTION: 'Redemption'
+    },
+    interestsRegister: {
+        date: 'Date',
+        parties: 'Parties',
+        details: 'Details',
+        documents: 'Documents'
     }
 }

@@ -93,7 +93,6 @@ export class ShareRegister extends React.Component {
             default:
                 return data;
         }
-
     }
 
     renderTable(shareRegister) {

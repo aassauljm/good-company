@@ -12,18 +12,32 @@ module.exports = {
             foreignKey: 'register_id',
             through: 'ie_ir_j'
         });
-        InterestsRegister.belongsToMany(CompanyState, {
+        InterestsRegister.hasMany(CompanyState, {
             as: 'companyState',
             notNull: true,
-            foreignKey: 'register_id',
-            through: 'ir_j'
+            foreignKey: 'register_id'
         });
     },
     options: {
         freezeTableName: false,
         tableName: 'interests_register',
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            buildNext: function(){
+                return this.getEntries()
+                    .then(function(entries){
+                        return InterestsRegister.build({entries: entries}, {include: [{model: InterestsEntry, as: 'entries'}]})
+                    })
+                    .then(function(register){
+                        register.dataValues.entries.map(function(r){
+                            r.isNewRecord = false;
+                            r._changed = {};
+                        });
+                        return register;
+                    })
+            }
+
+        },
         hooks: {}
     }
 };

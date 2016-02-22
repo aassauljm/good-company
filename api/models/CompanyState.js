@@ -100,14 +100,13 @@ module.exports = {
                 name: 'companyStateId'
             }
         });
-        CompanyState.belongsToMany(InterestsRegister, {
+        CompanyState.belongsTo(InterestsRegister, {
             as: 'interestsRegister',
             notNull: true,
             foreignKey: {
                 as: 'interestsRegister',
-                name: 'companyStateId'
-            },
-            through: 'ir_j'
+                name: 'register_id'
+            }
         });
     },
     options: {
@@ -210,7 +209,12 @@ module.exports = {
                         include: [{
                             model: InterestsEntry,
                             as: 'entries',
-                            through: {attributes: []}
+                            through: {attributes: []},
+                            include: {
+                                model: Person,
+                                as: 'persons',
+                                through: {attributes: []}
+                            }
                         }]
                     }]
                 }

@@ -150,4 +150,9 @@ module.exports.routes = {
         controller: 'AddressController',
         action: 'lookup'
     },
+
+    'POST /api/company/:companyId/interests_register/create': {
+        controller: 'CompanyStateController',
+        action: 'createRegisterEntry'
+    },
 };

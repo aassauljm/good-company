@@ -54,6 +54,11 @@ module.exports = {
                 name: 'directoryId'
             }
         });
+        Document.belongsToMany(InterestsEntry, {
+            as: 'entries',
+            foreignKey: 'document_id',
+            through: 'ie_d_j'
+        });
     },
 
     options: {

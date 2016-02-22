@@ -146,7 +146,7 @@ module.exports = {
                 }, ...e])
             })
             .then(function(company) {
-                res.json(company.currentCompanyState.interestsRegister);
+                res.json((company.currentCompanyState.interestsRegister||{}).entries || []);
             }).catch(function(err) {
                 return res.badRequest(err);
             });

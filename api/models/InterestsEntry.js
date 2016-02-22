@@ -18,17 +18,27 @@ module.exports = {
             foreignKey: 'entry_id',
             through: 'ie_ir_j'
         });
-        Document.belongsToMany(Document, {
+        InterestsEntry.belongsToMany(Document, {
             as: 'documents',
             foreignKey: 'entry_id',
             through: 'ie_d_j'
+        });
+        InterestsEntry.belongsToMany(Person, {
+            as: 'persons',
+            foreignKey: {
+                as: 'persons',
+                name: 'registry_entry_id'
+            },
+            through: 're_p_j'
         });
     },
     options: {
         freezeTableName: false,
         tableName: 'interests_entry',
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+
+        },
         hooks: {}
     }
 };

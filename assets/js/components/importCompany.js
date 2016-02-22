@@ -57,17 +57,16 @@ export default class ImportCompanyModal extends React.Component {
         this.props.next();
         this.props.dispatch(importCompany(this.props.modalData.companyNumber))
             .then((result = {response: {message: 'No connection'}}) => {
-                if(result.error){
-                    this.props.dispatch(addNotification({message: `Could not import company, Reason: ${result.response.message}`, error: true}));
-                    this.props.end();
-                }
-                else{
-                    this.props.dispatch(addNotification({message: 'Company Imported'}));
-                    this.props.dispatch(requestResource('companies', {refresh: true}));
-                    this.props.dispatch(routeActions.push('/company/view/'+result.response.id))
-                    this.props.end();
-                }
-            });
+                this.props.dispatch(addNotification({message: 'Company Imported'}));
+                this.props.dispatch(requestResource('companies', {refresh: true}));
+                this.props.dispatch(routeActions.push('/company/view/'+result.response.id))
+                this.props.end();
+
+            })
+            .catch(error => {
+                this.props.dispatch(addNotification({message: `Could not import company, Reason: ${error.message}`, error: true}));
+                this.props.end();
+            })
     };
     componentWillUnmount() {
         this.refs.modal._onHide();

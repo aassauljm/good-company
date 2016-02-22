@@ -187,6 +187,7 @@ function resources(state = default_resources, action){
         case RESOURCE_CREATE_SUCCESS:
         case RESOURCE_UPDATE_SUCCESS:
         case RESOURCE_DELETE_SUCCESS:
+            // basically invalidate our entire cache
             return default_resources;
             //return {...state, ...{[action.key]: {...{data: {}, status: 'complete'}}}};
         default:

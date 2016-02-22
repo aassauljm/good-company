@@ -41,14 +41,11 @@ var signUpSchema = {
 
 function asyncValidate(form, dispatch){
     return dispatch(validateUser(form))
-        .then(function(result){
-            if(result.error){
-                return Promise.reject({
-                    email: [result.response.message],
-                    username: [result.response.message]
-                })
-            }
-            return {};
+        .catch(function(error){
+            return Promise.reject({
+                email: [error.message],
+                username: [error.message]
+            })
         })
 
 }
@@ -88,17 +85,17 @@ export default class SignUpForm extends React.Component {
 
 @connect(state => state.login)
 class Signup extends React.Component {
+
     static propTypes = { login: React.PropTypes.object };
+
     submit(data) {
         return this.props.dispatch(createResource('/user/signup', data, {form: 'signup'}))
             .then((result) => {
-                if(result.error){
-                    this.props.dispatch(addNotification({error: true, message: result.response.message}));
-                }
-                else{
-                    this.props.dispatch(routeActions.push('/'))
-                }
-            })
+                 this.props.dispatch(routeActions.push('/'))
+             })
+            .catch(err => {
+                this.props.dispatch(addNotification({error: true, message: err.message}));
+            });
     }
     componentDidMount() {
         this.nav()

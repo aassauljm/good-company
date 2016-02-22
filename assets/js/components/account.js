@@ -87,13 +87,11 @@ export default class Account extends React.Component {
         if(this.props.route.edit){
             this.props.dispatch(updateResource('/user/'+this.key(), data, {form: 'account'}))
                 .then((response) => {
-                    if(response.error){
-                        this.props.dispatch(addNotification({message: 'Could not update account', error: true}));
-                    }
-                    else{
-                        this.props.dispatch(addNotification({message: 'Account Updated'}));
-                    }
+                    this.props.dispatch(addNotification({message: 'Account Updated'}));
                 })
+                .catch(error => {
+                    this.props.dispatch(addNotification({message: 'Could not update account', error: true}));
+                });
         }
         else{
             this.props.dispatch(createResource('/user', data, 'account'))

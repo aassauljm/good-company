@@ -77,25 +77,67 @@ var transactions = {
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
             return currentCompanyState.buildNext(_.merge(args, {transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: new Date() }}))
-         })
-         .then(function(nextCompanyState){
+        })
+        .then(function(nextCompanyState){
             return nextCompanyState.save();
-         })
-         .then(function(nextCompanyState){
+        })
+        .then(function(nextCompanyState){
             return company.setCurrentCompanyState(nextCompanyState);
-         })
-         .then(function(){
+        })
+        .then(function(){
             return company.save();
-         });
+        });
     }
 }
 
+
+function createRegisterEntry(data, company){
+    let companyState, register;
+    return company.getCurrentCompanyState()
+        .then(function(currentCompanyState){
+            return currentCompanyState.buildNext({transaction: {type: Transaction.types.REGISTER_ENTRY, data: data, effectiveDate: new Date() }});
+        })
+        .then(function(cs){
+            companyState = cs;
+            return companyState.getInterestsRegister();
+        })
+        .then(function(register){
+            if(!register){
+                return InterestsRegister.build();
+            }
+            return register.buildNext();
+        })
+        .then(function(register){
+            return register.save();
+        })
+        .then(function(r){
+            register = r;
+            console.log(data)
+            return InterestsEntry.create(data, {include: [{model: Document, as: 'documents'}]});
+        })
+        .then(function(entry){
+            return register.addEntry(entry)
+        })
+        .then(function(){
+            companyState.set('register_id', register.id);
+            return companyState.save();
+        })
+        .then(function(nextCompanyState){
+            return company.setCurrentCompanyState(companyState);
+         })
+        .then(function(){
+            return company.save();
+        })
+        .then(function(){
+            return {message: 'Entry created.'}
+        })
+}
 
 
 module.exports = {
     transactions: transactions,
     create: function(req, res) {
-        var company;
+        let company;
         return sequelize.transaction(function(t){
             return Company.findById(req.params.companyId)
                 .then(function(_company) {
@@ -119,5 +161,48 @@ module.exports = {
                 res.serverError(e);
             })
 
+    },
+    createRegisterEntry: function(req, res){
+        let company;
+        return req.file('documents').upload(function(err, uploadedFiles){
+            return sequelize.transaction(function(t){
+                return Company.findById(req.params.companyId)
+                    .then(function(_company) {
+                        company = _company;
+                        return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+                    })
+                    .then(function() {
+                        const values = actionUtil.parseValues(req);
+                        const files = (uploadedFiles || []).map(f => {
+                            const type = f.filename.split('.').pop();
+                            return Document.build({
+                                filename: f.filename,
+                                createdById: req.user.id,
+                                ownerId: req.user.id,
+                                type: type,
+                                documentData: {
+                                    data: f,
+                                },
+                                include: [
+                                        {model: DocumentData, as: 'documentData'}
+                                ]});
+                            });
+                        values.documents = files;
+                        return createRegisterEntry(values, company);
+                    })
+                })
+                .then(function(result){
+                    res.ok(result);
+                })
+                .catch(sails.config.exceptions.ValidationException, function(e) {
+                    res.serverError(e);
+                })
+                .catch(sails.config.exceptions.ForbiddenException, function(e) {
+                    res.forbidden();
+                })
+                .catch(function(e) {
+                    res.serverError(e);
+                })
+            })
     }
 };

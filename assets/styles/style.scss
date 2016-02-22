@@ -110,7 +110,13 @@ nav.navbar{
     font-style: italic;
 }
 
+.input-group-btn > .btn{
+    height:34px;
+}
 
+.form-group.has-feedback.has-group .form-control-feedback{
+    right:36px;
+}
 
 //form fixes
 .text-center.btn-toolbar .btn{
@@ -159,7 +165,13 @@ a, a:hover{
     }
 }
 
-
+.button-row {
+    text-align: center;
+    & > div{
+        display:inline-block;
+        margin:8px;
+    }
+}
 
 // newTransaction
 .new-transaction{
@@ -191,5 +203,24 @@ a, a:hover{
         text-align: center;
         word-wrap: break-word;
         font-size:16px;
+    }
+}
+
+.dropzone{
+    border-width: 2px;
+    border-color: black;
+    border-style: dashed;
+    border-radius: 4px;
+    margin: 30px;
+    padding: 30px;
+    transition: all 0.5s;
+    &.accept{
+        border-style: solid;
+        border-color: #18BC9C;
+
+    }
+    &.reject{
+        border-style: solid;
+        background-color: #ffdddd;
     }
 }
