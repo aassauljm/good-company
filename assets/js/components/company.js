@@ -250,10 +250,15 @@ class Directors extends React.Component {
         directors: PropTypes.array.isRequired,
     };
     render() {
+        const directors = (this.props.directors || []).map((d, i) => <Director director={d} key={i} />);
         return <div className="row">
         <div className="text-center"><h3>Directors</h3></div>
-        { this.props.directors.map((director, i) => <div className="col-md-6" key={i}><Director director={director} /></div>)}
-
+        <div className="col-md-6">
+            { directors.slice(0, directors.length/2)}
+        </div>
+        <div className="col-md-6">
+            { directors.slice(directors.length/2) }
+        </div>
         </div>
     }
 }
@@ -489,7 +494,6 @@ class ShareholdersPanel extends React.Component {
     static propTypes = {
     };
     render(){
-
         return <div className="panel panel-danger" >
             <div className="panel-heading">
             <h3 className="panel-title">Shareholders</h3>
@@ -521,15 +525,24 @@ class InterestsRegisterPanel extends React.Component {
 @pureRender
 class DocumentsPanel extends React.Component {
     static propTypes = {
+        docList: PropTypes.shape({ documents: PropTypes.array.isRequired}).isRequired
     };
     render(){
 
-        return <div className="panel panel-info" >
+        return <div className="panel panel-success" >
             <div className="panel-heading">
             <h3 className="panel-title">Documents</h3>
             </div>
             <div className="panel-body">
-
+                <table className="table">
+                <thead><tr><th>Name</th><th>Date</th></tr></thead>
+                <tbody>
+                { this.props.docList.documents.slice(0, 5).map((d, i) => {
+                    return <tr key={i}><td>{ d.filename }</td><td>{new Date(d.date).toDateString()}</td></tr>
+                }) }
+                <tr><td colSpan="2" className="text-center">...</td></tr>
+                </tbody>
+                </table>
             </div>
         </div>
     }
@@ -730,7 +743,7 @@ export default class Company extends React.Component {
                                 totalAllocatedShares={current.totalAllocatedShares} />
                                 </Link>
                          <Link to={this.props.location.pathname +'/documents'}>
-                             <DocumentsPanel />
+                             <DocumentsPanel docList={current.docList}/>
                                 </Link>
                         </div>
                           <div className="col-md-6">
@@ -750,12 +763,7 @@ export default class Company extends React.Component {
                         <Link to={this.props.location.pathname +'/interests_register'}>
                              <InterestsRegisterPanel />
                                 </Link>
-
-
-
                         </div>
-
-
                         </div>
                     </div> }
         </div>

@@ -7,7 +7,7 @@ import Home from './components/home';
 import NotFound from './components/notFound';
 import Users from './components/users';
 import Roles from './components/roles';
-import Documents from './components/documents';
+import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
 import Company, { Shareholdings, CompanyDetails, CompanyTransactions, Shareholders } from './components/company';
@@ -38,6 +38,7 @@ const routes = (
             <Route path="new_transaction" component={ NewTransaction } />
             <Route path="shareregister" component={ ShareRegister } />
             <Route path="shareholders" component={ Shareholders } />
+            <Route path="documents" component={ CompanyDocuments } />
             <Route path="interests_register" component={ InterestsRegister } >
                 <Route path="create" component={ InterestsRegisterCreate } />
             </Route>

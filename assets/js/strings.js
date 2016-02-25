@@ -60,5 +60,12 @@ export default {
         persons: 'Persons',
         details: 'Details',
         documents: 'Documents'
+    },
+    companyDocuments: {
+        id: 'ID',
+        filename: 'File Name',
+        type: 'Type',
+        date: 'Date',
+        createdAt: 'Date Imported'
     }
 }
