@@ -8,6 +8,8 @@
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var PDFImage = require("pdf-image").PDFImage;
+var webshot = require('webshot');
+var toArray = require('stream-to-array')
 
 
 function readBinary(fd){
@@ -25,6 +27,27 @@ function makePreview(fd, type){
             return readBinary(fd);
         });
 }
+
+function renderAndSaveWebPreview(doc){
+
+    return toArray(webshot(doc.sourceUrl))
+    .then(function(parts){
+        var buffers = []
+        for (var i = 0, l = parts.length; i < l ; ++i) {
+          var part = parts[i]
+          buffers.push((part instanceof Buffer) ? part : new Buffer(part))
+        }
+        return Buffer.concat(buffers)
+    })
+    .then(function(data){
+        return DocumentData.create({data: data})
+    })
+    .then(function(docData){
+        doc.documentPreview = docData;
+        return doc.setDocumentPreview(docData);
+    })
+}
+
 
 module.exports = {
     uploadDocument: function(req, res) {
@@ -63,15 +86,6 @@ module.exports = {
                 })
                 .then(function(newInstance){
                     sails.log.debug('Saved to db');
-                    // If we have the pubsub hook, use the model class's publish method
-                    // to notify all subscribers about the created item
-                    /*if (req._sails.hooks.pubsub) {
-                        if (req.isSocket) {
-                            Document.subscribe(req, newInstance);
-                            Document.introduce(newInstance);
-                        }
-                        Document.publishCreate(newInstance.toJSON(), !req.options.mirror && req);
-                    }*/
                     res.created({id: newInstance.id });
                 })
 
@@ -93,8 +107,9 @@ module.exports = {
         Document.findOne({where: {id: req.param('id')}, include: [{model: DocumentData, as: 'documentPreview'}]})
             .then(function(doc){
                 if (!doc) return res.notFound();
-                if(!doc.documentPreview){
+                if(!doc.documentPreview && doc.sourceUrl){
                     //generate preview
+                    return renderAndSaveWebPreview(doc)
                 }
                 return doc;
             })

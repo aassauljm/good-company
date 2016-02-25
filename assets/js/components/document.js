@@ -31,10 +31,11 @@ export default class Account extends React.Component {
     render() {
         const data = this.props.data || {};
         return <div className="container">
-            <div className="col-md-6">
-                <img src={"/api/document/get_document_preview/"+ this.key()}/>
+            <div className="col-md-9">
+                <img style={{width: '100%'}} src={"/api/document/get_document_preview/"+ this.key()}/>
+
             </div>
-             <div className="col-md-6">
+             <div className="col-md-3">
              <dl>
                   <dt>ID</dt>
                   <dd>{data.id}</dd>
@@ -42,8 +43,12 @@ export default class Account extends React.Component {
                   <dd>{data.filename}</dd>
                   <dt>Type</dt>
                   <dd>{data.type}</dd>
-                  <dt>Date Created</dt>
+                  <dt>Date</dt>
+                  <dd>{new Date(data.date).toDateString()}</dd>
+                  <dt>Date Imported</dt>
                   <dd>{new Date(data.createdAt).toDateString()}</dd>
+                  { data.sourceUrl && <dt>Original URL</dt> }
+                  { data.sourceUrl && <dd><Link target="_blank" to={data.sourceUrl}>Companies Office</Link> </dd> }
                 </dl>
             </div>
         </div>

@@ -742,6 +742,12 @@ function insertIntermediateActions(docs){
     return results;
 }
 
+function documentUrl(companyNumber, documentId){
+    return 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
+}
+
+
+
 const ScrapingService = {
 
     fetch: function(companyNumber){
@@ -758,7 +764,7 @@ const ScrapingService = {
     },
 
     fetchDocument: function(companyNumber, documentId){
-        const url = 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
+        const url = documentUrl(companyNumber, documentId);
         sails.log.verbose('Getting url', url);
         return fetch(url)
                 .then(function(res){
@@ -824,7 +830,7 @@ const ScrapingService = {
     populateDB: function(data, user_id){
         return  Company.create({
                 ownerId: user_id,
-                creatorId: user_id,
+                createdById: user_id,
             })
             .then(function(company){
                 this.company = company;
@@ -889,13 +895,16 @@ const ScrapingService = {
         let result = {};
         result.docList = {documents: data.documents.map(function(d){
                 return {
-                    sourceUrl: d.original,
+                    originalUrl: d.original,
+                    sourceUrl: documentUrl(data.companyNumber, d.documentId),
                     date: moment(d.date, 'DD MMM YYYY HH:mm').toDate(),
+                    type: 'Companies Office',
                     filename: d.documentType,
                     ownerId: user_id,
-                    creatorId: user_id
+                    createdById: user_id
                 };
         })};
+        console.log(result.docList)
         return result;
     },
 
