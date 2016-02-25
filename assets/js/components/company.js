@@ -528,13 +528,12 @@ class DocumentsPanel extends React.Component {
         docList: PropTypes.shape({ documents: PropTypes.array.isRequired}).isRequired
     };
     render(){
-
         return <div className="panel panel-success" >
             <div className="panel-heading">
             <h3 className="panel-title">Documents</h3>
             </div>
             <div className="panel-body">
-                <table className="table">
+                <table className="table table-condensed" style={{marginBottom: 0}}>
                 <thead><tr><th>Name</th><th>Date</th></tr></thead>
                 <tbody>
                 { this.props.docList.documents.slice(0, 5).map((d, i) => {
@@ -547,6 +546,39 @@ class DocumentsPanel extends React.Component {
         </div>
     }
 }
+
+@pureRender
+class ApplyShareClasses extends React.Component {
+    render(){
+        return <div className="text-danger alert-entry" onClick={() => alert("coming")}><Glyphicon glyph="warning-sign" className="big-icon"/>
+        You need to specify share classes.  Click here to start.</div>
+    }
+}
+
+const AlertWarnings = {
+    ApplyShareClasses: ApplyShareClasses,
+}
+
+
+@pureRender
+class Alerts extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object.isRequired
+    };
+    render(){
+        return <div className="panel panel-default" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Notifications</h3>
+            </div>
+            <div className="panel-body">
+                { !this.props.companyState.hasAppliedShareClasses && <AlertWarnings.ApplyShareClasses />}
+            </div>
+        </div>
+    }
+}
+
+
+
 
 @connect((state, ownProps) => {
     let comp;
@@ -727,6 +759,11 @@ export default class Company extends React.Component {
                 })}
                 { !this.props.children &&
                     <div className="container">
+                    <div className="row">
+                         <div className="col-md-12">
+                            <Alerts companyState={current} />
+                         </div>
+                    </div>
                     <div className="row">
                          <div className="col-md-6">
                         <Link to={this.props.location.pathname +'/details'}>

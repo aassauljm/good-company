@@ -32,7 +32,7 @@ export default class Account extends React.Component {
         const data = this.props.data || {};
         return <div className="container">
             <div className="col-md-9">
-                <img style={{width: '100%'}} src={"/api/document/get_document_preview/"+ this.key()}/>
+                <img style={{width: '100%'}} src={"/api/document/get_document_preview/"+ this.key()} />
 
             </div>
              <div className="col-md-3">

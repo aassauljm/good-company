@@ -59,6 +59,9 @@ module.exports = {
         },
         ultimateHoldingCompany: {
             type: Sequelize.BOOLEAN
+        },
+        hasAppliedShareClasses: {
+            type: Sequelize.BOOLEAN
         }
     },
     associations: function(n) {
