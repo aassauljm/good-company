@@ -206,6 +206,13 @@ a, a:hover{
     }
 }
 
+// FORMS
+.form-control-static{
+    @extend .btn;
+    @extend .btn-default;
+    @extend .form-control;
+}
+
 .dropzone{
     border-width: 2px;
     border-color: black;

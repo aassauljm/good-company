@@ -16,7 +16,6 @@ function checkNameCollision(ownerId, data) {
             include: [{
                 model: CompanyState,
                 as: 'currentCompanyState',
-                include: CompanyState.includes.fullNoJunctions(),
                 where: {
                     companyName: data.companyName
                 }
@@ -53,21 +52,19 @@ module.exports = {
         Company.findById(req.params.id, {
                 include: [{
                     model: CompanyState,
-                    as: 'currentCompanyState',
-                    include: CompanyState.includes.fullNoJunctions(),
-                }],
-                order: CompanyState.ordering.full().map((e) => [{
-                    model: CompanyState,
                     as: 'currentCompanyState'
-                }, ...e])
+                }]
             })
             .then(function(company) {
                 this.company = company;
-                return company.currentCompanyState.stats();
+                return Promise.join(this.company.currentCompanyState.fullPopulate())
+            })
+            .then(function(){
+                return this.company.currentCompanyState.stats()
             })
             .then(function(stats){
-                var json = this.company.get();
-                json.currentCompanyState = _.merge(json.currentCompanyState.toJSON(), stats);
+                const json = this.company.toJSON();
+                json.currentCompanyState = _.merge(json.currentCompanyState, stats);
                 res.json(json);
             }).catch(function(err) {
                 return res.notFound(err);
@@ -158,13 +155,10 @@ module.exports = {
             return ScrapingService.fetch(req.params.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
                 .tap(checkNameCollision.bind(null, req.user.id))
-                .then(function(_data) {
+                .then((_data) => {
                     data = _data;
-                    data.ownerId = req.user.id;
-                    data.creatorId = req.user.id;
-                    return data;
+                    return ScrapingService.populateDB(data, req.user.id);
                 })
-                .then(ScrapingService.populateDB)
                 .then(function(_company) {
                     company = _company;
                     if(actionUtil.parseValues(req)['history'] !== false){
@@ -181,14 +175,17 @@ module.exports = {
                             processedDocs = _processedDocs.concat(ScrapingService.extraActions(data, _processedDocs));
                             processedDocs = ScrapingService.segmentActions(processedDocs);
                             // create a state before SEED
+                            sails.log.verbose('Processed ' + processedDocs.length + ' documents')
                             return company.createPrevious();
                         })
                         .then(function(){
-                            company.set('historicalActions', processedDocs);
-                            return company.save();
+                            return Actions.create({actions: processedDocs});
+                        })
+                        .then(function(actions){
+                            return company.setHistoricalActions(actions);
                         })
                         .then(function(){
-                            sails.log.info('Processing ' + processedDocs.length + ' documents');
+                            sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
                             return Promise.each(processedDocs, function(doc) {
                                 return ScrapingService.populateHistory(doc, company);
                             });

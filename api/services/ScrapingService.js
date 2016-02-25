@@ -821,18 +821,20 @@ const ScrapingService = {
             })
     },
 
-    populateDB: function(data){
+    populateDB: function(data, user_id){
         return  Company.create({
-            ownerId: data.ownerId,
-            creatorId: data.creatorId,
+                ownerId: user_id,
+                creatorId: user_id,
             })
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
+
                 return sails.controllers.companystate.transactions.seed({
                     ...data,
-                    ...ScrapingService.formatHolders(data),
-                    ...ScrapingService.formatDirectors(data),
+                    ...ScrapingService.formatHolders(data, user_id),
+                    ...ScrapingService.formatDirectors(data, user_id),
+                    ...ScrapingService.formatDocuments(data, user_id),
                 }, company, new Date());
             })
             .then(function(){
@@ -880,6 +882,20 @@ const ScrapingService = {
                     }
                 };
             });
+        return result;
+    },
+
+    formatDocuments: function(data, user_id){
+        let result = {};
+        result.docList = {documents: data.documents.map(function(d){
+                return {
+                    sourceUrl: d.original,
+                    date: moment(d.date, 'DD MMM YYYY HH:mm').toDate(),
+                    filename: d.documentType,
+                    ownerId: user_id,
+                    creatorId: user_id
+                };
+        })};
         return result;
     },
 

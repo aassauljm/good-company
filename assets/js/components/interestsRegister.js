@@ -14,7 +14,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import { routeActions } from 'react-router-redux'
 import DropZone from 'react-dropzone';
-import FormControl from 'react-bootstrap/lib/FormControls';
+import StaticField from 'react-bootstrap/lib/FormControls/Static';
 
 
 export const fields = [
@@ -101,37 +101,43 @@ class EntryForm extends React.Component {
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
             <legend>Create Interests Registry Entry</legend>
+
             { fields.persons.map((n, i) => {
                 return <Input type="select" key={i} {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Name"
                 hasFeedback groupClassName='has-group'
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
                     <option></option>
                     { this.props.companyState.directors.map((d, i) => {
-                        return <option value={d.person.id}>{d.person.name}</option>
+                        return <option key={i} value={d.person.id}>{d.person.name}</option>
                     })}
                 </Input>
             }) }
-            { fields.persons.error && fields.persons.error.map(e => {
-                return <span className="help-block">{ e} </span>
+            { fields.persons.error && fields.persons.error.map((e, i) => {
+                return <span key={i} lassName="help-block">{e} </span>
             })}
             <div className="button-row"><ButtonInput onClick={() => {
                 fields.persons.addField();    // pushes empty child field onto the end of the array
             }}>Add Person</ButtonInput></div>
-             <DateInput {...fields.date} bsStyle={fieldStyle(fields.date)} help={fieldHelp(fields.date)} label="Date" hasFeedback />
+            <DateInput {...fields.date} bsStyle={fieldStyle(fields.date)} help={fieldHelp(fields.date)} label="Date" hasFeedback />
             <Input type="textarea" rows="6" {...fields.details} bsStyle={fieldStyle(fields.details)} help={fieldHelp(fields.details)} label="Details" hasFeedback />
-              <DropZone className="dropzone" { ...fields.documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
+
+            <DropZone className="dropzone" { ...fields.documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
                   onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
                   <div>Try dropping some files here, or click to select files to upload.</div>
             </DropZone>
 
 
-           {/* <div>{((this.props.fields.documents|| {}).value || []).map((file, i) => {
-                return  <Input type="static" key={i} label="File"
-                hasFeedback groupClassName='has-group'
-                buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
-                </Input> <div key={i}>{file.name}</div>
-                })
-            </div>*/}
+           {((fields.documents|| {}).value || []).map((file, i) => {
+                return  <StaticField type="static" key={i} label="File" key={i}
+                hasFeedback groupClassName='has-group' value={file.name}
+                buttonAfter={<button className="btn btn-default" onClick={() => {
+                    const clone = fields.documents.value.slice();
+                    clone.splice(i, 1);
+                    fields.documents.onChange(clone);
+                }}><Glyphicon glyph='trash'/></button>} />
+
+                }) }
+
             </fieldset>
             <div className="button-row">
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
@@ -162,9 +168,9 @@ export class InterestsRegisterCreate extends React.Component {
 
 function renderDocumentLinks(list){
     return list.map((d, i) =>
-        <Link key={i} activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
+        <div key={i}><Link  activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
             {d.filename}
-        </Link>);
+        </Link></div>);
 }
 
 

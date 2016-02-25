@@ -7,9 +7,6 @@
 
 module.exports = {
     attributes: {
-        historicalActions: {
-            type: Sequelize.JSON
-        }
     },
     associations: function() {
         Company.belongsTo(User, {
@@ -40,6 +37,13 @@ module.exports = {
                 name: 'currentCompanyStateId'
             }
         });
+        Company.belongsTo(Actions, {
+            as: 'historicalActions',
+            foreignKey: {
+                as: 'historicalActions',
+                name: 'historical_action_id'
+            }
+        });
     },
     options: {
         freezeTableName: false,
@@ -56,8 +60,10 @@ module.exports = {
                     if(!id.length){
                         throw new sails.config.exceptions.CompanyStateNotFound();
                     }
-                    return CompanyState.findById(id[0]['previous_company_state'],
-                                                {include: CompanyState.includes.fullNoJunctions(), order: CompanyState.ordering.full()});
+                    return CompanyState.findById(id[0]['previous_company_state'])
+                        .then(function(companyState){
+                            return companyState.fullPopulate();
+                        });
                 });
             },
             getRootCompanyState: function(){
@@ -68,8 +74,10 @@ module.exports = {
                     if(!id.length){
                         throw new sails.config.exceptions.CompanyStateNotFound();
                     }
-                    return CompanyState.findById(id[0]['root_company_state'],
-                                                {include: CompanyState.includes.fullNoJunctions(), order: CompanyState.ordering.full()});
+                    return CompanyState.findById(id[0]['root_company_state'])
+                         .then(function(companyState){
+                            return companyState.fullPopulate()
+                        });
                 });
             },
             getTransactionHistory: function(){

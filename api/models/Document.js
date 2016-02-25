@@ -20,6 +20,9 @@ module.exports = {
         },
         sourceUrl: {
             type: Sequelize.TEXT
+        },
+        date: {
+            type: Sequelize.DATE
         }
     },
     associations: function() {
@@ -58,6 +61,11 @@ module.exports = {
             as: 'entries',
             foreignKey: 'document_id',
             through: 'ie_d_j'
+        });
+        Document.belongsToMany(DocumentList, {
+            as: 'docList',
+            foreignKey: 'document_id',
+            through: 'doc_list_j'
         });
     },
 

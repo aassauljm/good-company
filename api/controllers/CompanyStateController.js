@@ -97,7 +97,7 @@ function createRegisterEntry(data, company){
     let companyState, register;
     return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
-            return currentCompanyState.buildNext({transaction: {type: Transaction.types.REGISTER_ENTRY, data: data, effectiveDate: new Date() }});
+            return currentCompanyState.buildNext({transaction: {type: Transaction.types.REGISTER_ENTRY, data: _.omit(data, 'documents'), effectiveDate: new Date() }});
         })
         .then(function(cs){
             companyState = cs;
