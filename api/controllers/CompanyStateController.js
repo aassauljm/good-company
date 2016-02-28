@@ -156,7 +156,7 @@ module.exports = {
                 })
             })
             .then(function(result){
-                res.ok(result);
+                res.json(result);
             })
             .catch(sails.config.exceptions.ValidationException, function(e) {
                 res.serverError(e);

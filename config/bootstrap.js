@@ -13,7 +13,7 @@ var getNamespace = require('continuation-local-storage').getNamespace;
 //var patchBluebird = require('cls-bluebird');
 var Promise = require('bluebird'),
     shimmer = require('shimmer');
-
+var fs = Promise.promisifyAll(require('fs'));
 
 // functionName: The Promise function that should be shimmed
 // fnArgs: The arguments index that should be CLS enabled (typically all callbacks). Offset from last if negative
@@ -68,9 +68,16 @@ module.exports.bootstrap = function(cb) {
     // It's very important to trigger this callback method when you are finished
     // with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
     var namespace = getNamespace('sails-sequelize-postgresql');
+
     patchBluebird(namespace);
     sails.on('lifted', function() {
         //sails.log.verbose(sails.config.routes)
     });
-    cb();
+    fs.accessAsync(sails.config.CACHE_DIR)
+        .catch(function(){
+            return fs.mkdirAsync(sails.config.CACHE_DIR)
+        })
+        .finally(function(){
+            cb();
+        })
 };

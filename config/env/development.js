@@ -9,6 +9,16 @@
  * any private information to this file!
  *
  */
+var path = require('path');
+var pkgJSON = require(path.resolve('package.json'));
+var winston = require('winston');
+var customLogger = new winston.Logger();
+
+customLogger.add(winston.transports.Console, {
+  level: 'verbose',
+  colorize: true,
+  timestamp: true
+});
 
 module.exports = {
 
@@ -19,6 +29,11 @@ module.exports = {
     hookTimeout: 40000,
     models: {
         connection: 'pg_test'
+    },
+    log: {
+        custom: customLogger,
+        level: 'verbose',
+        inspect: false
     },
     //serverRender: true,
     CACHE_DIR: '/tmp/.gc'

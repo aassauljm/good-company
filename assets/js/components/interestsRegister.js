@@ -160,11 +160,29 @@ const ConnectedForm = reduxForm({
 
 export class InterestsRegisterCreate extends React.Component {
     render() {
-        return  <div className="col-md-6 col-md-offset-3">
+        return  <div className="row">
+            <div className="col-md-6 col-md-offset-3">
                 <ConnectedForm companyId={this.props.companyId} companyState={this.props.companyState}/>
+        </div>
         </div>
     }
 }
+
+
+function renderField(key, data) {
+    switch(key){
+        case 'date':
+            return new Date(data).toDateString();
+        case 'documents':
+            return renderDocumentLinks(data || [])
+        case 'persons':
+            return (data || []).map(d => d.name).join(', ')
+        case 'details':
+        default:
+            return data;
+    }
+}
+
 
 function renderDocumentLinks(list){
     return list.map((d, i) =>
@@ -174,29 +192,43 @@ function renderDocumentLinks(list){
 }
 
 
+export class InterestsRegisterView extends React.Component {
+    static propTypes = {
+        interestsRegister: PropTypes.array,
+    };
+
+    render() {
+        const entry = this.props.interestsRegister.filter(i => i.id+'' === this.props.params.entryId)[0] || {};
+        return  <div className="row">
+            <div className="col-md-12">
+                <dl className="dl-horizontal">
+                    <dt>ID</dt>
+                    <dd>{ entry.id}</dd>
+                    <dt>Date</dt>
+                    <dd>{ renderField('date', entry.date) }</dd>
+                    <dt>Persons</dt>
+                    <dd>{ renderField('persons', entry.persons) }</dd>
+                    <dt>Details</dt>
+                    <dd>{ renderField('details', entry.details) }</dd>
+                    <dt>Documents</dt>
+                    <dd>{ renderField('documents', entry.documents) }</dd>
+                </dl>
+            </div>
+        </div>
+    }
+}
+
+
+
 @connect((state, ownProps) => {
     return {data: [], ...state.resources['/company/'+ownProps.params.id +'/interests_register']}
 }, {
-    requestData: (key) => requestResource('/company/'+key+'/interests_register')
+    requestData: (key) => requestResource('/company/'+key+'/interests_register'),
+    viewEntry: (path, id) => routeActions.push(path + '/view/'+id)
 })
 export class InterestsRegister extends React.Component {
 
     static fields = ['date', 'persons', 'details', 'documents']
-
-    renderField(key, data) {
-        switch(key){
-            case 'date':
-                return new Date(data).toDateString();
-            case 'documents':
-                return renderDocumentLinks(data || [])
-            case 'persons':
-                return data.map(d => d.name).join(', ')
-            case 'details':
-            default:
-                return data;
-        }
-    }
-
 
     renderList(data) {
         return <div>
@@ -208,9 +240,9 @@ export class InterestsRegister extends React.Component {
                 </thead>
                 <tbody>
                     { data.map((row, i) => {
-                        return <tr key={i}>
+                        return <tr key={i} onClick={() => this.props.viewEntry(this.props.location.pathname, row.id)}>
                             { InterestsRegister.fields.map((field, i) => {
-                                return <td key={i}>{this.renderField(field, row[field])}</td>
+                                return <td key={i}>{renderField(field, row[field])}</td>
                             }) }
                         </tr>
                     })}
@@ -244,7 +276,8 @@ export class InterestsRegister extends React.Component {
                         { !this.props.children && this.renderList(interestsRegister) }
                          { this.props.children && React.cloneElement(this.props.children, {
                                 companyId: this.key(),
-                                companyState: this.props.companyState
+                                companyState: this.props.companyState,
+                                interestsRegister: interestsRegister
                         }) }
                     </div>
                 </div>

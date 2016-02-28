@@ -41,6 +41,7 @@ module.exports = {
             )
         },
         { test: /\.gif$/, loader: "url-loader?mimetype=image/png" },
+        { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' },
         { test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,    loader: "file?name=../css/[name].[ext]" }],
     },
     plugins: [

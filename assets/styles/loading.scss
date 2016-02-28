@@ -15,3 +15,13 @@
     transform: rotate(359deg);
   }
 }
+
+
+
+.image-loading{
+    background-image: url(../images/loading-text.png);
+    width:100%;
+    min-height: 200px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}

@@ -42,7 +42,7 @@ module.exports = {
                 as: 'currentCompanyState'
             }]
         }).then(function(matchingRecords) {
-            res.ok(matchingRecords);
+            res.json(matchingRecords);
         }).catch(function(err) {
             return res.notFound(err);
         });

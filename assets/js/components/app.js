@@ -4,7 +4,6 @@ import Login from './login';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { requestUserInfo } from '../actions';
-import DropZone from 'react-dropzone';
 import { createResource } from '../actions'
 import Notifications from './notifications';
 import Modals from './modals';
@@ -22,18 +21,9 @@ export default class App extends React.Component {
         this.props.dispatch(requestUserInfo())
     }
 
-    onDrop(files){
-        let form = new FormData()
-        form.append('document', files[0], files[0].name)
-        this.props.dispatch(createResource('/document/upload_document', form, {stringify: false}))
-            .then(function(){
-                // show upload notification
-            })
-    }
-
     render() {
         const name = this.props.location.pathname;
-        return <DropZone  onDrop={::this.onDrop} disableClick={true} style={{}}>
+        return <div>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
                  <Notifications/>
                  <Modals />
@@ -44,6 +34,6 @@ export default class App extends React.Component {
                     </div>
                     </ReactCSSTransitionGroup>
                  </div>
-            </DropZone>
+            </div>
     }
 }

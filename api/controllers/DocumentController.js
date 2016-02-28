@@ -30,7 +30,7 @@ function makePreview(fd, type){
 
 function renderAndSaveWebPreview(doc){
 
-    return toArray(webshot(doc.sourceUrl))
+    return toArray(webshot(doc.sourceUrl, {shotSize: {height: 'all'}}))
     .then(function(parts){
         var buffers = []
         for (var i = 0, l = parts.length; i < l ; ++i) {

@@ -745,7 +745,7 @@ export default class Company extends React.Component {
                 <div className="container">
                 <div className="well">
                     <h1>{current.companyName}</h1>
-                    { current.companyNumber && <h5><a target="_blank" href={ companiesOfficeUrl }>#{current.companyNumber}, {current.companyStatus}</a></h5> }
+                    { current.companyNumber && <h5><Link target="_blank" to={ companiesOfficeUrl }>#{current.companyNumber}, {current.companyStatus}</Link></h5> }
                     <h5>As at {new Date(current.transaction.effectiveDate).toDateString() }</h5>
                 </div>
                 { this.props.children && <ul className="pager">

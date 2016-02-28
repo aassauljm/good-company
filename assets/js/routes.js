@@ -11,7 +11,7 @@ import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
 import Company, { Shareholdings, CompanyDetails, CompanyTransactions, Shareholders } from './components/company';
-import { InterestsRegister, InterestsRegisterCreate } from './components/interestsRegister';
+import { InterestsRegister, InterestsRegisterCreate, InterestsRegisterView } from './components/interestsRegister';
 import { ShareRegister } from './components/shareRegister';
 import { NewTransaction } from './components/newTransaction';
 import Account from './components/account';
@@ -41,6 +41,7 @@ const routes = (
             <Route path="documents" component={ CompanyDocuments } />
             <Route path="interests_register" component={ InterestsRegister } >
                 <Route path="create" component={ InterestsRegisterCreate } />
+                <Route path="view/:entryId" component={ InterestsRegisterView } />
             </Route>
         </Route>
         <Route path="company/view/:id/history/:generation" component={ Company }  />

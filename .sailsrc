@@ -14,7 +14,7 @@
         "pubsub": false
     },
     "log": {
-        "level": "verbose"
+        "level": "silly"
     },
     "models": {
         "migrate": "alter"
