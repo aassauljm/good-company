@@ -1037,16 +1037,17 @@ const ScrapingService = {
             return obj;
         }, {}));
 
-
-
         $('#addressPanel .addressLine').map(function(i, el){
             if($(el).prev().attr('for')){
                 result[$(el).prev().attr('for').slice(0, -1)] = cleanString($(el).text());
             }
         });
 
-        result['ultimateHoldingCompany'] = _.trim($('#ultimateHoldingCompany').parent()[0].firstChild.data) === 'Yes';
-
+        try{
+            result['ultimateHoldingCompany'] = _.trim($('#ultimateHoldingCompany').parent()[0].firstChild.data) === 'Yes';
+        }catch(e){
+            result['ultimateHoldingCompany'] = null;
+        }
 
         result['holdings'] = {
             total: parseInt($('div.allocations > div.row > span:nth-of-type(1)').text(), 10),

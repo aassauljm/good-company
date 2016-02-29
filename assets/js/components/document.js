@@ -33,7 +33,6 @@ export default class Account extends React.Component {
         return <div className="container">
             <div className="col-md-9">
                 <img className="image-loading" src={"/api/document/get_document_preview/"+ this.key()} />
-
             </div>
              <div className="col-md-3">
              <dl>
