@@ -894,17 +894,16 @@ const ScrapingService = {
     formatDocuments: function(data, user_id){
         let result = {};
         result.docList = {documents: data.documents.map(function(d){
-                return {
-                    originalUrl: d.original,
-                    sourceUrl: documentUrl(data.companyNumber, d.documentId),
-                    date: moment(d.date, 'DD MMM YYYY HH:mm').toDate(),
-                    type: 'Companies Office',
-                    filename: d.documentType,
-                    ownerId: user_id,
-                    createdById: user_id
-                };
+            return {
+                originalUrl: d.original,
+                sourceUrl: documentUrl(data.companyNumber, d.documentId),
+                date: moment(d.date, 'DD MMM YYYY HH:mm').toDate(),
+                type: 'Companies Office',
+                filename: d.documentType,
+                ownerId: user_id,
+                createdById: user_id
+            };
         })};
-        console.log(result.docList)
         return result;
     },
 

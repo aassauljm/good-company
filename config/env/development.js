@@ -32,7 +32,7 @@ module.exports = {
     },
     log: {
         custom: customLogger,
-        level: 'verbose',
+        level: 'info',
         inspect: false
     },
     //serverRender: true,

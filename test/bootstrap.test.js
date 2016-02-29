@@ -108,7 +108,8 @@ function lift(cb){
         },
         session: {adapter: 'memory'},
         babel: {stage: 0, compile: false},
-        test: true
+        test: true,
+        CACHE_DIR: '/tmp/.gc_test'
     }, cb);
 }
 

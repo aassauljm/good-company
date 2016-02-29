@@ -59,9 +59,6 @@ module.exports = {
         },
         ultimateHoldingCompany: {
             type: Sequelize.BOOLEAN
-        },
-        hasAppliedShareClasses: {
-            type: Sequelize.BOOLEAN
         }
     },
     associations: function(n) {
@@ -114,6 +111,13 @@ module.exports = {
             foreignKey: {
                 as: 'docList',
                 name: 'doc_list_id'
+            }
+        });
+        CompanyState.belongsTo(ShareClasses, {
+            as: 'shareClasses',
+            foreignKey: {
+                as: 'shareClasses',
+                name: 's_classes_id'
             }
         });
     },

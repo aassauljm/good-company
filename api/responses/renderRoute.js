@@ -15,7 +15,8 @@ export default function(renderProps) {
             res = this.res,
             state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user ? {...req.user.toJSON(), _status: 'complete'} : {}},
             store = configureStore(state);
-        match({routes, location: req.url}, (error, redirectLocation, renderProps) => {
+        const url = req.url;
+        match({routes, location: url}, (error, redirectLocation, renderProps) => {
             if (error || !renderProps) {
                 res.send(500, error.message)
             }
@@ -24,8 +25,7 @@ export default function(renderProps) {
                 res.redirect(301, redirectLocation.pathname + redirectLocation.search)
             }
             res.status(200);
-            const output = renderToString(
-                                          <Root store={store} history={createMemoryHistory(req.url)}/>);
+            const output = renderToString(<Root store={store} history={createMemoryHistory(req.url)}/>);
             res.render('content.ejs', { reactOutput: output, data: JSON.stringify(store.getState()),  _layoutFile: 'layout.ejs'});
         });
     }
