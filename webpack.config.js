@@ -23,8 +23,7 @@ module.exports = {
         loaders: [{
             test: /\.js$/,
             exclude: /node_modules/,
-            loader: "babel-loader",
-            query: {stage: 0}
+            loader: "babel-loader"
         }, {
             test: /\.(scss|css)$/,
             loader: ExtractTextPlugin.extract(

@@ -1,7 +1,4 @@
 {
-    "babel": {
-        "stage": 0
-    },
     "generators": {
         "modules": {
             "permissions-api": "sails-permissions/generator"

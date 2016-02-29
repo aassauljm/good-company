@@ -17,7 +17,6 @@ var events = require("events"),
     EventEmitter = events.EventEmitter;
 EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
-require("babel/register")({stage: 0});
 var setFetch = require("../assets/js/utils").setFetch;
 var _fetch = require('isomorphic-fetch');
 
@@ -107,7 +106,6 @@ function lift(cb){
             permissions: false,
         },
         session: {adapter: 'memory'},
-        babel: {stage: 0, compile: false},
         test: true,
         CACHE_DIR: '/tmp/.gc_test'
     }, cb);
