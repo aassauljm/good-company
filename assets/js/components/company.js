@@ -5,7 +5,6 @@ import { pureRender, numberWithCommas } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import LookupCompany from  './lookupCompany';
-import AuthenticatedComponent from  './authenticated';
 import { Link } from 'react-router';
 import PieChart  from 'react-d3-components/lib/PieChart';
 import BarChart  from 'react-d3-components/lib/BarChart';
@@ -591,7 +590,6 @@ class Alerts extends React.Component {
     }
     return {data: {}, companyPage: state.companyPage, ...comp};
 })
-@AuthenticatedComponent
 export class CompanyHistory extends React.Component {
     static propTypes = {
         companyPage: PropTypes.object.isRequired,
@@ -704,12 +702,17 @@ export class CompanyHistory extends React.Component {
 @connect((state, ownProps) => {
     return {data: {}, companyPage: state.companyPage, ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 })
-@AuthenticatedComponent
 export default class Company extends React.Component {
     static propTypes = {
         companyPage: PropTypes.object.isRequired,
         data: PropTypes.object.isRequired
     };
+    /*static reduxAsyncConnect(params, store, helpers) {
+
+        const {dispatch, getState} = store;
+        return dispatch(requestResource('/company/' + params.id + '/get_info'));
+    };*/
+
     key() {
         return this.props.params.id
     }
@@ -719,7 +722,7 @@ export default class Company extends React.Component {
     }
 
     fetch() {
-        this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
+        //this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
     }
 
     componentDidMount() {

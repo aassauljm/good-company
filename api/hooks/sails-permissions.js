@@ -68,7 +68,7 @@ function initializeFixtures(sails) {
             });
         })
         .then(function(user) {
-            sails.log.verbose('sails-permissions: created admin user:', user);
+            sails.log.verbose('sails-permissions: created admin user:', user.toJSON());
             user.createdBy = user.id;
             user.owner = user.id;
             return user.save();

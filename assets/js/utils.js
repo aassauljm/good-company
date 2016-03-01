@@ -214,6 +214,9 @@ export const requireFields = (...names) => data =>
 let _fetch = isoFetch;
 
 export function fetch(url, args){
+   /* if(__SERVER__){
+        url = 'http://localhost:'+sails.config.port+url;
+    }*/
    return _fetch(url, args);
 }
 

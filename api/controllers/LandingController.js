@@ -5,7 +5,7 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
-export default {
+module.exports = {
     landing: function(req, res){
        res.renderRoute();
     }

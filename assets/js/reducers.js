@@ -27,6 +27,7 @@ import {reducer as formReducer} from 'redux-form';
 import validator from 'validator'
 import { relationNameToModel } from './schemas';
 import { routeReducer } from 'react-router-redux'
+import { reducer as reduxAsyncConnect } from 'redux-async-connect'
 
 const initialState = {
 
@@ -502,7 +503,8 @@ const appReducer = combineReducers({
     resources,
     form: form,
     notifications,
-    modals
+    modals,
+    reduxAsyncConnect
 });
 
 

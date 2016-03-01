@@ -8,19 +8,18 @@ import { createResource } from '../actions'
 import Notifications from './notifications';
 import Modals from './modals';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
+import { asyncConnect } from 'redux-async-connect';
 
 
+@asyncConnect([{
+  promise: ({store: {dispatch, getState}}) => {
+    const promises = [];
+    promises.push(dispatch(requestUserInfo()))
+    return Promise.all(promises);
+  }
+}])
 @connect(state => { return {login: state.login, userInfo: state.userInfo} })
 export default class App extends React.Component {
-
-    componentDidMount(){
-        this.props.dispatch(requestUserInfo())
-    }
-
-    componentDidUpdate(){
-        this.props.dispatch(requestUserInfo())
-    }
-
     render() {
         const name = this.props.location.pathname;
         return <div>

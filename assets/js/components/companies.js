@@ -5,23 +5,18 @@ import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
-import AuthenticatedComponent from  './authenticated';
 import { routeActions } from 'react-router-redux'
 import { Link } from 'react-router';
 import STRINGS from '../strings'
+import { asyncConnect } from 'redux-async-connect';
 
+@asyncConnect([{
+  promise: ({store: {dispatch, getState}}) => {
+    return dispatch(requestResource('companies'));
+  }
+}])
 @connect(state => state.resources.companies)
-@AuthenticatedComponent
 export default class Companies extends React.Component {
-
-    componentDidMount() {
-        this.props.dispatch(requestResource('companies'));
-    }
-
-    componentDidUpdate() {
-        this.props.dispatch(requestResource('companies'));
-    }
-
     handleClick(id, event) {
         event.preventDefault();
         const { dispatch } = this.props;

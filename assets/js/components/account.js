@@ -9,7 +9,6 @@ import { reduxForm } from 'redux-form';
 import { reset} from 'redux-form';
 import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
-import AuthenticatedComponent from  './authenticated';
 
 
 @reduxForm({
@@ -64,7 +63,6 @@ export default class AccountForm extends React.Component {
 // DANGER, do other accounts
 //@connect((state, ownProps) => {return {state.resources[ownProps.route.edit ? '/user/'+ownProps.params.id : '/user'] || {data: {}})
 @connect((state) => state.userInfo)
-@AuthenticatedComponent
 export default class Account extends React.Component {
 
     key(){

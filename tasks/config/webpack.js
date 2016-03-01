@@ -31,12 +31,11 @@ module.exports = function(grunt) {
                 //reasons: true
             },
             progress: false,
-             failOnError: false,
+            failOnError: false,
             watch: true, // use webpacks watcher
             // You need to keep the grunt process alive
 
             keepalive: true, // don't finish the grunt task
-            devtool: "sourcemap",
             debug: true
         }
     });

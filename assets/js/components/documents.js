@@ -4,13 +4,11 @@ import { requestResource, deleteResource } from '../actions';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
-import AuthenticatedComponent from  './authenticated';
 import { Link } from 'react-router'
 import STRINGS from '../strings'
 
 
 @connect(state => state.resources.documents)
-@AuthenticatedComponent
 export default class Documents extends React.Component {
 
     componentDidMount(){

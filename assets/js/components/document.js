@@ -6,11 +6,8 @@ import { connect } from 'react-redux';
 import { initialize } from 'redux-form';
 import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
-import AuthenticatedComponent from  './authenticated';
-
 
 @connect((state, ownProps) => state.resources['/document/'+ownProps.params.id ] || {data: {}})
-@AuthenticatedComponent
 export default class Account extends React.Component {
 
     key(){

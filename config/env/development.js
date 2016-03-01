@@ -32,7 +32,6 @@ module.exports = {
     },
     log: {
         custom: customLogger,
-        level: 'info',
         inspect: false
     },
     //serverRender: true,

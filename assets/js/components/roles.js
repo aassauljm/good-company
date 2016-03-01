@@ -4,10 +4,8 @@ import {requestResource, deleteResource} from '../actions';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
-import AuthenticatedComponent from  './authenticated';
 
 @connect(state => state.resources.roles)
-@AuthenticatedComponent
 @pureRender
 export default class Users extends React.Component {
 

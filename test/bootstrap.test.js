@@ -1,4 +1,4 @@
-var jsdom = require('node-jsdom');
+svar jsdom = require('node-jsdom');
 var https = require('https');
 var _ = require('lodash');
 dom();
@@ -48,7 +48,7 @@ function stubs(){
     var cookie;
     // This function will allow cookie authentication to persist on the server side
     setFetch(function(url, args){
-        url =  window.location.protocol + '//' +window.location.host + url;
+        //url =  window.location.protocol + '//' +window.location.host + url;
         return _fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
             .then(function(r){
                 if(r.headers._headers['set-cookie']){
@@ -61,7 +61,7 @@ function stubs(){
 
 function dom(){
     global.__DEV__ = false;
-
+    global.__SERVER__ = true;
 
     // setup the simplest document possible
     var doc = jsdom.jsdom('<!doctype html><html><body><div id="main"></div></body></html>', {url: 'http://localhost:1338/'});

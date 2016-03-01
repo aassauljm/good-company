@@ -1,5 +1,5 @@
 "use strict";
-import { Route, Router, DefaultRoute } from 'react-router';
+import { IndexRoute, Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import App from './components/app';
 import Landing from './components/landing';
@@ -20,36 +20,48 @@ import Login from './components/login';
 import SignUp from './components/signup';
 
 
-const routes = (
-    <Route component={ App }>
+export default (store) => {
+    const requireLogin = (nextState, replace, cb) => {
+        function checkAuth() {
+            const { login: { loggedIn }} = store.getState();
+            if (!loggedIn) {
+                replace('/login');
+            }
+            cb();
+        }
+        checkAuth();
+    };
+
+
+    return <Route path="/" component={ App }>
         <Route path="login" component={ Login }  />
         <Route path="signup" component={ SignUp }  />
-        <Route path="/" component={ Landing }  />
-        <Route path="home" component={ Home }  />
-        <Route path="users" component={ Users }  />
-        <Route path="roles" component={ Roles }  />
-        <Route path="documents" component={ Documents }  />
-        <Route path="document/view/:id" component={ Document }  />
-        <Route path="companies" component={ Companies }  />
-        <Route path="company/view/:id" component={ Company }>
-            <Route path="shareholdings" component={ Shareholdings } />
-            <Route path="details" component={ CompanyDetails } />
-            <Route path="transactions" component={ CompanyTransactions } />
-            <Route path="new_transaction" component={ NewTransaction } />
-            <Route path="shareregister" component={ ShareRegister } />
-            <Route path="shareholders" component={ Shareholders } />
-            <Route path="documents" component={ CompanyDocuments } />
-            <Route path="interests_register" component={ InterestsRegister } >
-                <Route path="create" component={ InterestsRegisterCreate } />
-                <Route path="view/:entryId" component={ InterestsRegisterView } />
+        <Route onEnter={requireLogin}>
+            <IndexRoute component={ Landing }  />
+            <Route path="home" component={ Home }  />
+            <Route path="users" component={ Users }  />
+            <Route path="roles" component={ Roles }  />
+            <Route path="documents" component={ Documents }  />
+            <Route path="document/view/:id" component={ Document }  />
+            <Route path="companies" component={ Companies }  />
+            <Route path="company/view/:id" component={ Company }>
+                <Route path="shareholdings" component={ Shareholdings } />
+                <Route path="details" component={ CompanyDetails } />
+                <Route path="transactions" component={ CompanyTransactions } />
+                <Route path="new_transaction" component={ NewTransaction } />
+                <Route path="shareregister" component={ ShareRegister } />
+                <Route path="shareholders" component={ Shareholders } />
+                <Route path="documents" component={ CompanyDocuments } />
+                <Route path="interests_register" component={ InterestsRegister } >
+                    <Route path="create" component={ InterestsRegisterCreate } />
+                    <Route path="view/:entryId" component={ InterestsRegisterView } />
+                </Route>
             </Route>
+            <Route path="company/view/:id/history/:generation" component={ Company }  />
+            <Route path="user/edit/:id" edit={true} component={ Account }  />
+            <Route path="user/set_password" edit={true} component={ SetPassword }  />
+            <Route path="user/create" component={ Account }  />
         </Route>
-        <Route path="company/view/:id/history/:generation" component={ Company }  />
-        <Route path="user/edit/:id" edit={true} component={ Account }  />
-        <Route path="user/set_password" edit={true} component={ SetPassword }  />
-        <Route path="user/create" component={ Account }  />
         <Route path="*" component={ NotFound } />
-    </Route>);
-
-
-export default routes;
+    </Route>;
+};

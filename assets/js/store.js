@@ -8,52 +8,42 @@ import { callAPIMiddleware } from './middleware';
 import { devTools, persistState } from 'redux-devtools';
 import DevTools from './components/devTools';
 import { syncHistory } from 'react-router-redux';
-import { browserHistory } from 'react-router'
-
-let middleware;
-
-const reduxRouterMiddleware = syncHistory(browserHistory);
-
-if(__DEV__){
-    const loggerMiddleware = createLogger();
-    middleware = applyMiddleware(
-          thunkMiddleware,
-          loggerMiddleware,
-          reduxRouterMiddleware,
-          callAPIMiddleware)
-}
-else{
-    middleware = applyMiddleware(
-          thunkMiddleware,
-          reduxRouterMiddleware,
-          callAPIMiddleware)
-}
-
-let data;
-
-try{
-    data = JSON.parse(document.getElementById("data").textContent);
-}catch(e){
-    //do nothing
-}
 
 
+const data = {};
 
-const createStoreWithMiddleware = __DEV__ ?
-        compose(
-            middleware,
-            // Lets you write ?debug_session=<name> in address bar to persist debug sessions
-            // persistState('dev')
-            // Provides support for DevTools:
-            DevTools.instrument()
-        )(createStore)
-        :
-        compose(
-            middleware,
-        )(createStore);
+export default function configureStore(history, initialState=data) {
+    let middleware;
+    const reduxRouterMiddleware = syncHistory(history);
+    if(__DEV__){
+        const loggerMiddleware = createLogger();
+        middleware = applyMiddleware(
+              thunkMiddleware,
+              loggerMiddleware,
+              reduxRouterMiddleware,
+              callAPIMiddleware)
+    }
+    else{
+        middleware = applyMiddleware(
+              thunkMiddleware,
+              reduxRouterMiddleware,
+              callAPIMiddleware)
+    }
+
+    const createStoreWithMiddleware = __DEV__ ?
+            compose(
+                middleware,
+                // Lets you write ?debug_session=<name> in address bar to persist debug sessions
+                // persistState('dev')
+                // Provides support for DevTools:
+                DevTools.instrument()
+            )(createStore)
+            :
+            compose(
+                middleware,
+            )(createStore);
 
 
-export default function configureStore(initialState=data) {
     const store = createStoreWithMiddleware(appReducer, initialState);
     reduxRouterMiddleware.listenForReplays(store);
     return store;

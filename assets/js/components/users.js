@@ -4,11 +4,8 @@ import {requestResource, deleteResource} from '../actions';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import AuthenticatedComponent from  './authenticated';
 
 @connect(state => state.resources.users)
-@AuthenticatedComponent
-@pureRender
 export default class Users extends React.Component {
 
     componentDidMount(){

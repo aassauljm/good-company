@@ -7,7 +7,6 @@ import { setPassword } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm}  from 'redux-form';
 import { fieldStyle } from '../utils';
-import AuthenticatedComponent from  './authenticated';
 
 
 function validatePasswordMatch(form){
@@ -49,7 +48,6 @@ export class PasswordForm extends React.Component {
   fields: ['oldPassword', 'newPassword', 'repeatPassword'],
   validate: validatePasswordMatch
 })
-@AuthenticatedComponent
 class SetPassword extends React.Component {
     static propTypes = {
         dispatch: React.PropTypes.func.isRequired
