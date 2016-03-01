@@ -1123,4 +1123,4 @@ const ScrapingService = {
     }
 };
 
-export default ScrapingService;
+module.exports = ScrapingService;

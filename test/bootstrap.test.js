@@ -1,8 +1,7 @@
-svar jsdom = require('node-jsdom');
-var https = require('https');
-var _ = require('lodash');
+require("babel-polyfill");
+var jsdom = require('jsdom');
 dom();
-
+var _ = require('lodash');``
 var Sails = require('sails');
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
@@ -19,7 +18,6 @@ EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
 var setFetch = require("../assets/js/utils").setFetch;
 var _fetch = require('isomorphic-fetch');
-
 var sails;
 
 function stubs(){
@@ -48,7 +46,7 @@ function stubs(){
     var cookie;
     // This function will allow cookie authentication to persist on the server side
     setFetch(function(url, args){
-        //url =  window.location.protocol + '//' +window.location.host + url;
+        url =  window.location.protocol + '//' +window.location.host + url;
         return _fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
             .then(function(r){
                 if(r.headers._headers['set-cookie']){
@@ -62,24 +60,16 @@ function stubs(){
 function dom(){
     global.__DEV__ = false;
     global.__SERVER__ = true;
+    global.document = jsdom.jsdom('<!doctype html><html><body><div id="main"></div></body></html>', {url: 'http://localhost:1338/'});
+    global.window = document.defaultView;
+    propagateToGlobal(global.window)
 
-    // setup the simplest document possible
-    var doc = jsdom.jsdom('<!doctype html><html><body><div id="main"></div></body></html>', {url: 'http://localhost:1338/'});
-    // get the window object out of the document
-    var win = doc.defaultView;
-    // set globals for mocha that make access to document and window feel
-    // natural in the test environment
-    global.document = doc;
-    global.window = win;
-
-    // take all properties of the window object and also attach it to the
-    // mocha global object
-    propagateToGlobal(win);
     // from mocha-jsdom https://github.com/rstacruz/mocha-jsdom/blob/master/index.js#L80
     function propagateToGlobal (window) {
-      for (var key in window) {
+      for (let key in window) {
         if (!window.hasOwnProperty(key)) continue
         if (key in global) continue
+
         global[key] = window[key]
       }
     }

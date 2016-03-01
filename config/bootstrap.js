@@ -12,6 +12,7 @@ require("babel-core/register");
 require("babel-polyfill");
 
 
+
 var getNamespace = require('continuation-local-storage').getNamespace;
 //var patchBluebird = require('cls-bluebird');
 var Promise = require('bluebird'),

@@ -47,16 +47,16 @@ function login(state = {
 }, action){
     switch(action.type){
         case LOGIN_START:
-            return {...state, loginStarted: true}
+            return {...state}
         case LOGIN_REQUEST:
             return state;
         case LOGIN_SUCCESS:
-            return {...state, loggedIn: true, loginStarted: false};
+            return {...state, loggedIn: true};
         case LOGIN_FAILURE:
             return {...state, loggedIn: false};
         case RESOURCE_CREATE_SUCCESS:
             if(action.form === 'signup'){
-                return {...state, loggedIn: true, loginStarted: false};
+                return {...state, loggedIn: true};
             }
             return state;
         default:
@@ -71,6 +71,7 @@ function userInfo(state = {}, action){
         case USER_INFO_SUCCESS:
             return {...state, ...action.response, _status: 'complete'};
         case USER_INFO_FAILURE:
+            console.log(action)
             return {...state, ...action.response, _status: 'error'};
         default:
             return state;

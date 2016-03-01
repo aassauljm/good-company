@@ -3,12 +3,15 @@ import ReactDOM from 'react-dom';
 import {
   renderIntoDocument
 } from 'react-addons-test-utils';
-import { configureHistoriedStore } from ".../../../../assets/js/serverStore";
+import configureStore from ".../../../../assets/js/store";
+import routes from ".../../../../assets/js/routes";
 import Root from ".../../../../assets/js/root";
 import Promise from "bluebird";
 import { createMemoryHistory } from 'react-router'
 const LOOP = 20;
-const DOMTIMEOUT = 1000;
+const DOMTIMEOUT = 3000;
+import { loadOnServer } from 'redux-async-connect';
+import { match } from 'react-router';
 
 
 
@@ -34,9 +37,23 @@ export function waitFor(msg, sel, dom){
     })
 }
 
-export function prepareApp(){
-    const history = createMemoryHistory('/');
-    const store = configureHistoriedStore(history);
-    this.tree = renderIntoDocument(<Root store={store} history={history}/>);
-    this.dom = ReactDOM.findDOMNode(this.tree);
+export function prepareApp(url = '/login'){
+    const history = createMemoryHistory(url);
+    const store = configureStore(history);
+    this.store = store;
+    return new Promise((resolve, reject) => {
+        match({history, routes: routes(store), location: url}, (error, redirectLocation, renderProps) => {
+            if (redirectLocation) {
+                return prepareApp(redirectLocation.pathname)
+                    .then(() => { resolve()})
+            }
+            return loadOnServer({...renderProps, store}).then(() => {
+                this.tree = renderIntoDocument(<Root store={store} history={history}/>);
+                this.dom = ReactDOM.findDOMNode(this.tree);
+                resolve();
+            });
+        });
+    })
+
+
 }
