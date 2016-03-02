@@ -42,7 +42,7 @@ var transactions = {
         return company.getCurrentCompanyState()
             .then(function(companyState){
                 var fields = companyState ? companyState.nonAssociativeFields() : {};
-                return CompanyState.createDedupPersons(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: date || new Date()}}));
+                return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: date || new Date()}}));
             })
             .then(function(state){
                 this.state = state;

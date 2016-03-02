@@ -401,7 +401,7 @@ module.exports = {
             },
 
 
-            createDedupPersons: function(args){
+            createDedup: function(args){
                 return CompanyState.findOrCreatePersons(args)
                     .then(function(args){
                         var state = CompanyState.build(args, {include: CompanyState.includes.full().concat(CompanyState.includes.docList())});
@@ -807,7 +807,9 @@ module.exports = {
                         return stats
                     });
             },
+
             fullPopulate: function() {
+                // tested to be faster way to populate for model for get_info
                 const cs = this;
                 return Promise.join(
                         this.getHoldings({
@@ -890,7 +892,6 @@ module.exports = {
                         return cs;
                     })
             }
-
         },
         hooks: {
             beforeCreate: function(companyState){

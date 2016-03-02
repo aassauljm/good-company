@@ -6,18 +6,15 @@ import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router'
 import STRINGS from '../strings'
+import { asyncConnect } from 'redux-async-connect';
 
-
+@asyncConnect([{
+  promise: ({store: {dispatch, getState}, params}) => {
+    return dispatch(requestResource('documents'));
+  }
+}])
 @connect(state => state.resources.documents)
 export default class Documents extends React.Component {
-
-    componentDidMount(){
-        this.props.dispatch(requestResource('documents'));
-    }
-
-    componentDidUpdate(){
-        this.props.dispatch(requestResource('documents'));
-    }
 
     submitDelete(id, e) {
         e.preventDefault();

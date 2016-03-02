@@ -508,6 +508,27 @@ export function performSeed(data, companyState, previousState, effectiveDate){
 
 }
 
+export function removeDocuments(state, actions){
+    const ids = _.filter(_.map(actions, 'sourceUrl'))
+    if(ids.length){
+        return state.getDocList()
+            .then(function(dl){
+                return dl.buildNext();
+            })
+            .then(function(dl){
+                dl.dataValues.documents = dl.dataValues.documents.filter(d => {
+                    return ids.indexOf(d.sourceUrl) => 0;
+                })
+                return dl.save()
+            })
+            .then(function(dl){
+                state.set('doc_list_id', dl.id)
+                return state;
+            })
+    }
+    return state;
+}
+
 
 export function performInverseTransaction(data, company){
     const PERFORM_ACTION_MAP = {
@@ -548,10 +569,14 @@ export function performInverseTransaction(data, company){
                     result = PERFORM_ACTION_MAP[action.transactionType]({
                         ...action, documentId: data.documentId
                     }, prevState, currentRoot, data.effectiveDate);
-                    //sails.log.verbose(' Immediate state', JSON.stringify(prevState, null, 4))
                 }
                 if(result){
-                    return result.then(function(r){
+
+                    return result
+                    .then(function(r){
+                        return removeDocuments(r, actions);
+                    }
+                    .then(function(r){
                         arr.push(r);
                         return arr;
                     });

@@ -12,7 +12,15 @@ module.exports = {
         rest: true
     },
     attributes: {
-
+        name: {
+            type: Sequelize.TEXT
+        },
+        rights: {
+            type: Sequelize.JSON
+        },
+        restrictions: {
+            type: Sequelize.JSON
+        }
     },
     associations: function() {
         ShareClass.belongsToMany(ShareClasses, {

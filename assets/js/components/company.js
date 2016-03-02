@@ -15,7 +15,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
-
+import { asyncConnect } from 'redux-async-connect';
 
 class NotFound extends React.Component {
     static propTypes = {
@@ -698,7 +698,11 @@ export class CompanyHistory extends React.Component {
 }
 
 
-
+@asyncConnect([{
+  promise: ({store: {dispatch, getState}, params}) => {
+    return dispatch(requestResource('/company/' + params.id + '/get_info'));
+  }
+}])
 @connect((state, ownProps) => {
     return {data: {}, companyPage: state.companyPage, ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 })
@@ -707,11 +711,6 @@ export default class Company extends React.Component {
         companyPage: PropTypes.object.isRequired,
         data: PropTypes.object.isRequired
     };
-    /*static reduxAsyncConnect(params, store, helpers) {
-
-        const {dispatch, getState} = store;
-        return dispatch(requestResource('/company/' + params.id + '/get_info'));
-    };*/
 
     key() {
         return this.props.params.id
@@ -719,19 +718,6 @@ export default class Company extends React.Component {
 
     isHistory() {
         return !!this.props.params.generation;
-    }
-
-    fetch() {
-        //this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
-    }
-
-    componentDidMount() {
-        this.fetch();
-
-    }
-
-    componentDidUpdate() {
-        this.fetch();
     }
 
     render(){
