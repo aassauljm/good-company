@@ -286,7 +286,7 @@ SELECT *,
         as "issueHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['REDEMPTION', 'REPURCHASE']::enum_transaction_type[]))  qq)
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM']::enum_transaction_type[]))  qq)
          as "repurchaseHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht

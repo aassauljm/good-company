@@ -26,6 +26,11 @@ function renderTransferFrom(action){
     return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
 
+function renderPurchaseFrom(action){
+    const date = new Date(action.effectiveDate).toDateString();
+    return  JSON.stringify(action)
+}
+
 
 class RenderActions extends React.Component {
 
@@ -37,6 +42,8 @@ class RenderActions extends React.Component {
                 return renderTransferTo(action);
             case 'TRANSFER_FROM':
                 return renderTransferFrom(action);
+            case 'PURCHASE_FROM':
+                return renderPurchaseFrom(action);
             default:
                 return false;
         }

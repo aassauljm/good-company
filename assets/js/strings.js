@@ -52,8 +52,10 @@ export default {
         NEW_DIRECTOR: 'New Director',
         REMOVE_DIRECTOR: 'Remove Director',
         UPDATE_DIRECTOR: 'Update Director',
-        REPURCHASE: 'Repurchase',
-        REDEMPTION: 'Redemption'
+        PURCHASE: 'Purchase',
+        PURCHASE_FROM: 'Purchase From',
+        REDEMPTION: 'Redemption',
+        REDEMPTION_FROM: 'Redemption From'
     },
     interestsRegister: {
         date: 'Date',

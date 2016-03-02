@@ -229,7 +229,7 @@ describe('CompanyState Model', function() {
             };
 
         it('populates company state and confirms person deduplication and associations', function(done){
-            CompanyState.createDedupPersons(initialState)
+            CompanyState.createDedup(initialState)
                 .then(function(companyState){
                     var firstMicky = _.find(companyState.holdings[0].holders, {name: 'Mickey Twofists'});
                     var secondMicky = _.find(companyState.holdings[1].holders, {name: 'Mickey Twofists'});

@@ -283,10 +283,6 @@ export function performInverseRemoveAllocation(data, companyState, previousState
         .then(function(personData){
         const holding = Holding.buildDeep({holders: personData,
             parcels: [{amount: 0, shareClass: data.shareClass}]});
-
-        //holding.dataValues.holders = holding.dataValues.holders.map((h) => {
-        //    return previousState.getHolderBy(h.get()) || h;
-        //});
         companyState.dataValues.holdings.push(holding);
         return Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
     });
@@ -517,8 +513,8 @@ export function removeDocuments(state, actions){
             })
             .then(function(dl){
                 dl.dataValues.documents = dl.dataValues.documents.filter(d => {
-                    return ids.indexOf(d.sourceUrl) => 0;
-                })
+                    return ids.indexOf(d.sourceUrl) >= 0;
+                });
                 return dl.save()
             })
             .then(function(dl){
@@ -535,11 +531,13 @@ export function performInverseTransaction(data, company){
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.TRANSFER]:  TransactionService.performInverseAmend,
         [Transaction.types.ISSUE_TO]:  TransactionService.performInverseAmend,
+        [Transaction.types.PURCHASE_FROM]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.CONVERSION]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
+        [Transaction.types.PURCHASE]:  TransactionService.performInverseAcquisition,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
         [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
@@ -571,18 +569,17 @@ export function performInverseTransaction(data, company){
                     }, prevState, currentRoot, data.effectiveDate);
                 }
                 if(result){
-
                     return result
                     .then(function(r){
-                        return removeDocuments(r, actions);
-                    }
+                        return removeDocuments(r, data.actions);
+                    })
                     .then(function(r){
                         arr.push(r);
                         return arr;
                     });
                 }
                 return arr;
-            }, [])
+            }, []);
 
         })
         .then(function(transactions){

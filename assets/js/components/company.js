@@ -406,6 +406,7 @@ export class CompanyTransactions extends React.Component {
     }
 }
 
+
 export class Shareholder extends React.Component {
     static propTypes = {
         shareholder: PropTypes.object.isRequired,

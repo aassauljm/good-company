@@ -29,6 +29,10 @@ module.exports = {
             },
             through: 'parcelJ'
         });
+        Parcel.belongsTo(ShareClass, {
+            as: 'sc',
+            foreignKey: 's_c_id'
+        });
     },
     options: {
         freezeTableName: false,

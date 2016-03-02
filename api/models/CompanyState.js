@@ -364,7 +364,9 @@ module.exports = {
                 // persons can be in:
                 // obj.holdings.holders
                 // obj.directors.persons
+                // TODO, start with list of people from db, will be short, and find them in js
                 obj = _.cloneDeep(obj);
+
                 return Promise.each(obj.holdings || [], function(holding){
                     return Promise.map(holding.holders || [], function(holder){
                         return AddressService.normalizeAddress(holder.address)
@@ -404,7 +406,12 @@ module.exports = {
             createDedup: function(args){
                 return CompanyState.findOrCreatePersons(args)
                     .then(function(args){
+                        const shareClasses = _.flatten(_.map(args.holdings, 'parcels'));
+                        return args;
+                    })
+                    .then(function(args){
                         var state = CompanyState.build(args, {include: CompanyState.includes.full().concat(CompanyState.includes.docList())});
+                        // TODO, document why this is needed
                         (state.get('holdings') || []).map(function(h){
                             h.get('holders').map(function(h){
                                 h.isNewRecord = false;

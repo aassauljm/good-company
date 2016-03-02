@@ -60,10 +60,10 @@ describe('Transaction Service, inverse transactions', function() {
         };
 
         before(function(){
-            return CompanyState.createDedupPersons(initialStateSimple)
+            return CompanyState.createDedup(initialStateSimple)
                 .then(function(_companyState){
                     rootStateSimple = _companyState;
-                    return CompanyState.createDedupPersons(initialStateMultiple);
+                    return CompanyState.createDedup(initialStateMultiple);
                 })
                 .then(function(_companyState){
                     rootStateMultiple = _companyState;
@@ -367,10 +367,10 @@ describe('Transaction Service, inverse transactions', function() {
         };
 
         before(function(){
-            return CompanyState.createDedupPersons(initialStateSimple)
+            return CompanyState.createDedup(initialStateSimple)
                 .then(function(_companyState){
                     rootStateSimple = _companyState;
-                    return CompanyState.createDedupPersons(initialStateMultiple);
+                    return CompanyState.createDedup(initialStateMultiple);
                 })
                 .then(function(_companyState){
                     rootStateMultiple = _companyState;

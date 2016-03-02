@@ -182,6 +182,7 @@ const EXTRACT_DOCUMENT_MAP = {
             'Issue': Transaction.types.ISSUE_UNALLOCATED,
             'Conversion/Subdivision of Shares': Transaction.types.CONVERSION,
             'Acquisition': Transaction.types.ACQUISITION,
+            'Purchase': Transaction.types.PURCHASE
         }
 
         let result = {};
@@ -197,6 +198,8 @@ const EXTRACT_DOCUMENT_MAP = {
                 break;
             case(Transaction.types.ACQUISITION):
                 result = {...result, ...parseAcquisition($)}
+            case(Transaction.types.PURCHASE):
+                result = {...result, ...parseAcquisition($, 'Date of Purchase')}
                 break;
             default:
         }
@@ -253,17 +256,18 @@ const EXTRACT_DOCUMENT_MAP = {
             }, 0);
 
         // TODO, read previous share update doc
+        //http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720672
         if(totalShares > 0){
-            //result.transactionType = Transaction.types.ISSUE_TO;
             result.actions.map(a => {
                 if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
                    a.transactionType === Transaction.types.AMEND){
+                    // TODO, could be another type, need to check flanking document
                     a.transactionSubType = Transaction.types.ISSUE_TO;
                 }
             })
         }
 
-        if(totalShares === 0){
+        else if(totalShares === 0){
             result.transactionType = Transaction.types.TRANSFER;
             result.actions.map(a => {
                 if(a.transactionType === Transaction.types.NEW_ALLOCATION){
@@ -279,10 +283,17 @@ const EXTRACT_DOCUMENT_MAP = {
 
         }
 
-        // TODO < 0
+        else if(totalShares < 0){
+            result.actions.map(a => {
+                if(a.transactionType === Transaction.types.REMOVE_ALLOCATION ||
+                   a.transactionType === Transaction.types.AMEND){
+                    // TODO, could be another type, need to check flanking document
+                    a.transactionSubType = Transaction.types.PURCHASE_FROM;
+                }
+            })
+        }
 
         // a kludge to add companyNumbers from new/removeHolder to new/remove allocation
-
         let idMap = result.actions.reduce(function(acc, action){
             _.each(action.holders, function(holder){
                 if(holder.companyNumber){
@@ -291,7 +302,6 @@ const EXTRACT_DOCUMENT_MAP = {
             });
             return acc;
         }, {});
-
         result.actions.map(function(a){
             if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
                a.transactionType === Transaction.types.REMOVE_ALLOCATION){
@@ -732,7 +742,7 @@ function insertIntermediateActions(docs){
                     beforeAmount: a.amount,
                     afterAmount: 0,
                     transactionType: Transaction.types.AMEND,
-                    transactionSubType: Transaction.types.REMOVE_ALLOCATION
+                    transactionSubType: a.transactionSubType || Transaction.types.REMOVE_ALLOCATION
                 })
             });
             results.push(removals);
@@ -850,6 +860,7 @@ const ScrapingService = {
     },
 
     populateHistory: function(data, company){
+            console.log(JSON.stringify(data, null, 4))
         return TransactionService.performInverseTransaction(data, company);
     },
 
