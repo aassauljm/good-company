@@ -167,6 +167,8 @@ export const performInverseAmend = Promise.method(function(data, companyState, p
         });
 });
 
+
+
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const current = companyState.getMatchingHolding(data.afterHolders);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -531,6 +533,8 @@ export function performInverseTransaction(data, company){
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.TRANSFER]:  TransactionService.performInverseAmend,
         [Transaction.types.ISSUE_TO]:  TransactionService.performInverseAmend,
+        [Transaction.types.TRANSFER_FROM]:  TransactionService.performInverseAmend,
+        [Transaction.types.TRANSFER_TO]:  TransactionService.performInverseAmend,
         [Transaction.types.PURCHASE_FROM]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
@@ -561,10 +565,11 @@ export function performInverseTransaction(data, company){
             prevState.dataValues.transactionId = null;
             prevState.dataValues.transaction = null;
             return Promise.reduce(data.actions, function(arr, action){
-                sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
+                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;
-                if(PERFORM_ACTION_MAP[action.transactionType]){
-                    result = PERFORM_ACTION_MAP[action.transactionType]({
+                const method = action.transactionMethod || action.transactionType;
+                if(PERFORM_ACTION_MAP[method]){
+                    result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
                     }, prevState, currentRoot, data.effectiveDate);
                 }
@@ -598,7 +603,7 @@ export function performInverseTransaction(data, company){
             return prevState.save();
         })
         .then(function(_prevState){
-            sails.log.verbose('Current state', JSON.stringify(prevState, null, 4));
+            sails.log.silly('Current state', JSON.stringify(prevState, null, 4));
             return currentRoot.setPreviousCompanyState(_prevState);
         })
 }
@@ -629,8 +634,9 @@ export function performTransaction(data, company){
             return Promise.reduce(data.actions, function(arr, action){
                 sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;
-                if(PERFORM_ACTION_MAP[action.transactionType]){
-                    result = PERFORM_ACTION_MAP[action.transactionType]({
+                const method = action.transactionMethod || action.transactionType;
+                if(PERFORM_ACTION_MAP[method]){
+                    result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
                     }, nextState, current, data.effectiveDate);
                 }

@@ -105,7 +105,7 @@ function parseIssue($, dateRegexP = 'Date of Issue:'){
     return fields.reduce(function(result, f){
         result[f[0]] = f[2](divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$')));
         return result;
-    }, {})
+    }, {increase: true})
 }
 
 function parseAcquisition($, dateRegexP = 'Date of Acquistion:'){
@@ -119,7 +119,7 @@ function parseAcquisition($, dateRegexP = 'Date of Acquistion:'){
     return fields.reduce(function(result, f){
         result[f[0]] = f[2](divAfterMatch($, '.row .wideLabel', new RegExp('^\\s*'+f[1]+'\\s*$')));
         return result;
-    }, {})
+    }, {increase: false})
 }
 
 
@@ -203,7 +203,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 break;
             default:
         }
-        return {actions: [result]};
+        return {actions: [result], totalShares: result.increase ? -result.amount : result.amount };
     },
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
         let result = {};
@@ -237,61 +237,19 @@ const EXTRACT_DOCUMENT_MAP = {
 
         }).get();
 
-        // now, we don't know if it is a transfer or not, so for now, the rules will be
 
-        // if sum of all amounts is 0, then a transfer took place
-        // BUT, we can't trace who got what
-
-        const totalShares = result.actions.reduce((acc, action) => {
-                switch(action.transactionType){
-                    case Transaction.types.AMEND:
-                        return acc + (action.afterAmount - action.beforeAmount)
-                    case Transaction.types.NEW_ALLOCATION:
-                        return acc + action.amount;
-                    case Transaction.types.REMOVE_ALLOCATION:
-                        return acc - action.amount;
-                    default:
-                        return acc;
-                }
-            }, 0);
-
-        // TODO, read previous share update doc
-        //http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720672
-        if(totalShares > 0){
-            result.actions.map(a => {
-                if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
-                   a.transactionType === Transaction.types.AMEND){
-                    // TODO, could be another type, need to check flanking document
-                    a.transactionSubType = Transaction.types.ISSUE_TO;
-                }
-            })
-        }
-
-        else if(totalShares === 0){
-            result.transactionType = Transaction.types.TRANSFER;
-            result.actions.map(a => {
-                if(a.transactionType === Transaction.types.NEW_ALLOCATION){
-                    a.transactionSubType = Transaction.types.TRANSFER_TO;
-                }
-                else if(a.transactionType === Transaction.types.REMOVE_ALLOCATION){
-                    a.transactionSubType = Transaction.types.TRANSFER_FROM;
-                }
-                else if(a.transactionType === Transaction.types.AMEND){
-                    a.transactionSubType  = a.afterAmount > a.beforeAmount ? Transaction.types.TRANSFER_TO : Transaction.types.TRANSFER_FROM;
-                }
-            })
-
-        }
-
-        else if(totalShares < 0){
-            result.actions.map(a => {
-                if(a.transactionType === Transaction.types.REMOVE_ALLOCATION ||
-                   a.transactionType === Transaction.types.AMEND){
-                    // TODO, could be another type, need to check flanking document
-                    a.transactionSubType = Transaction.types.PURCHASE_FROM;
-                }
-            })
-        }
+       result.totalShares = result.actions.reduce((acc, action) => {
+            switch(action.transactionType){
+                case Transaction.types.AMEND:
+                    return acc + (action.afterAmount - action.beforeAmount)
+                case Transaction.types.NEW_ALLOCATION:
+                    return acc + action.amount;
+                case Transaction.types.REMOVE_ALLOCATION:
+                    return acc - action.amount;
+                default:
+                    return acc;
+            }
+        }, 0);
 
         // a kludge to add companyNumbers from new/removeHolder to new/remove allocation
         let idMap = result.actions.reduce(function(acc, action){
@@ -395,14 +353,6 @@ const EXTRACT_DOCUMENT_MAP = {
             return Transaction.types.NEW_DIRECTOR;
         }
         return {actions: [
-            // removing, instead getting info from summary
-            /*...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
-            return {
-                transactionType: transactionType($(el)),
-                name: cleanString($(el).find('.directorName').text()),
-                address: cleanString($(el).find(' .directorAddress').text()),
-                effectiveDate: moment(cleanString($(el).find('.directorCeasedDate.value, .directorAppointmentDate').text()), 'DD/MM/YYYY').toDate(),
-        }}).get(),*/
             ...$('#amendmentConfirm').map((i, el)=>{
             return {
                 transactionType: Transaction.types.UPDATE_DIRECTOR,
@@ -667,7 +617,6 @@ function inferDirectorshipActions(data, docs){
         }
 
     }
-
     const results = [];
     data.directors.forEach(d => {
         const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
@@ -719,38 +668,150 @@ function inferDirectorshipActions(data, docs){
 
 
 function insertIntermediateActions(docs){
-    const results = [];
-    // primarily split removeAllocations into amend to zero, then removeAllocation
-    docs.map((doc, i) => {
-        const removalActions = _.filter(doc.actions, a => {
-            return a.transactionType === Transaction.types.REMOVE_ALLOCATION;
-        });
+
+    // primarily split removeAllocations into amend to zero, then removeAllocation,
+    const removalTypes = [Transaction.types.REMOVE_ALLOCATION];
+
+
+    let results = _.reduce(docs, (acc, doc, i) => {
+        const removalActions = _.filter(doc.actions, a => !a.afterHolders && removalTypes.indexOf(a.transactionMethod) >= 0);
         if(!removalActions.length){
-            results.push(doc);
+            acc.push(doc);
         } else {
-            const removals = _.cloneDeep(doc);
-            removals.actions = removalActions;
-            const rest = _.cloneDeep(doc);
-            rest.actions = _.filter(doc.actions, a => {
-                return a.transactionType !== Transaction.types.REMOVE_ALLOCATION;
-            });
-            removals.actions.map(a => {
-                rest.actions.push({
+           const amends = _.cloneDeep(doc);
+            amends.actions = removalActions.map(a => {
+                return {
                     effectiveDate: a.effectiveDate,
                     beforeHolders: a.holders,
                     afterHolders: a.holders,
-                    beforeAmount: a.amount,
                     afterAmount: 0,
-                    transactionType: Transaction.types.AMEND,
-                    transactionSubType: a.transactionSubType || Transaction.types.REMOVE_ALLOCATION
-                })
-            });
-            results.push(removals);
-            results.push(rest);
+                    beforeAmount: a.amount,
+                    transactionType: a.transactionType,
+                    transactionMethod: Transaction.types.AMEND
+                }
+            })
+            doc.actions = doc.actions.map(a => {
+                if(!a.afterHolders && removalTypes.indexOf(a.transactionMethod) >= 0){
+                    a.transactionType = Transaction.types.REMOVE_ALLOCATION;
+                    a.transactionMethod = null;
+                    amount: 0
+                }
+                return a;
+            })
+            acc.push(doc);
+            acc.push(amends);
         }
-    });
+        return acc;
+    }, []);
+
+
+
+
     return results;
 }
+
+function inferAmendTypes(docs){
+    sails.log.verbose('Inferring amend types')
+    const results = [];
+    const types = [Transaction.types.AMEND, Transaction.types.NEW_ALLOCATION, Transaction.types.REMOVE_ALLOCATION];
+
+    return _.reduce(docs, (acc, d, i) => {
+        const needsInference = _.any(d.actions, a => types.indexOf(a.transactionType) >= 0);
+        if(needsInference){
+            // TODO, read previous share update doc
+            //http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720672
+            function getMatchingDocument(index, matchValue){
+                const MAX_DISTANCE = 24;
+                for(let i=0, j=index-1, neg=-1; i<MAX_DISTANCE; i++, j+=i*neg, neg*=-1){
+                    const k = Math.min(Math.max(0, j), docs.length-1);
+                    if(k === index) continue;
+                    if(docs[k].totalShares === matchValue){
+                        return docs[k];
+                    }
+                }
+                return null;
+            }
+            // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
+            if(d.totalShares === 0){
+                // totalShares being zero SHOULD mean transfers.  Hopefully.
+                d.actions.map(a => {
+                    a.transactionMethod = a.transactionType;
+                    if(a.transactionType === Transaction.types.NEW_ALLOCATION){
+                        a.transactionType = Transaction.types.TRANSFER_TO;
+                    }
+                    else if(a.transactionType === Transaction.types.REMOVE_ALLOCATION){
+                        a.transactionType = Transaction.types.TRANSFER_FROM;
+
+                    }
+                    else if(a.transactionType === Transaction.types.AMEND){
+                        a.transactionType  = a.afterAmount > a.beforeAmount ? Transaction.types.TRANSFER_TO : Transaction.types.TRANSFER_FROM;
+                    }
+                })
+
+            }
+
+            else if(d.totalShares > 0){
+                const match = getMatchingDocument(i, -d.totalShares);
+                d.actions.map(a => {
+                    a.transactionMethod = a.transactionType;
+                    if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
+                       a.transactionType === Transaction.types.AMEND){
+                        if(match){
+                            match.actions.map(m => {
+                                switch(m.transactionType){
+                                    case Transaction.types.ISSUE:
+                                    case Transaction.types.ISSUE_UNALLOCATED:
+                                        a.transactionType = Transaction.types.ISSUE_TO;
+                                        break;
+                                    case Transaction.types.AMEND:
+                                    case Transaction.types.REMOVE_ALLOCATION:
+                                    case Transaction.types.TRANSFER_FROM:
+                                        a.transactionType = Transaction.types.TRANSFER_TO;
+                                        break;
+                                }
+                            });
+                        }
+
+                    }
+                })
+            }
+
+            else if(d.totalShares < 0){
+                const match = getMatchingDocument(i, -d.totalShares);
+                d.actions.map(a => {
+                    if(a.transactionType === Transaction.types.REMOVE_ALLOCATION ||
+                       a.transactionType === Transaction.types.AMEND){
+                        a.transactionMethod = a.transactionType;
+                        if(match){
+                            match.actions.map(m => {
+                                switch(m.transactionType){
+                                    case Transaction.types.PURCHASE:
+                                        a.transactionType = Transaction.types.PURCHASE_FROM;
+                                        break;
+                                    case Transaction.types.ACQUISITION:
+                                        a.transactionType = Transaction.types.ACQUISITION_FROM;
+                                        break;
+                                    case Transaction.types.AMEND:
+                                    case Transaction.types.TRANSFER_TO:
+                                    case Transaction.types.NEW_ALLOCATION:
+                                        a.transactionType = Transaction.types.TRANSFER_FROM;
+                                        break;
+                                }
+                            });
+                        }
+                    }
+                })
+            }
+            acc.push(d);
+        }
+        else{
+            acc.push(d);
+        }
+        return acc;
+
+    }, []);
+}
+
 
 function documentUrl(companyNumber, documentId){
     return 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
@@ -860,7 +921,6 @@ const ScrapingService = {
     },
 
     populateHistory: function(data, company){
-            console.log(JSON.stringify(data, null, 4))
         return TransactionService.performInverseTransaction(data, company);
     },
 
@@ -975,7 +1035,7 @@ const ScrapingService = {
 
 
     segmentActions: function(docs){
-        // split group actions by date,
+        // split group actions by date
 
         docs = docs.reduce((acc, doc) =>{
             const docDate = doc.date;
@@ -1002,20 +1062,11 @@ const ScrapingService = {
             }
             return acc;
         }, []);
-
-        /*const transactionOrder = {
-            [Transaction.types.HOLDER_CHANGE]: 1
-        }
-
-        // prioritize certain actions
-        docs.forEach((doc) => {
-            doc.actions = _.sortByAll(doc.actions, (a) => transactionOrder[a.transactionType] || 1000)
-        })*/
-
-
         docs = _.sortByAll(docs,
                            'effectiveDate',
                            (d) => parseInt(d.documentId, 10)).reverse();
+
+        docs = inferAmendTypes(docs);
         docs = insertIntermediateActions(docs);
         return docs;
     },

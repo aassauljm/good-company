@@ -55,6 +55,7 @@ function stubs(){
                 return r;
             })
     })
+    global.__DEV__ = false;
 }
 
 function dom(){
