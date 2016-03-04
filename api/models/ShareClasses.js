@@ -23,9 +23,12 @@ module.exports = {
         classMethods: {},
         instanceMethods: {
             buildNext: function(){
+                if(this.isNewRecord){
+                    return this;
+                }
                 return this.getShareClasses()
                     .then(function(shareClasses){
-                        return ShareClasses.build({shareClasses: shareClasses}, {include: [{model: Shareclasses, as: 'shareClasses'}]})
+                        return ShareClasses.build({shareClasses: shareClasses}, {include: [{model: ShareClasses, as: 'shareClasses'}]})
                     })
                     .then(function(shareClasses){
                         shareClasses.dataValues.shareClasses.map(function(r){

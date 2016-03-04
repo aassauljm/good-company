@@ -21,9 +21,12 @@ module.exports = {
         }
     },
     associations: function(n) {
-        Director.belongsTo(CompanyState, {
-            as: 'companyState'
+        Director.belongsToMany(DirectorList, {
+            as: 'director_list',
+            foreignKey: 'director_id',
+            through: 'd_d_j'
         });
+
         Director.belongsTo(Person, {
             as: 'person',
             foreignKey: {

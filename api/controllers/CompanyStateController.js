@@ -32,7 +32,7 @@ function validateHoldings(newHoldings){
 // TODO, move to transaction service
 var transactions = {
     seed: function(args, company, date) {
-        if(!args.holdings || !args.holdings.length) {
+        if(!args.holdingList.holdings || !args.holdingList.holdings.length) {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
         /*

@@ -909,7 +909,7 @@ const ScrapingService = {
 
                 return sails.controllers.companystate.transactions.seed({
                     ...data,
-                    ...ScrapingService.formatHolders(data, user_id),
+                    ...ScrapingService.formatHoldings(data, user_id),
                     ...ScrapingService.formatDirectors(data, user_id),
                     ...ScrapingService.formatDocuments(data, user_id),
                 }, company, new Date());
@@ -928,11 +928,11 @@ const ScrapingService = {
         return data;
     },
 
-    formatHolders: function(data){
+    formatHoldings: function(data){
         let result = {};
         let total = data.holdings.total,
             counted = 0;
-        result.holdings = data.holdings.allocations.map(function(holding){
+        result.holdingList = { holdings: data.holdings.allocations.map(function(holding){
                 counted += holding.shares;
                 return {
                     parcels: [{amount: holding.shares}],
@@ -940,6 +940,7 @@ const ScrapingService = {
                     name: holding.name
                 }
             })
+        }
         let difference = total - counted;
         if(difference > 0){
             result.unallocatedParcels = [{amount: difference}];
@@ -949,7 +950,8 @@ const ScrapingService = {
 
     formatDirectors: function(data){
         let result = {};
-        result.directors = data.directors.map(function(d){
+        result.directorList = {
+            directors : data.directors.map(function(d){
                 return {
                     consentUrl: d.consentUrl,
                     appointment: moment(d.appointmentDate, 'DD MMM YYYY HH:mm').toDate(),
@@ -958,13 +960,14 @@ const ScrapingService = {
                         address: d.residentialAddress
                     }
                 };
-            });
+        })};
         return result;
     },
 
     formatDocuments: function(data, user_id){
         let result = {};
-        result.docList = {documents: data.documents.map(function(d){
+        result.docList = {
+            documents: data.documents.map(function(d){
             return {
                 originalUrl: d.original,
                 sourceUrl: documentUrl(data.companyNumber, d.documentId),

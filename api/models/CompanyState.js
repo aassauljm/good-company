@@ -69,11 +69,11 @@ module.exports = {
                 as: 'transaction'
             }
         });
-        CompanyState.hasMany(Holding, {
-            as: 'holdings',
+        CompanyState.belongsTo(HoldingList, {
+            as: 'holdingList',
             foreignKey: {
-                name: 'companyStateId',
-                as: 'holdings'
+                name: 'h_list_id',
+                as: 'holdingList'
             }
         });
         CompanyState.belongsTo(CompanyState, {
@@ -92,11 +92,11 @@ module.exports = {
             },
             through: 'parcelCJ'
         });
-        CompanyState.hasMany(Director, {
-            as: 'directors',
+        CompanyState.belongsTo(DirectorList, {
+            as: 'directorList',
             foreignKey: {
                 as: 'directors',
-                name: 'companyStateId'
+                name: 'director_list_id'
             }
         });
         CompanyState.belongsTo(InterestsRegister, {
@@ -128,7 +128,7 @@ module.exports = {
             includes: {
                 full: function(){
                     return [
-                    {
+                    /*{
                         model: Holding,
                         as: 'holdings',
                         include: [{
@@ -145,7 +145,7 @@ module.exports = {
                             model: Transaction,
                             as: 'transaction',
                         }]
-                    },{
+                    },*/{
                         model: Parcel,
                         as: 'unallocatedParcels'
                     },{
@@ -157,7 +157,7 @@ module.exports = {
                                 as: 'childTransactions'
                             }
                         ]
-                    }, {
+                    }/*, {
                          model: Director,
                          as: 'directors',
                          include: [
@@ -167,11 +167,11 @@ module.exports = {
                             }
                          ]
 
-                    }]
+                    }*/]
                 },
                 fullNoJunctions: function(seperate){
                     return [
-                    {
+                   /* {
                         model: Holding,
                         as: 'holdings',
                         separate: !!seperate,
@@ -191,7 +191,7 @@ module.exports = {
                             model: Transaction,
                             as: 'transaction',
                         }]
-                    },{
+                    },*/{
                         model: Parcel,
                         as: 'unallocatedParcels'
                     },{
@@ -203,7 +203,7 @@ module.exports = {
                                 as: 'childTransactions'
                             }
                         ]
-                    }, {
+                    }/*, {
                          model: Director,
                          as: 'directors',
                          include: [
@@ -213,9 +213,9 @@ module.exports = {
                             }
                          ]
 
-                    }]
+                    }*/]
                 },
-                holdings: function(){
+                /*holdings: function(){
                     return [{
                         model: Holding,
                         as: 'holdings',
@@ -234,6 +234,32 @@ module.exports = {
                         },{
                             model: Transaction,
                             as: 'transaction',
+                        }]
+                    }]
+                },*/
+                holdingList: function(){
+                    return [{
+                        model: HoldingList,
+                        as: 'holdingList',
+                        include: [{
+                            model: Holding,
+                            as: 'holdings',
+                            include: [{
+                                model: Parcel,
+                                as: 'parcels',
+                                through: {attributes: []}
+                            }, {
+                                model: Person,
+                                as: 'holders',
+                                through: {attributes: []},
+                                include: [{
+                                    model: Transaction,
+                                    as: 'transaction',
+                                }]
+                            },{
+                                model: Transaction,
+                                as: 'transaction',
+                            }]
                         }]
                     }]
                 },
@@ -255,16 +281,21 @@ module.exports = {
                         ]
                     }]
                 },
-                directors: function(){
+                directorList: function(){
                     return [{
-                         model: Director,
-                         as: 'directors',
+                         model: DirectorList,
+                         as: 'directorList',
                          include: [
                             {
-                                model: Person,
-                                as: 'person'
-                            }
-                         ]
+                                model: Director,
+                                as: 'directors',
+                                include: [
+                                {
+                                    model: Person,
+                                    as: 'person'
+                                }
+                            ]
+                        }]
 
                     }]
                 },
@@ -309,12 +340,12 @@ module.exports = {
                         [{model: Holding, as: 'holdings'}, 'id', 'ASC'],
                         [{model: Holding, as: 'holdings'}, {model: Parcel, as: 'parcels'}, 'shareClass', 'ASC'],
                         [{model: Holding, as: 'holdings'}, {model: Person, as: 'holders'}, 'name', 'ASC'],
-                        [{model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC'],
+                        [{model: DirectorList, as: 'directors'}, {model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC'],
                     ]
                 },
-                directors: function(){
+                directorList: function(){
                     return [
-                        [{model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC']
+                        [{model: DirectorList, as: 'directorList'}, {model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC']
                     ]
                 },
                 holdings: function(){
@@ -367,7 +398,7 @@ module.exports = {
                 // TODO, start with list of people from db, will be short, and find them in js
                 obj = _.cloneDeep(obj);
 
-                return Promise.each(obj.holdings || [], function(holding){
+                return Promise.each(obj.holdingList.holdings || [], function(holding){
                     return Promise.map(holding.holders || [], function(holder){
                         return AddressService.normalizeAddress(holder.address)
                             .then(function(address){
@@ -383,8 +414,8 @@ module.exports = {
                     });
                 })
                 .then(function(){
-                    if(obj.directors && obj.directors.length){
-                        return Promise.each(obj.directors || [], function(director){
+                    if(obj.directorList.directors && obj.directorList.directors.length){
+                        return Promise.each(obj.directorList.directors || [], function(director){
                             return AddressService.normalizeAddress(director.person.address)
                                 .then(function(address){
                                     director.person = _.merge({}, director.person, {address: address});
@@ -404,21 +435,26 @@ module.exports = {
 
 
             createDedup: function(args){
+                sails.log.verbose('Deduplication persons')
                 return CompanyState.findOrCreatePersons(args)
                     .then(function(args){
                         const shareClasses = _.flatten(_.map(args.holdings, 'parcels'));
                         return args;
                     })
                     .then(function(args){
-                        var state = CompanyState.build(args, {include: CompanyState.includes.full().concat(CompanyState.includes.docList())});
+                        var state = CompanyState.build(args, {include: CompanyState.includes.full()
+                                .concat(CompanyState.includes.docList())
+                                .concat(CompanyState.includes.directorList())
+                                .concat(CompanyState.includes.holdingList())
+                            });
                         // TODO, document why this is needed
-                        (state.get('holdings') || []).map(function(h){
+                        (state.get('holdingList').get('holdings') || []).map(function(h){
                             h.get('holders').map(function(h){
                                 h.isNewRecord = false;
                                 h._changed = {};
                             })
                         });
-                        (state.get('directors') || []).map(function(d){
+                        (state.get('directorList').get('directors') || []).map(function(d){
                             d.get('person').isNewRecord = false;
                             d._changed = {};
                         });
@@ -464,12 +500,35 @@ module.exports = {
                     });
             },
             totalAllocatedShares: function() {
-                return Promise.resolve(this.isNewRecord || this.dataValues.holdings ? this.dataValues.holdings : this.getHoldings({
-                        include: [{
-                            model: Parcel,
-                            as: 'parcels',
-                        }]
-                    }))
+                return Promise.resolve(this.isNewRecord || this.dataValues.holdingList.dataValues.holdings ?
+                                      this.dataValues.holdingList.dataValues.holdings :
+                        this.getHoldingList({
+                            include: [{
+                                model: Holding,
+                                as: 'holdings',
+                                include: [{
+                                    model: Parcel,
+                                    as: 'parcels',
+                                    through: {
+                                        attributes: []
+                                    }
+                                }, {
+                                    model: Person,
+                                    as: 'holders',
+                                    through: {
+                                        attributes: []
+                                    },
+                                    include: [{
+                                        model: Transaction,
+                                        as: 'transaction',
+                                    }]
+                                }, {
+                                    model: Transaction,
+                                    as: 'transaction',
+                                }]
+                            }]})
+)
+
                     .then(function(holdings) {
                         return _.sum(_.flatten(holdings.map(function(s) {
                             return s.parcels;
@@ -486,7 +545,7 @@ module.exports = {
                         });
                     })
             },
-            cloneHoldings: function() {
+          /*cloneHoldings: function() {
                 return this.getHoldings({
                         include: [{
                             model: Parcel,
@@ -527,8 +586,8 @@ module.exports = {
                     });
             },
 
-            cloneDirectors: function(){
-                return this.getDirectors({
+            cloneDirectorList: function(){
+                return this.getDirectorList({
                         include: [{
                             model: Person,
                             as: 'person'
@@ -540,21 +599,21 @@ module.exports = {
                         })};
                     });
             },
-
+*/
 
             nonAssociativeFields: function(){
                 return _.omit(_.pick.apply(_, [this.dataValues].concat(_.keys(CompanyState.attributes))), 'id');
             },
 
-            buildNext: function(attr) {
+            buildNextOLD: function(attr) {
                 var id = this.id;
                 var currentFields = this.nonAssociativeFields();
-                return Promise.join(this.cloneHoldings(), this.cloneUnallocated(), this.cloneDirectors(),
-                        function(holdings, unallocatedParcels, directors) {
+                return Promise.join(this.cloneHoldings(), this.cloneUnallocated(), // this.cloneDirectorList(),
+                        function(holdings, unallocatedParcels/*, directors*/) {
                         return CompanyState
                             .build(_.merge(currentFields, {
                                 previousCompanyStateId: id
-                            }, holdings, unallocatedParcels, directors, attr), {
+                            }, holdings, unallocatedParcels, /* directors,*/ attr), {
                                 include: CompanyState.includes.fullNoJunctions()
                                     .concat(CompanyState.includes.docList())
                             })
@@ -575,13 +634,55 @@ module.exports = {
                             p.isNewRecord = false;
                             p._changed = {};
                         });
-                        state.get('directors').map(function(p){
+                       /* state.get('directors').map(function(p){
                             p.person.isNewRecord = false;
                             p.person._changed = {};
-                        });
+                        });*/
                         return state;
                     })
             },
+
+            buildNext: function(attr){
+
+                sails.log.info('Building next company state');
+                return Promise.resolve(CompanyState.build(_.merge({}, this.toJSON(), attr, {id: null}),
+                            {include:
+                                CompanyState.includes.fullNoJunctions()
+                                .concat(CompanyState.includes.docList())
+                                .concat(CompanyState.includes.directorList())
+                                .concat(CompanyState.includes.iRegister())
+                                .concat(CompanyState.includes.holdingList())
+                            }))
+                    .then(function(next){
+                        function setNew(obj){
+                            (obj.$options.includeNames || []).map(name => {
+                                if(!obj.dataValues[name]){
+                                    return;
+                                }
+                                function set(obj){
+                                    if(true){
+                                        obj.isNewRecord = false;
+                                        obj._changed = {};
+                                    }
+                                    else{
+                                        obj.dataValues.id = null;
+                                    }
+                                    setNew(obj);
+                                }
+                                if(Array.isArray(obj.dataValues[name])){
+                                    obj.dataValues[name].map(set);
+                                }
+                                else{
+                                    set(obj.dataValues[name])
+                                }
+                            })
+                        }
+                        setNew(next);
+                        sails.log.verbose('Next company state build');
+                        return next;
+                    });
+            },
+
 
             buildPrevious: function(attr){
                 return this.buildNext(attr)
@@ -613,7 +714,8 @@ module.exports = {
                 sails.log.verbose('Adding holdings to companystate')
                 " For now, using name equivilency to match holders (and companyId) "
                 " Match all holders in a holding, then an issue will increase the parcels on that holding "
-                _.some(this.dataValues.holdings, function(nextHolding){
+                const holdings = this.dataValues.holdingList.dataValues.holdings;
+                _.some(holdings, function(nextHolding){
                     var toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
                         //holdingToAdd = Holding.buildDeep(holdingToAdd);
@@ -621,15 +723,17 @@ module.exports = {
                         if(((holdingToAdd.holderId && nextHolding.holderId === holdingToAdd.holderId ) ||
                             nextHolding.holdersMatch(holdingToAdd)) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
+                            //console.log(nextHolding.dataValues.id)
+                            holdings[i] = nextHolding = nextHolding.buildNext();
+                            //console.log(nextHolding)
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
-                                if(transaction)
-                                    nextHolding.dataValues.transaction = transaction;
                             }
                             else{
                                 nextHolding.combineParcels(holdingToAdd);
-                                if(transaction)
-                                    nextHolding.dataValues.transaction = transaction;
+                            }
+                            if(transaction){
+                                nextHolding.dataValues.transaction = transaction;
                             }
                             toRemove = i;
                             return false;
@@ -651,9 +755,9 @@ module.exports = {
                     return extraHolding;
                 });
                 if(subtractHoldings && extraHoldings.length){
-                    throw new sails.config.exceptions.InvalidInverseOperation('Unknown holders to issue to');
+                    throw new sails.config.exceptions.InvalidInverseOperation('Unknown holders to combine with');
                 }
-                this.dataValues.holdings = this.dataValues.holdings.concat(extraHoldings);
+                this.dataValues.holdingList.dataValues.holdings = this.dataValues.holdingList.dataValues.holdings.concat(extraHoldings);
                 // unaccounted for, alter unallocated shares
                 return this;
             },
@@ -715,7 +819,7 @@ module.exports = {
                         }
                     })
                     .then(function(){
-                        state.dataValues.holdings.map(function(holding){
+                        state.dataValues.holdingList.dataValues.holdings.map(function(holding){
                             var index = _.findIndex(holding.dataValues.holders, function(h, i){
                                 return h.isEqual(currentHolder);
                             });
@@ -745,13 +849,14 @@ module.exports = {
             },
 
             getMatchingHolding: function(holders, parcelHint, ignoreCompanyNumber){
-                return _.find(this.dataValues.holdings, function(holding){
+                //console.log(JSON.stringify(this.dataValues.holdingList.dataValues.holdings, null ,4))
+                return _.find(this.dataValues.holdingList.dataValues.holdings, function(holding){
                     return holding.holdersMatch({holders: holders}, ignoreCompanyNumber) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
                 });
             },
 
             getHoldingBy: function(data){
-                return _.find(this.dataValues.holdings, function(holding){
+                return _.find(this.dataValues.holdingList.dataValues.holdings, function(holding){
                     return _.isMatch(holding.get(), data)
                 });
             },
@@ -759,7 +864,7 @@ module.exports = {
             getHolderBy: function(data){
                 // probably has to collapse whole tree for this to work
                 var result;
-                 _.some(this.dataValues.holdings, function(holding){
+                 _.some(this.dataValues.holdingList.dataValues.holdings, function(holding){
                     return _.some(holding.dataValues.holders, function(holder){
                         if(holder.isEqual(data)){
                             result = holder;
@@ -819,83 +924,101 @@ module.exports = {
                 // tested to be faster way to populate for model for get_info
                 const cs = this;
                 return Promise.join(
-                        this.getHoldings({
-                        include: [{
-                            model: Parcel,
-                            as: 'parcels',
-                            through: {
-                                attributes: []
-                            }
-                        }, {
-                            model: Person,
-                            as: 'holders',
-                            through: {
-                                attributes: []
-                            },
+                        this.getHoldingList({
                             include: [{
-                                model: Transaction,
-                                as: 'transaction',
-                            }]
-                        }, {
-                            model: Transaction,
-                            as: 'transaction',
-                        }],
-                        order: [
-                            ['id', 'ASC'],
-                            [{
-                                model: Parcel,
-                                as: 'parcels'
-                            }, 'shareClass', 'ASC'],
-                            [{
-                                model: Person,
-                                as: 'holders'
-                            }, 'name', 'ASC']
-                        ]
-                    }),
-                    this.getUnallocatedParcels(),
-                    this.getTransaction({
-                        include: [{
-                            model: Transaction,
-                            as: 'childTransactions'
-                        }]
-                    }),cs.getDocList({
+                                model: Holding,
+                                as: 'holdings',
                                 include: [{
-                                    model: Document,
-                                    as: 'documents',
+                                    model: Parcel,
+                                    as: 'parcels',
                                     through: {
                                         attributes: []
                                     }
-                                }],
-                                order: [
-                                    [{
-                                        model: Document,
-                                        as: 'documents'
-                                    }, 'date', 'DESC']
-                                ],
-                            }),
-                            cs.getDirectors({
+                                }, {
+                                    model: Person,
+                                    as: 'holders',
+                                    through: {
+                                        attributes: []
+                                    },
+                                    include: [{
+                                        model: Transaction,
+                                        as: 'transaction',
+                                    }]
+                                }, {
+                                    model: Transaction,
+                                    as: 'transaction',
+                                }]
+                            }],
+                            order: [
+                                ['id', 'ASC'],
+                                [{
+                                    model: Holding,
+                                    as: 'holdings'
+                                },{
+                                    model: Parcel,
+                                    as: 'parcels'
+                                }, 'shareClass', 'ASC'],
+                                [{
+                                    model: Holding,
+                                    as: 'holdings'
+                                },{
+                                    model: Person,
+                                    as: 'holders'
+                                }, 'name', 'ASC']
+                            ]
+                        }),
+                        this.getUnallocatedParcels(),
+                        this.getTransaction({
+                            include: [{
+                                model: Transaction,
+                                as: 'childTransactions'
+                            }]
+                        }), cs.getDocList({
+                            include: [{
+                                model: Document,
+                                as: 'documents',
+                                through: {
+                                    attributes: []
+                                }
+                            }],
+                            order: [
+                                [{
+                                    model: Document,
+                                    as: 'documents'
+                                }, 'date', 'DESC']
+                            ],
+                        }),
+                        cs.getDirectorList({
+                            include: [{
+                                model: Director,
+                                as: 'directors',
+                                through: {attributes: []},
                                 include: [{
                                     model: Person,
                                     as: 'person'
-                                }],
-                                order: [
-                                    [{
-                                        model: Person,
-                                        as: 'person'
-                                    }, 'name', 'ASC']
-                                ],
-                            }))
-                    .spread(function(holdings, unallocatedParcels, transaction, docList, directors) {
-                        cs.holdings = holdings;
-                        cs.dataValues.holdings = holdings;
+                                }]
+                            }],
+                            order: [
+                                [{
+                                    model: Director,
+                                    as: 'directors'
+                                },{
+                                    model: Person,
+                                    as: 'person'
+                                }, 'name', 'ASC']
+                            ]
+                        }))
+                    .spread(function(holdingList, unallocatedParcels, transaction, docList, directors) {
+                        cs.holdingList = holdingList;
+                        cs.dataValues.holdingList = holdingList;
                         cs.unallocatedParcels = unallocatedParcels;
                         cs.dataValues.unallocatedParcels = unallocatedParcels;
                         cs.transaction = transaction
                         cs.dataValues.transaction = transaction
                         cs.docList = docList;
                         cs.dataValues.docList = docList;
-                        cs.directors = directors;
-                        cs.dataValues.directors = directors;
+                        cs.directorList = directors;
+                        cs.dataValues.directorList = directors;
                         return cs;
                     })
             }

@@ -24,6 +24,9 @@ module.exports = {
         classMethods: {},
         instanceMethods: {
             buildNext: function(){
+                if(this.isNewRecord){
+                    return this;
+                }
                 return this.getEntries()
                     .then(function(entries){
                         return InterestsRegister.build({entries: entries}, {include: [{model: InterestsEntry, as: 'entries'}]})

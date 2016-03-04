@@ -21,11 +21,13 @@ module.exports = {
         }
     },
     associations: function() {
-        Holding.belongsTo(CompanyState, {
-            as: 'companyState',
+        Holding.belongsToMany(HoldingList, {
+            as: 'holding_list',
             foreignKey: {
-                name: 'companyStateId'
-            }
+                name: 'h_j_id',
+                as: 'holding_list'
+            },
+            through: 'h_list_j'
         });
         Holding.belongsToMany(Parcel, {
             as: 'parcels',
@@ -140,6 +142,37 @@ module.exports = {
                     }
                 });
                 this.dataValues.parcels = newParcels;
+            },
+            buildNext: function(){
+                const holding = Holding.build(_.merge({}, this.toJSON(), {id: null}), {include: [{
+                                model: Parcel,
+                                as: 'parcels',
+                                through: {
+                                    attributes: []
+                                }
+                            }, {
+                                model: Person,
+                                as: 'holders',
+                                through: {
+                                    attributes: []
+                                },
+                                include: [{
+                                    model: Transaction,
+                                    as: 'transaction',
+                                }]
+                            }, {
+                                model: Transaction,
+                                as: 'transaction',
+                            }]});
+                holding.dataValues.holders.map(h => {
+                    h.isNewRecord = false;
+                    h._changed = {};
+                });
+                holding.dataValues.parcels.map(p => {
+                    p.isNewRecord = false;
+                    p._changed = {};
+                });
+                return holding;
             }
         },
         hooks: {
