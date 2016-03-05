@@ -175,10 +175,16 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
-    const current = companyState.getMatchingHolding(data.afterHolders);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-    return transaction.save()
+
+    return companyState.dataValues.holdingList.buildNext()
+        .then(holdingList => {
+            companyState.dataValues.holdingList = holdingList;
+            companyState.dataValues.h_list_id = null;
+            return transaction.save()
+        })
         .then(() => {
+            let current = companyState.getMatchingHolding(data.afterHolders)
             if(!current){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
@@ -193,10 +199,15 @@ export function performInverseHoldingChange(data, companyState, previousState, e
 };
 
 export function performHoldingChange(data, companyState, previousState, effectiveDate){
-    const current = companyState.getMatchingHolding(data.beforeHolders);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-    return transaction.save()
+     return companyState.dataValues.holdingList.buildNext()
+        .then(holdingList => {
+            companyState.dataValues.holdingList = holdingList;
+            companyState.dataValues.h_list_id = null;
+            return transaction.save()
+        })
         .then(() => {
+            let current = companyState.getMatchingHolding(data.beforeHolders);
             if(!current){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
@@ -208,8 +219,13 @@ export function performHoldingChange(data, companyState, previousState, effectiv
 export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate){
     const normalizedData = _.cloneDeep(data);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-    return Promise.join(AddressService.normalizeAddress(data.afterHolder.address),
+    return companyState.dataValues.holdingList.buildNext()
+        .then(function(holdingList){
+            companyState.dataValues.holdingList = holdingList;
+            companyState.dataValues.h_list_id = null;
+            return Promise.join(AddressService.normalizeAddress(data.afterHolder.address),
                         AddressService.normalizeAddress(data.beforeHolder.address))
+        })
         .spread((afterAddress, beforeAddress) => {
             normalizedData.afterHolder.address = afterAddress;
             normalizedData.beforeHolder.address = beforeAddress;
@@ -233,8 +249,13 @@ export const performInverseHolderChange = function(data, companyState, previousS
 export const performHolderChange = function(data, companyState, previousState, effectiveDate){
     const normalizedData = _.cloneDeep(data);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-    return Promise.join(AddressService.normalizeAddress(data.afterHolder.address),
-                        AddressService.normalizeAddress(data.beforeHolder.address))
+    return companyState.dataValues.holdingList.buildNext()
+        .then(function(holdingList){
+            companyState.dataValues.holdingList = holdingList;
+            companyState.dataValues.h_list_id = null;
+            return Promise.join(AddressService.normalizeAddress(data.afterHolder.address),
+                            AddressService.normalizeAddress(data.beforeHolder.address))
+        })
         .spread((afterAddress, beforeAddress) => {
             normalizedData.afterHolder.address = afterAddress;
             normalizedData.beforeHolder.address = beforeAddress;
@@ -442,21 +463,24 @@ export function performInverseRemoveDirector(data, companyState, previousState, 
 export function performInverseUpdateDirector(data, companyState, previousState, effectiveDate){
     // find them as a share holder?
     const transaction = Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
-    return transaction.save()
+    return companyState.dataValues.directorList.buildNext()
+        .then(function(dl){
+            companyState.dataValues.directorList = dl;
+            return transaction.save()
+        })
         .then(() => {
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
             companyState.replaceDirector({name: data.afterName, address: afterAddress}, {name: data.beforeName, address: beforeAddress});
-            return _.find(previousState.dataValues.directors, function(d, i){
+            return _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
                 return d.person.isEqual({name: data.afterName, address: afterAddress});
             }).person.setTransaction(transaction)
         })
         .then(() => {
             return transaction;
         })
-        .catch(() => {
-            sails.log.error(JSON.stringify(previousState.toJSON().directors, null, 4));
+        .catch((e) => {
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
         });
 
@@ -584,6 +608,7 @@ export function performInverseTransaction(data, company){
         })
         .then(function(_prevState){
             prevState = _prevState;
+
             prevState.dataValues.transactionId = null;
             prevState.dataValues.transaction = null;
             return Promise.reduce(data.actions, function(arr, action){
@@ -600,7 +625,13 @@ export function performInverseTransaction(data, company){
                     .then(function(r){
                         arr.push(r);
                         return arr;
-                    });
+                    })
+                    /*.then(function(){
+                        return prevState.save();
+                    })
+                    .then(function(){
+                        return arr;
+                    })*/
                 }
                 return arr;
             }, []);

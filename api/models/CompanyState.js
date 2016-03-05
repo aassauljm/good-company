@@ -665,7 +665,7 @@ module.exports = {
                                         obj._changed = {};
                                     }
                                     else{
-                                        obj.dataValues.id = null;
+                                        //obj.dataValues.id = undefined;
                                     }
                                     setNew(obj);
                                 }
@@ -711,11 +711,12 @@ module.exports = {
                 if(this.id){
                     throw new sails.config.exceptions.BadImmutableOperation();
                 }
+                newHoldings = newHoldings.slice();
                 sails.log.verbose('Adding holdings to companystate')
                 " For now, using name equivilency to match holders (and companyId) "
                 " Match all holders in a holding, then an issue will increase the parcels on that holding "
                 const holdings = this.dataValues.holdingList.dataValues.holdings;
-                _.some(holdings, function(nextHolding){
+                _.some(holdings, function(nextHolding, j){
                     var toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
                         //holdingToAdd = Holding.buildDeep(holdingToAdd);
@@ -723,9 +724,7 @@ module.exports = {
                         if(((holdingToAdd.holderId && nextHolding.holderId === holdingToAdd.holderId ) ||
                             nextHolding.holdersMatch(holdingToAdd)) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
-                            //console.log(nextHolding.dataValues.id)
-                            holdings[i] = nextHolding = nextHolding.buildNext();
-                            //console.log(nextHolding)
+                            holdings[j] = nextHolding = nextHolding.buildNext();
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
                             }
@@ -770,6 +769,8 @@ module.exports = {
                 //these new holders may have new members or address changes or something
                 newHolders = newHolders.slice()
                 var existingHolders = [];
+                var index = this.dataValues.holdingList.dataValues.holdings.indexOf(holding);
+                this.dataValues.holdingList.dataValues.holdings[index] = holding = holding.buildNext();
                 _.some(holding.dataValues.holders, function(holder){
                     var toRemove;
                     newHolders.forEach(function(newHolder, i){
@@ -819,11 +820,13 @@ module.exports = {
                         }
                     })
                     .then(function(){
-                        state.dataValues.holdingList.dataValues.holdings.map(function(holding){
+                        state.dataValues.holdingList.dataValues.holdings.map(function(holding, i){
                             var index = _.findIndex(holding.dataValues.holders, function(h, i){
                                 return h.isEqual(currentHolder);
                             });
                             if(index > -1){
+                                holding = holding.buildNext();
+                                state.dataValues.holdingList.dataValues.holdings[i] = holding;
                                 holding.dataValues.holders[index] = newPerson;
                             }
                         });
@@ -832,14 +835,16 @@ module.exports = {
             },
 
             replaceDirector: function(currentDirector, newDirector, transaction){
-                var index = _.findIndex(this.dataValues.directors, function(d, i){
+                const directors = this.dataValues.directorList.dataValues.directors;
+                var index = _.findIndex(directors, function(d, i){
                         return d.person.isEqual(currentDirector);
                 });
                 if(index > -1){
-                    this.dataValues.directors[index].personId = null;
-                    this.dataValues.directors[index].dataValues.person = this.dataValues.directors[index].dataValues.person.replaceWith(newDirector);
+                    //directors[index].personId = null;
+                    directors[index] = directors[index].buildNext();
+                    directors[index].dataValues.person = directors[index].dataValues.person.replaceWith(newDirector);
                     if(transaction){
-                        this.dataValues.directors[index].person.dataValues.transaction =transaction
+                        directors[index].person.dataValues.transaction = transaction
                     }
                 }
                 else{
@@ -850,7 +855,9 @@ module.exports = {
 
             getMatchingHolding: function(holders, parcelHint, ignoreCompanyNumber){
                 //console.log(JSON.stringify(this.dataValues.holdingList.dataValues.holdings, null ,4))
+
                 return _.find(this.dataValues.holdingList.dataValues.holdings, function(holding){
+
                     return holding.holdersMatch({holders: holders}, ignoreCompanyNumber) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
                 });
             },

@@ -69,7 +69,10 @@ module.exports = {
                 // NEEDS NOT CREATE NEW PERSONS IF THEY HAVE IDS,
                 var holding = Holding.build(data, {include: [
                             {model: Parcel, as: 'parcels'},
-                            {model: Person, as: 'holders'},
+                            {model: Person, as: 'holders', include: [{
+                                    model: Transaction,
+                                    as: 'transaction',
+                                }]},
                             {model: Transaction, as: 'transaction'}]});
                 return holding;
 
@@ -144,7 +147,10 @@ module.exports = {
                 this.dataValues.parcels = newParcels;
             },
             buildNext: function(){
-                const holding = Holding.build(_.merge({}, this.toJSON(), {id: null}), {include: [{
+                if(this.isNewRecord){
+                    return this;
+                }
+                const holding = Holding.build(_.merge({}, this.get(), {id: null}), {include: [{
                                 model: Parcel,
                                 as: 'parcels',
                                 through: {

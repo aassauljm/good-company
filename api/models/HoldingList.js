@@ -25,6 +25,10 @@ module.exports = {
         classMethods: {},
         instanceMethods: {
             buildNext: function(){
+                if(this.isNewRecord){
+                    return Promise.resolve(this);
+                }
+                var self = this;
                 return (this.dataValues.holdings ? Promise.resolve(this.dataValues.holdings) :
                         this.getHoldings({include: [{
                                 model: Parcel,
@@ -65,10 +69,13 @@ module.exports = {
                                 ]
                             }))
                     .then(function(holdings){
-                        return HoldingList.build({holdings: holdings.map(h => h.toJSON())}, {
+                        return HoldingList.build({holdings: holdings.map(h => _.merge({}, h.toJSON()))}, {
                             include: [{
                                 model: Holding,
                                 as: 'holdings',
+                                through: {
+                                    attributes: []
+                                },
                                 include: [{
                                     model: Parcel,
                                     as: 'parcels',
@@ -92,6 +99,7 @@ module.exports = {
                               }]})
                     })
                     .then(function(holdingList){
+
                         holdingList.dataValues.holdings.map(function(r){
                             r.isNewRecord = false;
                             r._changed = {};

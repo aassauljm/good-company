@@ -48,7 +48,14 @@ module.exports = {
         freezeTableName: false,
         tableName: 'director',
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            buildNext: function(){
+                if(this.isNewRecord){
+                    return this;
+                }
+                return Director.build(_.merge({}, this.get(), {id: null}), {include: [{model: Person, as: 'person'}]})
+            }
+        },
         hooks: {}
     }
 };
