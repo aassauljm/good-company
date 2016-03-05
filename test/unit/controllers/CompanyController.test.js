@@ -142,7 +142,7 @@ describe('Company Controller', function() {
                 .expect(200)
                 .then(function(res){
                     res.body.companyState.companyName.should.be.equal('TESTED ON CHILDREN LIMITED');
-                    res.body.companyState.directorsList.directors.length.should.be.equal(2);
+                    res.body.companyState.directorList.directors.length.should.be.equal(2);
                     done();
                 });
         });

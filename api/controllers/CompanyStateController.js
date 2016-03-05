@@ -56,9 +56,8 @@ var transactions = {
             })
     },
     issue: function(args, company){
-        " For now, using name equivilency to match holders (and companyId) "
-        " Match all holders in a holding, then an issue will increase the parcels on that holding "
-        validateHoldings(args.holdings)
+
+        /*validateHoldings(args.holdings)
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
             return currentCompanyState.buildNext({transaction: {type: Transaction.types.COMPOUND, data: args, effectiveDate: new Date() }})
@@ -73,7 +72,41 @@ var transactions = {
          })
          .then(function(){
             return company.save();
-         });
+         });*/
+
+        const classes = {}
+        args.holdingList.holdings.map((h) => {
+            h.parcels.map(p => {
+                classes[p.shareClass] = (classes[p.shareClass] || 0) + p.amount;
+            });
+        })
+        // TODO, split into shareclasses
+        const sets = [];
+        Object.keys(classes)
+            .map(c => {
+                const actions = [];
+                actions.push({
+                    amount: classes[c].amount,
+                    shareClass: c,
+                    effectiveDate: new Date(),
+                    transactionType: Transaction.types.ISSUE_UNALLOCATED
+                });
+                args.holdingList.holdings.map((h) => {
+                    h.parcels.filter(p => p.shareClass === c).map(p => {
+                        actions.push({
+                            transactionType: Transaction.types.ISSUE_TO,
+                            transactionMethod: Transaction.types.AMEND,
+                            beforeHolders: h,
+                            shareClass: c,
+                            amount: p.amount
+                        })
+                    })
+                })
+                sets.push({
+                    actions: actions
+                })
+            });
+        return Promise.each(sets, (set) => TransactionService.performTransaction(set, company))
     },
     details: function(args, company){
         return company.getCurrentCompanyState()

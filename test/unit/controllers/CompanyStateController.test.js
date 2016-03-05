@@ -51,12 +51,12 @@ describe('CompanyStateController', function() {
     describe('Successful Seed CompanyState', function() {
         it('Try valid post', function(done) {
             req.post('/api/transaction/seed/'+companyId)
-                .send({holdings: [{
+                .send({holdingList: {holdings: [{
                     holders: [{name: 'Gary'}, {name: 'Busey'}],
                     parcels: [{amount: 1111, shareClass: 'A'},
                         {amount: 1, shareClass: 'B'},
                         {amount: 10, shareClass: 'D'}]
-                }]})
+                }]}})
                 .expect(200, done)
         });
         it('Get Updated Info', function(done) {
@@ -69,12 +69,13 @@ describe('CompanyStateController', function() {
                         transaction: {
                             type: 'SEED'
                         },
-                        holdings: [
-                            {
-                                holders: [{name: 'Busey'}, {name: 'Gary'}],
-                                parcels: [{amount: 1111, shareClass: 'A'}, {amount: 1, shareClass: 'B'}]
-                            }
-                        ]
+                        holdingList: {holdings: [
+                                {
+                                    holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                    parcels: [{amount: 1111, shareClass: 'A'}, {amount: 1, shareClass: 'B'}]
+                                }
+                            ]
+                        }
                     })
                     done();
                 })
@@ -83,34 +84,34 @@ describe('CompanyStateController', function() {
     describe('Invalid Issue CompanyState', function() {
         it('Try invalid Issue post, no parcels or holders', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({holdings: [{
+                .send({holdingList: {holdings: [{
                     holders: [],
                     parcels: []
-                }]})
+                }]}})
                 .expect(500, done)
         });
         it('Try invalid Issue post, no holders', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({holdings: [{
+                .send({holdingList: {holdings: [{
                     holders: [],
                     parcels: [{amount: 10, shareClass: 'x'}]
-                }]})
+                }]}})
                 .expect(500, done)
         });
         it('Try invalid Issue post, negative amount', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({holdings: [{
+                .send({holdingList: {holdings: [{
                     holders: [{name: 'Negato'}],
                     parcels: [{amount: -10, shareClass: 'x'}]
-                }]})
+                }]}})
                 .expect(500, done)
         });
         it('Try invalid Issue post, zero amount', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({holdings: [{
+                .send({holdingList: {holdings: [{
                     holders: [{name: 'Nillema'}],
                     parcels: [{amount: 0, shareClass: 'x'}]
-                }]})
+                }]}})
                 .expect(500, done)
         });
     });
@@ -118,13 +119,13 @@ describe('CompanyStateController', function() {
     describe('Issue CompanyState', function() {
         it('Try Valid Issue Post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({holdings: [{
+                .send({holdingList: {holdings: [{
                     holders: [{name: 'Gary'}, {name: 'Busey'}],
                     parcels: [{amount: 100, shareClass: 'B'},{amount: 2, shareClass: 'A'},{amount: 1, shareClass: 'C'}]
                 },{
                     holders: [{name: 'Santa'}],
                     parcels: [{amount: 100, shareClass: 'B'}]
-                }]})
+                }]}})
                 .expect(200, done)
         });
         it('Get Updated Info', function(done) {
@@ -137,7 +138,7 @@ describe('CompanyStateController', function() {
                         transaction: {
                             type: 'COMPOUND'
                         },
-                        holdings: [
+                        holdingList: {holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
                                 parcels: [{amount: 1113, shareClass: 'A'}, {amount: 101, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
@@ -146,14 +147,14 @@ describe('CompanyStateController', function() {
                                 holders: [{name: 'Santa'}],
                                 parcels: [{amount: 100, shareClass: 'B'}]
                             }
-                        ]
+                        ]}
                     })
                     done();
                 })
         });
         it('Get Should have different parcel ids for A,B classes, same for D', function(done) {
-            var firstHolding = firstSummary.currentCompanyState.holdings[0].parcels;
-            var secondHolding = _.find(secondSummary.currentCompanyState.holdings, function(s){
+            var firstHolding = firstSummary.currentCompanyState.holdingList.holdings[0].parcels;
+            var secondHolding = _.find(secondSummary.currentCompanyState.holdingList.holdings, function(s){
                 return s.holders.length === 2;
             }).parcels;
             _.findWhere(firstHolding, {shareClass: 'A'}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 'A'}).id)
@@ -193,7 +194,7 @@ describe('CompanyStateController', function() {
                         transaction: {
                             type: 'COMPOUND'
                         },
-                        holdings: [
+                        holdingList: { holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
                                 parcels: [{amount: 1113, shareClass: 'A'}, {amount: 101, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
@@ -202,7 +203,7 @@ describe('CompanyStateController', function() {
                                 holders: [{name: 'Santa'}],
                                 parcels: [{amount: 1100, shareClass: 'B'}]
                             }
-                        ]
+                        ] }
                     });
                     done();
                 });

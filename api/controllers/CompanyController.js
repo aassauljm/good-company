@@ -186,8 +186,12 @@ module.exports = {
                         })
                         .then(function(){
                             sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
+                            let state;
                             return Promise.each(processedDocs, function(doc) {
-                                return ScrapingService.populateHistory(doc, company);
+                                return TransactionService.performInverseTransaction(doc, company, state)
+                                    .then(_state => {
+                                        state = _state;
+                                    });
                             });
                         })
                     }

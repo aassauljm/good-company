@@ -508,7 +508,7 @@ function validateIssue(data){
 }
 
 export function performIssueUnallocated(data, nextState, previousState, effectiveDate){
-    return validateIssue(data, companyState)
+    return validateIssue(data, nextState)
         .then(() => {
             const transaction = Transaction.build({type: Transaction.types.ISSUE, data: data, effectiveDate: effectiveDate})
             companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
@@ -577,7 +577,7 @@ export function removeDocuments(state, actions){
 }
 
 
-export function performInverseTransaction(data, company){
+export function performInverseTransaction(data, company, rootState){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.TRANSFER]:  TransactionService.performInverseAmend,
@@ -597,18 +597,17 @@ export function performInverseTransaction(data, company){
         [Transaction.types.ANNUAL_RETURN]: TransactionService.validateAnnualReturn
     };
     if(!data.actions){
-        return;
+        return Promise.resolve(rootState);
     }
     let prevState, currentRoot, transactions;
     console.time('start')
-    return company.getRootCompanyState()
+    return (rootState ? Promise.resolve(rootState) :  company.getRootCompanyState())
         .then(function(_rootState){
             currentRoot = _rootState;
             return currentRoot.buildPrevious({transaction: null, transactionId: null});
         })
         .then(function(_prevState){
             prevState = _prevState;
-
             prevState.dataValues.transactionId = null;
             prevState.dataValues.transaction = null;
             return Promise.reduce(data.actions, function(arr, action){
@@ -626,12 +625,6 @@ export function performInverseTransaction(data, company){
                         arr.push(r);
                         return arr;
                     })
-                    /*.then(function(){
-                        return prevState.save();
-                    })
-                    .then(function(){
-                        return arr;
-                    })*/
                 }
                 return arr;
             }, []);
@@ -660,10 +653,13 @@ export function performInverseTransaction(data, company){
             console.timeEnd('start')
             return currentRoot.setPreviousCompanyState(_prevState);
         })
+         .then(function(){
+            return prevState;
+         })
 }
 
 
-export function performTransaction(data, company){
+export function performTransaction(data, company, companyState){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performIssueUnallocated,
         [Transaction.types.ISSUE_TO]:  TransactionService.performIssueTo,
@@ -673,13 +669,13 @@ export function performTransaction(data, company){
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performHolderChange,
     };
     if(!data.actions){
-        return;
+        return Promise.resolve(companyState);
     }
     let nextState, current, transactions;
-    return company.getCurrentCompanyState()
+    return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             current = _state;
-            return currentRoot.buildNext({});
+            return current.buildNext({});
         })
         .then(function(_nextState){
             nextState = _nextState;
@@ -725,5 +721,8 @@ export function performTransaction(data, company){
          })
          .then(function(){
             return company.save();
-         });
+         })
+         .then(function(){
+            return nextState;
+         })
 }
