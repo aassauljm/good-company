@@ -56,57 +56,48 @@ var transactions = {
             })
     },
     issue: function(args, company){
-
-        /*validateHoldings(args.holdings)
-        return company.getCurrentCompanyState()
-        .then(function(currentCompanyState){
-            return currentCompanyState.buildNext({transaction: {type: Transaction.types.COMPOUND, data: args, effectiveDate: new Date() }})
-         })
-        .then(function(companyState){
-            //TODO add transaction
-            companyState.combineHoldings(args.holdings);
-            return companyState.save()
-        })
-         .then(function(nextCompanyState){
-            return company.setCurrentCompanyState(nextCompanyState);
-         })
-         .then(function(){
-            return company.save();
-         });*/
-
-        const classes = {}
-        args.holdingList.holdings.map((h) => {
-            h.parcels.map(p => {
+        const classes = {};
+        ((args.holdingList || {}).holdings || []).map((h) => {
+            (h.parcels || []).map(p => {
                 classes[p.shareClass] = (classes[p.shareClass] || 0) + p.amount;
             });
-        })
-        // TODO, split into shareclasses
+        });
         const sets = [];
         Object.keys(classes)
             .map(c => {
                 const actions = [];
                 actions.push({
-                    amount: classes[c].amount,
+                    amount: classes[c],
                     shareClass: c,
                     effectiveDate: new Date(),
                     transactionType: Transaction.types.ISSUE_UNALLOCATED
                 });
-                args.holdingList.holdings.map((h) => {
+                ((args.holdingList || {}).holdings || []).map((h) => {
                     h.parcels.filter(p => p.shareClass === c).map(p => {
                         actions.push({
                             transactionType: Transaction.types.ISSUE_TO,
                             transactionMethod: Transaction.types.AMEND,
-                            beforeHolders: h,
+                            holders: h.holders,
                             shareClass: c,
                             amount: p.amount
                         })
                     })
                 })
                 sets.push({
+                    effectiveDate: new Date(),
                     actions: actions
                 })
             });
-        return Promise.each(sets, (set) => TransactionService.performTransaction(set, company))
+        if(!sets.length){
+            throw new sails.config.exceptions.ValidationException('Holdings are required');
+        }
+        let state;
+        return Promise.each(sets, function(set) {
+            return TransactionService.performTransaction(set, company, state)
+                .then(_state => {
+                    state = _state;
+                });
+        })
     },
     details: function(args, company){
         return company.getCurrentCompanyState()

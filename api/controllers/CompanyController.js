@@ -187,12 +187,16 @@ module.exports = {
                         .then(function(){
                             sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
                             let state;
+                                console.time('transactions')
                             return Promise.each(processedDocs, function(doc) {
                                 return TransactionService.performInverseTransaction(doc, company, state)
                                     .then(_state => {
                                         state = _state;
                                     });
-                            });
+                            })
+                            .then(function(){
+                                console.timeEnd('transactions')
+                            })
                         })
                     }
                 })

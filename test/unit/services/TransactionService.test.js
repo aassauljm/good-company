@@ -10,17 +10,17 @@ describe('Transaction Service, inverse transactions', function() {
         let rootStateSimple, initialStateSimple = {
             companyName: 'dingbat limited',
             addressForService: 'china',
-            holdings: [{
+            holdingList: {holdings: [{
                 holders: [{
                     name: 'mike'
                 }],
                 parcels: [{
                     amount: 1
                 }]
-            }]
+            }]}
         }, rootStateMultiple, initialStateMultiple = {
             companyName: 'multiplex',
-            holdings: [{
+            holdingList: {holdings: [{
                 holders: [{
                     name: 'mike'
                 }],
@@ -52,7 +52,7 @@ describe('Transaction Service, inverse transactions', function() {
                 parcels: [{
                     amount: 3
                 }]
-            }],
+            }]},
             directors: [
                 {person: {name: 'mike'}},
                 {person: {name: 'jim'}}
@@ -170,7 +170,7 @@ describe('Transaction Service, inverse transactions', function() {
                     return rootStateSimple.reload();
                 })
                 .then(function(){
-                    should.equal(null, rootStateSimple.dataValues.holdings[0].dataValues.transactionId);
+                    should.equal(null, rootStateSimple.dataValues.holdingList.holdings[0].dataValues.transactionId);
                 })
             });
 
@@ -187,10 +187,10 @@ describe('Transaction Service, inverse transactions', function() {
                     })
                     .then(function(e){
                         const _prevState = prevState.toJSON();
-                        _prevState.holdings.length.should.be.equal(1);
-                        _prevState.holdings[0].holders[0].name.should.be.equal('john');
-                        _prevState.holdings[0].parcels[0].amount.should.be.equal(1);
-                        return rootStateSimple.dataValues.holdings[0].getTransaction()
+                        _prevState.holdingList.holdings.length.should.be.equal(1);
+                        _prevState.holdingList.holdings[0].holders[0].name.should.be.equal('john');
+                        _prevState.holdingList.holdings[0].parcels[0].amount.should.be.equal(1);
+                        return rootStateSimple.dataValues.holdingList.holdings[0].getTransaction()
                     }).then(function(transaction){
                         transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
                         transaction.effectiveDate.should.be.eql(date);
@@ -238,6 +238,7 @@ describe('Transaction Service, inverse transactions', function() {
                 return rootStateMultiple.buildPrevious()
                     .then(function(companyState){
                         return TransactionService.performInverseAmend({
+                            transactionMethod: Transaction.types.AMEND,
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}, {name: 'cindy'}],
                             beforeHolders: [{name: 'mike'}, {name: 'cindy'}],
@@ -250,6 +251,7 @@ describe('Transaction Service, inverse transactions', function() {
                 return rootStateMultiple.buildPrevious()
                     .then(function(companyState){
                         return TransactionService.performInverseAmend({
+                            transactionMethod: Transaction.types.AMEND,
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}],
                             beforeHolders: [{name: 'mike'}],
@@ -262,6 +264,7 @@ describe('Transaction Service, inverse transactions', function() {
                 return rootStateMultiple.buildPrevious()
                     .then(function(companyState){
                         return TransactionService.performInverseAmend({
+                            transactionMethod: Transaction.types.AMEND,
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}],
                             beforeHolders: [{name: 'mike'}],
@@ -276,6 +279,7 @@ describe('Transaction Service, inverse transactions', function() {
                     .then(function(companyState){
                         prevState = companyState;
                         return TransactionService.performInverseAmend({
+                            transactionMethod: Transaction.types.AMEND,
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}],
                             beforeHolders: [{name: 'mike'}],
@@ -317,7 +321,7 @@ describe('Transaction Service, inverse transactions', function() {
         let rootStateSimple, initialStateSimple = {
             companyName: 'dingbat limited',
             addressForService: 'china',
-            holdings: [{
+            holdingList: {holdings: [{
                 holders: [{
                     name: 'mike'
                 }],
@@ -325,9 +329,10 @@ describe('Transaction Service, inverse transactions', function() {
                     amount: 1
                 }]
             }]
+            }
         }, rootStateMultiple, initialStateMultiple = {
             companyName: 'multiplex',
-            holdings: [{
+            holdingList: { holdings: [{
                 holders: [{
                     name: 'mike'
                 }],
@@ -359,7 +364,8 @@ describe('Transaction Service, inverse transactions', function() {
                 parcels: [{
                     amount: 3
                 }]
-            }],
+            }]
+            },
             directors: [
                 {person: {name: 'mike'}},
                 {person: {name: 'jim'}},
@@ -486,10 +492,10 @@ describe('Transaction Service, inverse transactions', function() {
                     })
                     .then(function(e){
                         const _nextState = nextState.toJSON();
-                        _nextState.holdings.length.should.be.equal(1);
-                        _nextState.holdings[0].holders[0].name.should.be.equal('john');
-                        _nextState.holdings[0].parcels[0].amount.should.be.equal(1);
-                        const transaction = nextState.dataValues.holdings[0].dataValues.transaction;
+                        _nextState.holdingList.holdings.length.should.be.equal(1);
+                        _nextState.holdingList.holdings[0].holders[0].name.should.be.equal('john');
+                        _nextState.holdingList.holdings[0].parcels[0].amount.should.be.equal(1);
+                        const transaction = nextState.dataValues.holdingList.holdings[0].dataValues.transaction;
                         transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
                         transaction.effectiveDate.should.be.eql(date);
                     });

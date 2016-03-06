@@ -270,7 +270,7 @@ export class Shareholdings extends React.Component {
 
     groupHoldings() {
         const total = this.props.companyState.totalAllocatedShares;
-        return {values: this.props.companyState.holdings.map(holding => ({
+        return {values: this.props.companyState.holdingList.holdings.map(holding => ({
             y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
             x: holding.name
         }))};
@@ -278,7 +278,7 @@ export class Shareholdings extends React.Component {
     render() {
         return <div className="container"><div className="row">
             <div className="col-md-6">
-                { this.props.companyState.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.companyState.totalShares}/>)}
+                { this.props.companyState.holdingList.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.companyState.totalShares}/>)}
             </div>
             <div className="col-md-6 text-center">
                 <div className="hide-graph-labels">
@@ -334,7 +334,7 @@ export class CompanyDetails extends React.Component {
 
                 </dl>
             </div>
-            <Directors directors={current.directors}/>
+            <Directors directors={current.directorList.directors}/>
             </div>
     }
 }
@@ -765,7 +765,7 @@ export default class Company extends React.Component {
                                  </Link>
                         <Link to={this.props.location.pathname +'/shareholdings'}>
                              <ShareholdingsPanel
-                                holdings={current.holdings}
+                                holdings={current.holdingList.holdings}
                                 totalShares={current.totalShares}
                                 totalAllocatedShares={current.totalAllocatedShares} />
                                 </Link>

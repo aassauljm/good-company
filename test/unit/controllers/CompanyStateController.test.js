@@ -122,9 +122,6 @@ describe('CompanyStateController', function() {
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Gary'}, {name: 'Busey'}],
                     parcels: [{amount: 100, shareClass: 'B'},{amount: 2, shareClass: 'A'},{amount: 1, shareClass: 'C'}]
-                },{
-                    holders: [{name: 'Santa'}],
-                    parcels: [{amount: 100, shareClass: 'B'}]
                 }]}})
                 .expect(200, done)
         });
@@ -133,7 +130,7 @@ describe('CompanyStateController', function() {
                 .expect(200)
                 .then(function(res){
                     secondSummary = res.body;
-                    res.body.currentCompanyState.totalAllocatedShares.should.be.equal(1325)
+                    res.body.currentCompanyState.totalAllocatedShares.should.be.equal(1225)
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
                             type: 'COMPOUND'
@@ -142,10 +139,6 @@ describe('CompanyStateController', function() {
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
                                 parcels: [{amount: 1113, shareClass: 'A'}, {amount: 101, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
-                            },
-                            {
-                                holders: [{name: 'Santa'}],
-                                parcels: [{amount: 100, shareClass: 'B'}]
                             }
                         ]}
                     })
@@ -165,10 +158,8 @@ describe('CompanyStateController', function() {
     });
     describe('Get Previous Version', function(){
         it('should get and compare seed version', function(done){
-            req.get('/api/company/'+companyId+'/history/1')
+            req.get('/api/company/'+companyId+'/history/3')
                 .then(function(res){
-                    //console.log(JSON.stringify(res.body.companyState, null ,4))
-                    //console.log(JSON.stringify(firstSummary.currentCompanyState, null ,4))
                     _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
                     done();
                 });
@@ -178,10 +169,10 @@ describe('CompanyStateController', function() {
     describe('Another Issue CompanyState', function(){
         it('Try Valid Issue Post', function(done) {
             req.post('/api/transaction/issue/'+companyId)
-                .send({holdings: [{
-                    holders: [{name: 'Santa'}],
-                    parcels: [{amount: 1000, shareClass: 'B'}]
-                }]})
+                .send({holdingList: {holdings: [{
+                    holders: [{name: 'Busey'}, {name: 'Gary'}],
+                    parcels: [{amount: 1100, shareClass: 'B'}]
+                }]}})
                 .expect(200, done)
         });
         it('Get Updated Info', function(done) {
@@ -189,7 +180,6 @@ describe('CompanyStateController', function() {
                 .expect(200)
                 .then(function(res){
                     res.body.currentCompanyState.totalAllocatedShares.should.be.equal(2325);
-
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
                             type: 'COMPOUND'
@@ -197,11 +187,7 @@ describe('CompanyStateController', function() {
                         holdingList: { holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
-                                parcels: [{amount: 1113, shareClass: 'A'}, {amount: 101, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
-                            },
-                            {
-                                holders: [{name: 'Santa'}],
-                                parcels: [{amount: 1100, shareClass: 'B'}]
+                                parcels: [{amount: 1113, shareClass: 'A'}, {amount: 1201, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
                             }
                         ] }
                     });
@@ -212,7 +198,7 @@ describe('CompanyStateController', function() {
 
     describe('Get Previous Versions Again', function(){
         it('should get and compare seed version', function(done){
-            req.get('/api/company/'+companyId+'/history/2')
+            req.get('/api/company/'+companyId+'/history/4')
                 .then(function(res){
                     _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
                     done();

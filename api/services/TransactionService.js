@@ -53,7 +53,7 @@ export function validateAnnualReturn(data, companyState, effectiveDate){
 };
 
 export function validateInverseAmend(amend, companyState){
-    const holding = companyState.getMatchingHolding(amend.afterHolders, [{amount: amend.afterAmount}]);
+    const holding = companyState.getMatchingHolding(amend.afterHolders, [{amount: amend.afterAmount, shareClass: amend.shareClass}]);
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId: ' +amend.documentId)
     }
@@ -64,7 +64,7 @@ export function validateInverseAmend(amend, companyState){
         throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +amend.documentId)
     }
     if(amend.beforeAmount < 0 || amend.afterAmount < 0){
-        throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ), documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ), documentId: ' +amend.documentId)
     }
     if(amend.afterAmount && (sum !== amend.afterAmount)){
         throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend, documentId: ' +amend.documentId)
@@ -133,7 +133,10 @@ export function performInverseAcquisition(data, companyState, previousState, eff
 
 export  function performInverseAmend(data, companyState, previousState, effectiveDate){
     let transaction, holding;
-    return validateInverseAmend(data, companyState)
+    return Promise.resolve({})
+        .then(() => {
+            return validateInverseAmend(data, companyState)
+        })
         .then((_holding) => {
             holding = _holding;
             return companyState.dataValues.holdingList.buildNext();
@@ -486,66 +489,64 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
 
 };
 
-
-
-function validateIssue(data){
-    const newHoldings = data.holdings;
-    if (!newHoldings || !newHoldings.length) {
-        throw new sails.config.exceptions.ValidationException('Holdings are required');
+export const validateIssueUnallocated = Promise.method(function(data){
+    if(!Number.isInteger(data.amount) || data.amount <= 0){
+        throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
     }
-    newHoldings.forEach(function(holding){
-        if(!holding.holders || !holding.holders.length){
-            throw new sails.config.exceptions.ValidationException('Holders are required');
-        }
-        if(!holding.parcels || !holding.parcels.length){
-            throw new sails.config.exceptions.ValidationException('Parcels are required');
-        }
-        holding.parcels.forEach(function(parcel){
-            if(parcel.amount < 1)
-                throw new sails.config.exceptions.ValidationException('Parcels amounts must be positve');
-        });
-    });
-}
+    if(!Number.isSafeInteger(data.amount)){
+        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
+    }
+});
 
 export function performIssueUnallocated(data, nextState, previousState, effectiveDate){
-    return validateIssue(data, nextState)
+    return validateIssueUnallocated(data, nextState)
         .then(() => {
             const transaction = Transaction.build({type: Transaction.types.ISSUE, data: data, effectiveDate: effectiveDate})
-            companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+            nextState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
             return transaction;
         })
-    // In an issue we remove from unallocatedShares
 }
 
+export function validateAmend(amend, companyState){
+    if(!amend.holders || !amend.holders.length){
+        throw new sails.config.exceptions.InvalidInverseOperation('Holders required, documentId: ' +amend.documentId)
+    }
+    const holding = companyState.getMatchingHolding(amend.holders) // TODO ambiguous?;
+    if(!holding){
+        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId: ' +amend.documentId)
+    }
+    const sum = _.sum(holding.dataValues.parcels, (p) =>{
+        return p.amount;
+    });
+    if(!Number.isSafeInteger(sum)){
+        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +amend.documentId)
+    }
+    return Promise.resolve(holding);
+}
 
 export const performAmend = Promise.method(function(data, companyState, previousState, effectiveDate){
     let transaction, holding;
-    return validateInverseAmend(data, companyState)
-        .then((_holding) =>{
-            holding = _holding;
-            let difference = data.afterAmount - data.beforeAmount;
-            let parcel = {amount: Math.abs(difference)};
-            let newHolding = {holders: data.afterHolders, parcels: [parcel]};
-            let transactionType  = data.transactionSubType || data.transactionType;
+    return validateAmend(data, companyState)
+        .then(() => {
+            return companyState.dataValues.holdingList.buildNext()
+        })
+        .then(holdingList => {
+            companyState.dataValues.holdingList = holdingList;
+            companyState.dataValues.h_list_id = null;
+            let parcel = {amount: data.amount, shareClass: data.shareClass};
+            let newHolding = {holders: data.holders, parcels: [parcel]};
+            let transactionType  = data.transactionType;
             transaction = Transaction.build({type: data.transactionSubType || transactionType,  data: data, effectiveDate: effectiveDate});
-            if(difference < 0){
+            if(parcel.amount > 0){
                 companyState.subtractUnallocatedParcels(parcel);
-                companyState.combineHoldings([newHolding], [{amount: data.afterAmount}]);
+                companyState.combineHoldings([newHolding], null, transaction);
             }
             else{
                 companyState.combineUnallocatedParcels(parcel);
-                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount}]);
+                companyState.subtractHoldings([newHolding], null, transaction);
             }
-            const current = companyState.getMatchingHolding(data.afterHolders)
-
-            // If holders have changed too
-            if(!current.holdersMatch({holders: data.beforeHolders})){
-                companyState.mutateHolders(current, data.beforeHolders);
-            }
-        })
-        .then(() => {
             return transaction;
-        });
+        })
 });
 
 /**
@@ -618,6 +619,7 @@ export function performInverseTransaction(data, company, rootState){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
                     }, prevState, currentRoot, data.effectiveDate);
+
                 }
                 if(result){
                     return result
@@ -662,7 +664,7 @@ export function performInverseTransaction(data, company, rootState){
 export function performTransaction(data, company, companyState){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performIssueUnallocated,
-        [Transaction.types.ISSUE_TO]:  TransactionService.performIssueTo,
+        [Transaction.types.AMEND]:  TransactionService.performAmend,
         [Transaction.types.NAME_CHANGE]: TransactionService.performNameChange,
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performAddressChange,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performHoldingChange,
@@ -675,7 +677,7 @@ export function performTransaction(data, company, companyState){
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             current = _state;
-            return current.buildNext({});
+            return current.buildNext({previousCompanyStateId: current.dataValues.id});
         })
         .then(function(_nextState){
             nextState = _nextState;
@@ -711,10 +713,10 @@ export function performTransaction(data, company, companyState){
             return tran.save();
         })
         .then(function(transaction){
-            return nextState.setTransaction(transaction.id);
+            return nextState.dataValues.transaction = transaction;
         })
         .then(function(){
-            nextState.save();
+            return nextState.save();
         })
         .then(function(){
             return company.setCurrentCompanyState(nextState);

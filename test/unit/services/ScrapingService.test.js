@@ -28,7 +28,10 @@ describe('Scraping Service', function() {
                     return company.getCurrentCompanyState({include: CompanyState.includes.full()});
                 })
                 .then(function(companyState){
-                    companyState.directors.length.should.be.eql(8);
+                    return companyState.fullPopulate();
+                })
+                .then(function(companyState){
+                    companyState.directorList.directors.length.should.be.eql(8);
                     done();
                 })
         })
@@ -54,7 +57,10 @@ describe('Scraping Service', function() {
                 })
                 .then(function(_company){
                     company = _company;
-                    return company.getCurrentCompanyState({include: CompanyState.includes.full()});
+                    return company.getCurrentCompanyState();
+                })
+                .then(function(companyState){
+                    return companyState.fullPopulate();
                 })
                 .then(function(state){
                     return state.stats();
@@ -135,7 +141,10 @@ describe('Scraping Service', function() {
                 })
                 .then(function(_company){
                     company = _company;
-                    return company.getCurrentCompanyState({include: CompanyState.includes.full()});
+                    return company.getCurrentCompanyState();
+                })
+                .then(function(companyState){
+                    return companyState.fullPopulate();
                 })
                 .then(function(companyState){
                     return companyState.stats();
@@ -188,13 +197,16 @@ describe('Scraping Service', function() {
                 .then(ScrapingService.populateDB)
                 .then(function(_company){
                     company = _company;
-                    return company.getCurrentCompanyState({include: CompanyState.includes.full()});
+                    return company.getCurrentCompanyState();
+                })
+                .then(function(companyState){
+                    return companyState.fullPopulate();
                 })
                 .then(function(state){
-                    state.holdings[0].parcels[0].amount.should.be.equal(50);
-                    state.holdings[1].parcels[0].amount.should.be.equal(50);
-                    state.holdings[2].parcels[0].amount.should.be.equal(50);
-                    state.holdings[3].parcels[0].amount.should.be.equal(50);
+                    state.holdingList.holdings[0].parcels[0].amount.should.be.equal(50);
+                    state.holdingList.holdings[1].parcels[0].amount.should.be.equal(50);
+                    state.holdingList.holdings[2].parcels[0].amount.should.be.equal(50);
+                    state.holdingList.holdings[3].parcels[0].amount.should.be.equal(50);
                     return state.stats();
                 })
                 .then(function(stats){
@@ -225,10 +237,10 @@ describe('Scraping Service', function() {
                     return company.getPreviousCompanyState(3)
                 })
                 .then(function(state){
-                    state.holdings.length.should.be.equal(2);
-                    state.holdings[0].parcels.length.should.be.equal(1);
-                    state.holdings[0].parcels[0].amount.should.be.equal(100);
-                    state.holdings[1].parcels[0].amount.should.be.equal(100);
+                    state.holdingList.holdings.length.should.be.equal(2);
+                    state.holdingList.holdings[0].parcels.length.should.be.equal(1);
+                    state.holdingList.holdings[0].parcels[0].amount.should.be.equal(100);
+                    state.holdingList.holdings[1].parcels[0].amount.should.be.equal(100);
                     return state.stats();
                 })
                 .then(function(stats){

@@ -5,7 +5,7 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 var _ = require('lodash');
-var Promise = require('sequelize/lib/promise');
+var Promise = require('bluebird');
 var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 
 
@@ -380,7 +380,7 @@ module.exports = {
                             d.get('person').isNewRecord = false;
                             d._changed = {};
                         });
-
+                        state._populated = true;
                         return state.save();
                     });
             }
@@ -392,13 +392,28 @@ module.exports = {
                                             replacements: { id: this.id}});
             },
             groupShares: function() {
-                return this.getHoldings({
-                        include: [{
-                            model: Parcel,
-                            as: 'parcels'
-                        }]
-                    })
-                    .then(function(holdings) {
+                return this.getHoldingList({include: [{
+                            model: Holding,
+                            as: 'holdings',
+                            include: [{
+                                model: Parcel,
+                                as: 'parcels',
+                                through: {attributes: []}
+                            }, {
+                                model: Person,
+                                as: 'holders',
+                                through: {attributes: []},
+                                include: [{
+                                    model: Transaction,
+                                    as: 'transaction',
+                                }]
+                            },{
+                                model: Transaction,
+                                as: 'transaction',
+                            }]
+                        }]})
+                    .then(function(holdingList) {
+                        const holdings = holdingList.dataValues.holdings;
                         return _.groupBy(_.flatten(holdings.map(function(s) {
                             return s.parcels;
                         })), function(p) {
@@ -473,30 +488,27 @@ module.exports = {
             },
 
             buildNext: function(attr){
-
                 sails.log.info('Building next company state');
-                return Promise.resolve(CompanyState.build(_.merge({}, this.toJSON(), attr, {id: null}),
+                return this.populateIfNeeded()
+                    .then(() => {
+                        return CompanyState.build(_.merge({}, this.toJSON(), attr, {id: null}),
                             {include:
                                 CompanyState.includes.fullNoJunctions()
                                 .concat(CompanyState.includes.docList())
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.iRegister())
                                 .concat(CompanyState.includes.holdingList())
-                            }))
-                    .then(function(next){
+                            })
+                    })
+                    .then((next) => {
                         function setNew(obj){
                             (obj.$options.includeNames || []).map(name => {
                                 if(!obj.dataValues[name]){
                                     return;
                                 }
                                 function set(obj){
-                                    if(true){
-                                        obj.isNewRecord = false;
-                                        obj._changed = {};
-                                    }
-                                    else{
-                                        //obj.dataValues.id = undefined;
-                                    }
+                                    obj.isNewRecord = false;
+                                    obj._changed = {};
                                     setNew(obj);
                                 }
                                 if(Array.isArray(obj.dataValues[name])){
@@ -508,6 +520,7 @@ module.exports = {
                             })
                         }
                         setNew(next);
+                        next._populated = true;
                         sails.log.verbose('Next company state build');
                         return next;
                     });
@@ -549,8 +562,6 @@ module.exports = {
                 _.some(holdings, function(nextHolding, j){
                     var toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
-                        //holdingToAdd = Holding.buildDeep(holdingToAdd);
-
                         if(((holdingToAdd.holderId && nextHolding.holderId === holdingToAdd.holderId ) ||
                             nextHolding.holdersMatch(holdingToAdd)) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
@@ -734,10 +745,12 @@ module.exports = {
                 else{
                     result = match.subtract(parcel);
                 }
-                this.dataValues.unallocatedParcels.push(result);
-                this.dataValues.unallocatedParcels = _.filter(this.dataValues.unallocatedParcels, function(p){
+                let parcelList = this.dataValues.unallocatedParcels || [];
+                parcelList.push(result);
+                parcelList = _.filter(parcelList, function(p){
                     return p.amount;
                 });
+                this.dataValues.unallocatedParcels = parcelList;
                 return this;
             },
 
@@ -856,8 +869,17 @@ module.exports = {
                         cs.dataValues.docList = docList;
                         cs.directorList = directors;
                         cs.dataValues.directorList = directors;
+                        cs._populated = true;
                         return cs;
                     })
+            },
+            populateIfNeeded: function(){
+                if(this._populated){
+                    return Promise.resolve(this)
+                }
+                else{
+                    return this.fullPopulate();
+                }
             }
         },
         hooks: {
