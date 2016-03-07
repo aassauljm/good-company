@@ -226,6 +226,7 @@ $$ LANGUAGE SQL STABLE;
 
 
 CREATE OR REPLACE FUNCTION holding_history(id integer)
+-- TODO, needs deduplication
     RETURNS SETOF transaction
     AS $$
 WITH RECURSIVE prev_holdings(id, "previousCompanyStateId", "h_list_id", "holdingId", "transactionId", "hId") as (
@@ -233,7 +234,7 @@ WITH RECURSIVE prev_holdings(id, "previousCompanyStateId", "h_list_id", "holding
     FROM company_state as t
     left outer join h_list_j hlj on hlj.holdings_id = t.h_list_id
     left outer JOIN holding h on h.id = hlj.h_j_id
-    where h.id = $1
+    where t.id = $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", tt."h_list_id", tt."holdingId", h."transactionId", h.id as "hId"
     FROM company_state t, prev_holdings tt
@@ -252,29 +253,37 @@ CREATE OR REPLACE FUNCTION holding_history_json(integer, text[])
     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from holding_history($1)  where $2 is null or type = ANY($2::enum_transaction_type[]))  qq;
 $$ LANGUAGE SQL STABLE;
 
+
+
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer)
 RETURNS SETOF JSON
 AS $$
-WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
+WITH RECURSIVE
+    _holding(id, "holdingId", "transactionId", name, "companyStateId") as (
+        SELECT h.id, "holdingId", h."transactionId", name, cs.id
+        from holding h
+        join h_list_j hlj on h.id = hlj.h_j_id
+        join company_state cs on cs.h_list_id = hlj.holdings_id
+    ),
+prev_company_states(id, "previousCompanyStateId",  generation) as (
     SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", generation + 1
     FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
-), prev_holdings("startId", id, h_list_id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
-    SELECT h.id as "startId",  t.id, h_list_id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
+), prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
+    SELECT h.id as "startId", t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
     FROM company_state as t
-
-    left outer join h_list_j hlj on hlj.holdings_id = t.h_list_id
-    left outer JOIN holding h on h.id = hlj.h_j_id
+    left outer JOIN _holding h on h."companyStateId" = t.id
     UNION ALL
-    SELECT "startId", t.id, tt.h_list_id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
+    SELECT "startId", t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
     FROM company_state t, prev_holdings tt
-left outer join h_list_j hlj on hlj.holdings_id = tt."h_list_id"
-left outer join holding h on h.id = hlj.h_j_id
+    left outer JOIN _holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
     WHERE t.id = tt."previousCompanyStateId"
  ), prev_holding_transactions as (
-    SELECT t.*, "startId" FROM transaction t join prev_holdings pt on t.id = pt."transactionId"
+    SELECT * FROM (SELECT DISTINCT t.id, "startId"
+    FROM transaction t join prev_holdings pt on t.id = pt."transactionId") t
+    JOIN transaction tt on tt.id = t.id
  ), parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
     FROM "parcelJ" pj
@@ -317,14 +326,13 @@ FROM
     first_value(h."holdingId") OVER wnd as "holdingId",
     first_value(h."name") OVER wnd as "holdingName",
     first_value(h."id") OVER wnd as "lastHoldingId",
-    --first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
+    first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
     format_iso_date(t."effectiveDate") as "lastEffectiveDate",
     generation = 0 as current
     from prev_company_states pt
     join company_state cs on pt.id = cs.id
     join transaction t on cs."transactionId" = t.id
-    left outer join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
-    left outer join holding h on h.id = hlj.h_j_id
+    left outer join _holding h on h."companyStateId" = pt.id
     left outer join parcels pp on pp."holdingId" = h.id
     left outer join "holderJ" hj on h.id = hj."holdingId"
     left outer join person p on hj."holderId" = p.id
@@ -334,6 +342,7 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
+
 
 
 

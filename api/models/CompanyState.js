@@ -507,8 +507,10 @@ module.exports = {
                                     return;
                                 }
                                 function set(obj){
-                                    obj.isNewRecord = false;
-                                    obj._changed = {};
+                                    if(obj.dataValues.id){
+                                        obj.isNewRecord = false;
+                                        obj._changed = {};
+                                    }
                                     setNew(obj);
                                 }
                                 if(Array.isArray(obj.dataValues[name])){

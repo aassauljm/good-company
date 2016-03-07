@@ -102,7 +102,7 @@ var transactions = {
     details: function(args, company){
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
-            return currentCompanyState.buildNext(_.merge(args, {transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: new Date() }}))
+            return currentCompanyState.buildNext(_.merge({}, args, {transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: new Date() }}))
         })
         .then(function(nextCompanyState){
             return nextCompanyState.save();

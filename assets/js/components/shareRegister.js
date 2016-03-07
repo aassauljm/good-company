@@ -28,7 +28,7 @@ function renderTransferFrom(action){
 
 function renderPurchaseFrom(action){
     const date = new Date(action.effectiveDate).toDateString();
-    return  JSON.stringify(action)
+    return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
 
 

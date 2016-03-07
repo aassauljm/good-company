@@ -460,8 +460,8 @@ const EXTRACT_DOCUMENT_MAP = {
             }
             chunks.map(chunk => {
                 result.actions.push({
-                    transactionType: Transaction.types.NEW_ALLOCATION,
-                    transactionSubType: Transaction.types.ISSUE_TO,
+                    transactionMethod: Transaction.types.NEW_ALLOCATION,
+                    transactionType: Transaction.types.ISSUE_TO,
                     amount: parseInt(chunk[0], 10),
                     holders: getHolders(chunk.slice(1))
                 })
@@ -685,6 +685,7 @@ function insertIntermediateActions(docs){
                     beforeHolders: a.holders,
                     afterHolders: a.holders,
                     afterAmount: 0,
+                    amount: a.amount,
                     beforeAmount: a.amount,
                     transactionType: a.transactionType,
                     transactionMethod: Transaction.types.AMEND
@@ -741,7 +742,6 @@ function inferAmendTypes(docs){
                     }
                     else if(a.transactionType === Transaction.types.REMOVE_ALLOCATION){
                         a.transactionType = Transaction.types.TRANSFER_FROM;
-
                     }
                     else if(a.transactionType === Transaction.types.AMEND){
                         a.transactionType  = a.afterAmount > a.beforeAmount ? Transaction.types.TRANSFER_TO : Transaction.types.TRANSFER_FROM;
