@@ -533,11 +533,11 @@ export const performAmend = Promise.method(function(data, companyState, previous
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
-            let parcel = {amount: data.amount, shareClass: data.shareClass};
+            let parcel = {amount: Math.abs(data.amount), shareClass: data.shareClass};
             let newHolding = {holders: data.holders, parcels: [parcel]};
             let transactionType  = data.transactionType;
             transaction = Transaction.build({type: data.transactionSubType || transactionType,  data: data, effectiveDate: effectiveDate});
-            if(parcel.amount > 0){
+            if(data.amount > 0){
                 companyState.subtractUnallocatedParcels(parcel);
                 companyState.combineHoldings([newHolding], null, transaction);
             }
@@ -548,6 +548,34 @@ export const performAmend = Promise.method(function(data, companyState, previous
             return transaction;
         })
 });
+
+export function performRemoveAllocation(data, nextState, effectiveDate){
+    return nextState.dataValues.holdingList.buildNext()
+    .then(function(holdingList){
+        nextState.dataValues.holdingList = holdingList;
+        nextState.dataValues.h_list_id = null;
+        holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
+        return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    })
+}
+
+export  function performNewAllocation(data, nextState, companyState, effectiveDate){
+    return nextState.dataValues.holdingList.buildNext()
+    .then(function(holdingList){
+        nextState.dataValues.holdingList = holdingList;
+        nextState.dataValues.h_list_id = null;
+        return CompanyState.populatePersonIds(data.holders)
+    })
+    .then(function(personData){
+        const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+        const holding = Holding.buildDeep({holders: personData, transaction: transaction,
+            parcels: [{amount: 0, shareClass: data.shareClass}]});
+
+        nextState.dataValues.holdingList.dataValues.holdings.push(holding);
+        return transaction;
+    });
+
+};
 
 /**
     Seed is a special cause, it doesn't care about previousState
@@ -669,6 +697,8 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performAddressChange,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performHolderChange,
+        [Transaction.types.NEW_ALLOCATION]:  TransactionService.performNewAllocation,
+        [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performRemoveAllocation,
     };
     if(!data.actions){
         return Promise.resolve(companyState);
