@@ -53,9 +53,9 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/seed/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Gary'}, {name: 'Busey'}],
-                    parcels: [{amount: 1111, shareClass: 'A'},
-                        {amount: 1, shareClass: 'B'},
-                        {amount: 10, shareClass: 'D'}]
+                    parcels: [{amount: 1111, shareClass: 1},
+                        {amount: 1, shareClass: 2},
+                        {amount: 10, shareClass: 4}]
                 }]}})
                 .expect(200, done)
         });
@@ -72,7 +72,7 @@ describe('CompanyStateController', function() {
                         holdingList: {holdings: [
                                 {
                                     holders: [{name: 'Busey'}, {name: 'Gary'}],
-                                    parcels: [{amount: 1111, shareClass: 'A'}, {amount: 1, shareClass: 'B'}]
+                                    parcels: [{amount: 1111, shareClass: 1}, {amount: 1, shareClass: 2}, {amount: 10, shareClass: 4}]
                                 }
                             ]
                         }
@@ -121,7 +121,7 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Gary'}, {name: 'Busey'}],
-                    parcels: [{amount: 100, shareClass: 'B'},{amount: 2, shareClass: 'A'},{amount: 1, shareClass: 'C'}]
+                    parcels: [{amount: 100, shareClass: 2},{amount: 2, shareClass: 1},{amount: 1, shareClass: 3}]
                 }]}})
                 .expect(200, done)
         });
@@ -138,7 +138,7 @@ describe('CompanyStateController', function() {
                         holdingList: {holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
-                                parcels: [{amount: 1113, shareClass: 'A'}, {amount: 101, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
+                                parcels: [{amount: 1113, shareClass: 1}, {amount: 101, shareClass: 2},{amount: 1, shareClass: 3}, {amount: 10, shareClass: 4}]
                             }
                         ]}
                     })
@@ -150,9 +150,9 @@ describe('CompanyStateController', function() {
             var secondHolding = _.find(secondSummary.currentCompanyState.holdingList.holdings, function(s){
                 return s.holders.length === 2;
             }).parcels;
-            _.findWhere(firstHolding, {shareClass: 'A'}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 'A'}).id)
-            _.findWhere(firstHolding, {shareClass: 'B'}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 'B'}).id)
-            _.findWhere(firstHolding, {shareClass: 'D'}).id.should.be.eql(_.findWhere(secondHolding, {shareClass: 'D'}).id)
+            _.findWhere(firstHolding, {shareClass: 1}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 1}).id)
+            _.findWhere(firstHolding, {shareClass: 2}).id.should.be.not.eql(_.findWhere(secondHolding, {shareClass: 2}).id)
+            _.findWhere(firstHolding, {shareClass: 4}).id.should.be.eql(_.findWhere(secondHolding, {shareClass: 4}).id)
             done();
         });
     });
@@ -171,7 +171,7 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Busey'}, {name: 'Gary'}],
-                    parcels: [{amount: 1100, shareClass: 'B'}]
+                    parcels: [{amount: 1100, shareClass: 2}]
                 }]}})
                 .expect(200, done)
         });
@@ -187,7 +187,7 @@ describe('CompanyStateController', function() {
                         holdingList: { holdings: [
                             {
                                 holders: [{name: 'Busey'}, {name: 'Gary'}],
-                                parcels: [{amount: 1113, shareClass: 'A'}, {amount: 1201, shareClass: 'B'},{amount: 1, shareClass: 'C'}]
+                                parcels: [{amount: 1113, shareClass: 1}, {amount: 1201, shareClass: 2},{amount: 1, shareClass: 3}]
                             }
                         ] }
                     });

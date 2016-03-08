@@ -17,7 +17,7 @@ describe('Share Register', function() {
                         }],
                         parcels: [{
                             amount: 1,
-                            shareClass: 'A'
+                            shareClass: 1
                         }]
                     },{
                         holders: [{
@@ -27,7 +27,7 @@ describe('Share Register', function() {
                         }],
                         parcels: [{
                             amount: 2,
-                            shareClass: 'B'
+                            shareClass: 2
                         }]
                     }]
                 }
@@ -38,12 +38,12 @@ describe('Share Register', function() {
                     actions: [{
                         transactionType: Transaction.types.ISSUE_UNALLOCATED,
                         amount: 100,
-                        shareClass: 'A'
+                        shareClass: 1
                     }, {
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.ISSUE_TO,
                         amount: 100,
-                        shareClass: 'A',
+                        shareClass: 1,
                         holders: [{
                             name: 'mike'
                         }]
@@ -54,7 +54,7 @@ describe('Share Register', function() {
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.TRANSFER_FROM,
                         amount: -1,
-                        shareClass: 'A',
+                        shareClass: 1,
                         holders: [{
                             name: 'mike'
                         }]
@@ -62,7 +62,7 @@ describe('Share Register', function() {
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.TRANSFER_TO,
                         amount: 1,
-                        shareClass: 'A',
+                        shareClass: 1,
                         holders: [{
                             name: 'mike'
                         },{
@@ -94,9 +94,9 @@ describe('Share Register', function() {
         it('Confirms share register result', function() {
             return company.getShareRegister()
                 .then(function(sr){
-                    const mikeA = _.find(sr.shareRegister, {name: 'mike', shareClass: 'A'});
-                    const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 'A'});
-                    const johnB = _.find(sr.shareRegister, {name: 'john', shareClass: 'B'});
+                    const mikeA = _.find(sr.shareRegister, {name: 'mike', shareClass: 1});
+                    const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 1});
+                    const johnB = _.find(sr.shareRegister, {name: 'john', shareClass: 2});
                     mikeA.issueHistory.length.should.be.equal(1);
                     mikeA.amount.should.be.equal(100);
                     mikeA.transferHistoryFrom.length.should.be.equal(1);

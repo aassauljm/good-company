@@ -16,10 +16,10 @@ module.exports = {
                 //min: 1
             }
         },
-        shareClass: {
+       /* shareClass: {
             type: Sequelize.TEXT,
             required: true
-        },
+        },*/
     },
     associations: function() {
         Parcel.belongsToMany(Holding, {
@@ -31,7 +31,7 @@ module.exports = {
         });
         Parcel.belongsTo(ShareClass, {
             as: 'sc',
-            foreignKey: 's_c_id'
+            foreignKey: 'shareClass'
         });
     },
     options: {

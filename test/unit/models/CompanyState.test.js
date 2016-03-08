@@ -8,10 +8,10 @@ describe('CompanyState Model', function() {
                         holdings: [{
                         parcels: [{
                             amount: 10,
-                            shareClass: 'A'
+                            shareClass: 1
                         }, {
                             amount: 1,
-                            shareClass: 'B'
+                            shareClass: 2
                         }],
                         holders: [{
                             name: 'Mike'
@@ -19,10 +19,10 @@ describe('CompanyState Model', function() {
                     }, {
                         parcels: [{
                             amount: 10,
-                            shareClass: 'B'
+                            shareClass: 2
                         }, {
                             amount: 1,
-                            shareClass: 'C'
+                            shareClass: 3
                         }],
                         holders: [{
                             name: 'Gary'
@@ -30,10 +30,10 @@ describe('CompanyState Model', function() {
                     }, {
                         parcels: [{
                             amount: 1,
-                            shareClass: 'A'
+                            shareClass: 1
                         }, {
                             amount: 1,
-                            shareClass: 'B'
+                            shareClass: 2
                         }],
                         holders: [{
                             name: 'Peter'
@@ -64,35 +64,35 @@ describe('CompanyState Model', function() {
                 })
                 .then(function(groups) {
                     groups.should.containSubset({
-                        'A': [{
+                        1: [{
                             amount: 10,
-                            shareClass: 'A'
+                            shareClass: 1
                         }, {
                             amount: 1,
-                            shareClass: 'A'
+                            shareClass: 1
                         }],
-                        'B': [{
+                        2: [{
                             amount: 1,
-                            shareClass: 'B'
+                            shareClass: 2
                         }, {
                             amount: 1,
-                            shareClass: 'B'
+                            shareClass: 2
                         }, {
                             amount: 10,
-                            shareClass: 'B'
+                            shareClass: 2
                         }],
-                        'C': [{
+                        3: [{
                             amount: 1,
-                            shareClass: 'C'
+                            shareClass: 3
                         }]
                     })
                     return this.state.groupTotals();
                 })
                 .then(function(groupTotals){
                     groupTotals.should.containSubset({
-                        'A': {amount: 11},
-                        'B': {amount: 12},
-                        'C': {amount: 1}
+                        1: {amount: 11},
+                        2: {amount: 12},
+                        3: {amount: 1}
                     });
                     return this.state.totalAllocatedShares();
                 })
@@ -108,10 +108,10 @@ describe('CompanyState Model', function() {
                     holdings: [{
                         parcels: [{
                             amount: 10,
-                            shareClass: 'A'
+                            shareClass: 1
                         }, {
                             amount: 1,
-                            shareClass: 'B'
+                            shareClass: 2
                         }],
                         holders: [{
                             name: 'Simon Slimjim'
@@ -149,10 +149,10 @@ describe('CompanyState Model', function() {
                 this.first_state.holdingList.holdings[0].parcels.length.should.be.eql(2);
                 this.second_state.holdingList.holdings[0].parcels.length.should.be.eql(2);
                 this.first_state.id.should.not.eql(this.second_state.id)
-                var first_tran_share_a = _.find(this.first_state.holdingList.holdings[0].parcels, {shareClass: 'A'});
-                var first_tran_share_b = _.find(this.first_state.holdingList.holdings[0].parcels, {shareClass: 'B'});
-                var second_tran_share_a = _.find(this.second_state.holdingList.holdings[0].parcels, {shareClass: 'A'});
-                var second_tran_share_b = _.find(this.second_state.holdingList.holdings[0].parcels, {shareClass: 'B'});
+                var first_tran_share_a = _.find(this.first_state.holdingList.holdings[0].parcels, {shareClass: 1});
+                var first_tran_share_b = _.find(this.first_state.holdingList.holdings[0].parcels, {shareClass: 2});
+                var second_tran_share_a = _.find(this.second_state.holdingList.holdings[0].parcels, {shareClass: 1});
+                var second_tran_share_b = _.find(this.second_state.holdingList.holdings[0].parcels, {shareClass: 2});
                 first_tran_share_a.amount.should.be.eql(10);
                 second_tran_share_a.amount.should.be.eql(10);
                 first_tran_share_a.id.should.be.eql(second_tran_share_a.id);
@@ -176,7 +176,7 @@ describe('CompanyState Model', function() {
                     holdings: [{
                         parcels: [{
                             amount: 10,
-                            shareClass: 'A'
+                            shareClass: 1
                         }],
                         holders: [{
                             name: 'Randy'
@@ -186,7 +186,7 @@ describe('CompanyState Model', function() {
                 unallocatedParcels: [
                     {
                         amount: 100,
-                        shareClass: 'A'
+                        shareClass: 1
                     }]
                 }, {
                     include: [{
@@ -223,10 +223,10 @@ describe('CompanyState Model', function() {
                         name: 'Allocation 1',
                         parcels: [{
                             amount: 10,
-                            shareClass: 'A'
+                            shareClass: 1
                         }, {
                             amount: 1,
-                            shareClass: 'B'
+                            shareClass: 2
                         }],
                         holders: [{
                             name: 'Sally Slimjim'
@@ -238,10 +238,10 @@ describe('CompanyState Model', function() {
                         name: 'Allocation 2',
                         parcels: [{
                             amount: 1,
-                            shareClass: 'A'
+                            shareClass: 1
                         }, {
                             amount: 1,
-                            shareClass: 'B'
+                            shareClass: 2
                         }],
                         holders: [{
                             name: 'Mickey Twofists'
@@ -263,7 +263,7 @@ describe('CompanyState Model', function() {
                     var firstAlloc = _.find(holdings, {name: 'Allocation 1'});
                     const parcels = firstAlloc.parcels;
                     parcels.length.should.be.equal(2);
-                    _.find(parcels, {amount: 10}).shareClass.should.be.equal('A');
+                    _.find(parcels, {amount: 10}).shareClass.should.be.equal(1);
                     done();
                 });
         });

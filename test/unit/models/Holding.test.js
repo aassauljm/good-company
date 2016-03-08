@@ -5,7 +5,7 @@ describe('Holding Model', function() {
         var firstId, secondId;
         it('Sets up first share holding', function(done) {
             Holding.build({
-                parcels: [{amount: 10, shareClass: 'A'}, {amount: 5, shareClass: 'B'}]
+                parcels: [{amount: 10, shareClass: 1}, {amount: 5, shareClass: 2}]
             }, {include: [{all: true}]}).save()
             .then(function(holding){
                 firstId = holding.id;
@@ -19,7 +19,7 @@ describe('Holding Model', function() {
         });
         it('Sets up second share holding', function(done) {
             Holding.build({
-                parcels: [{amount: 100, shareClass: 'A'}, {amount: 50, shareClass: 'B'}]
+                parcels: [{amount: 100, shareClass: 1}, {amount: 50, shareClass: 2}]
             },{include: [{all: true}]}).save()
             .then(function(holding){
                 secondId = holding.id;
@@ -33,7 +33,7 @@ describe('Holding Model', function() {
         });
         it('Compare equivalency of holders, empty case', function(done) {
             var holding = Holding.build({
-                parcels: [{amount: 100, shareClass: 'A'}],
+                parcels: [{amount: 100, shareClass: 1}],
                 holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]})
             holding.holdersMatch({})
@@ -43,7 +43,7 @@ describe('Holding Model', function() {
 
         it('Compare equivalency of holders, almost match', function(done) {
             var holding = Holding.build({
-                parcels: [{amount: 100, shareClass: 'A'}],
+                parcels: [{amount: 100, shareClass: 1}],
                 holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]})
 
@@ -53,7 +53,7 @@ describe('Holding Model', function() {
         });
         it('Compare equivalency of holders, almost match again', function(done) {
             var holding = Holding.build({
-                parcels: [{amount: 100, shareClass: 'A'}],
+                parcels: [{amount: 100, shareClass: 1}],
                 holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]})
             holding.holdersMatch({holders: [{name: 'Jim'}, {name: 'Disco Tech'}]})
@@ -62,7 +62,7 @@ describe('Holding Model', function() {
         });
         it('Compare equivalency of holders, match', function(done) {
             var holding = Holding.build({
-                parcels: [{amount: 100, shareClass: 'A'}],
+                parcels: [{amount: 100, shareClass: 1}],
                 holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]
             },{include: [{all: true}]})
             holding.holdersMatch({holders: [{name: 'Jim'}, {name: 'Disco Tech', companyNumber: '1'}]})

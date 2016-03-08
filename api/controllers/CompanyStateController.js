@@ -65,20 +65,21 @@ var transactions = {
         const sets = [];
         Object.keys(classes)
             .map(c => {
+                const cInt = parseInt(c, 10)
                 const actions = [];
                 actions.push({
                     amount: classes[c],
-                    shareClass: c,
+                    shareClass: cInt,
                     effectiveDate: new Date(),
                     transactionType: Transaction.types.ISSUE_UNALLOCATED
                 });
                 ((args.holdingList || {}).holdings || []).map((h) => {
-                    h.parcels.filter(p => p.shareClass === c).map(p => {
+                    h.parcels.filter(p => p.shareClass === cInt).map(p => {
                         actions.push({
                             transactionType: Transaction.types.ISSUE_TO,
                             transactionMethod: Transaction.types.AMEND,
                             holders: h.holders,
-                            shareClass: c,
+                            shareClass: cInt,
                             amount: p.amount
                         })
                     })
