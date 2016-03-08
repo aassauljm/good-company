@@ -186,7 +186,7 @@ describe('Scraping Service', function() {
     describe('Should get all fields from Evolution html doc', function() {
         // THIS TEST CASE HAS AMBIGUITY FROM DUPLICATE HOLDERS
         it('passes doc to scraping service', function(done) {
-            var data, company, docs;
+            var data, company, docs, state;
             return fs.readFileAsync('test/fixtures/companies_office/Evolution.html', 'utf8')
 
                 .then(ScrapingService.parseNZCompaniesOffice)
@@ -226,6 +226,17 @@ describe('Scraping Service', function() {
                     documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data, documentSummaries));
                     docs = ScrapingService.segmentActions(documentSummaries);
                     return company.createPrevious();
+                })
+                .then(function(){
+                    return company.getCurrentCompanyState();
+                })
+                .then(function(_state){
+                    state = _state;
+                    return Actions.create({actions: docs.filter(p=>p.actions)});
+                })
+                .then(function(actions){
+                    state.set('historical_action_id', actions.id);
+                    return state.save();
                 })
                 .then(function(){
                     return Promise.each(docs, function(doc){

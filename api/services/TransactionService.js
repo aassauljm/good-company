@@ -570,11 +570,28 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
         const holding = Holding.buildDeep({holders: personData, transaction: transaction,
             parcels: [{amount: 0, shareClass: data.shareClass}]});
-
         nextState.dataValues.holdingList.dataValues.holdings.push(holding);
         return transaction;
     });
 
+};
+
+
+export  function performApplyShareClass(data, nextState, companyState, effectiveDate){
+    return nextState.dataValues.holdingList.buildNext()
+    .then(function(holdingList){
+        nextState.dataValues.holdingList = holdingList;
+        nextState.dataValues.h_list_id = null;
+        const index = _.findIndex(holdingList.dataValues.holdings, h => {
+            return h.dataValues.holdingId === data.holdingId;
+        });
+        const newHolding = holdingList.dataValues.holdings[index].buildNext();
+        holdingList.dataValues.holdings[index] = newHolding;
+        newHolding.dataValues.parcels = newHolding.dataValues.parcels.map(p => {
+            return p.replace({shareClass: data.shareClass});
+        });
+        return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    });
 };
 
 /**
@@ -605,6 +622,26 @@ export function removeDocuments(state, actions){
     return state;
 }
 
+export function removeActions(state, actionSet){
+    let currentActions = [];
+    return state.getHistoricalActions()
+        .then(function(hA){
+            if(!hA){
+                return Actions.build({})
+            }
+            currentActions = hA.dataValues.actions;
+            return hA.buildNext();
+        })
+        .then(function(hA){
+            hA.dataValues.actions = _.reject(currentActions, {id: actionSet.id});
+            return hA.save()
+        })
+        .then(function(hA){
+            state.set('historical_action_id', hA.id)
+            return state;
+        })
+}
+
 
 export function performInverseTransaction(data, company, rootState){
     const PERFORM_ACTION_MAP = {
@@ -629,7 +666,7 @@ export function performInverseTransaction(data, company, rootState){
         return Promise.resolve(rootState);
     }
     let prevState, currentRoot, transactions;
-    return (rootState ? Promise.resolve(rootState) :  company.getRootCompanyState())
+    return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then(function(_rootState){
             currentRoot = _rootState;
             return currentRoot.buildPrevious({transaction: null, transactionId: null});
@@ -646,7 +683,6 @@ export function performInverseTransaction(data, company, rootState){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
                     }, prevState, currentRoot, data.effectiveDate);
-
                 }
                 if(result){
                     return result
@@ -674,6 +710,9 @@ export function performInverseTransaction(data, company, rootState){
         .then(function(){
             return removeDocuments(prevState, data.actions);
         })
+        .then(function(){
+            return removeActions(prevState, data);
+        })
         .then(function(currentRoot){
             return prevState.save();
         })
@@ -697,6 +736,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performHolderChange,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performRemoveAllocation,
+        [Transaction.types.APPLY_SHARE_CLASS]: TransactionService.performApplyShareClass,
     };
     if(!data.actions){
         return Promise.resolve(companyState);
@@ -709,7 +749,6 @@ export function performTransaction(data, company, companyState){
         })
         .then(function(_nextState){
             nextState = _nextState;
-
             // TODO, serviously consider having EACH action create a persistant graph
             // OR, force each transaction set to be pre grouped
             return Promise.reduce(data.actions, function(arr, action){
@@ -741,18 +780,25 @@ export function performTransaction(data, company, companyState){
             return tran.save();
         })
         .then(function(transaction){
-            return nextState.dataValues.transaction = transaction;
+            nextState.dataValues.transaction = transaction;
+            return nextState.getHistoricalActions();
         })
-        .then(function(){
+        .then(function(hA){
+            hA = hA ? hA.buildNext() : Actions.build({actions: []});
+            hA.dataValues.actions.unshift(data);
+            return hA.save();
+        })
+        .then(function(hA){
+            nextState.set('historical_action_id', hA.id);
             return nextState.save();
         })
         .then(function(){
             return company.setCurrentCompanyState(nextState);
-         })
-         .then(function(){
+        })
+        .then(function(){
             return company.save();
-         })
-         .then(function(){
+        })
+        .then(function(){
             return nextState;
-         })
+        })
 }

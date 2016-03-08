@@ -9,6 +9,10 @@ import STRINGS from '../../strings'
 import { numberWithCommas } from '../../utils'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { fieldStyle, fieldHelp } from '../../utils';
+import { Link } from 'react-router';
+import { companyTransaction, addNotification } from '../../actions';
+import { routeActions } from 'react-router-redux';
+
 
 function renderHolders(holding){
     return <ul>
@@ -45,12 +49,11 @@ export class ShareClassSelect extends React.Component {
             </thead>
             <tbody>
                 { this.props.companyState.holdingList.holdings.map((h, i) => {
-                    const ref = h.id;
                     return <tr key={i}>
                         <td>{ h.name }</td>
                         <td>{ renderHolders(h) }</td>
                         <td>{ renderAmount(h) }</td>
-                        <td>{ this.renderSelect(this.props.fields[`shareClass-${h.id}`]) }</td>
+                        <td>{ this.renderSelect(this.props.fields[`${h.holdingId}`]) }</td>
                     </tr>
                 })}
             </tbody>
@@ -64,7 +67,7 @@ const ShareClassSelectConnected = reduxForm({
 
 
 
-
+@connect(undefined)
 export class ApplyShareClassesModal extends React.Component {
     constructor(props) {
         super(props);
@@ -75,15 +78,35 @@ export class ApplyShareClassesModal extends React.Component {
         this.refs.form.submit();
     }
 
-    submit(value) {
-        console.log(value)
+    submit(values) {
+        const holdings = [];
+        Object.keys(values).map(k => {
+            if(!values[k]) return;
+            holdings.push({
+                holdingId: parseInt(k, 10),
+                shareClass: parseInt(values[k], 10),
+                transactionType: 'APPLY_SHARE_CLASS'
+            });
+        });
+        this.props.dispatch(companyTransaction('apply_share_classes',
+                                this.props.modalData.companyId,
+                                {actions: holdings}))
+            .then(() => {
+                this.props.end();
+                this.props.dispatch(addNotification({message: err.message, error: true}));
+                const key = this.props.modalData.companyId;
+                this.props.dispatch(routeActions.push(`/company/view/${key}`))
+            })
+            .catch((err) => {
+                this.props.dispatch(addNotification({message: err.message, error: true}));
+            });
     }
 
     renderBody(companyState) {
         const options = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         })
-        const fields = companyState.holdingList.holdings.map(h => `shareClass-${h.id}`)
+        const fields = companyState.holdingList.holdings.map(h => `${h.holdingId}`)
         return <ShareClassSelectConnected ref="form" companyState={companyState} options={options} fields={fields} onSubmit={this.submit}/>
     }
 
@@ -93,6 +116,7 @@ export class ApplyShareClassesModal extends React.Component {
                 <Modal.Title>Apply Share Classes</Modal.Title>
               </Modal.Header>
               <Modal.Body>
+              <p>To define new share classes, click <Link to={'/company/view/'+this.props.modalData.companyId+'/share_classes/create'} onClick={() => this.props.end()}>Here</Link></p>
                 { this.renderBody(this.props.modalData.companyState) }
               </Modal.Body>
               <Modal.Footer>

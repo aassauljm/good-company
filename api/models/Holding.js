@@ -178,6 +178,10 @@ module.exports = {
                     p.isNewRecord = false;
                     p._changed = {};
                 });
+                if(holding.transaction){
+                    holding.transaction.isNewRecord = false;
+                    holding.transaction._change = {};
+                }
                 return holding;
             }
         },

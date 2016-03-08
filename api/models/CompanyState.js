@@ -120,6 +120,13 @@ module.exports = {
                 name: 's_classes_id'
             }
         });
+        CompanyState.belongsTo(Actions, {
+            as: 'historicalActions',
+            foreignKey: {
+                as: 'historicalActions',
+                name: 'historical_action_id'
+            }
+        });
     },
     options: {
         freezeTableName: true,
@@ -697,10 +704,7 @@ module.exports = {
             },
 
             getMatchingHolding: function(holders, parcelHint, ignoreCompanyNumber){
-                //console.log(JSON.stringify(this.dataValues.holdingList.dataValues.holdings, null ,4))
-
                 return _.find(this.dataValues.holdingList.dataValues.holdings, function(holding){
-
                     return holding.holdersMatch({holders: holders}, ignoreCompanyNumber) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
                 });
             },
@@ -803,13 +807,6 @@ module.exports = {
                             }],
                             order: [
                                 ['id', 'ASC'],
-                                [{
-                                    model: Holding,
-                                    as: 'holdings'
-                                },{
-                                    model: Parcel,
-                                    as: 'parcels'
-                                }, 'shareClass', 'ASC'],
                                 [{
                                     model: Holding,
                                     as: 'holdings'

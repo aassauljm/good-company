@@ -7,6 +7,8 @@
 var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
+var uuid = require('node-uuid')
+
 
 function checkNameCollision(ownerId, data) {
     return Company.findAll({
@@ -150,7 +152,7 @@ module.exports = {
     },
     import: function(req, res) {
         // for now, just companies office
-        var data, company, rootState, processedDocs;
+        var data, company, state, processedDocs;
         return sequelize.transaction(function(t){
             return ScrapingService.fetch(req.params.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
@@ -175,27 +177,34 @@ module.exports = {
                             processedDocs = _processedDocs.concat(ScrapingService.extraActions(data, _processedDocs));
                             processedDocs = ScrapingService.segmentActions(processedDocs);
                             // create a state before SEED
-                            sails.log.verbose('Processed ' + processedDocs.length + ' documents')
+                            processedDocs.map(p => {
+                                p.id = uuid.v4();
+                            })
+                            sails.log.verbose('Processed ' + processedDocs.length + ' documents');
                             return company.createPrevious();
                         })
                         .then(function(){
-                            return Actions.create({actions: processedDocs});
+                            return company.getCurrentCompanyState();
+                        })
+                        .then(function(_state){
+                            state = _state;
+                            return Actions.create({actions: processedDocs.filter(p=>p.actions)});
                         })
                         .then(function(actions){
-                            return company.setHistoricalActions(actions);
+                            state.set('historical_action_id', actions.id);
+                            return state.save();
                         })
                         .then(function(){
                             sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
-                            let state;
-                                console.time('transactions')
-                            return Promise.each(processedDocs, function(doc) {
+                            console.time('transactions');
+                            return Promise.each(processedDocs, function(doc){
                                 return TransactionService.performInverseTransaction(doc, company, state)
                                     .then(_state => {
                                         state = _state;
                                     });
                             })
                             .then(function(){
-                                console.timeEnd('transactions')
+                                console.timeEnd('transactions');
                             })
                         })
                     }

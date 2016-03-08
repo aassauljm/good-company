@@ -100,6 +100,38 @@ var transactions = {
                 });
         })
     },
+
+    apply_share_classes: function (data, company){
+        /* to apply, retroactively, a share class:
+            * clone current state without apply previousCompanyStateId.
+            * set shareClass ids on parcels
+            * replay all historical actions
+
+            * perhaps keep a reference to previous head?
+            * perhaps flag companyState to show that share classes have been applied?
+        */
+        let state;
+        console.log(data)
+        return TransactionService.performTransaction(data, company)
+            .then(state => {
+                state.set('previousCompanyStateId', null);
+                return state.save();
+            })
+            .then(() => {
+                return state.getHistoricalActions();
+            })
+            .then(actions => {
+               return Promise.each(actions.actions, function(doc){
+                    return TransactionService.performInverseTransaction(doc, company, state)
+                        .then(_state => {
+                            state = _state;
+                        });
+                })
+            })
+    },
+
+
+
     details: function(args, company){
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
@@ -228,7 +260,6 @@ function createShareClass(data, company){
 }
 
 
-
 module.exports = {
     transactions: transactions,
     create: function(req, res) {
@@ -259,6 +290,7 @@ module.exports = {
     },
     createRegisterEntry: function(req, res){
         let company;
+        // merge with above
         return req.file('documents').upload(function(err, uploadedFiles){
             return sequelize.transaction(function(t){
                 return Company.findById(req.params.companyId)

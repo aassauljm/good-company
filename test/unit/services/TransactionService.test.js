@@ -532,5 +532,37 @@ describe('Transaction Service, inverse transactions', function() {
             })
         });
 
+        describe('apply share classes', function() {
+            it('adds a share class to each holding', function() {
+                let nextState, holdingId, id;
+                return rootStateMultiple.buildNext()
+                    .then(function(companyState){
+                        nextState = companyState;
+                        const holding = companyState.getMatchingHolding([{name: 'mike'}, {name: 'john'}]);
+                        holdingId = holding.holdingId;
+                        id = holding.id;
+                        return TransactionService.performApplyShareClass({
+                            transactionType: Transaction.types.APPLY_SHARE_CLASS,
+                            holdingId: holdingId,
+                            shareClass: 1,
+                        }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
+                })
+                .then(function(){
+                    return nextState.save();
+                })
+                .then(function(){
+                    return nextState.reload();
+                })
+                .then(function(){
+                    const holding = nextState.getMatchingHolding([{name: 'mike'}, {name: 'john'}])
+                    holding.parcels[0].shareClass.should.be.equal(1);
+                    holding.holdingId.should.be.equal(holdingId)
+                    holding.id.should.not.be.equal(id);
+
+
+                })
+            })
+        });
+
     });
 });

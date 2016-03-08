@@ -58,6 +58,9 @@ module.exports = {
                 else{
                     throw new sails.config.exceptions.BadParcelOperation("Parcels do not match");
                 }
+            },
+            replace: function(other){
+                return Parcel.build(_.merge({amount: this.amount, shareClass: this.shareClass}, other));
             }
         },
         hooks: {}

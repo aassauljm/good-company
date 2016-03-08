@@ -37,13 +37,6 @@ module.exports = {
                 name: 'currentCompanyStateId'
             }
         });
-        Company.belongsTo(Actions, {
-            as: 'historicalActions',
-            foreignKey: {
-                as: 'historicalActions',
-                name: 'historical_action_id'
-            }
-        });
     },
     options: {
         freezeTableName: false,

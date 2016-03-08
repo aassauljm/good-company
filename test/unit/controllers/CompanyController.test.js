@@ -42,7 +42,7 @@ describe('Company Controller', function() {
         });
     });
 
-    describe('Test import from companies office', function(){
+    describe('Test import from companies office (PRICEMAKER LIMITED)', function(){
         var req, companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);

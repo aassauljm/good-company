@@ -16,7 +16,14 @@ module.exports = {
         freezeTableName: false,
         tableName: 'actions', // Optional, but I suggest to set it
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            buildNext: function(){
+                if(this.isNewRecord){
+                    return Promise.resolve(this);
+                }
+                return Actions.build({actions: this.dataValues.actions})
+            }
+        },
         hooks: {}
     }
 };
