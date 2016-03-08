@@ -8,11 +8,11 @@ import { Link } from 'react-router';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
 import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
-import { fieldStyle, fieldHelp, objectValues, validateWithSchema, requireFields } from '../utils';
+import { fieldStyle, fieldHelp, objectValues, validateWithSchema, requireFields, renderDocumentLinks } from '../utils';
 import DateInput from './forms/dateInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
-import { routeActions } from 'react-router-redux'
+import { routeActions } from 'react-router-redux';
 import DropZone from 'react-dropzone';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
 
@@ -181,14 +181,6 @@ function renderField(key, data) {
         default:
             return data;
     }
-}
-
-
-function renderDocumentLinks(list){
-    return list.map((d, i) =>
-        <div key={i}><Link  activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
-            {d.filename}
-        </Link></div>);
 }
 
 

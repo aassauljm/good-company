@@ -4,15 +4,16 @@ import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from 'react-bootstrap/lib/ButtonInput';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
-import Input from '../forms/input';
-import STRINGS from '../../strings'
-import { fieldStyle, fieldHelp, formFieldProps, requireFields } from '../../utils';
+import Input from './forms/input';
+import STRINGS from '../strings'
+import { fieldStyle, fieldHelp, formFieldProps, requireFields, renderDocumentLinks } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { createResource, addNotification } from '../../actions';
+import { createResource, addNotification } from '../actions';
 import DropZone from 'react-dropzone';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
-
+import { routeActions } from 'react-router-redux';
 
 const defaultShareClass = '___default';
 
@@ -44,13 +45,30 @@ const validate = (values) => {
 export class ShareClassForm extends React.Component {
     constructor(props) {
         super(props);
-
+         this.submit = ::this.submit;
     }
 
     handleDrop(e, files){
         e.preventDefault();
         e.stopPropagation();
         this.props.fields.documents.onChange(files)
+    }
+
+    submit(data) {
+        const body = new FormData();
+        body.append('json', JSON.stringify({...data, documents: null}));
+        (data.documents || []).map(d => {
+            body.append('documents', d, d.name);
+        })
+        const key = this.props.companyId;
+        return this.props.dispatch(createResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
+            .then(() => {
+                this.props.dispatch(addNotification({message: 'Share Class Added'}))
+                this.props.dispatch(routeActions.push(`/company/view/${key}/share_classes`))
+            })
+            .catch((err) => {
+                this.props.dispatch(addNotification({message: err.message, error: true}))
+            });
     }
 
     render() {
@@ -71,9 +89,8 @@ export class ShareClassForm extends React.Component {
             "approveAmalgamation",
             "liquidation"];
 
-        return <form>
+        return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
-            <div className="col-md-8 col-md-offset-2">
             <legend>Create New Share Class</legend>
 
             <Input type="text" {...fields.name} bsStyle={fieldStyle(fields.name)} help={fieldHelp(fields.name)} label="Share Class Name" hasFeedback />
@@ -105,8 +122,11 @@ export class ShareClassForm extends React.Component {
                     fields.documents.onChange(clone);
                 }}><Glyphicon glyph='trash'/></button>} />
                 }) }
-           </div>
             </fieldset>
+            <div className="button-row">
+                <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
+                <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid}>Create</ButtonInput>
+            </div>
         </form>
     }
 }
@@ -129,11 +149,12 @@ const ShareClassFormConnected = reduxForm({
 })
 )(ShareClassForm);
 
+/*
 @connect(null, {
     createResource: (key, body) => createResource('/company/'+key+'/share_classes/create', body, {stringify: false}),
     addNotification: (message, error) => addNotification({error: error, message: message})
 })
-export default class ShareClassesModal extends React.Component {
+export class ShareClassesModal extends React.Component {
     constructor(props) {
         super(props);
         this.handleNext = ::this.handleNext;
@@ -152,11 +173,11 @@ export default class ShareClassesModal extends React.Component {
             body.append('documents', d, d.name);
         })
 
-        const key = this.props.modalData.companyId;
+        const key = this.props.companyId;
         return this.props.createResource(key, body)
             .then(() => {
                 this.props.addNotification('Share Class Added')
-                //this.props.dispatch(routeActions.push(`/company/view/${key}/interests_register`))
+                this.props.dispatch(routeActions.push(`/company/view/${key}/share_classes`))
             })
             .catch((err) => {
                 this.props.addNotification(err.message, true)
@@ -175,7 +196,7 @@ export default class ShareClassesModal extends React.Component {
                    <thead></thead>
                    <tbody></tbody>
                    </table>
-                   <ShareClassFormConnected ref={"form"} onSubmit={this.submit} />
+
               </Modal.Body>
               <Modal.Footer>
                  <Button onClick={this.props.end} >Close</Button>
@@ -183,5 +204,87 @@ export default class ShareClassesModal extends React.Component {
               </Modal.Footer>
             </Modal>
     }
+}
 
+*/
+
+export class ShareClassCreate extends React.Component {
+    render() {
+        return <div className="row">
+            <div className="col-md-6 col-md-offset-3">
+                <ShareClassFormConnected {...this.props} />
+            </div>
+        </div>
+    }
+}
+
+function renderRights(data){
+    return <ul>{ Object.keys(data || {}).filter(d => data[d]).map((d, i) => {
+        return <li key={i}>{STRINGS.shareClasses.votingRights[d]}</li>
+    }) }</ul>
+}
+
+
+function renderField(key, data, row) {
+    switch(key){
+        case 'limitations':
+            return <ul>{ row.properties.limitations.map((d, i) => <li key={i}>{d}</li>)}</ul>
+        case 'votingRights':
+            return renderRights(row.properties.votingRights);
+        case 'documents':
+            return renderDocumentLinks(data || [])
+        default:
+            return data;
+    }
+}
+
+
+@connect(undefined, {
+    viewShareClass: (path, id) => routeActions.push(path + '/view/'+id)
+})
+export class ShareClasses extends React.Component {
+    static fields = ['name', 'votingRights', 'limitations', 'documents']
+
+    renderList(data) {
+        return <div>
+            <table className="table table-hover table-striped">
+                <thead>
+                <tr>{ ShareClasses.fields.map((f, i) => {
+                    return <th key={i}>{STRINGS.shareClasses[f]._ || STRINGS.shareClasses[f]}</th>
+                })}</tr>
+                </thead>
+                <tbody>
+                    { data.map((row, i) => {
+                        return <tr key={i} onClick={() => this.props.viewShareClass(this.props.location.pathname, row.id)}>
+                            { ShareClasses.fields.map((field, i) => {
+                                return <td key={i}>{renderField(field, row[field], row)}</td>
+                            }) }
+                        </tr>
+                    })}
+                </tbody>
+            </table>
+            <div className="button-row">
+            <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary">Create New Share Class</Link></div>
+            </div>
+        </div>
+    }
+
+    key() {
+        return this.props.params.id
+    };
+
+    render() {
+        console.log(this.props)
+        const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
+        return <div>
+                    <div className="container">
+                        { !this.props.children && this.renderList(classes) }
+                         { this.props.children && React.cloneElement(this.props.children, {
+                                companyId: this.key(),
+                                companyState: this.props.companyState,
+                                shareClasses: classes
+                        }) }
+                    </div>
+                </div>
+            }
 }

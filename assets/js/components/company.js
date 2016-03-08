@@ -523,6 +523,24 @@ class InterestsRegisterPanel extends React.Component {
 }
 
 @pureRender
+class ShareClassesPanel extends React.Component {
+    static propTypes = {
+    };
+    render(){
+
+        return <div className="panel panel-warning" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Share Classes</h3>
+            </div>
+            <div className="panel-body">
+                Manage your share classes.
+            </div>
+        </div>
+    }
+}
+
+
+@pureRender
 class DocumentsPanel extends React.Component {
     static propTypes = {
         docList: PropTypes.shape({ documents: PropTypes.array.isRequired}).isRequired
@@ -571,7 +589,7 @@ class Alerts extends React.Component {
             <h3 className="panel-title">Notifications</h3>
             </div>
             <div className="panel-body">
-                { !this.props.companyState.hasAppliedShareClasses && <AlertWarnings.ApplyShareClasses />}
+                { (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses)  && <AlertWarnings.ApplyShareClasses />}
             </div>
         </div>
     }
@@ -700,9 +718,10 @@ export class CompanyHistory extends React.Component {
 
 
 @asyncConnect([{
-  promise: ({store: {dispatch, getState}, params}) => {
+    key: 'company',
+    promise: ({store: {dispatch, getState}, params}) => {
         return dispatch(requestResource('/company/' + params.id + '/get_info'));
-  }
+    }
 }])
 @connect((state, ownProps) => {
     return {data: {}, companyPage: state.companyPage, ...state.resources['/company/'+ownProps.params.id +'/get_info']};
@@ -720,6 +739,12 @@ export default class Company extends React.Component {
     isHistory() {
         return !!this.props.params.generation;
     }
+
+   /* componentDidMount() {
+        setTimeout(() => this.props.dispatch({type: 'RESOURCE_CREATE_SUCCESS', key: 'test', data: null}), 1000)
+        setTimeout(() => this.props.dispatch({type: "reduxAsyncConnect/CLEAR", key: 'company'}), 3000)
+        setTimeout(() => this.props.dispatch({type: "reduxAsyncConnect/BEGIN_GLOBAL_LOAD"}), 6000)
+    } */
 
     render(){
         const data = this.props.data || {};
@@ -776,6 +801,9 @@ export default class Company extends React.Component {
                           <div className="col-md-6">
                         <Link to={this.props.location.pathname +'/new_transaction'}>
                              <NewTransactionPanel />
+                                </Link>
+                        <Link to={this.props.location.pathname +'/share_classes'}>
+                             <ShareClassesPanel />
                                 </Link>
                         <Link to={this.props.location.pathname +'/transactions'}>
                              <TransactionsPanel

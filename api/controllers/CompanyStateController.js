@@ -178,7 +178,12 @@ function createShareClass(data, company){
         })
         .then(function(cs){
             companyState = cs;
-            return companyState.getShareClasses({include: {model: ShareClass, as: 'shareClasses'}});
+            return companyState.getShareClasses({
+                            include: [{
+                                model: ShareClass,
+                                as: 'shareClasses'
+                            }]
+                        });
         })
         .then(function(shareClasses){
             if(!shareClasses){
@@ -187,7 +192,7 @@ function createShareClass(data, company){
             else{
                 shareClasses.shareClasses.map(s => {
                     if(s.name === data.name){
-                        throw new sails.config.exceptions.NameExistsExceptions('Share Class name already exists.')
+                        throw new sails.config.exceptions.NameExistsException('Share Class name already exists.')
                     }
                 })
             }

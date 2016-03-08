@@ -71,7 +71,11 @@ export default {
         createdAt: 'Date Imported'
     },
     shareClasses: {
+        name: 'Share Class',
+        documents: 'Documents',
+        limitations: 'Limitations/Restrictions',
         votingRights: {
+            _: 'Voting Rights',
             "appointDirectorAuditor": "Appoint or remove a director or auditor",
             "adoptConstitution": "Adopt a constitution",
             "alterConstitution": "Alter a constitution",

@@ -28,7 +28,7 @@ module.exports = {
                 }
                 return this.getShareClasses()
                     .then(function(shareClasses){
-                        return ShareClasses.build({shareClasses: shareClasses}, {include: [{model: ShareClasses, as: 'shareClasses'}]})
+                        return ShareClasses.build({shareClasses: shareClasses}, {include: [{model: ShareClass, as: 'shareClasses'}]})
                     })
                     .then(function(shareClasses){
                         shareClasses.dataValues.shareClasses.map(function(r){

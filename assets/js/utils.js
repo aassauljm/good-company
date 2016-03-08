@@ -1,5 +1,7 @@
 import isoFetch from 'isomorphic-fetch';
 import STRINGS from './strings'
+import { Link } from 'react-router';
+
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -248,4 +250,11 @@ export function debounce(func, delay = 100) {
             func(...args);
         }, delay);
     };
+}
+
+export function renderDocumentLinks(list){
+    return list.map((d, i) =>
+        <div key={i}><Link  activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
+            {d.filename}
+        </Link></div>);
 }

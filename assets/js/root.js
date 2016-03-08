@@ -9,7 +9,7 @@ export default class Root extends React.Component {
     return (
       <Provider store={this.props.store}>
             <Router render={(props) =>
-                <ReduxAsyncConnect {...props} filter={item => !item.deferred} />
+                <ReduxAsyncConnect {...props} />
               } history={this.props.history}>
                 { routes(this.props.store) }
                 { this.props.children }
