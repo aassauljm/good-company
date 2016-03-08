@@ -859,18 +859,20 @@ module.exports = {
                                     as: 'person'
                                 }, 'name', 'ASC']
                             ]
+                        }),
+                        cs.getShareClasses({
+                            include: [{
+                                model: ShareClass,
+                                as: 'shareClasses'
+                            }]
                         }))
-                    .spread(function(holdingList, unallocatedParcels, transaction, docList, directors) {
-                        cs.holdingList = holdingList;
-                        cs.dataValues.holdingList = holdingList;
-                        cs.unallocatedParcels = unallocatedParcels;
-                        cs.dataValues.unallocatedParcels = unallocatedParcels;
-                        cs.transaction = transaction
-                        cs.dataValues.transaction = transaction
-                        cs.docList = docList;
-                        cs.dataValues.docList = docList;
-                        cs.directorList = directors;
-                        cs.dataValues.directorList = directors;
+                    .spread(function(holdingList, unallocatedParcels, transaction, docList, directors, shareClasses) {
+                        cs.holdingList = cs.dataValues.holdingList = holdingList;
+                        cs.unallocatedParcels = cs.dataValues.unallocatedParcels = unallocatedParcels;
+                        cs.transaction = cs.dataValues.transaction = transaction
+                        cs.docList = cs.dataValues.docList = docList;
+                        cs.directorList = cs.dataValues.directorList = directors;
+                        cs.shareClasses = cs.dataValues.shareClasses = shareClasses;
                         cs._populated = true;
                         return cs;
                     })

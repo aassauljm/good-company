@@ -8,6 +8,7 @@ import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
 import IssueModal from './transactions/issue';
 import TransferModal from './transactions/transfer';
+import ShareClassesModal from './transactions/shareClasses';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {
@@ -55,6 +56,17 @@ export default class Modals extends React.Component {
                     next={(...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))} }
                     previous={() => {this.props.dispatch(previousModal(this.props.showing))} }
                     end={() => {this.props.dispatch(endModal(this.props.showing))} } />
+
+            case 'shareClasses':
+                return <ShareClassesModal
+                    index={this.props.shareClasses.index}
+                    modalData={this.props.shareClasses.data}
+                    next={(...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))} }
+                    previous={() => {this.props.dispatch(previousModal(this.props.showing))} }
+                    end={() => {this.props.dispatch(endModal(this.props.showing))} } />
+
+            default:
+                return false;
         }
 
     }

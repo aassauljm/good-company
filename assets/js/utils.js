@@ -156,12 +156,12 @@ export function formProxy(component){
 
 export function formFieldProps(args){
     return (component) => {
-        component.prototype.formFieldProps = function(name) {
+        component.prototype.formFieldProps = function(name, strings=STRINGS) {
             const field = this.props.fields ? this.props.fields[name] : this.props[name];
             return {
                  ...field,
                     bsStyle: fieldStyle(field),
-                    label: STRINGS[name],
+                    label: strings[name],
                     labelClassName: args.labelClassName,
                     wrapperClassName: args.wrapperClassName,
                     hasFeedback: true,

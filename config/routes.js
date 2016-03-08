@@ -155,4 +155,10 @@ module.exports.routes = {
         controller: 'CompanyStateController',
         action: 'createRegisterEntry'
     },
+
+    'POST /api/company/:companyId/share_classes/create': {
+        controller: 'CompanyStateController',
+        action: 'createShareClass'
+    },
+
 };

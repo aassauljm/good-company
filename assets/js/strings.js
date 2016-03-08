@@ -69,5 +69,15 @@ export default {
         type: 'Type',
         date: 'Date',
         createdAt: 'Date Imported'
+    },
+    shareClasses: {
+        votingRights: {
+            "appointDirectorAuditor": "Appoint or remove a director or auditor",
+            "adoptConstitution": "Adopt a constitution",
+            "alterConstitution": "Alter a constitution",
+            "approveMajorTransactions": "Approve a major transaction",
+            "approveAmalgamation": "Approve an amalgation",
+            "liquidation": "Put company into liquidation"
+        }
     }
 }

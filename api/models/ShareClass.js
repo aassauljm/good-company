@@ -15,10 +15,7 @@ module.exports = {
         name: {
             type: Sequelize.TEXT
         },
-        rights: {
-            type: Sequelize.JSON
-        },
-        restrictions: {
+        properties: {
             type: Sequelize.JSON
         }
     },
@@ -28,11 +25,16 @@ module.exports = {
             foreignKey: 's_class_id',
             through: 's_c_j'
         });
+        ShareClass.belongsToMany(Document, {
+            as: 'documents',
+            foreignKey: 'transaction_id',
+            through: 's_c_d_j'
+        });
     },
 
     options: {
         freezeTableName: false,
-        tableName: 'share_class', // Optional, but I suggest to set it
+        tableName: 'share_class',
         classMethods: {},
         instanceMethods: {},
         hooks: {}

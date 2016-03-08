@@ -102,7 +102,9 @@ var transactions = {
     details: function(args, company){
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
-            return currentCompanyState.buildNext(_.merge({}, args, {transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: new Date() }}))
+            return currentCompanyState.buildNext(_.merge({}, args, {
+                transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: new Date() }
+            }))
         })
         .then(function(nextCompanyState){
             return nextCompanyState.save();
@@ -121,7 +123,9 @@ function createRegisterEntry(data, company){
     let companyState, register;
     return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
-            return currentCompanyState.buildNext({transaction: {type: Transaction.types.REGISTER_ENTRY, data: _.omit(data, 'documents'), effectiveDate: new Date() }});
+            return currentCompanyState.buildNext({
+                transaction: {type: Transaction.types.REGISTER_ENTRY, data: _.omit(data, 'documents'), effectiveDate: new Date() }
+            });
         })
         .then(function(cs){
             companyState = cs;
@@ -163,6 +167,60 @@ function createRegisterEntry(data, company){
             return {message: 'Entry created.'}
         })
 }
+
+function createShareClass(data, company){
+    let companyState, shareClasses;
+    return company.getCurrentCompanyState()
+        .then(function(currentCompanyState){
+            return currentCompanyState.buildNext({
+                transaction: {type: Transaction.types.CREATE_SHARE_CLASS, data: _.omit(data, 'documents'), effectiveDate: new Date() }
+            });
+        })
+        .then(function(cs){
+            companyState = cs;
+            return companyState.getShareClasses({include: {model: ShareClass, as: 'shareClasses'}});
+        })
+        .then(function(shareClasses){
+            if(!shareClasses){
+                return ShareClasses.build();
+            }
+            else{
+                shareClasses.shareClasses.map(s => {
+                    if(s.name === data.name){
+                        throw new sails.config.exceptions.NameExistsExceptions('Share Class name already exists.')
+                    }
+                })
+            }
+            return shareClasses.buildNext();
+        })
+        .then(function(shareClasses){
+            return shareClasses.save();
+        })
+        .then(function(r){
+            shareClasses = r;
+            const attributes = {name: data.name, properties: _.omit(data, 'name')}
+            return ShareClass.create(attributes, {include: [{model: Document, as: 'documents', include: [
+                                            {model: DocumentData, as: 'documentData'}
+                                        ]}]})
+        })
+        .then(function(shareClass){
+            return shareClasses.addShareClass(shareClass)
+        })
+        .then(function(){
+            companyState.set('s_classes_id', shareClasses.id);
+            return companyState.save();
+        })
+        .then(function(nextCompanyState){
+            return company.setCurrentCompanyState(companyState);
+         })
+        /*.then(function(){
+            return company.save();
+        })*/
+        .then(function(){
+            return {message: 'Share Class created.'}
+        })
+}
+
 
 
 module.exports = {
@@ -223,6 +281,52 @@ module.exports = {
                         values.documents = files;
                         values.persons = values.persons.split(',').map(p => parseInt(p, 10));
                         return createRegisterEntry(values, company);
+                    })
+                })
+                .then(function(result){
+                    res.ok(result);
+                })
+                .catch(sails.config.exceptions.ValidationException, function(e) {
+                    res.serverError(e);
+                })
+                .catch(sails.config.exceptions.ForbiddenException, function(e) {
+                    res.forbidden();
+                })
+                .catch(function(e) {
+                    res.serverError(e);
+                })
+            })
+    },
+    createShareClass: function(req, res){
+        let company;
+        return req.file('documents').upload(function(err, uploadedFiles){
+            return sequelize.transaction(function(t){
+                return Company.findById(req.params.companyId)
+                    .then(function(_company) {
+                        company = _company;
+                        return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+                    })
+                    .then(function() {
+                        return Promise.map(uploadedFiles || [], f => {
+                            return fs.readFileAsync(f.fd)
+                                .then(readFile => {
+                                    return {
+                                        filename: f.filename,
+                                        createdById: req.user.id,
+                                        ownerId: req.user.id,
+                                        type: f.type,
+                                        documentData: {
+                                            data: readFile,
+                                        }
+                                    };
+                            });
+                        })
+                    })
+                    .then(function(files){
+                        let values = actionUtil.parseValues(req);
+                        values = JSON.parse(values.json);
+                        values.documents = files;
+                        return createShareClass(values, company);
                     })
                 })
                 .then(function(result){

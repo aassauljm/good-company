@@ -107,7 +107,7 @@ class EntryForm extends React.Component {
                 hasFeedback groupClassName='has-group'
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
                     <option></option>
-                    { this.props.companyState.directors.map((d, i) => {
+                    { (this.props.companyState.directorList.directors || []).map((d, i) => {
                         return <option key={i} value={d.person.id}>{d.person.name}</option>
                     })}
                 </Input>

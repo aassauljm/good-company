@@ -701,7 +701,7 @@ export class CompanyHistory extends React.Component {
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
-    return dispatch(requestResource('/company/' + params.id + '/get_info'));
+        return dispatch(requestResource('/company/' + params.id + '/get_info'));
   }
 }])
 @connect((state, ownProps) => {

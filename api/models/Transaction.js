@@ -38,7 +38,8 @@ var types = {
     REDEMPTION_FROM: 'REDEMPTION_FROM',
 
 
-    REGISTER_ENTRY: 'REGISTER_ENTRY'
+    REGISTER_ENTRY: 'REGISTER_ENTRY',
+    CREATE_SHARE_CLASS: 'CREATE_SHARE_CLASS'
 };
 
 /*
@@ -80,6 +81,11 @@ module.exports = {
                 name: 'parentTransactionId',
                 as: 'parentTransaction'
             }
+        });
+        Transaction.belongsToMany(Document, {
+            as: 'documents',
+            foreignKey: 'transaction_id',
+            through: 't_d_j'
         });
     },
     options: {
