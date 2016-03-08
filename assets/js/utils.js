@@ -228,7 +228,6 @@ export function setFetch(func){
 
 
 export function numberWithCommas(x) {
-    if(!x && x !== 0)debugger
     const parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");

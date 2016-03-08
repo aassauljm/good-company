@@ -510,7 +510,6 @@ class InterestsRegisterPanel extends React.Component {
     static propTypes = {
     };
     render(){
-
         return <div className="panel panel-warning" >
             <div className="panel-heading">
             <h3 className="panel-title">Interests Register</h3>

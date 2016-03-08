@@ -45,7 +45,7 @@ const validate = (values) => {
 export class ShareClassForm extends React.Component {
     constructor(props) {
         super(props);
-         this.submit = ::this.submit;
+        this.submit = ::this.submit;
     }
 
     handleDrop(e, files){
