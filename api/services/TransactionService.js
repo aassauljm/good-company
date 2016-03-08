@@ -629,7 +629,6 @@ export function performInverseTransaction(data, company, rootState){
         return Promise.resolve(rootState);
     }
     let prevState, currentRoot, transactions;
-    console.time('start')
     return (rootState ? Promise.resolve(rootState) :  company.getRootCompanyState())
         .then(function(_rootState){
             currentRoot = _rootState;
@@ -680,7 +679,6 @@ export function performInverseTransaction(data, company, rootState){
         })
         .then(function(_prevState){
             //sails.log.silly('Current state', JSON.stringify(prevState, null, 4));
-            console.timeEnd('start')
             return currentRoot.setPreviousCompanyState(_prevState);
         })
          .then(function(){

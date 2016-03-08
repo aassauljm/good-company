@@ -1,0 +1,25 @@
+[{
+    "model": "shareclass",
+    "data": {
+        "id": 1,
+        "name": "A"
+    }
+},{
+    "model": "shareclass",
+    "data": {
+        "id": 2,
+        "name": "B"
+    }
+},{
+    "model": "shareclass",
+    "data": {
+        "id": 3,
+        "name": "C"
+    }
+},{
+    "model": "shareclass",
+    "data": {
+        "id": 4,
+        "name": "D"
+    }
+}]

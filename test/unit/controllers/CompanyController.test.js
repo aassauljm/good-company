@@ -91,7 +91,7 @@ describe('Company Controller', function() {
         });
     });
 
-    describe.skip('Test import from companies office, pew holdings', function(){
+    describe('Test import from companies office, pew holdings', function(){
         var req, companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -107,7 +107,7 @@ describe('Company Controller', function() {
         });
     });
 
-    describe.skip('Test import from companies office, private health care limited ', function(){
+    describe('Test import from companies office, private health care limited ', function(){
         var req, companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
