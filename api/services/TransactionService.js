@@ -204,8 +204,8 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             if(!current.length){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
-            else if(current.length > 1){
-                // ambiguity strategy
+            else if(current.length > 1 && session.active){
+                // ambiguity resolving strategy
                 if(!session.get('options')[session.get('index')]){
                     session.get('options')[session.get('index')] = {index: 0, keys: current.map(c => c.holdingId).sort()};
                 }
@@ -757,12 +757,14 @@ export function performInverseTransaction(data, company, rootState){
 }
 
 export function performInverseAll(data, company, state){
+    // Loop though data
+    // If an exception is found, rollback, and increment permutation for
+    // ambigious options.  give up after completion of breadth first search
     console.time('transactions');
     const options = {};
     function next(){
-        // breadth first search through options
         state = null;
-        console.log('LOOPED', options);
+        // breadth first search through options
         return _.find(options, option => {
             if(option){
                 option.index++;
@@ -772,9 +774,7 @@ export function performInverseAll(data, company, state){
                 }
                 return true;
             }
-        })
-        return true;
-
+        });
     }
 
     function loop(){
@@ -795,9 +795,7 @@ export function performInverseAll(data, company, state){
                 });
             });
         })
-        .then(function(){
-            console.timeEnd('transactions');
-        })
+
         .catch(e => {
             if(!next()){
                 throw e;
@@ -808,7 +806,10 @@ export function performInverseAll(data, company, state){
         });
     }
 
-    return loop();
+    return loop()
+        .then(function(){
+            console.timeEnd('transactions');
+        });
 
 
 }
