@@ -1,6 +1,9 @@
 const _ = require('lodash');
 const moment = require('moment');
 const Promise = require('bluebird');
+const cls = require('continuation-local-storage');
+
+const session = cls.createNamespace('gc-inverse-transactions');
 
 export function validateAnnualReturn(data, companyState, effectiveDate){
     const state = companyState.toJSON();
@@ -188,7 +191,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         })
         .then(() => {
             // TODO DANGER, there can be multiple matches.  how to choose?
-            let current = companyState.getMatchingHolding(data.afterHolders)
+            let current = companyState.getMatchingHolding(data.afterHolders);
             if(!current){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
@@ -211,7 +214,8 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             return transaction.save()
         })
         .then(() => {
-            let current = companyState.getMatchingHolding(data.beforeHolders);
+            let current = companyState.getMatchingHoldings(data.beforeHolders);
+            current = current[0];
             if(!current){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
@@ -683,6 +687,9 @@ export function performInverseTransaction(data, company, rootState){
                 sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
+                if(session.get('options')){
+                    session.set('index', session.get('index') + 1);
+                }
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
@@ -731,15 +738,26 @@ export function performInverseTransaction(data, company, rootState){
 
 export function performInverseAll(data, company, state){
     console.time('transactions');
-    return Promise.each(data, function(doc){
-        return TransactionService.performInverseTransaction(doc, company, state)
-            .then(_state => {
-                state = _state;
+    return new Promise((resolve, reject) => {
+        session.run(() => {
+            session.set('index', 0);
+            session.set('options', []);
+
+            return Promise.each(data, function(doc){
+                return TransactionService.performInverseTransaction(doc, company, state)
+                    .then(_state => {
+                        state = _state;
+                    });
+            })
+            .then(function(){
+                console.timeEnd('transactions');
+                resolve();
+            })
+            .catch(e => {
+                reject(e);
             });
-    })
-    .then(function(){
-        console.timeEnd('transactions');
-    })
+        });
+    });
 }
 
 
