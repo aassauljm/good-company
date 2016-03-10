@@ -64,31 +64,6 @@ describe('Company Controller', function() {
                     done();
                 });
         });
-        it('Gets an error that company already exists for this user', function(done){
-            req.post('/api/company/import/companiesoffice/2109736')
-                .expect(400)
-                .then(function(res){
-                    done();
-                });
-        });
-        it('Renames company', function(done){
-            req.post('/api/transaction/details/'+companyId)
-                .send({companyName: 'Pricewanker Limited', companyNumber: '666'})
-                .expect(200, done)
-        });
-        it('Does a successful stubbed import without history', function(done){
-            req.post('/api/company/import/companiesoffice/2109736')
-                .send({history: false})
-                .expect(200)
-                .then(function(res){
-                    companyId = res.body.id;
-                    done();
-                })
-        });
-        it('Confirms no history is present', function(done){
-            req.get('/api/company/'+companyId+'/history/1')
-                .expect(400, done);
-        });
     });
 
     describe('Test import from companies office, pew holdings', function(){
@@ -105,6 +80,32 @@ describe('Company Controller', function() {
                     done();
                 });
         });
+        it('Try again, gets an error that company already exists for this user', function(done){
+            req.post('/api/company/import/companiesoffice/239639')
+                .expect(400)
+                .then(function(res){
+                    done();
+                });
+        });
+        it('Renames company', function(done){
+            req.post('/api/transaction/details/'+companyId)
+                .send({companyName: 'Pew whammerings', companyNumber: '666'})
+                .expect(200, done)
+        });
+        it('Does a successful stubbed import without history', function(done){
+            req.post('/api/company/import/companiesoffice/239639')
+                .send({history: false})
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+        });
+        it('Confirms no history is present', function(done){
+            req.get('/api/company/'+companyId+'/history/1')
+                .expect(400, done);
+        });
+
     });
 
     describe('Test import from companies office, private health care limited ', function(){
@@ -147,4 +148,69 @@ describe('Company Controller', function() {
                 });
         });
     });
+    describe.skip('Test import and share apply', function(){
+        var req, companyId, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import (AVELEY COMPANY LIMITED)', function(done){
+            req.post('/api/company/import/companiesoffice/236860')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+
+        it('Creates share classes', function(done){
+            req.post('/api/company/'+companyId+'/share_classes/create')
+                .send({json: JSON.stringify({name: 'Class A'})})
+                .then(function(res){
+                    return req.post('/api/company/'+companyId+'/share_classes/create')
+                        .send({json: JSON.stringify({name: 'Class B'})})
+                })
+                .then(function(){
+                    done();
+                })
+        });
+        it('Gets current stats', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.totalShares.should.be.equal(124000);
+                    classes = _.reduce(res.body.currentCompanyState.shareClasses.shareClasses, (acc, item, key) => {
+                        acc[item.name] = item.id;
+                        return acc;
+                    }, {});
+                    holdings = _.reduce(res.body.currentCompanyState.holdingList.hodling, (acc, holding, key) => {
+                        acc[holding.name] = holding.holdingId;
+                        return acc;
+                    }, {});
+                    done();
+                });
+        });
+
+        it('Applies history', function(done){
+            req.post('/api/transaction/apply_share_classes/'+companyId)
+                .send({actions: [{
+                        transactionType: 'APPLY_SHARE_CLASS',
+                        shareClass: classes['Class A'],
+                        holdingId: holdings['Allocation 1']
+                    },{
+                        transactionType: 'APPLY_SHARE_CLASS',
+                        shareClass: classes['Class A'],
+                        holdingId: holdings['Allocation 2']
+                    },{
+                        transactionType: 'APPLY_SHARE_CLASS',
+                        shareClass: classes['Class B'],
+                        holdingId: holdings['Allocation 3']
+                    }]
+                })
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+            });
+        });
 });

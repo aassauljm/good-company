@@ -1013,9 +1013,11 @@ const ScrapingService = {
             });
         });
     },
+
     writeRootDocument: function(companyNumber, data){
         return fs.writeFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', data.text, 'utf-8');
     },
+
     processDocument: function(html, info={}){
         sails.log.verbose('Processing file ', info.documentId)
         const $ = cheerio.load(html);

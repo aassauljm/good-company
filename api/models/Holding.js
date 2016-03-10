@@ -100,12 +100,11 @@ module.exports = {
                 if(!other.parcels){
                     return false;
                 }
-                var clean = function(list){
-                    return _.sortBy(list.map(function(s){
-                        return _.pick(_.pick(s.get ? s.get() : s, 'amount', 'shareClass'), _.identity);
-                    }), 'amount');
-                }
-                return _.isEqual(clean(other.parcels), clean(this.dataValues.parcels));
+                const otherSorted = _.sortBy(other.parcels, 'amount');
+                const thisSorted = _.sortBy(this.dataValues.parcels, 'amount');
+                return _.all(thisSorted, (p, i) => {
+                    return Parcel.match(p, otherSorted[i]) && p.amount === otherSorted[i].amount;
+                })
             },
             combineParcels: function(holding){
                 var newParcels = [];

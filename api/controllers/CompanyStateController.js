@@ -111,9 +111,9 @@ var transactions = {
             * perhaps flag companyState to show that share classes have been applied?
         */
         let state;
-        console.log(data)
         return TransactionService.performTransaction(data, company)
-            .then(state => {
+            .then(_state => {
+                state = _state;
                 state.set('previousCompanyStateId', null);
                 return state.save();
             })

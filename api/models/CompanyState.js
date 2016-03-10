@@ -704,7 +704,11 @@ module.exports = {
             },
 
             getMatchingHolding: function(holders, parcelHint, ignoreCompanyNumber){
-                return _.find(this.dataValues.holdingList.dataValues.holdings, function(holding){
+                return this.getMatchingHoldings(holders, parcelHint, ignoreCompanyNumber)[0];
+            },
+
+            getMatchingHoldings: function(holders, parcelHint, ignoreCompanyNumber){
+                return _.filter(this.dataValues.holdingList.dataValues.holdings, function(holding){
                     return holding.holdersMatch({holders: holders}, ignoreCompanyNumber) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
                 });
             },

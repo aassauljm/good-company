@@ -47,9 +47,6 @@ export function validateAnnualReturn(data, companyState, effectiveDate){
                 throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match, documentId: ' +data.documentId);
              }
         })
-        /*.catch(() => {
-            sails.log.error('FAILED annual return validation')
-        })*/
 };
 
 export function validateInverseAmend(amend, companyState){
@@ -144,17 +141,20 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
-            let difference = data.afterAmount - data.beforeAmount;
-            let parcel = {amount: Math.abs(difference)};
-            let newHolding = {holders: data.afterHolders, parcels: [parcel]};
-            let transactionType  = data.transactionSubType || data.transactionType;
+            const difference = data.afterAmount - data.beforeAmount;
+            const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
+            const newHolding = {holders: data.afterHolders, parcels: [parcel]};
+            if(!data.shareClass){
+                data.shareClass = parcel.shareClass = _.find(holding.dataValues.parcels, p => data.afterAmount === p.amount).shareClass;
+            }
+            const transactionType  = data.transactionSubType || data.transactionType;
             if(difference < 0){
                 companyState.subtractUnallocatedParcels(parcel);
-                companyState.combineHoldings([newHolding], [{amount: data.afterAmount, shareClass: data.shareClass}]);
+                companyState.combineHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
             }
             else{
                 companyState.combineUnallocatedParcels(parcel);
-                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount, shareClass: data.shareClass}]);
+                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
             }
             const current = companyState.getMatchingHolding(data.afterHolders)
 
@@ -187,6 +187,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             return transaction.save()
         })
         .then(() => {
+            // TODO DANGER, there can be multiple matches.  how to choose?
             let current = companyState.getMatchingHolding(data.afterHolders)
             if(!current){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
@@ -585,6 +586,9 @@ export  function performApplyShareClass(data, nextState, companyState, effective
         const index = _.findIndex(holdingList.dataValues.holdings, h => {
             return h.dataValues.holdingId === data.holdingId;
         });
+        if(index < 0){
+            throw new sails.config.exceptions.InvalidOperation('Cannot find holding to apply share class to, documentId: ' +data.documentId)
+        }
         const newHolding = holdingList.dataValues.holdings[index].buildNext();
         holdingList.dataValues.holdings[index] = newHolding;
         newHolding.dataValues.parcels = newHolding.dataValues.parcels.map(p => {
@@ -723,6 +727,19 @@ export function performInverseTransaction(data, company, rootState){
          .then(function(){
             return prevState;
          })
+}
+
+export function performInverseAll(data, company, state){
+    console.time('transactions');
+    return Promise.each(data, function(doc){
+        return TransactionService.performInverseTransaction(doc, company, state)
+            .then(_state => {
+                state = _state;
+            });
+    })
+    .then(function(){
+        console.timeEnd('transactions');
+    })
 }
 
 
