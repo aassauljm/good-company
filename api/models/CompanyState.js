@@ -568,6 +568,7 @@ module.exports = {
                 " For now, using name equivilency to match holders (and companyId) "
                 " Match all holders in a holding, then an issue will increase the parcels on that holding "
                 const holdings = this.dataValues.holdingList.dataValues.holdings;
+                const matches = [];
                 _.some(holdings, function(nextHolding, j){
                     var toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
@@ -584,6 +585,7 @@ module.exports = {
                             if(transaction){
                                 nextHolding.dataValues.transaction = transaction;
                             }
+                            matches.push(nextHolding);
                             toRemove = i;
                             return false;
                         }
@@ -608,7 +610,7 @@ module.exports = {
                 }
                 this.dataValues.holdingList.dataValues.holdings = this.dataValues.holdingList.dataValues.holdings.concat(extraHoldings);
                 // unaccounted for, alter unallocated shares
-                return this;
+                return matches;
             },
 
             subtractHoldings: function(subtractHoldings, parcelHint, transaction){
@@ -763,7 +765,7 @@ module.exports = {
                     return p.amount;
                 });
                 this.dataValues.unallocatedParcels = parcelList;
-                return this;
+                return match;
             },
 
             subtractUnallocatedParcels: function(parcel){

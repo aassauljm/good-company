@@ -560,31 +560,6 @@ describe('Transaction Service, inverse transactions', function() {
                     holding.id.should.not.be.equal(id);
                 })
             })
-            /*it('applies inverse transaction, confirms share class intact', function() {
-                return rootStateMultiple.buildPrevious()
-                    .then(function(companyState){
-                        nextState = companyState;
-                        holdingId = holding.holdingId;
-                        id = holding.id;
-                        return TransactionService.performInverseAmend({
-                            transactionType: Transaction.types.APPLY_SHARE_CLASS,
-                            holdingId: holdingId,
-                            shareClass: 1,
-                        }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
-                })
-                .then(function(){
-                    return nextState.save();
-                })
-                .then(function(){
-                    return nextState.reload();
-                })
-                .then(function(){
-                    const holding = nextState.getMatchingHolding([{name: 'mike'}, {name: 'john'}])
-                    holding.parcels[0].shareClass.should.be.equal(1);
-                    holding.holdingId.should.be.equal(holdingId)
-                    holding.id.should.not.be.equal(id);
-                })
-            })*/
         });
 
     });

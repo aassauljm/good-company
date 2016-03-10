@@ -674,7 +674,7 @@ function insertIntermediateActions(docs){
 
 
     let results = _.reduce(docs, (acc, doc, i) => {
-        const removalActions = _.filter(doc.actions, a => !a.afterHolders && removalTypes.indexOf(a.transactionMethod) >= 0);
+        const removalActions = _.filter(doc.actions, a => removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
         if(!removalActions.length){
             acc.push(doc);
         } else {
@@ -692,10 +692,10 @@ function insertIntermediateActions(docs){
                 }
             })
             doc.actions = doc.actions.map(a => {
-                if(!a.afterHolders && removalTypes.indexOf(a.transactionMethod) >= 0){
+                if(removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0){
                     a.transactionType = Transaction.types.REMOVE_ALLOCATION;
                     a.transactionMethod = null;
-                    amount: 0
+                    a.amount = 0
                 }
                 return a;
             })

@@ -114,8 +114,8 @@ export function validateInverseAcquistion(data, companyState){
 export function performInverseIssueUnallocated(data, companyState, previousState, effectiveDate){
     return validateInverseIssue(data, companyState)
         .then(() => {
-            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
-            companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+            const match = companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
             return transaction;
         })
 }
@@ -124,14 +124,15 @@ export function performInverseIssueUnallocated(data, companyState, previousState
 export function performInverseAcquisition(data, companyState, previousState, effectiveDate){
     return validateInverseAcquistion(data, companyState)
         .then(() => {
-            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: data, effectiveDate: effectiveDate})
-            companyState.combineUnallocatedParcels({amount: data.amount});
+            const match = companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
             return transaction;
         })
 }
 
 export  function performInverseAmend(data, companyState, previousState, effectiveDate){
     let transaction, holding;
+    data = _.cloneDeep(data);
     return Promise.resolve({})
         .then(() => {
             return validateInverseAmend(data, companyState)
@@ -155,8 +156,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 companyState.combineHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
             }
             else{
-                companyState.combineUnallocatedParcels(parcel);
                 companyState.subtractHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
+                companyState.combineUnallocatedParcels(parcel);
             }
             const current = companyState.getMatchingHolding(data.afterHolders)
 
@@ -303,12 +304,17 @@ export const performHolderChange = function(data, companyState, previousState, e
 
 
 export  function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
+    data = _.cloneDeep(data);
     return companyState.dataValues.holdingList.buildNext()
     .then(function(holdingList){
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
-        companyState.combineUnallocatedParcels({amount: data.amount});
-        let holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount}]);
+        let holding = companyState.getMatchingHolding(data.holders, [{amount: data.amount, shareClass: data.shareClass}]);
+        if(!data.shareClass){
+            data.shareClass = _.find(holding.dataValues.parcels, p => data.amount === p.amount).shareClass;
+        }
+        companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+
         if(!holding){
             // if fail, ignore company number
             sails.log.error('Could not find matching holding, trying with ignored companyNumber')

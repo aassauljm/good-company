@@ -199,7 +199,7 @@ describe('Company Controller', function() {
                         holdingId: holdings['Allocation 1']
                     },{
                         transactionType: 'APPLY_SHARE_CLASS',
-                        shareClass: classes['Class A'],
+                        shareClass: classes['Class B'],
                         holdingId: holdings['Allocation 2']
                     },{
                         transactionType: 'APPLY_SHARE_CLASS',
@@ -212,5 +212,13 @@ describe('Company Controller', function() {
                     done();
                 });
             });
+        it('Gets previous version', function(done){
+            req.get('/api/company/'+companyId+'/history/10')
+                .expect(200)
+                .then(function(res){
+                    //console.log(JSON.stringify(res.body.companyState, null, 4));
+                    done();
+                });
         });
+    });
 });
