@@ -680,6 +680,8 @@ module.exports = {
                                 holding.dataValues.holders[index] = newPerson;
                             }
                         });
+                       // console.log(newHolder, currentHolder)
+                       // console.log(JSON.stringify(state.dataValues.holdingList.dataValues.holdings));
                         return state;
                     });
             },

@@ -148,7 +148,7 @@ describe('Company Controller', function() {
                 });
         });
     });
-    describe.skip('Test import and share apply', function(){
+    describe('Test import and share apply', function(){
         var req, companyId, classes, holdings;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -183,7 +183,7 @@ describe('Company Controller', function() {
                         acc[item.name] = item.id;
                         return acc;
                     }, {});
-                    holdings = _.reduce(res.body.currentCompanyState.holdingList.hodling, (acc, holding, key) => {
+                    holdings = _.reduce(res.body.currentCompanyState.holdingList.holdings, (acc, holding, key) => {
                         acc[holding.name] = holding.holdingId;
                         return acc;
                     }, {});

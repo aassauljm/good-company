@@ -152,7 +152,7 @@ module.exports = {
     },
     import: function(req, res) {
         // for now, just companies office
-        var data, company, state, processedDocs;
+        let data, company, state, processedDocs;
         return sequelize.transaction(function(t){
             return ScrapingService.fetch(req.params.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
@@ -194,12 +194,15 @@ module.exports = {
                             state.set('historical_action_id', actions.id);
                             return state.save();
                         })
-                        .then(function(){
-                            sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
-                            return TransactionService.performInverseAll(processedDocs, company, state);
-                        });
                     }
                 })
+        })
+        .then(function(){
+            // outside transaction block, because loops with rolledback transactions
+            if(processedDocs){
+                sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
+                return TransactionService.performInverseAll(processedDocs, company, state);
+            }
         })
         .then(function() {
             return res.json(company);

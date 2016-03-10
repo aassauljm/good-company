@@ -101,36 +101,6 @@ var transactions = {
         })
     },
 
-    apply_share_classes: function (data, company){
-        /* to apply, retroactively, a share class:
-            * clone current state without apply previousCompanyStateId.
-            * set shareClass ids on parcels
-            * replay all historical actions
-
-            * perhaps keep a reference to previous head?
-            * perhaps flag companyState to show that share classes have been applied?
-        */
-        let state;
-        return TransactionService.performTransaction(data, company)
-            .then(_state => {
-                state = _state;
-                state.set('previousCompanyStateId', null);
-                return state.save();
-            })
-            .then(() => {
-                return state.getHistoricalActions();
-            })
-            .then(actions => {
-               return Promise.each(actions.actions, function(doc){
-                    return TransactionService.performInverseTransaction(doc, company, state)
-                        .then(_state => {
-                            state = _state;
-                        });
-                })
-            })
-    },
-
-
 
     details: function(args, company){
         return company.getCurrentCompanyState()
@@ -149,6 +119,34 @@ var transactions = {
             return company.save();
         });
     }
+}
+
+const selfManagedTransactions = {
+     apply_share_classes: function (data, company){
+        /* to apply, retroactively, a share class:
+            * clone current state without apply previousCompanyStateId.
+            * set shareClass ids on parcels
+            * replay all historical actions
+
+            * perhaps keep a reference to previous head?
+            * perhaps flag companyState to show that share classes have been applied?
+        */
+        let state;
+        return sequelize.transaction(function(t){
+            return TransactionService.performTransaction({actions: data.actions}, company)
+                .then(_state => {
+                    state = _state;
+                    state.set('previousCompanyStateId', null);
+                    return state.save();
+                })
+                .then(() => {
+                    return state.getHistoricalActions();
+                })
+            })
+            .then(actions => {
+               return TransactionService.performInverseAll(actions.actions, company, state);
+            })
+    },
 }
 
 
@@ -251,9 +249,6 @@ function createShareClass(data, company){
         .then(function(nextCompanyState){
             return company.setCurrentCompanyState(companyState);
          })
-        /*.then(function(){
-            return company.save();
-        })*/
         .then(function(){
             return {message: 'Share Class created.'}
         })
@@ -263,7 +258,7 @@ function createShareClass(data, company){
 module.exports = {
     transactions: transactions,
     create: function(req, res) {
-        let company;
+        let company, args = actionUtil.parseValues(req);
         return sequelize.transaction(function(t){
             return Company.findById(req.params.companyId)
                 .then(function(_company) {
@@ -271,8 +266,11 @@ module.exports = {
                     return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
                 })
                 .then(function() {
-                    return transactions[req.params.type](actionUtil.parseValues(req), company);
+                    return transactions[req.params.type] ? transactions[req.params.type](args, company) : null;
                 })
+            })
+            .then(function() {
+                return selfManagedTransactions[req.params.type] ? selfManagedTransactions[req.params.type](args, company) : null;
             })
             .then(function(result){
                 res.json(result);

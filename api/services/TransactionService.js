@@ -2,8 +2,7 @@ const _ = require('lodash');
 const moment = require('moment');
 const Promise = require('bluebird');
 const cls = require('continuation-local-storage');
-
-const session = cls.createNamespace('gc-inverse-transactions');
+const session = cls.getNamespace('session');
 
 export function validateAnnualReturn(data, companyState, effectiveDate){
     const state = companyState.toJSON();
@@ -182,7 +181,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-
+    const normalizedData = _.cloneDeep(data);
     return companyState.dataValues.holdingList.buildNext()
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
@@ -190,13 +189,34 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             return transaction.save()
         })
         .then(() => {
-            // TODO DANGER, there can be multiple matches.  how to choose?
-            let current = companyState.getMatchingHolding(data.afterHolders);
-            if(!current){
+            return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+
+            })), Promise.all(normalizedData.beforeHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+
+            }))])
+        })
+        .then(() => {
+            let current = companyState.getMatchingHoldings(normalizedData.afterHolders);
+            if(!current.length){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
-            companyState.mutateHolders(current, data.beforeHolders);
-            const previousHolding = previousState.getMatchingHolding(data.afterHolders);
+            else if(current.length > 1){
+                // ambiguity strategy
+                if(!session.get('options')[session.get('index')]){
+                    session.get('options')[session.get('index')] = {index: 0, keys: current.map(c => c.holdingId).sort()};
+                }
+                const obj = session.get('options')[session.get('index')]
+                current = _.find(current, {holdingId: obj.keys[obj.index]});
+            }
+            else{
+                current = current[0];
+            }
+            companyState.mutateHolders(current, normalizedData.beforeHolders);
+            const previousHolding = previousState.getMatchingHolding(normalizedData.afterHolders);
             previousHolding.setTransaction(transaction);
             return previousHolding.save();
         })
@@ -738,26 +758,59 @@ export function performInverseTransaction(data, company, rootState){
 
 export function performInverseAll(data, company, state){
     console.time('transactions');
-    return new Promise((resolve, reject) => {
-        session.run(() => {
-            session.set('index', 0);
-            session.set('options', []);
+    const options = {};
+    function next(){
+        // breadth first search through options
+        state = null;
+        console.log('LOOPED', options);
+        return _.find(options, option => {
+            if(option){
+                option.index++;
+                if(option.index >= option.keys.length){
+                    option.index = 0;
+                    return false;
+                }
+                return true;
+            }
+        })
+        return true;
 
-            return Promise.each(data, function(doc){
-                return TransactionService.performInverseTransaction(doc, company, state)
-                    .then(_state => {
-                        state = _state;
-                    });
-            })
-            .then(function(){
-                console.timeEnd('transactions');
-                resolve();
-            })
-            .catch(e => {
-                reject(e);
+    }
+
+    function loop(){
+        // transaction is not bound to cls ns
+        return sequelize.transaction(function(t){
+            return new Promise((resolve, reject) => {
+                session.run(() => {
+                    session.set('index', 0);
+                    session.set('options', options);
+                    return Promise.each(data, function(doc){
+                        return TransactionService.performInverseTransaction(doc, company, state)
+                            .then(_state => {
+                                state = _state;
+                            });
+                    })
+                    .then(resolve)
+                    .catch(reject)
+                });
             });
+        })
+        .then(function(){
+            console.timeEnd('transactions');
+        })
+        .catch(e => {
+            if(!next()){
+                throw e;
+            }
+            else{
+                return loop();
+            }
         });
-    });
+    }
+
+    return loop();
+
+
 }
 
 
@@ -787,7 +840,7 @@ export function performTransaction(data, company, companyState){
             // TODO, serviously consider having EACH action create a persistant graph
             // OR, force each transaction set to be pre grouped
             return Promise.reduce(data.actions, function(arr, action){
-                sails.log.verbose('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
+                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(PERFORM_ACTION_MAP[method]){

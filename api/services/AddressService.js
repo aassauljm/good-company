@@ -6,6 +6,8 @@ export const normalizeAddress = Promise.method(function(address){
 });
 
 export function compareAddresses(first, second){
+    first = first || '';
+    second = second || '';
     first = first.toLowerCase();
     second = second.toLowerCase();
     if(first === second){
@@ -27,7 +29,6 @@ export function compareAddresses(first, second){
 
     first =  first.replace(/ /g, '');
     second = second.replace(/ /g, '');
-
     if(first === second){
         return true;
     }

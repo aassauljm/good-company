@@ -82,7 +82,7 @@ module.exports = {
                 }
                 return this.dataValues.name === other.name &&
                     (this.dataValues.companyNumber || null) === (other.companyNumber || null) &&
-                    (this.dataValues.address || null) === (other.address || null);
+                    AddressService.compareAddresses(this.dataValues.address, other.address);
             },
             replaceWith: function(other){
                 const person = Person.build(_.merge(other, {personId: this.dataValues.personId}), {

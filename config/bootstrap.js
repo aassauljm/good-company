@@ -14,6 +14,7 @@ require("babel-polyfill");
 
 
 var getNamespace = require('continuation-local-storage').getNamespace;
+var session = require('continuation-local-storage').createNamespace('session')
 //var patchBluebird = require('cls-bluebird');
 var Promise = require('bluebird'),
     shimmer = require('shimmer');
@@ -73,6 +74,7 @@ module.exports.bootstrap = function(cb) {
     // with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
+    patchBluebird(session);
     global.__DEV__ = process.env.NODE_ENV !== 'production'
     global.__SERVER__ = true;
     fs.accessAsync(sails.config.CACHE_DIR)
