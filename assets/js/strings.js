@@ -20,7 +20,8 @@ export default {
         address: 'Address',
         current: 'Current Holder',
         holdingName: 'Allocation',
-        restrictions: 'Restrictions / Limitations',
+        limitations: 'Restrictions / Limitations',
+        votingRights: 'Voting Rights',
         amount: 'Current No. of Shares Held',
         sum: 'Sum of all No. Increases',
         issueHistory: 'Date and No. of Shares Issued by Company',
@@ -73,7 +74,7 @@ export default {
     shareClasses: {
         name: 'Share Class',
         documents: 'Documents',
-        limitations: 'Limitations/Restrictions',
+        limitations: 'Restrictions/Limitations',
         votingRights: {
             _: 'Voting Rights',
             "appointDirectorAuditor": "Appoint or remove a director or auditor",

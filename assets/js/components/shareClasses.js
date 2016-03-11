@@ -149,64 +149,6 @@ const ShareClassFormConnected = reduxForm({
 })
 )(ShareClassForm);
 
-/*
-@connect(null, {
-    createResource: (key, body) => createResource('/company/'+key+'/share_classes/create', body, {stringify: false}),
-    addNotification: (message, error) => addNotification({error: error, message: message})
-})
-export class ShareClassesModal extends React.Component {
-    constructor(props) {
-        super(props);
-        this.handleNext = ::this.handleNext;
-        this.submit = ::this.submit;
-    }
-
-    handleNext(e) {
-        e.preventDefault();
-        this.refs.form.submit();
-    }
-
-    submit(data) {
-        const body = new FormData();
-        body.append('json', JSON.stringify({...data, documents: null}));
-        (data.documents || []).map(d => {
-            body.append('documents', d, d.name);
-        })
-
-        const key = this.props.companyId;
-        return this.props.createResource(key, body)
-            .then(() => {
-                this.props.addNotification('Share Class Added')
-                this.props.dispatch(routeActions.push(`/company/view/${key}/share_classes`))
-            })
-            .catch((err) => {
-                this.props.addNotification(err.message, true)
-            });
-    }
-
-
-    render() {
-        console.log(this.props)
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Share Classes</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                   <table className="table">
-                   <thead></thead>
-                   <tbody></tbody>
-                   </table>
-
-              </Modal.Body>
-              <Modal.Footer>
-                 <Button onClick={this.props.end} >Close</Button>
-                 <Button onClick={this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
-    }
-}
-
-*/
 
 export class ShareClassCreate extends React.Component {
     render() {
@@ -218,17 +160,20 @@ export class ShareClassCreate extends React.Component {
     }
 }
 
-function renderRights(data){
+export function renderRights(data = {}){
     return <ul>{ Object.keys(data || {}).filter(d => data[d]).map((d, i) => {
         return <li key={i}>{STRINGS.shareClasses.votingRights[d]}</li>
     }) }</ul>
 }
 
+export function renderLimitations(data = []){
+    return <ul>{ data.map((d, i) => <li key={i}>{d}</li>)}</ul>;
+}
 
 function renderField(key, data, row) {
     switch(key){
         case 'limitations':
-            return <ul>{ row.properties.limitations.map((d, i) => <li key={i}>{d}</li>)}</ul>
+            return renderLimitations(row.properties.limitations);
         case 'votingRights':
             return renderRights(row.properties.votingRights);
         case 'documents':

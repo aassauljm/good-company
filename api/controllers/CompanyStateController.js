@@ -144,7 +144,7 @@ const selfManagedTransactions = {
                 })
             })
             .then(actions => {
-               return TransactionService.performInverseAll(actions.actions, company, state);
+               return TransactionService.performInverseAll(actions.actions.slice(1), company, state);
             })
     },
 }

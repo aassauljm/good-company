@@ -275,6 +275,7 @@ prev_company_states(id, "previousCompanyStateId",  generation) as (
     SELECT h.id as "startId", t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
     FROM company_state as t
     left outer JOIN _holding h on h."companyStateId" = t.id
+    where t.id =  $1
     UNION ALL
     SELECT "startId", t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
     FROM company_state t, prev_holdings tt
@@ -328,7 +329,7 @@ FROM
     first_value(h."id") OVER wnd as "lastHoldingId",
     first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
     format_iso_date(t."effectiveDate") as "lastEffectiveDate",
-    generation = 0 as current
+    first_value(h."companyStateId") OVER wnd = $1 as current
     from prev_company_states pt
     join company_state cs on pt.id = cs.id
     join transaction t on cs."transactionId" = t.id

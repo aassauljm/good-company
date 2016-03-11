@@ -536,7 +536,9 @@ const EXTRACT_DOCUMENT_MAP = {
             effectiveDate:  moment($('.row.wideLabel label').filter(function(){
                     return $(this).text().match(/Registration Date and Time/);
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
-        }]}
+        }],
+        transactionType: Transaction.types.ANNUAL_RETURN
+        }
     }
 }
 
@@ -699,6 +701,7 @@ function insertIntermediateActions(docs){
                 }
                 return a;
             })
+            doc.transactionType = Transaction.types.COMPOUND_REMOVALS;
             acc.push(doc);
             acc.push(amends);
         }

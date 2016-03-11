@@ -5,9 +5,11 @@ import { pureRender, numberWithCommas } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
+import { renderRights, renderLimitations } from './shareClasses';
 
-function renderShareClass(shareClass){
-    return shareClass || STRINGS.defaultShareClass
+
+function renderShareClass(shareClass, shareClassMap = {}){
+    return shareClassMap[shareClass] ? shareClassMap[shareClass].name : STRINGS.defaultShareClass
 }
 
 // all the same
@@ -66,7 +68,10 @@ export class ShareRegister extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
     };
-    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sum', 'restrictions', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
+
+    static defaultShareMap = {};
+
+    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sum', 'votingRights', 'limitations', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
     wideFields = {'name': 1, 'address': 1, 'issueHistory': 1, 'repurchaseHistory': 1, 'transferHistoryFrom': 1, 'transferHistoryTo': 1};
 
     key() {
@@ -85,13 +90,17 @@ export class ShareRegister extends React.Component {
         this.fetch();
     };
 
-    renderField(key, data) {
+    renderField(key, data, shareClassMap) {
         if(Array.isArray(data)){
             return  <RenderActions actions={data}/>
         }
         switch(key){
             case 'shareClass':
-                return renderShareClass(data);
+                return renderShareClass(data, shareClassMap);
+            case 'votingRights':
+                return renderRights(((shareClassMap[data] || {}).properties || {}).votingRights);
+            case 'limitations':
+                return renderLimitations(((shareClassMap[data] || {}).properties || {}).limiations);
             case 'current':
                 return data ? 'Yes': 'No';
             case 'amount':
@@ -102,7 +111,7 @@ export class ShareRegister extends React.Component {
         }
     }
 
-    renderTable(shareRegister) {
+    renderTable(shareRegister, shareClassMap) {
         return <table className="table share-register">
             <thead>
                 <tr>{ this.fields.map((f, i) => {
@@ -112,7 +121,7 @@ export class ShareRegister extends React.Component {
             <tbody>
                 { shareRegister.map((s, i) => {
                     return <tr key={i}>{ this.fields.map((f, j) => {
-                        return <td key={j}>{this.renderField(f, shareRegister[i][f])}</td>
+                        return <td key={j}>{this.renderField(f, shareRegister[i][f], shareClassMap)}</td>
                     })}</tr>
                 }) }
             </tbody>
@@ -121,8 +130,15 @@ export class ShareRegister extends React.Component {
 
     render() {
         const shareRegister = (this.props.data || {}).shareRegister;
+        let shareClassMap = ShareRegister.defaultShareMap;
         if(!shareRegister){
             return <div className="loading"></div>
+        }
+        if(this.props.companyState.shareClasses && this.props.companyState.shareClasses.shareClasses){
+            shareClassMap = this.props.companyState.shareClasses.shareClasses.reduce((acc, s) => {
+                acc[s.id] = s;
+                return acc;
+            }, {});
         }
         return <div>
                     <div className="container">
@@ -133,7 +149,7 @@ export class ShareRegister extends React.Component {
                     </div>
                     <div className="container-fluid">
                         <div className="table-responsive">
-                            {this.renderTable(shareRegister)}
+                            {this.renderTable(shareRegister, shareClassMap)}
                             </div>
                     </div>
                 </div>

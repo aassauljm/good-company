@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const cls = require('continuation-local-storage');
 const session = cls.getNamespace('session');
 
-export function validateAnnualReturn(data, companyState, effectiveDate){
+export function validateAnnualReturn(data, companyState){
     const state = companyState.toJSON();
     return companyState.stats()
         .then((stats) => {
@@ -131,7 +131,7 @@ export function performInverseAcquisition(data, companyState, previousState, eff
 }
 
 export  function performInverseAmend(data, companyState, previousState, effectiveDate){
-    let transaction, holding;
+    let transaction, holding, prevHolding;
     data = _.cloneDeep(data);
     return Promise.resolve({})
         .then(() => {
@@ -151,8 +151,12 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 data.shareClass = parcel.shareClass = _.find(holding.dataValues.parcels, p => data.afterAmount === p.amount).shareClass;
             }
             const transactionType  = data.transactionSubType || data.transactionType;
+
             if(difference < 0){
-                companyState.subtractUnallocatedParcels(parcel);
+                const match = companyState.subtractUnallocatedParcels(parcel);
+                if(!parcel.shareClass){
+                    data.shareClass = parcel.shareClass = match.shareClass;
+                }
                 companyState.combineHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
             }
             else{
@@ -165,13 +169,23 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             if(!current.holdersMatch({holders: data.beforeHolders})){
                 companyState.mutateHolders(current, data.beforeHolders);
             }
-
             transaction = Transaction.build({type: data.transactionSubType || transactionType,  data: data, effectiveDate: effectiveDate});
             return transaction.save();
         })
         .then(() => {
-            const prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
-            return prevHolding.setTransaction(transaction.id);
+            prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
+            // if we inferred shareClass from unallocatedParcels, lets assign it here (mutate it)
+            if(data.shareClass && !_.find(prevHolding.parcels, p => p.shareClass)){
+                return Promise.all(prevHolding.dataValues.parcels.map(p => p.replace({shareClass: data.shareClass})).map(p => p.save()))
+
+            }
+        })
+        .then(parcels => {
+            if(parcels){
+                prevHolding.setParcels(parcels);
+            }
+            prevHolding.set('transactionId', transaction.id);
+            return prevHolding.save();
         })
         .then(() => {
             return transaction;
@@ -313,6 +327,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
         if(!data.shareClass){
             data.shareClass = _.find(holding.dataValues.parcels, p => data.amount === p.amount).shareClass;
         }
+
         companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
 
         if(!holding){
@@ -755,6 +770,7 @@ export function performInverseTransaction(data, company, rootState){
         })
         .then(function(_prevState){
             //sails.log.silly('Current state', JSON.stringify(prevState, null, 4));
+            sails.log.info('Current state', JSON.stringify(prevState.holdingList.holdings));
             return currentRoot.setPreviousCompanyState(_prevState);
         })
          .then(function(){
@@ -835,6 +851,14 @@ export function performTransaction(data, company, companyState){
     };
     if(!data.actions){
         return Promise.resolve(companyState);
+    }
+    if(data.transactionType === Transaction.types.ANNUAL_RETURN){
+        return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
+        .then(function(_state){
+            return PERFORM_ACTION_MAP[data.transactionType]({
+                        ...data.actions[0], documentId: data.documentId
+                    }, _state);
+        })
     }
     let nextState, current, transactions;
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
