@@ -107,7 +107,12 @@ export class ApplyShareClassesModal extends React.Component {
             return <option key={i} value={s.id}>{s.name}</option>
         })
         const fields = companyState.holdingList.holdings.map(h => `${h.holdingId}`)
-        return <ShareClassSelectConnected ref="form" companyState={companyState} options={options} fields={fields} onSubmit={this.submit}/>
+        const initialValues = companyState.holdingList.holdings.reduce((acc, value, key) => {
+            acc[value.holdingId] = value.parcels[0].shareClass;
+            return acc;
+        }, {})
+        return <ShareClassSelectConnected ref="form" companyState={companyState}
+            options={options} fields={fields} onSubmit={this.submit} initialValues={initialValues}/>
     }
 
     render() {

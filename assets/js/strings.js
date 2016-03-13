@@ -14,6 +14,8 @@ export default {
     defaultShareClass: 'Ordinary',
     effectiveDate: 'Effective Date',
     holding: 'Shareholding',
+    arFilingMonth: 'AR Filing Month',
+    fraReportingMonth: 'FRA Reporting Month',
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

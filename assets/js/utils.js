@@ -156,7 +156,7 @@ export function formProxy(component){
     }
 }
 
-export function formFieldProps(args){
+export function formFieldProps(args = {}){
     return (component) => {
         component.prototype.formFieldProps = function(name, strings=STRINGS) {
             const field = this.props.fields ? this.props.fields[name] : this.props[name];
