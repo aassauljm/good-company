@@ -139,6 +139,25 @@ a, a:hover{
     text-decoration: none;
     color: $text-color;
 }
+
+
+.col-full-h {
+    display: table;
+    width:100%;
+    .left {
+        float: none;
+        display: table-cell;
+    }
+
+    .right {
+        float: none;
+        display: table-cell;
+        vertical-align: middle;
+    }
+}
+
+
+
 // graphs
 .hide-graph-labels{
     .arc{

@@ -159,11 +159,17 @@ export function formProxy(component){
 export function formFieldProps(args = {}){
     return (component) => {
         component.prototype.formFieldProps = function(name, strings=STRINGS) {
-            const field = this.props.fields ? this.props.fields[name] : this.props[name];
+            let field;
+            if(Array.isArray(name)){
+                field = name.reduce((acc, f) => acc[f], this.props.fields);
+            }
+            else{
+                field = this.props.fields ? this.props.fields[name] : this.props[name];
+            }
             return {
                  ...field,
                     bsStyle: fieldStyle(field),
-                    label: strings[name],
+                    label: strings[Array.isArray(name) ? name[name.length-1] : name],
                     labelClassName: args.labelClassName,
                     wrapperClassName: args.wrapperClassName,
                     hasFeedback: true,
@@ -255,4 +261,18 @@ export function renderDocumentLinks(list){
         <div key={i}><Link  activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
             {d.filename}
         </Link></div>);
+}
+
+
+export function joinAnd(items=[], options={}){
+    if(!items.length){
+        return "UNKNOWN"
+    }
+    else if(items.length === 1){
+        return (items[0] || {})[options.prop]
+    }
+    else{
+        items = items.map(i => (i||{})[options.prop]);
+        return `${items.slice(0, items.length-1).join(', ')} and ${items[items.length-1]}`;
+    }
 }

@@ -6,8 +6,7 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
-import { numberWithCommas } from '../../utils'
-import { fieldStyle, fieldHelp, formFieldProps, requireFields } from '../../utils';
+import { formFieldProps, requireFields } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
 import { routeActions } from 'react-router-redux';

@@ -7,7 +7,7 @@ import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
 import IssueModal from './transactions/issue';
-import TransferModal from './transactions/transfer';
+import { TransferModal } from './transactions/transfer';
 import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
 
@@ -71,6 +71,9 @@ export default class Modals extends React.Component {
 
             case 'updateCompany':
                 return <CompanyDetailsModal {...props} />
+
+            case 'transfer':
+                return <TransferModal {...props} />
 
             default:
                 return false;

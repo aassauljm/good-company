@@ -33,7 +33,9 @@ function renderAmount(holding){
 
 
 export class ShareClassSelect extends React.Component {
-
+    static propTypes = {
+        options: PropTypes.array.isRequired,
+    };
     renderSelect(shareClass) {
         return <Input type="select" {...shareClass} bsStyle={fieldStyle(shareClass)} help={fieldHelp(shareClass)}
             hasFeedback >

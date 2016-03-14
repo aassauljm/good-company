@@ -60,6 +60,10 @@ export default {
         REDEMPTION: 'Redemption',
         REDEMPTION_FROM: 'Redemption From'
     },
+    transfer: {
+        from: 'Source Holding',
+        to: 'Destination Holding',
+    },
     interestsRegister: {
         date: 'Date',
         persons: 'Persons',
