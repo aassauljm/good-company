@@ -118,6 +118,15 @@ var transactions = {
         .then(function(){
             return company.save();
         });
+    },
+
+
+    update: function(args, company){
+        return TransactionService.performTransaction({
+            transactionType: args.transactionType,
+            actions: args.actions,
+            effectiveDate: args.effecticeDate || new Date() },
+            company);
     }
 }
 
@@ -259,6 +268,10 @@ module.exports = {
     transactions: transactions,
     create: function(req, res) {
         let company, args = actionUtil.parseValues(req);
+        delete args.type;
+        delete args.createdById;
+        delete args.ownerId;
+
         return sequelize.transaction(function(t){
             return Company.findById(req.params.companyId)
                 .then(function(_company) {
@@ -335,6 +348,7 @@ module.exports = {
     },
     createShareClass: function(req, res){
         let company;
+        // merge with above
         return req.file('documents').upload(function(err, uploadedFiles){
             return sequelize.transaction(function(t){
                 return Company.findById(req.params.companyId)

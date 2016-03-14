@@ -160,5 +160,4 @@ module.exports.routes = {
         controller: 'CompanyStateController',
         action: 'createShareClass'
     },
-
 };

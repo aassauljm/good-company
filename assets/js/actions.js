@@ -206,7 +206,7 @@ export function importCompany(companyNumber) {
             credentials: 'same-origin'
 
         }),
-        shouldCallAPI: (state) => state.importCompany._status !== 'fetch',
+        shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
         payload: {companyNumber: companyNumber}
     };
 }
@@ -221,7 +221,7 @@ export function companyTransaction(transactionType, companyId, data) {
             credentials: 'same-origin'
 
         }),
-        shouldCallAPI: (state) => !state.transactions._status,
+        shouldCallAPI: (state) => state.transactions._status !== 'fetching',
         payload: {companyId: companyId}
     };
 }

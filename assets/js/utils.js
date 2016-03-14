@@ -204,21 +204,20 @@ export function requiredFields(fields, values){
     return errors;
 }
 
-export const requireFields = (...names) => data =>
-  names.reduce((errors, name) => {
-    if (!data || !data[name]) {
-      errors[name] = ['Required'];
-    }
-    return errors;
-  }, {});
+export function requireFields(...names){
+    return data =>
+      names.reduce((errors, name) => {
+        if (!data || !data[name]) {
+          errors[name] = ['Required'];
+        }
+        return errors;
+      }, {});
+}
 
 
 let _fetch = isoFetch;
 
 export function fetch(url, args){
-   /* if(__SERVER__){
-        url = 'http://localhost:'+sails.config.port+url;
-    }*/
    return _fetch(url, args);
 }
 

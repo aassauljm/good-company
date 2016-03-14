@@ -5,46 +5,39 @@ import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import Input from '../forms/input';
+import DateInput from '../forms/dateInput';
 import { numberWithCommas } from '../../utils'
-import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { fieldStyle, fieldHelp, formFieldProps } from '../../utils';
+import { fieldStyle, fieldHelp, formFieldProps, requireFields } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
 import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 
 
-/*
-    companyName: 'Company Name',
-    nzbn: 'NZBN',
-    companyNumber: 'Company Number',
-    addressForService: 'Address for Service',
-    registeredCompanyAddress: 'Registered Company Address',
-    AR Filing Month,
-    ultimate holding company,
-*/
-
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const fields = ['companyName', 'nzbn', 'companyNumber', 'addressForService', 'registeredCompanyAddress', 'arFilingMonth', 'fraReportingMonth']
+const fields = ['effectiveDate', 'companyName', 'nzbn', 'companyNumber', 'addressForService', 'registeredCompanyAddress', 'arFilingMonth', 'fraReportingMonth']
 
 
 @formFieldProps()
 export class CompanyDetails extends React.Component {
     render() {
-        return <form className="form">
+        return <form className="form" >
         <fieldset>
+            <DateInput {...this.formFieldProps('effectiveDate')} />
             <Input type="text" {...this.formFieldProps('companyName')} />
             <Input type="text" {...this.formFieldProps('nzbn')} />
             <Input type="text" {...this.formFieldProps('companyNumber')} />
             <Input type="text" {...this.formFieldProps('addressForService')} />
             <Input type="text" {...this.formFieldProps('registeredCompanyAddress')} />
             <Input type="select" {...this.formFieldProps('arFilingMonth')} >
+                <option></option>
                 { months.map((m, i) => {
                     return <option key={i} value={m}>{m}</option>
                 }) }
             </Input>
             <Input type="select" {...this.formFieldProps('fraReportingMonth')} >
+                <option></option>
                 { months.map((m, i) => {
                     return <option key={i} value={m}>{m}</option>
                 }) }
@@ -54,18 +47,21 @@ export class CompanyDetails extends React.Component {
     }
 }
 
+const validate = requireFields('effectiveDate', 'companyName', 'registeredCompanyAddress')
+
+
 const CompanyDetailsConnected = reduxForm({
   form: 'companyInfo',
-  fields: fields
+  fields,
+  validate
 })(CompanyDetails);
-
 
 
 @connect(undefined)
 export class CompanyDetailsModal extends React.Component {
     constructor(props) {
         super(props);
-         this.submit = ::this.submit;
+        this.submit = ::this.submit;
     }
 
     handleNext() {
@@ -73,34 +69,67 @@ export class CompanyDetailsModal extends React.Component {
     }
 
     submit(values) {
-        alert('to do')
-        /*const holdings = [];
-        Object.keys(values).map(k => {
-            if(!values[k]) return;
-            holdings.push({
-                holdingId: parseInt(k, 10),
-                shareClass: parseInt(values[k], 10),
-                transactionType: 'APPLY_SHARE_CLASS'
-            });
+        const actions = [];
+        const transactionMap = {
+            'addressForService': 'ADDRESS_CHANGE',
+            'registeredCompanyAddress': 'ADDRESS_CHANGE',
+            'companyName': 'NAME_CHANGE'
+        };
+        const fieldNameMap = {
+            'addressForService': 'newAddress',
+            'registeredCompanyAddress': 'newAddress',
+            'companyName': 'newCompanyName'
+        };
+        const previousFieldNameMap = {
+            'addressForService': 'previousAddress',
+            'registeredCompanyAddress': 'previousAddress',
+            'companyName': 'previousCompanyName'
+        };
+        fields.map(item => {
+            if(item === 'effectiveDate'){
+                return;
+            }
+            if(values[item] !== this.props.modalData.companyState[item]){
+                actions.push({
+                    transactionType: transactionMap[item] || 'DETAILS',
+                    [fieldNameMap[item || 'value']]: values[item],
+                    [previousFieldNameMap[item || 'previousValue']]: this.props.modalData.companyState[item],
+                    field: item
+                })
+            }
         });
-        this.props.dispatch(companyTransaction('apply_share_classes',
-                                this.props.modalData.companyId,
-                                {actions: holdings}))
+
+        console.log(actions)
+        if(actions.length){
+             this.props.dispatch(companyTransaction('update',
+                                            this.props.modalData.companyId,
+                                {
+                                    actions: actions,
+                                    effectiveDate: values.effectiveDate,
+                                    transactionType: 'DETAILS'
+                                }))
+
             .then(() => {
                 this.props.end();
-                this.props.dispatch(addNotification({message: err.message, error: true}));
+                this.props.dispatch(addNotification({message: 'Updated Company Details'}));
                 const key = this.props.modalData.companyId;
                 this.props.dispatch(routeActions.push(`/company/view/${key}`))
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
-            });*/
+            })
+        }
+        else{
+            this.props.end();
+        }
     }
 
     renderBody(companyState) {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
-                <CompanyDetailsConnected ref="form" companyState={companyState} initialValues={companyState} onSubmit={this.submit}/>
+                <CompanyDetailsConnected ref="form"
+                    initialValues={{...companyState, effectiveDate: new Date() }}
+                    onSubmit={this.submit}/>
                 </div>
             </div>
 
@@ -109,7 +138,7 @@ export class CompanyDetailsModal extends React.Component {
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
-                <Modal.Title>Company Details</Modal.Title>
+                <Modal.Title>Update Company Details</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 { this.renderBody(this.props.modalData.companyState) }

@@ -93,7 +93,7 @@ export class ApplyShareClassesModal extends React.Component {
                                 {actions: holdings}))
             .then(() => {
                 this.props.end();
-                this.props.dispatch(addNotification({message: err.message, error: true}));
+                this.props.dispatch(addNotification({message: 'Share classes applied.'}));
                 const key = this.props.modalData.companyId;
                 this.props.dispatch(routeActions.push(`/company/view/${key}`))
             })

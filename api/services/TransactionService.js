@@ -469,6 +469,11 @@ export function performAddressChange(data, companyState, previousState, effectiv
     })
 };
 
+export function performDetailsChange(data, companyState, previousState, effectiveDate){
+    companyState.set(data.field, data.value);
+    return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+};
+
 
 export const validateInverseNewDirector = Promise.method(function(data, companyState){
     const director = _.find(companyState.dataValues.directorList.dataValues.directors, (d)=> {
@@ -706,6 +711,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
         [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performInverseAddressChange,
+        [Transaction.types.DETAIL_CHANGE]: TransactionService.performInverseDetailChange,
         [Transaction.types.NEW_DIRECTOR]: TransactionService.performInverseNewDirector,
         [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performInverseRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
@@ -782,6 +788,7 @@ export function performInverseAll(data, company, state){
     // Loop though data
     // If an exception is found, rollback, and increment permutation for
     // ambigious options.  give up after completion of breadth first search
+    // TODO, switch to depth first
     console.time('transactions');
     const options = {};
     function next(){
@@ -842,6 +849,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performIssueUnallocated,
         [Transaction.types.AMEND]:  TransactionService.performAmend,
         [Transaction.types.NAME_CHANGE]: TransactionService.performNameChange,
+        [Transaction.types.DETAILS]: TransactionService.performDetailsChange,
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performAddressChange,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performHolderChange,
