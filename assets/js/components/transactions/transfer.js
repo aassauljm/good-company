@@ -65,7 +65,7 @@ export class Transfer extends React.Component {
     }
 }
 
-const validateBase = requireFields('effectiveDate', 'form', 'to');
+const validateBase = requireFields('effectiveDate', 'from', 'to');
 const validateParcel = requireFields('amount');
 
 const validate = (values, props) => {
@@ -81,7 +81,6 @@ const validate = (values, props) => {
             errors.shareClass = (errors.shareClass || []).concat(['Duplicate share class.']);
         }
         parcels.push(p.shareClass);
-        console.log(props.holdingMap)
         const matchedParcels = sourceParcels && sourceParcels.filter(sP => {
             if(sP.shareClass === p.shareClass && p.amount > sP.amount){
                 errors.amount = (errors.amount || []).concat(['Insufficient shares in source holding.']);
@@ -93,10 +92,36 @@ const validate = (values, props) => {
         }
         return errors;
     });
+    console.log(errors)
     return errors;
 
 }
 
+export function transferFormatSubmit(values, companyState){
+    const actions = [];
+    values.parcels.map(p => {
+        actions.push({
+            holdingId: parseInt(values.from, 10),
+            amount: -parseInt(p.amount, 10),
+            shareClass: parseInt(p.shareClass, 10),
+            transactionType: 'TRANSFER_FROM',
+            transactionMethod: 'AMEND'
+        });
+        actions.push({
+            holdingId: parseInt(values.to, 10),
+            amount: parseInt(p.amount, 10),
+            shareClass: parseInt(p.shareClass, 10),
+            transactionType: 'TRANSFER_TO',
+            transactionMethod: 'AMEND'
+        });
+    });
+    return {
+        effectiveDate: values.effectiveDate,
+        transactionType: 'TRANSFER',
+        actions: actions
+    }
+
+}
 
 const TransferConnected = reduxForm({
   form: 'transfer',
@@ -117,33 +142,16 @@ export class TransferModal extends React.Component {
     }
 
     submit(values) {
-        /*fields.map(item => {
-            if(item === 'effectiveDate'){
-                return;
-            }
-            if(values[item] !== this.props.modalData.companyState[item]){
-                actions.push({
-                    transactionType: transactionMap[item] || 'DETAILS',
-                    [fieldNameMap[item || 'value']]: values[item],
-                    [previousFieldNameMap[item || 'previousValue']]: this.props.modalData.companyState[item],
-                    field: item
-                })
-            }
-        });
-
-        console.log(actions)
-        if(actions.length){
-             this.props.dispatch(companyTransaction('update',
-                                            this.props.modalData.companyId,
-                                {
-                                    actions: actions,
-                                    effectiveDate: values.effectiveDate,
-                                    transactionType: 'DETAILS'
-                                }))
+        const transaction = transferFormatSubmit(values)
+        if(transaction.actions.length){
+             this.props.dispatch(companyTransaction(
+                                    'compound',
+                                    this.props.modalData.companyId,
+                                    {transactions: [transaction]} ))
 
             .then(() => {
                 this.props.end();
-                this.props.dispatch(addNotification({message: 'Updated Company Details'}));
+                this.props.dispatch(addNotification({message: 'Shares Transfered'}));
                 const key = this.props.modalData.companyId;
                 this.props.dispatch(routeActions.push(`/company/view/${key}`))
             })
@@ -153,7 +161,7 @@ export class TransferModal extends React.Component {
         }
         else{
             this.props.end();
-        }*/
+        }
     }
 
     renderBody(companyState) {

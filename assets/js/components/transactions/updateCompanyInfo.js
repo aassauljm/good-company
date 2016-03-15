@@ -56,6 +56,45 @@ const CompanyDetailsConnected = reduxForm({
 })(CompanyDetails);
 
 
+export function companyDetailsFormatSubmit(values, companyState){
+    const actions = [];
+    const transactionMap = {
+        'addressForService': 'ADDRESS_CHANGE',
+        'registeredCompanyAddress': 'ADDRESS_CHANGE',
+        'companyName': 'NAME_CHANGE'
+    };
+    const fieldNameMap = {
+        'addressForService': 'newAddress',
+        'registeredCompanyAddress': 'newAddress',
+        'companyName': 'newCompanyName'
+    };
+    const previousFieldNameMap = {
+        'addressForService': 'previousAddress',
+        'registeredCompanyAddress': 'previousAddress',
+        'companyName': 'previousCompanyName'
+    };
+    fields.map(item => {
+        if(item === 'effectiveDate'){
+            return;
+        }
+        if(values[item] !== companyState[item]){
+            actions.push({
+                transactionType: transactionMap[item] || 'DETAILS',
+                [fieldNameMap[item || 'value']]: values[item],
+                [previousFieldNameMap[item || 'previousValue']]: companyState[item],
+                field: item
+            })
+        }
+    });
+    return {
+        actions: actions,
+        effectiveDate: values.effectiveDate,
+        transactionType: 'DETAILS'
+    }
+
+}
+
+
 @connect(undefined)
 export class CompanyDetailsModal extends React.Component {
     constructor(props) {
@@ -68,46 +107,12 @@ export class CompanyDetailsModal extends React.Component {
     }
 
     submit(values) {
-        const actions = [];
-        const transactionMap = {
-            'addressForService': 'ADDRESS_CHANGE',
-            'registeredCompanyAddress': 'ADDRESS_CHANGE',
-            'companyName': 'NAME_CHANGE'
-        };
-        const fieldNameMap = {
-            'addressForService': 'newAddress',
-            'registeredCompanyAddress': 'newAddress',
-            'companyName': 'newCompanyName'
-        };
-        const previousFieldNameMap = {
-            'addressForService': 'previousAddress',
-            'registeredCompanyAddress': 'previousAddress',
-            'companyName': 'previousCompanyName'
-        };
-        fields.map(item => {
-            if(item === 'effectiveDate'){
-                return;
-            }
-            if(values[item] !== this.props.modalData.companyState[item]){
-                actions.push({
-                    transactionType: transactionMap[item] || 'DETAILS',
-                    [fieldNameMap[item || 'value']]: values[item],
-                    [previousFieldNameMap[item || 'previousValue']]: this.props.modalData.companyState[item],
-                    field: item
-                })
-            }
-        });
-
-        console.log(actions)
-        if(actions.length){
-             this.props.dispatch(companyTransaction('update',
-                                            this.props.modalData.companyId,
-                                {
-                                    actions: actions,
-                                    effectiveDate: values.effectiveDate,
-                                    transactionType: 'DETAILS'
-                                }))
-
+        const transaction = companyDetailsFormatSubmit(values, this.props.modalData.companyState);
+        if(transaction.actions.length){
+             this.props.dispatch(companyTransaction(
+                                'compound',
+                                this.props.modalData.companyId,
+                                {transactions: [transaction]} ))
             .then(() => {
                 this.props.end();
                 this.props.dispatch(addNotification({message: 'Updated Company Details'}));

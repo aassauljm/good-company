@@ -572,8 +572,8 @@ module.exports = {
                 _.some(holdings, function(nextHolding, j){
                     var toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
-                        if(((holdingToAdd.holderId && nextHolding.holderId === holdingToAdd.holderId ) ||
-                            nextHolding.holdersMatch(holdingToAdd)) &&
+                        if(((holdingToAdd.holdingId && nextHolding.holdingId === holdingToAdd.holdingId ) ||
+                            (!holdingToAdd.holdingId && nextHolding.holdersMatch(holdingToAdd))) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             holdings[j] = nextHolding = nextHolding.buildNext();
                             if(subtractHoldings){
@@ -707,13 +707,15 @@ module.exports = {
                 return this;
             },
 
-            getMatchingHolding: function(holders, parcelHint, ignoreCompanyNumber){
-                return this.getMatchingHoldings(holders, parcelHint, ignoreCompanyNumber)[0];
+            getMatchingHolding: function(holding, options={}){
+                return this.getMatchingHoldings(holding, options.ignoreCompanyNumber)[0];
             },
 
-            getMatchingHoldings: function(holders, parcelHint, ignoreCompanyNumber){
-                return _.filter(this.dataValues.holdingList.dataValues.holdings, function(holding){
-                    return holding.holdersMatch({holders: holders}, ignoreCompanyNumber) && (!parcelHint || holding.parcelsMatch({parcels: parcelHint}));
+            getMatchingHoldings: function(holding,  options={}){
+                return _.filter(this.dataValues.holdingList.dataValues.holdings, function(h){
+                    return (holding.holdingId && holding.holdingId === h.holdingId  ||
+                            h.holdersMatch({holders: holding.holders || []},  options.ignoreCompanyNumber)) &&
+                        (!holding.parcels || h.parcelsMatch({parcels: holding.parcels}));
                 });
             },
 

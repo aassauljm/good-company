@@ -92,13 +92,7 @@ var transactions = {
         if(!sets.length){
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
-        let state;
-        return Promise.each(sets, function(set) {
-            return TransactionService.performTransaction(set, company, state)
-                .then(_state => {
-                    state = _state;
-                });
-        })
+        return TransactionService.performAll(sets, company);
     },
 
 
@@ -121,12 +115,16 @@ var transactions = {
     },
 
 
-    update: function(args, company){
-        return TransactionService.performTransaction({
-            transactionType: args.transactionType,
-            actions: args.actions,
-            effectiveDate: args.effecticeDate || new Date() },
-            company);
+    compound: function(args, company){
+        // TODO, validate different pairings
+        return TransactionService.performAll(args.transactions || [], company)
+            .then(state => {
+                // populate state,
+                // generate implicit transactions,
+                // run them
+                // return
+            })
+        // TODO, add implicit transactions, Ie removeAllocation
     }
 }
 

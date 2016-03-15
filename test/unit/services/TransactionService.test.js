@@ -5,7 +5,7 @@ import chai from 'chai';
 const should = chai.should();
 
 
-describe('Transaction Service, inverse transactions', function() {
+describe('Transaction Service', function() {
     describe('Inverse Transactions', function(){
         let rootStateSimple, initialStateSimple = {
             companyName: 'dingbat limited',
@@ -291,7 +291,7 @@ describe('Transaction Service, inverse transactions', function() {
                         return rootStateMultiple.reload();
                     })
                     .then(function(){
-                        const holding = rootStateMultiple.getMatchingHolding([{name: 'mike'}], [{amount: 1}]);
+                        const holding = rootStateMultiple.getMatchingHolding({holders: [{name: 'mike'}], parcels: [{amount: 1}]});
                         holding.transaction.type.should.be.equal(Transaction.types.ISSUE_TO);
                     });
             });
@@ -538,7 +538,7 @@ describe('Transaction Service, inverse transactions', function() {
                 return rootStateMultiple.buildNext()
                     .then(function(companyState){
                         nextState = companyState;
-                        const holding = companyState.getMatchingHolding([{name: 'mike'}, {name: 'john'}]);
+                        const holding = companyState.getMatchingHolding({holders: [{name: 'mike'}, {name: 'john'}]});
                         holdingId = holding.holdingId;
                         id = holding.id;
                         return TransactionService.performApplyShareClass({
@@ -546,19 +546,57 @@ describe('Transaction Service, inverse transactions', function() {
                             holdingId: holdingId,
                             shareClass: 1,
                         }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
-                })
-                .then(function(){
-                    return nextState.save();
-                })
-                .then(function(){
-                    return nextState.reload();
-                })
-                .then(function(){
-                    const holding = nextState.getMatchingHolding([{name: 'mike'}, {name: 'john'}])
-                    holding.parcels[0].shareClass.should.be.equal(1);
-                    holding.holdingId.should.be.equal(holdingId)
-                    holding.id.should.not.be.equal(id);
-                })
+                    })
+                    .then(function(){
+                        return nextState.save();
+                    })
+                    .then(function(){
+                        return nextState.reload();
+                    })
+                    .then(function(){
+                        const holding = nextState.getMatchingHolding({holders: [{name: 'mike'}, {name: 'john'}]})
+                        holding.parcels[0].shareClass.should.be.equal(1);
+                        holding.holdingId.should.be.equal(holdingId)
+                        holding.id.should.not.be.equal(id);
+                    })
+            })
+        });
+
+        describe('transfer', function() {
+            let nextState, holdingId1, holdingId2, id;
+            it('transfer from 1 holding to another', function() {
+                return rootStateMultiple.buildNext()
+                    .then(function(companyState){
+                        nextState = companyState;
+                        holdingId1 = companyState.getMatchingHolding({holders: [{name: 'mike'}, {name: 'john'}]}).holdingId;
+                        holdingId2 = companyState.getMatchingHolding({holders: [{name: 'mike'}, {name: 'mary'}]}).holdingId;
+                        return TransactionService.performAmend({
+                                holdingId: holdingId1,
+                                amount: -1,
+                                transactionType: Transaction.types.TRANSFER_FROM,
+                                transactionMethod: Transaction.types.AMEND
+                        }, companyState).should.eventually.be.fulfilled;
+                    })
+                    .then(function(){
+                        return TransactionService.performAmend({
+                            holdingId: holdingId2,
+                            amount: 1,
+                            transactionType: Transaction.types.TRANSFER_FROM,
+                            transactionMethod: Transaction.types.AMEND
+                        }, nextState).should.eventually.be.fulfilled;
+                    })
+                    .then(function(){
+                        return nextState.save();
+                    })
+                    .then(function(){
+                        return nextState.reload();
+                    })
+                    .then(function(){
+                        const holding1 = nextState.getMatchingHolding({holdingId: holdingId1})
+                        const holding2 = nextState.getMatchingHolding({holdingId: holdingId2})
+                        holding1.parcels[0].amount.should.be.equal(1)
+                        holding2.parcels[0].amount.should.be.equal(4)
+                    })
             })
         });
 

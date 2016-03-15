@@ -229,4 +229,67 @@ describe('CompanyStateController', function() {
             });
     });
 
+
+    describe('Transfer shares', function(){
+        let holdingId;
+        it('Gets info for holding', function(done) {
+           req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    holdingId = res.body.currentCompanyState.holdingList.holdings[0].holdingId;
+                    done();
+                });
+        });
+        it('Creates new allocation and transfers to it', function(done) {
+            req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [
+                    {
+                        actions: [{
+                            transactionType: Transaction.types.NEW_ALLOCATION,
+                            holders: [{name: 'Jim'}]
+                        },
+                        {
+                            transactionType: Transaction.types.TRANSFER_FROM,
+                            transactionMethod: Transaction.types.AMEND,
+                            amount: -1,
+                            shareClass: 1,
+                            holdingId: holdingId
+                        },
+                        {
+                            transactionType: Transaction.types.TRANSFER_TO,
+                            transactionMethod: Transaction.types.AMEND,
+                            amount: 1,
+                            shareClass: 1,
+                            holders: [{name: 'Jim'}]
+                        }]
+                    }
+                ]})
+                .expect(200, done)
+            });
+        it('Get Updated Info', function(done) {
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.totalAllocatedShares.should.be.equal(2325);
+                    res.body.currentCompanyState.should.containSubset({
+                        transaction: {
+                            type: 'COMPOUND'
+                        },
+                        holdingList: { holdings: [
+                            {
+                                holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                parcels: [{amount: 1112, shareClass: 1}, {amount: 1201, shareClass: 2},{amount: 1, shareClass: 3}]
+                            },
+                            {
+                                holders: [{name: 'Jim'}],
+                                parcels: [{amount: 1, shareClass: 1}]
+                            }
+                        ] }
+                    });
+                    done();
+                });
+        });
+    });
+
+
 });
