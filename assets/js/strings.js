@@ -16,6 +16,7 @@ export default {
     holding: 'Shareholding',
     arFilingMonth: 'AR Filing Month',
     fraReportingMonth: 'FRA Reporting Month',
+    holdingName: 'Holding Name',
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

@@ -10,6 +10,7 @@ import IssueModal from './transactions/issue';
 import { TransferModal } from './transactions/transfer';
 import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
+import { NewHoldingModal } from './transactions/newHolding';
 
             /*case 'issue':
                 return <IssueModal
@@ -75,6 +76,8 @@ export default class Modals extends React.Component {
             case 'transfer':
                 return <TransferModal {...props} />
 
+            case 'newHolding':
+                return <NewHoldingModal {...props} />
             default:
                 return false;
         }

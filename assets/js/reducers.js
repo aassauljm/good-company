@@ -142,7 +142,7 @@ function modals(state = {createCompany: {index: 0}}, action){
         case SHOW_MODAL:
             return {...state, showing: action.modal, [action.modal]: {index: 0, data: action.data}};
         case END_MODAL:
-            return {...state, showing: null, [action.modal]: null};
+            return {...state, showing: null, [action.modal]: null, ...state[action.modal].data.afterClose};
         case NEXT_MODAL:
             return {...state,  [action.modal]: {index: state[action.modal].index + 1, data: action.data}};
         case PREVIOUS_MODAL:

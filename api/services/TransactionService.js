@@ -597,6 +597,7 @@ export const performAmend = Promise.method(function(data, companyState, previous
             let transactionType  = data.transactionType;
             transaction = Transaction.build({type: data.transactionSubType || transactionType,
                 data: {data, amount: data.amount}, effectiveDate: effectiveDate});
+            // SERIOUSLY CONSIDER USING PARCEL HINTS, before/after amounts
             if(data.amount < 0 || REDUCTION_TYPES.indexOf(data.transactionType) >= 0){
                 companyState.combineUnallocatedParcels(parcel);
                 companyState.subtractHoldings([newHolding], null, transaction);

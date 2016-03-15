@@ -29,7 +29,7 @@ export function callAPIMiddleware({
                 payload = {}
             } = action;
 
-            if (!types) {
+            if (!types || !callAPI) {
                 // Normal action: pass it on
                 return next(action);
             }

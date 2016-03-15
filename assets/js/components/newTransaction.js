@@ -8,12 +8,18 @@ import LawBrowserLink from './lawBrowserLink'
 
 
 
-@connect(state => state)
+@connect(undefined, {
+    showModal: (key, data) => showModal(key, data),
+})
 export class NewTransaction extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
         companyId: PropTypes.string,
     };
+
+    show(key) {
+        const show = this.props.showModal(key, {companyState: this.props.companyState, companyId: this.props.companyId});
+    }
 
     render() {
         return <div className="new-transaction">
@@ -24,65 +30,65 @@ export class NewTransaction extends React.Component {
                     </div> */ }
                     <div className="container">
                         <ul>
-                            <li className="actionable" onClick={() => this.props.dispatch(showModal('applyShareClasses', {companyState: this.props.companyState, companyId: this.props.companyId}))}>
+                            <li className="actionable" onClick={() => this.show('applyShareClasses')}>
                                 <span className="glyphicon glyphicon-list-alt"></span>
                                 <span className="transaction-button-text">Apply Share Classes</span>
                             </li>
 
-                            <li className="actionable" onClick={() => this.props.dispatch(showModal('issue', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable" onClick={() => this.show('issue')} >
                                 <span className="glyphicon glyphicon-export"></span>
                                 <span className="transaction-button-text">Issue Shares</span>
                             </li>
 
-                            <li className="actionable" onClick={() => this.props.dispatch(showModal('conversion', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable" onClick={() => this.show('conversion')} >
                                 <span className="glyphicon glyphicon-resize-full"></span>
                                 <span className="transaction-button-text">Conversion/Subdivision of Shares</span>
                             </li>
 
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('aquisition', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('aquisition')} >
                                 <span className="glyphicon glyphicon-shopping-cart"></span>
                                 <span className="transaction-button-text">Acquisition of Shares</span>
                             </li>
 
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('purchase', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('purchase')} >
                                 <span className="glyphicon glyphicon-usd"></span>
                                 <span className="transaction-button-text">Purchase of Shares</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('issue', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('issue')} >
                                 <span className="glyphicon glyphicon-import"></span>
                                 <span className="transaction-button-text">Redemption of Shares</span>
                             </li>
 
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('consolidation', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('consolidation')} >
                                 <span className="glyphicon glyphicon-envelope"></span>
                                 <span className="transaction-button-text">Consolidation of Shares</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('transfer', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('transfer')} >
                                 <span className="glyphicon glyphicon-transfer"></span>
                                 <span className="transaction-button-text">Transfer Shares</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('updateHolding', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('updateHolding')} >
                                 <span className="glyphicon glyphicon-briefcase"></span>
                                 <span className="transaction-button-text">Update Shareholding</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('updateHolder', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('updateHolder')} >
                                 <span className="glyphicon glyphicon-user"></span>
                                 <span className="transaction-button-text">Update Shareholder</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.props.dispatch(showModal('updateCompany', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable"  onClick={() => this.show('updateCompany')} >
                                 <span className="glyphicon glyphicon-info-sign"></span>
                                 <span className="transaction-button-text">Update Company Information</span>
                             </li>
 
-                            <li className="actionable" onClick={() => this.props.dispatch(showModal('manageDirector', {companyState: this.props.companyState, companyId: this.props.companyId}))} >
+                            <li className="actionable" onClick={() => this.show('manageDirector')} >
                                 <span className="glyphicon glyphicon-blackboard"></span>
                                 <span className="transaction-button-text">Manage Directors</span>
                             </li>

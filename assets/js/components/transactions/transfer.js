@@ -9,7 +9,7 @@ import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
 import { formFieldProps, requireFields, joinAnd } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification } from '../../actions';
+import { companyTransaction, addNotification, showModal } from '../../actions';
 import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -37,6 +37,9 @@ export class Transfer extends React.Component {
                 <option></option>
                 { this.props.holdingOptions }
             </Input>
+            <div className="button-row"><ButtonInput onClick={() => {
+                this.props.showModal('newHolding');    // pushes empty child field onto the end of the array
+            }}>Create New Holding</ButtonInput></div>
 
             { this.props.fields.parcels.map((n, i) => {
                 return <div className="row " key={i}>
@@ -92,7 +95,6 @@ const validate = (values, props) => {
         }
         return errors;
     });
-    console.log(errors)
     return errors;
 
 }
@@ -184,6 +186,12 @@ export class TransferModal extends React.Component {
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
+                    showModal={(key) => this.props.dispatch(showModal(key, {
+                        ...this.props.modalData,
+                        afterClose: { // open this modal again
+                            showing: 'transfer', transfer: {data: this.props.modalData}
+                        }
+                    }))}
                     onSubmit={this.submit}/>
                 </div>
             </div>

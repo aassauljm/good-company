@@ -219,7 +219,6 @@ export function companyTransaction(transactionType, companyId, data) {
             headers: json_headers,
             body: JSON.stringify(data),
             credentials: 'same-origin'
-
         }),
         shouldCallAPI: (state) => state.transactions._status !== 'fetching',
         payload: {companyId: companyId}
@@ -257,9 +256,9 @@ export function showModal(modal, data){
     }
 }
 
-export function endModal(modal){
+export function endModal(modal, data={}){
     return {
-        type: END_MODAL, modal
+        type: END_MODAL, modal, data
     }
 }
 

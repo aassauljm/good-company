@@ -6,6 +6,6 @@ import Input from './input';
 
 export default class Address extends React.Component {
     render() {
-        return <Input type="text" {...this.props}/>
+        return <Input rows={3} type="textarea" {...this.props}/>
     }
 }
