@@ -106,6 +106,9 @@ module.exports = {
                     return Parcel.match(p, otherSorted[i]) && p.amount === otherSorted[i].amount;
                 })
             },
+            hasNonEmptyParcels: function(){
+                return _.sum(this.dataValues.parcels, 'amount') > 0;
+            },
             combineParcels: function(holding){
                 var newParcels = [];
                 if(holding.get){

@@ -117,12 +117,17 @@ var transactions = {
 
     compound: function(args, company){
         // TODO, validate different pairings
+        let state;
+
         return TransactionService.performAll(args.transactions || [], company)
-            .then(state => {
-                // populate state,
-                // generate implicit transactions,
-                // run them
-                // return
+            .then(_state => {
+                state = _state;
+                return TransactionService.createImplicitTransactions(state, args.transactions[0].effectiveDate || new Date())
+            })
+            .then(transactions => {
+                if(transactions){
+                    return TransactionService.performAll(transactions, company, state);
+                }
             })
         // TODO, add implicit transactions, Ie removeAllocation
     }
@@ -269,7 +274,6 @@ module.exports = {
         delete args.type;
         delete args.createdById;
         delete args.ownerId;
-
         return sequelize.transaction(function(t){
             return Company.findById(req.params.companyId)
                 .then(function(_company) {

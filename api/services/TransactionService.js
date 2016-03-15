@@ -589,30 +589,38 @@ export const performAmend = Promise.method(function(data, companyState, previous
             return companyState.dataValues.holdingList.buildNext()
         })
         .then(holdingList => {
+            const REDUCTION_TYPES = [Transaction.types.TRANSFER_FROM, Transaction.types.PURCHASE_FORM, Transaction.types.ACQUISITION_FROM];
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
-            let parcel = {amount: Math.abs(data.amount), shareClass: data.shareClass};
+            let parcel = {amount: data.amount, shareClass: data.shareClass};
             let newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
             let transactionType  = data.transactionType;
             transaction = Transaction.build({type: data.transactionSubType || transactionType,
-                data: {data, amount: Math.abs(data.amount)}, effectiveDate: effectiveDate});
-            if(data.amount > 0){
-                companyState.subtractUnallocatedParcels(parcel);
-                companyState.combineHoldings([newHolding], null, transaction);
-            }
-            else{
+                data: {data, amount: data.amount}, effectiveDate: effectiveDate});
+            if(data.amount < 0 || REDUCTION_TYPES.indexOf(data.transactionType) >= 0){
                 companyState.combineUnallocatedParcels(parcel);
                 companyState.subtractHoldings([newHolding], null, transaction);
+            }
+            else{
+                companyState.subtractUnallocatedParcels(parcel);
+                companyState.combineHoldings([newHolding], null, transaction);
             }
             return transaction;
         })
 });
 
-export function performRemoveAllocation(data, nextState, effectiveDate){
+export function performRemoveAllocation(data, nextState, companyState, effectiveDate){
     return nextState.dataValues.holdingList.buildNext()
     .then(function(holdingList){
         nextState.dataValues.holdingList = holdingList;
         nextState.dataValues.h_list_id = null;
+        const holding = nextState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId});
+        if(!holding){
+            throw new sails.config.exceptions.InvalidOperation('Could not find holding, documentId: ' +data.documentId)
+        }
+        if(holding.hasNonEmptyParcels()){
+            throw new sails.config.exceptions.InvalidOperation('Holding has non empty parcels, documentId: ' +data.documentId)
+        }
         holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     })
@@ -945,6 +953,28 @@ export function performAll(data, company, state){
             .then(_state => {
                 state = _state;
             });
-    });
+    })
+    .then(() => {
+        return state;
+    })
 }
 
+
+export function createImplicitTransactions(state, effectiveDate){
+    const actions = state.dataValues.holdingList.dataValues.holdings.reduce((acc, holding) => {
+        if(!holding.hasNonEmptyParcels()){
+            acc.push({
+                transactionType: Transaction.types.REMOVE_ALLOCATION,
+                holdingId: holding.holdingId
+            });
+        }
+        return acc;
+    }, []);
+    if(actions.length){
+        return [{
+            transactionType: Transaction.types.COMPOUND_REMOVALS,
+            actions: actions,
+            effectiveDate: effectiveDate
+        }]
+    }
+}

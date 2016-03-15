@@ -229,6 +229,15 @@ describe('CompanyStateController', function() {
             });
     });
 
+    describe('Allocation Removal', function(){
+        it('should be rejected for being non empty', function(done) {
+           req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [{
+                    actions: [{ transactionType: Transaction.types.REMOVE_ALLOCATION, holders: [{name: 'Gary'}, {name: 'Busey'}] }]}
+                    ]})
+                .expect(500, done)
+        });
+    });
 
     describe('Transfer shares', function(){
         let holdingId;
@@ -251,7 +260,7 @@ describe('CompanyStateController', function() {
                         {
                             transactionType: Transaction.types.TRANSFER_FROM,
                             transactionMethod: Transaction.types.AMEND,
-                            amount: -1,
+                            amount: 1,
                             shareClass: 1,
                             holdingId: holdingId
                         },
@@ -286,6 +295,46 @@ describe('CompanyStateController', function() {
                             }
                         ] }
                     });
+                    done();
+                });
+        });
+        it('It transfers back', function(done) {
+            req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [
+                    {
+                        actions: [
+                        {
+                            transactionType: Transaction.types.TRANSFER_TO,
+                            transactionMethod: Transaction.types.AMEND,
+                            amount: 1,
+                            shareClass: 1,
+                            holdingId: holdingId
+                        },
+                        {
+                            transactionType: Transaction.types.TRANSFER_FROM,
+                            transactionMethod: Transaction.types.AMEND,
+                            amount: 1,
+                            shareClass: 1,
+                            holders: [{name: 'Jim'}]
+                        }]
+                    }
+                ]})
+                .expect(200, done)
+        });
+        it('Expects new allocation to be removed', function(done) {
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.totalAllocatedShares.should.be.equal(2325);
+                    res.body.currentCompanyState.should.containSubset({
+                        holdingList: { holdings: [
+                            {
+                                holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                parcels: [{amount: 1113, shareClass: 1}, {amount: 1201, shareClass: 2},{amount: 1, shareClass: 3}]
+                            }
+                        ] }
+                    });
+                    res.body.currentCompanyState.holdingList.holdings.length.should.be.equal(1);
                     done();
                 });
         });

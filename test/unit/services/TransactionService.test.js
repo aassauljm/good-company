@@ -572,7 +572,7 @@ describe('Transaction Service', function() {
                         holdingId2 = companyState.getMatchingHolding({holders: [{name: 'mike'}, {name: 'mary'}]}).holdingId;
                         return TransactionService.performAmend({
                                 holdingId: holdingId1,
-                                amount: -1,
+                                amount: 1,
                                 transactionType: Transaction.types.TRANSFER_FROM,
                                 transactionMethod: Transaction.types.AMEND
                         }, companyState).should.eventually.be.fulfilled;
@@ -581,7 +581,7 @@ describe('Transaction Service', function() {
                         return TransactionService.performAmend({
                             holdingId: holdingId2,
                             amount: 1,
-                            transactionType: Transaction.types.TRANSFER_FROM,
+                            transactionType: Transaction.types.TRANSFER_TO,
                             transactionMethod: Transaction.types.AMEND
                         }, nextState).should.eventually.be.fulfilled;
                     })

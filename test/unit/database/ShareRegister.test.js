@@ -53,7 +53,7 @@ describe('Share Register', function() {
                     actions:[{
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.TRANSFER_FROM,
-                        amount: -1,
+                        amount: 1,
                         shareClass: 1,
                         holders: [{
                             name: 'mike'

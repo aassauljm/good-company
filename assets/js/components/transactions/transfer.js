@@ -102,7 +102,7 @@ export function transferFormatSubmit(values, companyState){
     values.parcels.map(p => {
         actions.push({
             holdingId: parseInt(values.from, 10),
-            amount: -parseInt(p.amount, 10),
+            amount: parseInt(p.amount, 10),
             shareClass: parseInt(p.shareClass, 10),
             transactionType: 'TRANSFER_FROM',
             transactionMethod: 'AMEND'
