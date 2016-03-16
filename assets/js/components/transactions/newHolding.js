@@ -36,8 +36,9 @@ export class NewHolding extends React.Component {
                         <Address {...this.formFieldProps(['persons', i, 'address'])} />
                     </div>
                     <div className="col-xs-3 right">
-                    <button className="btn btn-default" onClick={() => {
-                        this.props.fields.parcels.removeField(i)
+                    <button className="btn btn-default" onClick={(e) => {
+                        e.preventDefault();
+                        this.props.fields.persons.removeField(i)
                     }}><Glyphicon glyph='trash'/></button>
                     </div>
                 </div>
@@ -120,6 +121,7 @@ export class NewHoldingModal extends React.Component {
     }
 
     render() {
+        // TODO, connect this to the form data, check valid and submitting, disable submit button
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>New Holding</Modal.Title>
@@ -128,8 +130,8 @@ export class NewHoldingModal extends React.Component {
                 { this.renderBody(this.props.modalData.companyState) }
               </Modal.Body>
               <Modal.Footer>
-                <Button onClick={this.props.end} >Close</Button>
-                 <Button onClick={::this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
+                <Button onClick={this.props.end} >Cancel</Button>
+                 <Button onClick={::this.handleNext} bsStyle="primary">Create</Button>
               </Modal.Footer>
             </Modal>
     }

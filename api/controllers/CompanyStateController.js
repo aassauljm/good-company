@@ -118,7 +118,6 @@ var transactions = {
     compound: function(args, company){
         // TODO, validate different pairings
         let state;
-
         return TransactionService.performAll(args.transactions || [], company)
             .then(_state => {
                 state = _state;
@@ -157,6 +156,9 @@ const selfManagedTransactions = {
             })
             .then(actions => {
                return TransactionService.performInverseAll(actions.actions.slice(1), company, state);
+            })
+            .then(function(){
+                return {message: 'Share classes applied.'}
             })
     },
 }

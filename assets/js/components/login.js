@@ -55,7 +55,7 @@ class Login extends React.Component {
     }
     nav() {
         if(this.props.loggedIn){
-            this.props.dispatch(routeActions.replace((this.props.location.query || {}).next || '/'));
+            this.props.dispatch(routeActions.replace((this.props.location.query || {}).next || '/companies'));
         }
     }
     render() {

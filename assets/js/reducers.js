@@ -142,7 +142,12 @@ function modals(state = {createCompany: {index: 0}}, action){
         case SHOW_MODAL:
             return {...state, showing: action.modal, [action.modal]: {index: 0, data: action.data}};
         case END_MODAL:
-            return {...state, showing: null, [action.modal]: null, ...state[action.modal].data.afterClose};
+            let afterClose = (state[action.modal].data || {}).afterClose;
+            if(afterClose){
+                // Kinda wish you were using immutable js, huh?
+                afterClose = {...afterClose, [afterClose.showing]: {...afterClose[afterClose.showing], data: {...afterClose[afterClose.showing].data, ...action.data }}}
+            }
+            return {...state, showing: null, [action.modal]: null, ...afterClose };
         case NEXT_MODAL:
             return {...state,  [action.modal]: {index: state[action.modal].index + 1, data: action.data}};
         case PREVIOUS_MODAL:

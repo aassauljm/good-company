@@ -13,8 +13,10 @@ import { companyTransaction, addNotification, showModal } from '../../actions';
 import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import StaticField from 'react-bootstrap/lib/FormControls/Static';
 
-const fields = ['effectiveDate', 'from', 'to', 'parcels[].shareClass', 'parcels[].amount']
+
+const fields = ['effectiveDate', 'from', 'to', 'newHolders', 'parcels[].shareClass', 'parcels[].amount']
 
 
 @formFieldProps()
@@ -33,10 +35,18 @@ export class Transfer extends React.Component {
                 { this.props.holdingOptions }
             </Input>
 
-            <Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
-                <option></option>
-                { this.props.holdingOptions }
-            </Input>
+            { !this.props.newHolders  &&
+                <Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
+                    <option></option>
+                    { this.props.holdingOptions }
+                </Input> }
+            {/* this.props.newHolders  &&
+                <StaticField type="static" {...this.formFieldProps('to', STRINGS.transfer) value={file.name}
+                buttonAfter={<button className="btn btn-default" onClick={() => {
+                    const clone = fields.documents.value.slice();
+                    clone.splice(i, 1);
+                    fields.documents.onChange(clone);
+                }}><Glyphicon glyph='trash'/></button>} /> */}
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.showModal('newHolding');    // pushes empty child field onto the end of the array
             }}>Create New Holding</ButtonInput></div>
@@ -68,13 +78,16 @@ export class Transfer extends React.Component {
     }
 }
 
-const validateBase = requireFields('effectiveDate', 'from', 'to');
+const validateBase = requireFields('effectiveDate', 'from');
 const validateParcel = requireFields('amount');
 
 const validate = (values, props) => {
     const errors = validateBase(values);
     if(values.from && values.from === values.to){
         errors.to = ['Destination must be different from source.']
+    }
+    if(!props.newHolders && !props.to){
+        errors['to'] = ['Required.']
     }
     const parcels = [];
     errors.parcels = values.parcels.map((p, i) => {
@@ -101,28 +114,52 @@ const validate = (values, props) => {
 
 export function transferFormatSubmit(values, companyState){
     const actions = [];
+    const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
+        acc[`${holdingId}`] = holding.parcels.reduce((acc, parcel) => {
+            acc[parcel.shareClass] = parcel.amount;
+            return acc;
+        }, {})
+        return acc;
+    }, {})
     values.parcels.map(p => {
+        const amount = parseInt(p.amount, 10);
         actions.push({
             holdingId: parseInt(values.from, 10),
-            amount: parseInt(p.amount, 10),
+            amount: amount,
+            beforeAmount: amounts[values.from][p.shareClass],
+            afterAmount: (amounts[values.from][p.shareClass]) - amount,
             shareClass: parseInt(p.shareClass, 10),
             transactionType: 'TRANSFER_FROM',
             transactionMethod: 'AMEND'
         });
-        actions.push({
-            holdingId: parseInt(values.to, 10),
-            amount: parseInt(p.amount, 10),
-            shareClass: parseInt(p.shareClass, 10),
-            transactionType: 'TRANSFER_TO',
-            transactionMethod: 'AMEND'
-        });
+        if(!values.newHolders){
+            actions.push({
+                holdingId: parseInt(values.to, 10),
+                amount: amount,
+                shareClass: parseInt(p.shareClass, 10),
+                beforeAmount: amounts[values.to][p.shareClass] || 0,
+                afterAmount: (amounts[values.to][p.shareClass] || 0) + amount,
+                transactionType: 'TRANSFER_TO',
+                transactionMethod: 'AMEND'
+            });
+        }
+        else{
+            actions.push({
+                holders: newHolders,
+                amount: amount,
+                shareClass: parseInt(p.shareClass, 10),
+                beforeAmount: 0,
+                afterAmount: amount,
+                transactionType: 'TRANSFER_TO',
+                transactionMethod: 'AMEND'
+            });
+        }
     });
     return {
         effectiveDate: values.effectiveDate,
         transactionType: 'TRANSFER',
         actions: actions
     }
-
 }
 
 const TransferConnected = reduxForm({
@@ -144,12 +181,16 @@ export class TransferModal extends React.Component {
     }
 
     submit(values) {
-        const transaction = transferFormatSubmit(values)
+        const transactions = [transferFormatSubmit(values)]
         if(transaction.actions.length){
-             this.props.dispatch(companyTransaction(
+            if(this.props.modalData.newHolding){
+                transactions.unshift(this.props.modalData.newHolding);
+            }
+
+            this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.modalData.companyId,
-                                    {transactions: [transaction]} ))
+                                    {transactions: transactions} ))
 
             .then(() => {
                 this.props.end();
@@ -178,6 +219,7 @@ export class TransferModal extends React.Component {
             return acc;
         }, {});
 
+        const newHolders = ((this.props.modalData.newHolding||{}).actions||[]).holders;
 
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
@@ -186,10 +228,11 @@ export class TransferModal extends React.Component {
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
+                    newHolders={newHolders}
                     showModal={(key) => this.props.dispatch(showModal(key, {
                         ...this.props.modalData,
                         afterClose: { // open this modal again
-                            showing: 'transfer', transfer: {data: this.props.modalData}
+                            showing: 'transfer', transfer: {data: this.props.modalData, index: this.props.index}
                         }
                     }))}
                     onSubmit={this.submit}/>
