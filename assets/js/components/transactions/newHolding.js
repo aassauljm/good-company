@@ -17,7 +17,7 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 
-export const fields = ['newHolding.holdingName', 'newHolding.persons[].name', 'newHolding.persons[].address', 'newHolding.use']
+export const fields = ['holdingName', 'persons[].name', 'persons[].address', 'use']
 
 
 @formFieldProps()
@@ -29,25 +29,25 @@ export class NewHolding extends React.Component {
     render() {
         return <form className="form" >
         <fieldset>
-            <Input type='text' {...this.formFieldProps(['newHolding', 'holdingName'])} />
-            { this.props.fields.newHolding.persons.map((p, i) =>{
+            <Input type='text' {...this.formFieldProps([ 'holdingName'])} />
+            { this.props.fields.persons.map((p, i) =>{
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
-                        <PersonName {...this.formFieldProps(['newHolding','persons', i, 'name'])} />
-                        <Address {...this.formFieldProps(['newHolding','persons', i, 'address'])} />
+                        <PersonName {...this.formFieldProps(['persons', i, 'name'])} />
+                        <Address {...this.formFieldProps(['persons', i, 'address'])} />
                     </div>
                     <div className="col-xs-3 right">
                     <button className="btn btn-default" onClick={(e) => {
                         e.preventDefault();
-                        this.props.fields.newHolding.persons.removeField(i)
+                        this.props.fields.persons.removeField(i)
                     }}><Glyphicon glyph='trash'/></button>
                     </div>
                 </div>
                 </div>
             })}
             <div className="button-row"><ButtonInput onClick={() => {
-                this.props.fields.newHolding.persons.addField();
+                this.props.fields.persons.addField();
             }}>Add Person</ButtonInput></div>
         </fieldset>
         </form>
@@ -61,7 +61,7 @@ const validatePerson = requireFields('name', 'address');
 const validate = (values, props) => {
     const errors = {newHolding: {}}
     const names = [];
-    errors.newHolding.persons = values.newHolding.persons.map((p, i) => {
+    errors.persons = values.persons.map((p, i) => {
         let errors = validatePerson(p)
         if(p.name && names.indexOf(p.name) >= 0){
             errors.name = (errors.name || []).concat(['Name already used.'])
@@ -73,13 +73,13 @@ const validate = (values, props) => {
 
 }
 
-export function newHoldingFormatSubmit(values, companyState){
+export function newHoldingFormatAction(values){
     const action = {
         transactionType: 'NEW_ALLOCATION',
         holders: values.persons,
         name: values.holdingName
     }
-    return {actions: [action]}
+    return action;
 }
 
 const NewHoldingConnected = reduxForm({
@@ -103,21 +103,19 @@ export class NewHoldingModal extends React.Component {
     submit(values) {
         if(this.props.modalData.afterClose){
             // delegate this
-            this.props.dispatch(change(this.props.modalData.formName || 'newHolding', 'newHolding.use', true))
+            this.props.dispatch(change(this.props.modalData.formName, this.props.modalData.field, values));
             this.props.end();
             return;
         }
         this.props.end();
     }
 
-    renderBody(companyState, form, formKey) {
+    renderBody(companyState) {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
-                <NewHoldingConnected ref="form"
-                    form={form || 'newHolding'}
-                    formKey={formKey}
-                    initialValues={{newHolding: {persons: [{}]}}}
-                    destroyOnUnmount={!form}
+                <NewHoldingConnected
+                    ref="form"
+                    initialValues={{persons: [{}]}}
                     onSubmit={this.submit}/>
                 </div>
             </div>
@@ -131,7 +129,7 @@ export class NewHoldingModal extends React.Component {
                 <Modal.Title>New Holding</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState, this.props.modalData.formName,this.props.modalData.formKey) }
+                { this.renderBody(this.props.modalData.companyState) }
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.props.end} >Cancel</Button>

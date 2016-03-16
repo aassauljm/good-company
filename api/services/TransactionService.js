@@ -637,7 +637,7 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
     .then(function(personData){
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
         const holding = Holding.buildDeep({holders: personData, transaction: transaction, name: data.name,
-            parcels: [{amount: 0, shareClass: data.shareClass}]});
+            parcels: []}); // [{amount: 0, shareClass: data.shareClass}]});
         nextState.dataValues.holdingList.dataValues.holdings.push(holding);
         return transaction;
     });

@@ -14,14 +14,18 @@ import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
-import { fields as newHoldingFields} from './newHolding';
+import { ParcelWithRemove } from '../forms/parcel';
+import { newHoldingFormatAction } from './newHolding';
 
-const fields = ['effectiveDate', 'from', 'to', 'newHolding', 'parcels[].shareClass', 'parcels[].amount'].concat(newHoldingFields)
+
+const fields = ['effectiveDate', 'from', 'to', 'newHolding', 'parcels[].shareClass', 'parcels[].amount', 'newHolding'];
 
 function newHoldingString(newHolding){
-    const names = joinAnd(newHolding.persons.map(p => p.name), {prop: 'value'});
-    return 'New Holding: ' + (newHolding.holdingName.value ? newHolding.holdingName.value + ': ' + names :  names);
+    const names = joinAnd(newHolding.persons, {prop: 'name'});
+    return 'New Holding: ' + (newHolding.holdingName ? newHolding.holdingName + ' - ' + names :  names);
 }
+
+
 
 
 @formFieldProps()
@@ -40,38 +44,25 @@ export class Transfer extends React.Component {
                 { this.props.holdingOptions }
             </Input>
 
-            { !this.props.fields.newHolding.use.value &&
+            { !this.props.fields.newHolding.value &&
                 <Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
                     <option></option>
                     { this.props.holdingOptions }
                 </Input> }
-            { !this.props.fields.newHolding.use.value &&
+            { !this.props.fields.newHolding.value &&
             <div className="button-row"><ButtonInput onClick={() => {
-                this.props.showModal('newHolding');    // pushes empty child field onto the end of the array
+                this.props.showModal('newHolding');
             }}>Create New Holding</ButtonInput></div> }
 
-            { this.props.fields.newHolding.use.value  &&
-                <StaticField type="static" label={STRINGS.transfer.to} value={newHoldingString(this.props.fields.newHolding)}
+            { this.props.fields.newHolding.value  &&
+                <StaticField type="static" label={STRINGS.transfer.to} value={newHoldingString(this.props.fields.newHolding.value)}
                 buttonAfter={<button className="btn btn-default" onClick={(e) => {
-                    this.props.fields.newHolding.use.onChange(false);
+                    this.props.fields.newHolding.onChange(null);
                 }}><Glyphicon glyph='trash'/></button>} /> }
 
-            { this.props.fields.parcels.map((n, i) => {
+             { this.props.fields.parcels.map((p, i) => {
                 return <div className="row " key={i}>
-                <div className="col-full-h">
-                    <div className="col-xs-9 left">
-                        <Input type="number" {...this.formFieldProps(['parcels', i, 'amount'])} />
-                        <Input type="select" {...this.formFieldProps(['parcels', i, 'shareClass'])} >
-                        <option></option>
-                        { this.props.shareOptions }
-                        </Input>
-                    </div>
-                    <div className="col-xs-3 right">
-                    <button className="btn btn-default" onClick={() => {
-                        this.props.fields.parcels.removeField(i)
-                    }}><Glyphicon glyph='trash'/></button>
-                    </div>
-                </div>
+                    <ParcelWithRemove fields={p} remove={() => this.props.fields.parcels.removeField(i)} shareOptions={this.props.shareOptions}/>
                 </div>
             }) }
             <div className="button-row"><ButtonInput onClick={() => {
@@ -91,7 +82,7 @@ const validate = (values, props) => {
     if(values.from && values.from === values.to){
         errors.to = ['Destination must be different from source.']
     }
-    if(!values.newHolding.use && !values.to){
+    if(!values.newHolding && !values.to){
         errors['to'] = ['Required.']
     }
     const parcels = [];
@@ -118,30 +109,32 @@ const validate = (values, props) => {
 }
 
 export function transferFormatSubmit(values, companyState){
-    const actions = [];
+    const actions = [], results = []
     const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
-        acc[`${holdingId}`] = holding.parcels.reduce((acc, parcel) => {
+        acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
             acc[parcel.shareClass] = parcel.amount;
             return acc;
         }, {})
         return acc;
     }, {})
+
     values.parcels.map(p => {
         const amount = parseInt(p.amount, 10);
+        const shareClass = parseInt(p.shareClass, 10) || null;
         actions.push({
             holdingId: parseInt(values.from, 10),
+            shareClass: shareClass,
             amount: amount,
             beforeAmount: amounts[values.from][p.shareClass],
             afterAmount: (amounts[values.from][p.shareClass]) - amount,
-            shareClass: parseInt(p.shareClass, 10),
             transactionType: 'TRANSFER_FROM',
             transactionMethod: 'AMEND'
         });
-        if(!values.newHolding.use){
+        if(!values.newHolding){
             actions.push({
                 holdingId: parseInt(values.to, 10),
+                shareClass: shareClass,
                 amount: amount,
-                shareClass: parseInt(p.shareClass, 10),
                 beforeAmount: amounts[values.to][p.shareClass] || 0,
                 afterAmount: (amounts[values.to][p.shareClass] || 0) + amount,
                 transactionType: 'TRANSFER_TO',
@@ -150,9 +143,9 @@ export function transferFormatSubmit(values, companyState){
         }
         else{
             actions.push({
-                //holders: newHolding.action[0].newHolders,
+                holders: values.newHolding.persons,
+                shareClass: shareClass,
                 amount: amount,
-                shareClass: parseInt(p.shareClass, 10),
                 beforeAmount: 0,
                 afterAmount: amount,
                 transactionType: 'TRANSFER_TO',
@@ -160,11 +153,20 @@ export function transferFormatSubmit(values, companyState){
             });
         }
     });
-    return {
+    if(values.newHolding){
+        results.push({
+            effectiveDate: values.effectiveDate,
+            transactionType: 'TRANSFER',
+            actions: [newHoldingFormatAction(values.newHolding)]
+        });
+    }
+    results.push({
         effectiveDate: values.effectiveDate,
         transactionType: 'TRANSFER',
         actions: actions
-    }
+    })
+
+    return results;
 }
 
 const TransferConnected = reduxForm({
@@ -187,12 +189,8 @@ export class TransferModal extends React.Component {
     }
 
     submit(values) {
-        const transactions = [transferFormatSubmit(values)]
-        if(transaction.actions.length){
-            if(this.props.modalData.newHolding){
-                transactions.unshift(this.props.modalData.newHolding);
-            }
-
+        const transactions = transferFormatSubmit(values, this.props.modalData.companyState)
+        if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.modalData.companyId,
@@ -221,20 +219,21 @@ export class TransferModal extends React.Component {
             return <option key={i} value={s.id}>{s.name}</option>
         })
         const holdingMap = companyState.holdingList.holdings.reduce((acc, val) => {
-            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass ? `${p.shareClass}` : null }));
+            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass ? `${p.shareClass}` : '' }));
             return acc;
         }, {});
 
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <TransferConnected ref="form"
-                    initialValues={{parcels: [{}], effectiveDate: new Date(), newHolding: {persons: [{}]} }}
+                    initialValues={{parcels: [{}], effectiveDate: new Date() }}
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
                     showModal={(key) => this.props.dispatch(showModal(key, {
                         ...this.props.modalData,
                         formName: 'transfer',
+                        field: 'newHolding',
                         afterClose: { // open this modal again
                             showModal: {key: 'transfer', data: {...this.props.modalData}}
                         }
