@@ -16,7 +16,8 @@ import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
-const fields = ['holdingName', 'persons[].name', 'persons[].address']
+
+export const fields = ['newHolding.holdingName', 'newHolding.persons[].name', 'newHolding.persons[].address', 'newHolding.use']
 
 
 @formFieldProps()
@@ -27,25 +28,25 @@ export class NewHolding extends React.Component {
     render() {
         return <form className="form" >
         <fieldset>
-            <Input type='text' {...this.formFieldProps('holdingName')} />
-            { this.props.fields.persons.map((p, i) =>{
+            <Input type='text' {...this.formFieldProps(['newHolding', 'holdingName'])} />
+            { this.props.fields.newHolding.persons.map((p, i) =>{
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
-                        <PersonName {...this.formFieldProps(['persons', i, 'name'])} />
-                        <Address {...this.formFieldProps(['persons', i, 'address'])} />
+                        <PersonName {...this.formFieldProps(['newHolding','persons', i, 'name'])} />
+                        <Address {...this.formFieldProps(['newHolding','persons', i, 'address'])} />
                     </div>
                     <div className="col-xs-3 right">
                     <button className="btn btn-default" onClick={(e) => {
                         e.preventDefault();
-                        this.props.fields.persons.removeField(i)
+                        this.props.fields.newHolding.persons.removeField(i)
                     }}><Glyphicon glyph='trash'/></button>
                     </div>
                 </div>
                 </div>
             })}
             <div className="button-row"><ButtonInput onClick={() => {
-                this.props.fields.persons.addField();
+                this.props.fields.newHolding.persons.addField();
             }}>Add Person</ButtonInput></div>
 
         </fieldset>
@@ -58,9 +59,9 @@ export class NewHolding extends React.Component {
 const validatePerson = requireFields('name', 'address');
 
 const validate = (values, props) => {
-    const errors = {}
+    const errors = {newHolding: {}}
     const names = [];
-    errors.persons = values.persons.map((p, i) => {
+    errors.newHolding.persons = values.newHolding.persons.map((p, i) => {
         let errors = validatePerson(p)
         if(p.name && names.indexOf(p.name) >= 0){
             errors.name = (errors.name || []).concat(['Name already used.'])
@@ -100,20 +101,23 @@ export class NewHoldingModal extends React.Component {
     }
 
     submit(values) {
+        if(this.props.modalData.afterClose){
+            return;
+        }
         const transaction = newHoldingFormatSubmit(values)
         if(transaction.actions.length){
-            this.props.end({newHolding: transaction});
-        }
-        else{
             this.props.end();
         }
+        this.props.end();
     }
 
-    renderBody(companyState) {
+    renderBody(companyState, form) {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <NewHoldingConnected ref="form"
+                    form={form || 'newHolding'}
                     initialValues={{persons: [{}]}}
+                    destroyOnUnmount={!form}
                     onSubmit={this.submit}/>
                 </div>
             </div>
@@ -127,7 +131,7 @@ export class NewHoldingModal extends React.Component {
                 <Modal.Title>New Holding</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
+                { this.renderBody(this.props.modalData.companyState, this.props.modalData.formName) }
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.props.end} >Cancel</Button>

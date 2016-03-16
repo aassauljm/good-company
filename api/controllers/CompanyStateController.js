@@ -22,8 +22,9 @@ function validateHoldings(newHoldings){
             throw new sails.config.exceptions.ValidationException('Parcels are required');
         }
         holding.parcels.forEach(function(parcel){
-            if(parcel.amount < 1)
+            if(parcel.amount < 1){
                 throw new sails.config.exceptions.ValidationException('Parcels amounts must be positve');
+            }
         });
     });
 }

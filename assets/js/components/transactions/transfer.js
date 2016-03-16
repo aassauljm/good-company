@@ -14,9 +14,9 @@ import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
+import { fields as newHoldingFields} from './newHolding';
 
-
-const fields = ['effectiveDate', 'from', 'to', 'newHolders', 'parcels[].shareClass', 'parcels[].amount']
+const fields = ['effectiveDate', 'from', 'to', 'newHolding', 'parcels[].shareClass', 'parcels[].amount'].concat(newHoldingFields)
 
 
 @formFieldProps()
@@ -35,7 +35,7 @@ export class Transfer extends React.Component {
                 { this.props.holdingOptions }
             </Input>
 
-            { !this.props.newHolders  &&
+            { !this.props.fields.newHolding.use &&
                 <Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
                     <option></option>
                     { this.props.holdingOptions }
@@ -86,7 +86,7 @@ const validate = (values, props) => {
     if(values.from && values.from === values.to){
         errors.to = ['Destination must be different from source.']
     }
-    if(!props.newHolders && !props.to){
+    if(!values.newHolding && !values.to){
         errors['to'] = ['Required.']
     }
     const parcels = [];
@@ -132,7 +132,7 @@ export function transferFormatSubmit(values, companyState){
             transactionType: 'TRANSFER_FROM',
             transactionMethod: 'AMEND'
         });
-        if(!values.newHolders){
+        if(!values.newHolding){
             actions.push({
                 holdingId: parseInt(values.to, 10),
                 amount: amount,
@@ -145,7 +145,7 @@ export function transferFormatSubmit(values, companyState){
         }
         else{
             actions.push({
-                holders: newHolders,
+                //holders: newHolding.action[0].newHolders,
                 amount: amount,
                 shareClass: parseInt(p.shareClass, 10),
                 beforeAmount: 0,
@@ -165,7 +165,8 @@ export function transferFormatSubmit(values, companyState){
 const TransferConnected = reduxForm({
   form: 'transfer',
   fields,
-  validate
+  validate,
+  destroyOnUnmount: false,
 })(Transfer);
 
 
@@ -219,8 +220,6 @@ export class TransferModal extends React.Component {
             return acc;
         }, {});
 
-        const newHolders = ((this.props.modalData.newHolding||{}).actions||[]).holders;
-
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <TransferConnected ref="form"
@@ -228,11 +227,11 @@ export class TransferModal extends React.Component {
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
-                    newHolders={newHolders}
                     showModal={(key) => this.props.dispatch(showModal(key, {
                         ...this.props.modalData,
+                        formName: 'transfer',
                         afterClose: { // open this modal again
-                            showing: 'transfer', transfer: {data: this.props.modalData, index: this.props.index}
+                            showModal: {key: 'transfer', data: {...this.props.modalData}}
                         }
                     }))}
                     onSubmit={this.submit}/>

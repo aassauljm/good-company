@@ -1,7 +1,7 @@
 "use strict";
 import React from 'react';
 import { connect } from 'react-redux';
-import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal } from '../actions';
+import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
 import FormReducer from '../hoc/formReducer';
 import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
@@ -48,7 +48,16 @@ export default class Modals extends React.Component {
             modalData: data.data,
             next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
             previous: () => {this.props.dispatch(previousModal(this.props.showing))},
-            end: (data) => {this.props.dispatch(endModal(this.props.showing, data))}
+            end: (data) => {
+                this.props.dispatch(endModal(this.props.showing, data));
+                const after = this.props[this.props.showing].data.afterClose;
+                if(after){
+                    if(after.showModal){
+                        this.props.dispatch(showModal(after.showModal.key, after.showModal.data))
+                    }
+                }
+
+            }
         }
 
         switch(this.props.showing){
