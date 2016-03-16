@@ -49,8 +49,8 @@ export default class Modals extends React.Component {
             next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
             previous: () => {this.props.dispatch(previousModal(this.props.showing))},
             end: (data) => {
-                this.props.dispatch(endModal(this.props.showing, data));
                 const after = this.props[this.props.showing].data.afterClose;
+                this.props.dispatch(endModal(this.props.showing, data));
                 if(after){
                     if(after.showModal){
                         this.props.dispatch(showModal(after.showModal.key, after.showModal.data))

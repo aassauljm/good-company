@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from 'react-bootstrap/lib/ButtonInput';
 import { connect } from 'react-redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, change } from 'redux-form';
 import Input from '../forms/input';
 import Address from '../forms/address';
 import PersonName from '../forms/personName';
@@ -23,6 +23,7 @@ export const fields = ['newHolding.holdingName', 'newHolding.persons[].name', 'n
 @formFieldProps()
 export class NewHolding extends React.Component {
     static propTypes = {
+
     };
 
     render() {
@@ -48,7 +49,6 @@ export class NewHolding extends React.Component {
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.newHolding.persons.addField();
             }}>Add Person</ButtonInput></div>
-
         </fieldset>
         </form>
     }
@@ -102,21 +102,21 @@ export class NewHoldingModal extends React.Component {
 
     submit(values) {
         if(this.props.modalData.afterClose){
-            return;
-        }
-        const transaction = newHoldingFormatSubmit(values)
-        if(transaction.actions.length){
+            // delegate this
+            this.props.dispatch(change(this.props.modalData.formName || 'newHolding', 'newHolding.use', true))
             this.props.end();
+            return;
         }
         this.props.end();
     }
 
-    renderBody(companyState, form) {
+    renderBody(companyState, form, formKey) {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <NewHoldingConnected ref="form"
                     form={form || 'newHolding'}
-                    initialValues={{persons: [{}]}}
+                    formKey={formKey}
+                    initialValues={{newHolding: {persons: [{}]}}}
                     destroyOnUnmount={!form}
                     onSubmit={this.submit}/>
                 </div>
@@ -131,7 +131,7 @@ export class NewHoldingModal extends React.Component {
                 <Modal.Title>New Holding</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState, this.props.modalData.formName) }
+                { this.renderBody(this.props.modalData.companyState, this.props.modalData.formName,this.props.modalData.formKey) }
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.props.end} >Cancel</Button>

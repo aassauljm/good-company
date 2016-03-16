@@ -18,6 +18,11 @@ import { fields as newHoldingFields} from './newHolding';
 
 const fields = ['effectiveDate', 'from', 'to', 'newHolding', 'parcels[].shareClass', 'parcels[].amount'].concat(newHoldingFields)
 
+function newHoldingString(newHolding){
+    const names = joinAnd(newHolding.persons.map(p => p.name), {prop: 'value'});
+    return 'New Holding: ' + (newHolding.holdingName.value ? newHolding.holdingName.value + ': ' + names :  names);
+}
+
 
 @formFieldProps()
 export class Transfer extends React.Component {
@@ -35,21 +40,21 @@ export class Transfer extends React.Component {
                 { this.props.holdingOptions }
             </Input>
 
-            { !this.props.fields.newHolding.use &&
+            { !this.props.fields.newHolding.use.value &&
                 <Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
                     <option></option>
                     { this.props.holdingOptions }
                 </Input> }
-            {/* this.props.newHolders  &&
-                <StaticField type="static" {...this.formFieldProps('to', STRINGS.transfer) value={file.name}
-                buttonAfter={<button className="btn btn-default" onClick={() => {
-                    const clone = fields.documents.value.slice();
-                    clone.splice(i, 1);
-                    fields.documents.onChange(clone);
-                }}><Glyphicon glyph='trash'/></button>} /> */}
+            { !this.props.fields.newHolding.use.value &&
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.showModal('newHolding');    // pushes empty child field onto the end of the array
-            }}>Create New Holding</ButtonInput></div>
+            }}>Create New Holding</ButtonInput></div> }
+
+            { this.props.fields.newHolding.use.value  &&
+                <StaticField type="static" label={STRINGS.transfer.to} value={newHoldingString(this.props.fields.newHolding)}
+                buttonAfter={<button className="btn btn-default" onClick={(e) => {
+                    this.props.fields.newHolding.use.onChange(false);
+                }}><Glyphicon glyph='trash'/></button>} /> }
 
             { this.props.fields.parcels.map((n, i) => {
                 return <div className="row " key={i}>
@@ -86,7 +91,7 @@ const validate = (values, props) => {
     if(values.from && values.from === values.to){
         errors.to = ['Destination must be different from source.']
     }
-    if(!values.newHolding && !values.to){
+    if(!values.newHolding.use && !values.to){
         errors['to'] = ['Required.']
     }
     const parcels = [];
@@ -132,7 +137,7 @@ export function transferFormatSubmit(values, companyState){
             transactionType: 'TRANSFER_FROM',
             transactionMethod: 'AMEND'
         });
-        if(!values.newHolding){
+        if(!values.newHolding.use){
             actions.push({
                 holdingId: parseInt(values.to, 10),
                 amount: amount,
@@ -166,7 +171,7 @@ const TransferConnected = reduxForm({
   form: 'transfer',
   fields,
   validate,
-  destroyOnUnmount: false,
+  destroyOnUnmount: false
 })(Transfer);
 
 
@@ -223,7 +228,7 @@ export class TransferModal extends React.Component {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <TransferConnected ref="form"
-                    initialValues={{parcels: [{}], effectiveDate: new Date() }}
+                    initialValues={{parcels: [{}], effectiveDate: new Date(), newHolding: {persons: [{}]} }}
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}

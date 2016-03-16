@@ -104,6 +104,14 @@ nav.navbar{
 }
 
 
+p.form-control-static{
+    overflow: hidden;
+    white-space: normal;
+    text-align: left;
+    text-overflow: clip;
+}
+
+
 
 .holding .address{
     font-size: 0.8em;
