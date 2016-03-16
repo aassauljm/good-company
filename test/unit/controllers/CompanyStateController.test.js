@@ -94,7 +94,7 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [],
-                    parcels: [{amount: 10, shareClass: 'x'}]
+                    parcels: [{amount: 10, beforeAmount: 0, afterAmount: 10, shareClass: 'x'}]
                 }]}})
                 .expect(500, done)
         });
@@ -102,7 +102,7 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Negato'}],
-                    parcels: [{amount: -10, shareClass: 'x'}]
+                    parcels: [{amount: -10, beforeAmount: 0, afterAmount: -10, shareClass: 'x'}]
                 }]}})
                 .expect(500, done)
         });
@@ -110,7 +110,7 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Nillema'}],
-                    parcels: [{amount: 0, shareClass: 'x'}]
+                    parcels: [{amount: 0, beforeAmount: 0, afterAmount: 0, shareClass: 'x'}]
                 }]}})
                 .expect(500, done)
         });
@@ -121,7 +121,10 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Gary'}, {name: 'Busey'}],
-                    parcels: [{amount: 100, shareClass: 2},{amount: 2, shareClass: 1},{amount: 1, shareClass: 3}]
+                    parcels: [
+                    {amount: 100, shareClass: 2, beforeAmount: 1, afterAmount:101},
+                    {amount: 2, shareClass: 1, beforeAmount: 1111, afterAmount:1113},
+                    {amount: 1, shareClass: 3, beforeAmount: 0, afterAmount:1}]
                 }]}})
                 .expect(200, done)
         });
@@ -171,7 +174,7 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Busey'}, {name: 'Gary'}],
-                    parcels: [{amount: 1100, shareClass: 2}]
+                    parcels: [{amount: 1100, shareClass: 2, beforeAmount: 101, afterAmount:1201}]
                 }]}})
                 .expect(200, done)
         });
@@ -240,12 +243,13 @@ describe('CompanyStateController', function() {
     });
 
     describe('Transfer shares', function(){
-        let holdingId;
+        let holdingId, currentAmount;
         it('Gets info for holding', function(done) {
            req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
                     holdingId = res.body.currentCompanyState.holdingList.holdings[0].holdingId;
+                    currentAmount = res.body.currentCompanyState.holdingList.holdings[0].parcels.filter(p => p.shareClass === 1)[0].amount;
                     done();
                 });
         });
@@ -261,6 +265,8 @@ describe('CompanyStateController', function() {
                             transactionType: Transaction.types.TRANSFER_FROM,
                             transactionMethod: Transaction.types.AMEND,
                             amount: 1,
+                            beforeAmount: currentAmount,
+                            afterAmount: currentAmount - 1,
                             shareClass: 1,
                             holdingId: holdingId
                         },
@@ -268,6 +274,8 @@ describe('CompanyStateController', function() {
                             transactionType: Transaction.types.TRANSFER_TO,
                             transactionMethod: Transaction.types.AMEND,
                             amount: 1,
+                            beforeAmount: 0,
+                            afterAmount: 1,
                             shareClass: 1,
                             holders: [{name: 'Jim'}]
                         }]
@@ -307,6 +315,8 @@ describe('CompanyStateController', function() {
                             transactionType: Transaction.types.TRANSFER_TO,
                             transactionMethod: Transaction.types.AMEND,
                             amount: 1,
+                            beforeAmount: currentAmount-1,
+                            afterAmount: currentAmount,
                             shareClass: 1,
                             holdingId: holdingId
                         },
@@ -314,6 +324,8 @@ describe('CompanyStateController', function() {
                             transactionType: Transaction.types.TRANSFER_FROM,
                             transactionMethod: Transaction.types.AMEND,
                             amount: 1,
+                            beforeAmount: 1,
+                            afterAmount: 0,
                             shareClass: 1,
                             holders: [{name: 'Jim'}]
                         }]

@@ -81,7 +81,9 @@ var transactions = {
                             transactionMethod: Transaction.types.AMEND,
                             holders: h.holders,
                             shareClass: cInt,
-                            amount: p.amount
+                            amount: p.amount,
+                            beforeAmount: p.beforeAmount,
+                            afterAmount: p.afterAmount
                         })
                     })
                 })

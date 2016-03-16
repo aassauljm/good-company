@@ -43,6 +43,8 @@ describe('Share Register', function() {
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.ISSUE_TO,
                         amount: 100,
+                        beforeAmount: 0,
+                        afterAmount: 100,
                         shareClass: 1,
                         holders: [{
                             name: 'mike'
@@ -55,6 +57,8 @@ describe('Share Register', function() {
                         transactionType: Transaction.types.TRANSFER_FROM,
                         amount: 1,
                         shareClass: 1,
+                        beforeAmount: 101,
+                        afterAmount: 100,
                         holders: [{
                             name: 'mike'
                         }]
@@ -63,6 +67,8 @@ describe('Share Register', function() {
                         transactionType: Transaction.types.TRANSFER_TO,
                         amount: 1,
                         shareClass: 1,
+                        beforeAmount: 0,
+                        afterAmount: 1,
                         holders: [{
                             name: 'mike'
                         },{

@@ -589,16 +589,17 @@ export const performAmend = Promise.method(function(data, companyState, previous
             return companyState.dataValues.holdingList.buildNext()
         })
         .then(holdingList => {
-            const REDUCTION_TYPES = [Transaction.types.TRANSFER_FROM, Transaction.types.PURCHASE_FORM, Transaction.types.ACQUISITION_FROM];
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
-            let parcel = {amount: data.amount, shareClass: data.shareClass};
-            let newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
-            let transactionType  = data.transactionType;
+            const difference = data.afterAmount - data.beforeAmount;
+            const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
+            const newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
+            const transactionType  = data.transactionType;
             transaction = Transaction.build({type: data.transactionSubType || transactionType,
-                data: {data, amount: data.amount}, effectiveDate: effectiveDate});
-            // SERIOUSLY CONSIDER USING PARCEL HINTS, before/after amounts
-            if(data.amount < 0 || REDUCTION_TYPES.indexOf(data.transactionType) >= 0){
+                data: {...data, amount: parcel.amount}, effectiveDate: effectiveDate});
+
+
+            if(difference < 0){
                 companyState.combineUnallocatedParcels(parcel);
                 companyState.subtractHoldings([newHolding], null, transaction);
             }

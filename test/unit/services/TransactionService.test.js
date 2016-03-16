@@ -573,6 +573,8 @@ describe('Transaction Service', function() {
                         return TransactionService.performAmend({
                                 holdingId: holdingId1,
                                 amount: 1,
+                                beforeAmount: 2,
+                                afterAmount: 1,
                                 transactionType: Transaction.types.TRANSFER_FROM,
                                 transactionMethod: Transaction.types.AMEND
                         }, companyState).should.eventually.be.fulfilled;
@@ -581,6 +583,8 @@ describe('Transaction Service', function() {
                         return TransactionService.performAmend({
                             holdingId: holdingId2,
                             amount: 1,
+                            beforeAmount: 3,
+                            afterAmount: 4,
                             transactionType: Transaction.types.TRANSFER_TO,
                             transactionMethod: Transaction.types.AMEND
                         }, nextState).should.eventually.be.fulfilled;
