@@ -6,7 +6,7 @@ import FormReducer from '../hoc/formReducer';
 import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
-import IssueModal from './transactions/issue';
+import { IssueModal } from './transactions/issue';
 import { TransferModal } from './transactions/transfer';
 import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
@@ -87,6 +87,9 @@ export default class Modals extends React.Component {
 
             case 'newHolding':
                 return <NewHoldingModal {...props} />
+
+            case 'issue':
+                return <IssueModal {...props} />
             default:
                 return false;
         }

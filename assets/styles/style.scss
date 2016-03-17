@@ -152,6 +152,9 @@ a, a:hover{
 .col-full-h {
     display: table;
     width:100%;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin: 4px 0 4px 0;
     .left {
         float: none;
         display: table-cell;
@@ -161,6 +164,9 @@ a, a:hover{
         float: none;
         display: table-cell;
         vertical-align: middle;
+    }
+    &:hover{
+
     }
 }
 

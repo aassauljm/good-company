@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
-import { formFieldProps, requireFields, joinAnd } from '../../utils';
+import { formFieldProps, requireFields, joinAnd, nweHoldingString } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import { routeActions } from 'react-router-redux';
@@ -18,13 +18,15 @@ import { ParcelWithRemove } from '../forms/parcel';
 import { newHoldingFormatAction } from './newHolding';
 
 
-const fields = ['effectiveDate', 'from', 'to', 'newHolding', 'parcels[].shareClass', 'parcels[].amount', 'newHolding'];
-
-function newHoldingString(newHolding){
-    const names = joinAnd(newHolding.persons, {prop: 'name'});
-    return 'New Holding: ' + (newHolding.holdingName ? newHolding.holdingName + ' - ' + names :  names);
-}
-
+const fields = [
+    'effectiveDate',
+    'from',
+    'to',
+    'newHolding',
+    'parcels[].shareClass',
+    'parcels[].amount',
+    'newHolding'
+    ];
 
 
 

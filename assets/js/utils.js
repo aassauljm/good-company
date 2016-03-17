@@ -276,3 +276,9 @@ export function joinAnd(items=[], options={}){
         return `${items.slice(0, items.length-1).join(', ')} and ${items[items.length-1]}`;
     }
 }
+
+export function newHoldingString(newHolding){
+    const names = joinAnd(newHolding.persons, {prop: 'name'});
+    return 'New Holding: ' + (newHolding.holdingName ? newHolding.holdingName + ' - ' + names :  names);
+}
+

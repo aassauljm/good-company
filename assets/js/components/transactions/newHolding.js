@@ -102,7 +102,6 @@ export class NewHoldingModal extends React.Component {
 
     submit(values) {
         if(this.props.modalData.afterClose){
-            // delegate this
             this.props.dispatch(change(this.props.modalData.formName, this.props.modalData.field, values));
             this.props.end();
             return;
