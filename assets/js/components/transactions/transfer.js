@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from 'react-bootstrap/lib/ButtonInput';
 import { connect } from 'react-redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
 import { formFieldProps, requireFields, joinAnd } from '../../utils';
@@ -182,10 +182,17 @@ export class TransferModal extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
+        this.handleClose = ::this.handleClose;
+        this.handleNext = ::this.handleNext;
     }
 
     handleNext() {
         this.refs.form.submit();
+    }
+
+    handleClose() {
+        this.props.dispatch(destroy('transfer'));
+        this.props.end();
     }
 
     submit(values) {
@@ -197,7 +204,7 @@ export class TransferModal extends React.Component {
                                     {transactions: transactions} ))
 
             .then(() => {
-                this.props.end();
+                this.handleClose();
                 this.props.dispatch(addNotification({message: 'Shares Transfered'}));
                 const key = this.props.modalData.companyId;
                 this.props.dispatch(routeActions.push(`/company/view/${key}`))
@@ -207,7 +214,7 @@ export class TransferModal extends React.Component {
             })
         }
         else{
-            this.props.end();
+            this.handleClose();
         }
     }
 
@@ -241,11 +248,10 @@ export class TransferModal extends React.Component {
                     onSubmit={this.submit}/>
                 </div>
             </div>
-
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>Tranfer Shares</Modal.Title>
               </Modal.Header>
@@ -253,8 +259,8 @@ export class TransferModal extends React.Component {
                 { this.renderBody(this.props.modalData.companyState) }
               </Modal.Body>
               <Modal.Footer>
-                <Button onClick={this.props.end} >Close</Button>
-                 <Button onClick={::this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
+                <Button onClick={this.handleClose} >Close</Button>
+                 <Button onClick={this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
               </Modal.Footer>
             </Modal>
     }
