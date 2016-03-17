@@ -28,7 +28,6 @@ const fields = [
 ];
 
 const validate = (data, props) => {
-
     const remainder = {};
     data.parcels.map(p => {
         remainder[p.shareClass || ''] = (remainder[p.shareClass || ''] || 0) + (parseInt(p.amount, 10) || 0);
@@ -158,54 +157,51 @@ export class Issue extends React.Component {
 
 
 export function issueFormatSubmit(values, companyState){
-    const actions = [], results = []
+    const actions = [], results = [], newHoldings = [];
     const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
         acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
-            acc[parcel.shareClass] = parcel.amount;
+            acc[parcel.shareClass || ''] = parcel.amount;
             return acc;
         }, {})
         return acc;
     }, {})
-
     values.parcels.map(p => {
         const amount = parseInt(p.amount, 10);
         const shareClass = parseInt(p.shareClass, 10) || null;
         actions.push({
-            holdingId: parseInt(values.from, 10),
             shareClass: shareClass,
             amount: amount,
-            beforeAmount: amounts[values.from][p.shareClass],
-            afterAmount: (amounts[values.from][p.shareClass]) - amount,
-            transactionType: 'ISSUE_FROM',
-            transactionMethod: 'AMEND'
+            transactionType: 'ISSUE_UNALLOCATED',
+            effectiveDate: values.effectiveDate
         });
-        if(!values.newHolding){
-            actions.push({
-                holdingId: parseInt(values.to, 10),
-                shareClass: shareClass,
-                amount: amount,
-                beforeAmount: amounts[values.to][p.shareClass] || 0,
-                afterAmount: (amounts[values.to][p.shareClass] || 0) + amount,
-                transactionType: 'ISSUE_TO',
-                transactionMethod: 'AMEND'
-            });
-        }
-        else{
-            actions.push({
-                holders: values.newHolding.persons,
-                shareClass: shareClass,
-                amount: amount,
-                beforeAmount: 0,
-                afterAmount: amount,
-                transactionType: 'ISSUE_TO',
-                transactionMethod: 'AMEND'
-            });
-        }
     });
-    if(values.newHolding){
+    values.holdings.map(h => {
+        h.parcels.map(p => {
+            const amount = parseInt(p.amount, 10);
+            const shareClass = parseInt(p.shareClass, 10) || null;
+            actions.push({
+                holdingId: parseInt(h.holding, 10) || null,
+                holders: (h.newHolding || {}).persons,
+                shareClass: shareClass,
+                amount: amount,
+                beforeAmount: amounts[h.holding][p.shareClass || ''] || 0,
+                afterAmount: (amounts[h.holding][p.shareClass || ''] || 0) + amount,
+                transactionType: 'ISSUE_TO',
+                transactionMethod: 'AMEND'
+            });
+            if(h.newHolding){
+                newHoldings.push({
+                    holders: h.newHolding.persons,
+                    effectiveDate: values.effectiveDate,
+                    transactionType: 'NEW_ALLOCATION'
+                })
+            }
+        });
+    });
+
+    if(newHoldings.length){
         results.push({
             effectiveDate: values.effectiveDate,
-            transactionType: 'ISSUE',
             actions: [newHoldingFormatAction(values.newHolding)]
         });
     }
@@ -254,7 +250,7 @@ export class IssueModal extends React.Component {
 
             .then(() => {
                 this.handleClose();
-                this.props.dispatch(addNotification({message: 'Shares Issueed'}));
+                this.props.dispatch(addNotification({message: 'Shares Issued'}));
                 const key = this.props.modalData.companyId;
                 this.props.dispatch(routeActions.push(`/company/view/${key}`))
             })
