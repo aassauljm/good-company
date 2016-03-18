@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
-import { formFieldProps, requireFields, joinAnd, nweHoldingString } from '../../utils';
+import { formFieldProps, requireFields, joinAnd, newHoldingString } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import { routeActions } from 'react-router-redux';

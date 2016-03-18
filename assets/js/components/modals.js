@@ -11,30 +11,8 @@ import { TransferModal } from './transactions/transfer';
 import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
 import { NewHoldingModal } from './transactions/newHolding';
-
-            /*case 'issue':
-                return <IssueModal
-                    index={this.props.issue.index}
-                    modalData={this.props.issue.data}
-                    next={(...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))} }
-                    previous={() => {this.props.dispatch(previousModal(this.props.showing))} }
-                    end={() => {this.props.dispatch(endModal(this.props.showing))} } />
-            case 'transfer':
-                return <TransferModal
-                    index={this.props.issue.index}
-                    modalData={this.props.issue.data}
-                    next={(...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))} }
-                    previous={() => {this.props.dispatch(previousModal(this.props.showing))} }
-                    end={() => {this.props.dispatch(endModal(this.props.showing))} } />
-                    */
-
-            /*case 'shareClasses':
-                return <ShareClassesModal
-                    index={this.props.shareClasses.index}
-                    modalData={this.props.shareClasses.data}
-                    next={(...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))} }
-                    previous={() => {this.props.dispatch(previousModal(this.props.showing))} }
-                    end={() => {this.props.dispatch(endModal(this.props.showing))} } /> */
+import { UpdateHoldingModal } from './transactions/updateHolding';
+import { PersonModal } from './transactions/person';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {
@@ -90,6 +68,13 @@ export default class Modals extends React.Component {
 
             case 'issue':
                 return <IssueModal {...props} />
+
+            case 'person':
+                return <PersonModal {...props} />
+
+            case 'updateHolding':
+                return <UpdateHoldingModal {...props} />
+
             default:
                 return false;
         }

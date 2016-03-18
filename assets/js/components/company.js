@@ -186,33 +186,49 @@ class ShareRegisterPanel extends React.Component {
 }
 
 @pureRender
-class Holding extends React.Component {
+export class HoldingDL extends React.Component {
+    static propTypes = {
+        holding: PropTypes.object.isRequired,
+        total: PropTypes.number.isRequired,
+        percentage: PropTypes.string.isRequired
+    };
+    render(){
+        return  <dl className="dl-horizontal">
+                <dt>Name</dt>
+                <dd>{ this.props.holding.name }</dd>
+                <dt>Total Shares</dt>
+                <dd>{numberWithCommas(this.props.total) + ' ' + this.props.percentage}</dd>
+                <dt>Parcels</dt>
+                { this.props.holding.parcels.map((p, i) =>
+                    <dd key={i} >{numberWithCommas(p.amount)} of {p.shareClass || STRINGS.defaultShareClass } Shares<br/></dd>) }
+                <dt>Holders</dt>
+                { this.props.holding.holders.map((holder, i) =>
+                    <dd key={i} >{holder.name} <br/>
+                    <span className="address">{holder.address}</span></dd>) }
+            </dl>
+    }
+}
+
+
+@pureRender
+export class Holding extends React.Component {
     static propTypes = {
         holding: PropTypes.object.isRequired,
         total: PropTypes.number.isRequired
     };
     render(){
-        const total = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
-            percentage = (total/this.props.total*100).toFixed(2) + '%';
+        const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
+            percentage = (sum/this.props.total*100).toFixed(2) + '%';
 
         return <div className="holding well">
             <div className="row">
                 <div className="col-xs-10">
-                <dl className="dl-horizontal">
-                    <dt >Name</dt>
-                    <dd >{ this.props.holding.name }</dd>
-                    <dt >Total Shares</dt>
-                    <dd >{numberWithCommas(total) + ' ' + percentage}</dd>
-                    <dt >Holders</dt>
-                    { this.props.holding.holders.map((holder, i) =>
-                        <dd key={i} >{holder.name} <br/>
-                        <span className="address">{holder.address}</span></dd>) }
-                </dl>
+                    <HoldingDL holding={this.props.holding} total={sum} percentage={percentage}  />
                 </div>
                 <div className="col-xs-2">
                    <div className="hide-graph-labels">
                  <PieChart
-                          data={{values: [{y: total, x: 'this'}, {y: this.props.total-total, x: 'other'}]}}
+                          data={{values: [{y: sum, x: 'this'}, {y: this.props.total-sum, x: 'other'}]}}
                           innerRadius={0.001}
                           outerRadius={30}
                           width={60}
