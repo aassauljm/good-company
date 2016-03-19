@@ -3,7 +3,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
 import FormReducer from '../hoc/formReducer';
-import CreateCompanyModal from './companyFull';
 import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
 import { IssueModal } from './transactions/issue';
@@ -40,14 +39,14 @@ export default class Modals extends React.Component {
         }
 
         switch(this.props.showing){
-            case 'createCompany' :
+            /*case 'createCompany' :
                 const formKey = "createCompanyModal";
                 return <FormReducer formName="companyFull" formKey={formKey}>
                     <CreateCompanyModal index={this.props.createCompany.index}
                     next={(...args) => {this.props.dispatch(nextModal('createCompany', ...args))} }
                     previous={() => {this.props.dispatch(previousModal('createCompany'))} }
                     end={() => {this.props.dispatch(endCreateCompany(formKey))} } />
-                    </FormReducer>
+                    </FormReducer>*/
 
             case 'importCompany':
                 return <ImportCompanyModal {...props} />

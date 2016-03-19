@@ -217,13 +217,6 @@ function validateCompanyFieldsAsync(data, dispatch){
 
 
 
-
-/*
-name, date of registration, registered office, and at least 1 director, share, and shareholder
-
-*/
-
-
 @connect(state => ({formData: (state.form.companyFull || {}).createCompanyModal}))
 export default class CreateCompanyModal extends React.Component {
 
