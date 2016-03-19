@@ -1,3 +1,5 @@
+"use strict";
+import React, {PropTypes} from 'react';
 import isoFetch from 'isomorphic-fetch';
 import STRINGS from './strings'
 import { Link } from 'react-router';
@@ -280,5 +282,23 @@ export function joinAnd(items=[], options={}){
 export function newHoldingString(newHolding){
     const names = joinAnd(newHolding.persons, {prop: 'name'});
     return 'New Holding: ' + (newHolding.holdingName ? newHolding.holdingName + ' - ' + names :  names);
+}
+
+export function personList(companyState){
+    const persons = companyState.holdingList.holdings.reduce((acc, h) => {
+        return h.holders.reduce((acc, p) => {
+            acc[p.personId] = {name: p.name, address: p.address}
+            return acc;
+        }, acc);
+    }, {});
+    const orderedPersons = Object.keys(persons).map(k => {
+        return {id: k, ...persons[k]};
+    })
+    orderedPersons.sort((a, b) => a.name.localeCompare(b));
+    return orderedPersons;
+}
+
+export function personOptionsFromState(companyState){
+    return personList(companyState).map((p, i) => <option key={i} value={p.id}>{p.name}</option>);
 }
 

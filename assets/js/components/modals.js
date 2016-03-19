@@ -12,7 +12,8 @@ import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
 import { NewHoldingModal } from './transactions/newHolding';
 import { UpdateHoldingModal } from './transactions/updateHolding';
-import { PersonModal } from './transactions/person';
+import { NewPersonModal } from './transactions/newPerson';
+import { UpdatePersonModal  } from './transactions/updatePerson';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {
@@ -69,8 +70,11 @@ export default class Modals extends React.Component {
             case 'issue':
                 return <IssueModal {...props} />
 
-            case 'person':
-                return <PersonModal {...props} />
+            case 'newPerson':
+                return <NewPersonModal {...props} />
+
+            case 'updatePerson':
+                return <UpdatePersonModal {...props} />
 
             case 'updateHolding':
                 return <UpdateHoldingModal {...props} />

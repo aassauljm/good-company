@@ -57,7 +57,7 @@ export class NewTransaction extends React.Component {
                                 <span className="transaction-button-text">Purchase of Shares</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.show('issue')} >
+                            <li className="actionable"  onClick={() => this.show('redemption')} >
                                 <span className="glyphicon glyphicon-import"></span>
                                 <span className="transaction-button-text">Redemption of Shares</span>
                             </li>
@@ -78,7 +78,7 @@ export class NewTransaction extends React.Component {
                                 <span className="transaction-button-text">Update Shareholding</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.show('updateHolder')} >
+                            <li className="actionable"  onClick={() => this.show('updatePerson')} >
                                 <span className="glyphicon glyphicon-user"></span>
                                 <span className="transaction-button-text">Update Shareholder</span>
                             </li>

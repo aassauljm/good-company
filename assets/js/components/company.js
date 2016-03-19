@@ -56,6 +56,9 @@ class ShareholdingsPanel extends React.Component {
        const length = new Set(this.props.holdings.reduce((acc, holding) => {
             return [...acc, ...holding.holders.map(p => p.personId)]
        }, [])).size;
+       console.log( new Set(this.props.holdings.reduce((acc, holding) => {
+            return [...acc, ...holding.holders.map(p => p.personId)]
+       }, [])));
        return length;
     };
 
@@ -193,7 +196,7 @@ export class HoldingDL extends React.Component {
         percentage: PropTypes.string.isRequired
     };
     render(){
-        return  <dl className="dl-horizontal">
+        return  <dl className="dl-horizontal ">
                 <dt>Name</dt>
                 <dd>{ this.props.holding.name }</dd>
                 <dt>Total Shares</dt>
@@ -220,7 +223,7 @@ export class Holding extends React.Component {
         const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (sum/this.props.total*100).toFixed(2) + '%';
 
-        return <div className="holding well">
+        return <div className="well holding  ">
             <div className="row">
                 <div className="col-xs-10">
                     <HoldingDL holding={this.props.holding} total={sum} percentage={percentage}  />
