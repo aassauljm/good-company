@@ -678,7 +678,7 @@ export const validateRemoveDirector = Promise.method(function(data, companyState
         return d.person.isEqual(data, {skipAddress: true});
     })
     if(!director){
-        throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Could not find expected new director, documentId: ' +data.documentId)
     }
 });
 
@@ -701,9 +701,12 @@ export function performNewDirector(data, companyState, previousState, effectiveD
     return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
         companyState.dataValues.directorList = dl;
-        return CompanyState.populatePersonIds([{name: data.name, address: address, personId: data.personId}])
+        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
     })
     .then(person => {
+        if(_.find(companyState.dataValues.directorList.dataValues.directors, d => d.person.isEqual(person))){
+            throw new sails.config.exceptions.InvalidOperation('Directorship already appointed, documentId: ' +data.documentId)
+        }
         const director = Director.build({
             appointment: effectiveDate, personId: person.id});
         director.dataValues.person = person;

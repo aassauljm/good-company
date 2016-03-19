@@ -302,3 +302,30 @@ export function personOptionsFromState(companyState){
     return personList(companyState).map((p, i) => <option key={i} value={p.id}>{p.name}</option>);
 }
 
+
+export function populatePerson(person, companyState){
+    //TODO, make a store or something
+    if(person.newPerson){
+        return person.newPerson;
+    }
+    else{
+        const id = parseInt(person.personId);
+        let result;
+        companyState.holdingList.holdings.map((h) => {
+            h.holders.map((p) => {
+                if(p.personId === id){
+                    result = {name: p.name, address: p.address, personId: p.personId};
+                }
+            });
+        });
+        companyState.directorList.directors.map((d) => {
+            if(d.person.personId === id){
+                result = {name: d.person.name, address: d.person.address, personId: d.person.personId};
+            }
+        });
+        return result;
+    }
+}
+
+
+

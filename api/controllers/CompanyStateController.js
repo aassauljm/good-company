@@ -121,9 +121,11 @@ var transactions = {
     compound: function(args, company){
         // TODO, validate different pairings
         let state;
+        // TODO directorUpdate and holderchange should generate in same set
         return TransactionService.performAll(args.transactions || [], company)
             .then(_state => {
                 state = _state;
+                // IE remove empty allocation
                 return TransactionService.createImplicitTransactions(state, args.transactions[0].effectiveDate || new Date())
             })
             .then(transactions => {
@@ -131,7 +133,6 @@ var transactions = {
                     return TransactionService.performAll(transactions, company, state);
                 }
             })
-        // TODO, add implicit transactions, Ie removeAllocation
     }
 }
 

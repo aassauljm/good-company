@@ -12,8 +12,9 @@ import { companyTransaction, addNotification, showModal } from '../../actions';
 import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { DirectorConnected, directorSubmit } from '../forms/person';
+import { DirectorConnected, NewDirectorConnected, directorSubmit } from '../forms/person';
 import { Director } from '../company';
+import { personOptionsFromState } from '../../utils';
 
 
 @connect(undefined)
@@ -51,22 +52,44 @@ export class ManageDirectorsModal extends React.Component {
                 </div>
         },
         () => {
+
             return <div className="row">
                 <div className="col-md-6 col-md-offset-3">
-                    <DirectorConnected
-                        ref="form"
-                        initialValues={{...this.props.modalData.director,
-                            effectiveDate: new Date(),
-                            appointment: this.props.modalData.director ? new Date(this.props.modalData.director.appointment) : new Date()}}
-                        edit={!!this.props.modalData.director}
-                        onSubmit={this.submit}/>
+                    { this.props.modalData.director ? this.updateDirector() : this.newDirector() }
                     </div>
                 </div>
         }
     ]
 
+    updateDirector() {
+        return <DirectorConnected
+            ref="form"
+            initialValues={{...this.props.modalData.director,
+                appointment: new Date(this.props.modalData.director.appointment) }}
+            onSubmit={this.submit}/>
+    }
+
+    newDirector() {
+        const personOptions = personOptionsFromState(this.props.modalData.companyState);
+        return <NewDirectorConnected
+            ref="form"
+            initialValues={{...this.props.modalData.director,
+                appointment: new Date() }}
+                personOptions={personOptions}
+                newPerson={() => this.props.dispatch(showModal('newPerson', {
+                    ...this.props.modalData,
+                    formName: 'director',
+                    field: `newPerson`,
+                    afterClose: { // open this modal again
+                        showModal: {key: 'manageDirectors', data: {...this.props.modalData, index: this.props.index}}
+                    }
+                }))}
+
+            onSubmit={this.submit}/>
+    }
+
     submit(values) {
-        const transactions = directorSubmit(values, this.props.modalData.director)
+        const transactions = directorSubmit(values, this.props.modalData.director, this.props.modalData.companyState)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',

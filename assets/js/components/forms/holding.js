@@ -2,7 +2,7 @@
 import React from 'react';
 import Input from '../forms/input';
 import ButtonInput from '../forms/buttonInput';
-import { formFieldProps, newHoldingString } from '../../utils';
+import { formFieldProps, newHoldingString, populatePerson } from '../../utils';
 import { ParcelWithRemove } from './parcel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../../strings';
@@ -130,23 +130,7 @@ const validate = (values, props) => {
 }
 
 export function reformatPersons(values, companyState){
-    return values.persons.map(p => {
-        if(p.newPerson){
-            return p.newPerson;
-        }
-        else{
-            const id = parseInt(p.personId);
-            let result;
-            companyState.holdingList.holdings.map((h) => {
-                h.holders.map((p) => {
-                    if(p.personId === id){
-                        result = {name: p.name, address: p.address, personId: p.personId};
-                    }
-                });
-            });
-            return result;
-        }
-    });
+    return values.persons.map(p => populatePerson(p, companyState));
 }
 
 export function newHoldingFormatAction(values){

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import Address from './address';
 import PersonName from './personName';
+import Input from './input';
+import ButtonInput from './buttonInput';
 import { reduxForm } from 'redux-form';
 export const fields = ['name', 'address']
-import { formFieldProps, requireFields } from '../../utils';
+import { formFieldProps, requireFields, populatePerson } from '../../utils';
 import DateInput from './dateInput';
 
 @formFieldProps()
@@ -31,9 +33,40 @@ export class Director extends React.Component {
         return <form className="form" >
             <fieldset>
                 { this.props.fields.appointment && <DateInput{...this.formFieldProps('appointment')} /> }
-                { this.props.edit && this.props.fields.cessation && <DateInput{...this.formFieldProps('cessation')} /> }
+                { this.props.fields.cessation && <DateInput{...this.formFieldProps('cessation')} /> }
                 <PersonName {...this.formFieldProps(['person', 'name'])} />
                 <Address {...this.formFieldProps(['person', 'address'])} />
+            </fieldset>
+        </form>
+    }
+}
+
+@formFieldProps()
+export class NewDirector extends React.Component {
+    static propTypes = {
+        newPerson: PropTypes.func.isRequired
+    };
+    render() {
+        const newPerson = this.props.fields.newPerson;
+        return <form className="form" >
+            <fieldset>
+                 { this.props.fields.appointment && <DateInput{...this.formFieldProps('appointment')} /> }
+                { !newPerson.value && <Input type="select" {...this.formFieldProps('personId')} label={'Existing Persons'} >
+                    <option></option>
+                    { this.props.personOptions }
+                </Input> }
+
+                { !newPerson.value &&
+                <div className="button-row"><ButtonInput onClick={() => {
+                    this.props.newPerson;
+                }}>Create New Person</ButtonInput></div> }
+
+                { newPerson.value  &&
+                    <StaticField type="static" label={'New Person'} value={newPerson.value.name}
+                    buttonAfter={<button className="btn btn-default" onClick={(e) => {
+                        newPerson.onChange(null);
+                    }}><Glyphicon glyph='trash'/></button>} /> }
+
             </fieldset>
         </form>
     }
@@ -43,6 +76,9 @@ const validateNew = requireFields('name', 'address');
 const validateUpdate = requireFields('effectiveDate', 'name', 'address');
 const validateDirector = (values, props) => {
     return {...requireFields('appointment')(values), person: requireFields('name', 'address')(values.person)};
+}
+const validateNewDirector = (values, props) => {
+    return {...requireFields('appointment')(values), 'personId': (!values.personId && !values.newPerson) && ['Required.']};
 }
 
 
@@ -65,6 +101,12 @@ export const DirectorConnected = reduxForm({
   validate: validateDirector
 })(Director);
 
+export const NewDirectorConnected = reduxForm({
+  form: 'director',
+  fields : ['appointment', 'personId', 'newPerson'],
+  validate: validateNewDirector
+})(NewDirector);
+
 export function updatePersonAction(values, oldPerson){
     const action = {
         transactionType: 'HOLDER_CHANGE',
@@ -82,15 +124,17 @@ export function updatePersonSubmit(values, oldPerson){
     }]
 }
 
-export function directorSubmit(values, oldDirector){
+export function directorSubmit(values, oldDirector, companyState){
     let actions;
     if(!oldDirector){
+        const person = populatePerson(values, companyState);
         return [{
             effectiveDate: values.appointment,
             actions: [{
                 transactionType: 'NEW_DIRECTOR',
-                name: values.person.name,
-                address: values.person.name,
+                name: person.name,
+                address: person.address,
+                personId: person.personId,
                 appointment: values.appointment
             }]
         }]
