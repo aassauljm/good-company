@@ -73,7 +73,6 @@ export class UpdateHoldingModal extends React.Component {
                                 showModal: {key: 'updateHolding', data: {...this.props.modalData, index: this.props.index}}
                             }
                         }))}
-
                         onSubmit={this.submit}/>
                     </div>
                 </div>
@@ -118,5 +117,4 @@ export class UpdateHoldingModal extends React.Component {
               </Modal.Footer>
             </Modal>
     }
-
 }

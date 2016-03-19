@@ -48,7 +48,6 @@ export class ManageDirectorsModal extends React.Component {
                        this.props.next({...this.props.modalData, director: null});
                     }}>Add Director</ButtonInput></div>
                 </div>
-
                 </div>
         },
         () => {

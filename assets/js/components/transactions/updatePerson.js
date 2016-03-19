@@ -89,7 +89,7 @@ export class UpdatePersonModal extends React.Component {
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
-                <Modal.Title>Update Shareholding</Modal.Title>
+                <Modal.Title>Update Shareholder</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 { this.pages[this.props.index].call(this) }
