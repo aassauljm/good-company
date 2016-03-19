@@ -13,7 +13,6 @@ import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { UpdatePersonConnected, updatePersonSubmit } from '../forms/person';
-import { HoldingDL } from '../company';
 
 
 @connect(undefined)

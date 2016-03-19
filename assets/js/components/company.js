@@ -244,7 +244,7 @@ export class Holding extends React.Component {
 }
 
 @pureRender
-class Director extends React.Component {
+export class Director extends React.Component {
     static propTypes = {
         director: PropTypes.object.isRequired,
     };

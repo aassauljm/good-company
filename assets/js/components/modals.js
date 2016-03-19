@@ -79,6 +79,8 @@ export default class Modals extends React.Component {
             case 'updateHolding':
                 return <UpdateHoldingModal {...props} />
 
+            case 'manageDirectors':
+                return <ManageDirectorsModal {...props} />
             default:
                 return false;
         }

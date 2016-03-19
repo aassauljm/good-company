@@ -12,12 +12,12 @@ import { companyTransaction, addNotification, showModal } from '../../actions';
 import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { UpdatePersonConnected, updatePersonSubmit } from '../forms/person';
-import { HoldingDL } from '../company';
+import { DirectorConnected, directorSubmit } from '../forms/person';
+import { Director } from '../company';
 
 
 @connect(undefined)
-export class UpdatePersonModal extends React.Component {
+export class ManageDirectorsModal extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -35,29 +35,30 @@ export class UpdatePersonModal extends React.Component {
 
     pages = [
         () => {
-            const persons = personList(this.props.modalData.companyState)
+            const directors = this.props.modalData.companyState.directorList.directors;
             return <div className="row">
                 <div className="col-md-6 col-md-offset-3">
-                { persons.map((p, i) => {
-
-                    return <div className="holding well actionable" key={i} onClick={() => this.props.next({...this.props.modalData, person: p})}>
-                                <dl className="dl-horizontal">
-                                    <dt>Name</dt>
-                                    <dd>{ p.name}</dd>
-                                    <dt>Address</dt>
-                                    <dd><span className="address">{ p.address}</span></dd>
-                                </dl>
-                            </div>
-                    }) }
+                    { directors.map((p, i) => {
+                        return <div className=" actionable" key={i} onClick={() => this.props.next({...this.props.modalData, director: p})}>
+                                    <Director director={p} />
+                                </div>
+                        }) }
+                <div className="button-row"><ButtonInput onClick={(e) => {
+                       this.props.next({...this.props.modalData, director: null});
+                    }}>Add Director</ButtonInput></div>
                 </div>
+
                 </div>
         },
         () => {
             return <div className="row">
                 <div className="col-md-6 col-md-offset-3">
-                    <UpdatePersonConnected
+                    <DirectorConnected
                         ref="form"
-                        initialValues={{effectiveDate: new Date(), ...this.props.modalData.person}}
+                        initialValues={{...this.props.modalData.director,
+                            effectiveDate: new Date(),
+                            appointment: this.props.modalData.director ? new Date(this.props.modalData.director.appointment) : new Date()}}
+                        edit={!!this.props.modalData.director}
                         onSubmit={this.submit}/>
                     </div>
                 </div>
@@ -65,7 +66,7 @@ export class UpdatePersonModal extends React.Component {
     ]
 
     submit(values) {
-        const transactions = updatePersonSubmit(values, this.props.modalData.person)
+        const transactions = directorSubmit(values, this.props.modalData.director)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
@@ -73,7 +74,7 @@ export class UpdatePersonModal extends React.Component {
                                     {transactions: transactions} ))
                 .then(() => {
                     this.handleClose();
-                    this.props.dispatch(addNotification({message: 'Person Updated'}));
+                    this.props.dispatch(addNotification({message: 'Directorships Updated.'}));
                     const key = this.props.modalData.companyId;
                     this.props.dispatch(routeActions.push(`/company/view/${key}`))
                 })
@@ -90,14 +91,15 @@ export class UpdatePersonModal extends React.Component {
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
-                <Modal.Title>Update Shareholding</Modal.Title>
+                <Modal.Title>Manage Directors</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 { this.pages[this.props.index].call(this) }
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-                { this.props.index === 1 && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
+                { this.props.index === 1 && this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Update</Button> }
+                { this.props.index === 1 && !this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
               </Modal.Footer>
             </Modal>
     }

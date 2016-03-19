@@ -17,6 +17,8 @@ export default {
     arFilingMonth: 'AR Filing Month',
     fraReportingMonth: 'FRA Reporting Month',
     holdingName: 'Holding Name',
+    appointment: 'Appointment Date',
+    cessation: 'Cessation of Directorship Date',
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

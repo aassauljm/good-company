@@ -532,7 +532,8 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            companyState.replaceDirector({name: data.afterName, address: afterAddress}, {name: data.beforeName, address: beforeAddress});
+            companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId},
+                                         {name: data.beforeName, address: beforeAddress, personId: data.personId});
             return _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
                 return d.person.isEqual({name: data.afterName, address: afterAddress});
             }).person.setTransaction(transaction)
@@ -723,12 +724,8 @@ export function performUpdateDirector(data, companyState, previousState, effecti
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            companyState.replaceDirector({name: data.afterName, address: afterAddress}, {name: data.beforeName, address: beforeAddress});
-            return _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
-                return d.person.isEqual({name: data.afterName, address: afterAddress});
-            }).person.setTransaction(transaction)
-        })
-        .then(() => {
+            companyState.replaceDirector({name: data.beforeName, address: beforeAddress, personId: data.personId},
+                                         {name: data.afterName, address: afterAddress, personId: data.personId}, transaction);
             return transaction;
         })
         .catch((e) => {

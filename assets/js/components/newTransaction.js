@@ -88,7 +88,7 @@ export class NewTransaction extends React.Component {
                                 <span className="transaction-button-text">Update Company Information</span>
                             </li>
 
-                            <li className="actionable" onClick={() => this.show('manageDirector')} >
+                            <li className="actionable" onClick={() => this.show('manageDirectors')} >
                                 <span className="glyphicon glyphicon-blackboard"></span>
                                 <span className="transaction-button-text">Manage Directors</span>
                             </li>

@@ -309,6 +309,9 @@ module.exports = {
             },
 
             findPersonId: function(person, user_id){
+                if(person.personId){
+                    return Promise.resolve(person.personId)
+                }
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             return Person.find({where: person})
