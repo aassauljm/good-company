@@ -73,12 +73,12 @@ export class NewTransaction extends React.Component {
                                 <span className="transaction-button-text">Transfer Shares</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.show('updateHolding')} >
+                            <li className="actionable"  onClick={() => this.show('selectHolding')} >
                                 <span className="glyphicon glyphicon-briefcase"></span>
                                 <span className="transaction-button-text">Update Shareholding</span>
                             </li>
 
-                            <li className="actionable"  onClick={() => this.show('updatePerson')} >
+                            <li className="actionable"  onClick={() => this.show('selectPerson')} >
                                 <span className="glyphicon glyphicon-user"></span>
                                 <span className="transaction-button-text">Update Shareholder</span>
                             </li>

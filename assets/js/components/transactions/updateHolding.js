@@ -42,42 +42,27 @@ export class UpdateHoldingModal extends React.Component {
         this.props.end();
     }
 
-    pages = [
-        () => {
-            const total = this.props.modalData.companyState.totalShares;
-            return <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                { this.props.modalData.companyState.holdingList.holdings.map((h, i) => {
-                const sum = h.parcels.reduce((acc, p) => acc + p.amount, 0),
-                        percentage = (sum/total*100).toFixed(2) + '%';
-                return <div className="holding well actionable" key={i} onClick={() => this.props.next({...this.props.modalData, holding: h})}>
-                        <HoldingDL holding={h} total={total} percentage={percentage}  />
-                    </div>
-                })
-                }</div>
+    renderBody(){
+        const personOptions = personOptionsFromState(this.props.modalData.companyState);
+        return <div className="row">
+            <div className="col-md-6 col-md-offset-3">
+                <HoldingNoParcelsConnected
+                    ref="form"
+                    initialValues={{effectiveDate: new Date(), persons: this.props.modalData.holding.holders, holdingName: this.props.modalData.holding.name}}
+                    personOptions={personOptions}
+                    showModal={(key, index) => this.props.dispatch(showModal(key, {
+                        ...this.props.modalData,
+                        formName: 'holding',
+                        field: `persons[${index}].newPerson`,
+                        afterClose: { // open this modal again
+                            showModal: {key: 'updateHolding', data: {...this.props.modalData, index: this.props.index}}
+                        }
+                    }))}
+                    onSubmit={this.submit}/>
                 </div>
-        },
-        () => {
-            const personOptions = personOptionsFromState(this.props.modalData.companyState);
-            return <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                    <HoldingNoParcelsConnected
-                        ref="form"
-                        initialValues={{effectiveDate: new Date(), persons: this.props.modalData.holding.holders, holdingName: this.props.modalData.holding.name}}
-                        personOptions={personOptions}
-                        showModal={(key, index) => this.props.dispatch(showModal(key, {
-                            ...this.props.modalData,
-                            formName: 'holding',
-                            field: `persons[${index}].newPerson`,
-                            afterClose: { // open this modal again
-                                showModal: {key: 'updateHolding', data: {...this.props.modalData, index: this.props.index}}
-                            }
-                        }))}
-                        onSubmit={this.submit}/>
-                    </div>
-                </div>
-        }
-    ]
+            </div>
+    }
+
 
     submit(values) {
         values.persons = reformatPersons(values, this.props.modalData.companyState);
@@ -109,11 +94,11 @@ export class UpdateHoldingModal extends React.Component {
                 <Modal.Title>Update Shareholding</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                { this.pages[this.props.index].call(this) }
+                { this.renderBody() }
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-                { this.props.index === 1 && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
+                <Button onClick={this.handleNext} bsStyle="primary">Update</Button>
               </Modal.Footer>
             </Modal>
     }

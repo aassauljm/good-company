@@ -432,8 +432,8 @@ export class Shareholder extends React.Component {
     };
 
     render() {
-        return <div className="shareholder well">
-            <dl className="dl-horizontal">
+        return <div className="shareholder well actionable"  onClick={() => this.props.showHolder(this.props.shareholder) }>
+            <dl className="dl-horizontal" >
                 <dt>Name</dt>
                 <dd>{ this.props.shareholder.name}</dd>
                 <dt>Address</dt>
@@ -482,8 +482,11 @@ export class Shareholders extends React.Component {
         if(!shareholders){
             return <div className="loading"></div>
         }
-        const current = shareholders.filter(s => s.current).map((shareholder, i) => <div key={i}><Shareholder shareholder={shareholder} /></div>);
-        const previous = shareholders.filter(s => !s.current).map((shareholder, i) => <div  key={i}><Shareholder shareholder={shareholder} /></div>);
+        const showHolder = (person) => {
+            this.props.dispatch(showModal('updatePerson', {companyState: this.props.companyState, companyId: this.props.companyId, person: person}));
+        }
+        const current = shareholders.filter(s => s.current).map((shareholder, i) => <div key={i}><Shareholder shareholder={shareholder} showHolder={showHolder}/></div>);
+        const previous = shareholders.filter(s => !s.current).map((shareholder, i) => <div  key={i}><Shareholder shareholder={shareholder}  /></div>);
         return <div className="container">
                  <div className="row">
                 <div className="text-center"><h3>Current Shareholders</h3></div>

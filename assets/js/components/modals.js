@@ -11,8 +11,10 @@ import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
 import { NewHoldingModal } from './transactions/newHolding';
 import { UpdateHoldingModal } from './transactions/updateHolding';
+import { SelectHoldingModal } from './transactions/selectHolding';
 import { NewPersonModal } from './transactions/newPerson';
 import { UpdatePersonModal  } from './transactions/updatePerson';
+import { SelectPersonModal  } from './transactions/selectPerson';
 import { ManageDirectorsModal  } from './transactions/manageDirectors';
 
 @connect(state => state.modals)
@@ -73,8 +75,14 @@ export default class Modals extends React.Component {
             case 'newPerson':
                 return <NewPersonModal {...props} />
 
+            case 'selectPerson':
+                return <SelectPersonModal {...props} />
+
             case 'updatePerson':
                 return <UpdatePersonModal {...props} />
+
+            case 'selectHolding':
+                return <SelectHoldingModal {...props} />
 
             case 'updateHolding':
                 return <UpdateHoldingModal {...props} />
