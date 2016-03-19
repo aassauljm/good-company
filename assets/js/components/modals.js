@@ -13,6 +13,7 @@ import { NewHoldingModal } from './transactions/newHolding';
 import { UpdateHoldingModal } from './transactions/updateHolding';
 import { NewPersonModal } from './transactions/newPerson';
 import { UpdatePersonModal  } from './transactions/updatePerson';
+import { ManageDirectorsModal  } from './transactions/manageDirectors';
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {

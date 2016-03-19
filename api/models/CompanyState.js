@@ -294,6 +294,7 @@ module.exports = {
                 return Promise.map(persons || [], function(person){
                     return AddressService.normalizeAddress(person.address)
                         .then(function(address){
+                            person.address = address;
                             return Person.find({where: person})
                             .then(function(p){
                                 if(p){
@@ -318,7 +319,16 @@ module.exports = {
                     })
                 })
             },
-
+            findOrCreatePerson: function(person){
+                return AddressService.normalizeAddress(person.address)
+                        .then(function(address){
+                            person = _.merge({}, person, {address: address})
+                            return Person.findOrCreate({where: person, defaults: person})
+                                .spread(function(person){
+                                    return person;
+                                });
+                            })
+            },
             findOrCreatePersons: function(obj){
                 // persons can be in:
                 // obj.holdings.holders

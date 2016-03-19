@@ -75,14 +75,13 @@ module.exports = {
                     this.dataValues.companyNumber === other.companyNumber &&
                     (this.dataValues.address !== other.address);
             },
-            isEqual: function(other){
-                // undefined !== null
+            isEqual: function(other, options={}){
                 if(other.personId && other.personId === this.dataValues.personId){
                     return true;
                 }
                 return this.dataValues.name === other.name &&
                     (this.dataValues.companyNumber || null) === (other.companyNumber || null) &&
-                    AddressService.compareAddresses(this.dataValues.address, other.address);
+                    (options.skipAddress || AddressService.compareAddresses(this.dataValues.address, other.address));
             },
             replaceWith: function(other){
                 const person = Person.build(_.merge(other, {personId: this.dataValues.personId}), {

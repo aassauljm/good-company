@@ -483,7 +483,7 @@ export function performDetailsChange(data, companyState, previousState, effectiv
 
 export const validateInverseNewDirector = Promise.method(function(data, companyState){
     const director = _.find(companyState.dataValues.directorList.dataValues.directors, (d)=> {
-        return d.person.name === data.name ; /*&& d.person.address === data.address */;
+        return d.person.isEqual(data, {skipAddress: true});
     })
     if(!director){
         throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director, documentId: ' +data.documentId)
@@ -497,7 +497,7 @@ export function performInverseNewDirector(data, companyState, previousState, eff
     })
     .then(function(dl){
         dl.dataValues.directors = _.reject(dl.dataValues.directors, (d) => {
-            return d.person.name === data.name /*&&  && d.person.address == data.address */;
+            return d.person.isEqual(data, {skipAddress: true});
         });
         companyState.dataValues.directorList = dl;
 
@@ -506,16 +506,16 @@ export function performInverseNewDirector(data, companyState, previousState, eff
 }
 
 export function performInverseRemoveDirector(data, companyState, previousState, effectiveDate){
-    // find them as a share holder? and vice versa?
     return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
         companyState.dataValues.directorList = dl;
-        return AddressService.normalizeAddress(data.address)
+        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
     })
-    .then(address => {
-            companyState.dataValues.directorList.dataValues.directors.push(Director.build({
-            appointment: effectiveDate, person: {name: data.name, address: address}},
-            {include: [{model: Person, as: 'person'}]}));
+    .then(person => {
+        const director = Director.build({
+            appointment: effectiveDate, personId: person.id})
+        director.dataValues.person = person;
+        companyState.dataValues.directorList.dataValues.directors.push(director);
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
     });
 }
@@ -671,6 +671,72 @@ export  function performApplyShareClass(data, nextState, companyState, effective
     });
 };
 
+
+export const validateRemoveDirector = Promise.method(function(data, companyState){
+    const director = _.find(companyState.dataValues.directorList.dataValues.directors, (d)=> {
+        return d.person.isEqual(data, {skipAddress: true});
+    })
+    if(!director){
+        throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director, documentId: ' +data.documentId)
+    }
+});
+
+export function performRemoveDirector(data, companyState, previousState, effectiveDate){
+    return validateRemoveDirector(data, companyState)
+    .then(function(){
+        return companyState.dataValues.directorList.buildNext()
+    })
+    .then(function(dl){
+        dl.dataValues.directors = _.reject(dl.dataValues.directors, (d) => {
+            return d.person.isEqual(data, {skipAddress: true});
+        });
+        companyState.dataValues.directorList = dl;
+        return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    });
+}
+
+export function performNewDirector(data, companyState, previousState, effectiveDate){
+    // find them as a share holder? and vice versa?
+    return companyState.dataValues.directorList.buildNext()
+    .then(function(dl){
+        companyState.dataValues.directorList = dl;
+        return CompanyState.populatePersonIds([{name: data.name, address: address, personId: data.personId}])
+    })
+    .then(person => {
+        const director = Director.build({
+            appointment: effectiveDate, personId: person.id});
+        director.dataValues.person = person;
+        companyState.dataValues.directorList.dataValues.directors.push(director);
+        return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
+    });
+}
+
+export function performUpdateDirector(data, companyState, previousState, effectiveDate){
+    // find them as a share holder?
+    const transaction = Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
+    return companyState.dataValues.directorList.buildNext()
+        .then(function(dl){
+            companyState.dataValues.directorList = dl;
+            return transaction.save()
+        })
+        .then(() => {
+            return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
+        })
+        .spread((afterAddress, beforeAddress) => {
+            companyState.replaceDirector({name: data.afterName, address: afterAddress}, {name: data.beforeName, address: beforeAddress});
+            return _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
+                return d.person.isEqual({name: data.afterName, address: afterAddress});
+            }).person.setTransaction(transaction)
+        })
+        .then(() => {
+            return transaction;
+        })
+        .catch((e) => {
+            throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
+        });
+};
+
+
 /**
     Seed is a special cause, it doesn't care about previousState
 */
@@ -799,7 +865,8 @@ export function performInverseTransaction(data, company, rootState){
         })
         .then(function(_prevState){
             //sails.log.silly('Current state', JSON.stringify(prevState, null, 4));
-            sails.log.info('Current state', JSON.stringify(prevState.holdingList.holdings));
+            sails.log.info('Current state', JSON.stringify(prevState.directorList, null ,4));
+            //sails.log.info('Current state', JSON.stringify(prevState.holdingList.holdings));
             return currentRoot.setPreviousCompanyState(_prevState);
         })
          .then(function(){
@@ -878,6 +945,9 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performHolderChange,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performRemoveAllocation,
+        [Transaction.types.NEW_DIRECTOR]: TransactionService.performNewDirector,
+        [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performRemoveDirector,
+        [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performUpdateDirector,
         [Transaction.types.APPLY_SHARE_CLASS]: TransactionService.performApplyShareClass,
     };
     if(!data.actions){
