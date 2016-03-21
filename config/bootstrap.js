@@ -67,6 +67,19 @@ function patchBluebird(ns) {
 
 }
 
+function loadDB(){
+    return fs.readFileAsync('config/db/functions.sql', 'utf8')
+         .then(function(sql){
+            return sequelize.query(sql)
+        })
+}
+
+function prepTemp(){
+    return fs.accessAsync(sails.config.CACHE_DIR)
+        .catch(function(){
+            return fs.mkdirAsync(sails.config.CACHE_DIR)
+        })
+}
 
 module.exports.bootstrap = function(cb) {
     sails.services.passport.loadStrategies();
@@ -77,11 +90,9 @@ module.exports.bootstrap = function(cb) {
     patchBluebird(session);
     global.__DEV__ = process.env.NODE_ENV !== 'production'
     global.__SERVER__ = true;
-    fs.accessAsync(sails.config.CACHE_DIR)
-        .catch(function(){
-            return fs.mkdirAsync(sails.config.CACHE_DIR)
-        })
-        .finally(function(){
+    return Promise.all([loadDB(), prepTemp()])
+        .then(function(){
             cb();
         })
-};
+
+}
