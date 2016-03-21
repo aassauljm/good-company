@@ -3,7 +3,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Root from "./root";
 import configureStore from './store';
-import DevTools from './components/devTools';
 import { browserHistory } from 'react-router';
 
 import "../styles/style.scss";

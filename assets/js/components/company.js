@@ -12,7 +12,6 @@ import Tabs from 'react-bootstrap/lib/Tabs';
 import Tab from 'react-bootstrap/lib/Tab';
 import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import moment from 'moment';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
 import { asyncConnect } from 'redux-async-connect';

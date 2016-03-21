@@ -3,7 +3,11 @@ var webpack = require('webpack')
 var DEV = process.env.NODE_ENV !== 'production';
 var definePlugin = new webpack.DefinePlugin({
     __DEV__: DEV,
-    __SERVER__: false
+    __SERVER__: false,
+   "process.env": {
+        // This has effect on the react lib size
+        "NODE_ENV": JSON.stringify(process.env.NODE_ENV)
+    }
 });
 
 module.exports = {
@@ -51,7 +55,13 @@ module.exports = {
     plugins: [
         definePlugin,
         // extract inline css into separate 'styles.css'
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
         new ExtractTextPlugin('../css/styles.css'),
-        new webpack.optimize.DedupePlugin()
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+              warnings: false
+            }
+          }),
     ]
 }

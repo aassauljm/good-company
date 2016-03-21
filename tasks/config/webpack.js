@@ -12,7 +12,7 @@ module.exports = function(grunt) {
                 //reasons: true
             },
             progress: false,
-            plugins: webpackConfig.plugins.concat(
+            /*plugins: webpackConfig.plugins.concat(
                 new webpack.DefinePlugin({
                     "process.env": {
                         // This has effect on the react lib size
@@ -21,7 +21,7 @@ module.exports = function(grunt) {
                 }),
                 new webpack.optimize.DedupePlugin(),
                 new webpack.optimize.UglifyJsPlugin()
-            )
+            )*/
         },
         "build-dev": {
             stats: {

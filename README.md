@@ -7,6 +7,16 @@
 * ES2015 support
 * SASS
 
+
+sudo add-apt-repository ppa:chris-lea/redis-server
+sudo apt-get update
+sudo apt-get install redis-server  libpq-dev imagemagick ghostscript poppler-utils
+
+
+
+install node_4.x
+
+
 ### Set Up
 npm install
 
