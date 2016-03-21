@@ -18,7 +18,7 @@ export class NewTransaction extends React.Component {
     };
 
     show(key) {
-        const show = this.props.showModal(key, {companyState: this.props.companyState, companyId: this.props.companyId});
+        this.props.showModal(key, {companyState: this.props.companyState, companyId: this.props.companyId, afterClose: {location: this.props.location.pathname}});
     }
 
     render() {
@@ -88,7 +88,7 @@ export class NewTransaction extends React.Component {
                                 <span className="transaction-button-text">Update Company Information</span>
                             </li>
 
-                            <li className="actionable" onClick={() => this.show('manageDirectors')} >
+                            <li className="actionable" onClick={() => this.show('selectDirector')} >
                                 <span className="glyphicon glyphicon-blackboard"></span>
                                 <span className="transaction-button-text">Manage Directors</span>
                             </li>

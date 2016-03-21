@@ -216,13 +216,14 @@ export class HoldingDL extends React.Component {
 export class Holding extends React.Component {
     static propTypes = {
         holding: PropTypes.object.isRequired,
-        total: PropTypes.number.isRequired
+        total: PropTypes.number.isRequired,
+        editHolding: PropTypes.func
     };
     render(){
         const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (sum/this.props.total*100).toFixed(2) + '%';
 
-        return <div className="well holding  ">
+        return <div className="well holding actionable" onClick={() => this.props.editHolding(this.props.holding)}>
             <div className="row">
                 <div className="col-xs-10">
                     <HoldingDL holding={this.props.holding} total={sum} percentage={percentage}  />
@@ -246,9 +247,14 @@ export class Holding extends React.Component {
 export class Director extends React.Component {
     static propTypes = {
         director: PropTypes.object.isRequired,
+        editDirector: PropTypes.func
     };
     render() {
-        return <div className="director well">
+        let className = 'director well ';
+        if(this.props.editDirector){
+            className += 'actionable ';
+        }
+        return <div className={className} onClick={this.props.editDirector && (() => this.props.editDirector(this.props.director))}>
             <dl className="dl-horizontal">
                 <dt >Name</dt>
                 <dd >{ this.props.director.person.name}</dd>
@@ -265,9 +271,10 @@ export class Director extends React.Component {
 class Directors extends React.Component {
     static propTypes = {
         directors: PropTypes.array.isRequired,
+        editDirector: PropTypes.func
     };
     render() {
-        const directors = (this.props.directors || []).map((d, i) => <Director director={d} key={i} />);
+        const directors = (this.props.directors || []).map((d, i) => <Director director={d} editDirector={this.props.editDirector} key={i} />);
         return <div className="row">
         <div className="text-center"><h3>Directors</h3></div>
         <div className="col-md-6">
@@ -284,7 +291,24 @@ class Directors extends React.Component {
 export class Shareholdings extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
+        showModal: PropTypes.func.isRequired
     };
+
+    constructor(props) {
+        super(props);
+        this.editHolding = ::this.editHolding
+    }
+
+    editHolding(holding) {
+        this.props.showModal('updateHolding', {
+            companyId: this.props.companyId,
+            companyState: this.props.companyState,
+            holding: holding,
+            afterClose: {
+                location: this.props.location.pathname
+            }
+        });
+    }
 
     groupHoldings() {
         const total = this.props.companyState.totalAllocatedShares;
@@ -296,7 +320,11 @@ export class Shareholdings extends React.Component {
     render() {
         return <div className="container"><div className="row">
             <div className="col-md-6">
-                { this.props.companyState.holdingList.holdings.map((holding, i) => <Holding key={i} holding={holding} total={this.props.companyState.totalShares}/>)}
+                { this.props.companyState.holdingList.holdings.map((holding, i) =>
+                    <Holding key={i} holding={holding}
+                        total={this.props.companyState.totalShares}
+                        editHolding={this.editHolding} />
+                )}
             </div>
             <div className="col-md-6 text-center">
                 <div className="hide-graph-labels">
@@ -319,7 +347,24 @@ export class Shareholdings extends React.Component {
 export class CompanyDetails extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
+        showModal: PropTypes.func.isRequired
     };
+
+    constructor(props) {
+        super(props);
+        this.editDirector = ::this.editDirector
+    }
+
+    editDirector(director) {
+        this.props.showModal('updateDirector', {
+            companyId: this.props.companyId,
+            companyState: this.props.companyState,
+            director: director,
+            afterClose: {
+                location: this.props.location.pathname
+            }
+        });
+    }
 
     render() {
         const current = this.props.companyState;
@@ -352,7 +397,7 @@ export class CompanyDetails extends React.Component {
 
                 </dl>
             </div>
-            <Directors directors={current.directorList.directors}/>
+            <Directors directors={current.directorList.directors} editDirector={this.editDirector}/>
             </div>
     }
 }
@@ -431,7 +476,7 @@ export class Shareholder extends React.Component {
     };
 
     render() {
-        return <div className="shareholder well actionable"  onClick={() => this.props.showHolder(this.props.shareholder) }>
+        return <div className="shareholder well actionable"  onClick={() => this.props.editHolder(this.props.shareholder) }>
             <dl className="dl-horizontal" >
                 <dt>Name</dt>
                 <dd>{ this.props.shareholder.name}</dd>
@@ -481,10 +526,16 @@ export class Shareholders extends React.Component {
         if(!shareholders){
             return <div className="loading"></div>
         }
-        const showHolder = (person) => {
-            this.props.dispatch(showModal('updatePerson', {companyState: this.props.companyState, companyId: this.props.companyId, person: person}));
+        const editHolder = (person) => {
+            this.props.dispatch(showModal('updatePerson', {
+                companyState: this.props.companyState,
+                companyId: this.props.companyId,
+                person: person,
+                afterClose: {
+                    location: this.props.location.pathname
+                }}));
         }
-        const current = shareholders.filter(s => s.current).map((shareholder, i) => <div key={i}><Shareholder shareholder={shareholder} showHolder={showHolder}/></div>);
+        const current = shareholders.filter(s => s.current).map((shareholder, i) => <div key={i}><Shareholder shareholder={shareholder} editHolder={editHolder}/></div>);
         const previous = shareholders.filter(s => !s.current).map((shareholder, i) => <div  key={i}><Shareholder shareholder={shareholder}  /></div>);
         return <div className="container">
                  <div className="row">
@@ -790,7 +841,8 @@ export default class Company extends React.Component {
                 </div>
                 { this.props.children && React.cloneElement(this.props.children, {
                         companyState: current,
-                        companyId: this.key()
+                        companyId: this.key(),
+                        showModal: (key, data) => this.props.dispatch(showModal(key, data))
                 })}
                 { !this.props.children &&
                     <div className="container">

@@ -10,6 +10,23 @@ var definePlugin = new webpack.DefinePlugin({
     }
 });
 
+var plugins = [
+        definePlugin,
+        // extract inline css into separate 'styles.css'
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
+        new ExtractTextPlugin('../css/styles.css'),
+        new webpack.optimize.DedupePlugin(),
+    ];
+
+if(!DEV){
+    plugins.push(new webpack.optimize.UglifyJsPlugin({
+            compress: {
+              warnings: false
+            }
+          }));
+}
+
+
 module.exports = {
     cache: true,
     context: __dirname + '/assets',
@@ -52,16 +69,5 @@ module.exports = {
             loader: "file?name=../css/[name].[ext]"
         }],
     },
-    plugins: [
-        definePlugin,
-        // extract inline css into separate 'styles.css'
-        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
-        new ExtractTextPlugin('../css/styles.css'),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-              warnings: false
-            }
-          }),
-    ]
+    plugins: plugins
 }

@@ -10,7 +10,6 @@ import DateInput from '../forms/dateInput';
 import { formFieldProps, requireFields, joinAnd } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
-import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
@@ -235,9 +234,9 @@ export class IssueModal extends React.Component {
         this.refs.form.submit();
     }
 
-    handleClose() {
+    handleClose(data = {}) {
         this.props.dispatch(destroy('issue'));
-        this.props.end();
+        this.props.end(data);
     }
 
     submit(values) {
@@ -249,10 +248,9 @@ export class IssueModal extends React.Component {
                                     {transactions: transactions} ))
 
             .then(() => {
-                this.handleClose();
+                this.handleClose({reload: true});
                 this.props.dispatch(addNotification({message: 'Shares Issued'}));
                 const key = this.props.modalData.companyId;
-                this.props.dispatch(routeActions.push(`/company/view/${key}`))
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));

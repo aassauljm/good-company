@@ -190,7 +190,6 @@ AS $$
             "address",
             "companyNumber",
             bool_or("current") as "current",
-            "firstHoldingId",
             (SELECT array_to_json(array_agg(row_to_json(s))) from parcels s where "holdingId" = ANY(ARRAY_AGG(q."lastHoldingId"))) as parcels,
             format_iso_date(max("lastEffectiveDate")) as "lastEffectiveDate",
         (SELECT format_iso_date(COALESCE(min("effectiveDate"), min("firstEffectiveDate")))
@@ -220,7 +219,7 @@ AS $$
                    PARTITION BY "personId", h."holdingId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
                  )
             ) as q
-            GROUP BY "personId", q.name, q."companyNumber", q.address, "firstHoldingId"
+            GROUP BY "personId", q.name, q."companyNumber", q.address
         ) as qq
 $$ LANGUAGE SQL STABLE;
 

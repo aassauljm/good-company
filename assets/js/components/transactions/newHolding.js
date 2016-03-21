@@ -12,7 +12,6 @@ import { HoldingNoParcelsConnected, reformatPerson } from '../forms/holding';
 import { formFieldProps, requireFields, joinAnd, personOptionsFromState } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
-import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';

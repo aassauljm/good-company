@@ -15,7 +15,10 @@ import { SelectHoldingModal } from './transactions/selectHolding';
 import { NewPersonModal } from './transactions/newPerson';
 import { UpdatePersonModal  } from './transactions/updatePerson';
 import { SelectPersonModal  } from './transactions/selectPerson';
-import { ManageDirectorsModal  } from './transactions/manageDirectors';
+import { SelectDirectorModal  } from './transactions/selectDirector';
+import { UpdateDirectorModal  } from './transactions/updateDirector';
+import { routeActions } from 'react-router-redux';
+
 
 @connect(state => state.modals)
 export default class Modals extends React.Component {
@@ -30,11 +33,14 @@ export default class Modals extends React.Component {
             next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
             previous: () => {this.props.dispatch(previousModal(this.props.showing))},
             end: (data) => {
-                const after = this.props[this.props.showing].data.afterClose;
+                const after = (this.props[this.props.showing].data || {}).afterClose;
                 this.props.dispatch(endModal(this.props.showing, data));
                 if(after){
                     if(after.showModal){
                         this.props.dispatch(showModal(after.showModal.key, after.showModal.data))
+                    }
+                    if(data && data.reload && after.location){
+                        this.props.dispatch(routeActions.push(after.location));
                     }
                 }
 
@@ -87,8 +93,11 @@ export default class Modals extends React.Component {
             case 'updateHolding':
                 return <UpdateHoldingModal {...props} />
 
-            case 'manageDirectors':
-                return <ManageDirectorsModal {...props} />
+            case 'selectDirector':
+                return <SelectDirectorModal {...props} />
+
+            case 'updateDirector':
+                return <UpdateDirectorModal {...props} />
             default:
                 return false;
         }

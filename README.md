@@ -24,3 +24,9 @@ npm test
 npm run test-coverage
 
 npm run build-dev
+
+
+
+#server
+
+pm2 start app.js -n good_company -x -- --prod

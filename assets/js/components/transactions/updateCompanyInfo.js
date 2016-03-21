@@ -9,7 +9,6 @@ import DateInput from '../forms/dateInput';
 import { formFieldProps, requireFields } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
-import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 
 
@@ -114,10 +113,9 @@ export class CompanyDetailsModal extends React.Component {
                                 this.props.modalData.companyId,
                                 {transactions: [transaction]} ))
             .then(() => {
-                this.props.end();
+                this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Updated Company Details'}));
                 const key = this.props.modalData.companyId;
-                this.props.dispatch(routeActions.push(`/company/view/${key}`))
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));

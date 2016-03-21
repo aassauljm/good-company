@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { reduxForm, change, destroy } from 'redux-form';
 import { personOptionsFromState } from '../../utils';
 import { companyTransaction, addNotification, showModal } from '../../actions';
-import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons } from '../forms/holding';
@@ -26,6 +25,13 @@ function updateHoldingSubmit(values, oldHolding){
 
 @connect(undefined)
 export class UpdateHoldingModal extends React.Component {
+
+    static propTypes = {
+        modalData: PropTypes.shape({
+            holding: PropTypes.object.isRequired
+        }).isRequired
+    }
+
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -37,9 +43,9 @@ export class UpdateHoldingModal extends React.Component {
         this.refs.form.submit();
     }
 
-    handleClose() {
+    handleClose(data={}) {
         this.props.dispatch(destroy('holding'));
-        this.props.end();
+        this.props.end(data);
     }
 
     renderBody(){
@@ -73,10 +79,9 @@ export class UpdateHoldingModal extends React.Component {
                                     this.props.modalData.companyId,
                                     {transactions: transactions} ))
                 .then(() => {
-                    this.handleClose();
+                    this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Shareholding Updated'}));
                     const key = this.props.modalData.companyId;
-                    this.props.dispatch(routeActions.push(`/company/view/${key}`))
                 })
                 .catch((err) => {
                     this.props.dispatch(addNotification({message: err.message, error: true}));

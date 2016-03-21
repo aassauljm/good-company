@@ -9,7 +9,6 @@ import Input from '../forms/input';
 import { formFieldProps, requireFields, joinAnd, personList } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
-import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { DirectorConnected, NewDirectorConnected, directorSubmit } from '../forms/person';
@@ -18,7 +17,7 @@ import { personOptionsFromState } from '../../utils';
 
 
 @connect(undefined)
-export class ManageDirectorsModal extends React.Component {
+export class UpdateDirectorModal extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -30,35 +29,17 @@ export class ManageDirectorsModal extends React.Component {
         this.refs.form.submit();
     }
 
-    handleClose() {
-        this.props.end();
+    handleClose(data={}) {
+        this.props.end(data);
     }
 
-    pages = [
-        () => {
-            const directors = this.props.modalData.companyState.directorList.directors;
-            return <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                    { directors.map((p, i) => {
-                        return <div className=" actionable" key={i} onClick={() => this.props.next({...this.props.modalData, director: p})}>
-                                    <Director director={p} />
-                                </div>
-                        }) }
-                <div className="button-row"><ButtonInput onClick={(e) => {
-                       this.props.next({...this.props.modalData, director: null});
-                    }}>Add Director</ButtonInput></div>
+    renderBody() {
+        return <div className="row">
+            <div className="col-md-6 col-md-offset-3">
+                { this.props.modalData.director ? this.updateDirector() : this.newDirector() }
                 </div>
-                </div>
-        },
-        () => {
-
-            return <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                    { this.props.modalData.director ? this.updateDirector() : this.newDirector() }
-                    </div>
-                </div>
-        }
-    ]
+            </div>
+    }
 
     updateDirector() {
         return <DirectorConnected
@@ -95,10 +76,9 @@ export class ManageDirectorsModal extends React.Component {
                                     this.props.modalData.companyId,
                                     {transactions: transactions} ))
                 .then(() => {
-                    this.handleClose();
-                    this.props.dispatch(addNotification({message: 'Directorships Updated.'}));
+                    this.handleClose({reload: true});
+                    this.props.dispatch(addNotification({message: 'Directorship Updated.'}));
                     const key = this.props.modalData.companyId;
-                    this.props.dispatch(routeActions.push(`/company/view/${key}`))
                 })
                 .catch((err) => {
                     this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -116,12 +96,12 @@ export class ManageDirectorsModal extends React.Component {
                 <Modal.Title>Manage Directors</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                { this.pages[this.props.index].call(this) }
+                { this.renderBody() }
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-                { this.props.index === 1 && this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Update</Button> }
-                { this.props.index === 1 && !this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
+                { this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Update</Button> }
+                { !this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
               </Modal.Footer>
             </Modal>
     }

@@ -7,7 +7,6 @@ import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
 import { UpdatePersonConnected, updatePersonSubmit } from '../forms/person';
-import { routeActions } from 'react-router-redux';
 
 @connect(undefined)
 export class UpdatePersonModal extends React.Component {
@@ -22,8 +21,8 @@ export class UpdatePersonModal extends React.Component {
         this.refs.form.submit();
     }
 
-    handleClose() {
-        this.props.end();
+    handleClose(data={}) {
+        this.props.end(data);
     }
 
 
@@ -38,7 +37,7 @@ export class UpdatePersonModal extends React.Component {
             </div>
     }
 
-    submit(values) {
+submit(values) {
         const transactions = updatePersonSubmit(values, this.props.modalData.person)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
@@ -46,10 +45,9 @@ export class UpdatePersonModal extends React.Component {
                                     this.props.modalData.companyId,
                                     {transactions: transactions} ))
                 .then(() => {
-                    this.handleClose();
+                    this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Person Updated'}));
                     const key = this.props.modalData.companyId;
-                    this.props.dispatch(routeActions.push(`/company/view/${key}`))
                 })
                 .catch((err) => {
                     this.props.dispatch(addNotification({message: err.message, error: true}));

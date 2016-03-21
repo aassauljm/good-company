@@ -66,7 +66,7 @@ export function callAPIMiddleware({
                             response: response,
                             error: true,
                             type: failureType}));
-                            throw new Error(response.message);
+                            throw new Error((response || {}).message);
                         });
                     }
                     dispatch(Object.assign({}, payload, {
@@ -74,7 +74,7 @@ export function callAPIMiddleware({
                         response: error.response,
                         type: failureType
                     }));
-                    throw new Error(error.response.message);
+                    throw new Error(error.message);
                 });
         };
     };

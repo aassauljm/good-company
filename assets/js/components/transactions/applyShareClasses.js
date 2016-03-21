@@ -11,7 +11,6 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { fieldStyle, fieldHelp } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
-import { routeActions } from 'react-router-redux';
 
 
 function renderHolders(holding){
@@ -94,10 +93,9 @@ export class ApplyShareClassesModal extends React.Component {
                                 this.props.modalData.companyId,
                                 {actions: holdings}))
             .then(() => {
-                this.props.end();
+                this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
                 const key = this.props.modalData.companyId;
-                this.props.dispatch(routeActions.push(`/company/view/${key}`))
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));

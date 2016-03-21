@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { reduxForm, change, destroy } from 'redux-form';
 import { personOptionsFromState } from '../../utils';
 import { showModal } from '../../actions';
-import { routeActions } from 'react-router-redux';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons } from '../forms/holding';
