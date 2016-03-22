@@ -61,6 +61,7 @@
     "bcrypt": "^0.8.5",
     "bluebird": "^2.9.34",
     "bootstrap-sass": "^3.3.5",
+    "catalex_shared": "github:joshgagnon/catalex_shared",
     "cheerio": "0.19.0",
     "coffee-script": "^1.10.0",
     "connect-redis": "1.4.5",

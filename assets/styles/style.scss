@@ -58,7 +58,17 @@ $input-border-width: 2px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
 
-//@import "bootswatch";
+
+
+@import "~catalex_shared/sass/catalex-vars";
+
+$header-background:#5CB85C;
+$header-image:url("~catalex_shared/images/nav-bg-green.jpg");
+
+@import "~catalex_shared/sass/catalex-common";
+
+
+
 @import "reactWidgets";
 
 @import "transitions";

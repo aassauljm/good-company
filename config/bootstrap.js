@@ -8,6 +8,9 @@
  * For more information on bootstrapping your app, check out:
  * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.bootstrap.html
  */
+
+require.extensions['.png'] = function() {return null}
+
 require("babel-core/register");
 require("babel-polyfill");
 

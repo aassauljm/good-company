@@ -8,6 +8,9 @@ import Collapse from 'react-bootstrap/lib/Collapse'
 import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
 import NavbarToggle from 'react-bootstrap/lib/NavbarToggle';
 import NavbarCollapse from 'react-bootstrap/lib/NavbarCollapse';
+import leftChevron from 'catalex_shared/images/left-chevron.png';
+import rightChevron from 'catalex_shared/images/right-chevron.png';
+
 
 function RoleAllows(roles = [], menu){
     let rules = {
@@ -64,7 +67,7 @@ export default class Header extends React.Component {
         }
     }
     showMenus(){
-        return   <ul className="nav navbar-nav">
+        return <ul className="nav navbar-nav">
             { this.users() }
             { this.roles() }
             { this.companies() }
@@ -103,14 +106,17 @@ export default class Header extends React.Component {
 
 
     render() {
-        return  <Navbar inverse>
+        return  <Navbar fluid>
                 <NavbarHeader>
                       <a className="navbar-brand" href="#">Good Company</a>
                       <NavbarToggle />
                     </NavbarHeader>
 
              <NavbarCollapse>
-            <div className="container">
+            <img className="chev-left" src={leftChevron} />
+            <img className="chev-right" src={rightChevron} />
+
+            <div className="">
                 {this.showMenus() }
                 <ul className="nav navbar-nav navbar-right">
                 { this.showAccount() }
