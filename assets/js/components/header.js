@@ -8,8 +8,7 @@ import Collapse from 'react-bootstrap/lib/Collapse'
 import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
 import NavbarToggle from 'react-bootstrap/lib/NavbarToggle';
 import NavbarCollapse from 'react-bootstrap/lib/NavbarCollapse';
-import leftChevron from 'catalex_shared/images/left-chevron.png';
-import rightChevron from 'catalex_shared/images/right-chevron.png';
+
 
 
 function RoleAllows(roles = [], menu){
@@ -42,14 +41,6 @@ export default class Header extends React.Component {
             </li>;
         }
     }
-    roles(){
-        if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'roles' )){
-            return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to="/roles">Roles
-                </Link>
-            </li>;
-        }
-    }
     documents(){
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'documents' )){
             return <li className="nav-item">
@@ -69,7 +60,6 @@ export default class Header extends React.Component {
     showMenus(){
         return <ul className="nav navbar-nav">
             { this.users() }
-            { this.roles() }
             { this.companies() }
             { this.documents() }
         </ul>
@@ -113,8 +103,8 @@ export default class Header extends React.Component {
                     </NavbarHeader>
 
              <NavbarCollapse>
-            <img className="chev-left" src={leftChevron} />
-            <img className="chev-right" src={rightChevron} />
+            <div className="chev-left" />
+            <div className="chev-right" />
 
             <div className="">
                 {this.showMenus() }
