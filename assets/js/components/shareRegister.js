@@ -155,3 +155,23 @@ export class ShareRegister extends React.Component {
                 </div>
     }
 }
+
+
+
+@pureRender
+export class ShareRegisterPanel extends React.Component {
+    static propTypes = {
+    };
+    render(){
+
+        return <div className="panel panel-danger" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Share Register</h3>
+            </div>
+            <div className="panel-body">
+                View your Share Register, as defined under section 87 of the Companies Act 1993
+            </div>
+        </div>
+    }
+}
+

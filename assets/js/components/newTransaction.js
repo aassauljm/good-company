@@ -98,3 +98,22 @@ export class NewTransaction extends React.Component {
                 </div>
     }
 }
+
+
+
+
+@pureRender
+export class NewTransactionPanel extends React.Component {
+
+    render(){
+        return <div className="panel panel-info" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Update Company</h3>
+            </div>
+            <div className="panel-body">
+                Change details, issue or purchase shares, transfer shares...
+            </div>
+        </div>
+    }
+}
+

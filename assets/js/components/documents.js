@@ -8,6 +8,7 @@ import { Link } from 'react-router'
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-async-connect';
 
+
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
     return dispatch(requestResource('documents'));
@@ -40,6 +41,32 @@ export default class Documents extends React.Component {
     }
 }
 
+
+
+@pureRender
+export class DocumentsPanel extends React.Component {
+    static propTypes = {
+        docList: PropTypes.shape({ documents: PropTypes.array.isRequired}).isRequired
+    };
+    render(){
+        return <div className="panel panel-success" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Documents</h3>
+            </div>
+            <div className="panel-body">
+                <table className="table table-condensed" style={{marginBottom: 0}}>
+                <thead><tr><th>Name</th><th>Date</th></tr></thead>
+                <tbody>
+                { this.props.docList.documents.slice(0, 5).map((d, i) => {
+                    return <tr key={i}><td>{ d.filename }</td><td>{new Date(d.date).toDateString()}</td></tr>
+                }) }
+                <tr><td colSpan="2" className="text-center">...</td></tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
 
 export class CompanyDocuments extends React.Component {
     static propTypes = {

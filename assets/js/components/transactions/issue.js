@@ -36,7 +36,6 @@ const validate = (data, props) => {
              remainder[p.shareClass || ''] = (remainder[p.shareClass || ''] || 0) - (parseInt(p.amount, 10) || 0);
         })
     });
-    console.log(data)
     const formErrors = {};
     if(Object.values(remainder).some(e => e)){
         formErrors.remainder = remainder;

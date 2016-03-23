@@ -10,7 +10,7 @@ import { showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons } from '../forms/holding';
-import { HoldingDL } from '../company';
+import { HoldingDL } from '../shareholdings';
 
 
 function updateHoldingSubmit(values, oldHolding){

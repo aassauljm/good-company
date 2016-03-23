@@ -51,3 +51,4 @@ export class TransactionViewModal extends React.Component {
     }
 
 }
+

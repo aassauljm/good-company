@@ -8,7 +8,7 @@ import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { fieldStyle, fieldHelp, formFieldProps, requireFields, renderDocumentLinks } from '../utils';
+import { fieldStyle, fieldHelp, formFieldProps, requireFields, renderDocumentLinks, pureRender } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { createResource, addNotification } from '../actions';
 import DropZone from 'react-dropzone';
@@ -219,7 +219,6 @@ export class ShareClasses extends React.Component {
     };
 
     render() {
-        console.log(this.props)
         const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
         return <div>
                     <div className="container">
@@ -232,4 +231,22 @@ export class ShareClasses extends React.Component {
                     </div>
                 </div>
             }
+}
+
+
+@pureRender
+export class ShareClassesPanel extends React.Component {
+    static propTypes = {
+    };
+    render(){
+
+        return <div className="panel panel-warning" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Share Classes</h3>
+            </div>
+            <div className="panel-body">
+                Manage your share classes.
+            </div>
+        </div>
+    }
 }

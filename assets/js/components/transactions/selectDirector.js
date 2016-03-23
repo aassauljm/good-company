@@ -8,7 +8,7 @@ import { reduxForm } from 'redux-form';
 import { formFieldProps, requireFields, joinAnd, personList } from '../../utils';
 import { showModal } from '../../actions';
 import STRINGS from '../../strings';
-import { Director } from '../company';
+import { Director } from '../companyDetails';
 
 @connect(undefined)
 export class SelectDirectorModal extends React.Component {

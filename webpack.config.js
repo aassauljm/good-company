@@ -23,7 +23,7 @@ if(!DEV){
             compress: {
               warnings: false
             }
-          }));
+    }));
 }
 
 
@@ -60,11 +60,11 @@ module.exports = {
             )
         }, {
             test: /\.gif$/,
-            loader: "url-loader?mimetype=image/png"
+            loader: "url-loader?mimetype=image/gif"
         }, {
             test: /\.(png|jpg)$/,
-            //loader: 'url-loader?limit=8192'
-            loader: "file?name=../images/[name].[ext]"
+            loader: 'url-loader?limit=8192&name=../images/[name].[ext]'
+            //loader: "file?name=../images/[name].[ext]"
         }, {
             test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
             loader: "file?name=../css/[name].[ext]"

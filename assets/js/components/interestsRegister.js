@@ -275,3 +275,20 @@ export class InterestsRegister extends React.Component {
                 </div>
     }
 }
+
+
+@pureRender
+export class InterestsRegisterPanel extends React.Component {
+    static propTypes = {
+    };
+    render(){
+        return <div className="panel panel-warning" >
+            <div className="panel-heading">
+            <h3 className="panel-title">Interests Register</h3>
+            </div>
+            <div className="panel-body">
+                View and create entry in the Interests Register.
+            </div>
+        </div>
+    }
+}
