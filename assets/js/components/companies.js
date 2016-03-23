@@ -4,7 +4,6 @@ import {requestResource, deleteResource, startCreateCompany, startImportCompany}
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
-import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
 import { routeActions } from 'react-router-redux'
 import { Link } from 'react-router';
 import STRINGS from '../strings'
@@ -35,10 +34,10 @@ export default class Companies extends React.Component {
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
         return <div className="container">
-           <ButtonToolbar className="text-center">
+           <div className="button-row">
                 <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button>
                 <Button bsStyle="info" onClick={::this.handleImport}>Import Company</Button>
-            </ButtonToolbar>
+            </div>
             <div className="table-responsive">
             <table className="table table-striped table-hover">
                 <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>

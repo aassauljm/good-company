@@ -119,9 +119,11 @@ export default class Account extends React.Component {
 
     render() {
         return <div className="container">
+            <div className="row">
             <div className="col-md-6 col-md-offset-3">
             <AccountForm submit={::this.submit} edit={this.props.route.edit} />
-            { this.isOwnAccount() ? <Link activeClassName="active" className="nav-link" to={"/user/set_password"}>Set Password</Link> : null }
+            { this.isOwnAccount() && <Link activeClassName="active" className="nav-link btn btn-default" to={"/user/set_password"}>Set Password</Link>  }
+            </div>
             </div>
         </div>
     }

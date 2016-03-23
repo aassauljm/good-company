@@ -59,7 +59,7 @@ module.exports = {
             })
             .then(function(company) {
                 this.company = company;
-                return Promise.join(this.company.currentCompanyState.fullPopulate())
+                return this.company.currentCompanyState.fullPopulate();
             })
             .then(function(){
                 return this.company.currentCompanyState.stats()
@@ -67,8 +67,9 @@ module.exports = {
             .then(function(stats){
                 const json = this.company.toJSON();
                 json.currentCompanyState = _.merge(json.currentCompanyState, stats);
-                res.json(json);
-            }).catch(function(err) {
+                return res.json(json);
+            })
+            .catch(function(err) {
                 return res.notFound(err);
             });
     },

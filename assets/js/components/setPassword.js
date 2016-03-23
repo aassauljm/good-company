@@ -61,8 +61,12 @@ class SetPassword extends React.Component {
     }
 
     render() {
-        return <div>
+        return <div className="container">
+            <div className="row">
+            <div className="col-md-6 col-md-offset-3">
             <PasswordForm submit={::this.submit} fields={this.props.fields}/>
+            </div>
+            </div>
             </div>
     }
 }

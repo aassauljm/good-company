@@ -3,7 +3,6 @@ import React from 'react';
 import { pureRender } from '../utils';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
-import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
 import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -26,10 +25,10 @@ export class LoginForm extends React.Component {
             { this.props.error ?    <div className="alert alert-danger" role="alert">{this.props.error }</div> : null }
             <Input type="text" ref="identifier" {...identifier} label="Email" />
             <Input type="password" ref="password" {...password} label="Password"  />
-            <ButtonToolbar className="text-center">
+            <div className="button-row">
                 <button type='submit' className="btn btn-primary" ref="submit" onClick={::this.submit}>Sign In</button>
                 <Link activeClassName="active" className="nav-link btn btn-info" to={'/signup'}>Sign Up</Link>
-            </ButtonToolbar>
+            </div>
             </form>
             </div>
     }
