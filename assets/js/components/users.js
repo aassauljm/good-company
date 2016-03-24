@@ -37,7 +37,6 @@ export default class Users extends React.Component {
             : null}
             </tbody>
             </table>
-        <Link activeClassName="active" className="nav-link" to={"/user/create"}>Create User</Link>
         </div>
     }
 }

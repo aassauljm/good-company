@@ -21,8 +21,15 @@ var SAError = require('sails-auth/lib/error/SAError.js');
  * @param {Object}   res
  * @param {Function} next
  */
-exports.register = function(user) {
-    return exports.createUser(user)
+exports.register = function(user, cb) {
+    if(typeof cb === 'function') {
+        exports.createUser(user)
+            .then((user) => cb(null, user))
+            .catch((err) => cb(err, null))
+    }
+    else{
+        return exports.createUser(user);
+    }
 };
 
 /**
@@ -40,19 +47,20 @@ exports.createUser = function(_user) {
     var password = _user.password;
     var user;
     delete _user.password;
-    return sequelize.transaction(function(t) {
-        return User.create(_user, {transaction: t})
+    return sequelize.transaction(function() {
+        return User.create(_user)
             .then(function(__user) {
                 user = __user;
-                if(_user.roles)
-                    return Promise.all(_user.roles.map(function(role){ return user.addRole(role, {transaction: t}); }))
+                if(_user.roles){
+                    return Promise.all(_user.roles.map(function(role){ return user.addRole(role); }))
+                }
             })
             .then(function(){
                 return sails.models.passport.create({
                     protocol: 'local',
                     password: password,
                     userId: user.id
-                }, {transaction: t})
+                })
             })
             .then(function(){
                 return user;

@@ -94,6 +94,7 @@
     "react-date-picker": "^3.1.8",
     "react-dom": "^0.14.2",
     "react-dropzone": "^3.3.2",
+    "react-faux-dom": "^2.4.0",
     "react-redux": "^4.0.1",
     "react-router": "^2.0.0",
     "react-router-redux": "^3.0.0",

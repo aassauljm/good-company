@@ -109,7 +109,7 @@ export function requestResource(resource, options = {}) {
 
 export function createResource(resource, data, options = {stringify: true}) {
     if(options && options.stringify === undefined){
-        options.stringify = true;
+        options = {...options, stringify: true}
     }
     return {
         types: [RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE],

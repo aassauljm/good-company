@@ -41,7 +41,7 @@ export default (store) => {
         <Route path="login" component={ Login }  />
         <Route path="signup" component={ SignUp }  />
         <Route onEnter={requireLogin}>
-            <IndexRoute component={ Landing }  />
+            <IndexRoute component={ Companies}  />
             <Route path="home" component={ Home }  />
             <Route path="users" component={ Users }  />
             <Route path="roles" component={ Roles }  />

@@ -5,7 +5,31 @@ import { pureRender, numberWithCommas } from '../utils';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
+import RadialGraph from './graphs/radial';
 
+
+function companyStateToTree(state){
+    return {
+        name: state.companyName,
+        children: [
+            {
+                name: 'Directors',
+                children: state.directorList.directors.map(d => ({
+                    name: d.person.name
+                }))
+            },
+            {
+                name: 'Shareholdings',
+                children: state.holdingList.holdings.map(h => ({
+                    name: h.name,
+                    children: h.holders.map(h => ({
+                                name: h.name
+                            }))
+                }))
+            }
+        ]
+    }
+}
 
 @pureRender
 export class DetailsPanel extends React.Component {
@@ -72,10 +96,10 @@ class Directors extends React.Component {
         return <div className="row">
         <div className="text-center"><h3>Directors</h3></div>
         <div className="col-md-6">
-            { directors.slice(0, directors.length/2)}
+            { directors.slice(0, directors.length/2+1)}
         </div>
         <div className="col-md-6">
-            { directors.slice(directors.length/2) }
+            { directors.slice(directors.length/2+1) }
         </div>
         </div>
     }
@@ -107,6 +131,7 @@ export class CompanyDetails extends React.Component {
 
     render() {
         const current = this.props.companyState;
+
         return <div className="container"><div className="well">
                 <dl className="dl-horizontal">
                     <dt >NZ Business Number</dt>
@@ -133,10 +158,13 @@ export class CompanyDetails extends React.Component {
 
                     { current.addressForService && <dt>Address For Service</dt> }
                     { current.addressForService && <dd>{current.addressForService}</dd> }
-
                 </dl>
             </div>
             <Directors directors={current.directorList.directors} editDirector={this.editDirector}/>
+            <div>
+                <RadialGraph data={companyStateToTree(current)} />
+            </div>
+
             </div>
     }
 }
