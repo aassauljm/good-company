@@ -110,12 +110,12 @@ class Directors extends React.Component {
 export class CompanyDetails extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
-        showModal: PropTypes.func.isRequired
+        showModal: PropTypes.func
     };
 
     constructor(props) {
         super(props);
-        this.editDirector = ::this.editDirector
+        this.editDirector = ::this.editDirector;
     }
 
     editDirector(director) {
@@ -131,7 +131,6 @@ export class CompanyDetails extends React.Component {
 
     render() {
         const current = this.props.companyState;
-
         return <div className="container"><div className="well">
                 <dl className="dl-horizontal">
                     <dt >NZ Business Number</dt>

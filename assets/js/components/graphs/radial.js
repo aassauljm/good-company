@@ -12,11 +12,39 @@ function splitLines(string, lineLength=12){
             acc.length = 0;
         }
         else{
-            acc.output += '';
+            acc.output += ' ';
         }
-        console.log(acc)
         return acc;
     }, {length: 0, output: ''}).output;
+}
+
+function splitLinesArray(string, lineLength=12){
+    console.log(lineLength)
+    return string.split(' ').reduce((acc, string) => {
+        acc.output[acc.output.length-1] += string;
+        acc.length += string.length;
+        if(acc.length > lineLength){
+            acc.output.push('');
+            acc.length = 0;
+        }
+        else{
+            acc.output[acc.output.length-1] += ' ';
+        }
+        return acc;
+    }, {length: 0, output: ['']}).output;
+}
+
+function splitD3Lines(data){
+    const el = d3.select(this);
+
+    splitLinesArray(data.name, 12).map((t, i) => {
+        console.log('this', t)
+        el.append("tspan")
+            .text(t)
+            .attr("dy", i ? "1.5em" : '0.3em')
+            .attr("x", '0')
+            .attr("class", "tspan" + i);
+    })
 }
 
 
@@ -25,17 +53,17 @@ export default class RadialGraph extends React.Component {
         data: PropTypes.object.isRequired
     };
     render() {
-        const diameter = 960;
+        const diameter = 1200;
         const root = this.props.data;
         const el = ReactFauxDOM.createElement('svg');
         const svg = d3.select(el)
             .attr("width", diameter)
-    .attr("height", diameter - 150)
+    .attr("height", diameter)
   .append("g")
     .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
     var tree = d3.layout.tree()
-        .size([360, diameter / 2 - 120])
+        .size([360, diameter / 2 - (diameter/8)])
         .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
 
     var diagonal = d3.svg.diagonal.radial()
@@ -57,13 +85,14 @@ export default class RadialGraph extends React.Component {
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
 
   node.append("circle")
-      .attr("r", 4.5);
+      .attr("r", 20);
 
   node.append("text")
       .attr("dy", ".31em")
       .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
       .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-      .text(function(d) { return splitLines(d.name )});
+      .each(splitD3Lines)
+
 
     return el.toReact();
     }
