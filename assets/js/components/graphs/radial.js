@@ -19,7 +19,6 @@ function splitLines(string, lineLength=12){
 }
 
 function splitLinesArray(string, lineLength=12){
-    console.log(lineLength)
     return string.split(' ').reduce((acc, string) => {
         acc.output[acc.output.length-1] += string;
         acc.length += string.length;
@@ -36,9 +35,7 @@ function splitLinesArray(string, lineLength=12){
 
 function splitD3Lines(data){
     const el = d3.select(this);
-
     splitLinesArray(data.name, 12).map((t, i) => {
-        console.log('this', t)
         el.append("tspan")
             .text(t)
             .attr("dy", i ? "1.5em" : '0.3em')
@@ -47,6 +44,19 @@ function splitD3Lines(data){
     })
 }
 
+var unscale = function (el) {
+    var svg = el.ownerSVGElement.ownerSVGElement;
+    var xf = el.scaleIndependentXForm;
+    if (!xf) {
+        // Keep a single transform matrix in the stack for fighting transformations
+        xf = el.scaleIndependentXForm = svg.createSVGTransform();
+        // Be sure to apply this transform after existing transforms (translate)
+        el.transform.baseVal.appendItem(xf);
+    }
+    var m = svg.getTransformToElement(el.parentNode);
+    m.e = m.f = 0; // Ignore (preserve) any translations done up to this point
+    xf.setMatrix(m);
+}
 
 export default class RadialGraph extends React.Component {
     static propTypes = {
@@ -57,10 +67,11 @@ export default class RadialGraph extends React.Component {
         const root = this.props.data;
         const el = ReactFauxDOM.createElement('svg');
         const svg = d3.select(el)
-            .attr("width", diameter)
-    .attr("height", diameter)
-  .append("g")
-    .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+        .attr("viewBox", `0 0 ${diameter} ${diameter}`)
+            .attr("width", '100%')
+            .attr("preserveAspectRatio", "xMinYMin meet")
+      .append("g")
+        .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
     var tree = d3.layout.tree()
         .size([360, diameter / 2 - (diameter/8)])
