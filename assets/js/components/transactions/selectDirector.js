@@ -26,7 +26,7 @@ export class SelectDirectorModal extends React.Component {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 { directors.map((p, i) => {
-                    return <Director director={p} editDirector={() => this.props.dispatch(showModal('updateDirector', {...this.props.modalData, director: p}))}/>
+                    return <Director key={i} director={p} editDirector={() => this.props.dispatch(showModal('updateDirector', {...this.props.modalData, director: p}))}/>
                     }) }
             <div className="button-row"><ButtonInput onClick={(e) => {
                     this.props.dispatch(showModal('updateDirector', {...this.props.modalData, director: null}))

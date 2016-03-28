@@ -144,7 +144,7 @@ export class Holding extends React.Component {
 export class Shareholdings extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
-        showModal: PropTypes.func.isRequired
+        showModal: PropTypes.func
     };
 
     constructor(props) {

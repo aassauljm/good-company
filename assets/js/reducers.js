@@ -71,7 +71,6 @@ function userInfo(state = {}, action){
         case USER_INFO_SUCCESS:
             return {...state, ...action.response, _status: 'complete'};
         case USER_INFO_FAILURE:
-            console.log(action)
             return {...state, ...action.response, _status: 'error'};
         default:
             return state;

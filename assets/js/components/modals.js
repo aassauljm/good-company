@@ -6,6 +6,10 @@ import FormReducer from '../hoc/formReducer';
 import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
 import { IssueModal } from './transactions/issue';
+import { AcquisitionModal } from './transactions/acquisition';
+import { RedemptionModal } from './transactions/redemption';
+import { PurchaseModal } from './transactions/purchase';
+import { ConsolidationModal } from './transactions/consolidation';
 import { TransferModal } from './transactions/transfer';
 import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
@@ -77,6 +81,18 @@ export default class Modals extends React.Component {
 
             case 'issue':
                 return <IssueModal {...props} />
+
+            case 'acquisition':
+                return <AcquisitionModal {...props} />
+
+            case 'consolidation':
+                return <ConsolidationModal {...props} />
+
+            case 'purchase':
+                return <PurchaseModal {...props} />
+
+            case 'redemption':
+                return <RedemptionModal {...props} />
 
             case 'newPerson':
                 return <NewPersonModal {...props} />

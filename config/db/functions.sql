@@ -296,11 +296,11 @@ FROM (
 SELECT *,
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO']::enum_transaction_type[]))  qq)
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
         as "issueHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM']::enum_transaction_type[]))  qq)
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]))  qq)
          as "repurchaseHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
@@ -312,7 +312,7 @@ SELECT *,
         as "transferHistoryFrom",
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO']::enum_transaction_type[]))  qq)
+        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
         as "sum"
 FROM
 

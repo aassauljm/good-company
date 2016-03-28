@@ -103,12 +103,14 @@ export class ApplyShareClassesModal extends React.Component {
     }
 
     renderBody(companyState) {
-        const options = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
+        const shareClasses = ((companyState.shareClasses || {}).shareClasses || []);
+
+        const options = shareClasses.map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         })
         const fields = companyState.holdingList.holdings.map(h => `${h.holdingId}`)
         const initialValues = companyState.holdingList.holdings.reduce((acc, value, key) => {
-            acc[value.holdingId] = value.parcels[0].shareClass;
+            acc[value.holdingId] = value.parcels[0].shareClass || (shareClasses[shareClasses.length-1] || {}).id;
             return acc;
         }, {})
         return <ShareClassSelectConnected ref="form" companyState={companyState}

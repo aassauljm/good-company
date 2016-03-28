@@ -39,7 +39,7 @@ export default {
         INCORPORATION: 'Incorporation',
         ISSUE: 'Issue',
         ISSUE_UNALLOCATED: 'Issue',
-        ISSUE_TO: 'Issue to',
+        ISSUE_TO: 'Issue To',
         AMEND: 'Amend',
         COMPOUND: 'Compound Transaction',
         NEW_ALLOCATION: 'New Allocation',
@@ -61,7 +61,12 @@ export default {
         PURCHASE: 'Purchase',
         PURCHASE_FROM: 'Purchase From',
         REDEMPTION: 'Redemption',
-        REDEMPTION_FROM: 'Redemption From'
+        REDEMPTION_FROM: 'Redemption From',
+        PURCHASE_FROM: 'Purchase From',
+        ACQUISITION_FROM: 'Acquisition From',
+        CONSOLIDATION_FROM: 'Consolidation From',
+        APPLY_SHARE_CLASS: 'Apply share class'
+
     },
     transfer: {
         from: 'Source Holding',

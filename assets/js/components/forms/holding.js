@@ -13,17 +13,18 @@ import DateInput from '../forms/dateInput';
 @formFieldProps()
 export class HoldingWithRemove extends React.Component {
     render() {
+        const hasNew = this.props.fields.newHolding && this.props.fields.newHolding.value;
         return <div className="col-full-h">
                 <div className="col-xs-9 left">
-                   { !this.props.fields.newHolding.value && <Input type="select" {...this.formFieldProps('holding')} >
+                   { !hasNew && <Input type="select" {...this.formFieldProps('holding')} >
                         <option></option>
                         { this.props.holdingOptions }
                     </Input> }
 
-                    { !this.props.fields.newHolding.value &&
+                    { this.props.fields.newHolding && !hasNew &&
                     <div className="button-row"><ButtonInput onClick={this.props.showNewHolding}>Create New Holding</ButtonInput></div> }
 
-                    { this.props.fields.newHolding.value  &&
+                    { hasNew  &&
                         <StaticField type="static"  value={newHoldingString(this.props.fields.newHolding.value)}
                         buttonAfter={<button className="btn btn-default" onClick={(e) => {
                             e.preventDefault();

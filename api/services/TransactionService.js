@@ -92,7 +92,7 @@ export function validateInverseIssue(data, companyState){
         })
 }
 
-export function validateInverseAcquistion(data, companyState){
+export function validateInverseDecreaseShares(data, companyState){
     return companyState.stats()
         .then((stats) =>{
             if(!Number.isInteger(data.amount) || data.amount <= 0){
@@ -106,7 +106,7 @@ export function validateInverseAcquistion(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue, documentId: ' +data.documentId)
             }
             if(data.fromAmount - data.amount !== data.toAmount ){
-                throw new sails.config.exceptions.InvalidInverseOperation('Acquisition amount sums to not add up, documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('Decrease amount sums to not add up, documentId: ' +data.documentId)
             }
         })
 }
@@ -115,20 +115,25 @@ export function performInverseIssueUnallocated(data, companyState, previousState
     return validateInverseIssue(data, companyState)
         .then(() => {
             const match = companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
+            const transaction = Transaction.build({transactionType: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
             return transaction;
         })
 }
 
 
-export function performInverseAcquisition(data, companyState, previousState, effectiveDate){
-    return validateInverseAcquistion(data, companyState)
+export function performInverseDecreaseShares(data, companyState, previousState, effectiveDate){
+    return validateInverseDecreaseShares(data, companyState)
         .then(() => {
             const match = companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            const transaction = Transaction.build({type: data.transactionSubType || data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
+            const transaction = Transaction.build({transactionType: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
             return transaction;
         })
 }
+
+export const performInversePurchase = performInverseDecreaseShares;
+export const performInverseRedemption = performInverseDecreaseShares;
+export const performInverseConsolidation = performInverseDecreaseShares;
+export const performInverseAcquisition = performInverseDecreaseShares;
 
 export  function performInverseAmend(data, companyState, previousState, effectiveDate){
     let transaction, holding, prevHolding;
@@ -556,6 +561,9 @@ export const validateIssueUnallocated = Promise.method(function(data){
     }
 });
 
+export const validateDecreaseShares = validateIssueUnallocated;
+
+
 export function performIssueUnallocated(data, nextState, previousState, effectiveDate){
     return validateIssueUnallocated(data, nextState)
         .then(() => {
@@ -564,6 +572,21 @@ export function performIssueUnallocated(data, nextState, previousState, effectiv
             return transaction;
         })
 }
+
+export function performDecreaseShares(data, nextState, previousState, effectiveDate){
+    return validateDecreaseShares(data, nextState)
+        .then(() => {
+            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
+            nextState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
+            return transaction;
+        })
+}
+
+export const performAcquisition = performDecreaseShares;
+export const performConsolidation = performDecreaseShares;
+export const performRedemption = performDecreaseShares;
+export const performPurchase = performDecreaseShares;
+
 
 export function validateAmend(data, companyState){
     if(!data.holdingId && !(data.holders && data.holders.length)){
@@ -795,7 +818,8 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.CONVERSION]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
-        [Transaction.types.PURCHASE]:  TransactionService.performInverseAcquisition,
+        [Transaction.types.PURCHASE]:  TransactionService.performInversePurchase,
+        [Transaction.types.REDEMPTION]:  TransactionService.performInverseRedemption,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
         [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
@@ -937,6 +961,10 @@ export function performInverseAll(data, company, state){
 export function performTransaction(data, company, companyState){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performIssueUnallocated,
+        [Transaction.types.ACQUISITION]:  TransactionService.performAcquisition,
+        [Transaction.types.PURCHASE]:  TransactionService.performPurchase,
+        [Transaction.types.CONSOLIDATION]:  TransactionService.performConsolidation,
+        [Transaction.types.REDEMPTION]:  TransactionService.performRedemption,
         [Transaction.types.AMEND]:  TransactionService.performAmend,
         [Transaction.types.NAME_CHANGE]: TransactionService.performNameChange,
         [Transaction.types.DETAILS]: TransactionService.performDetailsChange,

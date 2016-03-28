@@ -253,7 +253,7 @@ export class TransferModal extends React.Component {
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
-                <Modal.Title>Tranfer Shares</Modal.Title>
+                <Modal.Title>Transfer Shares</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 { this.renderBody(this.props.modalData.companyState) }

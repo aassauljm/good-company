@@ -39,12 +39,17 @@ class RenderActions extends React.Component {
     renderAction(action) {
         switch(action.type){
             case 'ISSUE_TO':
+            case 'SUBVISION_TO':
+            case 'CONVERSION_TO':
                 return renderIssue(action);
             case 'TRANSFER_TO':
                 return renderTransferTo(action);
             case 'TRANSFER_FROM':
                 return renderTransferFrom(action);
             case 'PURCHASE_FROM':
+            case 'REDEMPTION_FROM':
+            case 'ACQUISITION_FROM':
+            case 'CONSOLIDATION_FROM':
                 return renderPurchaseFrom(action);
             default:
                 return false;
@@ -72,7 +77,7 @@ export class ShareRegister extends React.Component {
     static defaultShareMap = {};
 
     fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sum', 'votingRights', 'limitations', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
-    wideFields = {'name': 1, 'address': 1, 'issueHistory': 1, 'repurchaseHistory': 1, 'transferHistoryFrom': 1, 'transferHistoryTo': 1};
+    wideFields = {'name': 1, 'address': 1, 'votingRights': 1, 'limitations': 1, 'issueHistory': 1, 'repurchaseHistory': 1, 'transferHistoryFrom': 1, 'transferHistoryTo': 1};
 
     key() {
         return this.props.params.id
@@ -90,7 +95,7 @@ export class ShareRegister extends React.Component {
         this.fetch();
     };
 
-    renderField(key, data, shareClassMap) {
+    renderField(key, data, row, shareClassMap) {
         if(Array.isArray(data)){
             return  <RenderActions actions={data}/>
         }
@@ -98,9 +103,10 @@ export class ShareRegister extends React.Component {
             case 'shareClass':
                 return renderShareClass(data, shareClassMap);
             case 'votingRights':
-                return renderRights(((shareClassMap[data] || {}).properties || {}).votingRights);
+
+                return renderRights(((shareClassMap[row.shareClass] || {}).properties || {}).votingRights);
             case 'limitations':
-                return renderLimitations(((shareClassMap[data] || {}).properties || {}).limiations);
+                return renderLimitations(((shareClassMap[row.shareClass] || {}).properties || {}).limitations);
             case 'current':
                 return data ? 'Yes': 'No';
             case 'amount':
@@ -121,7 +127,7 @@ export class ShareRegister extends React.Component {
             <tbody>
                 { shareRegister.map((s, i) => {
                     return <tr key={i}>{ this.fields.map((f, j) => {
-                        return <td key={j}>{this.renderField(f, shareRegister[i][f], shareClassMap)}</td>
+                        return <td key={j}>{this.renderField(f, shareRegister[i][f], shareRegister[i], shareClassMap)}</td>
                     })}</tr>
                 }) }
             </tbody>
