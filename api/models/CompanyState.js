@@ -326,6 +326,17 @@ module.exports = {
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             person = _.merge({}, person, {address: address})
+                            // this is unique, so any match is jackpot
+                            if(person.companyNumber){
+                                return Person.find({companyNumber: person.companyNumber})
+                                    .then(p => {
+                                        if(p){
+                                            person.personId = p.personId;
+                                        }
+                                    })
+                            }
+                        })
+                        .then(() => {
                             return Person.findOrCreate({where: person, defaults: person})
                                 .spread(function(person){
                                     return person;
@@ -632,40 +643,39 @@ module.exports = {
 
             mutateHolders: function(holding, newHolders, transaction){
                 //these new holders may have new members or address changes or something
-                newHolders = newHolders.slice()
-                var existingHolders = [];
-                var index = this.dataValues.holdingList.dataValues.holdings.indexOf(holding);
-                this.dataValues.holdingList.dataValues.holdings[index] = holding = holding.buildNext();
-                _.some(holding.dataValues.holders, function(holder){
-                    var toRemove;
-                    newHolders.forEach(function(newHolder, i){
-                        if(holder.detailChange(newHolder)){
-                            existingHolders.push(holder.replaceWith(newHolder))
-                            toRemove = i;
-                            return false;
+                const holdingList = this.dataValues.holdingList;
+                return Promise.map(newHolders, CompanyState.findOrCreatePerson, {concurrency: 1})
+                .then(function(newHolders){
+                    console.log(newHolders.map(h => h.dataValues))
+                    const existingHolders = [];
+                    const index = holdingList.dataValues.holdings.indexOf(holding);
+                    holdingList.dataValues.holdings[index] = holding = holding.buildNext();
+                    _.some(holding.dataValues.holders, function(holder){
+                        var toRemove;
+                        newHolders.forEach(function(newHolder, i){
+                            if(holder.detailChange(newHolder)){
+                                existingHolders.push(holder.replaceWith(newHolder))
+                                toRemove = i;
+                                return false;
+                            }
+                            if(holder.isEqual(newHolder)){
+                                existingHolders.push(holder);
+                                toRemove = i;
+                                return false;
+                            }
+                        });
+                        if(toRemove !== undefined){
+                            newHolders.splice(toRemove, 1);
                         }
-                        if(holder.isEqual(newHolder)){
-                            existingHolders.push(holder);
-                            toRemove = i;
-                            return false;
+                        if(!newHolders.length){
+                            return true;
                         }
                     });
-                    if(toRemove !== undefined){
-                        newHolders.splice(toRemove, 1);
+                    holding.dataValues.holders = existingHolders.concat(newHolders);
+                    if(transaction){
+                        holding.dataValues.transaction = transaction;
                     }
-                    if(!newHolders.length){
-                        return true;
-                    }
-                });
-                var extraHolders = newHolders.map(function(holderToAdd, i){
-                    // TODO, make sure persons are already looked up
-                    return Person.build(holderToAdd)
                 })
-                holding.dataValues.holders = existingHolders.concat(extraHolders);
-                if(transaction){
-                    holding.dataValues.transaction = transaction;
-                }
-                return this;
             },
 
             replaceHolder: function(currentHolder, newHolder, transaction){

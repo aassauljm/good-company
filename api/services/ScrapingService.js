@@ -693,13 +693,16 @@ function insertIntermediateActions(docs){
                     transactionMethod: Transaction.types.AMEND
                 }
             })
-            doc.actions = doc.actions.map(a => {
+            doc.actions = doc.actions.filter(a => {
                 if(removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0){
                     a.transactionType = Transaction.types.REMOVE_ALLOCATION;
                     a.transactionMethod = null;
                     a.amount = 0
+                    return a;
                 }
-                return a;
+                else{
+                    amends.actions.unshift(a);
+                }
             })
             doc.transactionType = Transaction.types.COMPOUND_REMOVALS;
             acc.push(doc);

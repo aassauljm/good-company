@@ -177,11 +177,11 @@ module.exports = {
                         .then(function(_processedDocs) {
                             processedDocs = _processedDocs.concat(ScrapingService.extraActions(data, _processedDocs));
                             processedDocs = ScrapingService.segmentActions(processedDocs);
-                            // create a state before SEED
                             processedDocs.map(p => {
                                 p.id = uuid.v4();
                             })
                             sails.log.verbose('Processed ' + processedDocs.length + ' documents');
+                            // create a state before SEED
                             return company.createPrevious();
                         })
                         .then(function(){

@@ -155,7 +155,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             if(!data.shareClass){
                 data.shareClass = parcel.shareClass = _.find(holding.dataValues.parcels, p => data.afterAmount === p.amount).shareClass;
             }
-            const transactionType  = data.transactionSubType || data.transactionType;
+
 
             if(difference < 0){
                 const match = companyState.subtractUnallocatedParcels(parcel);
@@ -172,9 +172,12 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 
             // If holders have changed too
             if(!current.holdersMatch({holders: data.beforeHolders})){
-                companyState.mutateHolders(current, data.beforeHolders);
+                return companyState.mutateHolders(current, data.beforeHolders);
             }
-            transaction = Transaction.build({type: data.transactionSubType || transactionType,  data: data, effectiveDate: effectiveDate});
+        })
+        .then(() => {
+            const transactionType  = data.transactionType;
+            transaction = Transaction.build({type: transactionType,  data: data, effectiveDate: effectiveDate});
             return transaction.save();
         })
         .then(() => {
@@ -235,7 +238,9 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             else{
                 current = current[0];
             }
-            companyState.mutateHolders(current, normalizedData.beforeHolders);
+            return companyState.mutateHolders(current, normalizedData.beforeHolders)
+        })
+        .then(() => {
             if(data.beforeName){
                 current.dataValues.name =  data.beforeName;
             }
@@ -250,6 +255,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
 
 export function performHoldingChange(data, companyState, previousState, effectiveDate){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    const normalizedData = _.cloneDeep(data);
      return companyState.dataValues.holdingList.buildNext()
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
@@ -257,7 +263,18 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             return transaction.save()
         })
         .then(() => {
-            let current = companyState.getMatchingHoldings({holdingId: data.holdingId, holders: data.beforeHolders});
+            return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+
+            })), Promise.all(normalizedData.beforeHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+
+            }))])
+        })
+        .then(() => {
+            let current = companyState.getMatchingHoldings({holdingId: data.holdingId, holders: normalizedData.beforeHolders});
             current = current[0];
             if(!current){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
@@ -265,7 +282,9 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             if(data.afterName){
                 current.dataValues.name =  data.afterName;
             }
-            companyState.mutateHolders(current, data.afterHolders, transaction);
+            return companyState.mutateHolders(current, normalizedData.afterHolders, transaction);
+        })
+        .then(() => {
             return transaction;
         });
 };
@@ -812,7 +831,6 @@ export function removeActions(state, actionSet){
 export function performInverseTransaction(data, company, rootState){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
-        [Transaction.types.TRANSFER]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performInverseIssueUnallocated,

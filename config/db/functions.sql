@@ -296,39 +296,39 @@ FROM (
 SELECT *,
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
+        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
         as "issueHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]))  qq)
+        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]))  qq)
          as "repurchaseHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]))  qq)
+        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]))  qq)
         as "transferHistoryTo",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]))  qq)
+        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]))  qq)
         as "transferHistoryFrom",
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
-        where pht."startId" = "lastHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
+        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
         as "sum"
 FROM
 
-    (SELECT DISTINCT ON ("personId", "lastHoldingId", "shareClass")
+    (SELECT DISTINCT ON ("personId", "newestHoldingId", "shareClass")
     "personId",
     first_value(p.name) OVER wnd as name,
     first_value(p."companyNumber") OVER wnd as "companyNumber",
+    first_value(h."companyStateId") OVER wnd = $1 as current,
     first_value(p.address) OVER wnd as address,
-    first_value(pp.amount) OVER wnd as amount,
+    CASE WHEN first_value(h."companyStateId") OVER wnd = $1 THEN first_value(pp.amount) OVER wnd ELSE 0 END as amount,
     pp."shareClass" as  "shareClass",
     first_value(h."holdingId") OVER wnd as "holdingId",
     first_value(h."name") OVER wnd as "holdingName",
-    first_value(h."id") OVER wnd as "lastHoldingId",
+    first_value(h."id") OVER wnd as "newestHoldingId",
     first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
-    format_iso_date(t."effectiveDate") as "lastEffectiveDate",
-    first_value(h."companyStateId") OVER wnd = $1 as current
+    format_iso_date(t."effectiveDate") as "lastEffectiveDate"
     from prev_company_states pt
     join company_state cs on pt.id = cs.id
     join transaction t on cs."transactionId" = t.id
@@ -342,7 +342,6 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
-
 
 
 

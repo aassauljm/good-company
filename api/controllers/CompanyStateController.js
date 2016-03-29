@@ -148,18 +148,24 @@ const selfManagedTransactions = {
         */
         let state;
         return sequelize.transaction(function(t){
-            return TransactionService.performTransaction({actions: data.actions}, company)
+            return TransactionService.performTransaction({
+                actions: data.actions,
+                effectiveDate: data.effectiveDate || new Date(),
+                transactionType: Transaction.types.APPLY_SHARE_CLASSES
+            }, company)
                 .then(_state => {
                     state = _state;
                     state.set('previousCompanyStateId', null);
                     return state.save();
                 })
-                .then(() => {
+                // create previous
+                .then(() => company.createPrevious())
+                .then(state => {
                     return state.getHistoricalActions();
                 })
             })
             .then(actions => {
-               return TransactionService.performInverseAll(actions.actions.slice(1), company, state);
+                return TransactionService.performInverseAll(actions.actions.slice(1), company);
             })
             .then(function(){
                 return {message: 'Share classes applied.'}

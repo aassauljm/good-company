@@ -164,8 +164,6 @@ export class CompanyFieldsForm extends React.Component {
     };
 
     render() {
-        console.log('render form', this.props);
-
         return  (
          <form className="form-horizontal">
               <fieldset>

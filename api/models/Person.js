@@ -84,6 +84,9 @@ module.exports = {
                     (options.skipAddress || AddressService.compareAddresses(this.dataValues.address, other.address));
             },
             replaceWith: function(other){
+                if(other.id){
+                    return other;
+                }
                 const person = Person.build(_.merge(other, {personId: this.dataValues.personId}), {
                                 include: [{
                                     model: Transaction,
