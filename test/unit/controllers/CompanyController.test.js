@@ -163,7 +163,7 @@ describe('Company Controller', function() {
                 });
         });
 
-      /*  it('Creates share classes', function(done){
+       it('Creates share classes', function(done){
             req.post('/api/company/'+companyId+'/share_classes/create')
                 .send({json: JSON.stringify({name: 'Class A'})})
                 .then(function(res){
@@ -219,6 +219,6 @@ describe('Company Controller', function() {
                     //console.log(JSON.stringify(res.body.companyState, null, 4));
                     done();
                 });
-        });*/
+        });
     });
 });

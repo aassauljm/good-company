@@ -263,8 +263,7 @@ WITH RECURSIVE
         from holding h
         join h_list_j hlj on h.id = hlj.h_j_id
         join company_state cs on cs.h_list_id = hlj.holdings_id
-    ),
-prev_company_states(id, "previousCompanyStateId",  generation) as (
+), prev_company_states(id, "previousCompanyStateId",  generation) as (
     SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", generation + 1
@@ -274,7 +273,6 @@ prev_company_states(id, "previousCompanyStateId",  generation) as (
     SELECT h.id as "startId", t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
     FROM company_state as t
     left outer JOIN _holding h on h."companyStateId" = t.id
-    where t.id =  $1
     UNION ALL
     SELECT "startId", t.id, t."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
     FROM company_state t, prev_holdings tt
@@ -284,6 +282,7 @@ prev_company_states(id, "previousCompanyStateId",  generation) as (
     SELECT * FROM (SELECT DISTINCT t.id, "startId"
     FROM transaction t join prev_holdings pt on t.id = pt."transactionId") t
     JOIN transaction tt on tt.id = t.id
+   -- WHERE and tt."effectiveDate" >= now() - interval '1 year'
  ), parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
     FROM "parcelJ" pj
@@ -336,6 +335,7 @@ FROM
     left outer join parcels pp on pp."holdingId" = h.id
     left outer join "holderJ" hj on h.id = hj."holdingId"
     left outer join person p on hj."holderId" = p.id
+    --WHERE tt."effectiveDate" <= now() and tt."effectiveDate" >= now() - interval '1 year'
      WINDOW wnd AS (
        PARTITION BY "personId", h."holdingId", pp."shareClass" ORDER BY generation asc
      )) as q
