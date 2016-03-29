@@ -3,7 +3,7 @@ import React from 'react'
 import createLocation from 'history/lib/createLocation'
 import { renderToString } from 'react-dom/server'
 import routes from '../../assets/js/routes';
-import configureStore from '../../assets/js/store';
+import configureStore from '../../assets/js/store.prod';
 import Root from '../../assets/js/root';
 import { Provider } from 'react-redux';
 import { match } from 'react-router';

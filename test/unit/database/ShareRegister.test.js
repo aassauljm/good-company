@@ -29,7 +29,8 @@ describe('Share Register', function() {
                             amount: 2,
                             shareClass: 2
                         }]
-                    }]
+                    }],
+                    effectiveDate: new Date()
                 }
             };
 
@@ -49,7 +50,8 @@ describe('Share Register', function() {
                         holders: [{
                             name: 'mike'
                         }]
-                    }]
+                    }],
+                    effectiveDate: new Date()
                 },
                 {
                     actions:[{
@@ -74,7 +76,8 @@ describe('Share Register', function() {
                         },{
                             name: 'john'
                         }]
-                    }]
+                    }],
+                    effectiveDate: new Date()
                 }
 
             ];
