@@ -254,7 +254,7 @@ $$ LANGUAGE SQL STABLE;
 
 
 
-CREATE OR REPLACE FUNCTION share_register(companyStateId integer)
+CREATE OR REPLACE FUNCTION share_register(companyStateId integer, interval default '10 year')
 RETURNS SETOF JSON
 AS $$
 WITH RECURSIVE
@@ -282,8 +282,8 @@ WITH RECURSIVE
     SELECT * FROM (SELECT DISTINCT t.id, "startId"
     FROM transaction t join prev_holdings pt on t.id = pt."transactionId") t
     JOIN transaction tt on tt.id = t.id
-   -- WHERE and tt."effectiveDate" >= now() - interval '1 year'
- ), parcels as (
+    WHERE tt."effectiveDate" >= now() - interval '10 year'
+    ), parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
     FROM "parcelJ" pj
     LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
@@ -335,13 +335,14 @@ FROM
     left outer join parcels pp on pp."holdingId" = h.id
     left outer join "holderJ" hj on h.id = hj."holdingId"
     left outer join person p on hj."holderId" = p.id
-    --WHERE tt."effectiveDate" <= now() and tt."effectiveDate" >= now() - interval '1 year'
+    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - interval '10 year'
      WINDOW wnd AS (
        PARTITION BY "personId", h."holdingId", pp."shareClass" ORDER BY generation asc
      )) as q
     ) as q
 
 $$ LANGUAGE SQL STABLE;
+
 
 
 

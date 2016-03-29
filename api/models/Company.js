@@ -97,7 +97,7 @@ module.exports = {
                 });
             },
             getShareRegister: function(){
-                return sequelize.query("select share_register(:id) as share_register",
+                return sequelize.query("select share_register(:id, '10 year') as share_register",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}})
                 .then(function(register){
