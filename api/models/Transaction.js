@@ -100,7 +100,7 @@ module.exports = {
         classMethods: {
             types: types,
             buildDeep: function(data){
-                return Transaction.build(data, {include: [{model: Transaction, as: 'childTransactions'}]});
+                return Transaction.build(data, {include: [{model: Transaction, as: 'childTransactions'}, {model: Document, as: 'documents'}]});
             }
         },
         instanceMethods: {}

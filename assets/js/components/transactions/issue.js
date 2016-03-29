@@ -14,7 +14,10 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
 import { HoldingWithRemove } from '../forms/holding';
+import { Documents } from '../forms/documents';
 import { newHoldingFormatAction } from './newHolding';
+
+
 
 const fields = [
     'effectiveDate',
@@ -23,7 +26,8 @@ const fields = [
     'holdings[].newHolding',
     'holdings[].holding',
     'holdings[].parcels[].amount',
-    'holdings[].parcels[].shareClass'
+    'holdings[].parcels[].shareClass',
+    'documents'
 ];
 
 const validate = (data, props) => {
@@ -147,7 +151,9 @@ export class Issue extends React.Component {
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.holdings.addField({parcels: [{}]});    // pushes empty child field onto the end of the array
             }}>Add Holding</ButtonInput></div>
+            <Documents documents={this.props.fields.documents}/>
             { this.renderRemaining() }
+
         </fieldset>
         </form>
     }
@@ -244,7 +250,7 @@ export class IssueModal extends React.Component {
             this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.modalData.companyId,
-                                    {transactions: transactions} ))
+                                    {transactions: transactions, documents: values.documents} ))
 
             .then(() => {
                 this.handleClose({reload: true});
@@ -262,7 +268,7 @@ export class IssueModal extends React.Component {
 
     renderBody(companyState) {
         const holdingOptions = companyState.holdingList.holdings.map((h, i) => {
-                    return <option key={i} value={h.holdingId}>{h.name && h.name+': ' } { joinAnd(h.holders, {prop: 'name'}) }</option>
+                    return <option key={i} value={h.holdingId}>{(h.name ? h.name + ': ' : '') + joinAnd(h.holders, {prop: 'name'}) }</option>
                 });
         const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>

@@ -67,6 +67,12 @@ module.exports = {
             foreignKey: 'document_id',
             through: 'doc_list_j'
         });
+        Document.belongsToMany(Transaction, {
+            as: 'transactions',
+            foreignKey: 'document_id',
+            through: 't_d_j'
+        });
+
     },
 
     options: {

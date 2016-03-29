@@ -115,6 +115,7 @@
     "shimmer": "^1.1.0",
     "sinon": "^1.17.2",
     "stream-to-array": "^2.2.1",
+    "temp": "^0.8.3",
     "url": "^0.11.0",
     "url-loader": "^0.5.6",
     "validator": "^4.3.0",

@@ -7,6 +7,7 @@
 
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
+var tmp = Promise.promisifyAll(require("temp"));
 var PDFImage = require("pdf-image").PDFImage;
 var webshot = require('webshot');
 var toArray = require('stream-to-array')
@@ -29,7 +30,6 @@ function makePreview(fd, type){
 }
 
 function renderAndSaveWebPreview(doc){
-
     return toArray(webshot(doc.sourceUrl, {shotSize: {height: 'all'}}))
     .then(function(parts){
         var buffers = []
@@ -48,6 +48,37 @@ function renderAndSaveWebPreview(doc){
     })
 }
 
+function renderAndSavePreview(doc){
+    let tmpFile;
+    return tmp.openAsync('preview')
+    .then(_tmpFile => {
+        tmpFile = _tmpFile;
+        return doc.getDocumentData()
+    })
+    .then((docData) => {
+        console.log('write',tmpFile.fd)
+
+        return fs.write(tmpFile.fd, docData.data);
+    })
+    .then(() => {
+         console.log('close')
+        return fs.closeAsync(tmpFile.fd);
+    })
+    .then(() => {
+        console.log('pre')
+        return makePreview(tmpFile.path)
+    })
+    .then(function(data){
+        return DocumentData.create({data: data})
+    })
+    .then(function(docData){
+        doc.documentPreview = docData;
+        return doc.setDocumentPreview(docData);
+    })
+    .then(() => {
+        return tmpFile.cleanup();
+    })
+}
 
 module.exports = {
     uploadDocument: function(req, res) {
@@ -110,6 +141,10 @@ module.exports = {
                 if(!doc.documentPreview && doc.sourceUrl){
                     //generate preview
                     return renderAndSaveWebPreview(doc)
+                }
+                else if(!doc.documentPreview){
+                    //generate preview
+                    return renderAndSavePreview(doc)
                 }
                 return doc;
             })

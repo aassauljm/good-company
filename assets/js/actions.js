@@ -204,7 +204,6 @@ export function importCompany(companyNumber) {
             method: 'POST',
             headers: json_headers,
             credentials: 'same-origin'
-
         }),
         shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
         payload: {companyNumber: companyNumber}
@@ -212,12 +211,18 @@ export function importCompany(companyNumber) {
 }
 
 export function companyTransaction(transactionType, companyId, data) {
+    const body = new FormData();
+    body.append('json', JSON.stringify({...data, documents: null}));
+    (data.documents ||[]).map(d => {
+        body.append('documents', d, d.name);
+    });
+    debugger
     return {
         types: [TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE],
         callAPI: () => fetch('/api/transaction/'+transactionType+'/' +companyId, {
             method: 'POST',
-            headers: json_headers,
-            body: JSON.stringify(data),
+            headers: accept_json_headers,
+            body: body,
             credentials: 'same-origin'
         }),
         shouldCallAPI: (state) => state.transactions._status !== 'fetching',

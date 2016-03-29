@@ -122,10 +122,13 @@ var transactions = {
         // TODO, validate different pairings
         let state;
         // TODO directorUpdate and holderchange should generate in same set
+        if(args.documents){
+            args.transactions.map(t => t.documents = args.documents);
+        }
         return TransactionService.performAll(args.transactions || [], company)
             .then(_state => {
                 state = _state;
-                // IE remove empty allocation
+                // e.g. remove empty allocation
                 return TransactionService.createImplicitTransactions(state, args.transactions[0].effectiveDate || new Date())
             })
             .then(transactions => {
@@ -286,31 +289,53 @@ module.exports = {
         delete args.type;
         delete args.createdById;
         delete args.ownerId;
-        return sequelize.transaction(function(t){
-            return Company.findById(req.params.companyId)
-                .then(function(_company) {
-                    company = _company;
-                    return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+        return req.file('documents').upload(function(err, uploadedFiles){
+            return sequelize.transaction(function(t){
+                return Company.findById(req.params.companyId)
+                    .then(function(_company) {
+                        company = _company;
+                        return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+                    })
+                    .then(function() {
+                        return Promise.map(uploadedFiles || [], f => {
+                            return fs.readFileAsync(f.fd)
+                                .then(readFile => {
+                                    return Document.create({
+                                        filename: f.filename,
+                                        createdById: req.user.id,
+                                        ownerId: req.user.id,
+                                        type: f.type,
+                                        documentData: {
+                                            data: readFile,
+                                        }
+                                    }, { include: [{model: DocumentData, as: 'documentData'}]});
+                            });
+                        })
+                    })
+                    .then((files) => {
+                        args = args.json ? JSON.parse(args.json) : args;
+                        args.documents = files;
+                    })
+                    .then(function() {
+                        return transactions[req.params.type] ? transactions[req.params.type](args, company) : null;
+                    })
                 })
                 .then(function() {
-                    return transactions[req.params.type] ? transactions[req.params.type](args, company) : null;
+                    return selfManagedTransactions[req.params.type] ? selfManagedTransactions[req.params.type](args, company) : null;
                 })
-            })
-            .then(function() {
-                return selfManagedTransactions[req.params.type] ? selfManagedTransactions[req.params.type](args, company) : null;
-            })
-            .then(function(result){
-                res.json(result);
-            })
-            .catch(sails.config.exceptions.ValidationException, function(e) {
-                res.serverError(e);
-            })
-            .catch(sails.config.exceptions.ForbiddenException, function(e) {
-                res.forbidden();
-            })
-            .catch(function(e) {
-                res.serverError(e);
-            })
+                .then(function(result){
+                    res.json(result);
+                })
+                .catch(sails.config.exceptions.ValidationException, function(e) {
+                    res.serverError(e);
+                })
+                .catch(sails.config.exceptions.ForbiddenException, function(e) {
+                    res.forbidden();
+                })
+                .catch(function(e) {
+                    res.serverError(e);
+                })
+        });
 
     },
     createRegisterEntry: function(req, res){

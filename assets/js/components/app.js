@@ -10,6 +10,10 @@ import Modals from './modals';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import { asyncConnect } from 'redux-async-connect';
 
+function prevent(e){
+    e.preventDefault();
+    e.stopPropagation();
+}
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -22,7 +26,7 @@ import { asyncConnect } from 'redux-async-connect';
 export default class App extends React.Component {
     render() {
         const name = this.props.location.pathname;
-        return <div>
+        return <div onDrop={prevent} onDragOver={prevent}>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
                  <Notifications/>
                  <Modals />

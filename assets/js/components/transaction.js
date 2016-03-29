@@ -6,7 +6,7 @@ import Input from './forms/input';
 import STRINGS from '../strings'
 import { numberWithCommas } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-
+import { Link } from 'react-router';
 
 export class TransactionView extends React.Component {
     static propTypes = {
@@ -14,7 +14,13 @@ export class TransactionView extends React.Component {
     };
 
     renderTransaction(transaction) {
-        return <pre>{JSON.stringify(transaction, null, 4)}</pre>
+        return <div>
+
+            { transaction.documents && transaction.documents.map((d, i) => {
+                return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
+            }) }
+            <pre>{JSON.stringify(transaction, null, 4)}</pre>
+        </div>
     };
 
     render() {
@@ -41,7 +47,7 @@ export class TransactionViewModal extends React.Component {
               </Modal.Header>
 
               <Modal.Body>
-                    <TransactionView transaction={this.props.modalData} />
+                    <TransactionView transaction={this.props.modalData} end={this.props.end} />
               </Modal.Body>
 
               <Modal.Footer>

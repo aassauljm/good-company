@@ -1039,7 +1039,7 @@ export function performTransaction(data, company, companyState){
         .then(function(transactions){
             const tran = Transaction.buildDeep({
                     type: data.transactionType || Transaction.types.COMPOUND,
-                    data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
+                    data: _.omit(data, 'actions', 'transactionType', 'effectiveDate', 'documents'),
                     effectiveDate: data.effectiveDate,
             });
             tran.dataValues.childTransactions = _.filter(transactions);
@@ -1047,11 +1047,16 @@ export function performTransaction(data, company, companyState){
         })
         .then(function(transaction){
             nextState.dataValues.transaction = transaction;
+            if(data.documents){
+                return transaction.setDocuments(data.documents);
+            }
+        })
+        .then(() => {
             return nextState.getHistoricalActions();
         })
         .then(function(hA){
             hA = hA ? hA.buildNext() : Actions.build({actions: []});
-            hA.dataValues.actions.unshift(data);
+            hA.dataValues.actions.unshift({...data, document_ids: (data.documents || []).map(d => d.id)});
             return hA.save();
         })
         .then(function(hA){
