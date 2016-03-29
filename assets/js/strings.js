@@ -65,7 +65,8 @@ export default {
         PURCHASE_FROM: 'Purchase From',
         ACQUISITION_FROM: 'Acquisition From',
         CONSOLIDATION_FROM: 'Consolidation From',
-        APPLY_SHARE_CLASS: 'Apply share class'
+        APPLY_SHARE_CLASS: 'Apply Share Class',
+        CREATE_SHARE_CLASS: 'Create Share Class'
 
     },
     transfer: {

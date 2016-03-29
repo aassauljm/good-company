@@ -10,10 +10,16 @@ import { asyncConnect } from 'redux-async-connect';
 export class Shareholder extends React.Component {
     static propTypes = {
         shareholder: PropTypes.object.isRequired,
+        editHolder: PropTypes.func
     };
 
     render() {
-        return <div className="shareholder well actionable"  onClick={() => this.props.editHolder(this.props.shareholder) }>
+        const classList = ['shareholder', 'well'];
+        if(this.props.editHolder){
+            classList.push('actionable')
+        }
+        const classes = classList.join(' ')
+        return <div className={classes}  onClick={() => this.props.editHolder && this.props.editHolder(this.props.shareholder) }>
             <dl className="dl-horizontal" >
                 <dt>Name</dt>
                 <dd>{ this.props.shareholder.name}</dd>

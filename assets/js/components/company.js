@@ -39,7 +39,7 @@ export class TransactionsPanel extends React.Component {
             </div>
             <div className="panel-body">
             <div><strong>Last Transaction </strong>
-            {this.props.transactions[0].type+' ' }
+            {(STRINGS.transactionTypes[this.props.transactions[0].type] || this.props.transactions[0].type ) + ' ' }
              {new Date(this.props.transactions[0].effectiveDate).toDateString()}</div>
             </div>
         </div>
@@ -119,8 +119,8 @@ export class CompanyTransactions extends React.Component {
 @pureRender
 class ApplyShareClasses extends React.Component {
     render(){
-        return <div className="text-danger alert-entry" onClick={() => alert("coming")}><Glyphicon glyph="warning-sign" className="big-icon"/>
-        You need to specify share classes.  Click here to start.</div>
+        return  <div ><Link to={this.props.path +'/share_classes'} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
+        You need to specify share classes.  Click here to start.</Link></div>
     }
 }
 
@@ -135,12 +135,17 @@ class Alerts extends React.Component {
         companyState: PropTypes.object.isRequired
     };
     render(){
+        const shareWarning = (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses) ;
+
+        if(!shareWarning){
+            return false;
+        }
         return <div className="panel panel-default" >
             <div className="panel-heading">
             <h3 className="panel-title">Notifications</h3>
             </div>
             <div className="panel-body">
-                { (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses)  && <AlertWarnings.ApplyShareClasses />}
+                { shareWarning && <AlertWarnings.ApplyShareClasses path={this.props.path}/>}
             </div>
         </div>
     }
@@ -322,7 +327,7 @@ export default class Company extends React.Component {
                     <div className="container">
                     <div className="row">
                          <div className="col-md-12">
-                            <Alerts companyState={current} />
+                            <Alerts companyState={current} path={this.props.location.pathname}/>
                          </div>
                     </div>
                     <div className="row">
