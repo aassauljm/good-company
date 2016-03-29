@@ -20,17 +20,13 @@ function splitLines(string, lineLength=12){
 
 function splitLinesArray(string, lineLength=12){
     return string.split(' ').reduce((acc, string) => {
-        acc.output[acc.output.length-1] += string;
-        acc.length += string.length;
-        if(acc.length > lineLength){
-            acc.output.push('');
-            acc.length = 0;
+        if(acc[acc.length-1].length && (acc[acc.length-1].length + string.length) > lineLength){
+            acc.push('');
         }
-        else{
-            acc.output[acc.output.length-1] += ' ';
-        }
+        acc[acc.length-1] += string;
+        acc[acc.length-1] += ' ';
         return acc;
-    }, {length: 0, output: ['']}).output;
+    }, ['']);
 }
 
 function splitD3Lines(data){
