@@ -3,7 +3,7 @@ import React, {PropTypes} from 'react';
 import { showModal } from '../actions';
 import { pureRender, numberWithCommas } from '../utils';
 import { Link } from 'react-router';
-//import PieChart  from 'react-d3-components/lib/PieChart';
+import PieChart  from 'react-d3-components/lib/PieChart';
 import Panel from './panel';
 import STRINGS from '../strings';
 
@@ -66,14 +66,14 @@ export class ShareholdingsPanel extends React.Component {
                     </div>
                     <div className="col-xs-6 text-center">
                        <div className="hide-graph-labels">
-                         { /*<PieChart
+                         { <PieChart
                           data={this.groupHoldings()}
                           width={100}
                           height={100}
                           innerRadius={0.0001}
                           outerRadius={50}
                           showInnerLabels={false}
-                          showOuterLabels={false} /> */ }
+                          showOuterLabels={false} />  }
                           </div>
                     </div>
                 </div>
@@ -126,12 +126,12 @@ export class Holding extends React.Component {
                 </div>
                 <div className="col-xs-2">
                    <div className="hide-graph-labels">
-                 { /*<<PieChart
+                 { <PieChart
                           data={{values: [{y: sum, x: 'this'}, {y: this.props.total-sum, x: 'other'}]}}
                           innerRadius={0.001}
                           outerRadius={30}
                           width={60}
-                          height={60} /> */ }
+                          height={60} />  }
                     </div>
                     </div>
             </div>
@@ -181,14 +181,14 @@ export class Shareholdings extends React.Component {
             </div>
             <div className="col-md-6 text-center">
                 <div className="hide-graph-labels">
-               {/*<PieChart
+               {<PieChart
                   data={this.groupHoldings()}
                   width={100}
                   height={100}
                   innerRadius={0.0001}
                   outerRadius={50}
                   showInnerLabels={false}
-                  showOuterLabels={false} /> */ }
+                  showOuterLabels={false} />  }
                   </div>
             </div>
         </div>

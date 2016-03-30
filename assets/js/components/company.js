@@ -20,19 +20,31 @@ import { InterestsRegisterPanel } from './interestsRegister';
 import { ShareRegisterPanel } from './shareRegister';
 import { ShareholdersPanel } from './shareholders';
 import NotFound from './notFound';
-
+import ReactFauxDOM from 'react-faux-dom'
+import LineChart  from 'react-d3-components/lib/LineChart';
+import d3 from 'd3'
 
 @pureRender
 export class TransactionsPanel extends React.Component {
     static propTypes = {
         transactions: PropTypes.array.isRequired
     };
-    groupTransactionDates(){
-        return [{label: '10', values: [{x: 'SomethingA', y: 2}]}]
-    }
-    render(){
-        const data = this.groupTransactionDates(this.props.transactions)
 
+    render() {
+        const data = this.props.transactions;
+        const groups = {};
+
+        const firstDate = new Date(data[Math.min(data.length-1, 32)].effectiveDate);
+        const lastDate = new Date(data[0].effectiveDate);
+        const graphData = {
+                label: '',
+                values: (data || []).map(d => {
+                    return {x: new Date(d.effectiveDate), y: d.actionCount || 0}
+                })
+            };
+        const xScale = d3.time.scale().domain([firstDate, lastDate]).range([0, 400 - 70])
+        //const yScale = d3.scale.linear().domain([0, 4])
+        console.log(graphData)
         return <div className="panel panel-success" >
             <div className="panel-heading">
             <h3 className="panel-title">Transactions</h3>
@@ -42,6 +54,15 @@ export class TransactionsPanel extends React.Component {
             {(STRINGS.transactionTypes[this.props.transactions[0].type] || this.props.transactions[0].type ) + ' ' }
              {new Date(this.props.transactions[0].effectiveDate).toDateString()}</div>
             </div>
+            <LineChart
+                   data={graphData}
+                   width={400}
+                   height={100}
+                   margin={{top: 10, bottom: 50, left: 50, right: 20}}
+                   xScale={xScale}
+                   yAxis={{tickValue: null, outerTickSize: 0, innerTickSize: 0, tickFormat: () => null}}
+                   xAxis={{tickValues: xScale.ticks(d3.time.year, 1), tickFormat: d3.time.format("%Y")}}
+                />
         </div>
     }
 }
