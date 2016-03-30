@@ -63,11 +63,11 @@ export default class RadialGraph extends React.Component {
         const root = this.props.data;
         const el = ReactFauxDOM.createElement('svg');
         const svg = d3.select(el)
-        .attr("viewBox", `0 0 ${diameter} ${diameter}`)
+            .attr("viewBox", `0 0 ${diameter} ${diameter}`)
             .attr("width", '100%')
             .attr("preserveAspectRatio", "xMinYMin meet")
-      .append("g")
-        .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+            .append("g")
+                .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
     var tree = d3.layout.tree()
         .size([360, diameter / 2 - (diameter/8)])
