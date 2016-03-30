@@ -93,9 +93,8 @@ module.exports = {
             }
 
             var type = uploadedFiles[0].filename.split('.').pop();
-            Promise.join(readBinary(uploadedFiles[0].fd),
-                        makePreview(uploadedFiles[0].fd, type))
-                .spread(function(file, preview){
+            readBinary(uploadedFiles[0].fd)
+                .then(function(file){
                     sails.log.debug('Uploaded, saving to db');
                     return Document.create({
                         filename: uploadedFiles[0].filename,
@@ -104,13 +103,9 @@ module.exports = {
                         type: type,
                         documentData: {
                              data: file,
-                        },
-                        documentPreview: {
-                            data: preview
                         }
                     }, {include: [
-                        {model: DocumentData, as: 'documentData'},
-                        {model: DocumentData, as: 'documentPreview'}]});
+                        {model: DocumentData, as: 'documentData'}]});
                 })
                 .then(function(newInstance){
                     sails.log.debug('Saved to db');
