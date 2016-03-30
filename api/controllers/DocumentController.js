@@ -22,7 +22,7 @@ function readBinary(fd){
 
 
 function makePreview(fd, type){
-    var pdfImage = new PDFImage(fd, {convertOptions: {'-density': '150', '-background': 'white', '-alpha': 'remove'}});
+    var pdfImage = new PDFImage(fd, {convertOptions: {'-density': '150', '-background': 'white', '-alpha': 'background'}});
     return pdfImage.convertPage(0)
         .then(function(fd){
             return readBinary(fd);
