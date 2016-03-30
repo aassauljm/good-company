@@ -22,7 +22,7 @@ function readBinary(fd){
 
 
 function makePreview(fd, type){
-    var pdfImage = new PDFImage(fd, {convertOptions: {'-resize': '256x'}});
+    var pdfImage = new PDFImage(fd, {convertOptions: {'-density': '150', '-background': 'white', '-alpha': 'remove'}});
     return pdfImage.convertPage(0)
         .then(function(fd){
             return readBinary(fd);
@@ -50,22 +50,16 @@ function renderAndSaveWebPreview(doc){
 
 function renderAndSavePreview(doc){
     let tmpFile;
-    return tmp.openAsync('preview')
+    // TODO use convert service to make pdfs
+    return tmp.openAsync({suffix: ".pdf"})
     .then(_tmpFile => {
         tmpFile = _tmpFile;
         return doc.getDocumentData()
     })
     .then((docData) => {
-        console.log('write',tmpFile.fd)
-
-        return fs.write(tmpFile.fd, docData.data);
+        return fs.writeFileAsync(tmpFile.path, docData.data);
     })
     .then(() => {
-         console.log('close')
-        return fs.closeAsync(tmpFile.fd);
-    })
-    .then(() => {
-        console.log('pre')
         return makePreview(tmpFile.path)
     })
     .then(function(data){
@@ -76,7 +70,10 @@ function renderAndSavePreview(doc){
         return doc.setDocumentPreview(docData);
     })
     .then(() => {
-        return tmpFile.cleanup();
+        return fs.unlinkAsync(tmpFile.path);
+    })
+    .then(() => {
+        return doc;
     })
 }
 

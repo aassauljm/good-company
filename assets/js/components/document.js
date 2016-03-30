@@ -45,6 +45,7 @@ export default class Account extends React.Component {
                   <dd>{new Date(data.createdAt).toDateString()}</dd>
                   { data.sourceUrl && <dt>Original URL</dt> }
                   { data.sourceUrl && <dd><Link target="_blank" to={data.sourceUrl}>Companies Office</Link> </dd> }
+                  { !data.sourceUrl && <Link target="_blank" className="btn btn-primary" to={`/api/document/get_document/${this.key()}`}>Download</Link> }
                 </dl>
             </div>
         </div>
