@@ -16,6 +16,7 @@ import { Director } from '../company';
 import { personOptionsFromState } from '../../utils';
 
 
+
 @connect(undefined)
 export class UpdateDirectorModal extends React.Component {
     constructor(props) {
@@ -74,7 +75,7 @@ export class UpdateDirectorModal extends React.Component {
             this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.modalData.companyId,
-                                    {transactions: transactions} ))
+                                    {transactions: transactions, documents: values.documents} ))
                 .then(() => {
                     this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Directorship Updated.'}));

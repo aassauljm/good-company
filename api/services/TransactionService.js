@@ -501,7 +501,7 @@ export function performAddressChange(data, companyState, previousState, effectiv
 
 export function performDetailsChange(data, companyState, previousState, effectiveDate){
     companyState.set(data.field, data.value);
-    return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
 };
 
 
@@ -791,6 +791,9 @@ export function removeDocuments(state, actions){
     if(ids.length){
         return state.getDocList()
             .then(function(dl){
+                if(!dl){
+                    return DocumentList.build({documents: []})
+                }
                 return dl.buildNext();
             })
             .then(function(dl){
@@ -800,11 +803,32 @@ export function removeDocuments(state, actions){
                 return dl.save()
             })
             .then(function(dl){
-                state.set('doc_list_id', dl.id)
+                state.set('doc_list_id', dl.dataValues.id)
+                state.dataValues.docList = dl;
                 return state;
             })
     }
     return state;
+}
+
+export function addDocuments(state, documents){
+    // TODO, make better inverse of above
+    return state.getDocList()
+        .then(function(dl){
+            if(!dl){
+                return DocumentList.build({documents: []})
+            }
+            return dl.buildNext();
+        })
+        .then(function(dl){
+            dl.dataValues.documents = dl.dataValues.documents.concat(documents);
+            return dl.save()
+        })
+        .then(function(dl){
+            state.set('doc_list_id', dl.dataValues.id)
+            state.dataValues.docList = dl;
+            return state;
+        })
 }
 
 export function removeActions(state, actionSet){
@@ -823,6 +847,26 @@ export function removeActions(state, actionSet){
         })
         .then(function(hA){
             state.set('historical_action_id', hA.id)
+            state.dataValues.historicalActions = hA;
+            return state;
+        })
+}
+
+export function addActions(state, actionSet){
+    return state.getHistoricalActions()
+        .then(function(hA){
+            if(!hA){
+                return Actions.build({actions: []})
+            }
+            return hA.buildNext();
+        })
+        .then(function(hA){
+            hA.dataValues.actions.unshift(actionSet);
+            return hA.save()
+        })
+        .then(function(hA){
+            state.set('historical_action_id', hA.id)
+            state.dataValues.historicalActions = hA;
             return state;
         })
 }
@@ -1047,20 +1091,17 @@ export function performTransaction(data, company, companyState){
         })
         .then(function(transaction){
             nextState.dataValues.transaction = transaction;
-            if(data.documents){
-                return transaction.setDocuments(data.documents);
+            if(data.documents && data.documents.length){
+                return transaction.setDocuments(data.documents)
+                    .then(function(){
+                        return addDocuments(nextState, data.documents);
+                    })
             }
         })
         .then(() => {
-            return nextState.getHistoricalActions();
+            return addActions(nextState, {...data, document_ids: (data.documents || []).map(d => d.id), documents: null})
         })
-        .then(function(hA){
-            hA = hA ? hA.buildNext() : Actions.build({actions: []});
-            hA.dataValues.actions.unshift({...data, document_ids: (data.documents || []).map(d => d.id)});
-            return hA.save();
-        })
-        .then(function(hA){
-            nextState.set('historical_action_id', hA.id);
+        .then(function(){
             return nextState.save();
         })
         .then(function(){

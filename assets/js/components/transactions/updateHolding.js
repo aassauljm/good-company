@@ -10,7 +10,7 @@ import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons } from '../forms/holding';
-
+import { Documents } from '../forms/documents';
 
 function updateHoldingSubmit(values, oldHolding){
     const actions = updateHoldingFormatAction(values, oldHolding);
@@ -76,7 +76,7 @@ export class UpdateHoldingModal extends React.Component {
             this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.modalData.companyId,
-                                    {transactions: transactions} ))
+                                    {transactions: transactions, documents: values.documents} ))
                 .then(() => {
                     this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Shareholding Updated'}));

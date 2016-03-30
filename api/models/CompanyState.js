@@ -646,7 +646,6 @@ module.exports = {
                 const holdingList = this.dataValues.holdingList;
                 return Promise.map(newHolders, CompanyState.findOrCreatePerson, {concurrency: 1})
                 .then(function(newHolders){
-                    console.log(newHolders.map(h => h.dataValues))
                     const existingHolders = [];
                     const index = holdingList.dataValues.holdings.indexOf(holding);
                     holdingList.dataValues.holdings[index] = holding = holding.buildNext();

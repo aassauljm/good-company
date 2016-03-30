@@ -7,6 +7,7 @@ import { reduxForm } from 'redux-form';
 export const fields = ['name', 'address']
 import { formFieldProps, requireFields, populatePerson } from '../../utils';
 import DateInput from './dateInput';
+import { Documents } from './documents';
 
 @formFieldProps()
 export class Person extends React.Component {
@@ -37,6 +38,7 @@ export class Director extends React.Component {
                 <PersonName {...this.formFieldProps(['person', 'name'])} />
                 <Address {...this.formFieldProps(['person', 'address'])} />
             </fieldset>
+            <Documents documents={this.props.fields.documents}/>
         </form>
     }
 }
@@ -68,6 +70,7 @@ export class NewDirector extends React.Component {
                     }}><Glyphicon glyph='trash'/></button>} /> }
 
             </fieldset>
+            <Documents documents={this.props.fields.documents}/>
         </form>
     }
 }
@@ -97,13 +100,13 @@ export const UpdatePersonConnected = reduxForm({
 
 export const DirectorConnected = reduxForm({
   form: 'director',
-  fields : ['appointment', 'cessation', 'person.name', 'person.address'],
+  fields : ['appointment', 'cessation', 'person.name', 'person.address', 'documents'],
   validate: validateDirector
 })(Director);
 
 export const NewDirectorConnected = reduxForm({
   form: 'director',
-  fields : ['appointment', 'personId', 'newPerson'],
+  fields : ['appointment', 'personId', 'newPerson', 'documents'],
   validate: validateNewDirector
 })(NewDirector);
 

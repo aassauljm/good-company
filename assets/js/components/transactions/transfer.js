@@ -15,7 +15,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
 import { ParcelWithRemove } from '../forms/parcel';
 import { newHoldingFormatAction } from './newHolding';
-
+import { Documents } from '../forms/documents';
 
 const fields = [
     'effectiveDate',
@@ -24,7 +24,8 @@ const fields = [
     'newHolding',
     'parcels[].shareClass',
     'parcels[].amount',
-    'newHolding'
+    'newHolding',
+    'documents'
     ];
 
 
@@ -69,8 +70,8 @@ export class Transfer extends React.Component {
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.parcels.addField();    // pushes empty child field onto the end of the array
             }}>Add Parcel</ButtonInput></div>
-
         </fieldset>
+        <Documents documents={this.props.fields.documents}/>
         </form>
     }
 }
@@ -100,6 +101,7 @@ const validate = (values, props) => {
             }
             return sP.shareClass === p.shareClass;
         })
+        console.log(p, sourceParcels)
         if(matchedParcels && !matchedParcels.length){
             errors.shareClass = (errors.shareClass || []).concat(['Source does not have any parcels of this share class.']);
         }
@@ -113,7 +115,7 @@ export function transferFormatSubmit(values, companyState){
     const actions = [], results = []
     const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
         acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
-            acc[parcel.shareClass] = parcel.amount;
+            acc[parcel.shareClass || undefined] = parcel.amount;
             return acc;
         }, {})
         return acc;
@@ -202,7 +204,7 @@ export class TransferModal extends React.Component {
             this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.modalData.companyId,
-                                    {transactions: transactions} ))
+                                    {transactions: transactions, documents: values.documents} ))
 
             .then(() => {
                 this.handleClose({reload: true});
@@ -226,7 +228,7 @@ export class TransferModal extends React.Component {
             return <option key={i} value={s.id}>{s.name}</option>
         })
         const holdingMap = companyState.holdingList.holdings.reduce((acc, val) => {
-            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass ? `${p.shareClass}` : '' }));
+            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || undefined }));
             return acc;
         }, {});
 

@@ -10,11 +10,11 @@ import { formFieldProps, requireFields } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
 import STRINGS from '../../strings';
-
+import { Documents } from '../forms/documents';
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const fields = ['effectiveDate', 'companyName', 'nzbn', 'companyNumber', 'addressForService', 'registeredCompanyAddress', 'arFilingMonth', 'fraReportingMonth']
+const fields = ['effectiveDate', 'companyName', 'nzbn', 'companyNumber', 'addressForService', 'registeredCompanyAddress', 'arFilingMonth', 'fraReportingMonth', 'documents']
 
 
 @formFieldProps()
@@ -41,6 +41,7 @@ export class CompanyDetails extends React.Component {
                 }) }
             </Input>
         </fieldset>
+        <Documents documents={this.props.fields.documents} />
         </form>
     }
 }
@@ -111,7 +112,7 @@ export class CompanyDetailsModal extends React.Component {
              this.props.dispatch(companyTransaction(
                                 'compound',
                                 this.props.modalData.companyId,
-                                {transactions: [transaction]} ))
+                                {transactions: [transaction], documents: values.documents} ))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Updated Company Details'}));

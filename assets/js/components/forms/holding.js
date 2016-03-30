@@ -8,7 +8,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../../strings';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
 import { reduxForm } from 'redux-form';
-import DateInput from '../forms/dateInput';
+import DateInput from './dateInput';
+import { Documents } from './documents';
 
 @formFieldProps()
 export class HoldingWithRemove extends React.Component {
@@ -57,7 +58,8 @@ export const fields = [
     'effectiveDate',
     'holdingName',
     'persons[].personId',
-    'persons[].newPerson'
+    'persons[].newPerson',
+    'documents'
 ]
 
 
@@ -107,6 +109,7 @@ export class HoldingNoParcels extends React.Component {
                 this.props.fields.persons.addField();
             }}>Add Person</ButtonInput></div>
         </fieldset>
+        <Documents documents={this.props.fields.documents}/>
         </form>
     }
 }

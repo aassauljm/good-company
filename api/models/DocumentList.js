@@ -25,7 +25,7 @@ module.exports = {
             buildNext: function(){
                 return this.getDocuments()
                     .then(function(documents){
-                        return DocumentList.build({documents: documents}, {include: [{model: Documents, as: 'documents'}]})
+                        return DocumentList.build({documents: documents}, {include: [{model: Document, as: 'documents'}]})
                     })
                     .then(function(docList){
                         docList.dataValues.documents.map(function(r){

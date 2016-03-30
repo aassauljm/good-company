@@ -216,7 +216,6 @@ export function companyTransaction(transactionType, companyId, data) {
     (data.documents ||[]).map(d => {
         body.append('documents', d, d.name);
     });
-    debugger
     return {
         types: [TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE],
         callAPI: () => fetch('/api/transaction/'+transactionType+'/' +companyId, {

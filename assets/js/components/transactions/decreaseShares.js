@@ -14,6 +14,7 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
 import { HoldingWithRemove } from '../forms/holding';
+import { Documents } from '../forms/documents';
 
 const fields = [
     'effectiveDate',
@@ -21,17 +22,18 @@ const fields = [
     'parcels[].shareClass',
     'holdings[].holding',
     'holdings[].parcels[].amount',
-    'holdings[].parcels[].shareClass'
+    'holdings[].parcels[].shareClass',
+    'documents'
 ];
 
 const validate = (data, props) => {
     const remainder = {};
     data.parcels.map(p => {
-        remainder[p.shareClass || ''] = (remainder[p.shareClass || ''] || 0) + (parseInt(p.amount, 10) || 0);
+        remainder[p.shareClass] = (remainder[p.shareClass] || 0) + (parseInt(p.amount, 10) || 0);
     });
     data.holdings.map(h => {
         h.parcels.map(p => {
-             remainder[p.shareClass || ''] = (remainder[p.shareClass || ''] || 0) - (parseInt(p.amount, 10) || 0);
+             remainder[p.shareClass] = (remainder[p.shareClass] || 0) - (parseInt(p.amount, 10) || 0);
         })
     });
     const formErrors = {};
@@ -49,11 +51,11 @@ const validate = (data, props) => {
             if(!p.amount || !parseInt(p.amount, 10)){
                 errors.amount = ['Required.'];
             }
-            if(classes[p.shareClass || '']){
+            if(classes[p.shareClass]){
                 errors.shareClass = ['Duplicate share class.'];
             }
             // check if has enough
-            classes[p.shareClass || ''] = true;
+            classes[p.shareClass] = true;
             return errors;
         }),
         holdings: data.holdings.map(h => {
@@ -158,6 +160,7 @@ export class Decrease extends React.Component {
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.holdings.addField({parcels: [{}]});    // pushes empty child field onto the end of the array
             }}>Add Holding</ButtonInput></div>
+            <Documents documents={this.props.fields.documents}/>
             { this.renderRemaining() }
         </fieldset>
         </form>
@@ -258,7 +261,7 @@ export class DecreaseModal extends React.Component {
             this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.modalData.companyId,
-                                    {transactions: transactions} ))
+                                    {transactions: transactions, documents: values.documents} ))
 
             .then(() => {
                 this.handleClose({reload: true});
@@ -282,7 +285,7 @@ export class DecreaseModal extends React.Component {
             return <option key={i} value={s.id}>{s.name}</option>
         })
         const holdingMap = companyState.holdingList.holdings.reduce((acc, val) => {
-            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass ? `${p.shareClass}` : '' }));
+            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || undefined }));
             return acc;
         }, {});
 

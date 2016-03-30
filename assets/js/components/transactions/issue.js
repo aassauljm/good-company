@@ -33,11 +33,11 @@ const fields = [
 const validate = (data, props) => {
     const remainder = {};
     data.parcels.map(p => {
-        remainder[p.shareClass || ''] = (remainder[p.shareClass || ''] || 0) + (parseInt(p.amount, 10) || 0);
+        remainder[p.shareClass || undefined] = (remainder[p.shareClass || undefined] || 0) + (parseInt(p.amount, 10) || 0);
     });
     data.holdings.map(h => {
         h.parcels.map(p => {
-             remainder[p.shareClass || ''] = (remainder[p.shareClass || ''] || 0) - (parseInt(p.amount, 10) || 0);
+             remainder[p.shareClass || undefined] = (remainder[p.shareClass || undefined] || 0) - (parseInt(p.amount, 10) || 0);
         })
     });
     const formErrors = {};
@@ -55,10 +55,10 @@ const validate = (data, props) => {
             if(!p.amount || !parseInt(p.amount, 10)){
                 errors.amount = ['Required.'];
             }
-            if(classes[p.shareClass || '']){
+            if(classes[p.shareClass]){
                 errors.shareClass = ['Duplicate share class.'];
             }
-            classes[p.shareClass || ''] = true;
+            classes[p.shareClass] = true;
             return errors;
         }),
         holdings: data.holdings.map(h => {
@@ -69,10 +69,10 @@ const validate = (data, props) => {
                 if(!p.amount || !parseInt(p.amount, 10)){
                     errors.amount = ['Required.'];
                 }
-                if(classes[p.shareClass || '']){
+                if(classes[p.shareClass]){
                     errors.shareClass = ['Duplicate share class.'];
                 }
-                classes[p.shareClass || ''] = true;
+                classes[p.shareClass] = true;
                 return errors;
             })
 
@@ -274,7 +274,7 @@ export class IssueModal extends React.Component {
             return <option key={i} value={s.id}>{s.name}</option>
         })
         const holdingMap = companyState.holdingList.holdings.reduce((acc, val) => {
-            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass ? `${p.shareClass}` : '' }));
+            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || undefined }));
             return acc;
         }, {});
 

@@ -8,6 +8,7 @@ import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
 import { UpdatePersonConnected, updatePersonSubmit } from '../forms/person';
 
+
 @connect(undefined)
 export class UpdatePersonModal extends React.Component {
     constructor(props) {
