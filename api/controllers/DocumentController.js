@@ -146,6 +146,7 @@ module.exports = {
                 res.end();
             })
             .catch(function(err){
+                sails.log.error(err)
                return res.negotiate(err);
             })
     }
