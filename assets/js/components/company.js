@@ -20,9 +20,7 @@ import { InterestsRegisterPanel } from './interestsRegister';
 import { ShareRegisterPanel } from './shareRegister';
 import { ShareholdersPanel } from './shareholders';
 import NotFound from './notFound';
-import ReactFauxDOM from 'react-faux-dom'
-//import BarChart  from 'react-d3-components/lib/BarChart';
-import d3 from 'd3'
+import BarGraph from './graphs/bar'
 
 
 const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -46,6 +44,7 @@ export class TransactionsPanel extends React.Component {
         const firstDate = new Date(data[Math.min(data.length-1, 12)].effectiveDate);
         const lastDate = new Date(data[0].effectiveDate);
         const graphData = [];
+
         for(let i=firstDate.getFullYear(); i<=lastDate.getFullYear(); i++){
             for(let j=1; j<=12; j++){
                 const key = `${i}-${("0"+j).slice(-2)}`;
@@ -55,66 +54,8 @@ export class TransactionsPanel extends React.Component {
                 }
             }
         }
-        const el = ReactFauxDOM.createElement('svg');
 
 
-const margin = {top: 0, right: 40, bottom: 24, left: 40},
-    outerWidth = 550, outerHeight = 100,
-    width = outerWidth  - margin.left - margin.right,
-    height = outerHeight - margin.top - margin.bottom;
-const color = d3.scale.category20b();
-var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .1);
-
-var y = d3.scale.linear()
-    .range([height, 0]);
-
-  x.domain(graphData.map(function(d) { return d.x; }));
-  y.domain([0, d3.max(graphData, function(d) { return d.y; })]);
-
-const svg = d3.select(el)
-        .attr("viewBox", `0 0 ${outerWidth} ${outerHeight}`)
-        .attr("width", '100%')
-        .attr("preserveAspectRatio", "xMinYMin meet")
-        .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom")
-    .tickFormat(function(d, i) { return !(i % Math.floor(graphData.length/4)) ? graphData[i].label : ''; })
-    .innerTickSize(3)
-    .outerTickSize(0)
-
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .tickFormat("")
-    .outerTickSize(0)
-
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
-        .select('path')
-      .style({ 'stroke': '#bbb', 'stroke-width': '1px'})
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-
-   svg.selectAll('text')
-        .style({ 'font-size': '10', 'fill': '#777'})
-
-    svg.selectAll(".bar")
-          .data(graphData)
-        .enter().append("rect")
-          .attr("class", "bar")
-          .attr("x", function(d) { return x(d.x); })
-          .attr("width", x.rangeBand())
-          .attr("y", function(d) { return y(d.y); })
-          .attr("height", function(d) { return height - y(d.y); })
-            .style("fill", function (d, i) {return color(i) });
 
 
 
@@ -127,7 +68,7 @@ var yAxis = d3.svg.axis()
             {(STRINGS.transactionTypes[this.props.transactions[0].type] || this.props.transactions[0].type ) + ' ' }
              {new Date(this.props.transactions[0].effectiveDate).toDateString()}</div>
             </div>
-            { el.toReact() }
+            <BarGraph data={graphData} />
 
         </div>
     }
