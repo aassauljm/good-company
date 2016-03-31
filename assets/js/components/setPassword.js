@@ -1,12 +1,14 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { pureRender } from '../utils';
+import { formFieldProps, pureRender } from '../utils';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
-import { setPassword } from '../actions';
+import { setPassword, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm}  from 'redux-form';
 import { fieldStyle } from '../utils';
+
+const fields = ['oldPassword', 'newPassword', 'repeatPassword'];
 
 
 function validatePasswordMatch(form){
@@ -18,6 +20,8 @@ function validatePasswordMatch(form){
     return {};
 }
 
+
+@formFieldProps()
 export class PasswordForm extends React.Component {
     static propTypes = {
         submit: PropTypes.func.isRequired
@@ -34,9 +38,9 @@ export class PasswordForm extends React.Component {
     render() {
         const { fields: {oldPassword, newPassword, repeatPassword} } = this.props;
          return  <form onSubmit={::this.submit}>
-            <Input type="password" ref="oldPassword" {...oldPassword} bsStyle={fieldStyle(this.props.fields.oldPassword)} label="Old Password" />
-            <Input type="password" ref="newPassword" {...newPassword} bsStyle={fieldStyle(this.props.fields.newPassword)} label="New Password"  />
-            <Input type="password" ref="repeatPassword" {...repeatPassword} bsStyle={fieldStyle(this.props.fields.repeatPassword)} label="Repeat Password"  />
+            <Input type="password" ref="oldPassword" {...this.formFieldProps('oldPassword')} label="Old Password" />
+            <Input type="password" ref="newPassword" {...this.formFieldProps('newPassword')} label="New Password"  />
+            <Input type="password" ref="repeatPassword" {...this.formFieldProps('repeatPassword')} label="Repeat Password"  />
             <ButtonInput type='submit' value='Update' ref="submit" onClick={::this.submit}/>
         </form>
     }
@@ -45,7 +49,7 @@ export class PasswordForm extends React.Component {
 
 @reduxForm({
   form: 'setPassword',
-  fields: ['oldPassword', 'newPassword', 'repeatPassword'],
+  fields: fields,
   validate: validatePasswordMatch
 })
 class SetPassword extends React.Component {
@@ -55,9 +59,23 @@ class SetPassword extends React.Component {
 
     submit(data) {
         this.props.touchAll();
-        if(this.props.valid){
-            this.props.dispatch(setPassword(data));
-        }
+
+        return new Promise((resolve, reject) => {
+            this.props.dispatch(setPassword(data))
+            .then((result) => {
+                 this.props.dispatch(addNotification({message: 'Password updated.'}))
+                 resolve();
+             })
+            .catch(err => {
+                const errors = fields.reduce((acc, key) => {
+                    if(err[key]) acc[key] = [err[key].message]
+                    return acc;
+                }, {})
+
+                reject({...errors,  _error: 'Set password failed.'})
+            });
+        });
+
     }
 
     render() {

@@ -14,15 +14,13 @@ import { routeActions } from 'react-router-redux'
 export class LoginForm extends React.Component {
     submit(e){
         e.preventDefault();
-        if(this.props.valid){
-            this.props.submit(this.props.values);
-        }
+        return this.props.submit(this.props.values);
     }
 
     render() {
         const { fields: {identifier, password} } = this.props;
          return  <div className="col-md-6 col-md-offset-3"> <form ref="form"  onSubmit={::this.submit}>
-            { this.props.error ?    <div className="alert alert-danger" role="alert">{this.props.error }</div> : null }
+            { this.props.error ? <div className="alert alert-danger" role="alert">{this.props.error }</div> : null }
             <Input type="text" ref="identifier" {...identifier} label="Email" />
             <Input type="password" ref="password" {...password} label="Password"  />
             <div className="button-row">
@@ -44,7 +42,7 @@ export const DecoratedLoginForm = reduxForm({
 class Login extends React.Component {
     static propTypes = { login: React.PropTypes.object };
     submit(data) {
-        this.props.dispatch(requestLogin(data));
+        return this.props.dispatch(requestLogin(data));
     }
     componentDidMount() {
         this.nav()

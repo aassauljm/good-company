@@ -45,7 +45,7 @@ module.exports = {
                     });
             })
             .then(function(match) {
-                res.ok();
+                res.ok({message: ['Password set.']});
             })
             .catch(sails.config.exceptions.ForbiddenException, function(err) {
                 res.forbidden({

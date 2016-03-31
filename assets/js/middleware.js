@@ -13,7 +13,9 @@ function checkStatus(response) {
 }
 
 function parseJSON(response) {
-  return response.json()
+  return response.text().then(function(text) {
+    return text ? JSON.parse(text) : {}
+  })
 }
 
 export function callAPIMiddleware({
@@ -60,13 +62,16 @@ export function callAPIMiddleware({
                 })))
                 .catch(error => {
                     if(error.response){
-                        return error.response.json()
+                        return parseJSON(error.response)
                         .then(response => {
                                dispatch(Object.assign({}, payload, {
                             response: response,
                             error: true,
                             type: failureType}));
                             throw new Error((response || {}).message);
+                        })
+                        .catch(() => {
+                            throw new Error({});
                         });
                     }
                     dispatch(Object.assign({}, payload, {
