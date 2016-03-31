@@ -21,6 +21,7 @@ import { UpdatePersonModal  } from './transactions/updatePerson';
 import { SelectPersonModal  } from './transactions/selectPerson';
 import { SelectDirectorModal  } from './transactions/selectDirector';
 import { UpdateDirectorModal  } from './transactions/updateDirector';
+import { SubdivisionModal  } from './transactions/subdivision';
 import { routeActions } from 'react-router-redux';
 
 
@@ -63,6 +64,9 @@ export default class Modals extends React.Component {
 
             case 'importCompany':
                 return <ImportCompanyModal {...props} />
+
+            case 'subdivision':
+                return <SubdivisionModal {...props} />
 
             case 'transaction':
                 return <TransactionViewModal {...props} />
