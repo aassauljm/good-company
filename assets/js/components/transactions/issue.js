@@ -49,11 +49,16 @@ const validate = (data, props) => {
     }
 
     const classes = {}, holdingIds = {};
+    console.log(data)
     return { ...requireFields('effectiveDate')(data),
         parcels: data.parcels.map(p => {
             const errors = requireFields('amount')(p);
-            if(!p.amount || !parseInt(p.amount, 10)){
+            const amount = parseInt(p.amount, 10);
+            if(!amount){
                 errors.amount = ['Required.'];
+            }
+            else if(amount <= 0){
+                errors.amount = ['Must be greater than 0.'];
             }
             if(classes[p.shareClass]){
                 errors.shareClass = ['Duplicate share class.'];
@@ -66,13 +71,18 @@ const validate = (data, props) => {
             const errors = requireFields('holding')(h);
             errors.parcels = h.parcels.map(p => {
                 const errors = {};
-                if(!p.amount || !parseInt(p.amount, 10)){
+                const shareClass = p.shareClass || undefined
+                const amount = parseInt(p.amount, 10);
+                if(!amount){
                     errors.amount = ['Required.'];
                 }
-                if(classes[p.shareClass]){
+                else if(amount <= 0){
+                    errors.amount = ['Must be greater than 0.'];
+                }
+                if(classes[shareClass]){
                     errors.shareClass = ['Duplicate share class.'];
                 }
-                classes[p.shareClass] = true;
+                classes[shareClass] = true;
                 return errors;
             })
 

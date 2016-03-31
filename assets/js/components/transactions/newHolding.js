@@ -8,7 +8,7 @@ import { reduxForm, change, destroy  } from 'redux-form';
 import Input from '../forms/input';
 import Address from '../forms/address';
 import PersonName from '../forms/personName';
-import { HoldingNoParcelsConnected, reformatPerson } from '../forms/holding';
+import { HoldingNoParcelsConnected, reformatPersons } from '../forms/holding';
 import { formFieldProps, requireFields, joinAnd, personOptionsFromState } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';

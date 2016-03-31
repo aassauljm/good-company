@@ -91,6 +91,13 @@ const validate = (values, props) => {
     errors.parcels = values.parcels.map((p, i) => {
         let errors = validateParcel(p);
         const sourceParcels = props.holdingMap[values.from];
+        const amount = parseInt(p.amount, 10);
+        if(!amount){
+            errors.amount = (errors.amount || []).concat(['Required.']);
+        }
+        else if(amount <= 0){
+            errors.amount = (errors.amount || []).concat(['Must be greater than 0.']);
+        }
         if(parcels.indexOf(p.shareClass) >= 0){
             errors.shareClass = (errors.shareClass || []).concat(['Duplicate share class.']);
         }

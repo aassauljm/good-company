@@ -10,13 +10,21 @@ import StaticField from 'react-bootstrap/lib/FormControls/Static';
 import { reduxForm } from 'redux-form';
 import DateInput from './dateInput';
 import { Documents } from './documents';
+import Panel from '../panel';
+
+/*
+       <button className="btn btn-default" onClick={(e) => {
+                    e.preventDefault();
+                    this.props.remove()
+                }}><Glyphicon glyph='trash'/></button>*/
 
 @formFieldProps()
 export class HoldingWithRemove extends React.Component {
     render() {
         const hasNew = this.props.fields.newHolding && this.props.fields.newHolding.value;
-        return <div className="col-full-h">
-                <div className="col-xs-9 left">
+        return  <div className=" col-xs-12"><Panel remove={() => this.props.remove()} title="Recipient">
+            <div className="holding">
+                <div className=" col-xs-12">
                    { !hasNew && <Input type="select" {...this.formFieldProps('holding')} >
                         <option></option>
                         { this.props.holdingOptions }
@@ -32,23 +40,20 @@ export class HoldingWithRemove extends React.Component {
                             this.props.fields.newHolding.onChange(null);
                         }}><Glyphicon glyph='trash'/></button>} /> }
 
+                    </div>
                     { this.props.fields.parcels.map((p, i) =>
                         <ParcelWithRemove key={i}
                         shareOptions={this.props.shareOptions}
                         fields={p}
                         remove={() => this.props.fields.parcels.removeField(i) } />) }
+
                     <div className="button-row"><ButtonInput onClick={(e) => {
                         e.preventDefault();
                         this.props.fields.parcels.addField();
                     }}>Add Parcel</ButtonInput></div>
 
-                </div>
-                <div className="col-xs-3 right">
-                <button className="btn btn-default" onClick={(e) => {
-                    e.preventDefault();
-                    this.props.remove()
-                }}><Glyphicon glyph='trash'/></button>
-                </div>
+            </div>
+        </Panel>
             </div>
         }
 }

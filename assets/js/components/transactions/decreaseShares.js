@@ -48,11 +48,15 @@ const validate = (data, props) => {
     return { ...requireFields('effectiveDate')(data),
         parcels: data.parcels.map(p => {
             const errors = requireFields('amount')(p);
-            if(!p.amount || !parseInt(p.amount, 10)){
-                errors.amount = ['Required.'];
-            }
-            if(classes[p.shareClass]){
+            const amount = parseInt(p.amount, 10);
+            if(classes[p.shareClass || '']){
                 errors.shareClass = ['Duplicate share class.'];
+            }
+            if(!amount){
+                errors.amount = (errors.amount || []).concat(['Required.']);
+            }
+            else if(amount <= 0){
+                errors.amount = (errors.amount || []).concat(['Must be greater than 0.']);
             }
             // check if has enough
             classes[p.shareClass] = true;
@@ -63,12 +67,15 @@ const validate = (data, props) => {
             const errors = requireFields('holding')(h);
             errors.parcels = h.parcels.map(p => {
                 const errors = {};
-                const amount = parseInt(p.amount, 10)
-                if(!amount){
-                    errors.amount = ['Required.'];
-                }
+                const amount = parseInt(p.amount, 10);
                 if(classes[p.shareClass || '']){
                     errors.shareClass = ['Duplicate share class.'];
+                }
+                if(!amount){
+                    errors.amount = (errors.amount || []).concat(['Required.']);
+                }
+                else if(amount <= 0){
+                    errors.amount = (errors.amount || []).concat(['Must be greater than 0.']);
                 }
                 classes[p.shareClass || ''] = true;
                 if(h.holding){

@@ -55,10 +55,6 @@ export class TransactionsPanel extends React.Component {
             }
         }
 
-
-
-
-
         return <div className="panel panel-success" >
             <div className="panel-heading">
             <h3 className="panel-title">Transactions</h3>

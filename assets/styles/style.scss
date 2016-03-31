@@ -185,6 +185,7 @@ a, a:hover{
     border: 1px solid #eee;
     border-radius: 8px;
     margin: 4px 0 4px 0;
+    padding:8px;
     .left {
         float: none;
         display: table-cell;
@@ -197,6 +198,35 @@ a, a:hover{
     }
     &:hover{
 
+    }
+}
+
+.parcel {
+    & > div {
+        width: 45%;
+        float: left;
+    }
+    & > div:first-child{
+        input{
+            border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
+        }
+    }
+
+    & > div:nth-child(2){
+        select{
+            border-radius:0;
+            -webkit-appearance: none;
+        }
+    }
+    & > div:last-child{
+        width: 10%;
+        float: left;
+        button{
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+            height:34px;
+        }
     }
 }
 
