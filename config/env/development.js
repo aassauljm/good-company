@@ -15,7 +15,7 @@ var winston = require('winston');
 var customLogger = new winston.Logger();
 
 customLogger.add(winston.transports.Console, {
-  level: 'verbose',
+  level: 'silly',
   colorize: true,
   timestamp: true
 });

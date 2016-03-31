@@ -44,7 +44,7 @@ module.exports = {
                 as: 'currentCompanyState'
             }]
         }).then(function(matchingRecords) {
-            res.json(matchingRecords);
+            res.ok(matchingRecords.map(x => x.toJSON()));
         }).catch(function(err) {
             return res.notFound(err);
         });

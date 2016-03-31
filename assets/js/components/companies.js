@@ -35,7 +35,7 @@ export default class Companies extends React.Component {
         const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
         return <div className="container">
            <div className="button-row">
-                <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button>
+                { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
                 <Button bsStyle="info" onClick={::this.handleImport}>Import Company</Button>
             </div>
             <div className="table-responsive">

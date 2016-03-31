@@ -98,7 +98,7 @@ function responsePolicy(criteria, _data, options) {
   var isResponseArray = _.isArray(_data);
 
   var data = isResponseArray ? _data : [_data];
-  sails.log.silly('data', data);
+  sails.log.silly('data length', data.length);
   sails.log.silly('options', options);
   sails.log.silly('criteria!', criteria);
 
@@ -110,7 +110,6 @@ function responsePolicy(criteria, _data, options) {
         }
       }).results;
       if (filtered.length) {
-
         if (crit.blacklist && crit.blacklist.length) {
           crit.blacklist.forEach(function(term) {
             delete item[term];
@@ -122,6 +121,8 @@ function responsePolicy(criteria, _data, options) {
     });
     return memo;
   }, []);
+
+
 
 
   if (isResponseArray) {
