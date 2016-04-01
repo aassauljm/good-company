@@ -70,9 +70,6 @@ export function callAPIMiddleware({
                             type: failureType}));
                             throw new Error((response || {}).message);
                         })
-                        .catch(() => {
-                            throw new Error({});
-                        });
                     }
                     dispatch(Object.assign({}, payload, {
                         error: error,

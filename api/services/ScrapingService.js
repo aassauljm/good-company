@@ -182,13 +182,17 @@ const EXTRACT_DOCUMENT_MAP = {
             'Issue': Transaction.types.ISSUE_UNALLOCATED,
             'Conversion/Subdivision of Shares': Transaction.types.CONVERSION,
             'Acquisition': Transaction.types.ACQUISITION,
-            'Purchase': Transaction.types.PURCHASE
+            'Purchase': Transaction.types.PURCHASE,
+            'Consolidation': Transaction.types.CONSOLIDATION
         }
 
         let result = {};
         let regex = /^\s*Type of Change:\s*$/;
         result.originaltransactionType = divAfterParent($, '.row .wideLabel label', regex);
         result.transactionType = transactionMap[result.originaltransactionType];
+        result.registrationDate = moment($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Registration Date and Time/);
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate()
         switch(result.transactionType){
             case(Transaction.types.ISSUE_UNALLOCATED):
                 result = {...result, ...parseIssue($)}
@@ -199,7 +203,10 @@ const EXTRACT_DOCUMENT_MAP = {
             case(Transaction.types.ACQUISITION):
                 result = {...result, ...parseAcquisition($)}
             case(Transaction.types.PURCHASE):
-                result = {...result, ...parseAcquisition($, 'Date of Purchase')}
+                result = {...result, ...parseAcquisition($, 'Date of Purchase:')}
+            case(Transaction.types.CONSOLIDATION):
+                result = {...result, ...parseAcquisition($, 'Date of Consolidation:')}
+
                 break;
             default:
         }
@@ -535,7 +542,7 @@ const EXTRACT_DOCUMENT_MAP = {
 
             effectiveDate:  moment($('.row.wideLabel label').filter(function(){
                     return $(this).text().match(/Registration Date and Time/);
-                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm').toDate(),
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate(),
         }],
         transactionType: Transaction.types.ANNUAL_RETURN
         }
