@@ -91,6 +91,7 @@ const validate = (values, props) => {
     errors.parcels = values.parcels.map((p, i) => {
         let errors = validateParcel(p);
         const sourceParcels = props.holdingMap[values.from];
+        const shareClass = parseInt(p.shareClass, 10) || null;
         const amount = parseInt(p.amount, 10);
         if(!amount){
             errors.amount = (errors.amount || []).concat(['Required.']);
@@ -98,17 +99,16 @@ const validate = (values, props) => {
         else if(amount <= 0){
             errors.amount = (errors.amount || []).concat(['Must be greater than 0.']);
         }
-        if(parcels.indexOf(p.shareClass) >= 0){
+        if(parcels.indexOf(shareClass) >= 0){
             errors.shareClass = (errors.shareClass || []).concat(['Duplicate share class.']);
         }
-        parcels.push(p.shareClass);
+        parcels.push(shareClass);
         const matchedParcels = sourceParcels && sourceParcels.filter(sP => {
-            if(sP.shareClass === p.shareClass && p.amount > sP.amount){
+            if(sP.shareClass === shareClass && amount > sP.amount){
                 errors.amount = (errors.amount || []).concat(['Insufficient shares in source holding.']);
             }
-            return sP.shareClass === p.shareClass;
+            return sP.shareClass === shareClass;
         })
-        console.log(p, sourceParcels)
         if(matchedParcels && !matchedParcels.length){
             errors.shareClass = (errors.shareClass || []).concat(['Source does not have any parcels of this share class.']);
         }
