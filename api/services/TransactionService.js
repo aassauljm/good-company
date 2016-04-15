@@ -880,6 +880,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.CONVERSION]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
+        [Transaction.types.CONSOLIDATION]:  TransactionService.performInverseConsolidation,
         [Transaction.types.PURCHASE]:  TransactionService.performInversePurchase,
         [Transaction.types.REDEMPTION]:  TransactionService.performInverseRedemption,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
@@ -951,7 +952,6 @@ export function performInverseTransaction(data, company, rootState){
         })
         .then(function(_prevState){
             //sails.log.silly('Current state', JSON.stringify(prevState, null, 4));
-            sails.log.info('Current state', JSON.stringify(prevState.directorList, null ,4));
             //sails.log.info('Current state', JSON.stringify(prevState.holdingList.holdings));
             return currentRoot.setPreviousCompanyState(_prevState);
         })
