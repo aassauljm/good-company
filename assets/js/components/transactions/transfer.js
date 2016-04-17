@@ -116,6 +116,7 @@ const validate = (values, props) => {
         }
         return errors;
     });
+    console.log(values)
     return errors;
 
 }
@@ -237,7 +238,7 @@ export class TransferModal extends React.Component {
             return <option key={i} value={s.id}>{s.name}</option>
         })
         const holdingMap = companyState.holdingList.holdings.reduce((acc, val) => {
-            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || undefined }));
+            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || null }));
             return acc;
         }, {});
 
