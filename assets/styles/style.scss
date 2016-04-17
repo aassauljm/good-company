@@ -236,6 +236,23 @@ a, a:hover{
     }
 }
 
+.or-group{
+    .form-group{
+        margin-bottom:0;
+    }
+    .or-divider{
+        width: 100%;
+        text-align: center;
+        display: inline-block;
+        font-style: italic;
+    }
+    .button-row{
+        .form-group{
+            margin-top:0;
+        }
+    }
+    margin-bottom:15px;
+}
 
 
 // graphs

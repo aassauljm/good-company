@@ -15,18 +15,38 @@ import Panel from '../panel';
 
 @formFieldProps()
 export class HoldingWithRemove extends React.Component {
+
+    renderHoldingSelect() {
+        return <Input type="select" {...this.formFieldProps('holding')} >
+                        <option></option>
+                        { this.props.holdingOptions }
+                    </Input>
+    }
+
+    renderNewHolding() {
+        return <div className="button-row"><ButtonInput onClick={this.props.showNewHolding}>Create New Holding</ButtonInput></div>
+    }
+
+    renderHolding() {
+        if(this.props.fields.newHolding){
+            return <div className="or-group">
+                { this.renderHoldingSelect() }
+            <span className="or-divider">- or -</span>
+                { this.renderNewHolding() }
+            </div>
+        }
+        else{
+            return this.renderHoldingSelect();
+        }
+    }
+
     render() {
         const hasNew = this.props.fields.newHolding && this.props.fields.newHolding.value;
         return  <div className=" col-xs-12"><Panel remove={() => this.props.remove()} title="Recipient">
             <div className="holding">
                 <div className=" col-xs-12">
-                   { !hasNew && <Input type="select" {...this.formFieldProps('holding')} >
-                        <option></option>
-                        { this.props.holdingOptions }
-                    </Input> }
 
-                    { this.props.fields.newHolding && !hasNew &&
-                    <div className="button-row"><ButtonInput onClick={this.props.showNewHolding}>Create New Holding</ButtonInput></div> }
+                    { !hasNew && this.renderHolding(hasNew) }
 
                     { hasNew  &&
                         <StaticField type="static"  value={newHoldingString(this.props.fields.newHolding.value)}

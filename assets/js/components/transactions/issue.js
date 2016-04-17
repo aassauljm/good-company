@@ -49,7 +49,6 @@ const validate = (data, props) => {
     }
 
     const classes = {}, holdingIds = {};
-    console.log(data)
     return { ...requireFields('effectiveDate')(data),
         parcels: data.parcels.map(p => {
             const errors = requireFields('amount')(p);

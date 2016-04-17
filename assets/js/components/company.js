@@ -62,7 +62,7 @@ export class TransactionsPanel extends React.Component {
             <div className="panel-body">
             <div><strong>Last Transaction </strong>
             {(STRINGS.transactionTypes[this.props.transactions[0].type] || this.props.transactions[0].type ) + ' ' }
-             {new Date(this.props.transactions[0].effectiveDate).toDateString()}</div>
+             { new Date(this.props.transactions[0].effectiveDate).toDateString() }</div>
             </div>
             <BarGraph data={graphData} />
 

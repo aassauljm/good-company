@@ -47,14 +47,14 @@ export class Transfer extends React.Component {
             </Input>
 
             { !this.props.fields.newHolding.value &&
-                <Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
+                <div className="or-group"><Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
                     <option></option>
                     { this.props.holdingOptions }
-                </Input> }
-            { !this.props.fields.newHolding.value &&
-            <div className="button-row"><ButtonInput onClick={() => {
-                this.props.showModal('newHolding');
-            }}>Create New Holding</ButtonInput></div> }
+                </Input>
+                <span className="or-divider">- or -</span>
+                <div className="button-row"><ButtonInput onClick={() => {
+                    this.props.showModal('newHolding');
+                }}>Create New Holding</ButtonInput></div></div> }
 
             { this.props.fields.newHolding.value  &&
                 <StaticField type="static" label={STRINGS.transfer.to} value={newHoldingString(this.props.fields.newHolding.value)}
@@ -62,6 +62,8 @@ export class Transfer extends React.Component {
                     this.props.fields.newHolding.onChange(null);
                 }}><Glyphicon glyph='trash'/></button>} /> }
 
+
+                <label className="control-label">Parcels</label>
              { this.props.fields.parcels.map((p, i) => {
                 return <div className="row " key={i}>
                     <ParcelWithRemove fields={p} remove={() => this.props.fields.parcels.removeField(i)} shareOptions={this.props.shareOptions}/>

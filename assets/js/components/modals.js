@@ -42,7 +42,7 @@ export default class Modals extends React.Component {
                 this.props.dispatch(endModal(this.props.showing, data));
                 if(after){
                     if(after.showModal){
-                        this.props.dispatch(showModal(after.showModal.key, after.showModal.data))
+                        this.props.dispatch(showModal(after.showModal.key, after.showModal.data));
                     }
                     if(data && data.reload && after.location){
                         this.props.dispatch(routeActions.push(after.location));
