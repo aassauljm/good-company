@@ -12,11 +12,6 @@ import DateInput from './dateInput';
 import { Documents } from './documents';
 import Panel from '../panel';
 
-/*
-       <button className="btn btn-default" onClick={(e) => {
-                    e.preventDefault();
-                    this.props.remove()
-                }}><Glyphicon glyph='trash'/></button>*/
 
 @formFieldProps()
 export class HoldingWithRemove extends React.Component {
@@ -113,6 +108,11 @@ export class HoldingNoParcels extends React.Component {
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.persons.addField();
             }}>Add Person</ButtonInput></div>
+
+            { this.props.error && <div className="alert alert-danger">
+                { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
+            </div> }
+
         </fieldset>
         <Documents documents={this.props.fields.documents}/>
         </form>
@@ -134,6 +134,9 @@ const validate = (values, props) => {
         }
         return errors;
     });
+    if(!values.persons.length){
+        errors._error = (errors._error || []).concat(['At least 1 holder required.'])
+    }
     return errors;
 
 }

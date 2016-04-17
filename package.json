@@ -102,7 +102,7 @@
     "react-widgets": "^3.1.0",
     "redux": "^3.0.2",
     "redux-async-connect": "^1.0.0-rc4",
-    "redux-form": "^4.2.0",
+    "redux-form": "^5.0.1",
     "redux-logger": "^2.0.0",
     "redux-thunk": "^1.0.0",
     "sails": "^0.12.1",

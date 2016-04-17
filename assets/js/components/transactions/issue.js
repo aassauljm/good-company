@@ -124,7 +124,7 @@ export class Issue extends React.Component {
 
     renderParcelErrors() {
         if(this.props.error && this.props.error.parcels){
-            return  <div className="alert alert-danger">
+            return <div className="alert alert-danger">
                         <span>Must include at least one share parcel.</span>
                     </div>
         }
