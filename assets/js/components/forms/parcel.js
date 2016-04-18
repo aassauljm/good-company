@@ -21,7 +21,7 @@ export class ParcelWithRemove extends React.Component {
                         </Input>
                     </div>
                     <div>
-                        <button className="btn btn-default" onClick={(e) => {
+                        <button className="btn btn-default remove-parcel" onClick={(e) => {
                             e.preventDefault();
                             this.props.remove()
                         }}><Glyphicon glyph='trash'/></button>

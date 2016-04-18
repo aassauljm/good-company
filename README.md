@@ -30,3 +30,7 @@ npm run build-dev
 #server
 
 pm2 start app.js -n good_company -x -- --prod
+
+
+#run single test
+SKIP_SAILS=true _mocha --recursive test  --timeout 25000 -g 'SINGLE TEST STRING' --compilers js:babel-core/register

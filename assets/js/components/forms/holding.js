@@ -105,7 +105,7 @@ export class HoldingNoParcels extends React.Component {
                         </Input> }
 
                         { !p.newPerson.value &&
-                        <div className="button-row"><ButtonInput onClick={() => {
+                        <div className="button-row"><ButtonInput className="new-person" onClick={() => {
                             this.props.showModal('newPerson', i);
                         }}>Create New Person</ButtonInput></div> }
 

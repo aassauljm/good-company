@@ -1,20 +1,23 @@
+"use strict";
 import React from 'react';
 import Promise from "bluebird";
 import { validate, createHoldingMap, transferFormatSubmit, TransferConnected } from '../../../assets/js/components/transactions/transfer';
-import { simpleStore, waitFor } from '../../integration/helpers';
-import TestUtils from 'react/lib/ReactTestUtils';
+import { ParcelWithRemove } from '../../../assets/js/components/forms/parcel';
+import Input from '../../../assets/js/components/forms/input';
+import { simpleStore } from '../../integration/helpers';
+import TestUtils, { Simulate } from 'react/lib/ReactTestUtils';
 import { Provider } from 'react-redux';
 import chai from 'chai';
 const should = chai.should();
 
 
 describe('Transfer form', () => {
-    const holdingMap = {1: [{amount: 1, shareClass: null}], 2: [{amount: 2, shareClass: 2}], 3: [{amount: 3, shareClass: 3}]}
+    const holdingMap = {1: [{amount: 1, shareClass: null}], 2: [{amount: 2, shareClass: 2},{amount: 1, shareClass: 4}], 3: [{amount: 3, shareClass: 3}]}
 
     const companyState = {
         holdingList: {holdings: [
             {holdingId: 1, parcels: [{amount: 1}]},
-            {holdingId: 2, parcels: [{amount: 2, shareClass: 2}]},
+            {holdingId: 2, parcels: [{amount: 2, shareClass: 2},{amount: 1, shareClass: 4}]},
             {holdingId: 3, parcels: [{amount: 3, shareClass: 3}]},
             ]}
     };
@@ -167,46 +170,168 @@ describe('Transfer form', () => {
     });
 
     describe('Connected form component', () => {
-        it('check validation error feedback', (done) => {
+        let form, submitResult
+
+        beforeEach(() => {
             const store = simpleStore();
             const holdingOptions = [
                 <option key={0} value={1}/>,
                 <option key={1} value={2}/>
             ];
             const shareOptions = holdingOptions;
-            const form = TestUtils.renderIntoDocument(
+            form = TestUtils.renderIntoDocument(
                 <Provider store={store}>
                     <TransferConnected
                         initialValues={{parcels: [{}], effectiveDate: new Date() }}
                         holdingOptions={holdingOptions}
                         holdingMap={holdingMap}
                         shareOptions={shareOptions}
+                        onSubmit={(data) => { submitResult = data}}
                         />
                 </Provider> );
-            const [fromSelect, toSelect] = TestUtils.scryRenderedDOMComponentsWithTag(form, 'select');
-            TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length.should.be.eql(0);
-            toSelect.value = '1';
-            TestUtils.Simulate.change(toSelect);
-            fromSelect.value = '1';
-            TestUtils.Simulate.change(fromSelect);
-            TestUtils.Simulate.blur(toSelect);
+        });
+
+        context('check validation', () => {
+
+            it('to and from same target', (done) => {
+                const [fromSelect, toSelect] = TestUtils.scryRenderedDOMComponentsWithTag(form, 'select');
+                TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length.should.be.eql(0);
+
+                fromSelect.value = '1';
+                Simulate.change(fromSelect);
+
+                toSelect.value = '1';
+                Simulate.change(toSelect);
+
+                Simulate.blur(toSelect);
+
+                TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length.should.be.eql(1);
+                toSelect.value = '2';
+                Simulate.change(toSelect);
+                TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length.should.be.eql(0);
+                done();
+            });
+
+            it('from has insufficent amount', (done) => {
+                const [fromSelect] = TestUtils.scryRenderedDOMComponentsWithTag(form, 'select');
+                const [parcel] = TestUtils.scryRenderedComponentsWithType(form, ParcelWithRemove)
+                const [amountInput, shareClassInput] = TestUtils.scryRenderedComponentsWithType(parcel, Input);
+                const amount = TestUtils.findRenderedDOMComponentWithTag(amountInput, 'input');
+                const shareClass = TestUtils.findRenderedDOMComponentWithTag(shareClassInput, 'select');
+
+                fromSelect.value = '2';
+                Simulate.change(fromSelect);
+
+                amount.value = '100';
+                Simulate.change(amount);
+                Simulate.blur(amount);
+                Simulate.blur(shareClass);
+
+                // Has no shares of this class
+                TestUtils.scryRenderedDOMComponentsWithClass(shareClassInput, 'help-block').length.should.be.eql(1);
+
+                shareClass.value = '2';
+                Simulate.change(shareClass);
+                Simulate.blur(shareClass);
+
+                // Has shares of this class, but not enough
+                TestUtils.scryRenderedDOMComponentsWithClass(shareClassInput, 'help-block').length.should.be.eql(0);
+                TestUtils.scryRenderedDOMComponentsWithClass(amountInput, 'help-block').length.should.be.eql(1);
+
+                // Lower amount so valid
+                amount.value = '1';
+                Simulate.change(amount);
+                TestUtils.scryRenderedDOMComponentsWithClass(amountInput, 'help-block').length.should.be.eql(0);
+                done();
+            });
+
+            it('duplicate shareClasses', (done) => {
+                const [fromSelect] = TestUtils.scryRenderedDOMComponentsWithTag(form, 'select');
+
+                fromSelect.value = '2';
+                Simulate.change(fromSelect);
+
+                // add parcel
+                Simulate.click(TestUtils.findRenderedDOMComponentWithClass(form, 'add-parcel'));
+
+                let parcels = TestUtils.scryRenderedComponentsWithType(form, ParcelWithRemove);
+                parcels.length.should.be.equal(2);
 
 
-            //TODO in morning,
-            waitFor('Error to display', () => TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length)
-                .then(() => {
-                    TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length.should.be.eql(1);
-                    toSelect.value = '2';
-                    TestUtils.Simulate.change(toSelect);
-                    return waitFor('Error to disappear', () => {
-                        return !TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length
-                    });
-                })
-                .then(() => {
-                    done();
-                })
-                .catch(done)
+                const [amountInput2, shareClassInput2] = TestUtils.scryRenderedComponentsWithType(parcels[1], Input);
+                const shareClass2 = TestUtils.findRenderedDOMComponentWithTag(shareClassInput2, 'select');
+                Simulate.blur(shareClass2);
 
-        })
+                // Duplicate shares of this class
+                TestUtils.scryRenderedDOMComponentsWithClass(shareClassInput2, 'help-block').length.should.be.eql(1);
+                shareClass2.value = '2'
+                Simulate.change(shareClass2);
+                TestUtils.scryRenderedDOMComponentsWithClass(shareClassInput2, 'help-block').length.should.be.eql(0);
+
+                // Remove Parcel
+                Simulate.click(TestUtils.findRenderedDOMComponentWithClass(parcels[0], 'remove-parcel'));
+
+                parcels = TestUtils.scryRenderedComponentsWithType(form, ParcelWithRemove);
+                parcels.length.should.be.equal(1);
+
+                const [amountInput, shareClassInput] = TestUtils.scryRenderedComponentsWithType(parcels[0], Input);
+
+                // No longer duplicate error
+                TestUtils.scryRenderedDOMComponentsWithClass(shareClassInput, 'help-block').length.should.be.eql(0);
+                done();
+            });
+
+            it('no parcels', (done) => {
+                let parcel = TestUtils.findRenderedComponentWithType(form, ParcelWithRemove);
+                TestUtils.scryRenderedDOMComponentsWithClass(form, 'alert').length.should.be.eql(0);
+                // Remove Parcel
+                Simulate.click(TestUtils.findRenderedDOMComponentWithClass(parcel, 'remove-parcel'));
+
+                TestUtils.scryRenderedComponentsWithType(form, ParcelWithRemove).length.should.be.equal(0);
+
+                TestUtils.scryRenderedDOMComponentsWithClass(form, 'alert').length.should.be.eql(1);
+
+                // add parcel
+                Simulate.click(TestUtils.findRenderedDOMComponentWithClass(form, 'add-parcel'));
+                TestUtils.scryRenderedDOMComponentsWithClass(form, 'alert').length.should.be.eql(0);
+                done();
+            });
+        });
+
+        context('creates valid transfer', () => {
+            it('basic transfer filled out, confirm transaction data', (done) => {
+                const [fromSelect, toSelect] = TestUtils.scryRenderedDOMComponentsWithTag(form, 'select');
+
+                fromSelect.value = '2';
+                Simulate.change(fromSelect);
+
+                toSelect.value = '1';
+                Simulate.change(toSelect);
+
+                const [parcel] = TestUtils.scryRenderedComponentsWithType(form, ParcelWithRemove)
+                const [amountInput, shareClassInput] = TestUtils.scryRenderedComponentsWithType(parcel, Input);
+                const amount = TestUtils.findRenderedDOMComponentWithTag(amountInput, 'input');
+                const shareClass = TestUtils.findRenderedDOMComponentWithTag(shareClassInput, 'select');
+
+                amount.value = '2';
+                Simulate.change(amount);
+                shareClass.value = '2';
+                Simulate.change(shareClass);
+
+                const transferComponent = TestUtils.findRenderedComponentWithType(form, TransferConnected);
+
+
+                transferComponent.submit();
+                submitResult.should.containSubset({
+                      from: '2',
+                      to: '1',
+                      newHolding: undefined,
+                      parcels: [ { shareClass: '2', amount: '2' } ],
+                      documents: undefined })
+                done();
+            });
+
+        });
+
     });
 });

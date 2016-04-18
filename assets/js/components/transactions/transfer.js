@@ -54,7 +54,7 @@ export class Transfer extends React.Component {
                     { this.props.holdingOptions }
                 </Input>
                 <span className="or-divider">- or -</span>
-                <div className="button-row"><ButtonInput onClick={() => {
+                <div className="button-row"><ButtonInput className="new-holding" nClick={() => {
                     this.props.showModal('newHolding');
                 }}>Create New Holding</ButtonInput></div></div> }
 
@@ -71,7 +71,7 @@ export class Transfer extends React.Component {
                     <ParcelWithRemove fields={p} remove={() => this.props.fields.parcels.removeField(i)} shareOptions={this.props.shareOptions}/>
                 </div>
             }) }
-            <div className="button-row"><ButtonInput onClick={() => {
+            <div className="button-row"><ButtonInput className="add-parcel" onClick={() => {
                 this.props.fields.parcels.addField();    // pushes empty child field onto the end of the array
             }}>Add Parcel</ButtonInput></div>
         </fieldset>
@@ -85,7 +85,6 @@ export class Transfer extends React.Component {
 }
 
 const validateBase = requireFields('effectiveDate', 'from');
-const validateParcel = requireFields('amount');
 
 export const validate = (values, props) => {
     const errors = validateBase(values);
@@ -97,7 +96,7 @@ export const validate = (values, props) => {
     }
     const parcels = [];
     errors.parcels = values.parcels.map((p, i) => {
-        let errors = validateParcel(p);
+        const errors = {};
         const sourceParcels = props.holdingMap[values.from];
         const shareClass = parseInt(p.shareClass, 10) || null;
         const amount = parseInt(p.amount, 10);
