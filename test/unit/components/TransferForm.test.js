@@ -1,7 +1,9 @@
 import React from 'react';
 import Promise from "bluebird";
-import { validate, createHoldingMap, transferFormatSubmit } from '../../../assets/js/components/transactions/transfer';
+import { validate, createHoldingMap, transferFormatSubmit, TransferConnected } from '../../../assets/js/components/transactions/transfer';
+import { simpleStore, waitFor } from '../../integration/helpers';
 import TestUtils from 'react/lib/ReactTestUtils';
+import { Provider } from 'react-redux';
 import chai from 'chai';
 const should = chai.should();
 
@@ -162,6 +164,49 @@ describe('Transfer form', () => {
             }]);
             done();
         });
+    });
 
+    describe('Connected form component', () => {
+        it('check validation error feedback', (done) => {
+            const store = simpleStore();
+            const holdingOptions = [
+                <option key={0} value={1}/>,
+                <option key={1} value={2}/>
+            ];
+            const shareOptions = holdingOptions;
+            const form = TestUtils.renderIntoDocument(
+                <Provider store={store}>
+                    <TransferConnected
+                        initialValues={{parcels: [{}], effectiveDate: new Date() }}
+                        holdingOptions={holdingOptions}
+                        holdingMap={holdingMap}
+                        shareOptions={shareOptions}
+                        />
+                </Provider> );
+            const [fromSelect, toSelect] = TestUtils.scryRenderedDOMComponentsWithTag(form, 'select');
+            TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length.should.be.eql(0);
+            toSelect.value = '1';
+            TestUtils.Simulate.change(toSelect);
+            fromSelect.value = '1';
+            TestUtils.Simulate.change(fromSelect);
+            TestUtils.Simulate.blur(toSelect);
+
+
+            //TODO in morning,
+            waitFor('Error to display', () => TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length)
+                .then(() => {
+                    TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length.should.be.eql(1);
+                    toSelect.value = '2';
+                    TestUtils.Simulate.change(toSelect);
+                    return waitFor('Error to disappear', () => {
+                        return !TestUtils.scryRenderedDOMComponentsWithClass(form, 'help-block').length
+                    });
+                })
+                .then(() => {
+                    done();
+                })
+                .catch(done)
+
+        })
     });
 });

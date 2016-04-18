@@ -19,8 +19,6 @@ export default function configureStore(history, initialState=data) {
     const createStoreWithMiddleware = compose(
                 middleware,
             )(createStore);
-
-
     const store = createStoreWithMiddleware(appReducer, initialState);
     reduxRouterMiddleware.listenForReplays(store);
     return store;

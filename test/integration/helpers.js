@@ -1,26 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  renderIntoDocument
-} from 'react-addons-test-utils';
+import { renderIntoDocument } from 'react-addons-test-utils';
 import configureStore from ".../../../../assets/js/store.prod";
 import routes from ".../../../../assets/js/routes";
 import Root from ".../../../../assets/js/root";
 import Promise from "bluebird";
-import { createMemoryHistory } from 'react-router'
+import { createMemoryHistory, match } from 'react-router'
+import { loadOnServer } from 'redux-async-connect';
+import { createStore, applyMiddleware, compose } from 'redux';
+import appReducer from '.../../../../assets/js/reducers';
+import thunkMiddleware from 'redux-thunk';
+
+
 const LOOP = 20;
 const DOMTIMEOUT = 3000;
-import { loadOnServer } from 'redux-async-connect';
-import { match } from 'react-router';
-
-
-
 export function waitFor(msg, sel, dom){
     let interval,
         start = Date.now();
+    const test = typeof sel === 'function' ? sel : () => dom.querySelector(sel);
     return new Promise(function(resolve, reject){
         function _run(){
-            const el = dom.querySelector(sel);
+            const el = test();
             if(el){
                 resolve(el);
             }
@@ -36,6 +36,7 @@ export function waitFor(msg, sel, dom){
         clearInterval(interval);
     })
 }
+
 
 export function prepareApp(url = '/login'){
     const history = createMemoryHistory(url);
@@ -53,7 +54,11 @@ export function prepareApp(url = '/login'){
                 resolve();
             });
         });
-    })
+    });
+}
 
-
+export function simpleStore(){
+    return compose(
+                 applyMiddleware(thunkMiddleware)
+            )(createStore)(appReducer, {});
 }
