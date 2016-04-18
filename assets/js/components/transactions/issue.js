@@ -13,9 +13,9 @@ import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
-import { HoldingWithRemove } from '../forms/holding';
+import { HoldingWithRemove, newHoldingFormatAction } from '../forms/holding';
 import { Documents } from '../forms/documents';
-import { newHoldingFormatAction } from './newHolding';
+
 
 
 
@@ -173,7 +173,7 @@ export function issueFormatSubmit(values, companyState){
     const actions = [], results = [], newHoldings = [];
     const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
         acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
-            acc[parcel.shareClass || ''] = parcel.amount;
+            acc[parcel.shareClass || undefined] = parcel.amount;
             return acc;
         }, {})
         return acc;
@@ -197,8 +197,8 @@ export function issueFormatSubmit(values, companyState){
                 holders: (h.newHolding || {}).persons,
                 shareClass: shareClass,
                 amount: amount,
-                beforeAmount: amounts[h.holding][p.shareClass || ''] || 0,
-                afterAmount: (amounts[h.holding][p.shareClass || ''] || 0) + amount,
+                beforeAmount: amounts[h.holding][p.shareClass] || 0,
+                afterAmount: (amounts[h.holding][p.shareClass] || 0) + amount,
                 transactionType: 'ISSUE_TO',
                 transactionMethod: 'AMEND'
             });

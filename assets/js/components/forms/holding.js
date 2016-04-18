@@ -129,11 +129,11 @@ export class HoldingNoParcels extends React.Component {
                 this.props.fields.persons.addField();
             }}>Add Person</ButtonInput></div>
 
-            { this.props.error && <div className="alert alert-danger">
-                { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
-            </div> }
 
         </fieldset>
+        { this.props.error && <div className="alert alert-danger">
+            { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
+        </div> }
         <Documents documents={this.props.fields.documents}/>
         </form>
     }

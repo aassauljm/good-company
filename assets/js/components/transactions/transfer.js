@@ -14,7 +14,7 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
 import { ParcelWithRemove } from '../forms/parcel';
-import { newHoldingFormatAction } from './newHolding';
+import { newHoldingFormatAction } from '../forms/holding';
 import { Documents } from '../forms/documents';
 
 const fields = [
@@ -32,9 +32,11 @@ const fields = [
 
 @formFieldProps()
 export class Transfer extends React.Component {
+
     static propTypes = {
         holdingOptions: PropTypes.array.isRequired,
         shareOptions: PropTypes.array.isRequired,
+        fields: PropTypes.object.isRequired,
     };
 
     render() {
@@ -73,7 +75,11 @@ export class Transfer extends React.Component {
                 this.props.fields.parcels.addField();    // pushes empty child field onto the end of the array
             }}>Add Parcel</ButtonInput></div>
         </fieldset>
+        { this.props.error && <div className="alert alert-danger">
+            { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
+        </div> }
         <Documents documents={this.props.fields.documents}/>
+
         </form>
     }
 }
@@ -81,7 +87,7 @@ export class Transfer extends React.Component {
 const validateBase = requireFields('effectiveDate', 'from');
 const validateParcel = requireFields('amount');
 
-const validate = (values, props) => {
+export const validate = (values, props) => {
     const errors = validateBase(values);
     if(values.from && values.from === values.to){
         errors.to = ['Destination must be different from source.']
@@ -116,10 +122,20 @@ const validate = (values, props) => {
         }
         return errors;
     });
-    console.log(values)
+    if(!values.parcels.length){
+        errors._error = (errors._error || []).concat(['At least 1 parcel required.'])
+    }
     return errors;
 
 }
+
+export function createHoldingMap(companyState){
+    return companyState.holdingList.holdings.reduce((acc, val) => {
+        acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || null }));
+        return acc;
+    }, {});
+}
+
 
 export function transferFormatSubmit(values, companyState){
     const actions = [], results = []
@@ -182,7 +198,7 @@ export function transferFormatSubmit(values, companyState){
     return results;
 }
 
-const TransferConnected = reduxForm({
+export const TransferConnected = reduxForm({
   form: 'transfer',
   fields,
   validate,
@@ -237,10 +253,7 @@ export class TransferModal extends React.Component {
         const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         })
-        const holdingMap = companyState.holdingList.holdings.reduce((acc, val) => {
-            acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || null }));
-            return acc;
-        }, {});
+        const holdingMap = createHoldingMap(companyState)
 
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
