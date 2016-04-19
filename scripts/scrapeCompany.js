@@ -1,16 +1,22 @@
-require("babel/register")({stage: 2});
+require("babel-core/register");
 global.sails = {
     log: {
         verbose: console.log,
         silly: console.log,
         error: console.log,
         info: console.log,
-    }
+    },
+    config: {}
 }
 
 const ScrapingService = require('../api/services/ScrapingService');
 
 const companyNumber = process.argv[2];
+
+if(!companyNumber){
+    console.log('PLEASE PROVIDE COMPANY NUMBER');
+    process.exit(1);
+}
 
 ScrapingService.fetch(companyNumber)
     .then(function(data){
