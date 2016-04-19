@@ -15,7 +15,7 @@ describe('Renders full ', () => {
 
     before('render', prepareApp);
 
-    it('gets log in menu', function(done){
+    /*it('gets log in menu', function(done){
         const dom = this.dom,
             form = findRenderedComponentWithType(this.tree, LoginForm),
         input = findRenderedDOMComponentWithTag(form.refs.identifier, 'input'),
@@ -36,5 +36,5 @@ describe('Renders full ', () => {
                 el.innerHTML.should.equal('integrate');
                 done();
             });
-   });
+   });*/
 });
