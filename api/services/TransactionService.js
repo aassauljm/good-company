@@ -115,7 +115,7 @@ export function performInverseIssueUnallocated(data, companyState, previousState
     return validateInverseIssue(data, companyState)
         .then(() => {
             const match = companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            const transaction = Transaction.build({transactionType: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
+            const transaction = Transaction.build({type: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
             return transaction;
         })
 }
@@ -125,7 +125,7 @@ export function performInverseDecreaseShares(data, companyState, previousState, 
     return validateInverseDecreaseShares(data, companyState)
         .then(() => {
             const match = companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            const transaction = Transaction.build({transactionType: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
+            const transaction = Transaction.build({type: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
             return transaction;
         })
 }
@@ -586,7 +586,7 @@ export const validateDecreaseShares = validateIssueUnallocated;
 export function performIssueUnallocated(data, nextState, previousState, effectiveDate){
     return validateIssueUnallocated(data, nextState)
         .then(() => {
-            const transaction = Transaction.build({type: Transaction.types.ISSUE, data: data, effectiveDate: effectiveDate})
+            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
             nextState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
             return transaction;
         })
@@ -783,7 +783,7 @@ export function performUpdateDirector(data, companyState, previousState, effecti
     Seed is a special cause, it doesn't care about previousState
 */
 export function performSeed(data, companyState, previousState, effectiveDate){
-
+    throw Error('Not implemented');
 }
 
 export function removeDocuments(state, actions){
