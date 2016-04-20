@@ -5,6 +5,7 @@ import {
   findRenderedComponentWithType,
   findRenderedDOMComponentWithTag,
   findRenderedDOMComponentWithClass,
+  scryRenderedDOMComponentsWithTag,
   Simulate
 } from 'react-addons-test-utils';
 import { prepareApp, waitFor } from './helpers';
@@ -20,6 +21,7 @@ describe('Import Company Integration ', () => {
     before('render', prepareApp);
 
     it('Imports Company', function(done){
+        let modal;
         const dom = this.dom,
             form = findRenderedComponentWithType(this.tree, LoginForm),
         input = findRenderedDOMComponentWithTag(form.refs.identifier, 'input'),
@@ -40,14 +42,19 @@ describe('Import Company Integration ', () => {
             })
             .then(() => {
                 Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'company-import'));
-             //   return waitFor('Modal to appear', '.modal-body', global.document);
-            //})
-            //.then(() => {
-                const modal = findRenderedComponentWithType(this.tree, Modal)._modal;
+                modal = findRenderedComponentWithType(this.tree, Modal)._modal;
                 const input = findRenderedDOMComponentWithTag(modal, 'input');
                 input.value = 'integration_test'
                 Simulate.change(input);
                 return waitFor('Modal results to appear', '.modal-body .list-group button', ReactDOM.findDOMNode(modal));
+            })
+            .then(() => {
+                // Click 2nd item
+                Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[1]);
+
+                // Import
+                Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[0]);
+                return waitFor('Company page to load', '.company', dom, 10000);
             })
             .then(() => {
                 done();

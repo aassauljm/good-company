@@ -330,7 +330,7 @@ export default class Company extends React.Component {
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
         const companiesOfficeUrl = `http://www.business.govt.nz/companies/app/ui/pages/companies/${current.companyNumber}`;
-        return <div>
+        return <div className="company">
                 <div className="container">
                 <div className="well">
                     <h1>{current.companyName}</h1>

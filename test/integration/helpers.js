@@ -14,7 +14,7 @@ import thunkMiddleware from 'redux-thunk';
 
 const LOOP = 20;
 const DOMTIMEOUT = 3000;
-export function waitFor(msg, sel, dom){
+export function waitFor(msg, sel, dom, timeout=DOMTIMEOUT){
     let interval,
         start = Date.now();
     const test = typeof sel === 'function' ? sel : () => dom.querySelector(sel);
@@ -25,7 +25,7 @@ export function waitFor(msg, sel, dom){
                 resolve(el);
             }
             else{
-                if((Date.now() - start)  > DOMTIMEOUT){
+                if((Date.now() - start)  > timeout){
                     reject(msg);
                 }
             }
