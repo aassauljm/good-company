@@ -25,14 +25,11 @@ import { SubdivisionModal  } from './transactions/subdivision';
 import { routeActions } from 'react-router-redux';
 
 
-@connect(state => state.modals)
-export default class Modals extends React.Component {
-    render() {
-        if(!this.props.showing){
-            return false;
-        }
-        const data = this.props[this.props.showing] || {};
+export class Modals extends React.Component {
+    renderModal(showing) {
+        const data = this.props[showing] || {};
         const props = {
+            ref: 'modal',
             index: data.index,
             modalData: data.data,
             next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
@@ -121,6 +118,17 @@ export default class Modals extends React.Component {
             default:
                 return false;
         }
+    }
+
+
+    render() {
+        if(!this.props.showing){
+            return false;
+        }
+        return <div className="modals">{ this.renderModal(this.props.showing) }</div>
 
     }
 }
+
+const ModalsConnected = connect(state => state.modals)(Modals);
+export default ModalsConnected;

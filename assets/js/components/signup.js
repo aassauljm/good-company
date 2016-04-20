@@ -15,20 +15,20 @@ import validator from 'validator'
 
 var signUpSchema = {
     email: [{
-            test: (value) => validator.isEmail(value),
+            test: (value) => validator.isEmail(value || ''),
             message: 'A valid email is required'
         }],
     username: [
         {test: (value) => value,
             message: 'A username is required'
-        }, {test: (value) => validator.isLength(value, 5),
+        }, {test: (value) => validator.isLength(value || '', 5),
             message: 'Username is too short'
         },
     ],
     password: [
         {test: (value) => value,
             message: 'A password is required'
-        }, {test: (value) => validator.isLength(value, 8),
+        }, {test: (value) => validator.isLength(value || '', 8),
             message: 'Password is too short'
         }],
     repeatPassword: [

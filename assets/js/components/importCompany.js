@@ -14,8 +14,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 
 
-@connect(state => ({importCompany: state.importCompany}))
-export default class ImportCompanyModal extends React.Component {
+
+export class ImportCompanyModal extends React.Component {
     static propTypes = {
         next: PropTypes.func.isRequired,
         previous: PropTypes.func.isRequired,
@@ -89,3 +89,6 @@ export default class ImportCompanyModal extends React.Component {
             </Modal>
     }
 }
+
+const ImportCompanyModalConnected = connect(state => ({importCompany: state.importCompany}))(ImportCompanyModal);
+export default ImportCompanyModalConnected;

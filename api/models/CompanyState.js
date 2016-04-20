@@ -713,7 +713,7 @@ module.exports = {
             replaceDirector: function(currentDirector, newDirector, transaction){
                 const directors = this.dataValues.directorList.dataValues.directors;
                 var index = _.findIndex(directors, function(d, i){
-                        return d.person.isEqual(currentDirector);
+                        return d.dataValues.person.isEqual(currentDirector);
                 });
                 if(index > -1){
                     //directors[index].personId = null;

@@ -225,6 +225,11 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         .then(() => {
             let current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders});
             if(!current.length){
+                // DUBIOUS HACK, see http://www.business.govt.nz/companies/app/ui/pages/companies/2484830/15270869/entityFilingRequirement
+                // Update shareholder has already updated the holding
+                current = companyState.getMatchingHoldings({holders: normalizedData.beforeHolders});
+            }
+            if(!current.length){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
             }
             else if(current.length > 1 && session.active){
@@ -310,8 +315,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
         .then(function(){
             // find previousState person instance, attach mutating transaction
             const holder = previousState.getHolderBy(normalizedData.afterHolder);
-            holder.setTransaction(transaction);
-            return holder.save();
+            return holder.setTransaction(transaction);
         })
         .catch((e)=>{
             sails.log.error(e);
@@ -559,13 +563,14 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId},
                                          {name: data.beforeName, address: beforeAddress, personId: data.personId});
             return _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
-                return d.person.isEqual({name: data.afterName, address: afterAddress});
+                return d.dataValues.person.isEqual({name: data.afterName, address: afterAddress});
             }).person.setTransaction(transaction)
         })
         .then(() => {
             return transaction;
         })
         .catch((e) => {
+            sails.log.error(e);
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
         });
 

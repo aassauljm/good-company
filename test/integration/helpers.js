@@ -49,7 +49,7 @@ export function prepareApp(url = '/login'){
                     .then(() => { resolve()})
             }
             return loadOnServer({...renderProps, store}).then(() => {
-                this.tree = renderIntoDocument(<Root store={store} history={history}/>);
+                this.tree = renderIntoDocument(<Root store={store} history={history} />);
                 this.dom = ReactDOM.findDOMNode(this.tree);
                 resolve();
             });

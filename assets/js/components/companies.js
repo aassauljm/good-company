@@ -36,7 +36,7 @@ export default class Companies extends React.Component {
         return <div className="container">
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
-                <Button bsStyle="info" onClick={::this.handleImport}>Import Company</Button>
+                <Button bsStyle="info" className="company-import" onClick={::this.handleImport}>Import Company</Button>
             </div>
             <div className="table-responsive">
             <table className="table table-striped table-hover">

@@ -8,7 +8,7 @@ export const normalizeAddress = Promise.method(function(address){
     return address.replace(/, NZ$/, ', New Zealand')
 });
 
-const hackReplace = {
+const hackSuffixReplace = {
     '\\sAvenue(\\W)': ' Ave$1',
     '\\sBoulevard(\\W)': ' Blvd$1',
     '\\sBvd(\\W)': ' Blvd$1',
@@ -22,15 +22,36 @@ const hackReplace = {
     '\\sDve(\\W)': ' Drv$1'
 }
 
-const hackReplaceRegex = Object.keys(hackReplace).reduce((acc, k) => {
-    acc.push([new RegExp(k, 'gi'), hackReplace[k]]);
+const hackCardinalReplace = {
+    '\\sNorth(\\W)': '$1',
+    '\\sSouth(\\W)': '$1',
+    '\\sEast(\\W)': '$1',
+    '\\sWest(\\W)': '$1'
+}
+
+const hackSuffixReplaceRegex = Object.keys(hackSuffixReplace).reduce((acc, k) => {
+    acc.push([new RegExp(k, 'gi'), hackSuffixReplace[k]]);
     return acc;
-}, [])
+}, []);
+
+const hackCardinalReplaceRegex = Object.keys(hackCardinalReplace).reduce((acc, k) => {
+    acc.push([new RegExp(k, 'gi'), hackCardinalReplace[k]]);
+    return acc;
+}, []);
 
 export function compareAddresses(first, second){
     first = first || '';
     second = second || '';
-    hackReplaceRegex.map(k => {
+
+    hackSuffixReplaceRegex.map(k => {
+        first = first.replace(k[0], k[1]);
+        second = second.replace(k[0], k[1]);
+    });
+    if(first === second){
+        return true;
+    }
+
+    hackCardinalReplaceRegex.map(k => {
         first = first.replace(k[0], k[1]);
         second = second.replace(k[0], k[1]);
     });

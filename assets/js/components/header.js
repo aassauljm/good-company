@@ -36,7 +36,7 @@ export default class Header extends React.Component {
     users(){
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'users' )){
             return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to="/users">Users
+                <Link activeClassName="active" className="nav-link nav-users" to="/users">Users
                 </Link>
             </li>;
         }
@@ -44,7 +44,7 @@ export default class Header extends React.Component {
     documents(){
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'documents' )){
             return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to="/documents">Documents
+                <Link activeClassName="active" className="nav-link nav-documents" to="/documents">Documents
                 </Link>
             </li>;
         }
@@ -52,7 +52,7 @@ export default class Header extends React.Component {
     companies(){
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'companies' )){
             return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to="/companies">Companies
+                <Link activeClassName="active" className="nav-link nav-companies" to="/companies">Companies
                 </Link>
             </li>;
         }

@@ -996,7 +996,8 @@ const ScrapingService = {
 
     getCachedDocumentSummary: function(data, document){
         let text;
-        return fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8')
+        return Promise.resolve()
+            .then(() => fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8'))
             .then((text) => {
                 return {text: text, documentId: document.documentId}
             })
@@ -1004,9 +1005,11 @@ const ScrapingService = {
                 return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
                     .then((data) => {
                         text = data.text;
-                        return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, text, 'utf-8')
+                        if(sails.config.CACHE_DIR){
+                            return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, text, 'utf-8');
+                        }
                     })
-                    .then((data) => {
+                    .then(data => {
                         return {text: text, documentId: document.documentId}
                     })
             })
