@@ -17,7 +17,7 @@ import { CompanyDetails } from './components/companyDetails';
 import { InterestsRegister, InterestsRegisterCreate, InterestsRegisterView } from './components/interestsRegister';
 import { ShareRegister } from './components/shareRegister';
 import { NewTransaction } from './components/newTransaction';
-import { ShareClasses, ShareClassCreate } from './components/shareClasses';
+import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -58,6 +58,7 @@ export default (store) => {
                 <Route path="documents" component={ CompanyDocuments } />
                 <Route path="share_classes" component={ ShareClasses } >
                     <Route path="create" component={ ShareClassCreate } />
+                    <Route path="view/:shareClassId" component={ ShareClassView } />
                 </Route>
                 <Route path="interests_register" component={ InterestsRegister } >
                     <Route path="create" component={ InterestsRegisterCreate } />

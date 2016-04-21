@@ -13,7 +13,11 @@ module.exports = {
     },
     attributes: {
         name: {
-            type: Sequelize.TEXT
+            type: Sequelize.TEXT,
+            allowNull: false,
+            validate: {
+                len: [1]
+            }
         },
         properties: {
             type: Sequelize.JSON

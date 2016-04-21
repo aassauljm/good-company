@@ -6,18 +6,19 @@ import {
   findRenderedDOMComponentWithTag,
   findRenderedDOMComponentWithClass,
   scryRenderedDOMComponentsWithTag,
+  scryRenderedComponentsWithType,
   Simulate
 } from 'react-addons-test-utils';
 import { prepareApp, waitFor } from './helpers';
 import { LoginForm } from ".../../../../assets/js/components/login.js";
 import { Modals } from ".../../../../assets/js/components/modals.js";
+import { ShareClasses } from ".../../../../assets/js/components/shareClasses.js";
 import Modal from 'react-bootstrap/lib/Modal';
 import chai from 'chai';
 const should = chai.should();
 
 
 describe('Company Integration Tests', () => {
-
     before('render', prepareApp);
 
     it('Imports Company', function(done){
@@ -72,7 +73,7 @@ describe('Company Integration Tests', () => {
             .then(el => {
                 el.value = 'Class A';
                 Simulate.change(el);
-                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'submit-new'));
+                Simulate.submit(findRenderedDOMComponentWithTag(this.tree, 'form'));
                 return waitFor('Share class page to load again', '.create-new', this.dom)
             })
             .then(el => {
@@ -82,13 +83,18 @@ describe('Company Integration Tests', () => {
             .then(el => {
                 el.value = 'Class B';
                 Simulate.change(el);
-                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'submit-new'));
-                return waitFor('Share class page to load again', '.create-new', this.dom)
+                Simulate.submit(findRenderedDOMComponentWithTag(this.tree, 'form'));
+                return waitFor('Share class page to load again again', '.create-new', this.dom)
             })
             .then(el => {
+                const table = findRenderedComponentWithType(this.tree, ShareClasses);
+                const rows = scryRenderedDOMComponentsWithTag(table, 'tr');
+                rows.length.should.be.equal(3);
+                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'return-company-page'), {button: 0});
                 done();
             })
     });
+
     it('Applies share classes', function(done){
         let modal;
         const linkNode = findRenderedDOMComponentWithClass(this.tree, 'new-transaction');
@@ -97,6 +103,20 @@ describe('Company Integration Tests', () => {
             .then(el => {
                 Simulate.click(el);
                 modal = findRenderedComponentWithType(this.tree, Modal)._modal;
+                const selects = scryRenderedDOMComponentsWithTag(modal, 'select');
+
+                const shareClassMap = {};
+                _.map(selects[0].children, option => {
+                     shareClassMap[option.innerHTML] = option.value;
+                })
+                selects.map((s, i) => {
+                    s.value = shareClassMap[i % 2 ? 'Class A': 'Class B'];
+                    Simulate.change(s);
+                });
+                Simulate.click(findRenderedDOMComponentWithClass(modal, 'submit'));
+                return waitFor('Modal to close', () => !scryRenderedComponentsWithType(this.tree, Modal).length, null, 10000);
+            })
+            .then(() => {
                 done();
             });
     });

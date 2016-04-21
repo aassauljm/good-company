@@ -1,5 +1,5 @@
 import { fetch } from './utils';
-
+import FormData from 'form-data';
 import {
     LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
     SIGNUP_REQUEST, SIGNUP_SUCCESS, SIGNUP_FAILURE,
@@ -111,11 +111,14 @@ export function createResource(resource, data, options = {stringify: true}) {
     if(options && options.stringify === undefined){
         options = {...options, stringify: true}
     }
+
     return {
         types: [RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
             method: 'POST',
-            headers: options.stringify ? json_headers : accept_json_headers,
+            headers: options.stringify ? json_headers : {
+                ...accept_json_headers
+            },
             body: options.stringify ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),

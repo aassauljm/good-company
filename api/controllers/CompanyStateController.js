@@ -272,6 +272,7 @@ function createShareClass(data, company){
                                         ]}]})
         })
         .then(function(shareClass){
+            shareClass.validate();
             return shareClasses.addShareClass(shareClass)
         })
         .then(function(){
@@ -418,7 +419,7 @@ module.exports = {
                     })
                     .then(function(files){
                         let values = actionUtil.parseValues(req);
-                        values = JSON.parse(values.json);
+                        values = JSON.parse(values.json || '{}');
                         values.documents = files;
                         return createShareClass(values, company);
                     })

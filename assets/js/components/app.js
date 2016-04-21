@@ -15,6 +15,8 @@ function prevent(e){
     e.stopPropagation();
 }
 
+const transition = __SERVER__ ? 0 : 200;
+
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
     const promises = [];
@@ -31,7 +33,7 @@ export default class App extends React.Component {
                  <Notifications/>
                  <Modals />
                 <div className="app-container" >
-                  <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={200} transitionLeaveTimeout={200}>
+                  <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
                   <div key={name}>
                     { this.props.children }
                     </div>

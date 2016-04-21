@@ -14,6 +14,7 @@ import { createResource, addNotification } from '../actions';
 import DropZone from 'react-dropzone';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
 import { routeActions } from 'react-router-redux';
+import FormData from 'form-data';
 
 const defaultShareClass = '___default';
 
@@ -59,7 +60,7 @@ export class ShareClassForm extends React.Component {
         body.append('json', JSON.stringify({...data, documents: null}));
         (data.documents || []).map(d => {
             body.append('documents', d, d.name);
-        })
+        });
         const key = this.props.companyId;
         return this.props.dispatch(createResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
             .then(() => {
@@ -88,7 +89,6 @@ export class ShareClassForm extends React.Component {
             "approveMajorTransactions",
             "approveAmalgamation",
             "liquidation"];
-
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
             <legend>Create New Share Class</legend>
@@ -155,6 +155,16 @@ export class ShareClassCreate extends React.Component {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <ShareClassFormConnected {...this.props} />
+            </div>
+        </div>
+    }
+}
+
+export class ShareClassView extends React.Component {
+    render() {
+        return <div className="row">
+            <div className="col-md-6 col-md-offset-3">
+                VIEW/EDIT to be implemented.
             </div>
         </div>
     }

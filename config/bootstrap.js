@@ -10,6 +10,9 @@
  */
 
 require.extensions['.png'] = function() {return null}
+global.__DEV__ = process.env.NODE_ENV !== 'production'
+global.__SERVER__ = true;
+
 
 require("babel-core/register");
 require("babel-polyfill");
@@ -91,8 +94,6 @@ module.exports.bootstrap = function(cb) {
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
     patchBluebird(session);
-    global.__DEV__ = process.env.NODE_ENV !== 'production'
-    global.__SERVER__ = true;
     return Promise.all([loadDB(), prepTemp()])
         .then(function(){
             cb();

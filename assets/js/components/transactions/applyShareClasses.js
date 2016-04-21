@@ -82,10 +82,10 @@ export class ApplyShareClassesModal extends React.Component {
     submit(values) {
         const holdings = [];
         Object.keys(values).map(k => {
-            if(!values[k]) return;
+            //if(!values[k]) return;
             holdings.push({
                 holdingId: parseInt(k, 10),
-                shareClass: parseInt(values[k], 10),
+                shareClass: parseInt(values[k], 10) || undefined,
                 transactionType: 'APPLY_SHARE_CLASS'
             });
         });
@@ -128,7 +128,7 @@ export class ApplyShareClassesModal extends React.Component {
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.props.end} >Close</Button>
-                 <Button onClick={::this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
+                 <Button onClick={::this.handleNext} bsStyle="primary" className="submit">{ 'Submit' }</Button>
               </Modal.Footer>
             </Modal>
     }
