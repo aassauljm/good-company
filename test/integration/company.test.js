@@ -16,7 +16,7 @@ import chai from 'chai';
 const should = chai.should();
 
 
-describe('Import Company Integration ', () => {
+describe('Company Integration Tests', () => {
 
     before('render', prepareApp);
 
@@ -51,9 +51,9 @@ describe('Import Company Integration ', () => {
             .then(() => {
                 // Click 2nd item
                 Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[1]);
-
                 // Import
                 Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[0]);
+                // Can take some time
                 return waitFor('Company page to load', '.company', dom, 10000);
             })
             .then(() => {
@@ -61,4 +61,32 @@ describe('Import Company Integration ', () => {
             })
             .catch(done);
    });
+    it('Sets up shares', function(done){
+        const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-classes');
+        Simulate.click(linkNode, {button: 0});
+        return waitFor('Share class page to load', '.create-new', this.dom)
+            .then(el => {
+                Simulate.click(el, {button: 0});
+                return waitFor('New share class page to load', '.share-class-name', this.dom)
+            })
+            .then(el => {
+                el.value = 'Class A';
+                Simulate.change(el);
+                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'submit-new'));
+                return waitFor('Share class page to load again', '.create-new', this.dom)
+            })
+            .then(el => {
+                Simulate.click(el, {button: 0});
+                return waitFor('New share class page to load', '.share-class-name', this.dom)
+            })
+            .then(el => {
+                el.value = 'Class B';
+                Simulate.change(el);
+                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'submit-new'));
+                return waitFor('Share class page to load again', '.create-new', this.dom)
+            })
+            .then(el => {
+                done();
+            })
+    });
 });

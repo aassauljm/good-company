@@ -143,7 +143,7 @@ export class CompanyTransactions extends React.Component {
 @pureRender
 class ApplyShareClasses extends React.Component {
     render(){
-        return  <div ><Link to={this.props.path +'/share_classes'} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
+        return  <div><Link to={this.props.path +'/share_classes'} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
         You need to specify share classes.  Click here to start.</Link></div>
     }
 }
@@ -296,6 +296,7 @@ export class CompanyHistory extends React.Component {
     }
 }
 
+import { routeActions } from 'react-router-redux'
 
 @asyncConnect([{
     key: 'company',
@@ -377,9 +378,10 @@ export default class Company extends React.Component {
                         <Link to={this.props.location.pathname +'/new_transaction'}>
                              <NewTransactionPanel />
                                 </Link>
-                        <Link to={this.props.location.pathname +'/share_classes'}>
-                             <ShareClassesPanel />
+                        <Link to={this.props.location.pathname +'/share_classes'}  className="share-classes">
+                             <ShareClassesPanel/>
                                 </Link>
+
                         <Link to={this.props.location.pathname +'/transactions'}>
                              <TransactionsPanel
                                 transactions={current.transactions} />

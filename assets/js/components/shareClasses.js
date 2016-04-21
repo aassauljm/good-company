@@ -93,7 +93,7 @@ export class ShareClassForm extends React.Component {
             <fieldset>
             <legend>Create New Share Class</legend>
 
-            <Input type="text" {...fields.name} bsStyle={fieldStyle(fields.name)} help={fieldHelp(fields.name)} label="Share Class Name" hasFeedback />
+            <Input type="text" {...fields.name} bsStyle={fieldStyle(fields.name)} help={fieldHelp(fields.name)} label="Share Class Name" className="share-class-name" hasFeedback />
 
             { votingRights.map((v, i) => {
                 return <Input key={i} type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])}
@@ -125,7 +125,7 @@ export class ShareClassForm extends React.Component {
             </fieldset>
             <div className="button-row">
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
-                <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid}>Create</ButtonInput>
+                <ButtonInput type="submit" bsStyle="primary" className="submit-new" disabled={submitting || invalid}>Create</ButtonInput>
             </div>
         </form>
     }
@@ -209,7 +209,7 @@ export class ShareClasses extends React.Component {
                 </tbody>
             </table>
             <div className="button-row">
-            <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary">Create New Share Class</Link></div>
+            <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary create-new">Create New Share Class</Link></div>
             </div>
         </div>
     }
@@ -239,7 +239,6 @@ export class ShareClassesPanel extends React.Component {
     static propTypes = {
     };
     render(){
-
         return <div className="panel panel-warning" >
             <div className="panel-heading">
             <h3 className="panel-title">Share Classes</h3>
