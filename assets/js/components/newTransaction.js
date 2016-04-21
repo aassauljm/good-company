@@ -30,7 +30,7 @@ export class NewTransaction extends React.Component {
                     </div> */ }
                     <div className="container">
                         <ul>
-                            <li className="actionable" onClick={() => this.show('applyShareClasses')}>
+                            <li className="actionable apply-share-classes" onClick={() => this.show('applyShareClasses')}>
                                 <span className="glyphicon glyphicon-list-alt"></span>
                                 <span className="transaction-button-text">Apply Share Classes</span>
                             </li>

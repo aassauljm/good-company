@@ -89,4 +89,16 @@ describe('Company Integration Tests', () => {
                 done();
             })
     });
+    it('Applies share classes', function(done){
+        let modal;
+        const linkNode = findRenderedDOMComponentWithClass(this.tree, 'new-transaction');
+        Simulate.click(linkNode, {button: 0});
+        return waitFor('Transaction page to load', '.apply-share-classes', this.dom)
+            .then(el => {
+                Simulate.click(el);
+                modal = findRenderedComponentWithType(this.tree, Modal)._modal;
+                done();
+            });
+    });
+
 });

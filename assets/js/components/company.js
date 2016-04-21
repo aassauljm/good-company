@@ -375,7 +375,7 @@ export default class Company extends React.Component {
                                 </Link>
                         </div>
                           <div className="col-md-6">
-                        <Link to={this.props.location.pathname +'/new_transaction'}>
+                        <Link to={this.props.location.pathname +'/new_transaction'}  className="new-transaction">
                              <NewTransactionPanel />
                                 </Link>
                         <Link to={this.props.location.pathname +'/share_classes'}  className="share-classes">
