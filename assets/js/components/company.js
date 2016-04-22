@@ -361,7 +361,7 @@ export default class Company extends React.Component {
                              <DetailsPanel
                                 companyState={current} />
                                 </Link>
-                        <Link to={this.props.location.pathname +'/shareregister'}>
+                        <Link to={this.props.location.pathname +'/shareregister'} className="share-register">
                              <ShareRegisterPanel />
                                  </Link>
                         <Link to={this.props.location.pathname +'/shareholdings'}>

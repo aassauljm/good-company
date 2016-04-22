@@ -117,6 +117,21 @@ describe('Company Integration Tests', () => {
                 return waitFor('Modal to close', () => !scryRenderedComponentsWithType(this.tree, Modal).length, null, 10000);
             })
             .then(() => {
+                return waitFor('Company data to reload', '.return-company-page', this.dom);
+            })
+            .then((el) => {
+                Simulate.click(el, {button: 0});
+                done();
+            });
+    });
+
+    it('It goes to share register', function(done){
+        let modal;
+        const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-register');
+        Simulate.click(linkNode, {button: 0});
+        return waitFor('Share register', () => this.dom.querySelectorAll('table.share-register tbody tr').length)
+            .then(length => {
+                length.should.be.equal(40)
                 done();
             });
     });
