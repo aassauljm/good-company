@@ -152,10 +152,10 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             const difference = data.afterAmount - data.beforeAmount;
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
             const newHolding = {holders: data.afterHolders, parcels: [parcel]};
+
             if(!data.shareClass){
                 data.shareClass = parcel.shareClass = _.find(holding.dataValues.parcels, p => data.afterAmount === p.amount).shareClass;
             }
-
 
             if(difference < 0){
                 const match = companyState.subtractUnallocatedParcels(parcel);

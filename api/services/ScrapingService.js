@@ -723,12 +723,13 @@ function insertIntermediateActions(docs){
 
     return results;
 }
-
+/* This function is designed to infer whether AMEND, NEW_ALLOCATION and REMOVE_ALLOCATIONS
+   are actually TRANSFERS or ISSUE/PURCHASES ETC
+   */
 function inferAmendTypes(docs){
     sails.log.verbose('Inferring amend types')
     const results = [];
     const types = [Transaction.types.AMEND, Transaction.types.NEW_ALLOCATION, Transaction.types.REMOVE_ALLOCATION];
-
     return _.reduce(docs, (acc, d, i) => {
         const needsInference = _.any(d.actions, a => types.indexOf(a.transactionType) >= 0);
         if(needsInference){
@@ -747,7 +748,7 @@ function inferAmendTypes(docs){
             }
             // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
             if(d.totalShares === 0){
-                // totalShares being zero SHOULD mean transfers.  Hopefully.
+                // totalShares = zero SHOULD mean transfers.  Hopefully.
                 d.actions.map(a => {
                     a.transactionMethod = a.transactionType;
                     if(a.transactionType === Transaction.types.NEW_ALLOCATION){
@@ -1087,7 +1088,7 @@ const ScrapingService = {
                            'effectiveDate',
                            (d) => parseInt(d.documentId, 10)).reverse();
 
-        docs = inferAmendTypes(docs);
+        //docs = inferAmendTypes(docs);
         docs = insertIntermediateActions(docs);
         return docs;
     },

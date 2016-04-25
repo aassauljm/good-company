@@ -310,4 +310,22 @@ describe('Scraping Service', function() {
 
     });
 
+    describe('Should infer action types from large doc', function() {
+        it('', function(done){
+            Promise.join(
+                         fs.readFileAsync('test/fixtures/companies_office/documents/15081231.html', 'utf8'),
+                         fs.readFileAsync('test/fixtures/companies_office/documents/15081232.html', 'utf8'))
+                .spread(function(first, second){
+                    const docs = [ScrapingService.processDocument(first), ScrapingService.processDocument(second)];
+                    const results = ScrapingService.segmentActions(docs);
+                    console.log(JSON.stringify(results, null, 4))
+                    done();
+                })
+            });
+
+    });
+
+
+
+
 });

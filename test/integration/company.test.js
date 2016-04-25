@@ -95,7 +95,7 @@ describe('Company Integration Tests', () => {
             })
     });
 
-    it('Applies share classes', function(done){
+    /*it('Applies share classes', function(done){
         let modal;
         const linkNode = findRenderedDOMComponentWithClass(this.tree, 'new-transaction');
         Simulate.click(linkNode, {button: 0});
@@ -134,6 +134,6 @@ describe('Company Integration Tests', () => {
                 length.should.be.equal(40)
                 done();
             });
-    });
+    });*/
 
 });
