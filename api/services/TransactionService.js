@@ -457,6 +457,7 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
     return AddressService.normalizeAddress(data.newAddress)
     .then((newAddress) => {
         if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
+            sails.log.error(newAddress, companyState[data.field])
             throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected, documentId: ' +data.documentId)
         }
         if(['registeredCompanyAddress',

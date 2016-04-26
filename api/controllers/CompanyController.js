@@ -7,8 +7,6 @@
 var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
-var uuid = require('node-uuid')
-
 
 function checkNameCollision(ownerId, data) {
     return Company.findAll({
@@ -177,9 +175,6 @@ module.exports = {
                         .then(function(_processedDocs) {
                             processedDocs = _processedDocs.concat(ScrapingService.extraActions(data, _processedDocs));
                             processedDocs = ScrapingService.segmentActions(processedDocs);
-                            processedDocs.map(p => {
-                                p.id = uuid.v4();
-                            })
                             sails.log.verbose('Processed ' + processedDocs.length + ' documents');
                             // create a state before SEED
                             return company.createPrevious();

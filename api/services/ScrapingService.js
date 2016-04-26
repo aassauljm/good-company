@@ -7,7 +7,7 @@ const Promise = require("bluebird");
 const fetch = require("isomorphic-fetch");
 const fs = Promise.promisifyAll(require("fs"));
 const moment = require('moment');
-
+const uuid = require('node-uuid')
 
 const DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
@@ -346,7 +346,8 @@ const EXTRACT_DOCUMENT_MAP = {
                 effectiveDate: moment(cleanString($(el).find('.row').eq(1).text()), 'DD MMM YYYY').toDate(),
                 field: HEADING_MAP[cleanString($(el).find('.head').text())]
             }
-        }).get().filter(action => !!action)};
+        }).get().filter(action => !!action).reverse()};
+        // reverse because of cases like http://www.business.govt.nz/companies/app/ui/pages/companies/135116/20683278/entityFilingRequirement
     },
 
     [DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR]: ($) => {
@@ -627,6 +628,7 @@ function inferDirectorshipActions(data, docs){
 
     }
     const results = [];
+
     data.directors.forEach(d => {
         const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
 
@@ -644,6 +646,8 @@ function inferDirectorshipActions(data, docs){
         }
     });
     data.formerDirectors.forEach(d => {
+        // without a cease date, this makes no sense
+        // https://www.business.govt.nz/companies/app/ui/pages/companies/135116/directors
         const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY').toDate(),
             ceasedDate = moment(d.ceasedDate, 'DD MMM YYYY').toDate();
         let action = {
@@ -1090,6 +1094,10 @@ const ScrapingService = {
 
         docs = inferAmendTypes(docs);
         docs = insertIntermediateActions(docs);
+        docs.map(p => {
+            p.id = uuid.v4();
+        })
+
         return docs;
     },
 
@@ -1192,8 +1200,12 @@ const ScrapingService = {
             if(link && link.length){
                 obj.consentUrl = link.attr('href');
             }
-            if(obj.ceasedDate){
-                formerDirectors.push(obj);
+            const isHistoric = $
+            if($el.parents('.historic').length){
+                if(obj.ceasedDate){
+                    formerDirectors.push(obj);
+                }
+                // else, ignore, as is a former director who never quit, impossible
             }
             else{
                 directors.push(obj);
