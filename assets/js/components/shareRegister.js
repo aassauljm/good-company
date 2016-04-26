@@ -7,6 +7,7 @@ import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
 import { renderRights, renderLimitations } from './shareClasses';
 import Input from './forms/input';
+import { asyncConnect } from 'redux-async-connect';
 
 function renderShareClass(shareClass, shareClassMap = {}){
     return shareClassMap[shareClass] ? shareClassMap[shareClass].name : STRINGS.defaultShareClass
@@ -124,6 +125,9 @@ function transactionRows(row){
     keys.map(k => {
         results = results.concat(row[k] || []);
     })
+    if(!results.length){
+        return <tr><td colSpan="3"><em>No transaction history</em></td></tr>
+    }
     results.sort((a, b) => new Date(a.effectiveDate) < new Date(b.effectiveDate));
     let total = row.amount;
     return results.map((r, i) =>{
@@ -139,7 +143,7 @@ function transactionRows(row){
             <td className="description">{ renderActionFull(r) } </td>
             <td className="total">{ numberWithCommas(_total) }</td>
             </tr>
-    })
+    });
 }
 
 
@@ -229,7 +233,7 @@ export class ShareRegisterDocument extends React.Component {
 
     renderShareClasses(shareClasses) {
         return <div>
-            <h3>Shareholdings</h3>
+            <h3>Shareholders by Share Class</h3>
                 { shareClasses.map((k, i) => {
                     return <div key={i}>{ this.renderShareClass(k) }</div>
                 }) }
@@ -256,7 +260,7 @@ export class ShareRegisterDocument extends React.Component {
     }
 
     render() {
-        const {shareRegister, shareClassMap} = this.props;
+        const {shareRegister, shareClassMap, companyState} = this.props;
         const shareClasses = Object.keys(shareClassMap);
         let includeDefault = false;
         shareRegister.map(s => {
@@ -267,7 +271,21 @@ export class ShareRegisterDocument extends React.Component {
         if(includeDefault){
             shareClasses.push(null)
         }
-        return <div className="container share-register-document">
+        return <div className="share-register-document">
+        <div className="title"><h2>Share Register</h2></div>
+            <table className="heading">
+                <tbody><tr>
+                <td>
+                <h2>{ companyState.companyName }</h2>
+                </td>
+                <td>
+                <h4>NZBN: { companyState.nzbn }</h4>
+                <h4>Company Number #{ companyState.companyNumber }</h4>
+                </td>
+                </tr>
+                </tbody>
+            </table>
+            <div>Generated on { new Date().toDateString() }</div>
             { this.renderShareClasses(shareClasses) }
             { this.renderHistory(shareClasses) }
 
@@ -275,7 +293,49 @@ export class ShareRegisterDocument extends React.Component {
     }
 }
 
+function generateShareClassMap(companyState){
 
+    if(companyState.shareClasses && companyState.shareClasses.shareClasses){
+        return shareClassMap = companyState.shareClasses.shareClasses.reduce((acc, s) => {
+            acc[s.id] = s;
+            return acc;
+        }, {});
+    }
+    return {};
+}
+
+
+@asyncConnect([{
+    key: 'shareRegister',
+    promise: ({store: {dispatch, getState}, params}) => {
+        return dispatch(requestResource('/company/'+params.id+'/share_register'));
+    }
+}])
+@connect((state, ownProps) => {
+    return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/share_register']}
+})
+export class ShareRegisterDocumentLoader extends React.Component {
+    static propTypes = {
+        data: PropTypes.object.isRequired,
+        companyState: PropTypes.object.isRequired
+    };
+    render() {
+        const shareRegister = (this.props.data || {}).shareRegister;
+        if(!shareRegister){
+            return false;
+        }
+        const shareClassMap = generateShareClassMap(this.props.companyState)
+        return <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
+    }
+}
+
+
+@asyncConnect([{
+    key: 'shareRegister',
+    promise: ({store: {dispatch, getState}, params}) => {
+        return dispatch(requestResource('/company/'+params.id+'/share_register'));
+    }
+}])
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/share_register'], menu: state.menus.shareRegister}
 })
@@ -285,43 +345,13 @@ export class ShareRegister extends React.Component {
         companyState: PropTypes.object.isRequired
     };
 
-    static defaultShareMap = {};
-
-    key() {
-        return this.props.params.id
-    };
-
-    fetch() {
-        return this.props.dispatch(requestResource('/company/'+this.key()+'/share_register'))
-    };
-
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
-
-
-    renderDocument(shareRegister, shareClassMap) {
-        return <div className="container">
-
-        </div>
-    }
-
     render() {
         const shareRegister = (this.props.data || {}).shareRegister;
-        let shareClassMap = ShareRegister.defaultShareMap;
+        const shareClassMap = generateShareClassMap(this.props.companyState)
         if(!shareRegister){
             return <div className="loading"></div>
         }
-        if(this.props.companyState.shareClasses && this.props.companyState.shareClasses.shareClasses){
-            shareClassMap = this.props.companyState.shareClasses.shareClasses.reduce((acc, s) => {
-                acc[s.id] = s;
-                return acc;
-            }, {});
-        }
+
         return <div>
                     <div className="container">
                         <div className="well">
@@ -337,7 +367,9 @@ export class ShareRegister extends React.Component {
                             </Input>
                         </div>
                     </div>
-                    { this.props.menu.view === 'document' && <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/> }
+                    { this.props.menu.view === 'document' && <div className="container">
+                        <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
+                        </div> }
                     { this.props.menu.view === 'table' && <ShareRegisterTable shareRegister={shareRegister} shareClassMap={shareClassMap} /> }
                 </div>
     }

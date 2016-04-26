@@ -96,10 +96,10 @@ class Directors extends React.Component {
         return <div className="row">
         <div className="text-center"><h3>Directors</h3></div>
         <div className="col-md-6">
-            { directors.slice(0, directors.length/2+1)}
+            { directors.slice(0, directors.length/2)}
         </div>
         <div className="col-md-6">
-            { directors.slice(directors.length/2+1) }
+            { directors.slice(directors.length/2) }
         </div>
         </div>
     }

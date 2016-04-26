@@ -35,7 +35,7 @@ export class TransactionsPanel extends React.Component {
     render() {
         const data = this.props.transactions;
         const groups = data.reduce((acc, value) => {
-            const parts = value.effectiveDate.split('-');
+            const parts = (value.effectiveDate || '').split('-');
             const key = `${parts[0]}-${parts[1]}`;
             acc[key] = (acc[key] || 0) + (value.actionCount || 1);
             return acc;
@@ -296,7 +296,27 @@ export class CompanyHistory extends React.Component {
     }
 }
 
-import { routeActions } from 'react-router-redux'
+@asyncConnect([{
+    key: 'company',
+    promise: ({store: {dispatch, getState}, params}) => {
+        return dispatch(requestResource('/company/' + params.id + '/get_info'));
+    }
+}])
+@connect((state, ownProps) => {
+    return {data: {}, companyPage: state.companyPage, ...state.resources['/company/'+ownProps.params.id +'/get_info']};
+})
+export class CompanyLoader extends React.Component {
+    render() {
+        if(!this.props.data.currentCompanyState){
+            return false;
+        }
+        return React.cloneElement(this.props.children, {
+                companyState: this.props.data.currentCompanyState,
+                companyId: this.props.params.id
+            })
+    }
+}
+
 
 @asyncConnect([{
     key: 'company',

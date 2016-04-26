@@ -287,6 +287,19 @@ a, a:hover{
             width:20%;
         }
     }
+    * {
+        color:#000;
+    }
+    .heading {
+        width:100%;
+        td:last-child{
+            text-align: right;
+        }
+    }
+    .title {
+        text-align: center;
+    }
+
 }
 
 .button-row {

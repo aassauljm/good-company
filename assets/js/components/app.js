@@ -27,6 +27,9 @@ const transition = __SERVER__ ? 0 : 200;
 @connect(state => { return {login: state.login, userInfo: state.userInfo} })
 export default class App extends React.Component {
     render() {
+        if(this.props.routes.some(r => r.childrenOnly)){
+            return this.props.children;
+        }
         const name = this.props.location.pathname;
         return <div onDrop={prevent} onDragOver={prevent}>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>

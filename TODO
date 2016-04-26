@@ -1,0 +1,100 @@
+#TODO
+
+scrape all, record errors
+
+
+make transaction forms - 1 types to go
+documents associated to actions, forward and back
+
+
+pretty forms
+better error positioning
+make graphs
+notifications
+backups -> figure out
+user analytics
+
+
+#BUGS
+http://www.business.govt.nz/companies/app/ui/pages/companies/2484830/2944705/entityFilingRequirement
+
+
+
+
+CCH
+* very slow, up to 10 seconds to load
+* only 3 transactions, issue, transfer, historic
+* not clear how to actually start using (you must link, or become their lawyer, or something)
+* menus only load some of the time
+* scroll slow, can't use mousewheel
+* add shareholding layout broken
+* import super slow, most transactions get excluded
+CCH Companies
+
+First Impressions
+
+* Took three browsers to get silverlight to work
+* Not clear that I must 'link Lawyer' to edit
+* Incredibly slow, can't scroll easily, big delays between each load, spinner not noticable
+* Side bar options missing half the time
+
+Create classes, then import
+Creates a 'historical' transaction (snapshot) at 10 years ago
+
+
+
+
+
+87 Company to maintain share register
+(1)
+A company must maintain a share register that records the shares issued by the company and states—
+(a)
+whether, under the constitution of the company or the terms of issue of the shares, there are any restrictions or limitations on their transfer; and
+(b)
+where any document that contains the restrictions or limitations may be inspected.
+(2)
+The share register must state, with respect to each class of shares,—
+(a)
+the names, alphabetically arranged, and the latest known address of each person who is, or has within the last 10 years been, a shareholder; and
+(b)
+the number of shares of that class held by each shareholder within the last 10 years; and
+(c)
+the date of any—
+(i) issue of shares to; or
+(ii) repurchase or redemption of shares from; or
+(iii)
+transfer of shares by or to—
+each shareholder within the last 10 years, and in relation to the transfer, the name of the person to or from whom the shares were transferred.
+(3)
+An agent may maintain the share register of the company.
+
+
+Section 87(a)
+
+
+
+
+SUBDIVSION
+http://www.business.govt.nz/companies/app/ui/pages/companies/547018/18720733/entityFilingRequirement
+
+AQUISITION
+http://www.business.govt.nz/companies/app/ui/pages/companies/5389961/19914580/entityFilingRequirement
+
+
+FAILS
+100% PURE NEW ZEALAND DAIRY LIMITED - 1134251 - NZBN: 9429036923670
+ # director appointed but not included in annual return
+ -- http://www.business.govt.nz/companies/app/ui/pages/companies/1134251/14604771/entityFilingRequirement
+ -- http://www.business.govt.nz/companies/app/ui/pages/companies/1134251/14517995/entityFilingRequirement
+
+SLAM G PROPERTIES LIMITED
+# address, all records
+--https://www.business.govt.nz/companies/app/ui/pages/companies/1721964/detail
+ -- http://www.business.govt.nz/companies/app/ui/pages/companies/1721964/15240289/entityFilingRequirement?backurl=%2Fcompanies%2Fapp%2Fui%2Fpages%2Fcompanies%2F1721964%2Fdetail
+
+
+
+
+CCH
+- pricemaker is fucked
+-

@@ -10,12 +10,12 @@ import Roles from './components/roles';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
-import Company, { CompanyTransactions } from './components/company';
+import Company, { CompanyTransactions, CompanyLoader } from './components/company';
 import { Shareholders } from './components/shareholders';
 import { Shareholdings } from './components/shareholdings';
 import { CompanyDetails } from './components/companyDetails';
 import { InterestsRegister, InterestsRegisterCreate, InterestsRegisterView } from './components/interestsRegister';
-import { ShareRegister } from './components/shareRegister';
+import { ShareRegister, ShareRegisterDocumentLoader } from './components/shareRegister';
 import { NewTransaction } from './components/newTransaction';
 import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
 import Account from './components/account';
@@ -69,6 +69,9 @@ export default (store) => {
             <Route path="user/edit/:id" edit={true} component={ Account }  />
             <Route path="user/set_password" edit={true} component={ SetPassword }  />
             <Route path="user/create" component={ Account }  />
+        </Route>
+        <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true}>
+            <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
         </Route>
         <Route path="*" component={ NotFound } />
     </Route>;
