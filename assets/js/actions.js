@@ -21,7 +21,7 @@ import {
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL,
     NEXT_MODAL, PREVIOUS_MODAL,
-    REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
+    UPDATE_MENU
      } from './actionTypes';
 
 const json_headers = {
@@ -281,14 +281,8 @@ export function previousModal(modal){
     }
 }
 
-export function addListEntry(form, ...path){
+export function updateMenu(menu, data){
     return {
-        type: ADD_LIST_ENTRY, form, path
-    }
-}
-
-export function removeListEntry(form, ...path){
-    return {
-        type: REMOVE_LIST_ENTRY, form, path
+        type: UPDATE_MENU, menu, data
     }
 }

@@ -798,10 +798,14 @@ module.exports = {
 
             stats: function(){
                 var stats = {};
-                return Promise.join(this.totalAllocatedShares(), this.totalUnallocatedShares(), this.getTransactionSummary(),
-                        function(total, totalUnallocated, transactionSummary){
+                return Promise.join(this.totalAllocatedShares(),
+                                    this.totalUnallocatedShares(),
+                                    this.groupTotals(),
+                                    this.getTransactionSummary(),
+                        function(total, totalUnallocated, countByClass, transactionSummary){
                         stats.totalUnallocatedShares = totalUnallocated;
                         stats.totalAllocatedShares = total;
+                        stats.shareCountByClass = countByClass;
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
                         stats.transactions = transactionSummary[0].transaction_summary;
                         return stats

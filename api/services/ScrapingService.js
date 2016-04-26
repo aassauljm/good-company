@@ -1088,7 +1088,7 @@ const ScrapingService = {
                            'effectiveDate',
                            (d) => parseInt(d.documentId, 10)).reverse();
 
-        //docs = inferAmendTypes(docs);
+        docs = inferAmendTypes(docs);
         docs = insertIntermediateActions(docs);
         return docs;
     },

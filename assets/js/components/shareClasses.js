@@ -171,13 +171,19 @@ export class ShareClassView extends React.Component {
 }
 
 export function renderRights(data = {}){
-    return <ul>{ Object.keys(data || {}).filter(d => data[d]).map((d, i) => {
-        return <li key={i}>{STRINGS.shareClasses.votingRights[d]}</li>
-    }) }</ul>
+    if(Object.keys(data || {}).filter(d => data[d]).length){
+        return <ul>{ Object.keys(data || {}).filter(d => data[d]).map((d, i) => {
+            return <li key={i}>{STRINGS.shareClasses.votingRights[d]}</li>
+        }) }</ul>
+    }
+    return <ul><li>No Rights</li></ul>;
 }
 
 export function renderLimitations(data = []){
-    return <ul>{ data.map((d, i) => <li key={i}>{d}</li>)}</ul>;
+    if(data.length){
+        return <ul>{ data.map((d, i) => <li key={i}>{d}</li>)}</ul>;
+    }
+    return <ul><li>No Limitations</li></ul>;
 }
 
 function renderField(key, data, row) {

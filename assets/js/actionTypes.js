@@ -72,5 +72,6 @@ export const END_MODAL = 'END_MODAL';
 export const NEXT_MODAL = 'NEXT_MODAL';
 export const PREVIOUS_MODAL = 'PREVIOUS_MODAL';
 
-export const REMOVE_LIST_ENTRY= 'REMOVE_LIST_ENTRY';
-export const ADD_LIST_ENTRY= 'ADD_LIST_ENTRY';
+
+
+export const UPDATE_MENU = 'UPDATE_MENU';

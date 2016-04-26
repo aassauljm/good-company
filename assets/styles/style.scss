@@ -281,6 +281,14 @@ a, a:hover{
     }
 }
 
+.share-register-document{
+    table.transaction-history{
+        td.date, td.total{
+            width:20%;
+        }
+    }
+}
+
 .button-row {
     text-align: center;
     & > div{

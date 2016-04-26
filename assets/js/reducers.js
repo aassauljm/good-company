@@ -17,7 +17,7 @@ import {
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL,
     NEXT_MODAL, PREVIOUS_MODAL,
-    REMOVE_LIST_ENTRY, ADD_LIST_ENTRY
+    UPDATE_MENU
      } from './actionTypes';
 
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
@@ -151,6 +151,16 @@ function modals(state = {createCompany: {index: 0}}, action){
     }
 }
 
+
+function menus(state = {shareRegister: {view: 'document'}}, action){
+    switch(action.type){
+        case UPDATE_MENU:
+            return {...state, [action.menu]: action.data};
+        default:
+            return state;
+    }
+}
+
 function transactions(state = {}, action){
     switch(action.type){
         case TRANSACTION_REQUEST:
@@ -233,104 +243,6 @@ function processResource(state, action){
       }
 }
 
-
-function addChildren(type, data = {}){
-    const genList = (key, defaultSub = []) => {
-        const count = len(data[key]);
-        const keyList = Array(count).fill().map((x, i) => i.toString());
-
-        return {
-            list: keyList,
-            counter: keyList.length-1,
-            ...((data[key] || defaultSub).reduce((acc, value, index) => {
-                acc[index.toString()] = addChildren(key) //, data[key])
-                return acc;
-            }, {}))
-        }
-    }
-    const len = (array, defaultLength = 1) =>{
-        return array ? array.length || defaultLength : defaultLength;
-    }
-    switch(type){
-        case 'holdings':
-            return {
-                holders: genList('holders'),
-                parcels: genList('parcels')
-            };
-        case 'companyFull':
-            return {
-                directors: genList('directors'),
-                shareClasses: genList('shareClasses'),
-                holdings: genList('holdings', [null])
-            };
-        default:
-            return {};
-    }
-}
-
-function traverse(state, path, cb){
-    const key = path.shift();
-    if(path.length){
-        return {...state, [key]: traverse(state[key], path, cb)};
-    }
-    return {...state, [key]: cb(state[key], key)};
-}
-
-
-function addListEntry(state, path){
-    const _path = [...path];
-    state = traverse(state, _path, (obj, key) => {
-        const counter = obj.counter + 1;
-        // counter is just for unique formKey strings
-        const label = counter.toString();
-        return {
-                ...obj,
-                counter,
-                list: [...obj.list, label],
-                [label] : addChildren(key)
-            }
-    });
-    return state;
-}
-
-
-function removeListEntry(state, path){
-    path = [...path];
-    const key = path.pop();
-    return traverse(state, path, (obj) => {
-        const list = [...obj.list];
-        list.splice(list.indexOf(key), 1);
-        obj = {...obj};
-        delete obj[key];
-        return {
-                ...obj,
-                list
-            };
-    });
-
-}
-
-function reduceListChange(state, action){
-    switch(action.type) {
-        case ADD_LIST_ENTRY:
-            return addListEntry(state, action.path);
-        case REMOVE_LIST_ENTRY:
-            return removeListEntry(state, action.path);
-        default:
-            return state;
-    }
-}
-
-function handleKeyedFormRemoval(state, action){
-    if(action.type === REMOVE_LIST_ENTRY){
-        if(state[action.path.join('.')]){
-            return {...state, [action.path.join('.')]: undefined}
-        }
-    }
-    return state;
-}
-
-
 const normalizeNumber = (value) => {
     return value ? value.replace(/[^\d]/g, '') : value
 }
@@ -394,103 +306,12 @@ export const formBase = formReducer.normalize({
             default:
                 return state;
             }
-    },
-    lookupCompany: (state, action) => {
-        return state;
-    },
-    companyFull: (state, action) => {
-        state = handleKeyedFormRemoval(state, action);
-
-        if(action.form !== 'companyFull'){
-            return state;
-        }
-        return reduceListChange(state, action)
-    },
-    holding: (state, action) => {
-        state = handleKeyedFormRemoval(state, action);
-        if(action.form !== 'holding'){
-            return state;
-        }
-        return reduceListChange(state, action)
-    },
-    person: (state, action) => {
-        state = handleKeyedFormRemoval(state, action);
-        return state;
-    },
-    parcel: (state, action) => {
-        state = handleKeyedFormRemoval(state, action);
-        return state;
-    },
-    shareClass: (state, action) => {
-        state = handleKeyedFormRemoval(state, action);
-        return state;
-    },
+    }
 })
 
 
 
-function populateCompanyFull(state, formKey, data){
-    // TODO, refactor
-    const toValues = (data) => {
-        return Object.keys(data).reduce((acc, key) => {
-            // if is not an object or array
-            if(data[key] !== Object(data[key])){
-                acc[key] = {initialValue: data[key], value: data[key]}
-            }
-            return acc;
-        }, {})
-    }
-    state = {...state, companyFull: {...state.companyFull, [formKey]: {...state.companyFull[formKey], ...toValues(data)} }};
-    ['directors', 'shareClasses'].map(name => {
-        (data[name] || []).map((item, i) => {
-            const key = `${formKey}.${name}.${i}`;
-            state = {...state, [relationNameToModel(name)]: {...state[relationNameToModel(name)], [key]: toValues(item)}}
-        })
-    });
-    (data.holdings || []).map((holding, i) => {
-        ['parcels', 'holders'].map(name => {
-            (holding[name] || []).map((item, j) => {
-                const key = `${formKey}.holdings.${i}.${name}.${j}`;
-                state = {...state, [relationNameToModel(name)]: {...state[relationNameToModel(name)], [key]: toValues(item)}}
-            });
-        });
-    });
-    return state;
-}
-
-function depopulateCompanyFull(state, formKey){
-    // will do dumb way for now
-    return Object.keys(state).reduce((acc, form) => {
-        acc[form] = Object.keys(state[form]).reduce((acc, key) => {
-            if(key !== formKey && key.indexOf(`${formKey}.`) !== 0){
-                acc[key] = state[form][key];
-            }
-            return acc;
-        }, {})
-        return acc;
-    }, {});
-}
-
-
-export function formWithCleanup(state = {}, action){
-    // todo, destroy all linked forms
-    if(action.type === END_CREATE_COMPANY){
-        state = depopulateCompanyFull(state, action.formKey);
-    }
-    return formBase(state, action);
-}
-
-export function formPopulation(state = {}, action){
-    if(action.type === START_CREATE_COMPANY){
-        state = {...state, companyFull: {...state.companyFull, [action.formKey]: addChildren('companyFull', action.data)}}
-        if(action.data){
-            state = populateCompanyFull(state, action.formKey, action.data);
-        }
-    }
-    return formWithCleanup(state, action);
-}
-
-export const form = formPopulation;
+export const form = formReducer;
 
 const appReducer = combineReducers({
     routing: routeReducer,
@@ -504,6 +325,7 @@ const appReducer = combineReducers({
     form: form,
     notifications,
     modals,
+    menus,
     reduxAsyncConnect
 });
 
