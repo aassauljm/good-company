@@ -42,7 +42,7 @@ export const DecoratedLoginForm = reduxForm({
 class Login extends React.Component {
     static propTypes = { login: React.PropTypes.object };
     submit(data) {
-        return this.props.dispatch(requestLogin(data));
+        return this.props.dispatch(requestLogin(data))
     }
     componentDidMount() {
         this.nav()

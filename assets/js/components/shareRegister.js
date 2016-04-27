@@ -298,7 +298,7 @@ export class ShareRegisterDocument extends React.Component {
 function generateShareClassMap(companyState){
 
     if(companyState.shareClasses && companyState.shareClasses.shareClasses){
-        return shareClassMap = companyState.shareClasses.shareClasses.reduce((acc, s) => {
+        return companyState.shareClasses.shareClasses.reduce((acc, s) => {
             acc[s.id] = s;
             return acc;
         }, {});
