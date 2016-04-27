@@ -28,7 +28,6 @@ export function serverRender(url, cookie, state={}){
                 reject({code: 500, message: error.message});
             }
             else if (redirectLocation) {
-                res.redirect(301, redirectLocation.pathname + redirectLocation.search)
                 reject({redirectLocation: redirectLocation})
             }
             else {
