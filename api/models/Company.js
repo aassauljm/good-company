@@ -26,6 +26,7 @@ module.exports = {
         Company.belongsTo(CompanyState, {
             as: 'seedCompanyState',
             foreignKey: {
+                onDelete: 'cascade',
                 as: 'seedCompanyState',
                 name: 'seedCompanyStateId'
             }
@@ -33,6 +34,7 @@ module.exports = {
         Company.belongsTo(CompanyState, {
             as: 'currentCompanyState',
             foreignKey: {
+                onDelete: 'cascade',
                 as: 'currentCompanyState',
                 name: 'currentCompanyStateId'
             }

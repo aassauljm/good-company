@@ -204,10 +204,16 @@ module.exports = {
             return res.json(company);
         })
         .catch(sails.config.exceptions.CompanyImportException, function(err) {
-            return res.badRequest(err);
+            (company ? company.destroy() : Promise.resolve())
+            .then(() => {
+                return res.badRequest(err);
+            });
         })
         .catch(function(err) {
-            return res.serverError(err);
+             (company ? company.destroy() : Promise.resolve())
+            .then(() => {
+                return res.serverError(err);
+            });
         });
     },
     create: function(req, res) {

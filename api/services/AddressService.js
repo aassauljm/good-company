@@ -40,6 +40,8 @@ const hackCardinalReplaceRegex = Object.keys(hackCardinalReplace).reduce((acc, k
 }, []);
 
 export function compareAddresses(first, second){
+    // who wrote this shit? lol
+
     first = first || '';
     second = second || '';
 
@@ -64,12 +66,21 @@ export function compareAddresses(first, second){
     if(first === second){
         return true;
     }
-    first =  first.replace(/,/g, '');
-    second = second.replace(/,/g, '');
+
+    first =  first.replace(/,/g, ' ').replace(/ +/g, ' ');
+    second = second.replace(/,/g, ' ').replace(/ +/g, ' ');
 
     if(first === second){
         return true;
     }
+
+    // split and see if first or second just has extra token
+
+    if(_.xor(first.split(' '), second.split(' ')).length === 1){
+        return true;
+    }
+
+
 
     first =  first.replace(/\./g, ' ');
     second = second.replace(/\./g, ' ');

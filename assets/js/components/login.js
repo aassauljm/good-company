@@ -43,6 +43,9 @@ class Login extends React.Component {
     static propTypes = { login: React.PropTypes.object };
     submit(data) {
         return this.props.dispatch(requestLogin(data))
+            .catch(err => {
+                this.props.dispatch(addNotification({error: true, message: 'Invalid Credentials'}));
+            });
     }
     componentDidMount() {
         this.nav()
