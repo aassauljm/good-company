@@ -37,4 +37,3 @@ module.exports = {
     //serverRender: true,
     CACHE_DIR: '/tmp/.gc'
 };
-``

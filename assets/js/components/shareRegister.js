@@ -8,6 +8,8 @@ import LawBrowserLink from './lawBrowserLink'
 import { renderRights, renderLimitations } from './shareClasses';
 import Input from './forms/input';
 import { asyncConnect } from 'redux-async-connect';
+import { Link } from 'react-router';
+
 
 function renderShareClass(shareClass, shareClassMap = {}){
     return shareClassMap[shareClass] ? shareClassMap[shareClass].name : STRINGS.defaultShareClass
@@ -220,12 +222,12 @@ export class ShareRegisterDocument extends React.Component {
             <tbody>
                 { rows.map((s, i) => {
                     return <tr key={i}>{ this.currentFields.map((f, j) => {
-                        return <td key={j}>{renderField(f, shareRegister[i][f], shareRegister[i], shareClassMap)}</td>
+                        return <td key={j} className={"share-register-"+f}>{renderField(f, shareRegister[i][f], shareRegister[i], shareClassMap)}</td>
                     })}</tr>
                 }) }
                 <tr>
                     <td colSpan={2}><strong>Total { renderShareClass(k, shareClassMap) } Shares on Issue </strong></td>
-                    <td><strong>{ numberWithCommas(companyState.shareCountByClass[k].amount) }</strong></td>
+                    <td className="share-register-amount"><strong>{ numberWithCommas(companyState.shareCountByClass[k].amount) }</strong></td>
                 </tr>
             </tbody>
         </table>
@@ -342,7 +344,8 @@ export class ShareRegisterDocumentLoader extends React.Component {
 export class ShareRegister extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
-        companyState: PropTypes.object.isRequired
+        companyState: PropTypes.object.isRequired,
+        companyId: PropTypes.string.isRequired
     };
 
     render() {
@@ -359,12 +362,15 @@ export class ShareRegister extends React.Component {
                             <LawBrowserLink title="Companies Act 1993" location="s 87">As defined under s 87 of the Companies Act 1993</LawBrowserLink>
                         </div>
                         <div className="col-md-4 col-md-offset-4">
+                        <div className="button-row">
                             <Input type="select"
                             value={this.props.menu.view}
                             onChange={(e) => this.props.dispatch(updateMenu('shareRegister', {view: e.target.value}))}>
                             <option value="document">Document View</option>
                             <option value="table">Table View</option>
                             </Input>
+                            <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/shareregister`} target='_blank'>Download</Link>
+                        </div>
                         </div>
                     </div>
                     { this.props.menu.view === 'document' && <div className="container">

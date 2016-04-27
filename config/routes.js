@@ -160,4 +160,10 @@ module.exports.routes = {
         controller: 'CompanyStateController',
         action: 'createShareClass'
     },
+
+    'GET /api/company/render/:id/shareregister': {
+        controller: 'RenderController',
+        action: 'renderShareRegister',
+        model: 'company'
+    }
 };
