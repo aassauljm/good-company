@@ -592,6 +592,7 @@ function processCompaniesOffice($){
     if(docType && docType.type){
         result = {...result, ...EXTRACT_DOCUMENT_MAP[docType.type]($)}
     }
+    console.log(JSON.stringify(result, null, 4))
     return result
 }
 
@@ -606,7 +607,7 @@ function inferDirectorshipActions(data, docs){
         // make sure we haven't described this action yet
         return !_.some(docs, doc => {
             return _.find(doc.actions, a => {
-                return a.type === action.type && a.date === action.date && a.name === action.name;
+                return a.transactionType === action.transactionType && a.date === action.date && a.name === action.name;
             })
         });
     }
@@ -656,6 +657,7 @@ function inferDirectorshipActions(data, docs){
                 address: d.residentialAddress,
                 effectiveDate: appointmentDate
             };
+
         if(doesNotContain(action)){
             results.push({
                 actions: [action],
@@ -663,11 +665,13 @@ function inferDirectorshipActions(data, docs){
             });
         }
         action = {
-                transactionType: Transaction.types.REMOVE_DIRECTOR,
-                name: d.fullName,
-                address: d.residentialAddress,
-                effectiveDate: ceasedDate
-            };
+            transactionType: Transaction.types.REMOVE_DIRECTOR,
+            name: d.fullName,
+            address: d.residentialAddress,
+            effectiveDate: ceasedDate
+        };
+
+
         if(doesNotContain(action)){
             results.push({
                 actions: [action],
@@ -1200,7 +1204,7 @@ const ScrapingService = {
             if(link && link.length){
                 obj.consentUrl = link.attr('href');
             }
-            const isHistoric = $
+
             if($el.parents('.historic').length){
                 if(obj.ceasedDate){
                     formerDirectors.push(obj);
