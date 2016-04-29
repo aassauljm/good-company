@@ -328,7 +328,7 @@ module.exports = {
                             person = _.merge({}, person, {address: address})
                             // this is unique, so any match is jackpot
                             if(person.companyNumber){
-                                return Person.find({companyNumber: person.companyNumber})
+                                return Person.findOne({where: {companyNumber: person.companyNumber}})
                                     .then(p => {
                                         if(p){
                                             person.personId = p.personId;
@@ -357,6 +357,7 @@ module.exports = {
                                 holder = _.merge({}, holder, {address: address})
                                 return Person.findOrCreate({where: holder, defaults: holder})
                                     .spread(function(holder){
+
                                         return holder;
                                     });
                             });
@@ -643,6 +644,7 @@ module.exports = {
 
             mutateHolders: function(holding, newHolders, transaction){
                 //these new holders may have new members or address changes or something
+                // TODO, rewrite, hard to follow
                 const holdingList = this.dataValues.holdingList;
                 return Promise.map(newHolders, CompanyState.findOrCreatePerson, {concurrency: 1})
                 .then(function(newHolders){
@@ -663,10 +665,12 @@ module.exports = {
                                 return false;
                             }
                         });
+
                         if(toRemove !== undefined){
                             newHolders.splice(toRemove, 1);
                         }
                         if(!newHolders.length){
+                            // return early
                             return true;
                         }
                     });
@@ -704,8 +708,6 @@ module.exports = {
                                 holding.dataValues.holders[index] = newPerson;
                             }
                         });
-                       // console.log(newHolder, currentHolder)
-                       // console.log(JSON.stringify(state.dataValues.holdingList.dataValues.holdings));
                         return state;
                     });
             },

@@ -6,12 +6,13 @@ const session = cls.getNamespace('session');
 
 export function validateAnnualReturn(data, companyState){
     const state = companyState.toJSON();
-    let throwDirectors, throwTotal;
+    let throwDirectors, throwTotal, allocatedEqual;
     return companyState.stats()
         .then((stats) => {
             if(stats.totalShares !== data.totalShares){
                 sails.log.error('stats: ', stats, data.totalShares)
                 throwTotal = true;
+                allocatedEqual = stats.totalAllocatedShares === data.totalShares;
             }
             // extract name for directors
             const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directorList.directors, (d)=>_.pick(d.person, 'name'/*, 'address'*/)), 'name'));
@@ -55,7 +56,13 @@ export function validateAnnualReturn(data, companyState){
                 throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Directors do not match: ' +data.documentId);
             }
             if(throwTotal){
-                throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +data.documentId);
+                if(allocatedEqual){
+                    throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Total shares do not match, documentId: ' +data.documentId);
+                }
+                else{
+                    throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +data.documentId);
+
+                }
             }
         });
 };
@@ -382,21 +389,20 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
         let holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount, shareClass: data.shareClass}]});
-        if(!data.shareClass){
-            data.shareClass = _.find(holding.dataValues.parcels, p => data.amount === p.amount).shareClass;
-        }
-
-        companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
 
         if(!holding){
             // if fail, ignore company number
             sails.log.error('Could not find matching holding, trying with ignored companyNumber')
             holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount}]}, {ignoreCompanyNumber: true});
-
         }
         if(!holding){
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation, documentId: ' +data.documentId)
         }
+
+        if(!data.shareClass){
+            data.shareClass = _.find(holding.dataValues.parcels, p => data.amount === p.amount).shareClass;
+        }
+        companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
         let sum = _.sum(holding.parcels, (p) => {
             return p.amount;
         });

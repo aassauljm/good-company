@@ -12,9 +12,6 @@ module.exports = {
         name: {
             type: Sequelize.TEXT
         },
-       /* personId: {
-            type: Sequelize.INTEGER
-        },*/
         companyNumber: {
             type: Sequelize.TEXT
         },

@@ -719,7 +719,6 @@ function insertIntermediateActions(docs){
     // primarily split removeAllocations into amend to zero, then removeAllocation,
     const removalTypes = [Transaction.types.REMOVE_ALLOCATION];
 
-
     let results = _.reduce(docs, (acc, doc, i) => {
         const removalActions = _.filter(doc.actions, a => removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
         if(!removalActions.length){
@@ -734,7 +733,7 @@ function insertIntermediateActions(docs){
                     afterAmount: 0,
                     amount: a.amount,
                     beforeAmount: a.amount,
-                    transactionType: a.transactionType,
+                    transactionType: a.transactionType, // TODO, Transfer_from, etc
                     transactionMethod: Transaction.types.AMEND
                 }
             })
@@ -746,16 +745,17 @@ function insertIntermediateActions(docs){
                     return a;
                 }
                 else{
+                    // if not a removal, then add to amend doc action set
                     amends.actions.unshift(a);
                 }
             })
             doc.transactionType = Transaction.types.COMPOUND_REMOVALS;
+            doc.totalShares = 0;
             acc.push(doc);
             acc.push(amends);
         }
         return acc;
     }, []);
-
 
 
 
