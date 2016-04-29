@@ -164,19 +164,9 @@ module.exports = {
                     company = _company;
                     if(actionUtil.parseValues(req)['history'] !== false){
                         return ScrapingService.getDocumentSummaries(data)
-                        .then(function(readDocuments) {
-                            return Promise.map(data.documents, function(doc) {
-                                var docData = _.find(readDocuments, {
-                                    documentId: doc.documentId
-                                });
-                                return ScrapingService.processDocument(docData.text, doc)
-                            });
-                        })
+                        .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
                         .then(function(_processedDocs) {
-                            processedDocs = _processedDocs.concat(ScrapingService.extraActions(data, _processedDocs));
-                            processedDocs = ScrapingService.segmentActions(processedDocs);
-                            sails.log.verbose('Processed ' + processedDocs.length + ' documents');
-                            // create a state before SEED
+                            processedDocs = _processedDocs;
                             return company.createPrevious();
                         })
                         .then(function(){

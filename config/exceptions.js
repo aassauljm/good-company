@@ -10,6 +10,7 @@ module.exports.exceptions = _.defaults({
     BadParcelOperation: errorFactory('BadParcelOperation'),
     TransactionNotFound: errorFactory('TransactionNotFound'),
     InvalidInverseOperation: errorFactory('InvalidInverseOperation'),
+    InvalidIgnorableInverseOperation: errorFactory('InvalidIgnorableInverseOperation'),
     InvalidOperation: errorFactory('InvalidOperation'),
     InvalidHoldingOperation: errorFactory('InvalidHolding'),
     CompanyImportException: errorFactory('CompanyImportException'),

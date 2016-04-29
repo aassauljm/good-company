@@ -124,6 +124,29 @@ describe('Company Controller', function() {
         });
     });
 
+    describe('Test import from companies office (AROA BIOSURGERY LIMITED (1980577))', function(){
+        var req, companyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/1980577')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+        it('Gets current stats', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+    });
+
     describe('Test import and previous state', function(){
         var req, companyId;
         it('should login successfully', function(done) {

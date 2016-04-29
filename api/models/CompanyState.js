@@ -597,7 +597,7 @@ module.exports = {
                     var toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
                         if(((holdingToAdd.holdingId && nextHolding.holdingId === holdingToAdd.holdingId ) ||
-                            (!holdingToAdd.holdingId && nextHolding.holdersMatch(holdingToAdd))) &&
+                            (!holdingToAdd.holdingId && nextHolding.holdersMatch(holdingToAdd, {ignoreCompanyNumber: true}))) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             holdings[j] = nextHolding = nextHolding.buildNext();
                             if(subtractHoldings){
@@ -730,7 +730,7 @@ module.exports = {
             },
 
             getMatchingHolding: function(holding, options={}){
-                return this.getMatchingHoldings(holding, options.ignoreCompanyNumber)[0];
+                return this.getMatchingHoldings(holding, options)[0];
             },
 
             getMatchingHoldings: function(holding,  options={}){

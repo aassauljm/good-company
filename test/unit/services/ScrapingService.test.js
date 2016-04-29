@@ -1,9 +1,62 @@
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var moment = require('moment');
-
+const cheerio = require('cheerio');
 
 describe('Scraping Service', function() {
+
+    describe('Data extraction', function(){
+
+        it('extract previous company names', function(done){
+                const html = `<div><div class="previousNames" style="display: block;">
+                        <label>
+                            SM ENTERPRISES LIMITED (from 24 Oct 2013 to 10 Jul 2015)
+                        </label><br>
+                        <label>
+                            SHEARS AND MAC LIMITED (from 11 Aug 2010 to 24 Oct 2013)
+                        </label><br>
+                        <label>
+                            SHEARS &amp; MAC 4 LIMITED (from 10 Sep 2008 to 11 Aug 2010)
+                        </label><br>
+                        <label>
+                            CAMM 4 LIMITED (from 06 Nov 2002 to 10 Sep 2008)
+                        </label><br>
+                        <label>
+                            CONSULTING STRATEGIC BRANDS LIMITED (from 22 Dec 2000 to 06 Nov 2002)
+                        </label><br>
+                        </div></div>div>`
+
+                ScrapingService.parsePreviousNames(cheerio.load(html)).should.deep.equal([
+                    {
+                        name: 'SM ENTERPRISES LIMITED',
+                        startDate: '24 Oct 2013',
+                        endDate: '10 Jul 2015',
+                    },
+                    {
+                        name: 'SHEARS AND MAC LIMITED',
+                        startDate:'11 Aug 2010',
+                        endDate: '24 Oct 2013',
+                    },
+                    {
+                        name: 'SHEARS & MAC 4 LIMITED',
+                        startDate: '10 Sep 2008',
+                        endDate: '11 Aug 2010',
+                    },
+                    {
+                        name: 'CAMM 4 LIMITED',
+                        startDate:'06 Nov 2002',
+                        endDate: '10 Sep 2008',
+                    },
+                    {
+                        name: 'CONSULTING STRATEGIC BRANDS LIMITED',
+                        startDate: '22 Dec 2000',
+                        endDate: '06 Nov 2002',
+                    },
+                ]);
+                done();
+        });
+    });
+
 
     describe('Should get all fields from Xero html doc', function() {
         it('passes doc to scraping service, pops db', function(done) {
@@ -311,14 +364,15 @@ describe('Scraping Service', function() {
     });
 
     describe('Should infer action types from large doc', function() {
-        it('', function(done){
+        // TODO
+        it('organize ambigious actions', function(done){
             Promise.join(
                          fs.readFileAsync('test/fixtures/companies_office/documents/15081231.html', 'utf8'),
                          fs.readFileAsync('test/fixtures/companies_office/documents/15081232.html', 'utf8'))
                 .spread(function(first, second){
                     const docs = [ScrapingService.processDocument(first), ScrapingService.processDocument(second)];
                     const results = ScrapingService.segmentActions(docs);
-                    console.log(JSON.stringify(results, null, 4))
+                    // TODO
                     done();
                 })
             });
@@ -326,6 +380,25 @@ describe('Scraping Service', function() {
     });
 
 
-
+    describe('should infer name change actions when documents are missing (1109509)', function(){
+        it('populates actions, checks that inferred name changes are present', function(done){
+            let data;
+             return fs.readFileAsync('test/fixtures/companies_office/1109509.html', 'utf8')
+                .then(ScrapingService.parseNZCompaniesOffice)
+                .then((_data) => {
+                    data = _data;
+                    return ScrapingService.getDocumentSummaries(data)
+                })
+                .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
+                .then(documents => {
+                    documents.reduce((acc, d) => {
+                        return acc + (d.actions || []).filter(a=>{
+                            return a.transactionType === Transaction.types.NAME_CHANGE
+                        }).length;
+                    }, 0).should.be.equal(4);
+                    done();
+                })
+            })
+    });
 
 });

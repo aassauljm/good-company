@@ -6,13 +6,14 @@ const session = cls.getNamespace('session');
 
 export function validateAnnualReturn(data, companyState){
     const state = companyState.toJSON();
+    let throwDirectors, throwTotal;
     return companyState.stats()
         .then((stats) => {
-            if(stats.totalShares != data.totalShares){
+            if(stats.totalShares !== data.totalShares){
                 sails.log.error('stats: ', stats, data.totalShares)
-                throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +data.documentId);
+                throwTotal = true;
             }
-            // extract address and name for directors
+            // extract name for directors
             const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directorList.directors, (d)=>_.pick(d.person, 'name'/*, 'address'*/)), 'name'));
             const expectedDirectors = JSON.stringify(_.sortBy(_.map(data.directors, (d)=>_.pick(d, 'name'/*, 'address'*/)), 'name'));
 
@@ -26,10 +27,10 @@ export function validateAnnualReturn(data, companyState){
             const currentHoldings = holdingToString(state.holdingList.holdings)
             const expectedHoldings = holdingToString(data.holdings)
 
-            if(JSON.stringify(currentDirectors) != JSON.stringify(expectedDirectors)){
+            if(JSON.stringify(currentDirectors) !== JSON.stringify(expectedDirectors)){
                 sails.log.error('Current directors: '+JSON.stringify(currentDirectors) + 'documentId: ' +data.documentId)
-                sails.log.error('Expected directors: '+JSON.stringify(expectedDirectors))
-                throw new sails.config.exceptions.InvalidInverseOperation('Directors do not match: ' +data.documentId);
+                sails.log.error('Expected directors: '+JSON.stringify(expectedDirectors));
+                throwDirectors = true;
             }
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
                 sails.log.error('Current', JSON.stringify(currentHoldings))
@@ -49,10 +50,32 @@ export function validateAnnualReturn(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match, documentId: ' +data.documentId);
              }
         })
+        .then(() => {
+            if(throwDirectors){
+                throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Directors do not match: ' +data.documentId);
+            }
+            if(throwTotal){
+                throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +data.documentId);
+            }
+        });
 };
 
+export function performAnnualReturn(data, companyState, previousState, effectiveDate){
+    const transaction = Transaction.build({type: data.transactionType, data: {...data}, effectiveDate: effectiveDate});
+    return validateAnnualReturn(data, companyState)
+        .then(() => {
+            return transaction;
+        })
+        .catch(sails.config.exceptions.InvalidIgnorableInverseOperation, e => {
+            transaction.dataValues.data.failedValidation =  e.message;
+            return transaction;
+        })
+}
+
+
 export function validateInverseAmend(amend, companyState){
-    const holding = companyState.getMatchingHolding({holders: amend.afterHolders, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]});
+    const holding = companyState.getMatchingHolding({holders: amend.afterHolders, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]},
+                                                    {ignoreCompanyNumber: true});
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId: ' +amend.documentId)
     }
@@ -168,7 +191,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 companyState.subtractHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
                 companyState.combineUnallocatedParcels(parcel);
             }
-            const current = companyState.getMatchingHolding({holders: data.afterHolders,  parcels: [{amount: data.beforeAmount, shareClass: parcel.shareClass}]})
+            const current = companyState.getMatchingHolding({holders: data.afterHolders,  parcels: [{amount: data.beforeAmount, shareClass: parcel.shareClass}]},
+                                                            {ignoreCompanyNumber: true})
 
             // If holders have changed too
             if(!current.holdersMatch({holders: data.beforeHolders})){
@@ -617,7 +641,8 @@ export function validateAmend(data, companyState){
     if(!data.holdingId && !(data.holders && data.holders.length)){
         throw new sails.config.exceptions.InvalidInverseOperation('Holders required, documentId: ' +data.documentId)
     }
-    const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId});
+    const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId},
+                                                    {ignoreCompanyNumber: true});
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId: ' +data.documentId)
     }
@@ -897,7 +922,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.NEW_DIRECTOR]: TransactionService.performInverseNewDirector,
         [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performInverseRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
-        [Transaction.types.ANNUAL_RETURN]: TransactionService.validateAnnualReturn
+        [Transaction.types.ANNUAL_RETURN]: TransactionService.performAnnualReturn
     };
     if(!data.actions){
         return Promise.resolve(rootState);

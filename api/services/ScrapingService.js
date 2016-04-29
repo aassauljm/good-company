@@ -62,7 +62,7 @@ function chunkBy(array, func, include){
 
 function parseName(text){
     text = cleanString(text);
-    let companyNumberRegex = /^\s*(.*)\( ([0-9]{5,}) \)\s*$/g,
+    let companyNumberRegex = /^\s*(.*)\( ([0-9]{4,}) \)\s*$/g,
         matches = companyNumberRegex.exec(text);
     return {
         companyNumber: matches ? matches[2] : null,
@@ -592,7 +592,6 @@ function processCompaniesOffice($){
     if(docType && docType.type){
         result = {...result, ...EXTRACT_DOCUMENT_MAP[docType.type]($)}
     }
-    console.log(JSON.stringify(result, null, 4))
     return result
 }
 
@@ -676,6 +675,37 @@ function inferDirectorshipActions(data, docs){
             results.push({
                 actions: [action],
                 effectiveDate: ceasedDate,
+            });
+        }
+    });
+    return results;
+}
+
+function inferNameChanges(data, docs){
+    const results = [];
+    const doesNotContain = (action) => {
+        // make sure we haven't described this action yet
+        return !_.some(docs, doc => {
+            return _.find(doc.actions, a => {
+                return a.transactionType === action.transactionType &&
+                    a.previousCompanyName === action.previousCompanyName &&
+                    a.newCompanyName === action.newCompanyName &&
+                    Math.abs(moment(a.effectiveDate).diff(moment(action.effectiveDate), 'days')) < 7;
+            })
+        });
+    }
+    data.previousNames.slice(0, data.previousNames.length-1).map((prevName, i) => {
+        const action = {
+            transactionType: Transaction.types.NAME_CHANGE,
+            effectiveDate: moment(prevName.endDate, 'DD MMM YYYY').toDate(),
+            previousCompanyName: prevName.name,
+            newCompanyName: i ? data.previousNames[i-1].name : data.companyName,
+        }
+        if(doesNotContain(action)){
+            results.push({
+                actions: [action],
+                effectiveDate: action.effectiveDate,
+                transactionType: Transaction.types.NAME_CHANGE,
             });
         }
     });
@@ -1057,9 +1087,28 @@ const ScrapingService = {
         return {...result, ...info, date: moment(info.date, 'DD MMM YYYY HH:mm').toDate()}
     },
 
+    processDocuments: function(data, readDocuments){
+        return Promise.map(data.documents, function(doc) {
+            var docData = _.find(readDocuments, {
+                documentId: doc.documentId
+            });
+            return ScrapingService.processDocument(docData.text, doc)
+        })
+        .then(function(_processedDocs) {
+            let processedDocs = _processedDocs.concat(ScrapingService.extraActions(data, _processedDocs));
+            processedDocs = ScrapingService.segmentActions(processedDocs);
+            sails.log.verbose('Processed ' + processedDocs.length + ' documents');
+            return processedDocs;
+        });
+    },
+
+
+
     extraActions: function(data, docs){
         // This are INFERED actions
         let results = inferDirectorshipActions(data, docs);
+        results = results.concat(inferNameChanges(data, docs));
+
         return results;
     },
 
@@ -1103,6 +1152,18 @@ const ScrapingService = {
         })
 
         return docs;
+    },
+
+    parsePreviousNames: function($){
+        const pattern = /^\s*(.*) \(from (.*) to (.*)\)/
+        return $('.previousNames label').map((i, el) => {
+            const matches = pattern.exec($(el).text());
+            return {
+                name: matches[1],
+                startDate: matches[2],
+                endDate: matches[3]
+            }
+        }).get()
     },
 
     parseNZCompaniesOffice: function(html){
@@ -1218,6 +1279,9 @@ const ScrapingService = {
         })
         result['directors'] = directors;
         result['formerDirectors'] = formerDirectors;
+
+        const previousNames = ScrapingService.parsePreviousNames($);
+        result['previousNames'] = previousNames;
         sails.log.verbose('Parsed company: ', result);
         return result
     }
