@@ -7,6 +7,8 @@ make transaction forms - 1 types to go
 documents associated to actions, forward and back
 
 
+fix - company
+
 pretty forms
 better error positioning
 make graphs
@@ -83,18 +85,11 @@ http://www.business.govt.nz/companies/app/ui/pages/companies/5389961/19914580/en
 
 FAILS
 100% PURE NEW ZEALAND DAIRY LIMITED - 1134251 - NZBN: 9429036923670
- # director appointed but not included in annual return
+# director appointed but not included in annual return
  -- http://www.business.govt.nz/companies/app/ui/pages/companies/1134251/14604771/entityFilingRequirement
  -- http://www.business.govt.nz/companies/app/ui/pages/companies/1134251/14517995/entityFilingRequirement
 
 SLAM G PROPERTIES LIMITED
 # address, all records
 --https://www.business.govt.nz/companies/app/ui/pages/companies/1721964/detail
- -- http://www.business.govt.nz/companies/app/ui/pages/companies/1721964/15240289/entityFilingRequirement?backurl=%2Fcompanies%2Fapp%2Fui%2Fpages%2Fcompanies%2F1721964%2Fdetail
-
-
-
-
-CCH
-- pricemaker is fucked
--
+ -- http://www.business.govt.nz/companies/app/ui/pages/companies/1721964/15240289/entityFilingRequirement
