@@ -315,6 +315,10 @@ SELECT *,
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]))  qq)
         as "transferHistoryFrom",
+    ( SELECT array_to_json(array_agg(row_to_json(qq)))
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['AMEND']::enum_transaction_type[]))  qq)
+        as "ambiguousChanges",
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
      FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)

@@ -44,6 +44,15 @@ function renderTransferFromFull(action){
     return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} to TODO`
 }
 
+function renderAmbigiousChangeFull(action){
+    if(action.data.afterAmount > action.data.beforeAmount){
+        return  `Ambiguous increase of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)}`;
+    }
+    else{
+        return  `Ambiguous decrease of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)}`
+    }
+}
+
 function renderAction(action) {
     switch(action.type){
         case 'ISSUE_TO':
@@ -79,6 +88,8 @@ function renderActionFull(action) {
         case 'ACQUISITION_FROM':
         case 'CONSOLIDATION_FROM':
             return renderChangeFull(action);
+        case 'AMEND':
+            return renderAmbigiousChangeFull(action);
         default:
             return false;
     }
@@ -121,8 +132,8 @@ function renderField(key, data, row, shareClassMap) {
 }
 
 function transactionRows(row){
-    const keys = ['issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
-    const increaseTypes = ['ISSUE_TO', 'SUBVISION_TO', 'CONVERSION_TO', 'TRANSFER_TO'];
+    const keys = ['issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo', 'ambiguousChanges'];
+    //const increaseTypes = ['ISSUE_TO', 'SUBVISION_TO', 'CONVERSION_TO', 'TRANSFER_TO'];
     let results = [];
     keys.map(k => {
         results = results.concat(row[k] || []);
@@ -134,7 +145,8 @@ function transactionRows(row){
     let total = row.amount;
     return results.map((r, i) =>{
         const _total = total
-        if(increaseTypes.indexOf(r.type) >= 0){
+        //if(increaseTypes.indexOf(r.type) >= 0){
+        if(r.data.beforeAmount < r.data.afterAmount){
             total -= r.data.amount;
         }
         else{
