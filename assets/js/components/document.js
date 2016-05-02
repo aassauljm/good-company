@@ -1,7 +1,7 @@
 "use strict";
 import React from 'react';
 import {requestResource, updateResource, createResource} from '../actions';
-import { pureRender, objectValues } from '../utils';
+import { pureRender, objectValues, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import { initialize } from 'redux-form';
 import { Link } from 'react-router';
@@ -42,7 +42,7 @@ export default class Account extends React.Component {
                   <dt>Date</dt>
                   <dd>{new Date(data.date).toDateString()}</dd>
                   <dt>Date Imported</dt>
-                  <dd>{new Date(data.createdAt).toDateString()}</dd>
+                  <dd>{stringToDate(data.createdAt)}</dd>
                   { data.sourceUrl && <dt>Original URL</dt> }
                   { data.sourceUrl && <dd><Link target="_blank" to={data.sourceUrl}>Companies Office</Link> </dd> }
                   { !data.sourceUrl && <Link target="_blank" className="btn btn-primary" to={`/api/document/get_document/${this.key()}`}>Download</Link> }

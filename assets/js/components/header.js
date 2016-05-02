@@ -15,13 +15,12 @@ function RoleAllows(roles = [], menu){
     let rules = {
         "admin": {
             "users": true,
-            "roles": true,
             "documents": true,
             "companies": true
         },
         "registered": {
-            "documents": true,
-            "companies": true
+            "documents": false,
+            "companies": false
         }
     }
     for(let role of roles){
@@ -33,7 +32,7 @@ function RoleAllows(roles = [], menu){
 
 /** Can't be pure, because router Links use context to show active */
 export default class Header extends React.Component {
-    users(){
+    users() {
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'users' )){
             return <li className="nav-item">
                 <Link activeClassName="active" className="nav-link nav-users" to="/users">Users
@@ -41,7 +40,8 @@ export default class Header extends React.Component {
             </li>;
         }
     }
-    documents(){
+
+    documents() {
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'documents' )){
             return <li className="nav-item">
                 <Link activeClassName="active" className="nav-link nav-documents" to="/documents">Documents
@@ -49,7 +49,8 @@ export default class Header extends React.Component {
             </li>;
         }
     }
-    companies(){
+
+    companies() {
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'companies' )){
             return <li className="nav-item">
                 <Link activeClassName="active" className="nav-link nav-companies" to="/companies">Companies
@@ -57,7 +58,8 @@ export default class Header extends React.Component {
             </li>;
         }
     }
-    showMenus(){
+
+    showMenus() {
         return <ul className="nav navbar-nav">
             { this.users() }
             { this.companies() }
@@ -65,7 +67,7 @@ export default class Header extends React.Component {
         </ul>
     }
 
-    showAccount(){
+    showAccount() {
         if(this.props.loggedIn && this.props.userInfo && this.props.userInfo.username){
             return <li className="nav-item">
                 <Link activeClassName="active" className="nav-link username" to={"/user/edit/"+this.props.userInfo.id}>{this.props.userInfo.username}
@@ -74,7 +76,7 @@ export default class Header extends React.Component {
         }
     }
 
-    showLogin(){
+    showLogin() {
         if(!this.props.loggedIn){
             return <li className="nav-item">
                 <Link activeClassName="active" className="nav-link" to={"/login"}>Login</Link>
@@ -82,7 +84,7 @@ export default class Header extends React.Component {
         }
     }
 
-    showSignUp(){
+    showSignUp() {
         if(!this.props.loggedIn){
             return <li className="nav-item">
                 <Link activeClassName="active" className="nav-link" to={"/signup"}>Sign Up</Link>
@@ -90,7 +92,7 @@ export default class Header extends React.Component {
         }
     }
 
-    showLogout(){
+    showLogout() {
         return  this.props.loggedIn ? <li className="nav-item"><a className="nav-link" href="/logout">Log out</a></li> : null;
     }
 

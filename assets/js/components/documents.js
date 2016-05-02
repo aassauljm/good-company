@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, deleteResource } from '../actions';
-import { pureRender } from '../utils';
+import { pureRender, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router'
@@ -20,18 +20,19 @@ export default class Documents extends React.Component {
     submitDelete(id, e) {
         e.preventDefault();
         this.props.dispatch(deleteResource('/document/'+id));
+         // then reload
     }
 
     render() {
         let fields = ['id', 'filename', 'type', 'createdAt', 'updatedAt'];
         return <div className="container"><table className="table">
-        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th><th></th></tr></thead>
+        <thead><tr>{ fields.map(f => <th key={f}>{f}</th>) }<th></th></tr></thead>
         <tbody>
         {this.props.data ? this.props.data.map(
             (row, i) => <tr key={i}>
                 { fields.map(f => <td key={f}>{row[f]}</td>) }
                 <td><Link activeClassName="active" className="nav-link" to={"/document/view/"+row.id} >View</Link></td>
-                <td><a href="#" type='button' value='Delete' onClick={this.submitDelete.bind(this, row.id)}  >Delete</a></td>
+                { /*<td><a href="#" type='button' value='Delete' onClick={this.submitDelete.bind(this, row.id)}  >Delete</a></td> */}
             </tr>)
 
         : null}
@@ -58,7 +59,7 @@ export class DocumentsPanel extends React.Component {
                 <thead><tr><th>Name</th><th>Date</th></tr></thead>
                 <tbody>
                 { this.props.docList.documents.slice(0, 5).map((d, i) => {
-                    return <tr key={i}><td>{ d.filename }</td><td>{new Date(d.date).toDateString()}</td></tr>
+                    return <tr key={i}><td>{ d.filename }</td><td>{stringToDate(d.date)}</td></tr>
                 }) }
                 <tr><td colSpan="2" className="text-center">...</td></tr>
                 </tbody>
@@ -77,7 +78,7 @@ export class CompanyDocuments extends React.Component {
         switch(key){
             case 'date':
             case 'createdAt':
-                return new Date(value).toDateString();
+                return stringToDate(value);
             default:
                 return value;
         }

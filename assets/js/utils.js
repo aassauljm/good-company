@@ -241,9 +241,9 @@ export function numberWithCommas(x) {
 }
 
 export function stringToDate(date){
-    const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const d = new Date(date);
-    return [d.getDate() , MONTHS[d.getMonth()] , g.getYear()].join(' ');
+    return [d.getDate() , MONTHS[d.getMonth()] , d.getFullYear()].join(' ');
 }
 
 export function debounce(func, delay = 100) {

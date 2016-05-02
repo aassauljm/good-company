@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, updateMenu } from '../actions';
-import { pureRender, numberWithCommas } from '../utils';
+import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
@@ -17,20 +17,19 @@ function renderShareClass(shareClass, shareClassMap = {}){
 
 // all the same
 function renderChange(action){
-    const date = new Date(action.effectiveDate).toDateString();
+    const date = stringToDate(action.effectiveDate);
     return `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
 
 function renderTransferTo(action){
-    const date = new Date(action.effectiveDate).toDateString();
+    const date = stringToDate(action.effectiveDate);
     return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
 
 function renderTransferFrom(action){
-    const date = new Date(action.effectiveDate).toDateString();
+    const date = stringToDate(action.effectiveDate);
     return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} on ${date}`
 }
-
 
 function renderChangeFull(action){
     return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)}`
@@ -153,7 +152,7 @@ function transactionRows(row){
             total += r.data.amount;
         }
         return <tr key={i}>
-            <td className="date">{ new Date(r.effectiveDate).toDateString() }</td>
+            <td className="date">{ stringToDate(r.effectiveDate) }</td>
             <td className="description">{ renderActionFull(r) } </td>
             <td className="total">{ numberWithCommas(_total) }</td>
             </tr>
@@ -299,7 +298,7 @@ export class ShareRegisterDocument extends React.Component {
                 </tr>
                 </tbody>
             </table>
-            <div>Generated on { new Date().toDateString() }</div>
+            <div>Generated on { stringToDate() }</div>
             { this.renderShareClasses(shareClasses) }
             { this.renderHistory(shareClasses) }
 

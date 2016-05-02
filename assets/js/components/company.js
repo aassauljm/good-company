@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import {requestResource, changeCompanyTab, showModal } from '../actions';
-import { pureRender, numberWithCommas } from '../utils';
+import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import LookupCompany from  './lookupCompany';
@@ -62,7 +62,7 @@ export class TransactionsPanel extends React.Component {
             <div className="panel-body">
             <div><strong>Last Transaction </strong>
             {(STRINGS.transactionTypes[this.props.transactions[0].type] || this.props.transactions[0].type ) + ' ' }
-             { new Date(this.props.transactions[0].effectiveDate).toDateString() }</div>
+             { stringToDate(this.props.transactions[0].effectiveDate) }</div>
             </div>
             <BarGraph data={graphData} />
 
@@ -105,7 +105,7 @@ export class CompanyTransactions extends React.Component {
             const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
             rows.push(<tr key={i} onClick={() => this.show(t.transaction)}>
                 <td rowSpan={rowSpan}>{ t.transaction.transactionId }</td>
-                <td rowSpan={rowSpan}>{ new Date(t.transaction.effectiveDate).toDateString() }</td>
+                <td rowSpan={rowSpan}>{ stringToDate(t.transaction.effectiveDate) }</td>
                 <td rowSpan={rowSpan}>{ STRINGS.transactionTypes[t.transaction.type] }</td>
                 { !t.transaction.subTransactions && <td></td> }
             </tr>);
@@ -236,7 +236,7 @@ export class CompanyHistory extends React.Component {
         const generation = Number(this.props.params.generation) || 0;
         return <div className="container">
                 <div className="well">
-                { generation ? <h4>As at {new Date(current.transaction.effectiveDate).toDateString() }</h4> : null}
+                { generation ? <h4>As at {stringToDate(current.transaction.effectiveDate) }</h4> : null}
                     <h1>{current.companyName}</h1>
                     <h5>#{current.companyNumber}, {current.companyStatus}</h5>
                 </div>
@@ -256,7 +256,7 @@ export class CompanyHistory extends React.Component {
                     <dd >{current.nzbn ||  'Unknown'}</dd>
 
                     <dt >Incorporation Date</dt>
-                    <dd >{new Date(current.incorporationDate).toDateString()}</dd>
+                    <dd >{stringToDate(current.incorporationDate)}</dd>
 
                     <dt >Total Shares</dt>
                     <dd >{numberWithCommas(current.totalShares)}</dd>
@@ -356,7 +356,7 @@ export default class Company extends React.Component {
                 <div className="well">
                     <h1>{current.companyName}</h1>
                     { current.companyNumber && <h5><Link target="_blank" to={ companiesOfficeUrl }>#{current.companyNumber}, {current.companyStatus}</Link></h5> }
-                    <h5>As at {new Date(current.transaction.effectiveDate).toDateString() }</h5>
+                    <h5>As at {stringToDate(current.transaction.effectiveDate) }</h5>
                 </div>
                 { this.props.children && <ul className="pager">
                             <li><Link className="nav-link return-company-page" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>
