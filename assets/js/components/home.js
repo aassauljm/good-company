@@ -1,55 +1,49 @@
 "use strict";
 import React from 'react';
 import { pureRender,  debounce } from '../utils';
-import { lookupCompany, lookupOwnCompany } from '../actions'
+import { lookupCompany, lookupOwnCompany } from '../actions';
 import Autosuggest from 'react-autosuggest';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
+import { routeActions } from 'react-router-redux'
+import { showModal } from '../actions';
 
-function renderSuggestioncc(suggestion, { value, valueBeforeUpDown }) {
-  const suggestionText = `${suggestion.first} ${suggestion.last}`;
-  const query = (valueBeforeUpDown || value).trim();
-  const matches = AutosuggestHighlight.match(suggestionText, query);
-  const parts = AutosuggestHighlight.parse(suggestionText, matches);
 
-  return (
-    <span className={'suggestion-content ' + suggestion.twitter}>
-      <span className="name">
-        {
-          parts.map((part, index) => {
-            const className = part.highlight ? 'highlight' : null;
+function highlightString(string, query, highlightClass='highlight'){
+    return string;
 
-            return (
-              <span className={className} key={index}>{part.text}</span>
-            );
-          })
-        }
-      </span>
-    </span>
-  );
+
+
+    const startIndex = string.toLowerCase().indexOf(query.toLowerCase()),
+            endIndex = startIndex + query.length;
+    if(startIndex < 0){
+        return string;
+    }
+    return  [<span>{string.substring(0, startIndex)}</span>,
+    <span className={highlightClass}>{string.substring(startIndex, endIndex)}</span>,
+    <span>{string.substring(endIndex)}</span>];
 }
 
-function onSuggestionSelected(event, { suggestion, suggestionValue, sectionIndex, method }){
-    console.log(arguments)
-}
+
 
 function getSuggestionValue(suggestion) {
   return suggestion.companyName;
 }
 
-function renderSuggestion(suggestion) {
+function renderSuggestion(suggestion, { value, valueBeforeUpDown }) {
+    value = valueBeforeUpDown || value;
     if(suggestion.companiesOffice){
         return (
             <div>
-                <h5 className="list-group-item-heading">{suggestion.companyName}</h5>
-                { (suggestion.notes || []).map((s, i) => <p key={i} className="list-group-item-text"><em>{s}</em></p> ) }
+                <h5 className="list-group-item-heading">{highlightString(suggestion.companyName, value)}</h5>
+                { (suggestion.notes || []).map((s, i) => <p key={i} className="list-group-item-text"><em>{highlightString(s,value)}</em></p> ) }
             </div>
         );
     }
     else{
       return (
         <div>
-            <h4 className="list-group-item-heading">{suggestion.companyName}</h4>
+            <h5 className="list-group-item-heading">{highlightString(suggestion.companyName, value)}</h5>
             <p className="list-group-item-text"><strong>Company Number:</strong> {suggestion.companyNumber}</p>
             <p className="list-group-item-text"><strong>NZBN:</strong> {suggestion.nzbn}</p>
             </div>
@@ -77,7 +71,14 @@ function mapDispatchToProps(dispatch) {
         onSuggestionsUpdateRequested: debounce(({ value }) => {
             dispatch(lookupOwnCompany(value));
             dispatch(lookupCompany(value));
-        })
+        }),
+        onSelectOwnCompany: (id) => {
+            dispatch(routeActions.push("/company/view/"+ id));
+        },
+        onSelectCompany: (item) => {
+            dispatch(showModal('importCompany', {index: 1, ...item}));
+
+        }
     };
 }
 
@@ -88,6 +89,7 @@ function mapStateToProps(state) {
 
 const theme = {
     container: 'auto-suggest',
+    containerOpen: 'open',
     suggestionsContainer: 'suggest-container',
     input: 'form-control input-lg',
     sectionSuggestionsContainer: 'list-group',
@@ -97,9 +99,22 @@ const theme = {
 
 export class SearchWidget extends React.Component {
 
+    constructor() {
+        super();
+        this.handleSelect = ::this.handleSelect;
+    }
+
+    handleSelect(event, { suggestion, suggestionValue, sectionIndex, method }){
+        if(!suggestion.companiesOffice){
+            this.props.onSelectOwnCompany(suggestion.id);
+        }
+        else{
+            this.props.onSelectCompany(suggestion);
+        }
+    }
+
     render() {
         const { fields, onSuggestionsUpdateRequested } = this.props;
-
         const suggestions = [];
         if(this.props.lookupOwnCompany.list.length){
             suggestions.push({
@@ -123,7 +138,7 @@ export class SearchWidget extends React.Component {
             multiSection={true}
             suggestions={suggestions}
             onSuggestionsUpdateRequested={onSuggestionsUpdateRequested}
-            onSuggestionSelected={onSuggestionSelected}
+            onSuggestionSelected={this.handleSelect}
             getSuggestionValue={getSuggestionValue}
             getSectionSuggestions={getSectionSuggestions}
             renderSuggestion={renderSuggestion}

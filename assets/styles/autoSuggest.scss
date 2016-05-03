@@ -2,6 +2,7 @@
 .auto-suggest{
     .suggest-container{
         border: 1px solid $list-group-border;
+        border-width: 1px 1px 0 1px;
         .list-group-item{
             border-width:1px 0 1px 0;
         }
@@ -17,7 +18,23 @@
             margin-bottom:0;
         }
         .section-title{
-            padding: $nav-link-padding;
+            padding: 0px 15px;
+            * {
+                color: $gray-light;
+                font-size:15px;
+            }
         }
+    }
+    input.form-control{
+        margin-bottom:-1px;
+    }
+    &.open{
+        input.form-control{
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+    }
+    .highlight{
+        font-weight: bold;
     }
 }
