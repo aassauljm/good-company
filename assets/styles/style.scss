@@ -62,7 +62,6 @@ $input-border-width: 2px;
 @import "~catalex_shared/sass/catalex-vars";
 
 
-$header-link-hover: #3B8039;
 $header-image:url("~catalex_shared/images/hero-bg.jpg");
 $left-chevron:url("~catalex_shared/images/left-chevron.png");
 $right-chevron:url("~catalex_shared/images/right-chevron.png");
@@ -73,6 +72,8 @@ $brand-primary: #2C3E50;
 
 
 @import "reactWidgets";
+@import "autoSuggest";
+
 
 @import "transitions";
 @import "loading";
@@ -90,12 +91,12 @@ nav.navbar{
     .container-fluid  a.navbar-brand {
         color:$white;
         @media (min-width: $screen-sm-min) {
-            width: 187px;
-            height: 86px;
+            width: 180px;
+            height: 74px;
             margin-left: 200px;
-            margin-top: 15px;
-            padding-bottom: 0px;
-            background-image :url("~catalex_shared/images/good-company.png");
+            margin-top: 13px;
+            padding: 0;
+            background-image :url("~catalex_shared/images/good-company-w-icon-sml.png");
             span{
                 display:none;
             }

@@ -1,0 +1,23 @@
+
+.auto-suggest{
+    .suggest-container{
+        border: 1px solid $list-group-border;
+        .list-group-item{
+            border-width:1px 0 1px 0;
+        }
+        .list-group-item:first-child {
+            border-top-right-radius: 0;
+            border-top-left-radius: 0;
+        }
+         .list-group-item:last-child {
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        .list-group{
+            margin-bottom:0;
+        }
+        .section-title{
+            padding: $nav-link-padding;
+        }
+    }
+}

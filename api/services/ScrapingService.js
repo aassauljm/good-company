@@ -1251,8 +1251,9 @@ const ScrapingService = {
             }
         })
         result['documents'] = documents;
-        let directors = []
-        let formerDirectors = []
+        let directors = [];
+        let formerDirectors = [];
+
         $('.director').map(function(i, el){
             let $el = $(el);
             let obj = {};
@@ -1276,7 +1277,8 @@ const ScrapingService = {
                 directors.push(obj);
             }
 
-        })
+        });
+
         result['directors'] = directors;
         result['formerDirectors'] = formerDirectors;
 

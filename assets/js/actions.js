@@ -12,6 +12,7 @@ import {
     TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE,
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
+    LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE,
     LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE,
@@ -155,6 +156,17 @@ export function lookupCompany(query) {
     return {
         types: [LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE],
         callAPI: () => fetch('/api/company/lookup/' + encodeURIComponent(query), {
+            headers: json_headers,
+            credentials: 'same-origin'
+        }),
+        payload: {query: query}
+    };
+}
+
+export function lookupOwnCompany(query) {
+    return {
+        types: [LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE],
+        callAPI: () => fetch('/api/company/lookup_own/' + encodeURIComponent(query), {
             headers: json_headers,
             credentials: 'same-origin'
         }),

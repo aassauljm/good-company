@@ -11,6 +11,7 @@ import {
     TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE,
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
+    LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
@@ -96,6 +97,21 @@ function lookupCompany(state = {list: []}, action){
             return {...state, _status: 'fetching'};
         case LOOKUP_COMPANY_SUCCESS:
             return {...state, list: action.response, _status: 'complete'};
+        case LOOKUP_COMPANY_FAILURE:
+            return {...state, _status: 'error'};
+        default:
+            return state;
+    }
+}
+
+function lookupOwnCompany(state = {list: []}, action){
+    switch(action.type){
+        case LOOKUP_OWN_COMPANY_REQUEST:
+            return {...state, _status: 'fetching'};
+        case LOOKUP_OWN_COMPANY_SUCCESS:
+            return {...state, list: action.response, _status: 'complete'};
+        case LOOKUP_OWN_COMPANY_FAILURE:
+            return {...state, _status: 'error'};
         default:
             return state;
     }
@@ -318,6 +334,7 @@ const appReducer = combineReducers({
     companyPage,
     transactions,
     lookupCompany,
+    lookupOwnCompany,
     importCompany,
     login,
     userInfo,

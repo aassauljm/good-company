@@ -146,6 +146,10 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'lookup'
     },
+    'GET /api/company/lookup_own/:query': {
+        controller: 'CompanyController',
+        action: 'lookupOwn'
+    },
     'GET /api/address/lookup/:query': {
         controller: 'AddressController',
         action: 'lookup'

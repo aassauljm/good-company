@@ -136,14 +136,16 @@ describe('Company Controller', function() {
                 .then(function(res){
                     companyId = res.body.id;
                     done();
-                });
+                })
+                .catch(done);
         });
         it('Gets current stats', function(done){
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
                     done();
-                });
+                })
+                .catch(done);
         });
     });
 

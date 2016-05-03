@@ -6,8 +6,13 @@ scrape all, record errors
 make transaction forms - 1 types to go
 documents associated to actions, forward and back
 
-
 fix - company
+
+
+--sum errors
+
+--delete button
+
 
 pretty forms
 better error positioning

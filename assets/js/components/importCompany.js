@@ -7,7 +7,7 @@ import {importCompany, addNotification, requestResource } from '../actions';
 import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { fieldStyle, fieldHelp, requiredFields, formFieldProps, formProxyable, formProxy } from '../utils';
+import { fieldStyle, fieldHelp, requiredFields, formFieldProps } from '../utils';
 import { routeActions } from 'react-router-redux'
 import LookupCompany from './lookupCompany';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';

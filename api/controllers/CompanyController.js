@@ -1,3 +1,4 @@
+"use strict";
 /**
  * CompanyController
  *
@@ -17,7 +18,7 @@ function checkNameCollision(ownerId, data) {
                 model: CompanyState,
                 as: 'currentCompanyState',
                 where: {
-                    companyName: data.companyName
+                    companyName: data.companyName //and not deleted
                 }
             }]
         })
@@ -231,6 +232,33 @@ module.exports = {
             }).catch(function(err) {
                 return res.negotiate(err);
             });
+    },
+    lookupOwn: function(req, res) {
+        Company.findAll({
+            where: {
+                ownerId: req.user.id
+            },
+            include: [{
+                model: CompanyState,
+                as: 'currentCompanyState',
+                where: {
+                    companyName: {
+                      $ilike: `%${req.params.query}%`
+                    }
+                }
+            }],
+            order: [ [ {
+                model: CompanyState,
+                as: 'currentCompanyState'},  'companyName' ] ]
+        })
+        .then(function(matchingRecords) {
+            res.json(matchingRecords.map((x) => ({
+                companyName: x.currentCompanyState.companyName,
+                companyNumber: x.currentCompanyState.companyNumber,
+                nzbn: x.currentCompanyState.nzbn,
+                id: x.id
+            })));
+        })
     },
     validate: function(req, res){
         var data = actionUtil.parseValues(req);
