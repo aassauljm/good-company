@@ -176,7 +176,7 @@ const selfManagedTransactions = {
                 return TransactionService.performInverseAll(actions.actions.slice(1), company);
             })
             .then(function(){
-                return {message: 'Share classes applied.'}
+                return {message: `Share clases applied for ${state.companyState}`}
             })
     },
 }
@@ -227,7 +227,7 @@ function createRegisterEntry(data, company){
             return company.save();
         })
         .then(function(){
-            return {message: 'Entry created.'}
+            return {message: `Entry created for ${companyState.companyState} Interest Register`}
         })
 }
 
@@ -283,7 +283,7 @@ function createShareClass(data, company){
             return company.setCurrentCompanyState(companyState);
          })
         .then(function(){
-            return {message: 'Share Class created.'}
+            return {message: `Share Class created for ${companyState.companyState}`}
         })
 }
 
@@ -322,15 +322,15 @@ module.exports = {
                         args = args.json ? JSON.parse(args.json) : args;
                         args.documents = files;
                     })
-                    .then(function() {
+                    .then(function(results) {
                         return transactions[req.params.type] ? transactions[req.params.type](args, company) : null;
                     })
                 })
-                .then(function() {
-                    return selfManagedTransactions[req.params.type] ? selfManagedTransactions[req.params.type](args, company) : null;
+                .then(function(results) {
+                    return selfManagedTransactions[req.params.type] ? selfManagedTransactions[req.params.type](args, company) : results;
                 })
-                .then(() => {
-                    return TransactionService.createActivityLog(req.user, company.id, args.transactions);
+                .then((results) => {
+                    return TransactionService.createActivityLog(req.user, company.id, results);
                 })
                 .then(function(result){
                     res.json(result);
@@ -348,7 +348,7 @@ module.exports = {
 
     },
     createRegisterEntry: function(req, res){
-        let company;
+        let company, result;
         // merge with above
         return req.file('documents').upload(function(err, uploadedFiles){
             return sequelize.transaction(function(t){
@@ -379,6 +379,14 @@ module.exports = {
                         values.persons = values.persons.split(',').map(p => parseInt(p, 10));
                         return createRegisterEntry(values, company);
                     })
+                })
+                 .then((_result) => {
+                    result = _result;
+                    return ActivityLog.create({
+                        type: ActivityLog.types.REGISTER_ENTRY,
+                        user: req.user,
+                        description: result.message
+                    });
                 })
                 .then(function(result){
                     res.ok(result);
@@ -426,6 +434,14 @@ module.exports = {
                         values.documents = files;
                         return createShareClass(values, company);
                     })
+                })
+                .then((_result) => {
+                    result = _result;
+                    return ActivityLog.create({
+                        type: ActivityLog.types.CREATE_SHARE_CLASS,
+                        user: req.user,
+                        description: result.message
+                    });
                 })
                 .then(function(result){
                     res.ok(result);
