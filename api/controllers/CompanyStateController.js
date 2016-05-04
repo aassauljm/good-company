@@ -30,6 +30,99 @@ function validateHoldings(newHoldings){
 }
 
 
+function transactionMessages(transactions, companyName){
+    const results = [];
+
+    const calcSum = (transactions, type) => transactions.reduce((acc, t) => {
+        return acc + _.sum((t.actions || []).filter(t => t.transactionType === type), 'amount')
+    }, 0);
+
+    const issue = _.filter(transactions, t => t.transactionType === Transaction.types.ISSUE);
+    const conversion = _.filter(transactions, t => t.transactionType === Transaction.types.CONVERSION);
+    const purchase = _.filter(transactions, t => t.transactionType === Transaction.types.PURCHASE);
+    const acquisition = _.filter(transactions, t => t.transactionType === Transaction.types.ACQUISITION);
+    const consolidation = _.filter(transactions, t => t.transactionType === Transaction.types.CONSOLIDATION);
+    const subdivision = _.filter(transactions, t => t.transactionType === Transaction.types.SUBDIVISION);
+    const redemption = _.filter(transactions, t => t.transactionType === Transaction.types.REDEMPTION);
+    const transfer = _.filter(transactions, t => t.transactionType === Transaction.types.TRANSFER);
+    const details = _.filter(transactions, t => t.transactionType === Transaction.types.DETAILS);
+    const holdings = _.filter(transactions, t => t.transactionType === Transaction.types.HOLDING_CHANGE);
+    const holders = _.filter(transactions, t => t.transactionType === Transaction.types.HOLDER_CHANGE);
+    //const newAllocation = _.filter(transactions, t => t.transactionType === Transaction.types.NEW_ALLOCATION);
+    const addDirector = _.filter(transactions, t => t.transactionType === Transaction.types.NEW_DIRECTOR);
+    const removeDirector = _.filter(transactions, t => t.transactionType === Transaction.types.REMOVE_DIRECTOR);
+    const updateDirector = _.filter(transactions, t => t.transactionType === Transaction.types.UPDATE_DIRECTOR);
+
+    if(issue.length){
+        const sum = calcSum(issue, Transaction.types.ISSUE_UNALLOCATED);
+        const plural = sum !== 1 ? 'shares' : 'share';
+        results.push({message: `${sum} ${plural} issued for ${companyName}.`})
+    }
+    if(conversion.length){
+        const sum = calcSum(conversion, Transaction.types.CONVERSION);
+        const plural = sum !== 1 ? 'shares' : 'share';
+        results.push({message: `${sum} ${plural} converted for ${companyName}.`})
+    }
+    if(purchase.length){
+        const sum = calcSum(purchase, Transaction.types.PURCHASE);
+        const plural = sum !== 1 ? 'shares' : 'share';
+        results.push({message: `${sum} ${plural} purchased for ${companyName}.`})
+    }
+    if(acquisition.length){
+        const sum = calcSum(acquisition, Transaction.types.ACQUISITION);
+        const plural = sum !== 1 ? 'shares' : 'share';
+        results.push({message: `${sum} ${plural} purchased for ${companyName}.`})
+    }
+    if(consolidation.length){
+        const sum = calcSum(acquisition, Transaction.types.CONSOLIDATION);
+        const plural = sum !== 1 ? 'shares' : 'share';
+        results.push({message: `${sum} ${plural} consolidated for ${companyName}.`})
+    }
+    if(subdivision.length){
+        const sum = calcSum(subdivided, Transaction.types.SUBDIVISION);
+        const plural = sum !== 1 ? 'shares' : 'share';
+        results.push({message: `${sum} ${plural} subdivided for ${companyName}.`})
+    }
+    if(transfer.length){
+        const sum = calcSum(transfer, Transaction.types.TRANSFER_FROM);
+        const plural = sum !== 1 ? 'shares' : 'share';
+        results.push({message: `${sum} ${plural} transfered for ${companyName}.`})
+    }
+    if(details.length){
+        results.push({message: `Details updated for ${companyName}.`})
+    }
+    if(holdings.length){
+        results.push({message: `Shareholding updated for ${companyName}.`})
+    }
+    if(holders.length){
+        results.push({message: `Shareholder updated for ${companyName}.`})
+    }
+    if(addDirector.length){
+        results.push({message: `Director added for ${companyName}.`})
+    }
+    if(removeDirector.length){
+        results.push({message: `Director removed for ${companyName}.`})
+    }
+    if(updateDirector.length){
+        results.push({message: `Director updated for ${companyName}.`})
+    }
+    return results;
+
+}
+
+function createActivityLog(user, company, messages){
+    if(!Array.isArray(messages)){
+        messages = [messages];
+    }
+    return ActivityLog.bulkCreate(messages.map(m => {
+        return {
+            userId: user.id,
+            description: m.message,
+            data: {companyId: company.id}
+        }
+    }));
+}
+
 // TODO, move to transaction service
 var transactions = {
     seed: function(args, company, date) {
@@ -54,6 +147,9 @@ var transactions = {
             })
             .then(function(){
                 return company.save();
+            })
+            .then(function(){
+                return {message: `Company seeded`}
             })
     },
     issue: function(args, company){
@@ -90,16 +186,20 @@ var transactions = {
                 sets.push({
                     effectiveDate: new Date(),
                     actions: actions
-                })
+                });
             });
         if(!sets.length){
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
-        return TransactionService.performAll(sets, company);
+        return TransactionService.performAll(sets, company)
+        .then(() => {
+            return {message: `Shares issued`}
+        })
     },
 
 
     details: function(args, company){
+        let name;
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
             return currentCompanyState.buildNext(_.merge({}, args, {
@@ -107,6 +207,7 @@ var transactions = {
             }))
         })
         .then(function(nextCompanyState){
+            name = nextCompanyState.companyName;
             return nextCompanyState.save();
         })
         .then(function(nextCompanyState){
@@ -114,9 +215,11 @@ var transactions = {
         })
         .then(function(){
             return company.save();
-        });
+        })
+        .then(function(){
+            return {message: `Details updated for ${name}`}
+        })
     },
-
 
     compound: function(args, company){
         // TODO, validate different pairings
@@ -140,100 +243,64 @@ var transactions = {
                 if(args.documents){
                     return Promise.all(args.documents.map(d => d.update({date: date})));
                 }
-            });
-    }
-}
-
-const selfManagedTransactions = {
-     apply_share_classes: function (data, company){
-        /* to apply, retroactively, a share class:
-            * clone current state without apply previousCompanyStateId.
-            * set shareClass ids on parcels
-            * replay all historical actions
-
-            * perhaps keep a reference to previous head?
-            * perhaps flag companyState to show that share classes have been applied?
-        */
-        let state;
-        return sequelize.transaction(function(t){
-            return TransactionService.performTransaction({
-                actions: data.actions,
-                effectiveDate: data.effectiveDate || new Date(),
-                transactionType: Transaction.types.APPLY_SHARE_CLASSES
-            }, company)
-                .then(_state => {
-                    state = _state;
-                    state.set('previousCompanyStateId', null);
-                    return state.save();
-                })
-                // create previous
-                .then(() => company.createPrevious())
-                .then(state => {
-                    return state.getHistoricalActions();
-                })
             })
-            .then(actions => {
-                return TransactionService.performInverseAll(actions.actions.slice(1), company);
-            })
-            .then(function(){
-                return {message: `Share clases applied for ${state.companyState}`}
+            .then(() => {
+                return transactionMessages(args.transactions, state.companyName);
             })
     },
-}
 
+    createRegisterEntry: function (data, company){
+        let companyState, register;
+        return company.getCurrentCompanyState()
+            .then(function(currentCompanyState){
+                return currentCompanyState.buildNext({
+                    transaction: {type: Transaction.types.REGISTER_ENTRY, data: _.omit(data, 'documents'), effectiveDate: new Date() }
+                });
+            })
+            .then(function(cs){
+                companyState = cs;
+                return companyState.getIRegister();
+            })
+            .then(function(register){
+                if(!register){
+                    return InterestsRegister.build();
+                }
+                return register.buildNext();
+            })
+            .then(function(register){
+                return register.save();
+            })
+            .then(function(r){
+                register = r;
+                return InterestsEntry.create(data, {include: [{model: Document, as: 'documents', include: [
+                                                {model: DocumentData, as: 'documentData'}
+                                            ]}]})
+            })
+            .then(function(entry){
+                return entry.setPersons(data.persons)
+                    .then(() => entry)
+            })
+            .then(function(entry){
+                return register.addEntry(entry)
+            })
+            .then(function(){
+                companyState.set('register_id', register.id);
+                return companyState.save();
+            })
+            .then(function(nextCompanyState){
+                return company.setCurrentCompanyState(companyState);
+             })
+            .then(function(){
+                return company.save();
+            })
+            .then(function(){
+                return {message: `Entry created for ${companyState.companyName} Interest Register.`}
+            })
+    },
 
-function createRegisterEntry(data, company){
-    let companyState, register;
-    return company.getCurrentCompanyState()
-        .then(function(currentCompanyState){
-            return currentCompanyState.buildNext({
-                transaction: {type: Transaction.types.REGISTER_ENTRY, data: _.omit(data, 'documents'), effectiveDate: new Date() }
-            });
-        })
-        .then(function(cs){
-            companyState = cs;
-            return companyState.getIRegister();
-        })
-        .then(function(register){
-            if(!register){
-                return InterestsRegister.build();
-            }
-            return register.buildNext();
-        })
-        .then(function(register){
-            return register.save();
-        })
-        .then(function(r){
-            register = r;
-            return InterestsEntry.create(data, {include: [{model: Document, as: 'documents', include: [
-                                            {model: DocumentData, as: 'documentData'}
-                                        ]}]})
-        })
-        .then(function(entry){
-            return entry.setPersons(data.persons)
-                .then(() => entry)
-        })
-        .then(function(entry){
-            return register.addEntry(entry)
-        })
-        .then(function(){
-            companyState.set('register_id', register.id);
-            return companyState.save();
-        })
-        .then(function(nextCompanyState){
-            return company.setCurrentCompanyState(companyState);
-         })
-        .then(function(){
-            return company.save();
-        })
-        .then(function(){
-            return {message: `Entry created for ${companyState.companyState} Interest Register`}
-        })
-}
-
-function createShareClass(data, company){
-    let companyState, shareClasses;
-    return company.getCurrentCompanyState()
+    createShareClass: function(data, company){
+        let companyState, shareClasses;
+        return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
             return currentCompanyState.buildNext({
                 transaction: {type: Transaction.types.CREATE_SHARE_CLASS, data: _.omit(data, 'documents'), effectiveDate: new Date() }
@@ -242,11 +309,11 @@ function createShareClass(data, company){
         .then(function(cs){
             companyState = cs;
             return companyState.getShareClasses({
-                            include: [{
-                                model: ShareClass,
-                                as: 'shareClasses'
-                            }]
-                        });
+                    include: [{
+                        model: ShareClass,
+                        as: 'shareClasses'
+                    }]
+                });
         })
         .then(function(shareClasses){
             if(!shareClasses){
@@ -281,180 +348,134 @@ function createShareClass(data, company){
         })
         .then(function(nextCompanyState){
             return company.setCurrentCompanyState(companyState);
-         })
-        .then(function(){
-            return {message: `Share Class created for ${companyState.companyState}`}
         })
+        .then(function(){
+            return {message: `Share Class created for ${companyState.companyName}.`}
+        })
+    }
+}
+
+const selfManagedTransactions = {
+     apply_share_classes: function (data, company){
+        /* to apply, retroactively, a share class:
+            * clone current state without apply previousCompanyStateId.
+            * set shareClass ids on parcels
+            * replay all historical actions
+
+            * perhaps keep a reference to previous head?
+            * perhaps flag companyState to show that share classes have been applied?
+        */
+        let state;
+        return sequelize.transaction(function(t){
+            return TransactionService.performTransaction({
+                    actions: data.actions,
+                    effectiveDate: data.effectiveDate || new Date(),
+                    transactionType: Transaction.types.APPLY_SHARE_CLASSES
+                }, company)
+                .then(_state => {
+                    state = _state;
+                    state.set('previousCompanyStateId', null);
+                    return state.save();
+                })
+                // create previous
+                .then(() => company.createPrevious())
+                .then(state => {
+                    return state.getHistoricalActions();
+                })
+            })
+            .then(actions => TransactionService.performInverseAll(actions.actions.slice(1), company))
+            .then(function(){
+                return {
+                    message: `Share clases applied for ${state.companyName}.`
+                }
+            });
+    },
 }
 
 
-module.exports = {
-    transactions: transactions,
-    create: function(req, res) {
-        let company, args = actionUtil.parseValues(req);
-        delete args.type;
-        delete args.createdById;
-        delete args.ownerId;
-        return req.file('documents').upload(function(err, uploadedFiles){
-            return sequelize.transaction(function(t){
-                return Company.findById(req.params.companyId)
-                    .then(function(_company) {
-                        company = _company;
-                        return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+
+function createTransaction(req, res, type){
+    let company, args = actionUtil.parseValues(req);
+    delete args.type;
+    delete args.createdById;
+    delete args.ownerId;
+    return req.file('documents').upload(function(err, uploadedFiles){
+        return sequelize.transaction(function(t){
+            return Company.findById(req.params.companyId)
+                .then(function(_company) {
+                    company = _company;
+                    return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+                })
+                .then(function() {
+                    return Promise.map(uploadedFiles || [], f => {
+                        return fs.readFileAsync(f.fd)
+                            .then(readFile => {
+                                return Document.create({
+                                    filename: f.filename,
+                                    createdById: req.user.id,
+                                    ownerId: req.user.id,
+                                    type: f.type,
+                                    documentData: {
+                                        data: readFile,
+                                    }
+                                }, { include: [{model: DocumentData, as: 'documentData'}]});
+                        });
                     })
-                    .then(function() {
-                        return Promise.map(uploadedFiles || [], f => {
-                            return fs.readFileAsync(f.fd)
-                                .then(readFile => {
-                                    return Document.create({
-                                        filename: f.filename,
-                                        createdById: req.user.id,
-                                        ownerId: req.user.id,
-                                        type: f.type,
-                                        documentData: {
-                                            data: readFile,
-                                        }
-                                    }, { include: [{model: DocumentData, as: 'documentData'}]});
-                            });
-                        })
-                    })
-                    .then((files) => {
-                        args = args.json ? JSON.parse(args.json) : args;
-                        args.documents = files;
-                    })
-                    .then(function(results) {
-                        return transactions[req.params.type] ? transactions[req.params.type](args, company) : null;
-                    })
+                })
+                .then((files) => {
+                    args = args.json ? JSON.parse(args.json) : args;
+                    args.documents = files;
                 })
                 .then(function(results) {
-                    return selfManagedTransactions[req.params.type] ? selfManagedTransactions[req.params.type](args, company) : results;
+                    return transactions[type] ? transactions[type](args, company) : null;
                 })
-                .then((results) => {
-                    return TransactionService.createActivityLog(req.user, company.id, results);
-                })
-                .then(function(result){
-                    res.json(result);
-                })
-                .catch(sails.config.exceptions.ValidationException, function(e) {
-                    res.serverError(e);
-                })
-                .catch(sails.config.exceptions.ForbiddenException, function(e) {
-                    res.forbidden();
-                })
-                .catch(function(e) {
-                    res.serverError(e);
-                })
-        });
+            })
+            .then(function(results) {
+                return selfManagedTransactions[type] ? selfManagedTransactions[type](args, company) : results;
+            })
+            .then((results) => {
+                console.log("RESULTS", results)
+                return createActivityLog(req.user, company, results)
+                    .then(() => results)
+            })
+            .then(function(result){
+                res.json(result);
+            })
+            .catch(sails.config.exceptions.ValidationException, function(e) {
+                res.serverError(e);
+            })
+            .catch(sails.config.exceptions.ForbiddenException, function(e) {
+                res.forbidden();
+            })
+            .catch(function(e) {
+                res.serverError(e);
+            })
+    });
+}
 
+/*
+    return ActivityLog.create({
+        type: ActivityLog.types.REGISTER_ENTRY,
+        user: req.user,
+        description: result.message
+    });
+
+    return ActivityLog.create({
+        type: ActivityLog.types.CREATE_SHARE_CLASS,
+        user: req.user,
+        description: result.message
+    });
+*/
+
+module.exports = {
+    transactions: transactions,
+    create: (req, res) => {
+        createTransaction(req, res, req.params.type)
     },
     createRegisterEntry: function(req, res){
-        let company, result;
-        // merge with above
-        return req.file('documents').upload(function(err, uploadedFiles){
-            return sequelize.transaction(function(t){
-                return Company.findById(req.params.companyId)
-                    .then(function(_company) {
-                        company = _company;
-                        return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
-                    })
-                    .then(function() {
-                        return Promise.map(uploadedFiles || [], f => {
-                            return fs.readFileAsync(f.fd)
-                                .then(readFile => {
-                                    return {
-                                        filename: f.filename,
-                                        createdById: req.user.id,
-                                        ownerId: req.user.id,
-                                        type: f.type,
-                                        documentData: {
-                                            data: readFile,
-                                        }
-                                    };
-                            });
-                        })
-                    })
-                    .then(function(files){
-                        const values = actionUtil.parseValues(req);
-                        values.documents = files;
-                        values.persons = values.persons.split(',').map(p => parseInt(p, 10));
-                        return createRegisterEntry(values, company);
-                    })
-                })
-                 .then((_result) => {
-                    result = _result;
-                    return ActivityLog.create({
-                        type: ActivityLog.types.REGISTER_ENTRY,
-                        user: req.user,
-                        description: result.message
-                    });
-                })
-                .then(function(result){
-                    res.ok(result);
-                })
-                .catch(sails.config.exceptions.ValidationException, function(e) {
-                    res.serverError(e);
-                })
-                .catch(sails.config.exceptions.ForbiddenException, function(e) {
-                    res.forbidden();
-                })
-                .catch(function(e) {
-                    res.serverError(e);
-                })
-            })
+        createTransaction(req, res, 'createRegisterEntry');
     },
     createShareClass: function(req, res){
-        let company;
-        // merge with above
-        return req.file('documents').upload(function(err, uploadedFiles){
-            return sequelize.transaction(function(t){
-                return Company.findById(req.params.companyId)
-                    .then(function(_company) {
-                        company = _company;
-                        return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
-                    })
-                    .then(function() {
-                        return Promise.map(uploadedFiles || [], f => {
-                            return fs.readFileAsync(f.fd)
-                                .then(readFile => {
-                                    return {
-                                        filename: f.filename,
-                                        createdById: req.user.id,
-                                        ownerId: req.user.id,
-                                        type: f.type,
-                                        documentData: {
-                                            data: readFile,
-                                        }
-                                    };
-                            });
-                        })
-                    })
-                    .then(function(files){
-                        let values = actionUtil.parseValues(req);
-                        values = JSON.parse(values.json || '{}');
-                        values.documents = files;
-                        return createShareClass(values, company);
-                    })
-                })
-                .then((_result) => {
-                    result = _result;
-                    return ActivityLog.create({
-                        type: ActivityLog.types.CREATE_SHARE_CLASS,
-                        user: req.user,
-                        description: result.message
-                    });
-                })
-                .then(function(result){
-                    res.ok(result);
-                })
-                .catch(sails.config.exceptions.ValidationException, function(e) {
-                    res.serverError(e);
-                })
-                .catch(sails.config.exceptions.ForbiddenException, function(e) {
-                    res.forbidden();
-                })
-                .catch(function(e) {
-                    res.serverError(e);
-                })
-            })
+        createTransaction(req, res, 'createShareClass');
     }
 };

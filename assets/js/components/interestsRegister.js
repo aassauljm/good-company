@@ -60,12 +60,13 @@ class EntryForm extends React.Component {
         this.submit = ::this.submit;
     }
 
-
     submit(data) {
         const body = new FormData();
-        ['date', 'details', 'persons'].forEach(( key ) => {
+        /*['date', 'details', 'persons'].forEach(( key ) => {
             body.append(key, data[key]);
-        });
+        });*/
+        body.append('json', JSON.stringify({...data, documents: null}));
+
         (data.documents ||[]).map(d => {
             body.append('documents', d, d.name);
         })

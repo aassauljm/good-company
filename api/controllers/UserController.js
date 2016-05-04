@@ -36,13 +36,12 @@ module.exports = {
     },
 
     recentActivity: function(req, res) {
-        User.recentActivity(rq.user.id)
-            .then(function(activity){
-                res.json(activity)
-            })
-            .catch(function(err){
-                res.badRequest(err);
-            })
+        ActivityLog.findAll({
+            where: {userId: req.user.id},
+            order: [['createdAt', 'DESC']],
+            limit: 10
+        })
+        .then(activities, res.json(activities));
     },
 
     setPassword: function(req, res) {
@@ -110,9 +109,9 @@ module.exports = {
                                 description: 'Created account'
                             })
                             .then(() => res.ok({
-                                    account_created: true
-                                })});
-                        });
+                                account_created: true
+                            }));
+                    });
                     });
                 });
             })

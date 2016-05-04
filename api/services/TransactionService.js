@@ -1184,8 +1184,3 @@ export function createImplicitTransactions(state, effectiveDate){
         }]
     }
 }
-
-
-export function createActivityLog(userId, company, transactions){
-    //transactions.map()
-}
