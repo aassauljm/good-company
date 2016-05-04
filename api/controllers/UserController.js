@@ -104,9 +104,14 @@ module.exports = {
                                 return res.negotiate(err);
                             }
                             req.session.authenticated = true;
-                            return res.ok({
-                                account_created: true
-                            });
+                            return ActivityLog.create({
+                                type: ActivityLog.types.ACCOUNT_CREATED,
+                                user: req.user,
+                                description: 'Created account'
+                            })
+                            .then(() => res.ok({
+                                    account_created: true
+                                })});
                         });
                     });
                 });

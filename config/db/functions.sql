@@ -61,6 +61,14 @@ FOR EACH ROW
 EXECUTE PROCEDURE insert_director_entity();
 
 
+-- So that we get dates in the same format as sequelize
+CREATE OR REPLACE FUNCTION format_iso_date(d timestamp with time zone)
+    RETURNS text
+    AS $$
+    SELECT to_char($1 at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+$$ LANGUAGE SQL;
+
+
 CREATE OR REPLACE FUNCTION last_login(userId integer)
     RETURNS  text
     AS $$
@@ -96,13 +104,6 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
     SELECT id from find_state where "previousCompanyStateId" is null;
 $$ LANGUAGE SQL;
 
-
--- So that we get dates in the same format as sequelize
-CREATE OR REPLACE FUNCTION format_iso_date(d timestamp with time zone)
-    RETURNS text
-    AS $$
-    SELECT to_char($1 at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
-$$ LANGUAGE SQL;
 
 
 -- Summary of all transactions in json, used for client tables
