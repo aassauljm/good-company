@@ -18,7 +18,7 @@ import chai from 'chai';
 const should = chai.should();
 
 
-describe('Company Integration Tests', () => {
+describe.skip('Company Integration Tests', () => {
     before('render', prepareApp);
 
     it('Imports Company', function(done){

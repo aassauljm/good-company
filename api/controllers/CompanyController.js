@@ -181,17 +181,17 @@ module.exports = {
                             state.set('historical_action_id', actions.id);
                             return state.save();
                         })
+                        .then(() => {
+                            return ActivityLog.create({
+                                type: ActivityLog.types.IMPORT_COMPANY,
+                                user: req.user,
+                                description: `Imported ${state.companyName} from Companies Office.`,
+                                data: {companyId: company.id
+                                }
+                            });
+                        })
                     }
                 })
-                .then(() => {
-                    return ActivityLog.create({
-                        type: ActivityLog.types.IMPORT_COMPANY,
-                        user: req.user,
-                        description: `Imported ${state.companyName} from Companies Office.`,
-                        data: {companyId: company.id
-                        }
-                    });
-                });
         })
         .then(function(){
             // outside transaction block, because loops with rolledback transactions

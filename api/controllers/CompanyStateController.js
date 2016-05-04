@@ -140,9 +140,6 @@ var transactions = {
                 if(args.documents){
                     return Promise.all(args.documents.map(d => d.update({date: date})));
                 }
-            })
-            .then(() => {
-                return TransactionService.createActivityLog(req.user, company.id, args.transactions);
             });
     }
 }
@@ -331,6 +328,9 @@ module.exports = {
                 })
                 .then(function() {
                     return selfManagedTransactions[req.params.type] ? selfManagedTransactions[req.params.type](args, company) : null;
+                })
+                .then(() => {
+                    return TransactionService.createActivityLog(req.user, company.id, args.transactions);
                 })
                 .then(function(result){
                     res.json(result);

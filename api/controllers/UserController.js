@@ -59,16 +59,15 @@ module.exports = {
                         return passport.changePassword(req.allParams().newPassword)
                     });
             })
-            .then(function(match) {
-                res.ok({message: ['Password set.']});
-            })
             .then(() => {
                 return ActivityLog.create({
                     type: ActivityLog.types.SET_PASSWORD,
                     user: req.user,
-                    description: `Updated Password`,
-                    data: {companyId: company.id}
+                    description: `Updated Password`
                 });
+            })
+            .then(function(match) {
+                res.ok({message: ['Password set.']});
             })
             .catch(sails.config.exceptions.ForbiddenException, function(err) {
                 res.forbidden({

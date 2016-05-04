@@ -7,6 +7,7 @@ var _ = require('lodash');
 const types = {
     IMPORT_COMPANY: 'IMPORT_COMPANY',
     SET_PASSWORD: 'SET_PASSWORD',
+    ...require('../../config/enums/transactions')
 };
 
 module.exports = {
