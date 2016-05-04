@@ -30,7 +30,6 @@ module.exports = {
             as: 'owner',
             foreignKey: {
                 name: 'ownerId'
-
             }
         });
         Document.belongsTo(User, {

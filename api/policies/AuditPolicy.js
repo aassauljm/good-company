@@ -2,29 +2,35 @@ var fnv = require('fnv-plus');
 var _ = require('lodash');
 var url = require('url');
 
-module.exports = function (req, res, next) {
-  var ipAddress = req.headers['x-forwarded-for'] || (req.connection && req.connection.remoteAddress);
-  req.requestId = fnv.hash(new Date().valueOf() + ipAddress, 128).str();
-  sails.models.requestlog.create({
-    id: req.requestId,
-    ipAddress: ipAddress,
-    url: sanitizeRequestUrl(req),
-    method: req.method,
-    body: _.omit(req.body, 'password'),
-    model: req.options.modelIdentity,
-    userId: (req.user || {}).id
-  });
-  // persist RequestLog entry in the background; continue immediately
-  next();
+module.exports = function(req, res, next) {
+    var ipAddress = req.headers['x-forwarded-for'] || (req.connection && req.connection.remoteAddress);
+    req.requestId = fnv.hash(new Date().valueOf() + ipAddress, 128).str();
+    var create = sails.models.requestlog.create({
+        id: req.requestId,
+        ipAddress: ipAddress,
+        url: sanitizeRequestUrl(req),
+        method: req.method,
+        body: _.omit(req.body, 'password'),
+        model: req.options.modelIdentity,
+        userId: (req.user || {}).id
+    });
+    if (req.waitForRequestLog) {
+        create.then(() => {
+            next();
+        })
+    } else {
+        // persist RequestLog entry in the background; continue immediately
+        next();
+    }
 };
 
-function sanitizeRequestUrl (req) {
-  var requestUrl = url.format({
-    protocol: req.protocol,
-    host: req.host || sails.getHost(),
-    pathname: req.originalUrl || req.url,
-    query: req.query
-  });
+function sanitizeRequestUrl(req) {
+    var requestUrl = url.format({
+        protocol: req.protocol,
+        host: req.host || sails.getHost(),
+        pathname: req.originalUrl || req.url,
+        query: req.query
+    });
 
-  return requestUrl.replace(/(password=).*?(&|$)/ig, '$1<hidden>$2');
+    return requestUrl.replace(/(password=).*?(&|$)/ig, '$1<hidden>$2');
 }

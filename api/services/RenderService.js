@@ -13,13 +13,14 @@ import { setFetch } from "../../assets/js/utils";
 import fetch from 'isomorphic-fetch';
 import Promise from 'bluebird';
 
+
 export function serverRender(url, cookie, state={}){
     const history = createMemoryHistory(url),
     store = configureStore(history, state);
     setFetch(function(url, args){
         url = 'http://localhost:'+sails.config.port+url;
         return fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
-    })
+    });
 
     return new Promise((resolve, reject) => {
         match({history, routes: routes(store), location: url}, (error, redirectLocation, renderProps) => {

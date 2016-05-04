@@ -5,6 +5,9 @@
         border-width: 1px 1px 0 1px;
         .list-group-item{
             border-width:1px 0 1px 0;
+            p{
+                font-size: 0.9em;
+            }
         }
         .list-group-item:first-child {
             border-top-right-radius: 0;
@@ -36,5 +39,9 @@
     }
     .highlight{
         font-weight: bold;
+    }
+    .no-suggestions {
+        padding: 10px;
+        font-style: italic;
     }
 }

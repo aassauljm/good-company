@@ -36,7 +36,12 @@ module.exports.policies = {
         'CriteriaPolicy'
     ],
     AuthController: {
-        '*': ['passport']
+        '*': ['passport'],
+        'callback': [
+            'WaitForRequestLogPolicy',
+            'AuditPolicy',
+            'passport'
+        ]
     },
     UserController: {
         'setPassword': ['passport', 'sessionAuth'],

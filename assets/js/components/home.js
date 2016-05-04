@@ -11,9 +11,7 @@ import { showModal } from '../actions';
 
 function highlightString(string, query, highlightClass='highlight'){
     return string;
-
-
-
+    // not doing currently
     const startIndex = string.toLowerCase().indexOf(query.toLowerCase()),
             endIndex = startIndex + query.length;
     if(startIndex < 0){
@@ -116,6 +114,7 @@ export class SearchWidget extends React.Component {
     render() {
         const { fields, onSuggestionsUpdateRequested } = this.props;
         const suggestions = [];
+        let noSuggestions = false;
         if(this.props.lookupOwnCompany.list.length){
             suggestions.push({
                 title: 'My Companies',
@@ -128,22 +127,34 @@ export class SearchWidget extends React.Component {
                 list: this.props.lookupCompany.list.map(x => ({...x, companiesOffice: true}))
             });
         }
+
+        if(this.props.lookupOwnCompany._status === 'complete' &&
+           this.props.lookupCompany._status === 'complete' &&
+           suggestions.length === 0){
+            noSuggestions = true;
+        }
+
         const inputProps = {
             placeholder: 'Type to find or import your companies',
             value: fields.input.value,
             onChange: fields.input.onChange
         };
         return (
-          <Autosuggest theme={theme}
-            multiSection={true}
-            suggestions={suggestions}
-            onSuggestionsUpdateRequested={onSuggestionsUpdateRequested}
-            onSuggestionSelected={this.handleSelect}
-            getSuggestionValue={getSuggestionValue}
-            getSectionSuggestions={getSectionSuggestions}
-            renderSuggestion={renderSuggestion}
-            renderSectionTitle={renderSectionTitle}
-            inputProps={inputProps} />
+            <div>
+                <Autosuggest theme={theme}
+                    multiSection={true}
+                    suggestions={suggestions}
+                    onSuggestionsUpdateRequested={onSuggestionsUpdateRequested}
+                    onSuggestionSelected={this.handleSelect}
+                    getSuggestionValue={getSuggestionValue}
+                    getSectionSuggestions={getSectionSuggestions}
+                    renderSuggestion={renderSuggestion}
+                    renderSectionTitle={renderSectionTitle}
+                    inputProps={inputProps} />
+                { noSuggestions && <div className="no-suggestions">
+                  No results found
+                </div> }
+            </div>
         );
     }
 }

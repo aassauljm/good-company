@@ -61,6 +61,13 @@ FOR EACH ROW
 EXECUTE PROCEDURE insert_director_entity();
 
 
+CREATE OR REPLACE FUNCTION last_login(userId integer)
+    RETURNS  text
+    AS $$
+    SELECT format_iso_date("createdAt") from login_history where "userId" = $1 order by "createdAt" DESC limit 1 offset 1
+$$ LANGUAGE SQL;
+
+
 -- Recurse throw x generations of companyState and return that id
 CREATE OR REPLACE FUNCTION previous_company_state(companyStateId integer, generation integer)
     RETURNS INTEGER

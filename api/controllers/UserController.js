@@ -4,6 +4,7 @@ var _ = require('lodash');
 var Promise = require("bluebird");
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
+var moment = require('moment');
 
 function checkNameCollision(data) {
     return User.findAll({
@@ -24,9 +25,14 @@ function checkNameCollision(data) {
 module.exports = {
 
     userInfo: function(req, res) {
-        User.userWithRoles(req.user.id)
-            .then(function(r) {
-                res.json(r);
+        console.log('here')
+        const last = sequelize.query("select last_login(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: req.user.id }});
+        Promise.join(User.userWithRoles(req.user.id), last)
+            .spread(function(r, last) {
+                const ago = last[0].last_login ? moment(last[0].last_login).fromNow() : "first log in";
+                res.json({...r.toJSON(), lastLogin: ago});
             });
     },
 
