@@ -54,6 +54,12 @@ module.exports.routes = {
         action: 'userInfo'
     },
 
+    'GET /api/recent_activity': {
+        controller: 'UserController',
+        modelIdentity: 'user',
+        action: 'recentActivity'
+    },
+
     'PUT /api/set_password': {
         controller: 'UserController',
         modelIdentity: 'user',

@@ -25,7 +25,6 @@ function checkNameCollision(data) {
 module.exports = {
 
     userInfo: function(req, res) {
-        console.log('here')
         const last = sequelize.query("select last_login(:id)",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: req.user.id }});
@@ -34,6 +33,16 @@ module.exports = {
                 const ago = last[0].last_login ? moment(last[0].last_login).fromNow() : "first log in";
                 res.json({...r.toJSON(), lastLogin: ago});
             });
+    },
+
+    recentActivity: function(req, res) {
+        User.recentActivity(rq.user.id)
+            .then(function(activity){
+                res.json(activity)
+            })
+            .catch(function(err){
+                res.badRequest(err);
+            })
     },
 
     setPassword: function(req, res) {
@@ -52,6 +61,14 @@ module.exports = {
             })
             .then(function(match) {
                 res.ok({message: ['Password set.']});
+            })
+            .then(() => {
+                return ActivityLog.create({
+                    type: ActivityLog.types.SET_PASSWORD,
+                    user: req.user,
+                    description: `Updated Password`,
+                    data: {companyId: company.id}
+                });
             })
             .catch(sails.config.exceptions.ForbiddenException, function(err) {
                 res.forbidden({

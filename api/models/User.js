@@ -71,6 +71,11 @@ module.exports = {
                     },
                     include: [{model: Role, as: 'roles'}]
                 })
+            },
+            recentActivity: function(id){
+                return sequelize.query("select recent_activity(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                    id: id})
             }
         },
         instanceMethods: {

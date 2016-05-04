@@ -48,7 +48,7 @@ function login(state = {
 }, action){
     switch(action.type){
         case LOGIN_START:
-            return {...state}
+            return state
         case LOGIN_REQUEST:
             return state;
         case LOGIN_SUCCESS:

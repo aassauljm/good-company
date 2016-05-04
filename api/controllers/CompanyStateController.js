@@ -141,6 +141,9 @@ var transactions = {
                     return Promise.all(args.documents.map(d => d.update({date: date})));
                 }
             })
+            .then(() => {
+                return TransactionService.createActivityLog(req.user, company.id, args.transactions);
+            });
     }
 }
 

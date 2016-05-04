@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION last_login(userId integer)
 $$ LANGUAGE SQL;
 
 
--- Recurse throw x generations of companyState and return that id
+-- Recurse through x generations of companyState and return that id
 CREATE OR REPLACE FUNCTION previous_company_state(companyStateId integer, generation integer)
     RETURNS INTEGER
     AS $$
@@ -153,6 +153,30 @@ SELECT row_to_json(q) from (SELECT "transactionId", type, format_iso_date(t."eff
 
     WHERE t.type = any($2::enum_transaction_type[])
     ORDER BY t."effectiveDate" DESC) as q;
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION top_user_companies(userId integer, count integer default 10)
+    RETURNS SETOF integer
+    AS $$
+    SELECT id from company c where c."ownerId" = $1 limit $2;
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION recent_transactions(companyStateId integer, count integer default 10)
+    RETURNS SETOF transaction
+    AS $$
+WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
+    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = $1
+    UNION ALL
+    SELECT t.id, t."previousCompanyStateId", t."transactionId"
+    FROM company_state t, prev_company_states tt
+    WHERE t.id = tt."previousCompanyStateId"
+)
+    SELECT t.*
+    from prev_company_states pt
+    inner join transaction t on pt."transactionId" = t.id
+    ORDER BY t."effectiveDate" DESC limit $2;
 $$ LANGUAGE SQL;
 
 

@@ -97,6 +97,8 @@ const theme = {
 
 export class SearchWidget extends React.Component {
 
+    // add proptypes
+
     constructor() {
         super();
         this.handleSelect = ::this.handleSelect;

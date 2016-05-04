@@ -183,6 +183,15 @@ module.exports = {
                         })
                     }
                 })
+                .then(() => {
+                    return ActivityLog.create({
+                        type: ActivityLog.types.IMPORT_COMPANY,
+                        user: req.user,
+                        description: `Imported ${state.companyName} from Companies Office.`,
+                        data: {companyId: company.id
+                        }
+                    });
+                });
         })
         .then(function(){
             // outside transaction block, because loops with rolledback transactions
