@@ -67,20 +67,25 @@ export function compareAddresses(first, second){
         return true;
     }
 
+
+    const firstParts = first.split(',')
+    const secondParts = second.split(',')
+    // split and see if first or second just has extra token
+    if(_.xor(firstParts, secondParts).length === 1){
+        return true;
+    }
+
+    // see if there are many tokens and one token has swapped
+    if(firstParts.length > 4 && _.intersection(firstParts, secondParts).length === firstParts.length-1){
+        return true;
+    }
+
     first =  first.replace(/,/g, ' ').replace(/ +/g, ' ');
     second = second.replace(/,/g, ' ').replace(/ +/g, ' ');
 
     if(first === second){
         return true;
     }
-
-    // split and see if first or second just has extra token
-
-    if(_.xor(first.split(' '), second.split(' ')).length === 1){
-        return true;
-    }
-
-
 
     first =  first.replace(/\./g, ' ');
     second = second.replace(/\./g, ' ');

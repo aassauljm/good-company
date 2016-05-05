@@ -60,6 +60,19 @@ module.exports.routes = {
         action: 'recentActivity'
     },
 
+    'GET /api/favourites': {
+        controller: 'UserController',
+        modelIdentity: 'user',
+        action: 'favourites'
+    },
+
+
+    'GET /api/recent_activity/full': {
+        controller: 'UserController',
+        modelIdentity: 'user',
+        action: 'recentActivityFull'
+    },
+
     'PUT /api/set_password': {
         controller: 'UserController',
         modelIdentity: 'user',

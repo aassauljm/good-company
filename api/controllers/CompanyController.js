@@ -152,13 +152,14 @@ module.exports = {
     },
     import: function(req, res) {
         // for now, just companies office
-        let data, company, state, processedDocs;
+        let data, company, state, processedDocs, companyName
         return sequelize.transaction(function(t){
             return ScrapingService.fetch(req.params.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
                 .tap(checkNameCollision.bind(null, req.user.id))
                 .then((_data) => {
                     data = _data;
+                    companyName = data.companyName;
                     return ScrapingService.populateDB(data, req.user.id);
                 })
                 .then(function(_company) {
@@ -181,15 +182,6 @@ module.exports = {
                             state.set('historical_action_id', actions.id);
                             return state.save();
                         })
-                        .then(() => {
-                            return ActivityLog.create({
-                                type: ActivityLog.types.IMPORT_COMPANY,
-                                user: req.user,
-                                description: `Imported ${state.companyName} from Companies Office.`,
-                                data: {companyId: company.id
-                                }
-                            });
-                        })
                     }
                 })
         })
@@ -199,6 +191,15 @@ module.exports = {
                 sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
                 return TransactionService.performInverseAll(processedDocs, company, state);
             }
+        })
+        .then(() => {
+            return ActivityLog.create({
+                type: ActivityLog.types.IMPORT_COMPANY,
+                userId: req.user.id,
+                description: `Imported ${companyName} from Companies Office.`,
+                data: {companyId: company.id
+                }
+            });
         })
         .then(function() {
             return res.json(company);

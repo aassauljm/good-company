@@ -7,6 +7,9 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { routeActions } from 'react-router-redux'
 import { showModal } from '../actions';
+import { RecentActivityWidget } from './recentActivity';
+import { AlertsWidget } from './alerts';
+import { FavouritesWidget } from './favourites';
 
 
 function highlightString(string, query, highlightClass='highlight'){
@@ -62,7 +65,7 @@ function mapDispatchToProps(dispatch) {
         onChange(event, { newValue }) {
             dispatch(updateInputValue(newValue));
             const value = newValue.trim();
-            if (value === '') {
+            if (value === ''){
                 dispatch(clearSuggestions());
             }
         },
@@ -83,6 +86,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
     return {lookupCompany: state.lookupCompany, lookupOwnCompany: state.lookupOwnCompany};
 };
+
 
 
 const theme = {
@@ -173,8 +177,26 @@ const ConnectedSearchWidget = connect(mapStateToProps, mapDispatchToProps)(Searc
 export default class Home extends React.Component {
 
     render() {
-        return  <div className="container">
-            <ConnectedSearchWidget />
+        return  <div>
+            <div className="container-fluid page-top">
+                <div className="container">
+                <ConnectedSearchWidget />
+                </div>
+            </div>
+            <div className="container-fluid page-body">
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-6">
+                        <RecentActivityWidget />
+                    </div>
+                    <div className="col-md-6">
+                        <AlertsWidget />
+                        <FavouritesWidget />
+
+                    </div>
+                </div>
+            </div>
+            </div>
         </div>
     }
 }

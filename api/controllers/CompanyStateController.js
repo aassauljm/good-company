@@ -217,7 +217,7 @@ var transactions = {
             return company.save();
         })
         .then(function(){
-            return {message: `Details updated for ${name}`}
+            return {message: `Details updated for ${name}.`}
         })
     },
 

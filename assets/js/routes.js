@@ -18,6 +18,7 @@ import { InterestsRegister, InterestsRegisterCreate, InterestsRegisterView } fro
 import { ShareRegister, ShareRegisterDocumentLoader } from './components/shareRegister';
 import { NewTransaction } from './components/newTransaction';
 import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
+import RecentActivity from './components/recentActivity';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -43,6 +44,7 @@ export default (store) => {
         <Route onEnter={requireLogin}>
             <IndexRoute component={ Home }  />
             <Route path="home" component={ Home }  />
+            <Route path="recent_activity" component={ RecentActivity }  />
             <Route path="users" component={ Users }  />
             <Route path="roles" component={ Roles }  />
             <Route path="documents" component={ Documents }  />

@@ -66,6 +66,8 @@ $header-image:url("~catalex_shared/images/hero-bg.jpg");
 $left-chevron:url("~catalex_shared/images/left-chevron.png");
 $right-chevron:url("~catalex_shared/images/right-chevron.png");
 $brand-primary: #2C3E50;
+$border-light: #ccc;
+
 
 @import "~catalex_shared/sass/catalex-common";
 
@@ -78,15 +80,23 @@ $brand-primary: #2C3E50;
 @import "transitions";
 @import "loading";
 @import "graphs";
+@import "widget";
+@import "home";
 
+
+html,body{
+    background-color: #f2f2f2;
+    height:100%;
+}
 
 body{
 	margin:0;
     font-family: -apple-system, "Helvetica Neue", "Roboto", "Segoe UI", "Lucida Grande", sans-serif;
+
 }
 
 nav.navbar{
-    margin-bottom: 2em;
+    margin-bottom: 0;
     border-radius:0;
     .container-fluid  a.navbar-brand {
         color:$white;
@@ -133,7 +143,6 @@ nav.navbar{
 .app-container{
     position: relative;
 }
-
 
 p.form-control-static{
     overflow: hidden;

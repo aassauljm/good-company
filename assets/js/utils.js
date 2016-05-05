@@ -3,7 +3,7 @@ import React, {PropTypes} from 'react';
 import isoFetch from 'isomorphic-fetch';
 import STRINGS from './strings'
 import { Link } from 'react-router';
-
+import moment from 'moment';
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -241,10 +241,18 @@ export function numberWithCommas(x) {
 }
 
 export function stringToDate(date){
-    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const d = new Date(date);
-    return [d.getDate() , MONTHS[d.getMonth()] , d.getFullYear()].join(' ');
+    return moment(date).format('D MMM YYYY')
+    //use moment
+    //const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    //const d = new Date(date);
+    //return [d.getDate() , MONTHS[d.getMonth()] , d.getFullYear()].join(' ');
 }
+
+
+export function stringToDateTime(date){
+    return moment(date).format('h:ma D MMM YYYY')
+}
+
 
 export function debounce(func, delay = 100) {
     let timeout;

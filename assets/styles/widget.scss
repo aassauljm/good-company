@@ -1,0 +1,55 @@
+$widget-border: #ccc;
+
+.widget{
+    background-color:white;
+    padding:8px 12px;
+    border: 1px solid $widget-border;
+    border-radius: 3px;
+    margin: 20px 0;
+    .widget-header{
+        border-bottom: 1px solid $widget-border;
+        float:left;
+        width:100%;
+        .widget-title{
+            color:$deep-red;
+            font-size:1.1em;
+            font-weight:bold;
+            float:left;
+            margin-bottom:6px;
+        }
+        .widget-control{
+            float: right;
+
+            cursor: pointer;
+            border-left: 1px solid $widget-border;
+            padding-left:12px;
+            font-style: italic;
+            a{
+                 color:$gray-light;
+            }
+
+        }
+    }
+    .widget-body{
+        clear:both;
+        padding:8px 0;
+        ul{
+            margin:0;
+            padding:0;
+            li{
+                list-style-type:none;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  .date, .extra{
+                    color:$gray-light;
+                    font-style: italic;
+                    font-size: 0.9em;
+                  }
+            }
+            li:hover{
+                color:$deep-red;
+            }
+        }
+    }
+}

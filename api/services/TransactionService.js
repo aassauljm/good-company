@@ -266,10 +266,12 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             else if(current.length > 1 && session.active){
                 // ambiguity resolving strategy
                 if(!session.get('options')[session.get('index')]){
-                    session.get('options')[session.get('index')] = {index: 0, keys: current.map(c => c.holdingId).sort()};
+                    session.get('options')[session.get('index')] = {index: 0, keys: current.map((c, i) => i)} //, keys: current.map(c => c.holdingId).sort()};
                 }
+                current = _.sortBy(current, c =>c .holdingId);
                 const obj = session.get('options')[session.get('index')]
-                current = _.find(current, {holdingId: obj.keys[obj.index]});
+                current = current[obj.index];
+                //current = _.find(current, {holdingId: obj.keys[obj.index]});
             }
             else{
                 current = current[0];

@@ -41,7 +41,42 @@ module.exports = {
             order: [['createdAt', 'DESC']],
             limit: 10
         })
-        .then(activities, res.json(activities));
+        .then(activities => res.json(activities));
+    },
+
+    recentActivityFull: function(req, res) {
+        ActivityLog.findAll({
+            where: {userId: req.user.id},
+            order: [['createdAt', 'DESC']]
+        })
+        .then(activities => res.json(activities));
+    },
+
+    favourites: function(req, res) {
+        const favs = () => Favourite.findAll({
+            where: {userId: req.user.id},
+            include: [
+                {
+                    model: Company,
+                        as: 'company',
+                        include: {
+                        model: CompanyState,
+                        as: 'currentCompanyState'
+                }
+            }]
+        });
+        const fallback = () => Company.findAll({
+            where: {ownerId: req.user.id},
+            include: {
+                model: CompanyState,
+                as: 'currentCompanyState'
+            },
+            limit: 10
+        });
+        favs()
+            .then(items => !items.length ? fallback() : items)
+            .then(items => res.json(items))
+            .catch(e => res.negotiate(e))
     },
 
     setPassword: function(req, res) {
@@ -61,7 +96,7 @@ module.exports = {
             .then(() => {
                 return ActivityLog.create({
                     type: ActivityLog.types.SET_PASSWORD,
-                    user: req.user,
+                    userId: req.user.id,
                     description: `Updated Password`
                 });
             })
@@ -105,7 +140,7 @@ module.exports = {
                             req.session.authenticated = true;
                             return ActivityLog.create({
                                 type: ActivityLog.types.ACCOUNT_CREATED,
-                                user: req.user,
+                                userId: req.user.id,
                                 description: 'Created account'
                             })
                             .then(() => res.ok({
