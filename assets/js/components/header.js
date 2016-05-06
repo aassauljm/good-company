@@ -100,9 +100,9 @@ export default class Header extends React.Component {
     render() {
         return  <Navbar fluid>
                 <NavbarHeader>
-                <a className="navbar-brand" href="#"><span>Good Company</span></a>
-                      <NavbarToggle />
-                    </NavbarHeader>
+                    <a className="navbar-brand" href="#"><span>Good Company</span></a>
+                    <NavbarToggle />
+                </NavbarHeader>
 
              <NavbarCollapse>
             <div className="chev-left" />

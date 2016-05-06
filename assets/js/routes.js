@@ -50,7 +50,7 @@ export default (store) => {
             <Route path="documents" component={ Documents }  />
             <Route path="document/view/:id" component={ Document }  />
             <Route path="companies" component={ Companies }  />
-            <Route path="company/view/:id" component={ Company }>
+            <Route path="company/view/:id" component={ Company } childrenOnly={true}>
                 <Route path="shareholdings" component={ Shareholdings } />
                 <Route path="details" component={ CompanyDetails } />
                 <Route path="transactions" component={ CompanyTransactions } />
@@ -68,8 +68,8 @@ export default (store) => {
                 </Route>
             </Route>
             <Route path="company/view/:id/history/:generation" component={ Company }  />
-            <Route path="user/edit/:id" edit={true} component={ Account }  />
-            <Route path="user/set_password" edit={true} component={ SetPassword }  />
+            <Route path="user/edit/:id" component={ Account }  edit={true} />
+            <Route path="user/set_password" component={ SetPassword } edit={true} />
             <Route path="user/create" component={ Account }  />
         </Route>
         <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true}>

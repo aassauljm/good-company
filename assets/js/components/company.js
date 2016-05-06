@@ -4,7 +4,7 @@ import {requestResource, changeCompanyTab, showModal } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
-import LookupCompany from  './lookupCompany';
+import CompanyHeader from  './companyHeader';
 import { Link } from 'react-router';
 import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -318,6 +318,15 @@ export class CompanyLoader extends React.Component {
 }
 
 
+/*
+<div className="well">
+    <h1>{current.companyName}</h1>
+    { current.companyNumber && <h5><Link target="_blank" to={ companiesOfficeUrl }>#{current.companyNumber}, {current.companyStatus}</Link></h5> }
+    <h5>As at {stringToDate(current.transaction.effectiveDate) }</h5>
+</div>
+
+*/
+
 @asyncConnect([{
     key: 'company',
     promise: ({store: {dispatch, getState}, params}) => {
@@ -352,12 +361,9 @@ export default class Company extends React.Component {
         }
         const companiesOfficeUrl = `http://www.business.govt.nz/companies/app/ui/pages/companies/${current.companyNumber}`;
         return <div className="company">
+                <CompanyHeader companyId={this.key()} companyState={current}/>
                 <div className="container">
-                <div className="well">
-                    <h1>{current.companyName}</h1>
-                    { current.companyNumber && <h5><Link target="_blank" to={ companiesOfficeUrl }>#{current.companyNumber}, {current.companyStatus}</Link></h5> }
-                    <h5>As at {stringToDate(current.transaction.effectiveDate) }</h5>
-                </div>
+
                 { this.props.children && <ul className="pager">
                             <li><Link className="nav-link return-company-page" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>
                             </ul>
