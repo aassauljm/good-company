@@ -1,0 +1,130 @@
+nav.navbar{
+    .container{
+        position: relative;
+    }
+    ul.navbar-nav{
+        min-height:1px;
+    }
+    .navbar-top {
+        float: left;
+        width: 100%;
+        height: $navbar-height * 0.66;
+        .navbar-brand{
+            line-height: $navbar-height * 0.66;
+            padding-top:0;
+            padding-bottom:0;
+            a{
+                &:active{
+                    outline:none;
+                }
+                .company-title{
+                    font-weight:bold;
+                    color: $white;
+                    font-size: 1.5em;
+                    .glyphicon{
+                        font-size:0.85em;
+                    }
+                }
+            }
+        }
+        .navbar-right{
+            margin-right:0;
+        }
+
+        .open.dropdown{
+             a, a:focus, a:hover{
+                text-decoration:none;
+            }
+            .dropdown-menu{
+                padding-top:0;
+                padding-bottom:0;
+                border:none;
+                background-color:$gray;
+                a{
+                    color:#fff;
+                    font-size: 1em;
+                    font-weight:bold;
+                    padding-top:4px;
+                    padding-bottom:4px;
+                }
+                li:first-child a{
+                    padding-top:10px;
+                    padding-bottom:10px;
+                    border-top-right-radius:4px;
+                    border-top-left-radius:4px;
+                }
+                li:last-child a{
+                    border-bottom-right-radius:4px;
+                    border-bottom-left-radius:4px;
+                }
+                li.separator{
+                    border-bottom:1px solid $gray-light;
+                }
+                a:hover{
+                   background-color: #fff;
+                    color:$deep-red;
+                }
+            }
+        }
+
+    }
+
+    .navbar-top:after{
+        background: transparent url("../images/alpha-hr.png") left top repeat-x;
+        content: "";
+        height: 2px;
+        left: 15px;
+        position: absolute;
+        right: 15px;
+        top: $navbar-height * 0.66;
+
+    }
+    .navbar-bottom {
+        clear: both;
+        margin-left: -15px;
+        margin-right: -15px;
+        min-height: $navbar-height * 0.34;
+        a{
+            padding: 0 20px;
+            font-size: 1em;
+            font-weight:bold;
+            height: $navbar-height * 0.34;
+            line-height: $navbar-height * 0.34;
+            color:#fff;
+            text-decoration: none;
+            border: none;
+            &:hover, &:focus{
+                //$deeper-red: darker($deep-red);
+                background-color:transparentize($deep-red, 0.25);
+                //background-color:rgba(50,50,50, 0.5);
+                color:white;
+            }
+            &.active{
+                background-color:#fff;
+                color: $deep-red;
+            }
+        }
+       .open.dropdown{
+             a, a:focus, a:hover{
+                 text-decoration:none;
+            }
+            .dropdown-menu{
+                padding-top:0;
+                padding-bottom:0;
+                border:none;
+                a{
+                    background-color:$deep-red;
+                    color:#fff;
+                    font-size: 1em;
+                    font-weight:bold;
+                }
+                a:hover{
+                   background-color: #fff;
+                    color:$deep-red;
+                }
+            }
+
+        }
+    }
+
+}
