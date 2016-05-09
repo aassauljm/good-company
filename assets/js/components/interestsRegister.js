@@ -26,7 +26,6 @@ export const fields = [
 
 const validateFields = requireFields('date', 'details');
 
-
 const validate = (values) => {
     const errors = validateFields(values);
     const persons = [];

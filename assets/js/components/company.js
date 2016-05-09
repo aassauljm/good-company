@@ -362,9 +362,9 @@ export default class Company extends React.Component {
         const companiesOfficeUrl = `http://www.business.govt.nz/companies/app/ui/pages/companies/${current.companyNumber}`;
         return <div className="company">
                 <CompanyHeader companyId={this.key()} companyState={current}/>
-                <div className="container">
+                <div className="container company-page">
 
-                { this.props.children && <ul className="pager">
+                { this.props.children && false && <ul className="pager">
                             <li><Link className="nav-link return-company-page" to={"/company/view/"+this.props.params.id}>← Back to Dashboard</Link></li>
                             </ul>
                         }

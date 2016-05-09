@@ -47,7 +47,7 @@ export class FavouritesWidget extends React.Component {
 
             <div className="widget-body">
                 <ul>
-                {favourites.map((f, i) => <li>
+                {favourites.map((f, i) => <li key={i}>
                     <Link to={`/company/view/${f.id}`}>
                     <span className="company-name">{f.currentCompanyState.companyName } </span>
                     <span className="extra">Company Number: {f.currentCompanyState.companyNumber } </span>
