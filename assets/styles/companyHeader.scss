@@ -1,4 +1,5 @@
 nav.navbar{
+    height: $navbar-height * 0.66;
     .container{
         position: relative;
     }
@@ -9,22 +10,33 @@ nav.navbar{
         float: left;
         width: 100%;
         height: $navbar-height * 0.66;
+        .navbar-header{
+            position: absolute;
+            left: 15px;
+            right: 15px;
+        }
         .navbar-brand{
             line-height: $navbar-height * 0.66;
             padding-top:0;
             padding-bottom:0;
-            a{
+                width: 100%;
+            & > a{
+                display:inline-block;
+
+                text-overflow: ellipsis;
+                overflow-x: hidden;
+                font-weight:bold;
+                color: $white;
+                font-size: 1.5em;
+                white-space: nowrap;
+                width: 100%;
                 &:active{
                     outline:none;
                 }
-                .company-title{
-                    font-weight:bold;
-                    color: $white;
-                    font-size: 1.5em;
-                    .glyphicon{
-                        font-size:0.85em;
-                    }
+                .glyphicon{
+                    font-size:0.85em;
                 }
+
             }
         }
         .navbar-right{
@@ -68,17 +80,22 @@ nav.navbar{
         }
 
     }
-
-    .navbar-top:after{
-        background: transparent url("../images/alpha-hr.png") left top repeat-x;
-        content: "";
-        height: 2px;
-        left: 15px;
-        position: absolute;
-        right: 15px;
-        top: $navbar-height * 0.66;
-
+    @media (min-width:$screen-sm-min){
+        height: $navbar-height;
+        .navbar-top{
+            height: $navbar-height * 0.66;
+        }
+        .navbar-top:after{
+            background: transparent url("../images/alpha-hr.png") left top repeat-x;
+            content: "";
+            height: 2px;
+            left: 15px;
+            position: absolute;
+            right: 15px;
+            top: $navbar-height * 0.66;
+        }
     }
+
     .navbar-bottom {
         clear: both;
         margin-left: -15px;

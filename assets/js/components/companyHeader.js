@@ -106,11 +106,12 @@ export class CompanyHeader extends React.Component {
                     </Dropdown>
                     </Navbar.Brand>
                 </Navbar.Header>
-
-                <ul className="nav navbar-nav navbar-right">
-                    { this.showAccount() }
-                    { this.showLogout() }
-                </ul>
+                <NavbarCollapse>
+                    <ul className="nav navbar-nav navbar-right">
+                        { this.showAccount() }
+                        { this.showLogout() }
+                    </ul>
+                </NavbarCollapse>
             </div>
             <div className="navbar-bottom">
             <NavbarCollapse>
