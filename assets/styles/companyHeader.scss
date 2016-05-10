@@ -15,6 +15,16 @@ nav.navbar{
             left: 15px;
             right: 15px;
         }
+
+        .navbar-toggle{
+            padding: 0;
+            margin: 0;
+            border: none;
+            float: none;
+            background-color:none;
+        }
+
+
         .navbar-brand{
             line-height: $navbar-height * 0.66;
             padding-top:0;
@@ -29,7 +39,7 @@ nav.navbar{
                 color: $white;
                 font-size: 1.5em;
                 white-space: nowrap;
-                width: 100%;
+                max-width: 100%;
                 &:active{
                     outline:none;
                 }
@@ -75,6 +85,13 @@ nav.navbar{
                 a:hover{
                    background-color: #fff;
                     color:$deep-red;
+                }
+
+
+                .nav-item{
+                    @media (min-width:$screen-sm-min){
+                        display:none;
+                    }
                 }
             }
         }

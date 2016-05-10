@@ -54,19 +54,17 @@ export class CompanyHeader extends React.Component {
     renderFavourites() {
         const items = (this.props.favourites.data || []);
         if(items.length){
-           return [<li key={-1}className="separator" />].concat(items.map((f, i) => {
+           return [<li key={-1} className="separator" />].concat(items.map((f, i) => {
                 return <li key={i}><Link to={`/company/view/${f.id}`}>{f.currentCompanyState.companyName}</Link></li>
            }));
        }
     }
 
-    showMenus() {
-        //Dashboard (default first page), Share Register, Interests Register, Update Company, Templates
+    renderActions() {
         const id = this.props.companyId;
-        return <ul className="nav navbar-nav">
-             <li className="nav-item"><IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link">Dashboard</IndexLink></li>
-             <li className="nav-item"><Link to={`/company/view/${id}/shareregister`} activeClassName="active" className="nav-link">Share Register</Link></li>
-             <li className="nav-item"><Link to={`/company/view/${id}/interests_register`} activeClassName="active" className="nav-link">Interests Register</Link></li>
+        return [<li className="nav-item"><IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link">Dashboard</IndexLink></li>,
+             <li className="nav-item"><Link to={`/company/view/${id}/shareregister`} activeClassName="active" className="nav-link">Share Register</Link></li>,
+             <li className="nav-item"><Link to={`/company/view/${id}/interests_register`} activeClassName="active" className="nav-link">Interests Register</Link></li>,
 
               <Dropdown id="update-dropdown" className="nav-item" componentClass="li">
                     <a href="#" onClick={e => e.preventDefault}  bsRole="toggle">
@@ -83,10 +81,11 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => alert('TODO')}>Update Shareholders</MenuItem>
                         <MenuItem onClick={() => alert('TODO')}>Upload Documents</MenuItem>
                     </Dropdown.Menu>
-                </Dropdown>
+                </Dropdown>,
              <li className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>
-        </ul>
+             ]
     }
+
 
     render() {
         return  <Navbar>
@@ -101,6 +100,8 @@ export class CompanyHeader extends React.Component {
                         </a>
                         <Dropdown.Menu>
                             <li><Link to="/">Good Company Home</Link></li>
+                            <li className="nav-item separator" />
+                            { this.renderActions() }
                             { this.renderFavourites() }
                         </Dropdown.Menu>
                     </Dropdown>
@@ -112,10 +113,13 @@ export class CompanyHeader extends React.Component {
                         { this.showLogout() }
                     </ul>
                 </NavbarCollapse>
+
             </div>
             <div className="navbar-bottom">
             <NavbarCollapse>
-                 {this.showMenus() }
+                 <ul className="nav navbar-nav">
+                    { this.renderActions() }
+                   </ul>
             </NavbarCollapse>
             </div>
       </Navbar>
