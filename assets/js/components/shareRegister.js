@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, updateMenu } from '../actions';
-import { pureRender, numberWithCommas, stringToDate } from '../utils';
+import { pureRender, numberWithCommas, stringToDate, generateShareClassMap, renderShareClass } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
@@ -10,10 +10,6 @@ import Input from './forms/input';
 import { asyncConnect } from 'redux-async-connect';
 import { Link } from 'react-router';
 
-
-function renderShareClass(shareClass, shareClassMap = {}){
-    return shareClassMap[shareClass] ? shareClassMap[shareClass].name : STRINGS.defaultShareClass
-}
 
 // all the same
 function renderChange(action){
@@ -306,16 +302,6 @@ export class ShareRegisterDocument extends React.Component {
     }
 }
 
-function generateShareClassMap(companyState){
-
-    if(companyState.shareClasses && companyState.shareClasses.shareClasses){
-        return companyState.shareClasses.shareClasses.reduce((acc, s) => {
-            acc[s.id] = s;
-            return acc;
-        }, {});
-    }
-    return {};
-}
 
 
 @asyncConnect([{

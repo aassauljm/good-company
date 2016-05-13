@@ -454,6 +454,7 @@ module.exports = {
                     })
             },
             groupTotals: function() {
+                // seems overly complicated
                 return this.groupShares()
                     .then(function(groups) {
                         return Promise.reduce(_.values(groups), function(acc, shares) {

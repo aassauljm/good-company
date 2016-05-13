@@ -1,85 +1,115 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { showModal } from '../actions';
-import { pureRender, numberWithCommas } from '../utils';
+import { pureRender, numberWithCommas, generateShareClassMap, renderShareClass, joinAnd } from '../utils';
 import { Link } from 'react-router';
 import PieChart  from 'react-d3-components/lib/PieChart';
 import Panel from './panel';
 import STRINGS from '../strings';
 
 
-class NotFound extends React.Component {
-    static propTypes = {
-        descriptor: PropTypes.string.isRequired
-    };
-    render() {
-        return <div className="container"><h4 className="text-center">{this.props.descriptor} Not Found</h4></div>
-    }
-};
+function largestHolders(shareClass, total, companyState, count = 3){
+    const list = companyState.holdingList.holdings.reduce((acc, h) => {
+        h.parcels.map(p => {
+            if(p.shareClass === shareClass){
+                acc.push({amount: p.amount, holding: h})
+            }
+        });
+        return acc;
+    }, []);
+    list.sort((a, b) => a.amount < b.amount);
+    return list.slice(0, count);
+}
 
+
+function renderHolders(holding){
+    return joinAnd(holding.holders, {prop: 'name'});
+}
+
+
+function pieTooltip(x, y){
+    const holding = this.data.values.filter(v => v.data.holdingId === x)[0].data;
+    return <div className="graph-tooltip">{ renderHolders(holding) }</div>
+}
 
 @pureRender
-export class ShareholdingsPanel extends React.Component {
+export class ShareholdingsWidget extends React.Component {
 
     static propTypes = {
-        holdings: PropTypes.array.isRequired,
-        totalShares: PropTypes.number.isRequired,
-        totalAllocatedShares: PropTypes.number.isRequired
+        companyState: PropTypes.object.isRequired,
+        companyId: PropTypes.string.isRequired
     };
 
     groupHoldings() {
-        const total = this.props.totalAllocatedShares;
-        return {values: this.props.holdings.map(holding => ({
+        const total = this.props.companyState.totalAllocatedShares;
+        return {values: this.props.companyState.holdingList.holdings.map(holding => ({
             y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
-            x: holding.name
+            x: holding.holdingId,
+            data: holding
         }))};
     };
 
-    countClasses() {
-       const length = new Set(this.props.holdings.reduce((acc, holding) => {
-            return [...acc, ...holding.parcels.map(p => p.shareClass)]
-       }, [])).size;
-       return length;
-    };
-
     countHolders() {
-       const length = new Set(this.props.holdings.reduce((acc, holding) => {
+       const length = new Set(this.props.companyState.holdingList.holdings.reduce((acc, holding) => {
             return [...acc, ...holding.holders.map(p => p.personId)]
        }, [])).size;
        return length;
     };
 
-    render(){
-        const classCount = this.countClasses();
+
+    render() {
         const holderCount = this.countHolders();
-        return <div className="panel panel-info actionable">
-            <div className="panel-heading">
-            <h3 className="panel-title">Current Shareholdings</h3>
+        const shareCountByClass = this.props.companyState.shareCountByClass;
+        const shareClassMap = generateShareClassMap(this.props.companyState);
+        const classCount = Object.keys(shareClassMap).length
+
+        return <div className="widget shareholding-widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Shareholdings
+                </div>
+                <div className="widget-control">
+                <Link to={`/company/view/${this.props.companyId}/shareholdings`}>View All</Link>
+                </div>
             </div>
-            <div className="panel-body">
+
+            <div className="widget-body">
                 <div className="row">
-                    <div className="col-xs-6">
-                    <div><strong>{numberWithCommas(this.props.totalShares)}</strong> Total Shares</div>
-                    <div><strong>{this.props.holdings.length}</strong> Holdings</div>
-                    <div><strong>{holderCount}</strong> Shareholder{holderCount !== 1 && 's'}</div>
-                    <div><strong>{classCount}</strong> Share Class{classCount !== 1 && 'es'}</div>
+                    <div className="col-sm-6 summary">
+                    <div><span className="number">{numberWithCommas(this.props.companyState.totalShares)}</span> Total Shares</div>
+                    <div><span className="number">{this.props.companyState.holdingList.holdings.length}</span> Total Allocations</div>
+                    <div><span className="number">{holderCount}</span> Total Shareholder{holderCount !== 1 && 's'}</div>
+                    <div><span className="number">{classCount}</span> Share Class{classCount !== 1 && 'es'}</div>
                     </div>
-                    <div className="col-xs-6 text-center">
+                     <div className="col-sm-6">
                        <div className="hide-graph-labels">
                          { <PieChart
                           data={this.groupHoldings()}
-                          width={100}
-                          height={100}
+                          width={120}
+                          height={120}
                           innerRadius={0.0001}
-                          outerRadius={50}
+                          outerRadius={60}
+                          tooltipHtml={pieTooltip}
+                          tooltipMode={'mouse'}
                           showInnerLabels={false}
                           showOuterLabels={false} />  }
                           </div>
                     </div>
+                    <div className="col-xs-12">
+                    { Object.keys(shareCountByClass).map((k, i) => {
+                        return <div key={i} className="class-summary">
+                            <div><span className="number">{shareCountByClass[k].amount}</span> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
+                                { largestHolders(shareCountByClass[k].shareClass, shareCountByClass[k].amount, this.props.companyState).map((h, i) => {
+                                    return <div key={i} className="indent"><strong>{numberWithCommas(h.amount)} ({(h.amount/shareCountByClass[k].amount*100).toFixed(2) + '%'})</strong> Held by {renderHolders(h.holding)}</div>
+                                }) }
+                            </div>
+                    }) }
+                    </div>
                 </div>
-            </div>
+                </div>
         </div>
     }
+
 }
 
 

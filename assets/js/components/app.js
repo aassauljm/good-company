@@ -28,7 +28,11 @@ const transition = __SERVER__ ? 0 : 200;
 export default class App extends React.Component {
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){
-            return this.props.children;
+            return <div onDrop={prevent} onDragOver={prevent}>
+                 <Notifications/>
+                 <Modals />
+                { this.props.children }
+            </div>
         }
         const name = this.props.location.pathname;
         return <div onDrop={prevent} onDragOver={prevent}>

@@ -11,7 +11,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
 import { asyncConnect } from 'redux-async-connect';
-import { ShareholdingsPanel } from './shareholdings';
+import { ShareholdingsWidget } from './shareholdings';
 import { DocumentsPanel } from './documents';
 import { NewTransactionPanel } from './newTransaction';
 import { ShareClassesPanel } from './shareClasses';
@@ -154,7 +154,7 @@ const AlertWarnings = {
 
 
 @pureRender
-class Alerts extends React.Component {
+class CompanyAlertsWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired
     };
@@ -164,12 +164,20 @@ class Alerts extends React.Component {
         if(!shareWarning){
             return false;
         }
-        return <div className="panel panel-default" >
-            <div className="panel-heading">
-            <h3 className="panel-title">Notifications</h3>
+        return <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Notifications
+                </div>
+                <div className="widget-control">
+                <Link to="/alerts" >View All</Link>
+                </div>
             </div>
-            <div className="panel-body">
-                { shareWarning && <AlertWarnings.ApplyShareClasses path={this.props.path}/>}
+
+            <div className="widget-body">
+                <ul>
+                { shareWarning && <li><AlertWarnings.ApplyShareClasses path={this.props.path}/></li>}
+                </ul>
             </div>
         </div>
     }
@@ -363,9 +371,17 @@ export default class Company extends React.Component {
         return <div className="company">
                 <CompanyHeader companyId={this.key()} companyState={current}/>
                 <div className="company-page">
-                <div className="container-fluid page-top">
-                </div>
-                <div className="container-fluid page-bottom">
+                    <div className="container-fluid page-top">
+                     <div className="container">
+                        <div className="row">
+                             <div className="col-md-12">
+                                <CompanyAlertsWidget companyState={current} path={this.props.location.pathname}/>
+                             </div>
+                        </div>
+                    </div>
+
+                    </div>
+                    <div className="container-fluid page-bottom">
                 { this.props.children && React.cloneElement(this.props.children, {
                         companyState: current,
                         companyId: this.key(),
@@ -373,11 +389,7 @@ export default class Company extends React.Component {
                 })}
                 { !this.props.children &&
                     <div className="container">
-                    <div className="row">
-                         <div className="col-md-12">
-                            <Alerts companyState={current} path={this.props.location.pathname}/>
-                         </div>
-                    </div>
+
                     <div className="row">
                          <div className="col-md-6">
                         <Link to={this.props.location.pathname +'/details'}>
@@ -387,12 +399,12 @@ export default class Company extends React.Component {
                         <Link to={this.props.location.pathname +'/shareregister'} className="share-register">
                              <ShareRegisterPanel />
                                  </Link>
-                        <Link to={this.props.location.pathname +'/shareholdings'}>
-                             <ShareholdingsPanel
-                                holdings={current.holdingList.holdings}
-                                totalShares={current.totalShares}
-                                totalAllocatedShares={current.totalAllocatedShares} />
-                                </Link>
+
+                         <ShareholdingsWidget
+                            companyState={current}
+                            companyId={this.props.params.id}
+                         />
+
                          <Link to={this.props.location.pathname +'/documents'}>
                              <DocumentsPanel docList={current.docList}/>
                                 </Link>

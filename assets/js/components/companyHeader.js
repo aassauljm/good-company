@@ -62,11 +62,11 @@ export class CompanyHeader extends React.Component {
 
     renderActions() {
         const id = this.props.companyId;
-        return [<li className="nav-item"><IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link">Dashboard</IndexLink></li>,
-             <li className="nav-item"><Link to={`/company/view/${id}/shareregister`} activeClassName="active" className="nav-link">Share Register</Link></li>,
-             <li className="nav-item"><Link to={`/company/view/${id}/interests_register`} activeClassName="active" className="nav-link">Interests Register</Link></li>,
+        return [<li key={0} className="nav-item"><IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link">Dashboard</IndexLink></li>,
+             <li key={1} lassName="nav-item"><Link to={`/company/view/${id}/shareregister`} activeClassName="active" className="nav-link">Share Register</Link></li>,
+             <li key={2} className="nav-item"><Link to={`/company/view/${id}/interests_register`} activeClassName="active" className="nav-link">Interests Register</Link></li>,
 
-              <Dropdown id="update-dropdown" className="nav-item" componentClass="li">
+              <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
                     <a href="#" onClick={e => e.preventDefault}  bsRole="toggle">
                         Update Company
                    </a>
@@ -82,7 +82,7 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => alert('TODO')}>Upload Documents</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>,
-             <li className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>
+             <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>
              ]
     }
 

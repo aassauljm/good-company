@@ -1,0 +1,27 @@
+
+
+
+
+.shareholding-widget{
+    .number{
+        font-weight: bold;
+        display:inline-block;
+        text-align: right;
+    }
+    .hide-graph-labels{
+        text-align: center;
+    }
+
+    .summary .number{
+        width: 60px;
+    }
+    .indent{
+        margin-left: 30px;
+    }
+    .class-summary{
+        margin-top: 10px;
+        &:first-of-type{
+            margin-top: 0;
+        }
+    }
+}

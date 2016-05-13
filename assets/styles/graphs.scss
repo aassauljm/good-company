@@ -13,3 +13,14 @@
   stroke: #ccc;
   stroke-width: 1.5px;
 }
+
+.tooltip{
+    opacity: 1;
+    .graph-tooltip{
+        border-radius: 4px;
+        background-color: $deep-red;
+        color: white;
+        padding: 4px;
+        background-color: rbga(0,0,0,0.1);
+    }
+}
