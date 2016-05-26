@@ -33,6 +33,7 @@ $widget-border: #ccc;
     .widget-body{
         clear:both;
         padding:8px 0;
+        position: relative;
         ul{
             margin:0;
             padding:0;
@@ -51,5 +52,32 @@ $widget-border: #ccc;
                 color:$deep-red;
             }
         }
+
+        &.expandable{
+            height: 135px;
+            overflow: hidden;
+            cursor: pointer;
+            &:after{
+                content: "...";
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                text-align: center;
+                background: linear-gradient(to bottom, rgba(255,255,255,0) 2%,rgba(255,255,255,1) 90%,rgba(255,255,255,1) 100%);
+            }
+        }
+
+
+        &.expanded{
+            height: auto;
+            &:after{
+                display:none;
+            }
+        }
     }
+
+
+
+
 }

@@ -18,7 +18,7 @@ import {
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL,
     NEXT_MODAL, PREVIOUS_MODAL,
-    UPDATE_MENU
+    UPDATE_MENU, TOGGLE_WIDGET_SIZE
      } from './actionTypes';
 
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
@@ -176,6 +176,23 @@ function menus(state = {shareRegister: {view: 'document'}}, action){
             return state;
     }
 }
+
+function widgets(state = {}, action){
+    switch(action.type){
+        case TOGGLE_WIDGET_SIZE:
+            let current = {...state};
+            state = current;
+            action.path.map(p => {
+                current[p] = {...(current[p] || {})}
+                current = current[p];
+            })
+            current.expanded = action.value;
+            return state
+        default:
+            return state;
+    }
+}
+
 
 function transactions(state = {}, action){
     switch(action.type){
@@ -343,6 +360,7 @@ const appReducer = combineReducers({
     notifications,
     modals,
     menus,
+    widgets,
     reduxAsyncConnect
 });
 

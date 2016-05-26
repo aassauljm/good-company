@@ -18,7 +18,7 @@ try{
 }
 
 if (mountNode){
-    const store = configureStore(browserHistory, data)
+    const store = configureStore(browserHistory, data);
     const history = syncHistoryWithStore(browserHistory, store);
     ReactDOM.render(<Root store={store} history={history}>
                       {/* { __DEV__ && false  ?  <DevTools /> : null } */ }

@@ -17,7 +17,8 @@ function largestHolders(shareClass, total, companyState, count = 3){
         });
         return acc;
     }, []);
-    list.sort((a, b) => a.amount < b.amount);
+    list.sort((a, b) => a.amount > b.amount);
+
     return list.slice(0, count);
 }
 
@@ -37,7 +38,9 @@ export class ShareholdingsWidget extends React.Component {
 
     static propTypes = {
         companyState: PropTypes.object.isRequired,
-        companyId: PropTypes.string.isRequired
+        companyId: PropTypes.string.isRequired,
+        toggle: PropTypes.func.isRequired,
+        expanded: PropTypes.bool
     };
 
     groupHoldings() {
@@ -51,11 +54,10 @@ export class ShareholdingsWidget extends React.Component {
 
     countHolders() {
        const length = new Set(this.props.companyState.holdingList.holdings.reduce((acc, holding) => {
-            return [...acc, ...holding.holders.map(p => p.personId)]
-       }, [])).size;
+            return [...acc, ...holding.holders.map(p => p.personId)];
+        })).size;
        return length;
-    };
-
+    }
 
     render() {
         const holderCount = this.countHolders();
@@ -63,6 +65,10 @@ export class ShareholdingsWidget extends React.Component {
         const shareClassMap = generateShareClassMap(this.props.companyState);
         const classCount = Object.keys(shareClassMap).length
 
+        let bodyClass = "widget-body expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
         return <div className="widget shareholding-widget">
             <div className="widget-header">
                 <div className="widget-title">
@@ -73,7 +79,7 @@ export class ShareholdingsWidget extends React.Component {
                 </div>
             </div>
 
-            <div className="widget-body">
+            <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
                 <div className="row">
                     <div className="col-sm-6 summary">
                     <div><span className="number">{numberWithCommas(this.props.companyState.totalShares)}</span> Total Shares</div>
@@ -98,7 +104,7 @@ export class ShareholdingsWidget extends React.Component {
                     <div className="col-xs-12">
                     { Object.keys(shareCountByClass).map((k, i) => {
                         return <div key={i} className="class-summary">
-                            <div><span className="number">{shareCountByClass[k].amount}</span> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
+                            <div><span className="number">{numberWithCommas(shareCountByClass[k].amount)}</span> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
                                 { largestHolders(shareCountByClass[k].shareClass, shareCountByClass[k].amount, this.props.companyState).map((h, i) => {
                                     return <div key={i} className="indent"><strong>{numberWithCommas(h.amount)} ({(h.amount/shareCountByClass[k].amount*100).toFixed(2) + '%'})</strong> Held by {renderHolders(h.holding)}</div>
                                 }) }

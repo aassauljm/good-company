@@ -34,6 +34,6 @@ module.exports = {
         custom: customLogger,
         inspect: false
     },
-    serverRender: true,
+    serverRender: false,
     CACHE_DIR: '/tmp/.gc'
 };

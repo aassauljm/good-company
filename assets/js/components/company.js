@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import {requestResource, changeCompanyTab, showModal } from '../actions';
+import {requestResource, changeCompanyTab, showModal, toggleWidget } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -342,7 +342,11 @@ export class CompanyLoader extends React.Component {
     }
 }])
 @connect((state, ownProps) => {
-    return {data: {}, companyPage: state.companyPage, ...state.resources['/company/'+ownProps.params.id +'/get_info']};
+    return {
+        data: {},
+        companyPage: state.companyPage,
+        widgets: state.widgets[ownProps.params.id] || {},
+         ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 })
 export default class Company extends React.Component {
     static propTypes = {
@@ -393,6 +397,8 @@ export default class Company extends React.Component {
                     <div className="row">
                          <div className="col-md-6">
                          <ShareholdingsWidget
+                            toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'shareholdings'], expanded)) }
+                            expanded={(this.props.widgets.shareholdings || {}).expanded}
                             companyState={current}
                             companyId={this.props.params.id}
                          />

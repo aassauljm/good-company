@@ -79,3 +79,4 @@ export const PREVIOUS_MODAL = 'PREVIOUS_MODAL';
 
 
 export const UPDATE_MENU = 'UPDATE_MENU';
+export const TOGGLE_WIDGET_SIZE  = 'TOGGLE_WIDGET_SIZE';

@@ -299,3 +299,11 @@ export function updateMenu(menu, data){
         type: UPDATE_MENU, menu, data
     }
 }
+
+export function toggleWidget(path, value){
+    return {
+        type: TOGGLE_WIDGET_SIZE, path, value
+    }
+}
+
+
