@@ -167,7 +167,7 @@ export class ShareRegisterTable extends React.Component {
 
     render() {
         const {shareRegister, shareClassMap} = this.props;
-        return <div className="container-fluid">
+        return <div className="container-fluid shareregister-container">
                 <div className="table-responsive">
                <table className="table share-register">
                     <thead>
@@ -370,7 +370,7 @@ export class ShareRegister extends React.Component {
                         </div>
                         </div>
                     </div>
-                    { this.props.menu.view === 'document' && <div className="container">
+                    { this.props.menu.view === 'document' && <div className="container shareregister-container">
                         <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
                         </div> }
                     { this.props.menu.view === 'table' && <ShareRegisterTable shareRegister={shareRegister} shareClassMap={shareClassMap} /> }

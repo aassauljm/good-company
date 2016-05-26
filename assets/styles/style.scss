@@ -6,7 +6,11 @@
 //@import "variables";
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 $input-border-width: 2px;
+$brand-primary: #2C3E50;
+$border-light: #ccc;
 
+$well-bg: #fff;
+$well-border: $border-light;
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/mixins";
 
@@ -65,8 +69,6 @@ $input-border-width: 2px;
 $header-image:url("~catalex_shared/images/hero-bg.jpg");
 $left-chevron:url("~catalex_shared/images/left-chevron.png");
 $right-chevron:url("~catalex_shared/images/right-chevron.png");
-$brand-primary: #2C3E50;
-$border-light: #ccc;
 
 
 @import "~catalex_shared/sass/catalex-common";
@@ -83,6 +85,7 @@ $border-light: #ccc;
 @import "widget";
 @import "home";
 @import "shareholdings";
+@import "shareRegister";
 
 
 html,body{
@@ -285,44 +288,6 @@ a, a:hover{
             stroke: white;
         }
     }
-}
-
-//shareregister
-
-.share-register.table{
-    ul{
-        padding-left:0;
-        li{
-            list-style:none;
-        }
-    }
-    .wide{
-        min-width: 20em;
-    }
-}
-
-.share-register-document{
-    table.transaction-history{
-        td.date, td.total{
-            width:20%;
-        }
-    }
-    td.share-register-amount{
-        text-align: right;
-    }
-    * {
-        color:#000;
-    }
-    .heading {
-        width:100%;
-        td:last-child{
-            text-align: right;
-        }
-    }
-    .title {
-        text-align: center;
-    }
-
 }
 
 .button-row {

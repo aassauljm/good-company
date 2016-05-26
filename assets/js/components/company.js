@@ -143,7 +143,7 @@ export class CompanyTransactions extends React.Component {
 @pureRender
 class ApplyShareClasses extends React.Component {
     render(){
-        return  <div><Link to={this.props.path +'/share_classes'} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
+        return  <div><Link to={`/company/view/${this.props.companyId}/share_classes`} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
         You need to specify share classes.  Click here to start.</Link></div>
     }
 }
@@ -156,7 +156,8 @@ const AlertWarnings = {
 @pureRender
 class CompanyAlertsWidget extends React.Component {
     static propTypes = {
-        companyState: PropTypes.object.isRequired
+        companyState: PropTypes.object.isRequired,
+        companyId: PropTypes.string.isRequired,
     };
     render(){
         const shareWarning = (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses) ;
@@ -176,7 +177,7 @@ class CompanyAlertsWidget extends React.Component {
 
             <div className="widget-body">
                 <ul>
-                { shareWarning && <li><AlertWarnings.ApplyShareClasses path={this.props.path}/></li>}
+                { shareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId}/></li>}
                 </ul>
             </div>
         </div>
@@ -379,7 +380,7 @@ export default class Company extends React.Component {
                      <div className="container">
                         <div className="row">
                              <div className="col-md-12">
-                                <CompanyAlertsWidget companyState={current} path={this.props.location.pathname}/>
+                                <CompanyAlertsWidget companyId={this.key()}  companyState={current} />
                              </div>
                         </div>
                     </div>

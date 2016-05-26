@@ -33,6 +33,16 @@ function pieTooltip(x, y){
     return <div className="graph-tooltip">{ renderHolders(holding) }</div>
 }
 
+
+function groupHoldings(companyState) {
+    const total = companyState.totalAllocatedShares;
+    return {values: companyState.holdingList.holdings.map(holding => ({
+        y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
+        x: holding.holdingId,
+        data: holding
+    }))};
+};
+
 @pureRender
 export class ShareholdingsWidget extends React.Component {
 
@@ -43,14 +53,7 @@ export class ShareholdingsWidget extends React.Component {
         expanded: PropTypes.bool
     };
 
-    groupHoldings() {
-        const total = this.props.companyState.totalAllocatedShares;
-        return {values: this.props.companyState.holdingList.holdings.map(holding => ({
-            y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
-            x: holding.holdingId,
-            data: holding
-        }))};
-    };
+
 
     countHolders() {
        const length = new Set(this.props.companyState.holdingList.holdings.reduce((acc, holding) => {
@@ -90,7 +93,7 @@ export class ShareholdingsWidget extends React.Component {
                      <div className="col-sm-6">
                        <div className="hide-graph-labels">
                          { <PieChart
-                          data={this.groupHoldings()}
+                          data={groupHoldings(this.props.companyState)}
                           width={120}
                           height={120}
                           innerRadius={0.0001}
@@ -198,18 +201,12 @@ export class Shareholdings extends React.Component {
             }
         });
     }
-
-    groupHoldings() {
-        const total = this.props.companyState.totalAllocatedShares;
-        return {values: this.props.companyState.holdingList.holdings.map(holding => ({
-            y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
-            x: holding.name
-        }))};
-    };
     render() {
+        const holdings = [...this.props.companyState.holdingList.holdings];
+        holdings.sort((a, b) => (a.name||'').localeCompare(b.name))
         return <div className="container"><div className="row">
             <div className="col-md-6">
-                { this.props.companyState.holdingList.holdings.map((holding, i) =>
+                { holdings.map((holding, i) =>
                     <Holding key={i} holding={holding}
                         total={this.props.companyState.totalShares}
                         editHolding={this.editHolding} />
@@ -218,11 +215,13 @@ export class Shareholdings extends React.Component {
             <div className="col-md-6 text-center">
                 <div className="hide-graph-labels">
                {<PieChart
-                  data={this.groupHoldings()}
+                data={groupHoldings(this.props.companyState)}
                   width={100}
                   height={100}
                   innerRadius={0.0001}
                   outerRadius={50}
+                  tooltipHtml={pieTooltip}
+                  tooltipMode={'mouse'}
                   showInnerLabels={false}
                   showOuterLabels={false} />  }
                   </div>
