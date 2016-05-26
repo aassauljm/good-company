@@ -22,7 +22,8 @@ import {
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL,
     NEXT_MODAL, PREVIOUS_MODAL,
-    UPDATE_MENU
+    UPDATE_MENU,
+    TOGGLE_WIDGET_SIZE
      } from './actionTypes';
 
 const json_headers = {

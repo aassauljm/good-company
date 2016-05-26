@@ -6,19 +6,19 @@ import createLogger from 'redux-logger';
 import { callAPIMiddleware } from './middleware';
 import { devTools, persistState } from 'redux-devtools';
 import DevTools from './components/devTools';
-import { syncHistory } from 'react-router-redux';
+import { routerMiddleware} from 'react-router-redux';
 
 
 const data = {};
 
 export default function configureStore(history, initialState=data) {
     let middleware;
-    const reduxRouterMiddleware = syncHistory(history);
+
     const loggerMiddleware = createLogger();
     middleware = applyMiddleware(
           thunkMiddleware,
           loggerMiddleware,
-          reduxRouterMiddleware,
+          routerMiddleware(history),
           callAPIMiddleware)
 
     const createStoreWithMiddleware = compose(
@@ -32,6 +32,5 @@ export default function configureStore(history, initialState=data) {
 
 
     const store = createStoreWithMiddleware(appReducer, initialState);
-    reduxRouterMiddleware.listenForReplays(store);
     return store;
 }

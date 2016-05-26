@@ -4,7 +4,7 @@ import {requestResource, deleteResource, startCreateCompany, startImportCompany}
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
-import { routeActions } from 'react-router-redux'
+import { push } from 'react-router-redux'
 import { Link } from 'react-router';
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-async-connect';
@@ -19,7 +19,7 @@ export default class Companies extends React.Component {
     handleClick(id, event) {
         event.preventDefault();
         const { dispatch } = this.props;
-        dispatch(routeActions.push("/company/view/"+ id));
+        dispatch(push("/company/view/"+ id));
     }
 
     handleNew() {

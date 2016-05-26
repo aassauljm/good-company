@@ -22,7 +22,7 @@ import { SelectPersonModal  } from './transactions/selectPerson';
 import { SelectDirectorModal  } from './transactions/selectDirector';
 import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
-import { routeActions } from 'react-router-redux';
+import { push } from 'react-router-redux';
 
 
 export class Modals extends React.Component {
@@ -42,7 +42,7 @@ export class Modals extends React.Component {
                         this.props.dispatch(showModal(after.showModal.key, after.showModal.data));
                     }
                     if(data && data.reload && after.location){
-                        this.props.dispatch(routeActions.push(after.location));
+                        this.props.dispatch(push(after.location));
                     }
                 }
 

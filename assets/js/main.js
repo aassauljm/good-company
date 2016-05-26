@@ -1,9 +1,11 @@
+"use strict";
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Root from "./root";
 import configureStore from './store';
 import { browserHistory } from 'react-router';
+import { syncHistoryWithStore } from 'react-router-redux'
 
 import "../styles/style.scss";
 
@@ -16,7 +18,9 @@ try{
 }
 
 if (mountNode){
-    ReactDOM.render(<Root store={configureStore(browserHistory, data)} history={browserHistory}>
+    const store = configureStore(browserHistory, data)
+    const history = syncHistoryWithStore(browserHistory, store);
+    ReactDOM.render(<Root store={store} history={history}>
                       {/* { __DEV__ && false  ?  <DevTools /> : null } */ }
                     </Root>
                     , mountNode);

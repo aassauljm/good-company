@@ -13,7 +13,7 @@ import PersonsForm from './person'
 import ParcelsForm from './parcel'
 import ShareClassesForm from './shareClass'
 import Address from './forms/address'
-import { routeActions } from 'react-router-redux'
+import { push } from 'react-router-redux'
 import Panel from './panel'
 
 @formProxy
@@ -261,7 +261,7 @@ export default class CreateCompanyModal extends React.Component {
                         values = {...values, directors: values.directors.map(x => ({person: x}) )};
                         return this.props.dispatch(companyTransaction('seed',companyId, values))
                     })
-                    .then((action) => this.props.dispatch(routeActions.push('/company/view/'+companyId)))
+                    .then((action) => this.props.dispatch(push('/company/view/'+companyId)))
                     .then(() => this.props.dispatch(addNotification({message: 'Company Created'})))
                     .then(() => this.props.end())
             }

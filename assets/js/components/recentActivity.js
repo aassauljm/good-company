@@ -1,7 +1,7 @@
 "use strict";
 import React from 'react';
 import { connect } from 'react-redux';
-import { routeActions } from 'react-router-redux'
+import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-async-connect';
 import { requestResource } from '../actions';
 import { stringToDateTime } from '../utils'
@@ -12,7 +12,7 @@ import { Link } from 'react-router'
     return state.resources['/recent_activity'] || {};
 }, {
     requestData: (key) => requestResource('/recent_activity'),
-    navigate: (url) => routeActions.push(url)
+    navigate: (url) => push(url)
 })
 export class RecentActivityWidget extends React.Component {
 

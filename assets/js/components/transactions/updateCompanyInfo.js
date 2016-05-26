@@ -91,12 +91,12 @@ export function companyDetailsFormatSubmit(values, companyState){
         effectiveDate: values.effectiveDate,
         transactionType: 'DETAILS'
     }
-
 }
 
 
 @connect(undefined)
 export class CompanyDetailsModal extends React.Component {
+
     constructor(props) {
         super(props);
         this.submit = ::this.submit;

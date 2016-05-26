@@ -13,7 +13,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { createResource, addNotification } from '../actions';
 import DropZone from 'react-dropzone';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
-import { routeActions } from 'react-router-redux';
+import { push } from 'react-router-redux';
 import FormData from 'form-data';
 
 const defaultShareClass = '___default';
@@ -65,7 +65,7 @@ export class ShareClassForm extends React.Component {
         return this.props.dispatch(createResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
             .then(() => {
                 this.props.dispatch(addNotification({message: 'Share Class Added'}))
-                this.props.dispatch(routeActions.push(`/company/view/${key}/share_classes`))
+                this.props.dispatch(push(`/company/view/${key}/share_classes`))
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}))
@@ -201,7 +201,7 @@ function renderField(key, data, row) {
 
 
 @connect(undefined, {
-    viewShareClass: (path, id) => routeActions.push(path + '/view/'+id)
+    viewShareClass: (path, id) => push(path + '/view/'+id)
 })
 export class ShareClasses extends React.Component {
     static fields = ['name', 'votingRights', 'limitations', 'documents']

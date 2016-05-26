@@ -1,9 +1,9 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React, { PropTypes } from 'react';
 import { requestResource, createResource, addNotification } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
-import {reduxForm, addArrayValue} from 'redux-form';
+import { reduxForm, addArrayValue } from 'redux-form';
 import { Link } from 'react-router';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
@@ -12,7 +12,7 @@ import { fieldStyle, fieldHelp, objectValues, validateWithSchema, requireFields,
 import DateInput from './forms/dateInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
-import { routeActions } from 'react-router-redux';
+import { push } from 'react-router-redux';
 import DropZone from 'react-dropzone';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
 
@@ -74,7 +74,7 @@ class EntryForm extends React.Component {
         return this.props.dispatch(createResource(`/company/${key}/interests_register/create`, body, {stringify: false}))
             .then(() => {
                 this.props.dispatch(addNotification({message: 'Entry Added'}))
-                this.props.dispatch(routeActions.push(`/company/view/${key}/interests_register`))
+                this.props.dispatch(push(`/company/view/${key}/interests_register`))
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({error: true, message: err.message}))
@@ -216,7 +216,7 @@ export class InterestsRegisterView extends React.Component {
     return {data: [], ...state.resources['/company/'+ownProps.params.id +'/interests_register']}
 }, {
     requestData: (key) => requestResource('/company/'+key+'/interests_register'),
-    viewEntry: (path, id) => routeActions.push(path + '/view/'+id)
+    viewEntry: (path, id) => push(path + '/view/'+id)
 })
 export class InterestsRegister extends React.Component {
 

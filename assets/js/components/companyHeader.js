@@ -13,7 +13,7 @@ import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { requestUserInfo } from '../actions';
 import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { routeActions } from 'react-router-redux'
+import { push } from 'react-router-redux'
 
 
 
@@ -88,6 +88,7 @@ export class CompanyHeader extends React.Component {
 
 
     render() {
+        console.log('there', this.props)
         return  <Navbar>
             <div className="navbar-top">
                 <Navbar.Header>
@@ -134,7 +135,7 @@ const CompanyHeaderConnected = connect(state => {
     return { userInfo: state.userInfo, routing: state.routing, favourites: state.resources['/favourites'] || {} }
 }, {
     requestData: (key) => requestResource('/favourites'),
-    navigate: (url) => routeActions.push(url)
+    navigate: (url) => push(url)
 })(CompanyHeader);
 
 export default CompanyHeaderConnected;

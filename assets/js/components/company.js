@@ -381,7 +381,7 @@ export default class Company extends React.Component {
                     </div>
 
                     </div>
-                    <div className="container-fluid page-bottom">
+                    <div className="container-fluid page-body">
                 { this.props.children && React.cloneElement(this.props.children, {
                         companyState: current,
                         companyId: this.key(),
@@ -392,6 +392,10 @@ export default class Company extends React.Component {
 
                     <div className="row">
                          <div className="col-md-6">
+                         <ShareholdingsWidget
+                            companyState={current}
+                            companyId={this.props.params.id}
+                         />
                         <Link to={this.props.location.pathname +'/details'}>
                              <DetailsPanel
                                 companyState={current} />
@@ -400,10 +404,6 @@ export default class Company extends React.Component {
                              <ShareRegisterPanel />
                                  </Link>
 
-                         <ShareholdingsWidget
-                            companyState={current}
-                            companyId={this.props.params.id}
-                         />
 
                          <Link to={this.props.location.pathname +'/documents'}>
                              <DocumentsPanel docList={current.docList}/>

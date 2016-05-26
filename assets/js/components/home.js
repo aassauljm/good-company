@@ -5,7 +5,7 @@ import { lookupCompany, lookupOwnCompany } from '../actions';
 import Autosuggest from 'react-autosuggest';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import { routeActions } from 'react-router-redux'
+import { push } from 'react-router-redux'
 import { showModal } from '../actions';
 import { RecentActivityWidget } from './recentActivity';
 import { AlertsWidget } from './alerts';
@@ -74,7 +74,7 @@ function mapDispatchToProps(dispatch) {
             dispatch(lookupCompany(value));
         }),
         onSelectOwnCompany: (id) => {
-            dispatch(routeActions.push("/company/view/"+ id));
+            dispatch(push("/company/view/"+ id));
         },
         onSelectCompany: (item) => {
             dispatch(showModal('importCompany', {index: 1, ...item}));

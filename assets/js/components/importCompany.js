@@ -8,7 +8,7 @@ import {reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import { fieldStyle, fieldHelp, requiredFields, formFieldProps } from '../utils';
-import { routeActions } from 'react-router-redux'
+import { push } from 'react-router-redux'
 import LookupCompany from './lookupCompany';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
@@ -59,7 +59,7 @@ export class ImportCompanyModal extends React.Component {
             .then((result = {response: {message: 'No connection'}}) => {
                 this.props.dispatch(addNotification({message: 'Company Imported'}));
                 this.props.dispatch(requestResource('companies', {refresh: true}));
-                this.props.dispatch(routeActions.push('/company/view/'+result.response.id))
+                this.props.dispatch(push('/company/view/'+result.response.id))
                 this.props.end();
 
             })

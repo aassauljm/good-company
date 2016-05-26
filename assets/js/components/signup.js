@@ -6,7 +6,7 @@ import ButtonInput from './forms/buttonInput';
 import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import { Link } from 'react-router';
+import { push } from 'react-router';
 import { routeActions } from 'react-router-redux'
 import { fieldStyle, fieldHelp, objectValues, validateWithSchema } from '../utils';
 import { createResource, validateUser } from '../actions';
@@ -91,7 +91,7 @@ class Signup extends React.Component {
     submit(data) {
         return this.props.dispatch(createResource('/user/signup', data, {form: 'signup'}))
             .then((result) => {
-                 this.props.dispatch(routeActions.push('/'))
+                 this.props.dispatch(push('/'))
              })
             .catch(err => {
                 this.props.dispatch(addNotification({error: true, message: err.message}));
@@ -105,12 +105,14 @@ class Signup extends React.Component {
     }
     nav() {
         if(this.props.loggedIn){
-            this.props.dispatch(routeActions.push('/'));
+            this.props.dispatch(push('/'));
         }
     }
     render() {
-        return <div className="container">
+        return <div className="container-fluid page-top">
+            <div className="container">
             <SignUpForm submit={::this.submit} />
+            </div>
             </div>
     }
 }

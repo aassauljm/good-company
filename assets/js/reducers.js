@@ -27,7 +27,7 @@ STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
 import {reducer as formReducer} from 'redux-form';
 import validator from 'validator'
 import { relationNameToModel } from './schemas';
-import { routeReducer } from 'react-router-redux'
+import { routerReducer } from 'react-router-redux'
 import { reducer as reduxAsyncConnect } from 'redux-async-connect'
 
 const initialState = {
@@ -330,7 +330,7 @@ export const formBase = formReducer.normalize({
 export const form = formReducer;
 
 const appReducer = combineReducers({
-    routing: routeReducer,
+    routing: routerReducer,
     companyPage,
     transactions,
     lookupCompany,

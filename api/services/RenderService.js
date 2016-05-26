@@ -11,12 +11,14 @@ import { createMemoryHistory } from 'react-router'
 import { loadOnServer } from 'redux-async-connect';
 import { setFetch } from "../../assets/js/utils";
 import fetch from 'isomorphic-fetch';
+import { syncHistoryWithStore } from 'react-router-redux'
 import Promise from 'bluebird';
 
 
 export function serverRender(url, cookie, state={}){
-    const history = createMemoryHistory(url),
-    store = configureStore(history, state);
+    const memoryHistory = createMemoryHistory(url);
+    const store = configureStore(memoryHistory, state);
+    const history = syncHistoryWithStore(memoryHistory, store);
     setFetch(function(url, args){
         url = 'http://localhost:'+sails.config.port+url;
         return fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))

@@ -7,7 +7,7 @@ import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
-import { routeActions } from 'react-router-redux'
+import { replace } from 'react-router-redux'
 
 
 
@@ -55,12 +55,14 @@ class Login extends React.Component {
     }
     nav() {
         if(this.props.loggedIn){
-            this.props.dispatch(routeActions.replace((this.props.location.query || {}).next || '/'));
+            this.props.dispatch(replace((this.props.location.query || {}).next || '/'));
         }
     }
     render() {
-        return <div className="container">
-            <DecoratedLoginForm submit={::this.submit} />
+        return <div className="container-fluid page-top">
+                <div className="container">
+                    <DecoratedLoginForm submit={::this.submit} />
+                </div>
             </div>
     }
 }
