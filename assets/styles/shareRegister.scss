@@ -1,0 +1,43 @@
+
+//shareregister
+
+.share-register.table{
+    ul{
+        padding-left:0;
+        li{
+            list-style:none;
+        }
+    }
+    .wide{
+        min-width: 20em;
+    }
+}
+
+.share-register-document{
+    table.transaction-history{
+        td.date, td.total{
+            width:20%;
+        }
+    }
+    td.share-register-amount{
+        text-align: right;
+    }
+    * {
+        color:#000;
+    }
+    .heading {
+        width:100%;
+        td:last-child{
+            text-align: right;
+        }
+    }
+    .title {
+        text-align: center;
+    }
+
+}
+
+
+.shareregister-container{
+    background-color:white;
+}
