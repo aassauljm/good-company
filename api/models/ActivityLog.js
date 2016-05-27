@@ -21,6 +21,9 @@ module.exports = {
         ActivityLog.belongsTo(User, {
             as: 'user',
         });
+        ActivityLog.belongsTo(Company, {
+            as: 'company',
+        });
     },
     attributes: {
         type: {

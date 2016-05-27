@@ -50,6 +50,50 @@ export class RecentActivityWidget extends React.Component {
                 { activities.map((a, i) => <li key={i} className="actionable" onClick={() => this.handleClick(a)}>
                         <span className="date">{stringToDateTime(a.createdAt)}</span> {a.description}
                 </li>)}
+                 { !activities.length && <li>No Recent Activity </li>}
+                </ul>
+            </div>
+        </div>
+    }
+}
+
+@connect((state, ownProps) => {
+    return state.resources[`/company/${ownProps.companyId}/recent_activity`] || {};
+}, {
+    requestData: (key) => requestResource(`/company/${key}/recent_activity`),
+    navigate: (url) => push(url)
+})
+export class RecentCompanyActivityWidget extends React.Component {
+
+    fetch() {
+        return this.props.requestData(this.props.companyId);
+    };
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+    render() {
+        const activities = this.props.data || [];
+        return <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Recent Activity
+                </div>
+                <div className="widget-control">
+                <Link to="/recent_activity" >View All</Link>
+                </div>
+            </div>
+
+            <div className="widget-body">
+                <ul>
+                { activities.map((a, i) => <li key={i}>
+                    <span className="date">{stringToDateTime(a.createdAt)}</span> {a.description}
+                </li>)}
+                { !activities.length && <li>No Recent Activity </li>}
                 </ul>
             </div>
         </div>

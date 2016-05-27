@@ -86,6 +86,7 @@ $right-chevron:url("~catalex_shared/images/right-chevron.png");
 @import "home";
 @import "shareholdings";
 @import "shareRegister";
+@import "notifications";
 
 
 html,body{
@@ -140,18 +141,6 @@ nav.navbar{
 }
 
 
-.notification{
-      max-height: 100px;
-}
-.notifications-leave {
-  opacity: 1;
-}
-
-.notifications-leave.notifications-leave-active {
-  opacity: 0.01;
-  transition: all .2s ease-in;
-  max-height: 0;
-}
 
 .app-container{
     position: relative;

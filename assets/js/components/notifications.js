@@ -3,9 +3,9 @@ import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import DropZone from 'react-dropzone';
 import { hideNotification } from '../actions'
-import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 
-const NOTIFICATION_TIMEOUT = 10000;
+
+const NOTIFICATION_TIMEOUT = 1000000;
 
 
 @pureRender
@@ -38,10 +38,10 @@ export default class Notifications extends React.Component {
         this.props.dispatch(hideNotification(index));
     }
     render(){
-       return  <div className="notifications container">
-        <ReactCSSTransitionGroup transitionName="notifications" transitionLeaveTimeout={500} transitionEnterTimeout={500} >
+       return  <div className="notifications">
+       <div className="container">
             { this.props.list.map((n, i) => <Notification key={i} notification={n} close={this.close.bind(this, i)} />)}
-            </ReactCSSTransitionGroup>
+            </div>
         </div>
     }
 }

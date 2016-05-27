@@ -19,9 +19,12 @@ import { DetailsPanel } from './companyDetails';
 import { InterestsRegisterPanel } from './interestsRegister';
 import { ShareRegisterPanel } from './shareRegister';
 import { ShareholdersPanel } from './shareholders';
+import { RecentCompanyActivityWidget } from './recentActivity';
+import { CompaniesRegisterWidget } from './companiesRegister';
+
 import NotFound from './notFound';
 import BarGraph from './graphs/bar'
-
+import Notifications from './notifications';
 
 const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -377,6 +380,7 @@ export default class Company extends React.Component {
                 <CompanyHeader companyId={this.key()} companyState={current}/>
                 <div className="company-page">
                     <div className="container-fluid page-top">
+                    <Notifications />
                      <div className="container">
                         <div className="row">
                              <div className="col-md-12">
@@ -397,12 +401,26 @@ export default class Company extends React.Component {
 
                     <div className="row">
                          <div className="col-md-6">
+                        <CompaniesRegisterWidget
+                            toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'companiesRegister'], expanded)) }
+                            expanded={(this.props.widgets.companiesRegister || {}).expanded}
+                            companyState={current}
+                            companyId={this.props.params.id}
+                         />
                          <ShareholdingsWidget
                             toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'shareholdings'], expanded)) }
                             expanded={(this.props.widgets.shareholdings || {}).expanded}
                             companyState={current}
                             companyId={this.props.params.id}
                          />
+
+                         <RecentCompanyActivityWidget
+                            toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'recentActivity'], expanded)) }
+                            expanded={(this.props.widgets.recentActivity || {}).expanded}
+                            companyState={current}
+                            companyId={this.props.params.id}
+                         />
+
                         <Link to={this.props.location.pathname +'/details'}>
                              <DetailsPanel
                                 companyState={current} />

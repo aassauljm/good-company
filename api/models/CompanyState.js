@@ -59,6 +59,9 @@ module.exports = {
         },
         ultimateHoldingCompany: {
             type: Sequelize.BOOLEAN
+        },
+        "userFields": {
+            "type": Sequelize.JSON
         }
     },
     associations: function(n) {
@@ -127,6 +130,7 @@ module.exports = {
                 name: 'historical_action_id'
             }
         });
+
     },
     options: {
         freezeTableName: true,

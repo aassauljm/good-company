@@ -117,6 +117,7 @@ function createActivityLog(user, company, messages){
     return ActivityLog.bulkCreate(messages.map(m => {
         return {
             userId: user.id,
+            companyId: company.id,
             description: m.message,
             data: {companyId: company.id}
         }
@@ -143,7 +144,13 @@ var transactions = {
                 state = _state;
                 return company.setSeedCompanyState(state)
             })
-            .then(function(company){
+            .then(function(){
+                return SourceData.create({data: args, source: 'Companies Office'})
+            })
+            .then(function(sourceData){
+                return company.setSourceData(sourceData);
+            })
+            .then(function(){
                 return company.setCurrentCompanyState(state)
             })
             .then(function(){
@@ -387,7 +394,7 @@ const selfManagedTransactions = {
             .then(actions => TransactionService.performInverseAll(actions.actions.slice(1), company))
             .then(function(){
                 return {
-                    message: `Share clases applied for ${state.companyName}.`
+                    message: `Share Classes applied for ${state.companyName}.`
                 }
             });
     },

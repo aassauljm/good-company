@@ -39,6 +39,16 @@ module.exports = {
                 name: 'currentCompanyStateId'
             }
         });
+
+        // represents foreign data
+        Company.belongsTo(SourceData, {
+            as: 'sourceData',
+            foreignKey: {
+                as: 'sourceData',
+                name: 'source_data_id'
+            }
+        });
+
     },
     options: {
         freezeTableName: false,

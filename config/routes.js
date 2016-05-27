@@ -188,5 +188,18 @@ module.exports.routes = {
         controller: 'RenderController',
         action: 'renderShareRegister',
         model: 'company'
+    },
+
+    'GET /api/company/:id/recent_activity': {
+        controller: 'CompanyController',
+        action: 'recentActivity',
+        model: 'company'
+    },
+
+    'GET /api/company/:id/source_data': {
+        controller: 'CompanyController',
+        action: 'getSourceData',
+        model: 'company'
     }
+
 };

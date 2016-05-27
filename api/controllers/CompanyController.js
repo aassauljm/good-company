@@ -72,6 +72,23 @@ module.exports = {
                 return res.notFound(err);
             });
     },
+
+    getSourceData: function(req, res) {
+        Company.findById(req.params.id, {
+                include: [{
+                    model: SourceData,
+                    as: 'sourceData'
+                }]
+            })
+            .then(function(company) {
+                const json = company.toJSON();
+                return res.json(json.sourceData);
+            })
+            .catch(function(err) {
+                return res.notFound(err);
+            });
+    },
+
     history: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
@@ -279,5 +296,14 @@ module.exports = {
             .catch(function(err){
                 return res.badRequest(err);
             })
-    }
+    },
+    recentActivity: function(req, res) {
+        ActivityLog.findAll({
+            where: {companyId: req.params.id},
+            order: [['createdAt', 'DESC']],
+            limit: 10
+        })
+        .then(activities => res.json(activities));
+    },
+
 };

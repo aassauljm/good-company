@@ -958,7 +958,6 @@ const ScrapingService = {
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
-
                 return sails.controllers.companystate.transactions.seed({
                     ...data,
                     ...ScrapingService.formatHoldings(data, user_id),
