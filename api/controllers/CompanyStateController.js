@@ -126,6 +126,7 @@ function createActivityLog(user, company, messages){
 // TODO, move to transaction service
 var transactions = {
     seed: function(args, company, date) {
+        let state;
         if(!args.holdingList.holdings || !args.holdingList.holdings.length) {
             throw new sails.config.exceptions.ValidationException('Holdings are required');
         }
@@ -138,12 +139,12 @@ var transactions = {
                 var fields = companyState ? companyState.nonAssociativeFields() : {};
                 return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: date || new Date()}}));
             })
-            .then(function(state){
-                this.state = state;
-                return company.setSeedCompanyState(this.state)
+            .then(function(_state){
+                state = _state;
+                return company.setSeedCompanyState(state)
             })
             .then(function(company){
-                return company.setCurrentCompanyState(this.state)
+                return company.setCurrentCompanyState(state)
             })
             .then(function(){
                 return company.save();
