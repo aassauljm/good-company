@@ -421,40 +421,10 @@ export default class Company extends React.Component {
                             companyId={this.props.params.id}
                          />
 
-                        <Link to={this.props.location.pathname +'/details'}>
-                             <DetailsPanel
-                                companyState={current} />
-                                </Link>
-                        <Link to={this.props.location.pathname +'/shareregister'} className="share-register">
-                             <ShareRegisterPanel />
-                                 </Link>
 
 
-                         <Link to={this.props.location.pathname +'/documents'}>
-                             <DocumentsPanel docList={current.docList}/>
-                                </Link>
-                        </div>
-                          <div className="col-md-6">
-                        <Link to={this.props.location.pathname +'/new_transaction'}  className="new-transaction">
-                             <NewTransactionPanel />
-                                </Link>
-                        <Link to={this.props.location.pathname +'/share_classes'}  className="share-classes">
-                             <ShareClassesPanel/>
-                                </Link>
 
-                        <Link to={this.props.location.pathname +'/transactions'}>
-                             <TransactionsPanel
-                                transactions={current.transactions} />
-                                </Link>
 
-                        <Link to={this.props.location.pathname +'/shareholders'}>
-                             <ShareholdersPanel
-                                transactions={current.transactions} />
-                                </Link>
-
-                        <Link to={this.props.location.pathname +'/interests_register'}>
-                             <InterestsRegisterPanel />
-                                </Link>
                         </div>
                         </div>
                     </div> }

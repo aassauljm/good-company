@@ -74,7 +74,7 @@ export default (store) => {
             <Route path="user/set_password" component={ SetPassword } edit={true} />
             <Route path="user/create" component={ Account }  />
         </Route>
-        <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true}>
+        <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
             <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
         </Route>
         <Route path="*" component={ NotFound } />

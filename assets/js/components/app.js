@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from './header';
+import Footer from './footer';
 import Login from './login';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
@@ -29,9 +30,9 @@ export default class App extends React.Component {
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDrop={prevent} onDragOver={prevent}>
-                 <Notifications/>
                  <Modals />
                 { this.props.children }
+                { !this.props.print && <Footer />}
             </div>
         }
         const name = this.props.location.pathname;
@@ -46,6 +47,7 @@ export default class App extends React.Component {
                     </div>
                     </ReactCSSTransitionGroup>
                  </div>
+                 <Footer />
             </div>
     }
 }

@@ -87,11 +87,16 @@ $right-chevron:url("~catalex_shared/images/right-chevron.png");
 @import "shareholdings";
 @import "shareRegister";
 @import "notifications";
+@import "footer";
 
+
+html{
+    min-height: 100%;
+    position:relative;
+}
 
 html,body{
     background-color: #f2f2f2;
-    height:100%;
 }
 
 body{
@@ -125,13 +130,11 @@ nav.navbar{
 
 
 #main{
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    min-height:100%;
     &>div{
-        height: 100%;
+        // footer
+        margin-bottom:50px;
+
     }
 }
 
