@@ -8,7 +8,7 @@ import Root from '../../assets/js/root';
 import { Provider } from 'react-redux';
 import { match } from 'react-router';
 import { createMemoryHistory } from 'react-router'
-import { loadOnServer } from 'redux-async-connect';
+import { loadOnServer } from 'redux-connect';
 import { setFetch } from "../../assets/js/utils";
 import fetch from 'isomorphic-fetch';
 import { syncHistoryWithStore } from 'react-router-redux'
@@ -27,7 +27,6 @@ export function serverRender(url, cookie, state={}){
     return new Promise((resolve, reject) => {
         match({history, routes: routes(store), location: url}, (error, redirectLocation, renderProps) => {
             if (error) {
-
                 reject({code: 500, message: error.message});
             }
             else if (redirectLocation) {

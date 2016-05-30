@@ -5,10 +5,10 @@ import STRINGS from '../strings'
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import {  pureRender } from '../utils';
+import { pureRender } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
 import { ContactFormConnected, contactDetailsFormatSubmit, standardFields, defaultCustomFields } from './forms/contactDetails';
-
+import { replace } from 'react-router-redux'
 
 export class ContactDetailsWidget extends React.Component {
     key() {
@@ -20,12 +20,12 @@ export class ContactDetailsWidget extends React.Component {
             bodyClass += "expanded ";
         }
 
-        const data = this.props.companyState, userFields = data.userFields || {};
+        const data = this.props.companyState, userFields = data.userFields || [];
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div className="row" key="body">
                 <div className="col-xs-12">
                     { standardFields.map((f, i) =>  <div key={i}><strong>{ STRINGS[f] } </strong> {data[f] }</div>) }
-                    { defaultCustomFields.map((f, i) => userFields[f] && <div key={i}><strong>{ f } </strong> {userFields[f] }</div>) }
+                    { userFields.map((f, i) => f.value && f.label && <div key={i}><strong>{ f.label } </strong> { f.value}</div>) }
                 </div>
             </div>
         </div>
@@ -47,12 +47,11 @@ export class ContactDetailsWidget extends React.Component {
 }
 
 
-
 @connect(undefined, {
     submit: (type, id, values) => companyTransaction(type, id, values),
-    addNotification: (args) => addNotification(args)
+    addNotification: (args) => addNotification(args),
+    refresh: (location) => replace(location)
 })
-
 export default class ContactDetails extends React.Component {
 
     handleSubmit(values) {
@@ -66,6 +65,7 @@ export default class ContactDetails extends React.Component {
                             documents: values.documents})
             .then(() => {
                 this.props.addNotification({message: 'Contact Details Updated'});
+                this.props.refresh(this.props.location);
             })
             .catch((err) => {
                 this.props.addNotification({message: err.message, error: true});

@@ -28,7 +28,7 @@ import {reducer as formReducer} from 'redux-form';
 import validator from 'validator'
 import { relationNameToModel } from './schemas';
 import { routerReducer } from 'react-router-redux'
-import { reducer as reduxAsyncConnect } from 'redux-async-connect'
+import { reducer as reduxAsyncConnect } from 'redux-connect'
 
 const initialState = {
 
@@ -241,19 +241,6 @@ function resources(state = default_resources, action){
     }
 }
 
-function reduxAsyncConnectWithClear(state, action){
-    state = reduxAsyncConnect(state);
-    return state;
-    switch(action.type){
-        case RESOURCE_CREATE_SUCCESS:
-        case RESOURCE_UPDATE_SUCCESS:
-        case RESOURCE_DELETE_SUCCESS:
-            return {};
-    }
-    return state;
-
-}
-
 
 
 function mergeErrors(state, err){
@@ -289,6 +276,19 @@ function processResource(state, action){
         default:
           return state;
       }
+}
+
+function reduxAsyncWithClear(state, action){
+    state = reduxAsyncConnect(state, action);
+    switch(action.type){
+        case TRANSACTION_SUCCESS:
+        case RESOURCE_CREATE_SUCCESS:
+        case RESOURCE_UPDATE_SUCCESS:
+        case RESOURCE_DELETE_SUCCESS:
+            return {} //return {loadState: {company: {loaded: false}}};
+    }
+    return state;
+
 }
 
 
@@ -376,7 +376,7 @@ const appReducer = combineReducers({
     modals,
     menus,
     widgets,
-    reduxAsyncConnect: reduxAsyncConnectWithClear
+    reduxAsyncConnect: reduxAsyncConnect
 });
 
 

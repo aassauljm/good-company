@@ -5,7 +5,7 @@ import DropZone from 'react-dropzone';
 import { hideNotification } from '../actions'
 
 
-const NOTIFICATION_TIMEOUT = 1000000;
+const NOTIFICATION_TIMEOUT = 10000;
 
 
 @pureRender

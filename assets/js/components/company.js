@@ -10,7 +10,7 @@ import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-connect';
 import { ShareholdingsWidget } from './shareholdings';
 import { DocumentsPanel } from './documents';
 import { NewTransactionPanel } from './newTransaction';
@@ -347,8 +347,7 @@ const DEFAULT_OBJ = {};
     promise: ({store: {dispatch, getState}, params}) => {
         return dispatch(requestResource('/company/' + params.id + '/get_info'));
     }
-}])
-@connect((state, ownProps) => {
+}],(state, ownProps) => {
     return {
         data: DEFAULT_OBJ,
         companyPage: state.companyPage,

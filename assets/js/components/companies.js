@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/lib/Button';
 import { push } from 'react-router-redux'
 import { Link } from 'react-router';
 import STRINGS from '../strings'
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-connect';
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router'
 import STRINGS from '../strings'
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-connect';
 
 
 @asyncConnect([{

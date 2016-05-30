@@ -21,6 +21,7 @@ export default class Account extends React.Component {
     componentDidUpdate(){
         this.props.dispatch(requestResource('/document/'+this.key()));
     }
+
     isOwnAccount(){
         return this.key() === this.props.id+'';
     }

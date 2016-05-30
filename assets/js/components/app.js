@@ -9,7 +9,7 @@ import { createResource } from '../actions'
 import Notifications from './notifications';
 import Modals from './modals';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-connect';
 
 function prevent(e){
     e.preventDefault();

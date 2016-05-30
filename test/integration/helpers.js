@@ -6,7 +6,7 @@ import routes from ".../../../../assets/js/routes";
 import Root from ".../../../../assets/js/root";
 import Promise from "bluebird";
 import { createMemoryHistory, match } from 'react-router'
-import { loadOnServer } from 'redux-async-connect';
+import { loadOnServer } from 'redux-connect';
 import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from '.../../../../assets/js/reducers';
 import thunkMiddleware from 'redux-thunk';

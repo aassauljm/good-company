@@ -7,7 +7,7 @@ import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
 import { renderRights, renderLimitations } from './shareClasses';
 import Input from './forms/input';
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
 
 

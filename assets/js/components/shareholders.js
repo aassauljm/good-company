@@ -4,7 +4,7 @@ import { requestResource, showModal } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-connect';
 
 
 export class Shareholder extends React.Component {
