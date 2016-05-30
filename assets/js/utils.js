@@ -171,7 +171,7 @@ export function formFieldProps(args = {}){
             return {
                  ...field,
                     bsStyle: fieldStyle(field),
-                    label: strings[Array.isArray(name) ? name[name.length-1] : name],
+                    label: strings[Array.isArray(name) ? name[name.length-1] : name] || name,
                     labelClassName: args.labelClassName,
                     wrapperClassName: args.wrapperClassName,
                     hasFeedback: true,

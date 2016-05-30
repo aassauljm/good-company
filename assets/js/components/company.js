@@ -339,6 +339,8 @@ export class CompanyLoader extends React.Component {
 </div>
 
 */
+const DEFAULT_OBJ = {};
+
 
 @asyncConnect([{
     key: 'company',
@@ -348,9 +350,9 @@ export class CompanyLoader extends React.Component {
 }])
 @connect((state, ownProps) => {
     return {
-        data: {},
+        data: DEFAULT_OBJ,
         companyPage: state.companyPage,
-        widgets: state.widgets[ownProps.params.id] || {},
+        widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
          ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 })
 export default class Company extends React.Component {
@@ -368,7 +370,7 @@ export default class Company extends React.Component {
     }
 
     render(){
-        const data = this.props.data || {};
+        const data = this.props.data || DEFAULT_OBJ;
         const current = data.currentCompanyState || data.companyState;
         if(this.props._status === 'error'){
             return <NotFound descriptor="Company" />

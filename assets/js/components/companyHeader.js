@@ -88,7 +88,6 @@ export class CompanyHeader extends React.Component {
 
 
     render() {
-        console.log('there', this.props)
         return  <Navbar>
             <div className="navbar-top">
                 <Navbar.Header>

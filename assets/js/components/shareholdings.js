@@ -58,7 +58,7 @@ export class ShareholdingsWidget extends React.Component {
     countHolders() {
        const length = new Set(this.props.companyState.holdingList.holdings.reduce((acc, holding) => {
             return [...acc, ...holding.holders.map(p => p.personId)];
-        })).size;
+        }, [])).size;
        return length;
     }
 
