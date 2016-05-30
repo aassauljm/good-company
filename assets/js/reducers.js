@@ -241,6 +241,21 @@ function resources(state = default_resources, action){
     }
 }
 
+function reduxAsyncConnectWithClear(state, action){
+    state = reduxAsyncConnect(state);
+    return state;
+    switch(action.type){
+        case RESOURCE_CREATE_SUCCESS:
+        case RESOURCE_UPDATE_SUCCESS:
+        case RESOURCE_DELETE_SUCCESS:
+            return {};
+    }
+    return state;
+
+}
+
+
+
 function mergeErrors(state, err){
      return {
             ...state,
@@ -275,6 +290,7 @@ function processResource(state, action){
           return state;
       }
 }
+
 
 const normalizeNumber = (value) => {
     return value ? value.replace(/[^\d]/g, '') : value
@@ -343,7 +359,6 @@ export const formBase = formReducer.normalize({
 })
 
 
-
 export const form = formReducer;
 
 const appReducer = combineReducers({
@@ -361,7 +376,7 @@ const appReducer = combineReducers({
     modals,
     menus,
     widgets,
-    reduxAsyncConnect
+    reduxAsyncConnect: reduxAsyncConnectWithClear
 });
 
 

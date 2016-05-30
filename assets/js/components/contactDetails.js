@@ -1,27 +1,13 @@
 "use strict";
 import React from 'react';
 import { Link } from 'react-router'
-import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings'
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import Input from './forms/input';
-import DateInput from './forms/dateInput';
-import { formFieldProps, requireFields, pureRender } from '../utils';
+import {  pureRender } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
-
-
-const standardFields = ['registeredCompanyAddress', 'addressForService'];
-const defaultCustomFields = ['Address for Inspection of Records', 'Head Office', 'Branch Offices', 'Website URL', 'Email', 'Phone', 'Fax', 'Lawyers', 'Accountants', 'Bank'];
-
-
-const fields = [
-    ...standardFields,
-    'userFields[].label',
-    'userFields[].value',
-
-]
+import { ContactFormConnected, contactDetailsFormatSubmit, standardFields, defaultCustomFields } from './forms/contactDetails';
 
 
 export class ContactDetailsWidget extends React.Component {
@@ -60,60 +46,32 @@ export class ContactDetailsWidget extends React.Component {
     }
 }
 
-const labelClassName = 'col-sm-4';
-const wrapperClassName = 'col-sm-8';
-@formFieldProps({
-    labelClassName: labelClassName,
-    wrapperClassName: wrapperClassName ,
+
+
+@connect(undefined, {
+    submit: (type, id, values) => companyTransaction(type, id, values),
+    addNotification: (args) => addNotification(args)
 })
-export class ContactForm extends React.Component {
-    render() {
-        const userFields = this.props.fields.userFields;
-        return <form className="form form-horizontal" >
-        <fieldset>
-            {standardFields.map((f, i) => {
-                return <div className="row" key={i}><Input type="text" {...this.formFieldProps(f)} /></div>
-            }) }
-            { userFields.map((f, i) => {
-                return <div className="row" key={i}>
-                    <div className="form-group">
-                        <div className={labelClassName}>
-                            <input type="text" className='form-control' {...f.label} placeholder='Label'/>
-                        </div>
-                        <div className={wrapperClassName}>
-                            <div className="input-group">
-                            <input className='form-control' type="text" {...f.value}  />
-                            <span className="input-group-btn">
-                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => userFields.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                                { i < userFields.length - 1  && <button type="button" className="btn btn-default"onClick={() => userFields.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                                <button type="button" className="btn btn-default"onClick={() => userFields.removeField(i) }><Glyphicon glyph="remove" /></button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }) }
-            <button type="button" className="btn btn-success"
-            onClick={() => {
-                this.props.fields.userFields.addField({})
-            }}
-            >Add Field</button>
-        </fieldset>
-        </form>
-    }
-}
 
-const validate = requireFields('registeredCompanyAddress', 'addressForService')
-
-
-const ContactFormConnected = reduxForm({
-  form: 'contactDetails',
-  validate
-})(ContactForm);
-
-
-@pureRender
 export default class ContactDetails extends React.Component {
+
+    handleSubmit(values) {
+        const transactions = contactDetailsFormatSubmit(values, this.props.companyState);
+        if(!transactions[0].actions.length){
+            return;
+        }
+        this.props.submit('compound',
+                          this.props.companyId,
+                          {transactions: transactions,
+                            documents: values.documents})
+            .then(() => {
+                this.props.addNotification({message: 'Contact Details Updated'});
+            })
+            .catch((err) => {
+                this.props.addNotification({message: err.message, error: true});
+            })
+    }
+
     render() {
         const data = this.props.companyState, userFields = data.userFields || defaultCustomFields.map(f => ({
             value: '',
@@ -123,9 +81,8 @@ export default class ContactDetails extends React.Component {
         return <div className="container">
             <div className="">
                 <ContactFormConnected
-                    fields={fields}
                     initialValues={{...data, userFields : userFields}}
-
+                    onSubmit={::this.handleSubmit}
                 />
             </div>
         </div>

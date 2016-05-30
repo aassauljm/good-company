@@ -406,19 +406,21 @@ const EXTRACT_DOCUMENT_MAP = {
             transactionType: Transaction.types.INCORPORATION,
             effectiveDate: date,
             actions: [{
-                companyNumber: match(/Company number/),
-                companyName: match(/Company name/),
-                incorporationDate: date,
-                companyStatus:  match(/Company Status/),
-                constiutionFiled: match(/Constitution filed/),
-                arFilingMonth: match(/Annual return filing month/),
-                ultimateHoldingCompany: cleanString($('.row.wideLabel h2').filter(function(){
-                    return $(this).text().match(/Ultimate Holding Company/);
-                })[0].nextSibling.nodeValue) !== 'Yes',
-                registeredCompanyAddress:  matchMultline(/Registered office address/).join(', ') || null,
-                addressForShareRegister:  matchMultline(/Address for share register/).join(', ')|| null,
-                addressForService:  matchMultline(/Address for service/).join(', ') || null,
-                transactionType: Transaction.types.DETAILS
+                fields:{
+                    companyNumber: match(/Company number/),
+                    companyName: match(/Company name/),
+                    incorporationDate: date,
+                    companyStatus:  match(/Company Status/),
+                    constiutionFiled: match(/Constitution filed/),
+                    arFilingMonth: match(/Annual return filing month/),
+                    ultimateHoldingCompany: cleanString($('.row.wideLabel h2').filter(function(){
+                        return $(this).text().match(/Ultimate Holding Company/);
+                    })[0].nextSibling.nodeValue) !== 'Yes',
+                    registeredCompanyAddress:  matchMultline(/Registered office address/).join(', ') || null,
+                    addressForShareRegister:  matchMultline(/Address for share register/).join(', ')|| null,
+                    addressForService:  matchMultline(/Address for service/).join(', ') || null
+                },
+                transactionType: Transaction.types.DETAILS_MASS
             }]
         }
         const holdings = matchMultline(/Total Number of Company Shares/);
