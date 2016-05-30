@@ -21,6 +21,7 @@ import { ShareRegisterPanel } from './shareRegister';
 import { ShareholdersPanel } from './shareholders';
 import { RecentCompanyActivityWidget } from './recentActivity';
 import { CompaniesRegisterWidget } from './companiesRegister';
+import { ContactDetailsWidget } from './contactDetails';
 
 import NotFound from './notFound';
 import BarGraph from './graphs/bar'
@@ -387,6 +388,9 @@ export default class Company extends React.Component {
                                 <CompanyAlertsWidget companyId={this.key()}  companyState={current} />
                              </div>
                         </div>
+                    { this.props.children &&  <ul className="pager">
+                            <li ><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >← Company Page</Link></li>
+                            </ul> }
                     </div>
 
                     </div>
@@ -420,12 +424,16 @@ export default class Company extends React.Component {
                             companyState={current}
                             companyId={this.props.params.id}
                          />
-
-
-
-
-
                         </div>
+                         <div className="col-md-6">
+                            <ContactDetailsWidget
+                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'companiesRegister'], expanded)) }
+                                expanded={(this.props.widgets.companiesRegister || {}).expanded}
+                                companyState={current}
+                                companyId={this.props.params.id}
+                             />
+                        </div>
+
                         </div>
                     </div> }
             </div>

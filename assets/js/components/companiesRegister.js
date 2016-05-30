@@ -6,13 +6,12 @@ import { asyncConnect } from 'redux-async-connect';
 import { requestResource } from '../actions';
 import { stringToDate } from '../utils'
 import { Link } from 'react-router'
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 
 
-//companyName
-//companyNumber
-//nzbn
-//companyStatus
-//entityType
+const transition = __SERVER__ ? 0 : 200;
+
 
 @connect((state, ownProps) => {
     return state.resources[`/company/${ownProps.companyId}/source_data`] || {};
@@ -38,21 +37,26 @@ export class CompaniesRegisterWidget extends React.Component {
     }
 
     renderBody() {
-        if(this.props._status  === 'fetching'){
-            return <div className="loading"/>
+        if(this.props._status  === 'fetching' || !this.props._status ){
+            return <div className="loading" key="loading">
+                        <Glyphicon glyph="refresh" className="spin"/>
+                    </div>
         }
         const data = (this.props.data || {}).data || {};
-        return <div className="row">
+        return <div className="row" key="body">
             <div className="col-xs-6">
                     <div><strong>Name</strong> {data.companyName}</div>
                     <div><strong>Company  Number</strong> {data.companyNumber ||  'Unknown'}</div>
                     <div><strong>NZ Business Number</strong> {data.nzbn ||  'Unknown'}</div>
-                    <div><strong>Incorporation Date</strong> {stringToDate(data.incorporationDate)}</div>
+                    <div><strong>Incorporation Date</strong> { data.incorporationDate}</div>
                     </div>
             <div className="col-xs-6">
                     <div><strong>AR Filing Month</strong> {data.arFilingMonth ||  'Unknown'}</div>
                     <div><strong>Entity Type</strong> {data.entityType ||  'Unknown' }</div>
                     <div><strong>Status</strong> {data.companyStatus ||  'Unknown' }</div>
+            </div>
+            <div className="col-xs-12 text-center">
+                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>
             </div>
         </div>
     }
@@ -65,12 +69,14 @@ export class CompaniesRegisterWidget extends React.Component {
                     Companies Register
                 </div>
                 <div className="widget-control">
-                <Link to={`/company/${this.key()}/source_data`} >View All</Link>
+                 { /*<Link to={`/company/${this.key()}/source_data`} >View All</Link> */ }
                 </div>
             </div>
 
             <div className="widget-body">
-               { this.renderBody() }
+                <ReactCSSTransitionGroup component="div" transitionName="widget-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
+                { this.renderBody() }
+               </ReactCSSTransitionGroup>
             </div>
         </div>
     }

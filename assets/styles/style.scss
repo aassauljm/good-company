@@ -332,6 +332,11 @@ a, a:hover{
     }
 }
 
+
+.pager{
+    margin:0;
+}
+
 // FORMS
 .form-control-static{
     @extend .btn;

@@ -21,3 +21,29 @@ $pageTransitionEasing: ease-in-out;
 .page-transition-leave.page-transition-leave-active {
   opacity: 0;
 }
+
+
+
+// transitions
+$widgetTransitionTime: .2s;
+$widgetTransitionEasing: ease-in-out;
+.widget-transition-enter {
+  transition: opacity $widgetTransitionTime $widgetTransitionEasing;
+
+}
+.widget-transition-enter.widget-transition-enter-active {
+  opacity: 1;
+}
+.widget-transition-leave {
+  transition: opacity $widgetTransitionTime $widgetTransitionEasing;
+  opacity: 1;
+   position: absolute;
+     left: 0;
+  right: 0;
+  top:0
+}
+.widget-transition-leave.widget-transition-leave-active {
+  opacity: 0;
+
+
+}

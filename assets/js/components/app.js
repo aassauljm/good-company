@@ -42,8 +42,8 @@ export default class App extends React.Component {
                  <Modals />
                 <div className="app-container" >
                   <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
-                  <div key={name}>
-                    { this.props.children }
+                    <div key={name}>
+                        { this.props.children }
                     </div>
                     </ReactCSSTransitionGroup>
                  </div>

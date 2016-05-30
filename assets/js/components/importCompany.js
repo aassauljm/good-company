@@ -3,8 +3,8 @@ import React, {PropTypes} from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import {importCompany, addNotification, requestResource } from '../actions';
-import {reduxForm} from 'redux-form';
+import { importCompany, addNotification, requestResource } from '../actions';
+import { reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import { fieldStyle, fieldHelp, requiredFields, formFieldProps } from '../utils';

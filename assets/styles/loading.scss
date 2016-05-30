@@ -1,8 +1,11 @@
 
 // spin
 .loading{
-    font-size: 3em;
+    font-size: 42px;
     text-align: center;
+    span{
+        width:43px;
+    }
 }
 .spin {
   animation: spin 1000ms infinite linear;
