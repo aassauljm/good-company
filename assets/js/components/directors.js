@@ -44,7 +44,7 @@ export class DirectorsWidget extends React.Component {
                     <dt>Appointment Date</dt>
                     <dd>{ stringToDate(director.appointment) }</dd>
                     { director.consentUrl && <dt>Consent Url</dt> }
-                    { director.consentUrl && <dd><Link to={director.consentUrl } className="external-link" target="blank">Companies Office</Link></dd> }
+                    { director.consentUrl && <dd><Link to={director.consentUrl } className="external-link" target="_blank">Companies Office</Link></dd> }
 
                     <dt>Current Shareholder</dt>
                     <dd>{ holders[director.person.personId] ? 'Yes': 'No'}</dd>

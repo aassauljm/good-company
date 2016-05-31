@@ -32,7 +32,6 @@ nav.navbar{
                 width: 100%;
             & > a{
                 display:inline-block;
-
                 text-overflow: ellipsis;
                 overflow-x: hidden;
                 font-weight:bold;
@@ -40,8 +39,9 @@ nav.navbar{
                 font-size: 1.5em;
                 white-space: nowrap;
                 max-width: 100%;
-                &:active{
+                &:active, &:focus{
                     outline:none;
+                    text-decoration: none;
                 }
                 .glyphicon{
                     font-size:0.85em;
