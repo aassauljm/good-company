@@ -16,6 +16,10 @@ export default {
     holding: 'Shareholding',
     arFilingMonth: 'AR Filing Month',
     fraReportingMonth: 'FRA Reporting Month',
+
+    entityType: 'Entity Type',
+    companyStatus: 'Company Status',
+
     holdingName: 'Holding Name',
     appointment: 'Appointment Date',
     cessation: 'Cessation of Directorship Date',

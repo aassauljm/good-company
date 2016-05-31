@@ -44,30 +44,48 @@ export default class Documents extends React.Component {
 
 
 
+
 @pureRender
-export class DocumentsPanel extends React.Component {
-    static propTypes = {
-        docList: PropTypes.shape({ documents: PropTypes.array.isRequired}).isRequired
-    };
-    render(){
-        return <div className="panel panel-success" >
-            <div className="panel-heading">
-            <h3 className="panel-title">Documents</h3>
-            </div>
-            <div className="panel-body">
+export class DocumentsWidget extends React.Component {
+    key() {
+        return this.props.companyId;
+    }
+    renderBody() {
+        let bodyClass = "widget-body expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+
+        const docList = this.props.companyState.docList;
+        return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <thead><tr><th>Name</th><th>Date</th></tr></thead>
                 <tbody>
-                { this.props.docList.documents.slice(0, 5).map((d, i) => {
-                    return <tr key={i}><td>{ d.filename }</td><td>{stringToDate(d.date)}</td></tr>
+                { docList.documents.map((d, i) => {
+                    return <tr key={i}><td><Link activeClassName="active" className="nav-link" to={"/document/view/"+d.id}>{ d.filename }</Link></td><td>{stringToDate(d.date)}</td></tr>
                 }) }
-                <tr><td colSpan="2" className="text-center">...</td></tr>
                 </tbody>
                 </table>
+        </div>
+    }
+
+    render() {
+        return <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Documents
+                </div>
+                <div className="widget-control">
+                 <Link to={`/company/view/${this.key()}/documents`} >View All</Link>
+                </div>
             </div>
+            { this.renderBody() }
         </div>
     }
 }
+
+
+
 
 export class CompanyDocuments extends React.Component {
     static propTypes = {

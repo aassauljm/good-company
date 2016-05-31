@@ -8,16 +8,24 @@ import { stringToDate } from '../utils'
 import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
-
+import STRINGS from '../strings';
 
 const transition = __SERVER__ ? 0 : 200;
+
+const fields = [
+'companyName',
+'companyNumber',
+'nzbn',
+'incorporationDate',
+'arFilingMonth',
+'entityType',
+'companyStatus'];
 
 
 @connect((state, ownProps) => {
     return state.resources[`/company/${ownProps.companyId}/source_data`] || {};
 }, {
-    requestData: (key) => requestResource(`/company/${key}/source_data`),
-    navigate: (url) => push(url)
+    requestData: (key) => requestResource(`/company/${key}/source_data`)
 })
 export class CompaniesRegisterWidget extends React.Component {
 
@@ -69,7 +77,7 @@ export class CompaniesRegisterWidget extends React.Component {
                     Companies Register
                 </div>
                 <div className="widget-control">
-                 { /*<Link to={`/company/${this.key()}/source_data`} >View All</Link> */ }
+                 { <Link to={`/company/view/${this.key()}/source_data`} >View All</Link>  }
                 </div>
             </div>
 
@@ -82,3 +90,64 @@ export class CompaniesRegisterWidget extends React.Component {
     }
 }
 
+
+@connect((state, ownProps) => {
+    return state.resources[`/company/${ownProps.companyId}/source_data`] || {};
+}, {
+    requestData: (key) => requestResource(`/company/${key}/source_data`)
+})
+export default class CompaniesRegister extends React.Component {
+    fetch() {
+        return this.props.requestData(this.props.companyId);
+    };
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+    key() {
+        return this.props.companyId;
+    }
+
+    renderBody() {
+        if(this.props._status  === 'fetching' || !this.props._status ){
+            return <div className="loading" key="loading">
+                    <Glyphicon glyph="refresh" className="spin"/>
+                </div>
+        }
+        const data = (this.props.data || {}).data || {};
+        return <div key="body">
+            { fields.map((f, i) => {
+                return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ data[f] || "Unknown"}</div></div>
+            })}
+            <div className="text-center">
+                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>
+            </div>
+        </div>
+    }
+
+
+
+    render() {
+        return <div className="container">
+            <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Companies Register
+                </div>
+            </div>
+
+            <div className="widget-body">
+                <ReactCSSTransitionGroup component="div" transitionName="widget-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
+                { this.renderBody() }
+               </ReactCSSTransitionGroup>
+            </div>
+        </div>
+        </div>
+
+
+    }
+}

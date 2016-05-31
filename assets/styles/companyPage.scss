@@ -2,7 +2,9 @@
 
 
     .external-link{
-
         font-style: italic;
+        &:hover{
+            text-decoration: underline;
+        }
     }
 }

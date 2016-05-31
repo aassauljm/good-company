@@ -8,7 +8,7 @@ import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
 
 @connect((state, ownProps) => state.resources['/document/'+ownProps.params.id ] || {data: {}})
-export default class Account extends React.Component {
+export default class Document extends React.Component {
 
     key(){
         return this.props.params.id

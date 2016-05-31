@@ -76,6 +76,10 @@ export class RecentCompanyActivityWidget extends React.Component {
         this.fetch();
     };
 
+    key() {
+        return this.props.companyId;
+    }
+
     render() {
         const activities = this.props.data || [];
         return <div className="widget">
@@ -84,7 +88,7 @@ export class RecentCompanyActivityWidget extends React.Component {
                     Recent Activity
                 </div>
                 <div className="widget-control">
-                <Link to="/recent_activity" >View All</Link>
+                { /* <Link to={`/company/view/${this.key()}/recent_activity`}>View All</Link> */ }
                 </div>
             </div>
 
@@ -102,11 +106,11 @@ export class RecentCompanyActivityWidget extends React.Component {
 
 
 @asyncConnect([{
-  promise: ({store: {dispatch, getState}, params}) => {
-    return dispatch(requestResource('/recent_activity/full'))
-  }
-}])
-@connect(state => state.resources['/recent_activity/full'])
+      promise: ({store: {dispatch, getState}, params}) => {
+        return dispatch(requestResource('/recent_activity/full'))
+      }
+    }],
+    state => state.resources['/recent_activity/full'])
 export default class RecentActivity extends React.Component {
     handleClick(activity) {
         if(activity.data.companyId){
@@ -128,5 +132,4 @@ export default class RecentActivity extends React.Component {
         </table>
         </div>
     }
-
 }

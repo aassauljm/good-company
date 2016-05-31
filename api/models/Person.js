@@ -84,7 +84,7 @@ module.exports = {
                 if(other.id){
                     return other;
                 }
-                const person = Person.build(_.merge(other, {personId: this.dataValues.personId}), {
+                const person = Person.build(_.merge(_.pick(this.toJSON(), 'attr'), other, {personId: this.dataValues.personId}), {
                                 include: [{
                                     model: Transaction,
                                     as: 'transaction',

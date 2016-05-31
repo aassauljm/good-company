@@ -105,7 +105,8 @@ export function requestResource(resource, options = {}) {
             credentials: 'same-origin'
         }),
         shouldCallAPI: (state) => !state.resources[resource] || !state.resources[resource]._status || options.refresh,
-        payload: {key: resource, form: options.form}
+        payload: {key: resource, form: options.form},
+        postProcess: options.postProcess
     };
 }
 

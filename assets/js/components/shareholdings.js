@@ -17,7 +17,7 @@ function largestHolders(shareClass, total, companyState, count = 3){
         });
         return acc;
     }, []);
-    list.sort((a, b) => a.amount > b.amount);
+    list.sort((a, b) => a.amount < b.amount);
 
     return list.slice(0, count);
 }

@@ -28,7 +28,8 @@ export function callAPIMiddleware({
                 types,
                 callAPI,
                 shouldCallAPI = () => true,
-                payload = {}
+                payload = {},
+                postProcess,
             } = action;
 
             if (!types || !callAPI) {
@@ -56,6 +57,7 @@ export function callAPIMiddleware({
             return callAPI()
                 .then(checkStatus)
                 .then(parseJSON)
+                .then(response => postProcess ? postProcess(response) : response)
                 .then(response => dispatch(Object.assign({}, payload, {
                     response: response,
                     type: successType

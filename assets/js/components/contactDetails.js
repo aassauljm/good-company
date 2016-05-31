@@ -22,11 +22,12 @@ export class ContactDetailsWidget extends React.Component {
 
         const data = this.props.companyState, userFields = data.userFields || [];
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
-            <div className="row" key="body">
-                <div className="col-xs-12">
-                    { standardFields.map((f, i) =>  <div key={i}><strong>{ STRINGS[f] } </strong> {data[f] }</div>) }
-                    { userFields.map((f, i) => f.value && f.label && <div key={i}><strong>{ f.label } </strong> { f.value}</div>) }
-                </div>
+            <div key="body">
+
+            <dl>
+                { standardFields.map((f, i) =>  <div key={i}><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
+                { userFields.map((f, i) => f.value && f.label && <div key={i}><dt>{ f.label }</dt><dd>{ f.value}</dd></div>) }
+                </dl>
             </div>
         </div>
     }

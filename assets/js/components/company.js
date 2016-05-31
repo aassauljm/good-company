@@ -12,22 +12,17 @@ import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
 import { asyncConnect } from 'redux-connect';
 import { ShareholdingsWidget } from './shareholdings';
-import { DocumentsPanel } from './documents';
-import { NewTransactionPanel } from './newTransaction';
-import { ShareClassesPanel } from './shareClasses';
-import { DetailsPanel } from './companyDetails';
-import { InterestsRegisterPanel } from './interestsRegister';
-import { ShareRegisterPanel } from './shareRegister';
-import { ShareholdersPanel } from './shareholders';
 import { RecentCompanyActivityWidget } from './recentActivity';
 import { CompaniesRegisterWidget } from './companiesRegister';
 import { ContactDetailsWidget } from './contactDetails';
+import { DirectorsWidget } from './directors';
+import { DocumentsWidget } from './documents';
+import { ReportingWidget } from './reporting';
 
 import NotFound from './notFound';
 import BarGraph from './graphs/bar'
 import Notifications from './notifications';
 
-const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 
 @pureRender
@@ -37,6 +32,7 @@ export class TransactionsPanel extends React.Component {
     };
 
     render() {
+        const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const data = this.props.transactions;
         const groups = data.reduce((acc, value) => {
             const parts = (value.effectiveDate || '').split('-');
@@ -339,13 +335,26 @@ export class CompanyLoader extends React.Component {
 </div>
 
 */
+
+function analyseCompany(company){
+    company.currentCompanyState.holders = company.currentCompanyState.holdingList.holdings.reduce((acc, holding) => {
+        holding.holders.reduce((acc, holder) => {
+            acc[holder.personId] = (acc[holder.personId] || []).concat([holding.holdingId])
+            return acc
+        }, acc)
+        return acc;
+    }, {});
+    return company;
+}
+
+
 const DEFAULT_OBJ = {};
 
 
 @asyncConnect([{
     key: 'company',
     promise: ({store: {dispatch, getState}, params}) => {
-        return dispatch(requestResource('/company/' + params.id + '/get_info'));
+        return dispatch(requestResource('/company/' + params.id + '/get_info', {postProcess: analyseCompany}));
     }
 }],(state, ownProps) => {
     return {
@@ -430,6 +439,24 @@ export default class Company extends React.Component {
                             <ContactDetailsWidget
                                 toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'companiesRegister'], expanded)) }
                                 expanded={(this.props.widgets.companiesRegister || {}).expanded}
+                                companyState={current}
+                                companyId={this.props.params.id}
+                             />
+                            <DirectorsWidget
+                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'directors'], expanded)) }
+                                expanded={(this.props.widgets.directors || {}).expanded}
+                                companyState={current}
+                                companyId={this.props.params.id}
+                             />
+                            <ReportingWidget
+                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'reporting'], expanded)) }
+                                expanded={(this.props.widgets.reporting || {}).expanded}
+                                companyState={current}
+                                companyId={this.props.params.id}
+                             />
+                            <DocumentsWidget
+                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'documents'], expanded)) }
+                                expanded={(this.props.widgets.documents || {}).expanded}
                                 companyState={current}
                                 companyId={this.props.params.id}
                              />

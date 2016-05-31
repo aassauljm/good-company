@@ -54,7 +54,7 @@ $widget-border: #ccc;
         }
 
         &.expandable{
-            height: 135px;
+            max-height: 135px;
             overflow: hidden;
             cursor: pointer;
             &:after{
@@ -71,6 +71,7 @@ $widget-border: #ccc;
 
         &.expanded{
             height: auto;
+            max-height: none;
             &:after{
                 display:none;
             }
