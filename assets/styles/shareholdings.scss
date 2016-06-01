@@ -25,3 +25,16 @@
         }
     }
 }
+
+.outline.shareholding{
+    position:relative;
+    .info{
+        margin-right: 100px;
+    }
+    .pie-chart{
+        position:absolute;
+        right: 16px;
+        top: 16px;
+        width:auto;
+    }
+}

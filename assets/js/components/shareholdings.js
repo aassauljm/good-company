@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 import PieChart  from 'react-d3-components/lib/PieChart';
 import Panel from './panel';
 import STRINGS from '../strings';
-
+import AutoAffix from 'react-overlays/lib/AutoAffix';
 
 function largestHolders(shareClass, total, companyState, count = 3){
     const list = companyState.holdingList.holdings.reduce((acc, h) => {
@@ -17,7 +17,7 @@ function largestHolders(shareClass, total, companyState, count = 3){
         });
         return acc;
     }, []);
-    list.sort((a, b) => a.amount < b.amount);
+    list.sort((a, b) => b.amount - a.amount);
 
     return list.slice(0, count);
 }
@@ -53,13 +53,8 @@ export class ShareholdingsWidget extends React.Component {
         expanded: PropTypes.bool
     };
 
-
-
     countHolders() {
-       const length = new Set(this.props.companyState.holdingList.holdings.reduce((acc, holding) => {
-            return [...acc, ...holding.holders.map(p => p.personId)];
-        }, [])).size;
-       return length;
+       return Object.keys(this.props.companyState.holders).length;
     }
 
     render() {
@@ -158,21 +153,18 @@ export class Holding extends React.Component {
         const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (sum/this.props.total*100).toFixed(2) + '%';
 
-        return <div className="well holding actionable" onClick={() => this.props.editHolding(this.props.holding)}>
-            <div className="row">
-                <div className="col-xs-10">
+        return <div className="outline actionable shareholding" onClick={() => this.props.editHolding(this.props.holding)}>
+
+                <div className="info">
                     <HoldingDL holding={this.props.holding} total={sum} percentage={percentage}  />
                 </div>
-                <div className="col-xs-2">
-                   <div className="hide-graph-labels">
-                 { <PieChart
+                   <div className="hide-graph-labels pie-chart">
+                  <PieChart
                           data={{values: [{y: sum, x: 'this'}, {y: this.props.total-sum, x: 'other'}]}}
                           innerRadius={0.001}
                           outerRadius={30}
                           width={60}
-                          height={60} />  }
-                    </div>
-                    </div>
+                          height={60} />
             </div>
         </div>
     }
@@ -183,7 +175,7 @@ export class Holding extends React.Component {
 export class Shareholdings extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
-        showModal: PropTypes.func
+        companyId: PropTypes.string
     };
 
     constructor(props) {
@@ -204,27 +196,44 @@ export class Shareholdings extends React.Component {
     render() {
         const holdings = [...this.props.companyState.holdingList.holdings];
         holdings.sort((a, b) => (a.name||'').localeCompare(b.name))
-        return <div className="container"><div className="row">
-            <div className="col-md-6">
-                { holdings.map((holding, i) =>
-                    <Holding key={i} holding={holding}
-                        total={this.props.companyState.totalShares}
-                        editHolding={this.editHolding} />
-                )}
+        return <div className="container">
+
+        <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Shareholdings
+                </div>
             </div>
-            <div className="col-md-6 text-center">
-                <div className="hide-graph-labels">
-               {<PieChart
-                data={groupHoldings(this.props.companyState)}
-                  width={100}
-                  height={100}
-                  innerRadius={0.0001}
-                  outerRadius={50}
-                  tooltipHtml={pieTooltip}
-                  tooltipMode={'mouse'}
-                  showInnerLabels={false}
-                  showOuterLabels={false} />  }
-                  </div>
+            <div className="widget-body">
+                <div className="row">
+                    <div className="col-md-6">
+                        { holdings.map((holding, i) =>
+                            <Holding key={i} holding={holding}
+                                total={this.props.companyState.totalShares}
+                                editHolding={this.editHolding} />
+                        )}
+                    </div>
+                    <div className="col-md-6 col-xs-12 text-center">
+
+                    <AutoAffix viewportOffsetTop={15} container={this}>
+                        <div className="hide-graph-labels pie-chart responsive affixed">
+                           {<PieChart
+                            data={groupHoldings(this.props.companyState)}
+                              viewBox={'0 0 400 400'}
+                              width={400}
+                              height={400}
+                              innerRadius={0.0001}
+                              outerRadius={150}
+                              tooltipHtml={pieTooltip}
+                              tooltipMode={'mouse'}
+                              showInnerLabels={false}
+                              showOuterLabels={false} />  }
+                        </div>
+                    </AutoAffix>
+
+
+                    </div>
+                </div>
             </div>
         </div>
         </div>

@@ -1,5 +1,5 @@
 "use strict";
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { Link } from 'react-router'
 import STRINGS from '../strings'
 import Button from 'react-bootstrap/lib/Button';
@@ -10,6 +10,13 @@ import { companyTransaction, addNotification } from '../actions';
 import { replace } from 'react-router-redux'
 
 export class ReportingWidget extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object.isRequired,
+        companyId: PropTypes.string.isRequired,
+        toggle: PropTypes.func.isRequired,
+        expanded: PropTypes.bool
+    };
+
     key() {
         return this.props.companyId;
     }
@@ -19,7 +26,7 @@ export class ReportingWidget extends React.Component {
             bodyClass += "expanded ";
         }
 
-        return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div className="row" key="body">
                 <div className="col-xs-12">
                 </div>

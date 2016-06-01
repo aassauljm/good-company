@@ -24,3 +24,19 @@
         background-color: rbga(0,0,0,0.1);
     }
 }
+
+.pie-chart.responsive{
+    width: 100%;
+    height: auto;
+    .arc{
+        text{
+            display:none;
+        }
+    }
+
+    &.affixed{
+        @media (max-width: $screen-sm-max){
+            position: static !important;
+        }
+    }
+}

@@ -34,6 +34,9 @@ $widget-border: #ccc;
         clear:both;
         padding:8px 0;
         position: relative;
+        h5{
+            color:$deep-red;
+        }
         ul{
             margin:0;
             padding:0;
@@ -74,6 +77,19 @@ $widget-border: #ccc;
             max-height: none;
             &:after{
                 display:none;
+            }
+        }
+
+
+        .outline {
+            float: left;
+            border: 1px solid $widget-border;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 20px;
+            width: 100%;
+            dl{
+                margin-bottom:0;
             }
         }
     }

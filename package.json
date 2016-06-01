@@ -94,7 +94,7 @@
     "react-addons-shallow-compare": "^0.14.2",
     "react-autosuggest": "^3.7.3",
     "react-bootstrap": "^0.28.1",
-    "react-d3-components": "^0.6.0",
+    "react-d3-components": "joshgagnon/react-d3-components",
     "react-date-picker": "^3.1.8",
     "react-dom": "^0.14.2",
     "react-dropzone": "^3.3.2",
