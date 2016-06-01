@@ -60,7 +60,10 @@ module.exports = {
         ultimateHoldingCompany: {
             type: Sequelize.BOOLEAN
         },
-        "userFields": {
+        "contactFields": {
+            "type": Sequelize.JSON
+        },
+        "reportingFields": {
             "type": Sequelize.JSON
         }
     },

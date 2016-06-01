@@ -5,14 +5,21 @@ import { formFieldProps, requireFields } from '../../utils';
 import Input from './input';
 import { reduxForm } from 'redux-form';
 import TransactionTypes from '../../../../config/enums/transactions';
+import STRINGS from '../../strings'
 
-export const standardFields = ['registeredCompanyAddress', 'addressForService'];
-export const defaultCustomFields = ['Address for Inspection of Records', 'Head Office', 'Branch Offices', 'Website URL', 'Email', 'Phone', 'Fax', 'Lawyers', 'Accountants', 'Bank'];
+export const standardFieldsDescriptions = {
+    'fraReportingMonth': {
+    }
+}
+
+
+export const standardFields = ['fraReportingMonth'];
+export const defaultCustomFields = ['IRD Number'];
 
 const fields = [
     ...standardFields,
-    'contactFields[].label',
-    'contactFields[].value',
+    'reportingFields[].label',
+    'reportingFields[].value',
     'documents'
 
 ]
@@ -24,16 +31,16 @@ const wrapperClassName = 'col-sm-8';
     labelClassName: labelClassName,
     wrapperClassName: wrapperClassName ,
 })
-export class ContactForm extends React.Component {
+export class ReportingForm extends React.Component {
     render() {
-        const contactFields = this.props.fields.contactFields;
+        const reportingFields = this.props.fields.reportingFields;
         const { handleSubmit, resetForm } = this.props;
         return <form className="form form-horizontal" onSubmit={handleSubmit}>
         <fieldset>
             {standardFields.map((f, i) => {
                 return <div className="row" key={i}><Input type="text" {...this.formFieldProps(f)} /></div>
             }) }
-            { contactFields.map((f, i) => {
+            { reportingFields.map((f, i) => {
                 return <div className="row" key={i}>
                     <div className="form-group">
                         <div className={labelClassName}>
@@ -43,9 +50,9 @@ export class ContactForm extends React.Component {
                             <div className="input-group">
                             <input className='form-control' type="text" {...f.value}  />
                             <span className="input-group-btn">
-                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => contactFields.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                                { i < contactFields.length - 1  && <button type="button" className="btn btn-default"onClick={() => contactFields.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                                <button type="button" className="btn btn-default"onClick={() => contactFields.removeField(i) }><Glyphicon glyph="remove" /></button>
+                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => reportingFields.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
+                                { i < reportingFields.length - 1  && <button type="button" className="btn btn-default"onClick={() => reportingFields.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
+                                <button type="button" className="btn btn-default"onClick={() => reportingFields.removeField(i) }><Glyphicon glyph="remove" /></button>
                                 </span>
                             </div>
                         </div>
@@ -56,7 +63,7 @@ export class ContactForm extends React.Component {
             <div className="button-row">
                 <button type="button" className="btn btn-default"
                     onClick={() => {
-                        this.props.fields.contactFields.addField({})
+                        this.props.fields.reportingFields.addField({})
                     }}
                 >Add Field</button>
             </div>
@@ -76,27 +83,19 @@ export class ContactForm extends React.Component {
 const validate = requireFields('registeredCompanyAddress', 'addressForService')
 
 
-export const ContactFormConnected = reduxForm({
-    form: 'contactDetails',
+export const ReportingFormConnected = reduxForm({
+    form: 'reportingDetails',
     fields: fields,
   validate
-})(ContactForm);
+})(ReportingForm);
 
 
-export function contactDetailsFormatSubmit(values, companyState){
+export function reportingDetailsFormatSubmit(values, companyState){
     const actions = [];
     const transactionMap = {
         'addressForService': TransactionTypes.ADDRESS_CHANGE,
         'registeredCompanyAddress': TransactionTypes.ADDRESS_CHANGE,
-        'contactFields': TransactionTypes.USER_FIELDS_CHANGE
-    };
-    const fieldNameMap = {
-        'addressForService': 'newAddress',
-        'registeredCompanyAddress': 'newAddress',
-    };
-    const previousFieldNameMap = {
-        'addressForService': 'previousAddress',
-        'registeredCompanyAddress': 'previousAddress'
+        'reportingFields': TransactionTypes.USER_FIELDS_CHANGE
     };
     Object.keys(values).map(item => {
         if(JSON.stringify(values[item]) !== JSON.stringify(companyState[item])){

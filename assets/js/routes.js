@@ -19,6 +19,7 @@ import { ShareRegister, ShareRegisterDocumentLoader } from './components/shareRe
 import CompaniesRegister from './components/companiesRegister';
 import { NewTransaction } from './components/newTransaction';
 import ContactDetails  from './components/contactDetails';
+import ReportingDetails  from './components/reportingDetails';
 import Directors  from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
 import RecentActivity from './components/recentActivity';
@@ -64,6 +65,7 @@ export default (store) => {
                 <Route path="documents" component={ CompanyDocuments } />
                 <Route path="templates" component={ Templates } />
                 <Route path="contact" component={ ContactDetails } />
+                <Route path="reporting" component={ ReportingDetails } />
                 <Route path="source_data" component={ CompaniesRegister } />
                 <Route path="directors" component={ Directors } />
                 <Route path="share_classes" component={ ShareClasses } >

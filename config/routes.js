@@ -200,6 +200,11 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'getSourceData',
         model: 'company'
-    }
+    },
 
+    'PUT /api/company/:id/update_source_data': {
+        controller: 'CompanyController',
+        action: 'updateSourceData',
+        model: 'company'
+    }
 };

@@ -7,16 +7,17 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { pureRender } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
-import { ContactFormConnected, contactDetailsFormatSubmit, standardFields, defaultCustomFields } from './forms/contactDetails';
+import { ReportingFormConnected, reportingDetailsFormatSubmit, standardFields, defaultCustomFields } from './forms/reportingDetails';
 import { replace } from 'react-router-redux'
 
-export class ContactDetailsWidget extends React.Component {
+export class ReportingDetailsWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired,
         toggle: PropTypes.func.isRequired,
         expanded: PropTypes.bool
     };
+
     key() {
         return this.props.companyId;
     }
@@ -26,13 +27,13 @@ export class ContactDetailsWidget extends React.Component {
             bodyClass += "expanded ";
         }
 
-        const data = this.props.companyState, contactFields = data.contactFields || [];
+        const data = this.props.companyState, reportingFields = data.reportingFields || [];
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body">
 
             <dl>
                 { standardFields.map((f, i) =>  <div key={i}><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
-                { contactFields.map((f, i) => f.value && f.label && <div key={i}><dt>{ f.label }</dt><dd>{ f.value}</dd></div>) }
+                { reportingFields.map((f, i) => f.value && f.label && <div key={i}><dt>{ f.label }</dt><dd>{ f.value}</dd></div>) }
                 </dl>
             </div>
         </div>
@@ -42,10 +43,10 @@ export class ContactDetailsWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Contact
+                    Reporting
                 </div>
                 <div className="widget-control">
-                 <Link to={`/company/view/${this.key()}/contact`} >View All</Link>
+                 <Link to={`/company/view/${this.key()}/reporting`} >View All</Link>
                 </div>
             </div>
             { this.renderBody() }
@@ -59,13 +60,13 @@ export class ContactDetailsWidget extends React.Component {
     addNotification: (args) => addNotification(args),
     refresh: (location) => replace(location)
 })
-export default class ContactDetails extends React.Component {
+export default class ReportingDetails extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired
     };
     handleSubmit(values) {
-        const transactions = contactDetailsFormatSubmit(values, this.props.companyState);
+        const transactions = reportingDetailsFormatSubmit(values, this.props.companyState);
         if(!transactions[0].actions.length){
             return;
         }
@@ -74,7 +75,7 @@ export default class ContactDetails extends React.Component {
                           {transactions: transactions,
                             documents: values.documents})
             .then(() => {
-                this.props.addNotification({message: 'Contact Details Updated'});
+                this.props.addNotification({message: 'Reporting Details Updated'});
                 this.props.refresh(this.props.location);
             })
             .catch((err) => {
@@ -83,15 +84,15 @@ export default class ContactDetails extends React.Component {
     }
 
     render() {
-        const data = this.props.companyState, contactFields = data.contactFields || defaultCustomFields.map(f => ({
+        const data = this.props.companyState, reportingFields = data.reportingFields || defaultCustomFields.map(f => ({
             value: '',
             label: f
         }));
 
         return <div className="container">
             <div className="">
-                <ContactFormConnected
-                    initialValues={{...data, contactFields : contactFields}}
+                <ReportingFormConnected
+                    initialValues={{...data, reportingFields : reportingFields}}
                     onSubmit={::this.handleSubmit}
                 />
             </div>

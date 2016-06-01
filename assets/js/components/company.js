@@ -17,7 +17,7 @@ import { CompaniesRegisterWidget } from './companiesRegister';
 import { ContactDetailsWidget } from './contactDetails';
 import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
-import { ReportingWidget } from './reporting';
+import { ReportingDetailsWidget } from './reportingDetails';
 
 import NotFound from './notFound';
 import BarGraph from './graphs/bar'
@@ -421,12 +421,12 @@ export default class Company extends React.Component {
                             companyState={current}
                             companyId={this.props.params.id}
                          />
-                         <ShareholdingsWidget
-                            toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'shareholdings'], expanded)) }
-                            expanded={(this.props.widgets.shareholdings || {}).expanded}
-                            companyState={current}
-                            companyId={this.props.params.id}
-                         />
+                            <ReportingDetailsWidget
+                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'reporting'], expanded)) }
+                                expanded={(this.props.widgets.reporting || {}).expanded}
+                                companyState={current}
+                                companyId={this.props.params.id}
+                             />
 
                          <RecentCompanyActivityWidget
                             toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'recentActivity'], expanded)) }
@@ -436,6 +436,13 @@ export default class Company extends React.Component {
                          />
                         </div>
                          <div className="col-md-6">
+                             <ShareholdingsWidget
+                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'shareholdings'], expanded)) }
+                                expanded={(this.props.widgets.shareholdings || {}).expanded}
+                                companyState={current}
+                                companyId={this.props.params.id}
+                             />
+
                             <ContactDetailsWidget
                                 toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'companiesRegister'], expanded)) }
                                 expanded={(this.props.widgets.companiesRegister || {}).expanded}
@@ -448,12 +455,7 @@ export default class Company extends React.Component {
                                 companyState={current}
                                 companyId={this.props.params.id}
                              />
-                            <ReportingWidget
-                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'reporting'], expanded)) }
-                                expanded={(this.props.widgets.reporting || {}).expanded}
-                                companyState={current}
-                                companyId={this.props.params.id}
-                             />
+
                             <DocumentsWidget
                                 toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'documents'], expanded)) }
                                 expanded={(this.props.widgets.documents || {}).expanded}

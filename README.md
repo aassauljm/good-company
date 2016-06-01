@@ -34,3 +34,12 @@ pm2 start app.js -n good_company -x -- --prod
 
 #run single test
 SKIP_SAILS=true _mocha --recursive test  --timeout 25000 -g 'SINGLE TEST STRING' --compilers js:babel-core/register
+
+
+
+
+questions 2/06
+
+FRA Reporting Month = Date or Month
+
+Financial Statements Required (User to determine if company is large (link to section 41 of the Financial Reporting Act 2013), a public entity, ), Financial Statements Due (if required), Audit of Financials Required (yes or no), Audit Due (if required), Annual Report Required (yes or no), Annual Report Due (if required),

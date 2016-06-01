@@ -88,7 +88,28 @@ module.exports = {
                 return res.notFound(err);
             });
     },
-
+    updateSourceData: function(req, res){
+        let company;
+        Company.findById(req.params.id, {
+                include: [{
+                    model: SourceData,
+                    as: 'sourceData'
+                }]
+            })
+            .then(_company => {
+                company = _company;
+                return ScrapingService.fetch(company.sourceData.companyNumber)
+            })
+            .then(ScrapingService.parseNZCompaniesOffice)
+            .then(data => company.update({data: data}))
+            .then(function(company) {
+                const json = company.toJSON();
+                return res.json(json.sourceData);
+            })
+            .catch(function(err) {
+                return res.notFound(err);
+            });
+    },
     history: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
