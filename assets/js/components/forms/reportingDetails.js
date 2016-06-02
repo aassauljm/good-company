@@ -38,11 +38,10 @@ export class ReportingForm extends React.Component {
         return <form className="form form-horizontal" onSubmit={handleSubmit}>
         <fieldset>
             {standardFields.map((f, i) => {
-                return <div className="row" key={i}><Input type="text" {...this.formFieldProps(f)} /></div>
+                return <div key={i}><Input type="text" {...this.formFieldProps(f)} /></div>
             }) }
             { reportingFields.map((f, i) => {
-                return <div className="row" key={i}>
-                    <div className="form-group">
+                return  <div className="form-group"  key={i}>
                         <div className={labelClassName}>
                             <input type="text" className='form-control text-right' {...f.label} placeholder='Label'/>
                         </div>
@@ -57,7 +56,6 @@ export class ReportingForm extends React.Component {
                             </div>
                         </div>
                     </div>
-                </div>
             }) }
 
             <div className="button-row">

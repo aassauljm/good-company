@@ -42,4 +42,40 @@ questions 2/06
 
 FRA Reporting Month = Date or Month
 
+Balance Date = endOFMonth(FRA Reporting Month)
+
+
+favourites button where?
+
+
 Financial Statements Required (User to determine if company is large (link to section 41 of the Financial Reporting Act 2013), a public entity, ), Financial Statements Due (if required), Audit of Financials Required (yes or no), Audit Due (if required), Annual Report Required (yes or no), Annual Report Due (if required),
+
+
+
+
+Companies Act 1993 s 196
+Financial Reports Preperation
+* Are you a large company? -- lawbrowser definition
+
+* This company has more than 10 shareholders, have the shareholders opted out of financial reporting requirements?
+
+
+
+* tranisition of 9 to 10 and vice versa triggers a check
+
+
+Audits
+
+
+
+Registration
+
+s 208 Annual Report
+
+accounting period year ending on balance date
+
+
+
+
+
+overseas company must register financial statements

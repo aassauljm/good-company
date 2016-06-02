@@ -102,10 +102,10 @@ export class CompanyDocuments extends React.Component {
         }
     }
 
-    render() {
+    renderTable() {
         const docList = this.props.companyState.docList;
         let fields = ['id', 'filename', 'type', 'date', 'createdAt'];
-        return <div className="container"><table className="table table-hover table-striped">
+        return <table className="table table-hover table-striped">
         <thead><tr>{ fields.map(f => <th key={f}>{STRINGS.companyDocuments[f]}</th>) }<th></th></tr></thead>
         <tbody>
         { docList.documents.map(
@@ -115,6 +115,22 @@ export class CompanyDocuments extends React.Component {
             </tr>)}
         </tbody>
         </table>
+    }
+
+    render() {
+        return <div className="container">
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Documents
+                    </div>
+                </div>
+                <div className="widget-body">
+                    { this.renderTable() }
+                </div>
+            </div>
+            </div>
         </div>
     }
 }

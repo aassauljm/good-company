@@ -261,34 +261,28 @@ export class InterestsRegister extends React.Component {
     componentDidUpdate() {
         this.fetch();
     };
+
     render() {
         const interestsRegister = (this.props.data || []);
-        return <div>
-                    <div className="container">
+        return <div className="container">
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Interests Register
+                    </div>
+                </div>
+                <div className="widget-body">
                         { !this.props.children && this.renderList(interestsRegister) }
                          { this.props.children && React.cloneElement(this.props.children, {
                                 companyId: this.key(),
                                 companyState: this.props.companyState,
                                 interestsRegister: interestsRegister
                         }) }
-                    </div>
                 </div>
-    }
-}
-
-
-@pureRender
-export class InterestsRegisterPanel extends React.Component {
-    static propTypes = {
-    };
-    render(){
-        return <div className="panel panel-warning" >
-            <div className="panel-heading">
-            <h3 className="panel-title">Interests Register</h3>
             </div>
-            <div className="panel-body">
-                View and create entry in the Interests Register.
             </div>
         </div>
     }
 }
+

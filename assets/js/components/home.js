@@ -10,6 +10,7 @@ import { showModal } from '../actions';
 import { RecentActivityWidget } from './recentActivity';
 import { AlertsWidget } from './alerts';
 import { FavouritesWidget } from './favourites';
+import { CompaniesWidget } from './companies';
 
 
 function highlightString(string, query, highlightClass='highlight'){
@@ -188,6 +189,8 @@ export default class Home extends React.Component {
                 <div className="row">
                     <div className="col-md-6">
                         <RecentActivityWidget />
+                        <CompaniesWidget />
+
                     </div>
                     <div className="col-md-6">
                         <AlertsWidget />

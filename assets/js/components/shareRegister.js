@@ -345,55 +345,62 @@ export class ShareRegister extends React.Component {
         companyId: PropTypes.string.isRequired
     };
 
-    render() {
+    renderShareRegister() {
         const shareRegister = (this.props.data || {}).shareRegister;
         const shareClassMap = generateShareClassMap(this.props.companyState)
         if(!shareRegister){
             return <div className="loading"></div>
         }
-
-        return <div>
-                    <div className="container">
-                        <div className="well">
-                            <h3>Share Register</h3>
-                            <LawBrowserLink title="Companies Act 1993" location="s 87">As defined under s 87 of the Companies Act 1993</LawBrowserLink>
-                        </div>
-                        <div className="col-md-4 col-md-offset-4">
-                        <div className="button-row">
-                            <Input type="select"
-                            value={this.props.menu.view}
-                            onChange={(e) => this.props.dispatch(updateMenu('shareRegister', {view: e.target.value}))}>
-                            <option value="document">Document View</option>
-                            <option value="table">Table View</option>
-                            </Input>
-                            <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/shareregister`} target='_blank'>Download</Link>
-                        </div>
-                        </div>
-                    </div>
-                    { this.props.menu.view === 'document' && <div className="container shareregister-container">
-                        <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
+        return <div>{ this.props.menu.view === 'document' &&
+                        <div className="container shareregister-container">
+                            <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
                         </div> }
                     { this.props.menu.view === 'table' && <ShareRegisterTable shareRegister={shareRegister} shareClassMap={shareClassMap} /> }
                 </div>
     }
-}
 
-
-
-@pureRender
-export class ShareRegisterPanel extends React.Component {
-    static propTypes = {
-    };
-    render(){
-
-        return <div className="panel panel-danger" >
-            <div className="panel-heading">
-            <h3 className="panel-title">Share Register</h3>
+    renderTop() {
+        return <div className="container">
+            <div className="row">
+                <div className="widget">
+                    <div className="widget-header">
+                        <div className="widget-title">
+                            Share Register
+                        </div>
+                    </div>
+                    <div className="widget-body">
+                        <LawBrowserLink title="Companies Act 1993" location="s 87">As defined under s 87 of the Companies Act 1993</LawBrowserLink>
+                    </div>
             </div>
-            <div className="panel-body">
-                View your Share Register, as defined under section 87 of the Companies Act 1993
+
             </div>
         </div>
     }
+
+    renderControls() {
+        return <div className="container">
+            <div className="col-md-4 col-md-offset-4">
+            <div className="button-row">
+                <Input type="select"
+                value={this.props.menu.view}
+                onChange={(e) => this.props.dispatch(updateMenu('shareRegister', {view: e.target.value}))}>
+                <option value="document">Document View</option>
+                <option value="table">Table View</option>
+                </Input>
+                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/shareregister`} target='_blank'>Download</Link>
+            </div>
+            </div>
+        </div>
+    }
+
+    render() {
+        return <div>
+            { this.renderTop() }
+            { this.renderControls() }
+            { this.renderShareRegister() }
+        </div>
+    }
 }
+
+
 

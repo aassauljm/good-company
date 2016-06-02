@@ -9,48 +9,122 @@ import { Link } from 'react-router';
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
 
-@asyncConnect([{
-  promise: ({store: {dispatch, getState}}) => {
-    return dispatch(requestResource('companies'));
-  }
-}])
-@connect(state => state.resources.companies)
-export default class Companies extends React.Component {
-    handleClick(id, event) {
-        event.preventDefault();
-        const { dispatch } = this.props;
-        dispatch(push("/company/view/"+ id));
-    }
 
-    handleNew() {
-        this.props.dispatch(startCreateCompany('createCompanyModal'))
-    }
 
-    handleImport() {
-        this.props.dispatch(startImportCompany('importCompanyModal'))
+const CompaniesHOC = ComposedComponent => class extends React.Component {
+
+    renderTable(data, condensed) {
+        const handleClick = (event, id) => {
+            event.preventDefault();
+            this.props.push(id);
+        }
+        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        let className = "table table-striped table-hover ";
+        if(condensed){
+            className += "table-condensed ";
+        }
+        return <table className={className}>
+            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
+            <tbody>
+            { data.map(
+                (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
+                    { fields.map(f => <td key={f}>{row[f]}</td>) }
+                </tr>) }
+            </tbody>
+        </table>
     }
 
     render() {
-        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        return <ComposedComponent {...this.props} renderTable={::this.renderTable} />;
+    }
+}
+
+
+@asyncConnect([{
+    promise: ({store: {dispatch, getState}}) => {
+        return dispatch(requestResource('companies'));
+    }
+}],
+state => state.resources.companies,
+{
+    push: (id) => push(`/company/view/${id}`),
+    handleNew: () => startCreateCompany('createCompanyModal'),
+    handleImport: () => startImportCompany('importCompanyModal')
+})
+@CompaniesHOC
+export default class Companies extends React.Component {
+
+    renderBody() {
         const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
-        return <div className="container">
+        return <div>
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
-                <Button bsStyle="info" className="company-import" onClick={::this.handleImport}>Import Company</Button>
+                <Button bsStyle="info" className="company-import" onClick={() => this.props.handleImport}>Import Company</Button>
             </div>
             <div className="table-responsive">
-            <table className="table table-striped table-hover">
-                <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
-                <tbody>
-                { data.map(
-                    (row, i) => <tr key={i} onClick={this.handleClick.bind(this, row.id)}>
-                        { fields.map(f => <td key={f}>{row[f]}</td>) }
-                    </tr>) }
-                </tbody>
-            </table>
+            { this.props.renderTable(data) }
         </div>
         </div>
 
     }
+
+    render() {
+        return <div className="container">
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Companies
+                    </div>
+                </div>
+                <div className="widget-body">
+                    { this.renderBody() }
+                </div>
+            </div>
+            </div>
+        </div>
+    }
 }
 
+@connect((state, ownProps) => {
+    return state.resources[`companies`] || {};
+}, {
+    requestData: () => requestResource(`companies`),
+    push: (id) => push(`/company/view/${id}`)
+})
+@CompaniesHOC
+export class CompaniesWidget extends React.Component {
+
+    fetch() {
+        return this.props.requestData();
+    }
+
+    componentDidMount() {
+        this.fetch();
+    }
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+    renderBody() {
+        const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
+        return  <div className="widget-body">
+            { this.props.renderTable(data.slice(0, 6), true) }
+        </div>
+    }
+
+    render() {
+        return <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Companies
+                </div>
+                <div className="widget-control">
+                 <Link to={`/companies`} >View All</Link>
+                </div>
+            </div>
+            { this.renderBody() }
+        </div>
+    }
+}

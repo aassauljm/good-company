@@ -33,7 +33,10 @@
             display:none;
         }
     }
-
+    svg{
+        width: 100%;
+        height: auto;
+    }
     &.affixed{
         @media (max-width: $screen-sm-max){
             position: static !important;

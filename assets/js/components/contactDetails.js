@@ -28,8 +28,7 @@ export class ContactDetailsWidget extends React.Component {
 
         const data = this.props.companyState, contactFields = data.contactFields || [];
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
-            <div key="body">
-
+            <div key="body" >
             <dl>
                 { standardFields.map((f, i) =>  <div key={i}><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
                 { contactFields.map((f, i) => f.value && f.label && <div key={i}><dt>{ f.label }</dt><dd>{ f.value}</dd></div>) }
@@ -89,11 +88,20 @@ export default class ContactDetails extends React.Component {
         }));
 
         return <div className="container">
-            <div className="">
-                <ContactFormConnected
-                    initialValues={{...data, contactFields : contactFields}}
-                    onSubmit={::this.handleSubmit}
-                />
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Contact
+                    </div>
+                </div>
+                <div className="widget-body">
+                        <ContactFormConnected
+                            initialValues={{...data, contactFields : contactFields}}
+                            onSubmit={::this.handleSubmit}
+                        />
+                </div>
+            </div>
             </div>
         </div>
     }

@@ -88,13 +88,21 @@ export default class ReportingDetails extends React.Component {
             value: '',
             label: f
         }));
-
         return <div className="container">
-            <div className="">
-                <ReportingFormConnected
-                    initialValues={{...data, reportingFields : reportingFields}}
-                    onSubmit={::this.handleSubmit}
-                />
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Reporting
+                    </div>
+                </div>
+                <div className="widget-body">
+                    <ReportingFormConnected
+                        initialValues={{...data, reportingFields : reportingFields}}
+                        onSubmit={::this.handleSubmit}
+                    />
+                </div>
+            </div>
             </div>
         </div>
     }
