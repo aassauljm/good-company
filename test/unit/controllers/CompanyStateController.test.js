@@ -37,7 +37,7 @@ describe('CompanyStateController', function() {
                 .send({})
                 .expect(500, done)
         });
-        it('Try no holders', function(done) {
+        it('Try no parcels', function(done) {
             req.post('/api/transaction/seed/'+companyId)
                 .send({holders: [{name: 'Gary'}, {name: 'Busey'}]})
                 .expect(500, done)
@@ -88,31 +88,31 @@ describe('CompanyStateController', function() {
                     holders: [],
                     parcels: []
                 }]}})
-                .expect(500, done)
+                .expect(400, done)
         });
         it('Try invalid Issue post, no holders', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [],
-                    parcels: [{amount: 10, beforeAmount: 0, afterAmount: 10, shareClass: 'x'}]
+                    parcels: [{amount: 10, beforeAmount: 0, afterAmount: 10}]
                 }]}})
-                .expect(500, done)
+                .expect(400, done)
         });
         it('Try invalid Issue post, negative amount', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Negato'}],
-                    parcels: [{amount: -10, beforeAmount: 0, afterAmount: -10, shareClass: 'x'}]
+                    parcels: [{amount: -10, beforeAmount: 0, afterAmount: -10}]
                 }]}})
-                .expect(500, done)
+                .expect(400, done)
         });
         it('Try invalid Issue post, zero amount', function(done) {
             req.post('/api/transaction/issue/'+companyId)
                 .send({holdingList: {holdings: [{
                     holders: [{name: 'Nillema'}],
-                    parcels: [{amount: 0, beforeAmount: 0, afterAmount: 0, shareClass: 'x'}]
+                    parcels: [{amount: 0, beforeAmount: 0, afterAmount: 0}]
                 }]}})
-                .expect(500, done)
+                .expect(400, done)
         });
     });
 
@@ -238,7 +238,7 @@ describe('CompanyStateController', function() {
                 .send({transactions: [{
                     actions: [{ transactionType: Transaction.types.REMOVE_ALLOCATION, holders: [{name: 'Gary'}, {name: 'Busey'}] }]}
                     ]})
-                .expect(500, done)
+                .expect(400, done)
         });
     });
 

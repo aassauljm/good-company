@@ -616,10 +616,10 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
 
 export const validateIssueUnallocated = Promise.method(function(data){
     if(!Number.isInteger(data.amount) || data.amount <= 0){
-        throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
     }
     if(!Number.isSafeInteger(data.amount)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Unsafe number, documentId: ' +data.documentId)
     }
 });
 
@@ -652,24 +652,24 @@ export const performPurchase = performDecreaseShares;
 
 export function validateAmend(data, companyState){
     if(!data.holdingId && !(data.holders && data.holders.length)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Holders required, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Holders required, documentId: ' +data.documentId)
     }
     const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId},
                                                     {ignoreCompanyNumber: true});
     if(!holding){
-        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Matching Holding not found, documentId: ' +data.documentId)
     }
     const sum = _.sum(holding.dataValues.parcels, (p) => {
         if(!Number.isInteger(p.amount)){
-            throw new sails.config.exceptions.InvalidInverseOperation('Amount is not valid integer, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer, documentId: ' +data.documentId)
         }
         return p.amount;
     });
     if(data.amount && !Number.isInteger(data.amount)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Amount is not valid integer, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer, documentId: ' +data.documentId)
     }
     if(!Number.isSafeInteger(sum)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Unsafe number, documentId: ' +data.documentId)
     }
     return Promise.resolve(holding);
 }

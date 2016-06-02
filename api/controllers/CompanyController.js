@@ -24,7 +24,7 @@ function checkNameCollision(ownerId, data) {
         })
         .then(function(results) {
             if (results.length) {
-                throw new sails.config.exceptions.CompanyImportException('A company with that name already exists');
+                throw new sails.config.exceptions.NameExistsException('A company with that name already exists');
             }
         })
 }
@@ -243,6 +243,12 @@ module.exports = {
             return res.json(company);
         })
         .catch(sails.config.exceptions.CompanyImportException, function(err) {
+            (company ? company.destroy() : Promise.resolve())
+            .then(() => {
+                return res.badRequest(err);
+            });
+        })
+        .catch(sails.config.exceptions.NameExistsException, function(err) {
             (company ? company.destroy() : Promise.resolve())
             .then(() => {
                 return res.badRequest(err);

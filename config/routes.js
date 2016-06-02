@@ -128,6 +128,8 @@ module.exports.routes = {
 
     'POST /api/transaction/:type/:companyId': {
         controller: 'CompanyStateController',
+        modelIdentity: 'company',
+
         action: 'create'
     },
     'GET /api/company/:id/get_info': {

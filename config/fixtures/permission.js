@@ -14,9 +14,6 @@ var grants = {
         action: 'create'
     }, {
         action: 'read'
-    }],
-    public: [{
-        action: 'read'
     }]
 };
 /*
@@ -73,125 +70,108 @@ function grantAdminPermissions(roles, models, admin) {
     }))
 }
 // TODO, make json file of this
+
+var registered = {
+    'Permission': [
+        {
+            action: 'read'
+        }
+    ],
+    'User': [
+        {
+            action: 'read',
+            relation: 'owner'
+        },
+        {
+            action: 'update',
+            relation: 'owner'
+        },
+    ],
+    'Document': [
+        {
+            action: 'create'
+        },
+        {
+            action: 'read',
+            relation: 'owner'
+        },
+        {
+            action: 'update',
+            relation: 'owner'
+        },
+        {
+            action: 'delete',
+            relation: 'owner'
+        }
+    ],
+    'Company': [
+        {
+            action: 'create'
+        },
+        {
+            action: 'read',
+            relation: 'owner'
+        },
+        {
+            action: 'update',
+            relation: 'owner'
+        },
+        {
+            action: 'delete',
+            relation: 'owner'
+        }
+    ],
+    'Favourite': [
+        {
+            action: 'create'
+        },
+        {
+            action: 'read',
+            relation: 'owner'
+        },
+        {
+            action: 'update',
+            relation: 'owner'
+        },
+        {
+            action: 'delete',
+            relation: 'owner'
+        }
+    ],
+    'CompanyState': [
+        {
+            action: 'create'
+        }
+    ]
+};
+
+
 function grantRegisteredPermissions(roles, models, admin) {
     var registeredRole = _.find(roles, {
         name: 'registered'
     });
-    var permissions = [{
-        modelId: _.find(models, {
-            name: 'Permission'
-        }).id,
-        action: 'read',
-        roleId: registeredRole.id
-    },{
-        modelId: _.find(models, {
-            name: 'User'
-        }).id,
-        action: 'update',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'User'
-        }).id,
-        action: 'read',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Document'
-        }).id,
-        action: 'create',
-        roleId: registeredRole.id,
-    }, {
-        modelId: _.find(models, {
-            name: 'Document'
-        }).id,
-        action: 'read',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Document'
-        }).id,
-        action: 'update',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Document'
-        }).id,
-        action: 'delete',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Company'
-        }).id,
-        action: 'create',
-        roleId: registeredRole.id
-    }, {
-        modelId: _.find(models, {
-            name: 'Company'
-        }).id,
-        action: 'read',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Company'
-        }).id,
-        action: 'update',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Company'
-        }).id,
-        action: 'delete',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'CompanyState'
-        }).id,
-        action: 'create',
-        roleId: registeredRole.id
-    }, {
-        modelId: _.find(models, {
-            name: 'Favourite'
-        }).id,
-        action: 'read',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Favourite'
-        }).id,
-        action: 'create',
-        roleId: registeredRole.id
-    }, {
-        modelId: _.find(models, {
-            name: 'Favourite'
-        }).id,
-        action: 'delete',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }, {
-        modelId: _.find(models, {
-            name: 'Favourite'
-        }).id,
-        action: 'update',
-        roleId: registeredRole.id,
-        relation: 'owner'
-    }];
+
+    var permissions = Object.keys(registered).reduce((acc, modelKey) => {
+        return registered[modelKey].reduce((acc, perm) => {
+            acc.push({
+                modelId: _.find(models, {
+                    name: modelKey
+                }).id,
+                action: perm.action,
+                roleId: registeredRole.id,
+                relation: perm.relation
+            })
+            return acc;
+        }, acc)
+    }, [])
 
     return Promise.all(
-        _.map(permissions, function(permission) {
+        permissions.map(function(permission) {
             return Permission.findOrCreate({
                 where: permission,
                 defaults: permission
             });
         })
     )
+
 }

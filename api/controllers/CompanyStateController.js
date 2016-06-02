@@ -170,7 +170,8 @@ var transactions = {
         const sets = [];
         Object.keys(classes)
             .map(c => {
-                const cInt = parseInt(c, 10)
+                // ugly, think of better way to have empty key turned into undefined
+                const cInt =  c !== 'undefined' ? parseInt(c, 10) : undefined;
                 const actions = [];
                 actions.push({
                     amount: classes[c],
@@ -196,8 +197,9 @@ var transactions = {
                     actions: actions
                 });
             });
+
         if(!sets.length){
-            throw new sails.config.exceptions.ValidationException('Holdings are required');
+            throw new sails.config.exceptions.ValidationException('Parcels are required')
         }
         return TransactionService.performAll(sets, company)
         .then(() => {
@@ -434,28 +436,33 @@ function createTransaction(req, res, type){
                     args = args.json ? JSON.parse(args.json) : args;
                     args.documents = files;
                 })
-                .then(function(results) {
+                .then((results) => {
                     return transactions[type] ? transactions[type](args, company) : null;
                 })
             })
-            .then(function(results) {
+            .then((results) => {
                 return selfManagedTransactions[type] ? selfManagedTransactions[type](args, company) : results;
             })
             .then((results) => {
-                console.log("RESULTS", results)
                 return createActivityLog(req.user, company, results)
                     .then(() => results)
             })
-            .then(function(result){
+            .then((result) => {
                 res.json(result);
             })
-            .catch(sails.config.exceptions.ValidationException, function(e) {
-                res.serverError(e);
+            .catch(sails.config.exceptions.ValidationException, (e) => {
+                res.badRequest(e);
             })
-            .catch(sails.config.exceptions.ForbiddenException, function(e) {
+            .catch(sails.config.exceptions.InvalidOperation, (e) => {
+                res.badRequest(e);
+            })
+            .catch(sails.config.exceptions.NameExistsException, (e) => {
+                res.badRequest(e);
+            })
+            .catch(sails.config.exceptions.ForbiddenException, (e) => {
                 res.forbidden();
             })
-            .catch(function(e) {
+            .catch((e) => {
                 res.serverError(e);
             })
     });
