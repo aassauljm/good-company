@@ -169,8 +169,7 @@ function grantRegisteredPermissions(roles, models, admin) {
             name: 'Favourite'
         }).id,
         action: 'create',
-        roleId: registeredRole.id,
-        relation: 'owner'
+        roleId: registeredRole.id
     }, {
         modelId: _.find(models, {
             name: 'Favourite'
