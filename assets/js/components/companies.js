@@ -9,8 +9,6 @@ import { Link } from 'react-router';
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
 
-
-
 const CompaniesHOC = ComposedComponent => class extends React.Component {
 
     renderTable(data, condensed) {

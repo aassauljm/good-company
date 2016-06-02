@@ -52,33 +52,6 @@ module.exports = {
         .then(activities => res.json(activities));
     },
 
-    favourites: function(req, res) {
-        const favs = () => Favourite.findAll({
-            where: {userId: req.user.id},
-            include: [
-                {
-                    model: Company,
-                        as: 'company',
-                        include: {
-                        model: CompanyState,
-                        as: 'currentCompanyState'
-                }
-            }]
-        });
-        const fallback = () => Company.findAll({
-            where: {ownerId: req.user.id},
-            include: {
-                model: CompanyState,
-                as: 'currentCompanyState'
-            },
-            limit: 10
-        });
-        favs()
-            .then(items => !items.length ? fallback() : items)
-            .then(items => res.json(items))
-            .catch(e => res.negotiate(e))
-    },
-
     setPassword: function(req, res) {
         sails.models.passport.findOne({where: {
                 protocol: 'local',

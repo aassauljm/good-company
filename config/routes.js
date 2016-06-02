@@ -61,11 +61,19 @@ module.exports.routes = {
     },
 
     'GET /api/favourites': {
-        controller: 'UserController',
-        modelIdentity: 'user',
+        controller: 'FavouriteController',
         action: 'favourites'
     },
 
+    'POST /api/favourites/:id': {
+        controller: 'FavouriteController',
+        action: 'addFavourite'
+    },
+
+    'DELETE /api/favourites/:id': {
+        controller: 'FavouriteController',
+        action: 'removeFavourite'
+    },
 
     'GET /api/recent_activity/full': {
         controller: 'UserController',

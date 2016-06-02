@@ -161,4 +161,12 @@ nav.navbar{
         }
     }
 
+    .favourite .glyphicon {
+        top: 3px;
+        font-size:17px;
+        &.glyphicon-star{
+            color: yellow;
+        }
+    }
+
 }

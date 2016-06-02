@@ -362,6 +362,11 @@ const DEFAULT_OBJ = {};
         companyPage: state.companyPage,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
          ...state.resources['/company/'+ownProps.params.id +'/get_info']};
+},
+{
+    requestData: (id) => requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany}),
+    showModal: (key, data) => showModal(key, data),
+    toggleWidget: (path, args) => toggleWidget(path, args)
 })
 export default class Company extends React.Component {
     static propTypes = {
@@ -377,25 +382,105 @@ export default class Company extends React.Component {
         return !!this.props.params.generation;
     }
 
+    fetch() {
+        return this.props.requestData(this.key());
+    };
+
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+
+    renderBody(current) {
+        if(!current){
+             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+        }
+
+        if(this.props.children){
+            return React.cloneElement(this.props.children, {
+                        companyState: current,
+                        companyId: this.key(),
+                        showModal: (key, data) => this.props.showModal(key, data)
+                });
+        }
+        else{
+            return <div className="container">
+
+            <div className="row">
+                 <div className="col-md-6">
+                <CompaniesRegisterWidget
+                    toggle={(expanded) => this.props.toggleWidget([this.key(), 'companiesRegister'], expanded) }
+                    expanded={(this.props.widgets.companiesRegister || {}).expanded}
+                    companyState={current}
+                    companyId={this.props.params.id}
+                 />
+                    <ReportingDetailsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'reporting'], expanded) }
+                        expanded={(this.props.widgets.reporting || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+
+                 <RecentCompanyActivityWidget
+                    toggle={(expanded) => this.props.toggleWidget([this.key(), 'recentActivity'], expanded) }
+                    expanded={(this.props.widgets.recentActivity || {}).expanded}
+                    companyState={current}
+                    companyId={this.props.params.id}
+                 />
+                </div>
+                 <div className="col-md-6">
+                     <ShareholdingsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'shareholdings'], expanded) }
+                        expanded={(this.props.widgets.shareholdings || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+
+                    <ContactDetailsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'companiesRegister'], expanded) }
+                        expanded={(this.props.widgets.companiesRegister || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+                    <DirectorsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'directors'], expanded) }
+                        expanded={(this.props.widgets.directors || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+
+                    <DocumentsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'documents'], expanded) }
+                        expanded={(this.props.widgets.documents || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+                </div>
+
+                </div>
+            </div>
+        }
+    }
+
     render(){
         const data = this.props.data || DEFAULT_OBJ;
         const current = data.currentCompanyState || data.companyState;
         if(this.props._status === 'error'){
             return <NotFound descriptor="Company" />
         }
-        if(!current){
-            return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
-        }
-        const companiesOfficeUrl = `http://www.business.govt.nz/companies/app/ui/pages/companies/${current.companyNumber}`;
         return <div className="company">
-                <CompanyHeader companyId={this.key()} companyState={current}/>
+                <CompanyHeader companyId={this.key()} companyState={current || {}}/>
                 <div className="company-page">
                     <div className="container-fluid page-top">
                     <Notifications />
                      <div className="container">
                         <div className="row">
                              <div className="col-md-12">
-                                <CompanyAlertsWidget companyId={this.key()}  companyState={current} />
+                                { current && <CompanyAlertsWidget companyId={this.key()}  companyState={current} /> }
                              </div>
                         </div>
                     { this.props.children &&  <ul className="pager">
@@ -405,67 +490,8 @@ export default class Company extends React.Component {
 
                     </div>
                     <div className="container-fluid page-body">
-                { this.props.children && React.cloneElement(this.props.children, {
-                        companyState: current,
-                        companyId: this.key(),
-                        showModal: (key, data) => this.props.dispatch(showModal(key, data))
-                })}
-                { !this.props.children &&
-                    <div className="container">
+                        { this.renderBody(current) }
 
-                    <div className="row">
-                         <div className="col-md-6">
-                        <CompaniesRegisterWidget
-                            toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'companiesRegister'], expanded)) }
-                            expanded={(this.props.widgets.companiesRegister || {}).expanded}
-                            companyState={current}
-                            companyId={this.props.params.id}
-                         />
-                            <ReportingDetailsWidget
-                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'reporting'], expanded)) }
-                                expanded={(this.props.widgets.reporting || {}).expanded}
-                                companyState={current}
-                                companyId={this.props.params.id}
-                             />
-
-                         <RecentCompanyActivityWidget
-                            toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'recentActivity'], expanded)) }
-                            expanded={(this.props.widgets.recentActivity || {}).expanded}
-                            companyState={current}
-                            companyId={this.props.params.id}
-                         />
-                        </div>
-                         <div className="col-md-6">
-                             <ShareholdingsWidget
-                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'shareholdings'], expanded)) }
-                                expanded={(this.props.widgets.shareholdings || {}).expanded}
-                                companyState={current}
-                                companyId={this.props.params.id}
-                             />
-
-                            <ContactDetailsWidget
-                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'companiesRegister'], expanded)) }
-                                expanded={(this.props.widgets.companiesRegister || {}).expanded}
-                                companyState={current}
-                                companyId={this.props.params.id}
-                             />
-                            <DirectorsWidget
-                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'directors'], expanded)) }
-                                expanded={(this.props.widgets.directors || {}).expanded}
-                                companyState={current}
-                                companyId={this.props.params.id}
-                             />
-
-                            <DocumentsWidget
-                                toggle={(expanded) => this.props.dispatch(toggleWidget([this.key(), 'documents'], expanded)) }
-                                expanded={(this.props.widgets.documents || {}).expanded}
-                                companyState={current}
-                                companyId={this.props.params.id}
-                             />
-                        </div>
-
-                        </div>
-                    </div> }
             </div>
             </div>
         </div>

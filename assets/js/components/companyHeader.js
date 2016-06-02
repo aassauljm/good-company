@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react'
 import { pureRender }  from '../utils';
 import { Link, IndexLink } from 'react-router';
-import { requestResource } from '../actions';
+import { requestResource, createResource, deleteResource, addNotification } from '../actions';
 import Navbar from 'react-bootstrap/lib/Navbar'
 import Collapse from 'react-bootstrap/lib/Collapse'
 import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
@@ -71,7 +71,7 @@ export class CompanyHeader extends React.Component {
     }
 
     renderActions() {
-        const id = this.props.companyId;
+    const id = this.props.companyId;
         return [<li key={0} className="nav-item">
                     <IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
@@ -98,10 +98,32 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => alert('TODO')}>Upload Documents</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>,
-             <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>
+             <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
 
+    isFavourite() {
+        const companyIdInt = parseInt(this.props.companyId, 10);
+        // save result maybe
+        return (this.props.favourites.data || []).filter(f => f.id === companyIdInt && f.favourited).length;
+    }
+
+    renderRightActions() {
+        const glyph = this.isFavourite() ? 'star' : 'star-empty';
+        return [<li key={0} className="nav-item">
+            <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}><Glyphicon glyph={glyph}/> Favourite</a>
+            </li>]
+    }
+
+    toggleFavourite() {
+        (this.isFavourite() ? this.props.removeFavourite(this.props.companyId) : this.props.addFavourite(this.props.companyId))
+            .then(response => {
+
+            })
+            .catch(e => {
+                this.props.addNotification({error: true, message: this.isFavourite() ? 'Could not remove Favourite' : 'Could not add Favourite.'})
+            })
+    }
 
     render() {
         return  <Navbar>
@@ -136,6 +158,9 @@ export class CompanyHeader extends React.Component {
                  <ul className="nav navbar-nav">
                     { this.renderActions() }
                    </ul>
+                   <ul className="nav navbar-nav pull-right">
+                        { this.renderRightActions() }
+                   </ul>
             </NavbarCollapse>
             </div>
       </Navbar>
@@ -150,7 +175,10 @@ const CompanyHeaderConnected = connect(state => {
     return { userInfo: state.userInfo, routing: state.routing, favourites: state.resources['/favourites'] || {} }
 }, {
     requestData: (key) => requestResource('/favourites'),
-    navigate: (url) => push(url)
+    navigate: (url) => push(url),
+    addFavourite: (id) => createResource(`/favourites/${id}`),
+    removeFavourite: (id) => deleteResource(`/favourites/${id}`),
+    addNotification: (args) => addNotification(args)
 })(CompanyHeader);
 
 export default CompanyHeaderConnected;

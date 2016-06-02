@@ -72,7 +72,7 @@ function grantAdminPermissions(roles, models, admin) {
         });
     }))
 }
-
+// TODO, make json file of this
 function grantRegisteredPermissions(roles, models, admin) {
     var registeredRole = _.find(roles, {
         name: 'registered'
@@ -157,6 +157,34 @@ function grantRegisteredPermissions(roles, models, admin) {
         }).id,
         action: 'create',
         roleId: registeredRole.id
+    }, {
+        modelId: _.find(models, {
+            name: 'Favourite'
+        }).id,
+        action: 'read',
+        roleId: registeredRole.id,
+        relation: 'owner'
+    }, {
+        modelId: _.find(models, {
+            name: 'Favourite'
+        }).id,
+        action: 'create',
+        roleId: registeredRole.id,
+        relation: 'owner'
+    }, {
+        modelId: _.find(models, {
+            name: 'Favourite'
+        }).id,
+        action: 'delete',
+        roleId: registeredRole.id,
+        relation: 'owner'
+    }, {
+        modelId: _.find(models, {
+            name: 'Favourite'
+        }).id,
+        action: 'update',
+        roleId: registeredRole.id,
+        relation: 'owner'
     }];
 
     return Promise.all(
