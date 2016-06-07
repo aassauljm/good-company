@@ -233,8 +233,22 @@ function resources(state = default_resources, action){
         case RESOURCE_CREATE_SUCCESS:
         case RESOURCE_UPDATE_SUCCESS:
         case RESOURCE_DELETE_SUCCESS:
-            // basically invalidate our entire cache
-            return default_resources;
+            if(action.invalidateList){
+                const keys = Object.keys(state);
+                const invalidated = keys.reduce((acc, key) => {
+                    return action.invalidateList.reduce((acc, invalid) => {
+                        if(key.indexOf(invalid) === 0){
+                            acc[key] = null;
+                        }
+                        return acc;
+                    }, acc);
+                }, {});
+                return {...state, ...invalidated }
+            }
+            else{
+                // basically invalidate our entire cache
+                return default_resources;
+            }
             //return {...state, ...{[action.key]: {...{data: {}, status: 'complete'}}}};
         default:
             return state;

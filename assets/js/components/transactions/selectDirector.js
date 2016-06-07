@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import Modal from '../forms/modal';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from 'react-bootstrap/lib/ButtonInput';
 import { connect } from 'react-redux';

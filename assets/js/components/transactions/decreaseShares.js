@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import Modal from '../forms/modal';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from 'react-bootstrap/lib/ButtonInput';
 import { connect } from 'react-redux';
@@ -311,6 +311,7 @@ export class DecreaseModal extends React.Component {
     }
 
     render() {
+        console.log(Modal.Header, Modal.Title)
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>{ this.props.title }</Modal.Title>

@@ -119,13 +119,13 @@ export function createResource(resource, data, options = {stringify: true}) {
         types: [RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
             method: 'POST',
-            headers: options.stringify ? json_headers : {
+            headers: (options.stringify && data) ? json_headers : {
                 ...accept_json_headers
             },
-            body: options.stringify ? JSON.stringify(data) : data,
+            body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
-        payload: {key: resource, form: options.form}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates}
     };
 }
 
@@ -138,11 +138,12 @@ export function updateResource(resource, data, options = {}) {
             body: JSON.stringify(data),
             credentials: 'same-origin'
         }),
-        payload: {key: resource, form: options.form}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates}
+
     };
 }
 
-export function deleteResource(resource) {
+export function deleteResource(resource, options = {}) {
     return {
         types: [RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
@@ -150,7 +151,7 @@ export function deleteResource(resource) {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        payload: {key: resource}
+        payload: {key: resource, invalidateList: options.invalidates}
     };
 }
 

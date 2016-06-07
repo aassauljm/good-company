@@ -65,6 +65,13 @@ module.exports.policies = {
     },
     CompanyController: {
         'populate': false
+    },
+    FavouriteController: {
+        removeFavourite: [
+            'basicAuth',
+            'passport',
+            'sessionAuth'
+        ]
     }
 
     /***************************************************************************

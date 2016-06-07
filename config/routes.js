@@ -65,12 +65,12 @@ module.exports.routes = {
         action: 'favourites'
     },
 
-    'POST /api/favourites/:id': {
+    'POST /api/favourites/:companyId': {
         controller: 'FavouriteController',
         action: 'addFavourite'
     },
 
-    'DELETE /api/favourites/:id': {
+    'DELETE /api/favourites/:companyId': {
         controller: 'FavouriteController',
         action: 'removeFavourite'
     },

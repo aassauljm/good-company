@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react'
 import { pureRender }  from '../utils';
 import { Link, IndexLink } from 'react-router';
-import { requestResource, createResource, deleteResource, addNotification } from '../actions';
+import { requestResource, createResource, deleteResource, addNotification, showModal } from '../actions';
 import Navbar from 'react-bootstrap/lib/Navbar'
 import Collapse from 'react-bootstrap/lib/Collapse'
 import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
@@ -87,16 +87,15 @@ export class CompanyHeader extends React.Component {
                         Update Company
                    </a>
                     <Dropdown.Menu>
-                        <MenuItem onClick={() => alert('TODO')}>Add & Assign Share Classes</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Consolidate or Subdivide Shares</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Issue New Shares</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Repurchase or Redeem Shares</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Transfer Shares</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Update Contact</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Update Directors</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Update Shareholders</MenuItem>
-                        <MenuItem onClick={() => alert('TODO')}>Upload Documents</MenuItem>
-                    </Dropdown.Menu>
+                        <MenuItem onClick={() => this.props.startTransaction('addAssignShares', this.props.companyState, this.props.companyId) }>Add & Assign Share Classes</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('colsolidateDivide', this.props.companyState, this.props.companyId) }>Consolidate or Subdivide Shares</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('issue', this.props.companyState, this.props.companyId)}>Issue New Shares</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('repurchaseRedeem', this.props.companyState, this.props.companyId) }>Repurchase or Redeem Shares</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('transfer', this.props.companyState, this.props.companyId) }>Transfer Shares</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('updateContact', this.props.companyState, this.props.companyId) }>Update Contact</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('selectDirector', this.props.companyState, this.props.companyId) }>Update Directors</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('udpateHoldingHolder', this.props.companyState, this.props.companyId) }>Update Shareholders</MenuItem>
+                        </Dropdown.Menu>
                 </Dropdown>,
              <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
@@ -176,9 +175,10 @@ const CompanyHeaderConnected = connect(state => {
 }, {
     requestData: (key) => requestResource('/favourites'),
     navigate: (url) => push(url),
-    addFavourite: (id) => createResource(`/favourites/${id}`),
-    removeFavourite: (id) => deleteResource(`/favourites/${id}`),
-    addNotification: (args) => addNotification(args)
+    addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),
+    removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']}),
+    addNotification: (args) => addNotification(args),
+    startTransaction: (key, companyState, companyId) => showModal(key, {companyState: companyState, companyId: companyId})
 })(CompanyHeader);
 
 export default CompanyHeaderConnected;
