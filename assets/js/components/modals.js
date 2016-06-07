@@ -22,6 +22,7 @@ import { SelectPersonModal  } from './transactions/selectPerson';
 import { SelectDirectorModal  } from './transactions/selectDirector';
 import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
+import { AddAssignSharesModal, ColsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal } from './transactions/selection';
 import { push } from 'react-router-redux';
 
 
@@ -34,6 +35,8 @@ export class Modals extends React.Component {
             modalData: data.data,
             next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
             previous: () => {this.props.dispatch(previousModal(this.props.showing))},
+            show: (key) => this.props.dispatch(showModal(key, data.data)),
+            navigate: (url) => this.props.dispatch(push(url)),
             end: (data) => {
                 const after = (this.props[this.props.showing].data || {}).afterClose;
                 this.props.dispatch(endModal(this.props.showing, data));
@@ -50,14 +53,19 @@ export class Modals extends React.Component {
         }
 
         switch(this.props.showing){
-            /*case 'createCompany' :
-                const formKey = "createCompanyModal";
-                return <FormReducer formName="companyFull" formKey={formKey}>
-                    <CreateCompanyModal index={this.props.createCompany.index}
-                    next={(...args) => {this.props.dispatch(nextModal('createCompany', ...args))} }
-                    previous={() => {this.props.dispatch(previousModal('createCompany'))} }
-                    end={() => {this.props.dispatch(endCreateCompany(formKey))} } />
-                    </FormReducer>*/
+
+            case 'addAssignShares':
+                return <AddAssignSharesModal {...props} />
+
+            case 'colsolidateDivide':
+                return <ColsolidateDivideModal {...props} />
+
+            case 'repurchaseRedeem':
+                return <RepurchaseRedeemModal {...props} />
+
+            case 'updateHoldingHolder':
+                return <UpdateHoldingHolderModal {...props} />
+
 
             case 'importCompany':
                 return <ImportCompanyModal {...props} />

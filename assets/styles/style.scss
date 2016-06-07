@@ -296,21 +296,15 @@ a, a:hover{
 
 // newTransaction
 .new-transaction{
-    ul{
-        margin:0;
-        padding:0;
-    }
-    li {
-
-        @extend .col-sm-4;
-        list-style: none;
+    .select-button {
+        @extend .col-sm-6;
         padding: 10px;
         font-size: 10px;
         line-height: 1.4;
         text-align: center;
         background-color: $gray-lighter;
         border: 8px solid #fff;;
-        border-radius:24px;
+        border-radius:4px;
         &:hover{
             background-color: $brand-primary;
             color:white;
@@ -322,7 +316,7 @@ a, a:hover{
     .glyphicon {
         margin-top: 16px;
         margin-bottom: 10px;
-        font-size: 30px;
+        font-size: 50px;
     }
     .transaction-button-text{
         display: block;

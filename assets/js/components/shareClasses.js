@@ -236,32 +236,27 @@ export class ShareClasses extends React.Component {
 
     render() {
         const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
-        return <div>
-                    <div className="container">
-                        { !this.props.children && this.renderList(classes) }
-                         { this.props.children && React.cloneElement(this.props.children, {
-                                companyId: this.key(),
-                                companyState: this.props.companyState,
-                                shareClasses: classes
-                        }) }
+        return <div className="container">
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Share Classes
                     </div>
                 </div>
-            }
-}
-
-
-@pureRender
-export class ShareClassesPanel extends React.Component {
-    static propTypes = {
-    };
-    render(){
-        return <div className="panel panel-warning" >
-            <div className="panel-heading">
-            <h3 className="panel-title">Share Classes</h3>
+                <div className="widget-body">
+                    { !this.props.children && this.renderList(classes) }
+                     { this.props.children && React.cloneElement(this.props.children, {
+                            companyId: this.key(),
+                            companyState: this.props.companyState,
+                            shareClasses: classes
+                    }) }
+                </div>
             </div>
-            <div className="panel-body">
-                Manage your share classes.
             </div>
         </div>
     }
 }
+
+
+

@@ -92,9 +92,9 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.props.startTransaction('issue', this.props.companyState, this.props.companyId)}>Issue New Shares</MenuItem>
                         <MenuItem onClick={() => this.props.startTransaction('repurchaseRedeem', this.props.companyState, this.props.companyId) }>Repurchase or Redeem Shares</MenuItem>
                         <MenuItem onClick={() => this.props.startTransaction('transfer', this.props.companyState, this.props.companyId) }>Transfer Shares</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('updateContact', this.props.companyState, this.props.companyId) }>Update Contact</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/contact`) }>Update Contact</MenuItem>
                         <MenuItem onClick={() => this.props.startTransaction('selectDirector', this.props.companyState, this.props.companyId) }>Update Directors</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('udpateHoldingHolder', this.props.companyState, this.props.companyId) }>Update Shareholders</MenuItem>
+                        <MenuItem onClick={() => this.props.startTransaction('updateHoldingHolder', this.props.companyState, this.props.companyId) }>Update Shareholders</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown>,
              <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>,
