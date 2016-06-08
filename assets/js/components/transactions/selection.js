@@ -67,7 +67,7 @@ export class AddAssignSharesModal extends React.Component {
     render() {
         return <SelectionBase {...this.props} title="Add and Assign Shares">
             <div className="actionable select-button"  onClick={() => {
-                    this.props.navigate(`/company/view/${this.props.modalData.companyId}/share_classes`);
+                    this.props.navigate({pathname: `/company/view/${this.props.modalData.companyId}/share_classes`, state: {skipDirtyLeave: true}});
                     this.props.end();
                 }} >
                 <span className="glyphicon glyphicon-envelope"></span>

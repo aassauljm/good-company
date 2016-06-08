@@ -34,8 +34,10 @@ export class NewTransaction extends React.Component {
       )
     }
 
-    routerWillLeave() {
-        if(this.props.modals.showing){
+    routerWillLeave(location) {
+        const transactionUp = this.props.modals.showing;
+        const skip = (location.state || {}).skipDirtyLeave;
+        if(transactionUp && !skip){
             return 'You have unsaved information in a new transaction, are you sure you want to leave?'
         }
     }
