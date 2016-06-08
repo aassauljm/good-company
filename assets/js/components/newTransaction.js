@@ -7,10 +7,18 @@ import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
 import Modals from './modals';
 import { withRouter } from 'react-router'
+import { push } from 'react-router-redux'
+
+
+
 
 const DEFAULT_OBJ = {};
 
-@connect(state => ({modals: state.modals || DEFAULT_OBJ}))
+@connect(state => ({modals: state.modals || DEFAULT_OBJ}),
+{
+    navigate: (url) => push(url),
+    startTransaction: (key, companyState, companyId) => showModal(key, {companyState: companyState, companyId: companyId})
+})
 @withRouter
 export class NewTransaction extends React.Component {
     static propTypes = {
@@ -32,6 +40,11 @@ export class NewTransaction extends React.Component {
         }
     }
 
+    startTransaction(key) {
+        const id = this.props.companyId;
+        this.props.navigate(`/company/view/${id}/new_transaction`);
+        this.props.startTransaction(key, this.props.companyState, this.props.companyId)
+    }
 
     renderBody() {
         return <div className="container">
@@ -43,6 +56,40 @@ export class NewTransaction extends React.Component {
                     </div>
                 </div>
                 <div className="widget-body">
+                    <div className="row">
+                    <div className="actionable select-button" onClick={() => this.startTransaction('addAssignShares') } >
+                            <span className="glyphicon glyphicon-list-alt"></span>
+                            <span className="transaction-button-text">Add & Assign Share Classes</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.startTransaction('colsolidateDivide') } >
+                            <span className="glyphicon glyphicon-duplicate"></span>
+                            <span className="transaction-button-text">Consolidate or Subdivide Shares</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.startTransaction('issue') } >
+                            <span className="glyphicon glyphicon-share"></span>
+                            <span className="transaction-button-text">Issue New Shares</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.startTransaction('repurchaseRedeem') } >
+                            <span className="glyphicon glyphicon-usd"></span>
+                            <span className="transaction-button-text">Repurchase or Redeem Shares</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.startTransaction('transfer') } >
+                            <span className="glyphicon glyphicon-transfer"></span>
+                            <span className="transaction-button-text">Transfer Shares</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.props.navigate(`/company/view/${id}/contact`) } >
+                            <span className="glyphicon glyphicon-envelope"></span>
+                            <span className="transaction-button-text">Update Contact</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.startTransaction('selectDirector')  } >
+                            <span className="glyphicon glyphicon-user"></span>
+                            <span className="transaction-button-text">Update Directors</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.startTransaction('updateHoldingHolder')  } >
+                            <span className="glyphicon glyphicon-piggy-bank"></span>
+                            <span className="transaction-button-text">Update Shareholders</span>
+                    </div>
+                    </div>
 
                 </div>
             </div>

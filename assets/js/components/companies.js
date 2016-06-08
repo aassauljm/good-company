@@ -46,8 +46,7 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
 state => state.resources.companies,
 {
     push: (id) => push(`/company/view/${id}`),
-    handleNew: () => startCreateCompany('createCompanyModal'),
-    handleImport: () => startImportCompany('importCompanyModal')
+    handleImport: () => push('/import')
 })
 @CompaniesHOC
 export default class Companies extends React.Component {
