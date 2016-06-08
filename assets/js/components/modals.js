@@ -3,7 +3,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
 import FormReducer from '../hoc/formReducer';
-import ImportCompanyModal from './importCompany';
 import { TransactionViewModal } from './transaction';
 import { IssueModal } from './transactions/issue';
 import { AcquisitionModal } from './transactions/acquisition';
@@ -23,10 +22,14 @@ import { SelectDirectorModal  } from './transactions/selectDirector';
 import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
 import { AddAssignSharesModal, ColsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal } from './transactions/selection';
+import { withRouter } from 'react-router'
 import { push } from 'react-router-redux';
 
 
+
 export class Modals extends React.Component {
+
+
     renderModal(showing) {
         const data = this.props[showing] || {};
         const props = {
@@ -65,10 +68,6 @@ export class Modals extends React.Component {
 
             case 'updateHoldingHolder':
                 return <UpdateHoldingHolderModal {...props} />
-
-
-            case 'importCompany':
-                return <ImportCompanyModal {...props} />
 
             case 'subdivision':
                 return <SubdivisionModal {...props} />
@@ -138,5 +137,7 @@ export class Modals extends React.Component {
     }
 }
 
-const ModalsConnected = connect(state => state.modals)(Modals);
+const DEFAULT_OBJ = {};
+
+const ModalsConnected = connect(() => DEFAULT_OBJ)(Modals);
 export default ModalsConnected;

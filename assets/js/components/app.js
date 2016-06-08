@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { requestUserInfo } from '../actions';
 import { createResource } from '../actions'
 import Notifications from './notifications';
-import Modals from './modals';
+
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import { asyncConnect } from 'redux-connect';
 
@@ -30,16 +30,16 @@ export default class App extends React.Component {
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDrop={prevent} onDragOver={prevent}>
-                 <Modals />
                 { this.props.children }
                 { !this.props.print && <Footer />}
             </div>
         }
-        const name = this.props.location.pathname;
+        let name = this.props.location.pathname;
+        name = name.split('/')[1] || 'root'
         return <div onDrop={prevent} onDragOver={prevent}>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
                  <Notifications/>
-                 <Modals />
+
                 <div className="app-container" >
                   <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
                     <div key={name}>

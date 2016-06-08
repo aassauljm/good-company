@@ -78,7 +78,7 @@ function mapDispatchToProps(dispatch) {
             dispatch(push("/company/view/"+ id));
         },
         onSelectCompany: (item) => {
-            dispatch(showModal('importCompany', {index: 1, ...item}));
+            dispatch(push({pathname: `/import/${item.companyNumber}`,  query: item}));
 
         }
     };

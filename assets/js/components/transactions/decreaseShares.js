@@ -311,7 +311,6 @@ export class DecreaseModal extends React.Component {
     }
 
     render() {
-        console.log(Modal.Header, Modal.Title)
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>{ this.props.title }</Modal.Title>

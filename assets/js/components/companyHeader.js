@@ -71,7 +71,7 @@ export class CompanyHeader extends React.Component {
     }
 
     renderActions() {
-    const id = this.props.companyId;
+        const id = this.props.companyId;
         return [<li key={0} className="nav-item">
                     <IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
@@ -87,19 +87,26 @@ export class CompanyHeader extends React.Component {
                         Update Company
                    </a>
                     <Dropdown.Menu>
-                        <MenuItem onClick={() => this.props.startTransaction('addAssignShares', this.props.companyState, this.props.companyId) }>Add & Assign Share Classes</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('colsolidateDivide', this.props.companyState, this.props.companyId) }>Consolidate or Subdivide Shares</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('issue', this.props.companyState, this.props.companyId)}>Issue New Shares</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('repurchaseRedeem', this.props.companyState, this.props.companyId) }>Repurchase or Redeem Shares</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('transfer', this.props.companyState, this.props.companyId) }>Transfer Shares</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('addAssignShares') }>Add & Assign Share Classes</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('colsolidateDivide') }>Consolidate or Subdivide Shares</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('issue')}>Issue New Shares</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('repurchaseRedeem') }>Repurchase or Redeem Shares</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('transfer') }>Transfer Shares</MenuItem>
                         <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/contact`) }>Update Contact</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('selectDirector', this.props.companyState, this.props.companyId) }>Update Directors</MenuItem>
-                        <MenuItem onClick={() => this.props.startTransaction('updateHoldingHolder', this.props.companyState, this.props.companyId) }>Update Shareholders</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('selectDirector') }>Update Directors</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('updateHoldingHolder') }>Update Shareholders</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown>,
              <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
+
+    startTransaction(key) {
+        const id = this.props.companyId;
+        this.props.navigate(`/company/view/${id}/new_transaction`);
+        this.props.startTransaction(key, this.props.companyState, this.props.companyId)
+    }
+
 
     isFavourite() {
         const companyIdInt = parseInt(this.props.companyId, 10);

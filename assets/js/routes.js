@@ -28,6 +28,7 @@ import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
 import SignUp from './components/signup';
+import ImportCompany from './components/importCompany';
 
 
 export default (store) => {
@@ -59,7 +60,6 @@ export default (store) => {
                 <Route path="shareholdings" component={ Shareholdings } />
                 <Route path="details" component={ CompanyDetails } />
                 <Route path="transactions" component={ CompanyTransactions } />
-                <Route path="new_transaction" component={ NewTransaction } />
                 <Route path="shareregister" component={ ShareRegister } />
                 <Route path="shareholders" component={ Shareholders } />
                 <Route path="documents" component={ CompanyDocuments } />
@@ -76,12 +76,14 @@ export default (store) => {
                     <Route path="create" component={ InterestsRegisterCreate } />
                     <Route path="view/:entryId" component={ InterestsRegisterView } />
                 </Route>
+                <Route path="new_transaction" component={ NewTransaction } />
             </Route>
             <Route path="company/view/:id/history/:generation" component={ Company }  />
             <Route path="user/edit/:id" component={ Account }  edit={true} />
             <Route path="user/set_password" component={ SetPassword } edit={true} />
             <Route path="user/create" component={ Account }  />
         </Route>
+        <Route path="import/:companyNumber" component={ ImportCompany } />
         <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
             <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
         </Route>

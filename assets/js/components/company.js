@@ -18,57 +18,11 @@ import { ContactDetailsWidget } from './contactDetails';
 import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
-
+import Modals from './modals';
 import NotFound from './notFound';
 import BarGraph from './graphs/bar'
 import Notifications from './notifications';
-
-
-
-@pureRender
-export class TransactionsPanel extends React.Component {
-    static propTypes = {
-        transactions: PropTypes.array.isRequired
-    };
-
-    render() {
-        const monthShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const data = this.props.transactions;
-        const groups = data.reduce((acc, value) => {
-            const parts = (value.effectiveDate || '').split('-');
-            const key = `${parts[0]}-${parts[1]}`;
-            acc[key] = (acc[key] || 0) + (value.actionCount || 1);
-            return acc;
-        }, {})
-
-        const firstDate = new Date(data[Math.min(data.length-1, 12)].effectiveDate);
-        const lastDate = new Date(data[0].effectiveDate);
-        const graphData = [];
-
-        for(let i=firstDate.getFullYear(); i<=lastDate.getFullYear(); i++){
-            for(let j=1; j<=12; j++){
-                const key = `${i}-${("0"+j).slice(-2)}`;
-                graphData.push({y:  groups[key] ?  groups[key] : 0, x: key, label: `${monthShort[j-1]} ${i}`});
-                if(i === lastDate.getFullYear() && j > lastDate.getMonth()){
-                    break;
-                }
-            }
-        }
-
-        return <div className="panel panel-success" >
-            <div className="panel-heading">
-            <h3 className="panel-title">Transactions</h3>
-            </div>
-            <div className="panel-body">
-            <div><strong>Last Transaction </strong>
-            {(STRINGS.transactionTypes[this.props.transactions[0].type] || this.props.transactions[0].type ) + ' ' }
-             { stringToDate(this.props.transactions[0].effectiveDate) }</div>
-            </div>
-            <BarGraph data={graphData} />
-
-        </div>
-    }
-}
+import { push } from 'react-router-redux'
 
 
 @connect((state, ownProps) => {
@@ -185,148 +139,6 @@ class CompanyAlertsWidget extends React.Component {
 }
 
 
-
-
-@connect((state, ownProps) => {
-    let comp;
-    if(ownProps.params.generation){
-        comp = state.resources['/company/'+ownProps.params.id +'/history/'+ownProps.params.generation];
-
-    }
-    else{
-        comp = state.resources['/company/'+ownProps.params.id +'/get_info'];
-    }
-    return {data: {}, companyPage: state.companyPage, ...comp};
-})
-export class CompanyHistory extends React.Component {
-    static propTypes = {
-        companyPage: PropTypes.object.isRequired,
-        data: PropTypes.object.isRequired
-    };
-    key() {
-        return this.props.params.id
-    }
-
-    isHistory() {
-        return !!this.props.params.generation;
-    }
-
-    fetch() {
-        if(this.isHistory()){
-             this.props.dispatch(requestResource('/company/' + this.key() + '/history/' + this.props.params.generation));
-        }
-        else{
-            this.props.dispatch(requestResource('/company/' + this.key() + '/get_info'));
-        }
-    }
-
-    componentDidMount() {
-        this.fetch();
-
-    }
-
-    componentDidUpdate() {
-        this.fetch();
-    }
-
-    handleTabSelect(key) {
-        this.props.dispatch(changeCompanyTab(key));
-    }
-
-    renderData() {
-        const data = this.props.data || {};
-        const current = data.currentCompanyState || data.companyState;
-        if(this.props._status==='error'){
-            return <NotFound descriptor="Company"/>
-        }
-        if(!current){
-            return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
-        }
-        const generation = Number(this.props.params.generation) || 0;
-        return <div className="container">
-                <div className="well">
-                { generation ? <h4>As at {stringToDate(current.transaction.effectiveDate) }</h4> : null}
-                    <h1>{current.companyName}</h1>
-                    <h5>#{current.companyNumber}, {current.companyStatus}</h5>
-                </div>
-                <ul className="pager">
-                    { current.previousCompanyStateId ?
-                        <li className="previous"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation+1)} >← Previous Version</Link></li> : null}
-
-                    { generation > 1 ?
-                        <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id+"/history/"+(generation-1)} >Next Version →</Link></li> : null}
-
-                    { generation === 1 ?
-                        <li className="next"><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >Current Version</Link></li> : null}
-              </ul>
-                <div className="well">
-                <dl className="dl-horizontal">
-                    <dt >NZ Business Number</dt>
-                    <dd >{current.nzbn ||  'Unknown'}</dd>
-
-                    <dt >Incorporation Date</dt>
-                    <dd >{stringToDate(current.incorporationDate)}</dd>
-
-                    <dt >Total Shares</dt>
-                    <dd >{numberWithCommas(current.totalShares)}</dd>
-
-                    <dt >AR Filing Month</dt>
-                    <dd >{current.arFilingMonth}</dd>
-
-                    <dt >Entity Type</dt>
-                    <dd >{current.entityType}</dd>
-
-                    { current.registeredCompanyAddress && <dt>Company Address</dt> }
-                    { current.registeredCompanyAddress && <dd>{current.registeredCompanyAddress }</dd> }
-
-                    { current.addressForShareRegister && <dt>Address for Share Register</dt> }
-                    { current.addressForShareRegister && <dd>{current.addressForShareRegister }</dd> }
-
-                    { current.addressForService && <dt>Address For Service</dt> }
-                    { current.addressForService && <dd>{current.addressForService}</dd> }
-
-                </dl>
-                </div>
-                <Tabs activeKey={this.props.companyPage.tabIndex } onSelect={::this.handleTabSelect}>
-                    <Tab eventKey={0} title="Shareholdings"><Holdings holdings={current.holdings}
-                        totalShares={current.totalShares}
-                        totalAllocatedShares={current.totalAllocatedShares}/></Tab>
-                    <Tab eventKey={1} title="Directors"><Directors directors={current.directors}/></Tab>
-                    <Tab eventKey={2} title="Documents"><Directors directors={current.directors}/></Tab>
-                    <Tab eventKey={3} title="History"><TransactionHistory companyId={this.key()} /></Tab>
-                </Tabs>
-            </div>
-    }
-
-    render(){
-        return <div>
-            { this.renderData() }
-        </div>
-    }
-}
-
-@asyncConnect([{
-    key: 'company',
-    promise: ({store: {dispatch, getState}, params}) => {
-        return dispatch(requestResource('/company/' + params.id + '/get_info'));
-    }
-}])
-@connect((state, ownProps) => {
-    return {data: {}, companyPage: state.companyPage, ...state.resources['/company/'+ownProps.params.id +'/get_info']};
-})
-export class CompanyLoader extends React.Component {
-    render() {
-        if(!this.props.data.currentCompanyState){
-            return false;
-        }
-        return React.cloneElement(this.props.children, {
-                companyState: this.props.data.currentCompanyState,
-                companyId: this.props.params.id
-            })
-    }
-}
-
-
 /*
 <div className="well">
     <h1>{current.companyName}</h1>
@@ -356,17 +168,19 @@ const DEFAULT_OBJ = {};
     promise: ({store: {dispatch, getState}, params}) => {
         return dispatch(requestResource('/company/' + params.id + '/get_info', {postProcess: analyseCompany}));
     }
-}],(state, ownProps) => {
+}], (state, ownProps) => {
     return {
         data: DEFAULT_OBJ,
         companyPage: state.companyPage,
+        modals: state.modals,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
          ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 },
 {
     requestData: (id) => requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany}),
     showModal: (key, data) => showModal(key, data),
-    toggleWidget: (path, args) => toggleWidget(path, args)
+    toggleWidget: (path, args) => toggleWidget(path, args),
+    push: (url) => push(url)
 })
 export default class Company extends React.Component {
     static propTypes = {
@@ -395,12 +209,13 @@ export default class Company extends React.Component {
     };
 
 
+
     renderBody(current) {
         if(!current){
              return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
 
-        if(this.props.children){
+        else if(this.props.children){
             return React.cloneElement(this.props.children, {
                         companyState: current,
                         companyId: this.key(),
@@ -483,6 +298,7 @@ export default class Company extends React.Component {
                                 { current && <CompanyAlertsWidget companyId={this.key()}  companyState={current} /> }
                              </div>
                         </div>
+
                     { this.props.children &&  <ul className="pager">
                             <li ><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >← Company Page</Link></li>
                             </ul> }
@@ -491,8 +307,7 @@ export default class Company extends React.Component {
                     </div>
                     <div className="container-fluid page-body">
                         { this.renderBody(current) }
-
-            </div>
+                    </div>
             </div>
         </div>
     }
