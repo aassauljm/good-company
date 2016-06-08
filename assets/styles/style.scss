@@ -312,20 +312,20 @@ a, a:hover{
             transition: background-color 0.5s ease,
                         color 0.5s ease;
         }
+        .glyphicon {
+            margin-top: 16px;
+            margin-bottom: 10px;
+            font-size: 50px;
+        }
+        .transaction-button-text{
+            display: block;
+            text-align: center;
+            word-wrap: break-word;
+            font-size:16px;
+        }
+    }
 
     }
-    .glyphicon {
-        margin-top: 16px;
-        margin-bottom: 10px;
-        font-size: 50px;
-    }
-    .transaction-button-text{
-        display: block;
-        text-align: center;
-        word-wrap: break-word;
-        font-size:16px;
-    }
-}
 
 
 .pager{

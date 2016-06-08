@@ -39,7 +39,6 @@ export default class App extends React.Component {
         return <div onDrop={prevent} onDragOver={prevent}>
             <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
                  <Notifications/>
-
                 <div className="app-container" >
                   <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
                     <div key={name}>
