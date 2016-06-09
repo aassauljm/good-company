@@ -28,10 +28,12 @@ export class NewTransaction extends React.Component {
 
 
     componentWillMount() {
-      this.props.router.setRouteLeaveHook(
-        this.props.route,
-        ::this.routerWillLeave
-      )
+    // leaving for now
+        return;
+        this.props.router.setRouteLeaveHook(
+            this.props.route,
+            ::this.routerWillLeave
+        )
     }
 
     routerWillLeave(location) {
@@ -49,6 +51,7 @@ export class NewTransaction extends React.Component {
     }
 
     renderBody() {
+        const id = this.props.companyId;
         return <div className="container">
             <div className="row">
             <div className="widget">
@@ -79,7 +82,7 @@ export class NewTransaction extends React.Component {
                             <span className="glyphicon glyphicon-transfer"></span>
                             <span className="transaction-button-text">Transfer Shares</span>
                     </div>
-                    <div className="actionable select-button" onClick={() => this.props.navigate(`/company/view/${id}/contact`) } >
+                    <div className="actionable select-button" onClick={() => this.props.navigate({pathname: `/company/view/${id}/contact`, state: {skipDirtyLeave: true}}) } >
                             <span className="glyphicon glyphicon-envelope"></span>
                             <span className="transaction-button-text">Update Contact</span>
                     </div>

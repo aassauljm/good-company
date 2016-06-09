@@ -295,7 +295,7 @@ export function newHoldingString(newHolding){
 export function personList(companyState){
     const persons = companyState.holdingList.holdings.reduce((acc, h) => {
         return h.holders.reduce((acc, p) => {
-            acc[p.personId] = {name: p.name, address: p.address}
+            acc[p.personId] = {...p}
             return acc;
         }, acc);
     }, {});

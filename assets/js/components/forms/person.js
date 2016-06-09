@@ -113,8 +113,8 @@ export const NewDirectorConnected = reduxForm({
 export function updatePersonAction(values, oldPerson){
     const action = {
         transactionType: 'HOLDER_CHANGE',
-        afterHolder: {name: values.name, address: values.address},
-        beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId}
+        afterHolder: {name: values.name, address: values.address, companyNumber: oldPerson.companyNumber},
+        beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId, companyNumber: oldPerson.companyNumber}
     }
     return action;
 }
@@ -148,7 +148,8 @@ export function directorSubmit(values, oldDirector, companyState){
             actions: [{
                 transactionType: 'REMOVE_DIRECTOR',
                 name: values.person.name,
-                address: values.person.name
+                address: values.person.address,
+                personId: oldDirector.person.personId
             }]
         }]
     }
@@ -161,7 +162,8 @@ export function directorSubmit(values, oldDirector, companyState){
                 afterName: values.person.name,
                 beforeAddress: oldDirector.person.address,
                 afterAddress: values.person.address,
-                appointment: values.appointment
+                appointment: values.appointment,
+                personId: oldDirector.person.personId
             }]
         }]
     }

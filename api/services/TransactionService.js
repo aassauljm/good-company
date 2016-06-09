@@ -351,7 +351,6 @@ export const performInverseHolderChange = function(data, companyState, previousS
             return holder.setTransaction(transaction);
         })
         .catch((e)=>{
-            sails.log.error(e);
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change, documentId: ' +data.documentId)
         });
 };
@@ -378,7 +377,6 @@ export const performHolderChange = function(data, companyState, previousState, e
             return transaction;
         })
         .catch((e)=>{
-            sails.log.error(e);
             throw new sails.config.exceptions.InvalidOperation('Cannot find holder, holder change')
         });
 };
@@ -592,23 +590,24 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
     return companyState.dataValues.directorList.buildNext()
         .then(function(dl){
             companyState.dataValues.directorList = dl;
-            return transaction.save()
-        })
-        .then(() => {
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId},
-                                         {name: data.beforeName, address: beforeAddress, personId: data.personId});
-            return _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
-                return d.dataValues.person.isEqual({name: data.afterName, address: afterAddress});
-            }).person.setTransaction(transaction)
+            return companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId},
+                                         {name: data.beforeName, address: beforeAddress, personId: data.personId})
+            .then(() => {
+               return transaction.save()
+            })
+            .then(() => {
+                 _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
+                    return d.dataValues.person.isEqual({name: data.afterName, address: afterAddress});
+                }).person.setTransaction(transaction);
+             })
         })
         .then(() => {
             return transaction;
         })
         .catch((e) => {
-            sails.log.error(e);
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
         });
 
@@ -802,7 +801,6 @@ export function performNewDirector(data, companyState, previousState, effectiveD
 }
 
 export function performUpdateDirector(data, companyState, previousState, effectiveDate){
-    // find them as a share holder?
     const transaction = Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.directorList.buildNext()
         .then(function(dl){
@@ -813,12 +811,17 @@ export function performUpdateDirector(data, companyState, previousState, effecti
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            companyState.replaceDirector({name: data.beforeName, address: beforeAddress, personId: data.personId},
+            console.log({name: data.beforeName, address: beforeAddress, personId: data.personId},
+                                         {name: data.afterName, address: afterAddress, personId: data.personId});
+            return companyState.replaceDirector({name: data.beforeName, address: beforeAddress, personId: data.personId},
                                          {name: data.afterName, address: afterAddress, personId: data.personId}, transaction);
+        })
+        .then(() => {
             return transaction;
         })
         .catch((e) => {
-            throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
+            sails.log.error(e);
+            throw new sails.config.exceptions.InvalidOperation('Could not update director, documentId: ' +data.documentId);
         });
 };
 
@@ -1067,24 +1070,24 @@ export function performInverseAll(data, company, state){
 
 export function performTransaction(data, company, companyState){
     const PERFORM_ACTION_MAP = {
-        [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performIssueUnallocated,
-        [Transaction.types.ACQUISITION]:  TransactionService.performAcquisition,
-        [Transaction.types.PURCHASE]:  TransactionService.performPurchase,
-        [Transaction.types.CONSOLIDATION]:  TransactionService.performConsolidation,
-        [Transaction.types.REDEMPTION]:  TransactionService.performRedemption,
-        [Transaction.types.AMEND]:  TransactionService.performAmend,
-        [Transaction.types.NAME_CHANGE]: TransactionService.performNameChange,
-        [Transaction.types.DETAILS]: TransactionService.performDetailsChange,
-        [Transaction.types.USER_FIELDS_CHANGE]: TransactionService.performDetailsChange,
-        [Transaction.types.ADDRESS_CHANGE]: TransactionService.performAddressChange,
-        [Transaction.types.HOLDING_CHANGE]:  TransactionService.performHoldingChange,
-        [Transaction.types.HOLDER_CHANGE]:  TransactionService.performHolderChange,
-        [Transaction.types.NEW_ALLOCATION]:  TransactionService.performNewAllocation,
-        [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performRemoveAllocation,
-        [Transaction.types.NEW_DIRECTOR]: TransactionService.performNewDirector,
-        [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performRemoveDirector,
-        [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performUpdateDirector,
-        [Transaction.types.APPLY_SHARE_CLASS]: TransactionService.performApplyShareClass,
+        [Transaction.types.ISSUE_UNALLOCATED]:      TransactionService.performIssueUnallocated,
+        [Transaction.types.ACQUISITION]:            TransactionService.performAcquisition,
+        [Transaction.types.PURCHASE]:               TransactionService.performPurchase,
+        [Transaction.types.CONSOLIDATION]:          TransactionService.performConsolidation,
+        [Transaction.types.REDEMPTION]:             TransactionService.performRedemption,
+        [Transaction.types.AMEND]:                  TransactionService.performAmend,
+        [Transaction.types.NAME_CHANGE]:            TransactionService.performNameChange,
+        [Transaction.types.DETAILS]:                TransactionService.performDetailsChange,
+        [Transaction.types.USER_FIELDS_CHANGE]:     TransactionService.performDetailsChange,
+        [Transaction.types.ADDRESS_CHANGE]:         TransactionService.performAddressChange,
+        [Transaction.types.HOLDING_CHANGE]:         TransactionService.performHoldingChange,
+        [Transaction.types.HOLDER_CHANGE]:          TransactionService.performHolderChange,
+        [Transaction.types.NEW_ALLOCATION]:         TransactionService.performNewAllocation,
+        [Transaction.types.REMOVE_ALLOCATION]:      TransactionService.performRemoveAllocation,
+        [Transaction.types.NEW_DIRECTOR]:           TransactionService.performNewDirector,
+        [Transaction.types.REMOVE_DIRECTOR]:        TransactionService.performRemoveDirector,
+        [Transaction.types.UPDATE_DIRECTOR]:        TransactionService.performUpdateDirector,
+        [Transaction.types.APPLY_SHARE_CLASS]:      TransactionService.performApplyShareClass
     };
     if(!data.actions){
         return Promise.resolve(companyState);
@@ -1175,21 +1178,91 @@ export function performAll(data, company, state){
 }
 
 
-export function createImplicitTransactions(state, effectiveDate){
-    const actions = state.dataValues.holdingList.dataValues.holdings.reduce((acc, holding) => {
-        if(!holding.hasNonEmptyParcels()){
-            acc.push({
-                transactionType: Transaction.types.REMOVE_ALLOCATION,
-                holdingId: holding.holdingId
-            });
+export function createImplicitTransactions(state, transactions, effectiveDate){
+
+    function removeEmpty(){
+        const actions = state.dataValues.holdingList.dataValues.holdings.reduce((acc, holding) => {
+            if(!holding.hasNonEmptyParcels()){
+                acc.push({
+                    transactionType: Transaction.types.REMOVE_ALLOCATION,
+                    holdingId: holding.holdingId
+                });
+            }
+            return acc;
+        }, []);
+        if(actions.length){
+            return [{
+                transactionType: Transaction.types.COMPOUND_REMOVALS,
+                actions: actions,
+                effectiveDate: effectiveDate
+            }]
         }
-        return acc;
-    }, []);
-    if(actions.length){
-        return [{
-            transactionType: Transaction.types.COMPOUND_REMOVALS,
-            actions: actions,
-            effectiveDate: effectiveDate
-        }]
+        return [];
     }
+
+    function replaceHolders(){
+        const newActions = []
+        transactions.map(tran => {
+            tran.actions.map(action => {
+                if(action.transactionType !== Transaction.types.UPDATE_DIRECTOR){
+                    return;
+                }
+                if(state.getHolderBy({name: action.beforeName, address: action.beforeAddress, personId: action.personId})){
+                    newActions.push({
+                        beforeHolder: {
+                            name: action.beforeName,
+                            address: action.beforeAddress,
+                            personId: action.personId,
+                        },
+                        afterHolder: {
+                            name: action.afterName,
+                            address: action.afterAddress
+                        },
+                        transactionType: Transaction.types.HOLDER_CHANGE,
+                        effectiveDate: effectiveDate
+                    })
+                }
+            })
+        });
+        if(newActions.length){
+            return [{
+                transactionType: Transaction.types.INFERRED_HOLDER_CHANGE,
+                actions: newActions,
+                effectiveDate: effectiveDate
+            }]
+        }
+        return [];
+    }
+
+    function replaceDirectors(){
+        const newActions = []
+        transactions.map(tran => {
+            tran.actions.map(action => {
+                if(action.transactionType !== Transaction.types.HOLDER_CHANGE){
+                    return;
+                }
+                if(state.getDirectorBy({name: action.beforeHolder.name, address: action.beforeHolder.address, personId: action.beforeHolder.personId})){
+                    newActions.push({
+                        beforeName: action.beforeHolder.name,
+                        afterName: action.afterHolder.name,
+                        beforeAddress: action.beforeHolder.address,
+                        afterAddress: action.afterHolder.address,
+                        personId: action.beforeHolder.personId,
+                        transactionType: Transaction.types.UPDATE_DIRECTOR,
+                        effectiveDate: effectiveDate
+                    })
+                }
+            })
+        });
+        if(newActions.length){
+            return [{
+                transactionType: Transaction.types.INFERRED_HOLDER_CHANGE,
+                actions: newActions,
+                effectiveDate: effectiveDate
+            }]
+        }
+        return [];
+    }
+
+    return [...removeEmpty(), ...replaceDirectors(), ...replaceHolders()]
 }

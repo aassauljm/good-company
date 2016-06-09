@@ -174,7 +174,7 @@ describe('Company Controller', function() {
         });
     });
     describe('Test import and share apply (AVELEY COMPANY LIMITED)', function(){
-        var req, companyId, classes, holdings;
+        var req, companyId, classes, holdings, initialState;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
             login(req).then(done);
@@ -203,6 +203,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
+                    initialState = res.body;
                     res.body.currentCompanyState.totalShares.should.be.equal(124000);
                     classes = _.reduce(res.body.currentCompanyState.shareClasses.shareClasses, (acc, item, key) => {
                         acc[item.name] = item.id;
@@ -241,9 +242,94 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/history/10')
                 .expect(200)
                 .then(function(res){
-                    //console.log(JSON.stringify(res.body.companyState, null, 4));
                     done();
                 });
         });
+
+        it('does a person update', function(done){
+            req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [{actions: [{
+                "transactionType": "HOLDER_CHANGE",
+                "afterHolder": {
+                    "name": "NEW PERSON",
+                    "address": "MALLEY & CO, Level 2, 14 Dundas Street, Christchurch Central, Christchurch, New Zealand"
+                },
+                "beforeHolder": {
+                    "name": "LYSAGHT TRUSTEES LIMITED",
+                    "address": "MALLEY & CO, Level 2, 14 Dundas Street, Christchurch Central, Christchurch, New Zealand",
+                    "companyNumber": "3582711"
+                }}]}]})
+            .expect(200)
+            .then(() => req.get('/api/company/'+companyId+'/get_info'))
+            .then((res) => {
+                const oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
+                const oldHolder = _.find(oldHolding.holders, {name: 'LYSAGHT TRUSTEES LIMITED'})
+                const newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
+                const newHolder = _.find(newHolding.holders, {name: 'NEW PERSON'});
+                oldHolder.personId.should.be.equal(newHolder.personId);
+                done();
+            })
+        });
+        it('does a person update (holder, implicit director)', function(done){
+            req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [{actions: [{
+                "transactionType": "HOLDER_CHANGE",
+                "afterHolder": {
+                    "name": "Directy",
+                    "address": "home"
+                },
+                "beforeHolder": {
+                    "name": "Susan Ruth LYSAGHT",
+                    "address": "28 Wairarapa Terrace, Fendalton, Christchurch, New Zealand",
+                }}]}]})
+            .expect(200)
+            .then(() => req.get('/api/company/'+companyId+'/get_info'))
+            .then((res) => {
+                let oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
+                let oldHolder = _.find(oldHolding.holders, {name: 'Susan Ruth LYSAGHT'})
+                let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
+                let newHolder = _.find(newHolding.holders, {name: 'Directy'});
+                oldHolder.personId.should.be.equal(newHolder.personId);
+
+                oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
+                oldHolder = _.find(oldHolding.holders, {name: 'Susan Ruth LYSAGHT'})
+                newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
+                newHolder = _.find(newHolding.holders, {name: 'Directy'});
+
+                oldHolder.personId.should.be.equal(newHolder.personId);
+                res.body.currentCompanyState.directorList.directors[0].person.personId.should.be.equal(newHolder.personId);
+                res.body.currentCompanyState.directorList.directors[0].person.name.should.be.equal(newHolder.name);
+                done();
+            })
+        });
+
+        it('does a person update (director, implicit holder)', function(done){
+            req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [{actions: [{
+                "transactionType": "HOLDER_CHANGE",
+                "afterHolder": {
+                    "name": "Directio",
+                    "address": "homeopathic"
+                },
+                "beforeHolder": {
+                    "name": "Directy",
+                    "address": "home",
+                }}]}]})
+            .expect(200)
+            .then(() => req.get('/api/company/'+companyId+'/get_info'))
+            .then((res) => {
+                let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
+                let newHolder = _.find(newHolding.holders, {name: 'Directio'});
+
+                newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
+                newHolder = _.find(newHolding.holders, {name: 'Directio'});
+
+                res.body.currentCompanyState.directorList.directors[0].person.personId.should.be.equal(newHolder.personId);
+                res.body.currentCompanyState.directorList.directors[0].person.name.should.be.equal(newHolder.name);
+                done();
+            })
+        });
+
+
     });
 });

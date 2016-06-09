@@ -25,6 +25,10 @@ module.exports = {
         classMethods: {},
         instanceMethods: {
             buildNext: function(){
+                if(this.isNewRecord){
+                    return Promise.resolve(this);
+                }
+
                 return (this.dataValues.directors ? Promise.resolve(this.dataValues.directors) : this.getDirectors({include: [{model: Person, as: 'person'}]}))
                     .then(function(directors){
                         return DirectorList.build({directors: directors}, {include: [{model: Director, as: 'directors', include: [{model: Person, as: 'person'}]}]})

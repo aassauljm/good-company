@@ -706,37 +706,58 @@ module.exports = {
                         }
                     })
                     .then(function(){
+                        let replaced = false;
                         state.dataValues.holdingList.dataValues.holdings.map(function(holding, i){
                             var index = _.findIndex(holding.dataValues.holders, function(h, i){
                                 return h.isEqual(currentHolder);
                             });
                             if(index > -1){
+                                replaced = true;
                                 holding = holding.buildNext();
                                 state.dataValues.holdingList.dataValues.holdings[i] = holding;
                                 holding.dataValues.holders[index] = newPerson;
                             }
                         });
+                        if(!replaced){
+                            throw new sails.config.exceptions.InvalidOperation('Unknown holder to replace');
+                        }
                         return state;
                     });
             },
 
             replaceDirector: function(currentDirector, newDirector, transaction){
                 const directors = this.dataValues.directorList.dataValues.directors;
-                var index = _.findIndex(directors, function(d, i){
-                        return d.dataValues.person.isEqual(currentDirector);
-                });
-                if(index > -1){
-                    //directors[index].personId = null;
-                    directors[index] = directors[index].buildNext();
-                    directors[index].dataValues.person = directors[index].dataValues.person.replaceWith(newDirector);
-                    if(transaction){
-                        directors[index].person.dataValues.transaction = transaction
-                    }
-                }
-                else{
-                    throw new sails.config.exceptions.InvalidInverseOperation('Unknown director to replace');
-                }
-                return this;
+                let newPerson, state = this;
+                return CompanyState.findPersonId(newDirector)
+                    .then(function(personId){
+                        if(!personId) return CompanyState.findPersonId(currentDirector);
+                        return personId
+                    })
+                    .then(function(personId){
+                        return Person.buildFull(_.merge(newDirector, {personId: personId})).save()
+                    })
+                    .then(function(person){
+                        newPerson = person;
+                        if(transaction){
+                            return newPerson.setTransaction(transaction)
+                        }
+                    })
+                    .then(function(){
+                        var index = _.findIndex(directors, function(d, i){
+                                return d.dataValues.person.isEqual(currentDirector);
+                        });
+                        if(index > -1){
+                            directors[index] = directors[index].buildNext();
+                            directors[index].dataValues.person = directors[index].dataValues.person.replaceWith(newDirector);
+                            if(transaction){
+                                directors[index].person.dataValues.transaction = transaction
+                            }
+                        }
+                        else{
+                            throw new sails.config.exceptions.InvalidOperation('Unknown director to replace');
+                        }
+                        return state;
+                    })
             },
 
             getMatchingHolding: function(holding, options={}){
@@ -771,7 +792,17 @@ module.exports = {
 
                 return result;
             },
-
+            getDirectorBy: function(data){
+                // probably has to collapse whole tree for this to work
+                var result;
+                 _.some(this.dataValues.directorList.dataValues.directors, function(director){
+                    if(director.person.isEqual(data)){
+                        result = director;
+                        return result;
+                    }
+                });
+                return result;
+            },
             combineUnallocatedParcels: function(parcel, subtract){
                 var match, result;
                 var parcel = Parcel.build(parcel);

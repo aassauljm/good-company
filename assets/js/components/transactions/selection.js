@@ -127,7 +127,7 @@ export class UpdateHoldingHolderModal extends React.Component {
                 <span className="transaction-button-text">Update Shareholding</span>
 
             </div>
-            <div className="actionable select-button" onClick={() => this.props.show('selectHolder')} >
+            <div className="actionable select-button" onClick={() => this.props.show('selectPerson')} >
                 <span className="glyphicon glyphicon-user"></span>
                 <span className="transaction-button-text">Update Shareholder</span>
             </div>

@@ -38,7 +38,7 @@ export class UpdatePersonModal extends React.Component {
             </div>
     }
 
-submit(values) {
+    submit(values) {
         const transactions = updatePersonSubmit(values, this.props.modalData.person)
         if(transactions.length){
             this.props.dispatch(companyTransaction(

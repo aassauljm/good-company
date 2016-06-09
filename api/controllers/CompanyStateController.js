@@ -242,10 +242,10 @@ var transactions = {
             .then(_state => {
                 state = _state;
                 // e.g. remove empty allocation
-                return TransactionService.createImplicitTransactions(state, date)
+                return TransactionService.createImplicitTransactions(state, args.transactions || [], date)
             })
             .then(transactions => {
-                if(transactions){
+                if(transactions.length){
                     return TransactionService.performAll(transactions, company, state);
                 }
             })
