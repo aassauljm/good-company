@@ -667,10 +667,6 @@ function inferDirectorshipActions(data, docs){
                 effectiveDate: appointmentDate,
                 transactionType: Transaction.types.INFERRED_NEW_DIRECTOR
             });
-             console.log({
-                actions: [action],
-                effectiveDate: appointmentDate,
-            })
         }
         action = {
             transactionType: Transaction.types.REMOVE_DIRECTOR,
@@ -686,10 +682,6 @@ function inferDirectorshipActions(data, docs){
                 effectiveDate: ceasedDate,
                 transactionType: Transaction.types.INFERRED_REMOVE_DIRECTOR
             });
-            console.log({
-                actions: [action],
-                effectiveDate: ceasedDate,
-            })
         }
     });
     return results;

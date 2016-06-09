@@ -207,6 +207,7 @@ module.exports = {
                         .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
                         .then(function(_processedDocs) {
                             processedDocs = _processedDocs;
+                            //console.log(JSON.stringify(processedDocs))
                             return company.createPrevious();
                         })
                         .then(function(){
