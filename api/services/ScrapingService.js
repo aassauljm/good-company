@@ -606,7 +606,7 @@ function processBizNet($){
 
 function inferDirectorshipActions(data, docs){
     // The appointment and removal of directorships, inferred from start/end dates
-    const doesNotContain = (action) => {
+    const doesNotContain = (docs, action) => {
         // make sure we haven't described this action yet
         return !_.some(docs, doc => {
             return _.find(doc.actions, a => {
@@ -641,7 +641,7 @@ function inferDirectorshipActions(data, docs){
                 effectiveDate: date,
                 ...firstDetails(d.fullName, d.residentialAddress)
             };
-        if(doesNotContain(action)){
+        if(doesNotContain(docs, action) && doesNotContain(results, action)){
             results.push({
                 actions: [action],
                 // maybe infered transaction type
@@ -661,7 +661,7 @@ function inferDirectorshipActions(data, docs){
                 effectiveDate: appointmentDate
             };
 
-        if(doesNotContain(action)){
+        if(doesNotContain(docs, action) && doesNotContain(results, action)){
             results.push({
                 actions: [action],
                 effectiveDate: appointmentDate,
@@ -676,7 +676,7 @@ function inferDirectorshipActions(data, docs){
         };
 
 
-        if(doesNotContain(action)){
+        if(doesNotContain(docs, action) && doesNotContain(results, action)){
             results.push({
                 actions: [action],
                 effectiveDate: ceasedDate,
