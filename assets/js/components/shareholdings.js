@@ -1,6 +1,5 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { showModal } from '../actions';
 import { pureRender, numberWithCommas, generateShareClassMap, renderShareClass, joinAnd } from '../utils';
 import { Link } from 'react-router';
 import PieChart  from 'react-d3-components/lib/PieChart';

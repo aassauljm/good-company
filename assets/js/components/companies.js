@@ -59,8 +59,8 @@ export default class Companies extends React.Component {
                 <Button bsStyle="info" className="company-import" onClick={() => this.props.handleImport}>Import Company</Button>
             </div>
             <div className="table-responsive">
-            { this.props.renderTable(data) }
-        </div>
+                { this.props.renderTable(data) }
+            </div>
         </div>
 
     }
@@ -107,7 +107,9 @@ export class CompaniesWidget extends React.Component {
     renderBody() {
         const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
         return  <div className="widget-body">
+        <div className="table-responsive">
             { this.props.renderTable(data.slice(0, 6), true) }
+        </div>
         </div>
     }
 

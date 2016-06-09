@@ -18,7 +18,6 @@ import { ContactDetailsWidget } from './contactDetails';
 import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
-import Modals from './modals';
 import NotFound from './notFound';
 import BarGraph from './graphs/bar'
 import Notifications from './notifications';
@@ -172,16 +171,16 @@ const DEFAULT_OBJ = {};
     return {
         data: DEFAULT_OBJ,
         companyPage: state.companyPage,
-        modals: state.modals,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
+        modals: state.modals,
          ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 },
-{
-    requestData: (id) => requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany}),
-    showModal: (key, data) => showModal(key, data),
-    toggleWidget: (path, args) => toggleWidget(path, args),
-    push: (url) => push(url)
-})
+(dispatch, ownProps) => ({
+    requestData: (id) => dispatch(requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany})),
+    showModal: (key, data) => dispatch(showModal(key, data)) && dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)),
+    toggleWidget: (path, args) => dispatch(toggleWidget(path, args)),
+    push: (url) => dispatch(push(url))
+}))
 export default class Company extends React.Component {
     static propTypes = {
         companyPage: PropTypes.object.isRequired,
@@ -207,8 +206,6 @@ export default class Company extends React.Component {
     componentDidUpdate() {
         this.fetch();
     };
-
-
 
     renderBody(current) {
         if(!current){
@@ -246,6 +243,12 @@ export default class Company extends React.Component {
                     companyState={current}
                     companyId={this.props.params.id}
                  />
+                    <DocumentsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'documents'], expanded) }
+                        expanded={(this.props.widgets.documents || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
                 </div>
                  <div className="col-md-6">
                      <ShareholdingsWidget
@@ -268,12 +271,7 @@ export default class Company extends React.Component {
                         companyId={this.props.params.id}
                      />
 
-                    <DocumentsWidget
-                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'documents'], expanded) }
-                        expanded={(this.props.widgets.documents || {}).expanded}
-                        companyState={current}
-                        companyId={this.props.params.id}
-                     />
+
                 </div>
 
                 </div>

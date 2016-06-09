@@ -352,5 +352,4 @@ describe('CompanyStateController', function() {
         });
     });
 
-
 });

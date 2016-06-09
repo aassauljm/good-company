@@ -680,6 +680,7 @@ function inferDirectorshipActions(data, docs){
             });
         }
     });
+    console.log('INFERED', JSON.stringify(results, 4, null));
     return results;
 }
 

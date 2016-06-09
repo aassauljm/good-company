@@ -83,9 +83,21 @@ export class DirectorsWidget extends React.Component {
 
 export default class Directors extends React.Component {
     static propTypes = {
-        companyState: PropTypes.object.isRequired,
-        companyId: PropTypes.string.isRequired
+        companyState: PropTypes.object,
+        companyId: PropTypes.string
     };
+
+    editDirector(director) {
+        this.props.showModal('updateDirector', {
+            companyId: this.props.companyId,
+            companyState: this.props.companyState,
+            director: director,
+            afterClose: {
+                location: this.props.location.pathname
+            }
+        });
+    }
+
     render() {
         const directors = this.props.companyState.directorList.directors;
         const holders = this.props.companyState.holders;
@@ -100,7 +112,9 @@ export default class Directors extends React.Component {
                 <h5 className="text-center">Current Directors</h5>
                 <div className="row">
                     { directors.map((director, i) => <div key={i} className="col-md-6">
-                                    <div className="outline actionable" >{ renderDirector(director, holders) }</div>
+                        <div className="outline actionable" onClick={() => this.editDirector(director)}>
+                            { renderDirector(director, holders) }
+                        </div>
                     </div>) }
                 </div>
 

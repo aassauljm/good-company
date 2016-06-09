@@ -42,7 +42,8 @@ export class ImportCompany extends React.Component {
 
     renderLoading() {
         return <div>
-            <div className="text-center">Importing Company.  This may take a few moments...</div>
+        <div className="text-center">Importing Company - {this.props.location.query.companyName}.</div>
+        <div className="text-center">This may take a few moments...</div>
             <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
             </div>
     }

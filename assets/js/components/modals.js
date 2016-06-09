@@ -23,7 +23,7 @@ import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
 import { AddAssignSharesModal, ColsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal } from './transactions/selection';
 import { withRouter } from 'react-router'
-import { push } from 'react-router-redux';
+import { push, replace } from 'react-router-redux';
 
 
 
@@ -47,7 +47,7 @@ export class Modals extends React.Component {
                     if(after.showModal){
                         this.props.dispatch(showModal(after.showModal.key, after.showModal.data));
                     }
-                    if(data && data.reload && after.location){
+                    if(data && after.location){
                         this.props.dispatch(push(after.location));
                     }
                 }

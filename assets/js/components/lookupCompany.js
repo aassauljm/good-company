@@ -34,6 +34,7 @@ export class LookupCompanyForm extends React.Component {
         const { fields: {query} } = this.props;
          return  <form ref="form" onSubmit={silenceEvent}>
             <Input type="text" ref="query" {...query} placeholder="Search company name or number" onChange={::this.handleChange}/>
+           {  this.props.noResult && query.value ? <span>No Results</span> : null}
         </form>
     }
 }
@@ -58,9 +59,8 @@ class LookupCompany extends React.Component {
     }
     render() {
         return <div>
-            <DecoratedLookupCompanyForm submit={this._debouncedLookup} />
+            <DecoratedLookupCompanyForm submit={this._debouncedLookup} noResults={this.props.lookupCompany._status === 'complete' && !this.props.lookupCompany.list.length}/>
             { this.props.lookupCompany._status === 'fetching' ? <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div> : null}
-            { this.props.lookupCompany._status === 'complete' && !this.props.lookupCompany.list.length ? <span>No Results</span> : null}
              <ListGroup>
                 { this.props.lookupCompany.list.map((item, i) => {
                     return <ListGroupItem key={i} onClick={() => this.props.next(item)}>

@@ -6,7 +6,7 @@ import { asyncConnect } from 'redux-connect';
 import { requestResource } from '../actions';
 import { stringToDateTime } from '../utils';
 import { Link } from 'react-router';
-
+import STRINGS from '../strings';
 
 @connect((state, ownProps) => {
     return state.resources['/favourites'] || {};
@@ -26,12 +26,6 @@ export class FavouritesWidget extends React.Component {
     componentDidUpdate() {
         this.fetch();
     };
-
-    handleClick(activity) {
-        if(activity.data.companyId){
-
-        }
-    }
 
     render() {
         const favourites = this.props.data || [];
@@ -56,6 +50,63 @@ export class FavouritesWidget extends React.Component {
 
                 </li>)}
                 </ul>
+            </div>
+        </div>
+    }
+}
+
+
+@connect((state, ownProps) => {
+    return state.resources['/favourites'] || {};
+}, {
+    requestData: (key) => requestResource('/favourites'),
+    navigate: (url) => push(url)
+})
+export default class Favourites extends React.Component {
+
+    fetch() {
+        return this.props.requestData();
+    };
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+
+    renderTable() {
+        const handleClick = (event, id) => {
+            event.preventDefault();
+            this.props.navigate(`/company/view/${id}`);
+        }
+        const favourites = this.props.data || [];
+        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        return <table className="table table-striped table-hover">
+            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
+            <tbody>
+            { favourites.map(
+                (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
+                    { fields.map(f => <td key={f}>{row.currentCompanyState[f]}</td>) }
+                </tr>) }
+            </tbody>
+        </table>
+    }
+
+    render() {
+
+        return <div className="widget favourites">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Favourites
+                </div>
+            </div>
+
+            <div className="widget-body">
+                <div className="table-responsive">
+                 { this.renderTable() }
+                </div>
             </div>
         </div>
     }

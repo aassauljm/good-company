@@ -120,16 +120,27 @@ export default class RecentActivity extends React.Component {
 
     render() {
         const activities = this.props.data || [];
-        return <div className="container"><table className="table">
-        <thead><tr><th>Time & Date</th><th>Description</th></tr></thead>
-            <tbody>
-            {activities.map(
-                (row, i) => <tr key={i}>
-                <td>{stringToDateTime(row.createdAt)}</td>
-                <td>{row.description}</td>
-                </tr>) }
-            </tbody>
-        </table>
+        return <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Recent Activity
+                </div>
+            </div>
+
+            <div className="widget-body">
+                <div className="table-responsive">
+                <table className="table">
+                <thead><tr><th>Time & Date</th><th>Description</th></tr></thead>
+                    <tbody>
+                    {activities.map(
+                        (row, i) => <tr key={i}>
+                        <td>{stringToDateTime(row.createdAt)}</td>
+                        <td>{row.description}</td>
+                        </tr>) }
+                    </tbody>
+                </table>
+                </div>
+            </div>
         </div>
     }
 }

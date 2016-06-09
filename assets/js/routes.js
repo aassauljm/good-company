@@ -1,12 +1,13 @@
 "use strict";
 import { IndexRoute, Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
-import App from './components/app';
+import App, { LoggedInApp } from './components/app';
 import Landing from './components/landing';
 import Home from './components/home';
 import NotFound from './components/notFound';
 import Users from './components/users';
 import Roles from './components/roles';
+import Favourites from './components/favourites';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
@@ -40,16 +41,15 @@ export default (store) => {
             }
             cb();
         }
-        checkAuth();
+        checkAuth();``
     };
 
 
     return <Route path="/" component={ App }>
         <Route path="login" component={ Login }  />
         <Route path="signup" component={ SignUp }  />
-        <Route onEnter={requireLogin}>
+        <Route onEnter={requireLogin} component={ LoggedInApp }>
             <IndexRoute component={ Home }  />
-            <Route path="home" component={ Home }  />
             <Route path="recent_activity" component={ RecentActivity }  />
             <Route path="users" component={ Users }  />
             <Route path="roles" component={ Roles }  />
@@ -82,10 +82,11 @@ export default (store) => {
             <Route path="user/edit/:id" component={ Account }  edit={true} />
             <Route path="user/set_password" component={ SetPassword } edit={true} />
             <Route path="user/create" component={ Account }  />
-        </Route>
-        <Route path="import/:companyNumber" component={ ImportCompany } />
-        <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
-            <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
+            <Route path="import/:companyNumber" component={ ImportCompany } />
+            <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
+                <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
+            </Route>
+            <Route path="favourites" component={ Favourites } />
         </Route>
         <Route path="*" component={ NotFound } />
     </Route>;

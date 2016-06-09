@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { requestUserInfo } from '../actions';
 import { createResource } from '../actions'
 import Notifications from './notifications';
-
+import Search from './search';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import { asyncConnect } from 'redux-connect';
 
@@ -48,5 +48,30 @@ export default class App extends React.Component {
                  </div>
                  <Footer />
             </div>
+    }
+}
+
+
+@pureRender
+export class LoggedInApp extends React.Component {
+    render() {
+        if(this.props.routes.some(r => r.childrenOnly)){
+            return <div onDrop={prevent} onDragOver={prevent}>
+                { this.props.children }
+                { !this.props.print && <Footer />}
+            </div>
+        }
+        return  <div>
+            <div className="container-fluid page-top">
+                <div className="container">
+                    <Search />
+                </div>
+            </div>
+            <div className="container-fluid page-body">
+                 <div className="container">
+                { this.props.children }
+                </div>
+            </div>
+        </div>
     }
 }
