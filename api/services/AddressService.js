@@ -5,7 +5,9 @@ export const normalizeAddress = Promise.method(function(address){
 
 
 
-    return address.replace(/, NZ$/, ', New Zealand')
+    return address
+        .replace(/, NZ$/, ', New Zealand')
+        .replace(/, AU$/, ', Australia')
 });
 
 const hackSuffixReplace = {

@@ -230,12 +230,6 @@ export default class Company extends React.Component {
                     companyState={current}
                     companyId={this.props.params.id}
                  />
-                    <ReportingDetailsWidget
-                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'reporting'], expanded) }
-                        expanded={(this.props.widgets.reporting || {}).expanded}
-                        companyState={current}
-                        companyId={this.props.params.id}
-                     />
 
                  <RecentCompanyActivityWidget
                     toggle={(expanded) => this.props.toggleWidget([this.key(), 'recentActivity'], expanded) }
@@ -246,6 +240,12 @@ export default class Company extends React.Component {
                     <DocumentsWidget
                         toggle={(expanded) => this.props.toggleWidget([this.key(), 'documents'], expanded) }
                         expanded={(this.props.widgets.documents || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+                    <ReportingDetailsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'reporting'], expanded) }
+                        expanded={(this.props.widgets.reporting || {}).expanded}
                         companyState={current}
                         companyId={this.props.params.id}
                      />

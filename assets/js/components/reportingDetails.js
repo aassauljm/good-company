@@ -31,6 +31,7 @@ export class ReportingDetailsWidget extends React.Component {
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body">
 
+                <i>In Development</i>
             <dl>
                 { standardFields.map((f, i) =>  <div key={i}><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
                 { reportingFields.map((f, i) => f.value && f.label && <div key={i}><dt>{ f.label }</dt><dd>{ f.value}</dd></div>) }

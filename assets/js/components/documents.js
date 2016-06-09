@@ -73,7 +73,7 @@ export class DocumentsWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Documents
+                    File Cabinet
                 </div>
                 <div className="widget-control">
                  <Link to={`/company/view/${this.key()}/documents`} >View All</Link>
@@ -123,7 +123,7 @@ export class CompanyDocuments extends React.Component {
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
-                        Documents
+                        File Cabinet
                     </div>
                 </div>
                 <div className="widget-body">
