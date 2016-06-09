@@ -98,25 +98,22 @@ export default class Header extends React.Component {
 
 
     render() {
-        return  <Navbar fluid>
+        return  <Navbar>
                 <NavbarHeader>
                 <Link to="/" className="navbar-brand"><span>Good Company</span></Link>
                     <NavbarToggle />
                 </NavbarHeader>
 
              <NavbarCollapse>
-            <div className="chev-left" />
-            <div className="chev-right" />
 
-            <div className="">
-                {this.showMenus() }
                 <ul className="nav navbar-nav navbar-right">
                 { this.showAccount() }
                 { this.showLogout() }
                 { this.showLogin() }
                 { this.showSignUp() }
                 </ul>
-            </div>
+
+
          </NavbarCollapse>
   </Navbar>
 
