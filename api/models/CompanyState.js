@@ -746,6 +746,13 @@ module.exports = {
                         var index = _.findIndex(directors, function(d, i){
                                 return d.dataValues.person.isEqual(currentDirector);
                         });
+                        // TODO, think of better way
+                        if(index < 0){
+                            index = _.findIndex(directors, function(d, i){
+                                    return d.dataValues.person.isEqual(currentDirector, {skipAddress: true});
+                            });
+                        }
+
                         if(index > -1){
                             directors[index] = directors[index].buildNext();
                             directors[index].dataValues.person = directors[index].dataValues.person.replaceWith(newDirector);

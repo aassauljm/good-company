@@ -68,7 +68,7 @@ module.exports = {
         instanceMethods: {
             detailChange: function(other){
                 // if name is same, but other details change
-                return this.dataValues.name === other.name &&
+                return this.dataValues.name.toLowerCase() === other.name.toLowerCase() &&
                     this.dataValues.companyNumber === other.companyNumber &&
                     (this.dataValues.address !== other.address);
             },
@@ -76,7 +76,7 @@ module.exports = {
                 if(other.personId && other.personId === this.dataValues.personId){
                     return true;
                 }
-                return this.dataValues.name === other.name &&
+                return this.dataValues.name.toLowerCase() === other.name.toLowerCase() &&
                     (this.dataValues.companyNumber || null) === (other.companyNumber || null) &&
                     (options.skipAddress || AddressService.compareAddresses(this.dataValues.address, other.address));
             },

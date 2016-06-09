@@ -349,5 +349,22 @@ describe('Company Controller', function() {
 
     });
 
+    describe('Test import with confusing addresses (BOLLORE)', function(){
+        var req, companyId, classes, holdings, initialState;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import (99 ALBERT STREET LIMITED)', function(done){
+            req.post('/api/company/import/companiesoffice/614119')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+
+    });
+
 
 });

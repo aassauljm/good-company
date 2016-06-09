@@ -21,6 +21,7 @@ export class ImportCompany extends React.Component {
 
     renderSummary() {
         const {location: {query: {companyName, companyNumber, struckOff, notes}}} = this.props;
+        console.log(this.props)
         return <div className="well">
             <dl className="dl-horizontal">
                 <dt >Company Name</dt>
@@ -28,7 +29,7 @@ export class ImportCompany extends React.Component {
                 <dt >Company Number</dt>
                 <dd >{companyNumber}</dd>
                 <dt >Status</dt>
-                <dd >{struckOff ? 'Struck Off': 'Registered'}</dd>
+                <dd >{struckOff === "true" ? 'Struck Off': 'Registered'}</dd>
                 <dt >Notes</dt>
                 <dd >{ ([notes] || []).map((note, i) => {
                         return <span key={i}>{note}</span>
