@@ -1256,7 +1256,7 @@ export function createImplicitTransactions(state, transactions, effectiveDate){
         });
         if(newActions.length){
             return [{
-                transactionType: Transaction.types.INFERRED_HOLDER_CHANGE,
+                transactionType: Transaction.types.INFERRED_UPDATE_DIRECTOR,
                 actions: newActions,
                 effectiveDate: effectiveDate
             }]

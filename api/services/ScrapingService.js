@@ -20,6 +20,8 @@ const DOCUMENT_TYPES = {
     UNKNOWN: 'UNKNOWN',
 };
 
+
+
 const toInt = function (value) {
   if(/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
     return Number(value);
@@ -663,7 +665,12 @@ function inferDirectorshipActions(data, docs){
             results.push({
                 actions: [action],
                 effectiveDate: appointmentDate,
+                transactionType: Transaction.types.INFERRED_NEW_DIRECTOR
             });
+             console.log({
+                actions: [action],
+                effectiveDate: appointmentDate,
+            })
         }
         action = {
             transactionType: Transaction.types.REMOVE_DIRECTOR,
@@ -677,10 +684,14 @@ function inferDirectorshipActions(data, docs){
             results.push({
                 actions: [action],
                 effectiveDate: ceasedDate,
+                transactionType: Transaction.types.INFERRED_REMOVE_DIRECTOR
             });
+            console.log({
+                actions: [action],
+                effectiveDate: ceasedDate,
+            })
         }
     });
-    console.log('INFERED', JSON.stringify(results, 4, null));
     return results;
 }
 
@@ -1117,7 +1128,10 @@ const ScrapingService = {
 
     segmentActions: function(docs){
         // split group actions by date
-
+        const TRANSACTION_ORDER = {
+            [Transaction.types.INFERRED_REMOVE_DIRECTOR]: 1,
+            [Transaction.types.INFERRED_NEW_DIRECTOR]: 0
+        }
         docs = docs.reduce((acc, doc) =>{
             const docDate = doc.date;
             const groups = _.groupBy(doc.actions, action => action.effectiveDate);
@@ -1145,7 +1159,9 @@ const ScrapingService = {
         }, []);
         docs = _.sortByAll(docs,
                            'effectiveDate',
-                           (d) => parseInt(d.documentId, 10)).reverse();
+                           (d) => parseInt(d.documentId, 10),
+                           (d) => d.actions && d.actions.length && TRANSACTION_ORDER[d.transactionType]
+                           ).reverse();
 
         docs = inferAmendTypes(docs);
         docs = insertIntermediateActions(docs);
