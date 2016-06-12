@@ -138,7 +138,7 @@ export class SearchWidget extends React.Component {
 
         const inputProps = {
             placeholder: 'Type to find or import your companies',
-            value: fields.input.value,
+            value: fields.input.value || '',
             onChange: fields.input.onChange
         };
         return (
@@ -153,6 +153,7 @@ export class SearchWidget extends React.Component {
                     renderSuggestion={renderSuggestion}
                     renderSectionTitle={renderSectionTitle}
                     inputProps={inputProps} />
+
                 { noSuggestions && fields.input.value && <div className="no-suggestions">
                   No results found
                 </div> }

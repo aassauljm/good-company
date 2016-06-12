@@ -17,7 +17,7 @@ export default function configureStore(history, initialState=data) {
     const loggerMiddleware = createLogger();
     middleware = applyMiddleware(
           thunkMiddleware,
-          loggerMiddleware,
+          //loggerMiddleware,
           routerMiddleware(history),
           callAPIMiddleware)
 
