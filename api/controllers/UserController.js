@@ -118,7 +118,10 @@ module.exports = {
                             })
                             .then(() => res.ok({
                                 account_created: true
-                            }));
+                            }))
+                            .then(() => {
+                                MailService.signup(user)
+                            })
                     });
                     });
                 });

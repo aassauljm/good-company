@@ -91,8 +91,10 @@ AQUISITION
 http://www.business.govt.nz/companies/app/ui/pages/companies/5389961/19914580/entityFilingRequirement
 
 
+
 FAILS
 100% PURE NEW ZEALAND DAIRY LIMITED - 1134251 - NZBN: 9429036923670
+# could be dated
 # director appointed but not included in annual return
  -- http://www.business.govt.nz/companies/app/ui/pages/companies/1134251/14604771/entityFilingRequirement
  -- http://www.business.govt.nz/companies/app/ui/pages/companies/1134251/14517995/entityFilingRequirement
@@ -102,7 +104,7 @@ SLAM G PROPERTIES LIMITED
 --https://www.business.govt.nz/companies/app/ui/pages/companies/1721964/detail
  -- http://www.business.govt.nz/companies/app/ui/pages/companies/1721964/15240289/entityFilingRequirement
 
- 101 DON STREET LIMITED
+101 DON STREET LIMITED
   -- directors
 
 BOLLORE LOGISTICS NEW ZEALAND LIMITED
@@ -111,3 +113,6 @@ BOLLORE LOGISTICS NEW ZEALAND LIMITED
 
 #director foreign
 http://www.business.govt.nz/companies/app/ui/pages/companies/3354560/21698011/entityFilingRequirement
+
+#director updated after ceased
+http://www.business.govt.nz/companies/app/ui/pages/companies/614119/21730040/entityFilingRequirement

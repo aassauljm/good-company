@@ -37,7 +37,7 @@ module.exports = {
    models: {
      connection: 'pg_test'
    },
-   hookTimeout: 60000, // 60 seconds
+   hookTimeout: 120000, // 120 seconds
    serverRender: true,
    CACHE_DIR: '/tmp/.gc'
 };

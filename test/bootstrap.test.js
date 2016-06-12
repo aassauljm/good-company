@@ -18,6 +18,8 @@ EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
 var setFetch = require("../assets/js/utils").setFetch;
 var _fetch = require('isomorphic-fetch');
+var nodemailer = require('nodemailer');
+var stubTransport = require('nodemailer-stub-transport');
 var sails;
 
 function stubs(){
@@ -41,6 +43,10 @@ function stubs(){
         return Promise.map(data.documents, function(document){
             return ScrapingService.fetchDocument(data.companyNumber, document.documentId);
         }, {concurrency: 5});
+    }
+
+    MailService.getTransport = function(){
+        return nodemailer.createTransport(stubTransport());
     }
 
     var cookie;

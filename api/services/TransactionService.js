@@ -608,6 +608,7 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             return transaction;
         })
         .catch((e) => {
+            console.log(data)
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
         });
 
