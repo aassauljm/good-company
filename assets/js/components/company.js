@@ -101,8 +101,17 @@ class ApplyShareClasses extends React.Component {
     }
 }
 
+@pureRender
+class PopulateHistory extends React.Component {
+    render(){
+        return  <div><Link to={`/company/view/${this.props.companyId}/import`} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
+        Company activity for the last 10 years needs to be imported.  Click here to start.</Link></div>
+    }
+}
+
 const AlertWarnings = {
     ApplyShareClasses: ApplyShareClasses,
+    PopulateHistory: PopulateHistory
 }
 
 
@@ -114,7 +123,7 @@ class CompanyAlertsWidget extends React.Component {
     };
     render(){
         const shareWarning = (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses) ;
-
+        const historyWarning = !!(this.props.companyState.warnings.pendingHistory);
         if(!shareWarning){
             return false;
         }
@@ -131,6 +140,7 @@ class CompanyAlertsWidget extends React.Component {
             <div className="widget-body">
                 <ul>
                 { shareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId}/></li>}
+                { historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId}/></li>}
                 </ul>
             </div>
         </div>

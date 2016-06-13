@@ -437,6 +437,11 @@ module.exports = {
                                        { type: sequelize.QueryTypes.SELECT,
                                             replacements: { id: this.id}});
             },
+            getWarnings: function(){
+                return {
+                    pendingHistory: !!this.dataValues.pending_historic_action_id
+                }
+            },
             groupShares: function() {
                 return this.getHoldingList({include: [{
                             model: Holding,
@@ -857,12 +862,14 @@ module.exports = {
                                     this.totalUnallocatedShares(),
                                     this.groupTotals(),
                                     this.getTransactionSummary(),
-                        function(total, totalUnallocated, countByClass, transactionSummary){
+                                    this.getWarnings(),
+                        function(total, totalUnallocated, countByClass, transactionSummary, warnings){
                         stats.totalUnallocatedShares = totalUnallocated;
                         stats.totalAllocatedShares = total;
                         stats.shareCountByClass = countByClass;
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
                         stats.transactions = transactionSummary[0].transaction_summary;
+                        stats.warnings = warnings;
                         return stats
                     });
             },

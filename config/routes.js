@@ -216,5 +216,11 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'updateSourceData',
         model: 'company'
-    }
+    },
+
+     'GET /api/company/:id/pending_history': {
+        controller: 'CompanyController',
+        action: 'getPendingHistoricActions',
+        model: 'company'
+    },
 };

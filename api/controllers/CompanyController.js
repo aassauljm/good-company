@@ -323,5 +323,22 @@ module.exports = {
         })
         .then(activities => res.json(activities));
     },
+    getPendingHistoricActions: function(req, res) {
+        Company.findById(req.params.id, {
+                include: [{
+                    model: CompanyState,
+                    as: 'currentCompanyState',
+                    include: [{
+                        model: Actions,
+                        as: 'pendingHistoricActions'
+                    }]
+                }]
+            })
+            .then(company => {
+                return company.currentCompanyState.pendingHistoricActions ?  company.currentCompanyState.pendingHistoricActions.toJSON() : []
+            })
+            .then(actions => res.json(actions))
+
+    },
 
 };
