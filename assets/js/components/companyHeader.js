@@ -13,9 +13,7 @@ import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { requestUserInfo } from '../actions';
 import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { push } from 'react-router-redux'
-
-
+import { push } from 'react-router-redux';
 
 
 export class CompanyHeader extends React.Component {
@@ -104,7 +102,7 @@ export class CompanyHeader extends React.Component {
     startTransaction(key) {
         const id = this.props.companyId;
         this.props.navigate(`/company/view/${id}/new_transaction`);
-        this.props.startTransaction(key, this.props.companyState, this.props.companyId)
+        this.props.startTransaction(key, this.props.companyState, this.props.companyId);
     }
 
 

@@ -21,7 +21,6 @@ import CompaniesRegister from './components/companiesRegister';
 import { NewTransaction } from './components/newTransaction';
 import ContactDetails from './components/contactDetails';
 import ReportingDetails from './components/reportingDetails';
-import ImportHistory from './components/importHistory';
 import Directors from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
 import RecentActivity from './components/recentActivity';
@@ -69,7 +68,6 @@ export default (store) => {
                 <Route path="reporting" component={ ReportingDetails } />
                 <Route path="source_data" component={ CompaniesRegister } />
                 <Route path="directors" component={ Directors } />
-                <Route path="import" component={ ImportHistory } />
                 <Route path="share_classes" component={ ShareClasses } >
                     <Route path="create" component={ ShareClassCreate } />
                     <Route path="view/:shareClassId" component={ ShareClassView } />

@@ -15,6 +15,7 @@ import { CompanyDetailsModal } from './transactions/updateCompanyInfo';
 import { NewHoldingModal } from './transactions/newHolding';
 import { UpdateHoldingModal } from './transactions/updateHolding';
 import { SelectHoldingModal } from './transactions/selectHolding';
+import { ImportHistoryModal } from './transactions/importHistory';
 import { NewPersonModal } from './transactions/newPerson';
 import { UpdatePersonModal  } from './transactions/updatePerson';
 import { SelectPersonModal  } from './transactions/selectPerson';
@@ -122,6 +123,9 @@ export class Modals extends React.Component {
 
             case 'updateDirector':
                 return <UpdateDirectorModal {...props} />
+
+            case 'importHistory':
+                return <ImportHistoryModal {...props} />
             default:
                 return false;
         }

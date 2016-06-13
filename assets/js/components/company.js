@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import {requestResource, changeCompanyTab, showModal, toggleWidget } from '../actions';
+import { requestResource, changeCompanyTab, showModal, toggleWidget } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -104,8 +104,10 @@ class ApplyShareClasses extends React.Component {
 @pureRender
 class PopulateHistory extends React.Component {
     render(){
-        return  <div><Link to={`/company/view/${this.props.companyId}/import`} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
-        Company activity for the last 10 years needs to be imported.  Click here to start.</Link></div>
+        return  <div><a  href="#" onClick={this.props.startHistoryImport} className="text-danger alert-entry">
+        <Glyphicon glyph="warning-sign" className="big-icon"/>
+        Historic company activity needs to be imported.  Click here to start.</a>
+        </div>
     }
 }
 
@@ -115,7 +117,14 @@ const AlertWarnings = {
 }
 
 
-@pureRender
+@connect(() => DEFAULT_OBJ, (dispatch, ownProps) => {
+    return {
+        startHistoryImport: () => {
+            dispatch(showModal('importHistory', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+            dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
+        }
+    }
+})
 class CompanyAlertsWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
@@ -140,7 +149,7 @@ class CompanyAlertsWidget extends React.Component {
             <div className="widget-body">
                 <ul>
                 { shareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId}/></li>}
-                { historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId}/></li>}
+                { historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId} startHistoryImport={this.props.startHistoryImport}/></li>}
                 </ul>
             </div>
         </div>
