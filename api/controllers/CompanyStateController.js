@@ -390,10 +390,19 @@ const selfManagedTransactions = {
                 // create previous
                 .then(() => company.createPrevious())
                 .then(state => {
-                    return state.getHistoricalActions();
+                    return state.getHistoricActions();
+                })
+                .then(function(actions){
+                    return Actions.create({actions: actions.actions.slice(1)});
+                })
+                .then(function(actions){
+                    state.set('pending_historic_action_id', actions.id);
+                    return state.save();
                 })
             })
-            .then(actions => TransactionService.performInverseAll(actions.actions.slice(1), company))
+            .then(() => {
+                return TransactionService.performInverseAll(company, state)
+            })
             .then(function(){
                 return {
                     message: `Share Classes applied for ${state.companyName}.`

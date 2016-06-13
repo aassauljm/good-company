@@ -161,7 +161,8 @@ describe('Company Controller', function() {
                 .then(function(res){
                     companyId = res.body.id;
                     done();
-                });
+                })
+                .catch(done);
         });
         it('Does gets previous version', function(done){
             req.get('/api/company/'+companyId+'/history/2')
@@ -170,7 +171,8 @@ describe('Company Controller', function() {
                     res.body.companyState.companyName.should.be.equal('TESTED ON CHILDREN LIMITED');
                     res.body.companyState.directorList.directors.length.should.be.equal(2);
                     done();
-                });
+                })
+                .catch(done);
         });
     });
     describe('Test import and share apply (AVELEY COMPANY LIMITED)', function(){
@@ -198,6 +200,7 @@ describe('Company Controller', function() {
                 .then(function(){
                     done();
                 })
+                .catch(done);
         });
         it('Gets current stats', function(done){
             req.get('/api/company/'+companyId+'/get_info')
@@ -214,7 +217,8 @@ describe('Company Controller', function() {
                         return acc;
                     }, {});
                     done();
-                });
+                })
+                .catch(done);
         });
 
         it('Applies history', function(done){
@@ -236,14 +240,16 @@ describe('Company Controller', function() {
                 .expect(200)
                 .then(function(res){
                     done();
-                });
+                })
+                .catch(done)
             });
         it('Gets previous version', function(done){
             req.get('/api/company/'+companyId+'/history/10')
                 .expect(200)
                 .then(function(res){
                     done();
-                });
+                })
+                .catch(done)
         });
 
         it('does a person update', function(done){

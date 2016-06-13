@@ -977,10 +977,6 @@ const ScrapingService = {
             });
     },
 
-    populateHistory: function(data, company){
-        return TransactionService.performInverseTransaction(data, company);
-    },
-
     canonicalizeNZCompaniesData: function(data){
         return data;
     },

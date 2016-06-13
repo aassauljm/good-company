@@ -39,5 +39,6 @@ module.exports = {
    },
    hookTimeout: 120000, // 120 seconds
    serverRender: true,
+
    CACHE_DIR: '/tmp/.gc'
 };

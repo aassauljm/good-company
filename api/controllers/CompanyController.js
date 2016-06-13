@@ -217,19 +217,16 @@ module.exports = {
                             return Actions.create({actions: processedDocs.filter(p=>p.actions)});
                         })
                         .then(function(actions){
-                            state.set('historical_action_id', actions.id);
+                            state.set('pending_historic_action_id', actions.id);
                             return state.save();
                         })
                     }
                 })
         })
-        .then(function(){
+        /*.then(function(){
             // outside transaction block, because loops with rolledback transactions
-            if(processedDocs){
-                sails.log.info('Applying inverse actions for ' + processedDocs.length + ' documents');
-                return TransactionService.performInverseAll(processedDocs, company, state);
-            }
-        })
+            return TransactionService.performInverseAll(company, state);
+        })*/
         .then(() => {
             return ActivityLog.create({
                 type: ActivityLog.types.IMPORT_COMPANY,
@@ -241,12 +238,6 @@ module.exports = {
         })
         .then(function() {
             return res.json(company);
-        })
-        .catch(sails.config.exceptions.CompanyImportException, function(err) {
-            (company ? company.destroy() : Promise.resolve())
-            .then(() => {
-                return res.badRequest(err);
-            });
         })
         .catch(sails.config.exceptions.NameExistsException, function(err) {
             (company ? company.destroy() : Promise.resolve())

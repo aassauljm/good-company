@@ -123,7 +123,7 @@ describe('Scraping Service', function() {
                 })
                 .then(function(){
                     amend = _.find(data, {documentId: '21472248'});
-                    return ScrapingService.populateHistory(amend, company);
+                    return TransactionService.performInverseTransaction({id: 1, ...amend}, company);
                 })
                 .then(function(){
                     return company.getRootCompanyState()
@@ -145,7 +145,7 @@ describe('Scraping Service', function() {
                 })
                 .then(function(){
                     issue = _.find(data, {documentId: '21471850'});
-                    return ScrapingService.populateHistory(issue, company);
+                    return TransactionService.performInverseTransaction({id: 2, ...issue}, company);
                 })
                 .then(function(){
                     return company.getRootCompanyState()
@@ -160,7 +160,7 @@ describe('Scraping Service', function() {
                 })
                 .then(function(){
                     return Promise.each(['21386429', '21000586', '21000301', '21000289'], function(documentId){
-                        return ScrapingService.populateHistory(_.find(data, {documentId: documentId}), company);
+                        return TransactionService.performInverseTransaction({id: 3, ...(_.find(data, {documentId: documentId}))}, company);
                     })
                 })
                 .then(function(){
@@ -218,7 +218,7 @@ describe('Scraping Service', function() {
                     documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data, documentSummaries));
                     var docs = ScrapingService.segmentActions(documentSummaries)
                     return Promise.each(docs, function(doc){
-                        return ScrapingService.populateHistory(doc, company);
+                        return TransactionService.performInverseTransaction({id: '2', ...doc}, company);
                     });
                 })
                 .then(function(){
@@ -292,8 +292,8 @@ describe('Scraping Service', function() {
                     return state.save();
                 })
                 .then(function(){
-                    return Promise.each(docs, function(doc){
-                        return ScrapingService.populateHistory(doc, company);
+                    return Promise.each(docs, function(doc, i){
+                        return TransactionService.performInverseTransaction({id: i, ...doc}, company);
                     });
                 })
                 .then(function(){

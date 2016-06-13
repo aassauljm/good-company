@@ -127,10 +127,17 @@ module.exports = {
             }
         });
         CompanyState.belongsTo(Actions, {
-            as: 'historicalActions',
+            as: 'historicActions',
             foreignKey: {
-                as: 'historicalActions',
-                name: 'historical_action_id'
+                as: 'historicActions',
+                name: 'historic_action_id'
+            }
+        });
+        CompanyState.belongsTo(Actions, {
+            as: 'pendingHistoricActions',
+            foreignKey: {
+                as: 'pendingHistoricActions',
+                name: 'pending_historic_action_id'
             }
         });
 

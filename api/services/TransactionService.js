@@ -3,6 +3,7 @@ const moment = require('moment');
 const Promise = require('bluebird');
 const cls = require('continuation-local-storage');
 const session = cls.getNamespace('session');
+const uuid = require('node-uuid')
 
 export function validateAnnualReturn(data, companyState){
     const state = companyState.toJSON();
@@ -879,9 +880,15 @@ export function addDocuments(state, documents){
         })
 }
 
+
+
 export function removeActions(state, actionSet){
     let currentActions = [];
-    return state.getHistoricalActions()
+    if(!actionSet.id){
+        throw new sails.config.exceptions.InvalidOperation('Action to be added to history has no id');
+    }
+
+    return state.getHistoricActions()
         .then(function(hA){
             if(!hA){
                 return Actions.build({})
@@ -890,18 +897,22 @@ export function removeActions(state, actionSet){
             return hA.buildNext();
         })
         .then(function(hA){
+            const length = (hA.dataValues.actions || []).length;
             hA.dataValues.actions = _.reject(currentActions, {id: actionSet.id});
+            //if(length === A.dataValues.actions.length){
+            //    throw new sails.config.exceptions.InvalidOperation('Action to be removed not found');
+            //}
             return hA.save()
         })
         .then(function(hA){
             state.set('historical_action_id', hA.id)
-            state.dataValues.historicalActions = hA;
+            state.dataValues.historicActions = hA;
             return state;
         })
 }
 
 export function addActions(state, actionSet){
-    return state.getHistoricalActions()
+    return state.getHistoricActions()
         .then(function(hA){
             if(!hA){
                 return Actions.build({actions: []})
@@ -914,7 +925,7 @@ export function addActions(state, actionSet){
         })
         .then(function(hA){
             state.set('historical_action_id', hA.id)
-            state.dataValues.historicalActions = hA;
+            state.dataValues.historicActions = hA;
             return state;
         })
 }
@@ -1009,12 +1020,13 @@ export function performInverseTransaction(data, company, rootState){
          })
 }
 
-export function performInverseAll(data, company, state){
+export function performInverseAll(company, state){
     // Loop though data
     // If an exception is found, rollback, and increment permutation for
     // ambigious options.  give up after completion of breadth first search
     // TODO, switch to depth first
     console.time('transactions');
+
     const options = {};
     function next(){
         state = null;
@@ -1031,15 +1043,15 @@ export function performInverseAll(data, company, state){
         });
     }
 
-    function loop(){
+    function loop(actions){
         // transaction is not bound to cls ns
         return sequelize.transaction(function(t){
             return new Promise((resolve, reject) => {
                 session.run(() => {
                     session.set('index', 0);
                     session.set('options', options);
-                    return Promise.each(data, function(doc){
-                        return TransactionService.performInverseTransaction(doc, company, state)
+                    return Promise.each(actions, function(actionSet){
+                        return TransactionService.performInverseTransaction(actionSet, company, state)
                             .then(_state => {
                                 state = _state;
                             });
@@ -1049,18 +1061,20 @@ export function performInverseAll(data, company, state){
                 });
             });
         })
-
         .catch(e => {
             if(!next()){
                 throw e;
             }
             else{
-                return loop();
+                return loop(actions);
             }
         });
     }
-
-    return loop()
+    return sequelize.transaction(function(t){
+            return Promise.resolve(state || company.getCurrentCompanyState())
+            .then(state => state.getPendingHistoricActions())
+        })
+        .then(historicActions => historicActions && loop(historicActions.actions))
         .then(function(){
             console.timeEnd('transactions');
         });
@@ -1101,6 +1115,10 @@ export function performTransaction(data, company, companyState){
                     }, _state);
         })
     }
+    if(!data.id){
+        data.id = uuid.v4();
+    }
+
     let nextState, current, transactions;
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
