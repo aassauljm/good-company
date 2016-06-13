@@ -252,6 +252,18 @@ module.exports = {
             });
         });
     },
+    importPendingHistory: function(req, res){
+        Company.findById(req.params.id)
+        .then(function(company){
+            return TransactionService.performInverseAllPending(company);
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
     create: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.create({
@@ -338,7 +350,6 @@ module.exports = {
                 return company.currentCompanyState.pendingHistoricActions ?  company.currentCompanyState.pendingHistoricActions.toJSON() : []
             })
             .then(actions => res.json(actions))
-
     },
 
 };

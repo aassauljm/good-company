@@ -223,4 +223,10 @@ module.exports.routes = {
         action: 'getPendingHistoricActions',
         model: 'company'
     },
+
+     'POST /api/company/:id/import_pending_history': {
+        controller: 'CompanyController',
+        action: 'importPendingHistory',
+        model: 'company'
+    },
 };

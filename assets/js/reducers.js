@@ -159,7 +159,8 @@ function modals(state = {createCompany: {index: 0}}, action){
         case END_MODAL:
             return {...state, showing: null, [action.modal]: null };
         case NEXT_MODAL:
-            return {...state,  [action.modal]: {index: state[action.modal].index + 1, data: action.data}};
+            const index = action.data && action.data.index !== undefined ? action.data.index : state[action.modal].index + 1;
+            return {...state,  [action.modal]: {index: index, data: {...state[action.modal].data, ...action.data}}};
         case PREVIOUS_MODAL:
             return {...state,  [action.modal]: {index: state[action.modal].index - 1}};
         default:

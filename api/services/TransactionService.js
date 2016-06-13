@@ -1082,6 +1082,37 @@ export function performInverseAll(company, state){
 
 }
 
+export function performInverseAllPending(company){
+    // unlike above this will commit all successful transactions, and complain when one fails
+    let state;
+    function perform(actions){
+        let remaining = actions;
+        return Promise.each(actions, (actionSet) => {
+            return sequelize.transaction(function(t){
+                remaining = _.without(remaining, actionSet);
+                return Actions.create({actions: remaining})
+                    .then(actions => {
+                        state.set('pending_historic_action_id', actions.id);
+                        return TransactionService.performInverseTransaction(actionSet, company, state)
+                    })
+                    .then(_state => {
+                        state = _state;
+                    })
+            })
+            .catch(e => {
+                sails.log.error('Failed import on action: ', JSON.stringify(actionSet))
+                throw sails.config.exceptions.InvalidInverseOperation();
+            })
+        });
+    }
+
+    return sequelize.transaction(function(t){
+        return company.getRootCompanyState()
+        })
+        .then(_state => state = _state)
+        .then(() => state.getPendingHistoricActions())
+        .then(historicActions => historicActions && perform(historicActions.actions))
+}
 
 export function performTransaction(data, company, companyState){
     const PERFORM_ACTION_MAP = {
