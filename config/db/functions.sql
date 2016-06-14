@@ -337,6 +337,7 @@ WHERE t.id = $1 and ttt.id != $1
 $$ LANGUAGE SQL;
 
 
+
 -- Bloated function to create the share register
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer, interval default '10 year')
 RETURNS SETOF JSON
@@ -350,7 +351,7 @@ WITH RECURSIVE _holding(id, "holdingId", "transactionId", name, "companyStateId"
 ),
 --- run back until root, ignore interval because a never modified holding might not be included
 prev_company_states(id, "previousCompanyStateId",  generation) as (
-    SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t
+    SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", generation + 1
     FROM company_state t, prev_company_states tt
@@ -360,7 +361,7 @@ prev_company_states(id, "previousCompanyStateId",  generation) as (
 prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
     SELECT h.id as "startId", cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
     FROM company_state as cs
-    left outer JOIN _holding h on h."companyStateId" = cs.id where cs.id = $1
+    left outer JOIN _holding h on h."companyStateId" = cs.id
     UNION ALL
     SELECT "startId", cs.id, cs."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
     FROM company_state cs, prev_holdings tt
@@ -369,7 +370,7 @@ prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transaction
  ),
 -- get the transactions for above
  prev_holding_transactions as (
-    SELECT t.*,"startId"
+    SELECT t.*, "startId"
     FROM transaction t
     JOIN (SELECT DISTINCT  "startId", "transactionId" from prev_holdings)  q
     ON t.id = q."transactionId"
