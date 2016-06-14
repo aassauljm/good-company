@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, updateMenu } from '../actions';
-import { pureRender, numberWithCommas, stringToDate, generateShareClassMap, renderShareClass } from '../utils';
+import { pureRender, numberWithCommas, stringToDate, generateShareClassMap, renderShareClass, joinAnd } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
@@ -9,7 +9,26 @@ import { renderRights, renderLimitations } from './shareClasses';
 import Input from './forms/input';
 import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
+import TransactionTypes from '../../../config/enums/transactions';
 
+function transferHolders(filter, siblings){
+    if(!siblings){
+        return 'UNKNOWN';
+    }
+    else{
+        return joinAnd(siblings.filter(s => s.type === filter).map(s => {
+            return joinAnd((s.data.afterHolders || s.data.holders).map(h => h.name))
+        }))
+    }
+}
+
+function transferSenders(siblings){
+    return transferHolders(TransactionTypes.TRANSFER_FROM, siblings);
+}
+
+function transferRecipients(siblings){
+    return transferHolders(TransactionTypes.TRANSFER_TO, siblings);
+}
 
 // all the same
 function renderChange(action){
@@ -32,11 +51,11 @@ function renderChangeFull(action){
 }
 
 function renderTransferToFull(action){
-    return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} from TODO`
+    return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} from ${transferSenders(action.siblings)}`
 }
 
 function renderTransferFromFull(action){
-    return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} to TODO`
+    return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass)} to ${transferRecipients(action.siblings)}`
 }
 
 function renderAmbigiousChangeFull(action){
@@ -50,7 +69,7 @@ function renderAmbigiousChangeFull(action){
 
 function renderAction(action) {
     switch(action.type){
-        case 'ISSUE_TO':
+        case TransactionTypes.ISSUE_TO:
         case 'SUBVISION_TO':
         case 'CONVERSION_TO':
             return renderChange(action);

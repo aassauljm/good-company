@@ -278,13 +278,18 @@ export function joinAnd(items=[], options={}){
     if(!items.length){
         return "UNKNOWN"
     }
-    else if(items.length === 1){
-        return (items[0] || {})[options.prop]
+    if(options.prop){
+        if(items.length === 1){
+            return (items[0] || {})[options.prop]
+        }
+        items = items.map(i => (i||{})[options.prop]);
     }
     else{
-        items = items.map(i => (i||{})[options.prop]);
-        return `${items.slice(0, items.length-1).join(', ')} and ${items[items.length-1]}`;
+        if(items.length === 1){
+            return items[0];
+        }
     }
+    return `${items.slice(0, items.length-1).join(', ')} and ${items[items.length-1]}`;
 }
 
 export function newHoldingString(newHolding){
