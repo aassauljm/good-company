@@ -133,7 +133,7 @@ module.exports = {
                 name: 'historic_action_id'
             }
         });
-        CompanyState.belongsTo(Actions, {
+        CompanyState.belongsTo(PendingAction, {
             as: 'pendingHistoricActions',
             foreignKey: {
                 as: 'pendingHistoricActions',
@@ -438,9 +438,15 @@ module.exports = {
                                             replacements: { id: this.id}});
             },
             getWarnings: function(){
-                return {
-                    pendingHistory: !!this.dataValues.pending_historic_action_id
-                }
+                return sequelize.query('select has_pending_historic_actions(:id)',
+                                       { type: sequelize.QueryTypes.SELECT,
+                                            replacements: { id: this.id}})
+                    .then(result => {
+                        return {
+                            pendingHistory: result[0].has_pending_historic_actions
+                        }
+                    })
+
             },
             groupShares: function() {
                 return this.getHoldingList({include: [{

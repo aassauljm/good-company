@@ -130,6 +130,12 @@ module.exports = {
                         return root.createPrevious();
                     });
 
+            },
+
+            getPendingActions: function(){
+                return sequelize.query("select * from all_pending_actions(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId}});
             }
 
         },

@@ -210,14 +210,14 @@ module.exports = {
                             return company.createPrevious();
                         })
                         .then(function(){
-                            return company.getCurrentCompanyState();
+                            return company.getRootCompanyState();
                         })
                         .then(function(_state){
                             state = _state;
-                            return Actions.create({actions: processedDocs.filter(p=>p.actions)});
+                            return PendingAction.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
                         })
-                        .then(function(actions){
-                            state.set('pending_historic_action_id', actions.id);
+                        .then(function(pendingAction){
+                            state.set('pending_historic_action_id', pendingAction[0].id);
                             return state.save();
                         })
                     }
@@ -336,20 +336,13 @@ module.exports = {
         .then(activities => res.json(activities));
     },
     getPendingHistoricActions: function(req, res) {
-        Company.findById(req.params.id, {
-                include: [{
-                    model: CompanyState,
-                    as: 'currentCompanyState',
-                    include: [{
-                        model: Actions,
-                        as: 'pendingHistoricActions'
-                    }]
-                }]
-            })
-            .then(company => {
-                return company.currentCompanyState.pendingHistoricActions ?  company.currentCompanyState.pendingHistoricActions.toJSON() : []
-            })
-            .then(actions => res.json(actions))
+        Company.findById(req.params.id)
+        .then(company => company.getPendingActions())
+       .then(function(matchingRecords) {
+            res.ok(matchingRecords);
+        }).catch(function(err) {
+            return res.notFound(err);
+        })
     },
 
 };

@@ -429,7 +429,7 @@ export function performInverseRemoveAllocation(data, companyState, previousState
     .then(function(holdingList){
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
-        return CompanyState.populatePersonIds(data.holders)
+        return CompanyState.populatePersonIds(data.holders);
     })
     .then(function(personData){
             const holding = Holding.buildDeep({holders: personData,
@@ -1084,34 +1084,37 @@ export function performInverseAll(company, state){
 
 export function performInverseAllPending(company){
     // unlike above this will commit all successful transactions, and complain when one fails
-    let state;
+    let state, current;
     function perform(actions){
-        let remaining = actions;
-        return Promise.each(actions, (actionSet) => {
+        return Promise.each(actions, (actionSet, i) => {
             return sequelize.transaction(function(t){
-                remaining = _.without(remaining, actionSet);
-                return Actions.create({actions: remaining})
-                    .then(actions => {
-                        state.set('pending_historic_action_id', actions.id);
-                        return TransactionService.performInverseTransaction(actionSet, company, state)
-                    })
-                    .then(_state => {
-                        state = _state;
-                    })
+                state.set('pending_historic_action_id', null);
+                current = actionSet;
+                return TransactionService.performInverseTransaction(actionSet.data, company, state)
+                })
+                .then(_state => {
+                    state = _state;
+                    state.set('pending_historic_action_id', (actions[i+1] || {}).id || null);
+                    return state.save(['pending_historic_action_id'])
+                })
             })
             .catch(e => {
-                sails.log.error('Failed import on action: ', JSON.stringify(actionSet))
+                sails.log.error(e)
+                sails.log.error('Failed import on action: ', JSON.stringify(current))
                 throw sails.config.exceptions.InvalidInverseOperation();
             })
-        });
     }
 
     return sequelize.transaction(function(t){
-        return company.getRootCompanyState()
+            return company.getRootCompanyState()
+                .then(_state => {
+                    state = _state;
+                    return company.getPendingActions()
+                })
         })
-        .then(_state => state = _state)
-        .then(() => state.getPendingHistoricActions())
-        .then(historicActions => historicActions && perform(historicActions.actions))
+        .then(historicActions => {
+            return historicActions.length && perform(historicActions)
+        });
 }
 
 export function performTransaction(data, company, companyState){

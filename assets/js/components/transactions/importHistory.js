@@ -23,7 +23,7 @@ PAGES[INTRODUCTION] = function() {
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
         if(this.props.pendingHistory._status === 'complete'){
-            return <div><p>There are total of { this.props.pendingHistory.data.actions.length } historic documents from the Companies Office to import.</p>
+            return <div><p>There are total of { this.props.pendingHistory.data.length } historic documents from the Companies Office to import.</p>
             <p>Good Company can usually understand the transactions in these documents, but may need your input to resolve any ambiguities.  </p>
             <p>If you are unable to provide the requested details, don't worry - you can come back at any point and continue where you left off. </p>
             </div>
@@ -31,11 +31,12 @@ PAGES[INTRODUCTION] = function() {
     };
 
 PAGES[LOADING] = function() {
+    console.log(this.props)
         if(this.props.importHistory._status === 'fetching'){
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
-        if(this.props.pendingHistory._status === 'complete'){
-
+        if(this.props.importHistory._status === 'complete' && !this.props.modalData.companyState.warnings.pendingHistory){
+           <div><p>All Companies Office documents have successfully been imported.</p></div>
         }
     };
 
@@ -47,7 +48,7 @@ PAGES[LOADING] = function() {
 }, (dispatch, ownProps) => {
     return {
         requestData: () => dispatch(requestResource(`/company/${ownProps.modalData.companyId}/pending_history`)),
-        importHistory: () => dispatch(createResource(`/company/${ownProps.modalData.companyId}/import_pending_history`))
+        performImport: () => dispatch(createResource(`/company/${ownProps.modalData.companyId}/import_pending_history`))
     }
 })
 export class ImportHistoryModal extends React.Component {
@@ -75,7 +76,7 @@ export class ImportHistoryModal extends React.Component {
 
     handleNext() {
         if(this.props.index === INTRODUCTION){
-            this.props.importHistory();
+            this.props.performImport();
             this.props.next({index: LOADING});
         }
     }

@@ -793,6 +793,7 @@ function inferAmendTypes(docs){
             // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
             if(d.totalShares === 0){
                 // totalShares = zero SHOULD mean transfers.  Hopefully.
+                // TODO, is there one DOWN or UP?  then pair off transcations
                 d.actions.map(a => {
                     a.transactionMethod = a.transactionType;
                     if(a.transactionType === Transaction.types.NEW_ALLOCATION){

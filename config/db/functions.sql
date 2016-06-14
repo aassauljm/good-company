@@ -181,6 +181,32 @@ WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId"
 $$ LANGUAGE SQL;
 
 
+-- A list of pendingActions for a company state
+CREATE OR REPLACE FUNCTION all_pending_actions(companyStateId integer)
+    RETURNS SETOF pending_actions
+    AS $$
+WITH RECURSIVE prev_actions(start_id, id, "previous_id") as (
+    SELECT t.id as start_id, t.id, t."previous_id" FROM pending_actions t
+    UNION ALL
+    SELECT pa.start_id, t.id, t."previous_id"
+    FROM pending_actions t, prev_actions pa
+    WHERE t.id = pa."previous_id"
+)
+    SELECT p.* from prev_actions pa
+    join pending_actions p on p.id = pa.id
+    join company_state cs on cs.pending_historic_action_id = pa.start_id
+    where cs.id = root_company_state($1)
+$$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)
+    RETURNS BOOLEAN
+    AS $$
+    SELECT EXISTS (SELECT pending_historic_action_id from company_state cs
+                   where cs.id  = root_company_state($1) and pending_historic_action_id is not null);
+$$ LANGUAGE SQL;
+
 -- A brief(er) summary of transactions, part of standard companyState info
 CREATE OR REPLACE FUNCTION transaction_summary(companyStateId integer)
     RETURNS JSON
@@ -291,6 +317,25 @@ CREATE OR REPLACE FUNCTION holding_history_json(integer, text[])
 $$ LANGUAGE SQL STABLE;
 
 
+CREATE OR REPLACE FUNCTION transaction_siblings(integer)
+    RETURNS SETOF transaction
+    AS $$
+    SELECT ttt.* FROM transaction t
+    LEFT OUTER JOIN transaction tt on tt.id = t."parentTransactionId"
+    LEFT OUTER JOIN transaction ttt on tt.id = ttt."parentTransactionId"
+    WHERE t.id = $1 and ttt.id != $1
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION transaction_siblings(integer)
+RETURNS SETOF transaction
+AS $$
+SELECT ttt.* FROM transaction t
+LEFT OUTER JOIN transaction tt on tt.id = t."parentTransactionId"
+LEFT OUTER JOIN transaction ttt on tt.id = ttt."parentTransactionId"
+WHERE t.id = $1 and ttt.id != $1
+$$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer, interval default '10 year')
 RETURNS SETOF JSON
@@ -301,13 +346,15 @@ WITH RECURSIVE
         from holding h
         join h_list_j hlj on h.id = hlj.h_j_id
         join company_state cs on cs.h_list_id = hlj.holdings_id
-), prev_company_states(id, "previousCompanyStateId",  generation) as (
+),
+prev_company_states(id, "previousCompanyStateId",  generation) as (
     SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
     UNION ALL
     SELECT t.id, t."previousCompanyStateId", generation + 1
     FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
-), prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
+),
+prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
     SELECT h.id as "startId", t.id, t."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
     FROM company_state as t
     left outer JOIN _holding h on h."companyStateId" = t.id
@@ -316,12 +363,15 @@ WITH RECURSIVE
     FROM company_state t, prev_holdings tt
     left outer JOIN _holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
     WHERE t.id = tt."previousCompanyStateId"
- ), prev_holding_transactions as (
-    SELECT * FROM (SELECT DISTINCT t.id, "startId"
-    FROM transaction t join prev_holdings pt on t.id = pt."transactionId") t
-    JOIN transaction tt on tt.id = t.id
-    WHERE tt."effectiveDate" >= now() - interval '10 year'
-    ), parcels as (
+ ),
+ prev_holding_transactions as (
+    SELECT tt.*, "startId" FROM (SELECT DISTINCT t.id, "startId"
+    FROM transaction t
+    JOIN prev_holdings pt on t.id = pt."transactionId") q
+    JOIN transaction tt on tt.id = q.id
+    WHERE tt."effectiveDate" >= now() - $2
+    ),
+parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
     FROM "parcelJ" pj
     LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
@@ -332,27 +382,27 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 FROM (
 SELECT *,
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate", row_to_json(transaction_siblings(pht.id)) as silbings   from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
         as "issueHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate", row_to_json(transaction_siblings(pht.id)) from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]))  qq)
          as "repurchaseHistory",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate", row_to_json(transaction_siblings(pht.id)) as silbings  from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]))  qq)
         as "transferHistoryTo",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate", row_to_json(transaction_siblings(pht.id)) as silbings  from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]))  qq)
         as "transferHistoryFrom",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate", row_to_json(transaction_siblings(pht.id)) as silbings  from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['AMEND']::enum_transaction_type[]))  qq)
         as "ambiguousChanges",
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate" from prev_holding_transactions pht
+     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate", row_to_json(transaction_siblings(pht.id)) as silbings  from prev_holding_transactions pht
         where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
         as "sum"
 FROM
