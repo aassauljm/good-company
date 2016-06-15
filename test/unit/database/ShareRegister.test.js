@@ -78,6 +78,32 @@ describe('Share Register', function() {
                         }]
                     }],
                     effectiveDate: new Date()
+                },
+                {
+                    actions:[{
+                        transactionMethod: Transaction.types.AMEND,
+                        transactionType: Transaction.types.TRANSFER_FROM,
+                        amount: 1,
+                        shareClass: 2,
+                        beforeAmount: 2,
+                        afterAmount: 1,
+                        holders: [{
+                            name: 'mike'
+                        },{
+                            name: 'john'
+                        }]
+                    },{
+                        transactionMethod: Transaction.types.AMEND,
+                        transactionType: Transaction.types.TRANSFER_TO,
+                        amount: 1,
+                        shareClass: 2,
+                        beforeAmount: 0,
+                        afterAmount: 1,
+                        holders: [{
+                            name: 'mike'
+                        }]
+                    }],
+                    effectiveDate: new Date()
                 }
 
             ];
@@ -105,6 +131,7 @@ describe('Share Register', function() {
                 .then(function(sr){
                     console.log(JSON.stringify(sr))
                     const mikeA = _.find(sr.shareRegister, {name: 'mike', shareClass: 1});
+                    const mikeB = _.find(sr.shareRegister, {name: 'mike', shareClass: 2});
                     const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 1});
                     const johnB = _.find(sr.shareRegister, {name: 'john', shareClass: 2});
                     mikeA.issueHistory.length.should.be.equal(1);
@@ -112,7 +139,10 @@ describe('Share Register', function() {
                     mikeA.transferHistoryFrom.length.should.be.equal(1);
                     mikeA.transferHistoryTo.length.should.be.equal(1);
 
+                    should.equal(null, mikeB.issueHistory);
+                    mikeB.transferHistoryFrom.length.should.be.equal(1)
                     johnA.transferHistoryTo.length.should.be.equal(1);
+                    mikeB.transferHistoryTo.length.should.be.equal(1);
                     should.equal(null, johnA.issueHistory);
                     johnA.amount.should.be.equal(1)
                 })

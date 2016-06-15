@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, createResource, showModal } from '../../actions';
+import { requestResource, createResource, showModal, addNotification } from '../../actions';
 import { pureRender, stringToDate } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -48,7 +48,11 @@ PAGES[LOADING] = function() {
 }, (dispatch, ownProps) => {
     return {
         requestData: () => dispatch(requestResource(`/company/${ownProps.modalData.companyId}/pending_history`)),
-        performImport: () => dispatch(createResource(`/company/${ownProps.modalData.companyId}/import_pending_history`))
+        performImport: () => dispatch(createResource(`/company/${ownProps.modalData.companyId}/import_pending_history`,
+                                                     {
+                                                        invalidates: [`/company/${ownProps.modalData.companyId}`]
+                                                     })),
+        addNotification: (args) => dispatch(addNotification(args))
     }
 })
 export class ImportHistoryModal extends React.Component {
@@ -76,8 +80,11 @@ export class ImportHistoryModal extends React.Component {
 
     handleNext() {
         if(this.props.index === INTRODUCTION){
-            this.props.performImport();
             this.props.next({index: LOADING});
+            this.props.performImport()
+                .catch(e => {
+                    this.props.addNotification()
+                })
         }
     }
 
