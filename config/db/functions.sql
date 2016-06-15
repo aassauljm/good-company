@@ -357,21 +357,22 @@ prev_company_states(id, "previousCompanyStateId",  generation) as (
     WHERE t.id = tt."previousCompanyStateId"
 ),
 -- previous holdings for every company_state, with the newestHoldingId  (the current id for each holding)
-prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
-    SELECT h.id as "startId", cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
+prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId", "transactionId", "hId", generation) as (
+    SELECT h.id as "startId", cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId", 0
     FROM company_state as cs
     left outer JOIN _holding h on h."companyStateId" = cs.id
     UNION ALL
-    SELECT "startId", cs.id, cs."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId"
+    SELECT "startId", cs.id, cs."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId", generation + 1
     FROM company_state cs, prev_holdings tt
     left outer JOIN _holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
     WHERE cs.id = tt."previousCompanyStateId"
  ),
 person_holdings as (
-    SELECT DISTINCT ph."hId", p."personId", ph."transactionId", "startId"
+    SELECT ph."hId", p."personId", ph."transactionId", "startId", min(generation) as generation
     FROM prev_holdings ph
     LEFT OUTER JOIN "holderJ" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
+    GROUP BY ph."hId", p."personId", ph."transactionId", "startId"
 ),
 -- get parcels for a given holdingId
 parcels as (
@@ -386,9 +387,11 @@ FROM (
 
 WITH transaction_history as (
     SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as shareClass,
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(t.id)) qq) as siblings, "startId"
+    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(t.id)) qq) as siblings, "startId",
+    generation
     FROM person_holdings ph
     INNER JOIN transaction t on t.id = ph."transactionId"
+    ORDER BY generation
 )
 
 SELECT *,
@@ -443,7 +446,7 @@ FROM
     first_value(h."companyStateId") OVER wnd = $1 as current,
     first_value(p.address) OVER wnd as address,
     CASE WHEN first_value(h."companyStateId") OVER wnd = $1 THEN first_value(pp.amount) OVER wnd ELSE 0 END as amount,
-    first_value(h."companyStateId") OVER wnd = $1 THEN first_value(pp.amount) OVER wnd as last_amount,
+    first_value(pp.amount) OVER wnd as last_amount,
     pp."shareClass" as  "shareClass",
     first_value(h."holdingId") OVER wnd as "holdingId",
     first_value(h."name") OVER wnd as "holdingName",

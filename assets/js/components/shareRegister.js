@@ -155,8 +155,7 @@ function transactionRows(row){
     if(!results.length){
         return <tr><td colSpan="2"><em>No transaction history</em></td></tr>
     }
-    // NO!!!!
-    results.sort((a, b) => new Date(a.effectiveDate) < new Date(b.effectiveDate));
+    results.sort((a, b) => a.generation - b.generation);
     let total = row.last_amount;
     return results.map((r, i) =>{
         const _total = total
