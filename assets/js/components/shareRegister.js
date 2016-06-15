@@ -9,7 +9,7 @@ import { renderRights, renderLimitations } from './shareClasses';
 import Input from './forms/input';
 import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
-import TransactionTypes from '../../../config/enums/transactions';
+import { enums as TransactionTypes } from '../../../config/enums/transactions';
 
 function transferHolders(filter, siblings){
     if(!siblings){
@@ -153,10 +153,11 @@ function transactionRows(row){
         results = results.concat(row[k] || []);
     })
     if(!results.length){
-        return <tr><td colSpan="3"><em>No transaction history</em></td></tr>
+        return <tr><td colSpan="2"><em>No transaction history</em></td></tr>
     }
+    // NO!!!!
     results.sort((a, b) => new Date(a.effectiveDate) < new Date(b.effectiveDate));
-    let total = row.amount;
+    let total = row.last_amount;
     return results.map((r, i) =>{
         const _total = total
         //if(increaseTypes.indexOf(r.type) >= 0){
@@ -169,7 +170,7 @@ function transactionRows(row){
         return <tr key={i}>
             <td className="date">{ stringToDate(r.effectiveDate) }</td>
             <td className="description">{ renderActionFull(r) } </td>
-            <td className="total">{ numberWithCommas(_total) }</td>
+            {/* <td className="total">{ numberWithCommas(_total) }</td> */ }
             </tr>
     });
 }
@@ -181,7 +182,7 @@ export class ShareRegisterTable extends React.Component {
         shareClassMap: PropTypes.object.isRequired
     };
 
-    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sum', 'votingRights', 'limitations', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
+    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sumIncreases', 'votingRights', 'limitations', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
     wideFields = {'name': 1, 'address': 1, 'votingRights': 1, 'limitations': 1, 'issueHistory': 1, 'repurchaseHistory': 1, 'transferHistoryFrom': 1, 'transferHistoryTo': 1};
 
     render() {

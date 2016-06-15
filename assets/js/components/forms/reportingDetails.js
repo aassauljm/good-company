@@ -4,7 +4,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { formFieldProps, requireFields } from '../../utils';
 import Input from './input';
 import { reduxForm } from 'redux-form';
-import TransactionTypes from '../../../../config/enums/transactions';
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import STRINGS from '../../strings'
 
 export const standardFieldsDescriptions = {

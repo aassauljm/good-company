@@ -4,7 +4,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { formFieldProps, requireFields } from '../../utils';
 import Input from './input';
 import { reduxForm } from 'redux-form';
-import TransactionTypes from '../../../../config/enums/transactions';
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 
 export const standardFields = ['registeredCompanyAddress', 'addressForService'];
 export const defaultCustomFields = ['Address for Inspection of Records', 'Head Office', 'Branch Offices', 'Website URL', 'Email', 'Phone', 'Fax', 'Lawyers', 'Accountants', 'Bank'];

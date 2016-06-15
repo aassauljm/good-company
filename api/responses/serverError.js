@@ -23,7 +23,7 @@ module.exports = function serverError (data, options) {
   // Set status code
   res.status(500);
   sails.log.verbose('Sending 500 ("Server Error") response: \n', data);
-  data = _.pick(data, 'message');
+  data = _.pick(data, 'message', 'context');
   // Log error to console
   if (data !== undefined) {
     sails.log.error('Sending 500 ("Server Error") response: \n', data.message ? data.message : data);

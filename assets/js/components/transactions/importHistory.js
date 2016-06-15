@@ -10,6 +10,13 @@ import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux'
 import Modal from '../forms/modal';
+import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
+
+
+function companiesOfficeDocumentUrl(companyState, documentId){
+    const companyNumber = companyState.companyNumber;
+    return `http://www.business.govt.nz/companies/app/ui/pages/companies/${companyNumber}/${documentId}/entityFilingRequirement`;
+}
 
 const INTRODUCTION = 0;
 const LOADING = 1;
@@ -35,8 +42,20 @@ PAGES[LOADING] = function() {
         if(this.props.importHistory._status === 'fetching'){
             return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
-        if(this.props.importHistory._status === 'complete' && !this.props.modalData.companyState.warnings.pendingHistory){
-           <div><p>All Companies Office documents have successfully been imported.</p></div>
+        else if(this.props.importHistory._status === 'complete' && !this.props.modalData.companyState.warnings.pendingHistory){
+           return <div><p>All Companies Office documents have successfully been imported.</p></div>
+        }
+        else if(this.props.importHistory._status === 'error'){
+            const companyName = this.props.modalData.companyState.companyName;
+            const context = this.props.importHistory.error.context || {};
+
+            const documentId =  context.actionSet && context.actionSet.data.documentId;
+            const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.modalData.companyState, documentId);
+           return <div>
+            <p className="text-danger">Could not import from { companyName }.</p>
+            <p className="text-danger">Reason: {this.props.importHistory.error.message}</p>
+            { documentId && <p>Source: <Link target="_blank" to={documentUrl}>Companies Office document {documentId}</Link></p> }
+            </div>
         }
     };
 
@@ -83,7 +102,8 @@ export class ImportHistoryModal extends React.Component {
             this.props.next({index: LOADING});
             this.props.performImport()
                 .catch(e => {
-                    this.props.addNotification()
+                    const companyName = this.props.modalData.companyState.companyName;
+                    this.props.addNotification({error: true, message: `An issue found while trying to import history for ${companyName}`})
                 })
         }
     }

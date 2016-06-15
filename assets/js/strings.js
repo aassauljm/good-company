@@ -32,7 +32,7 @@ export default {
         limitations: 'Restrictions / Limitations',
         votingRights: 'Voting Rights',
         amount: 'Current No. of Shares Held',
-        sum: 'Sum of all No. Increases',
+        sumIncreases: 'Sum of all No. Increases',
         issueHistory: 'Date and No. of Shares Issued by Company',
         repurchaseHistory: 'Date and No. of Repurchase or Redemption',
         transferHistoryTo: 'Date of transfer of Shares to the Shareholder',

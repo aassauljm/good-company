@@ -236,7 +236,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-    const normalizedData = _.cloneDeep(data);
+    const normalizedData = _.cloneDeep(data)
+    let current;
     return companyState.dataValues.holdingList.buildNext()
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
@@ -251,18 +252,23 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             })), Promise.all(normalizedData.beforeHolders.map(h => {
                 AddressService.normalizeAddress(h.address)
                     .then(address => h.address = address)
-
             }))])
         })
         .then(() => {
-            let current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders});
+            current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders});
+            if(!current.length){
+                current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders}, {ignoreCompanyNumber: true});
+            }
             if(!current.length){
                 // DUBIOUS HACK, see http://www.business.govt.nz/companies/app/ui/pages/companies/2484830/15270869/entityFilingRequirement
                 // Update shareholder has already updated the holding
                 current = companyState.getMatchingHoldings({holders: normalizedData.beforeHolders});
             }
             if(!current.length){
-                 throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
+                console.log(sails.config)
+                 throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
+                    action: data,
+                    importErrorType: sails.config.enums.HOLDING_NOT_FOUND})
             }
             else if(current.length > 1 && session.active){
                 // ambiguity resolving strategy
@@ -283,7 +289,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             if(data.beforeName){
                 current.dataValues.name =  data.beforeName;
             }
-            const previousHolding = previousState.getMatchingHolding({holders: normalizedData.afterHolders});
+            const previousHolding = previousState.getMatchingHolding(current);
             previousHolding.setTransaction(transaction);
             return previousHolding.save();
         })
@@ -1100,8 +1106,10 @@ export function performInverseAllPending(company){
             })
             .catch(e => {
                 sails.log.error(e)
-                sails.log.error('Failed import on action: ', JSON.stringify(current))
-                throw sails.config.exceptions.InvalidInverseOperation();
+                sails.log.error('Failed import on action: ', JSON.stringify(current));
+                e.context = e.context || {};
+                e.context.actionSet = current;
+                throw e;
             })
     }
 

@@ -5,7 +5,7 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 
-var types = require('../../config/enums/transactions');
+var types = require('../../config/enums/transactions').enums;
 
 module.exports = {
     _config: {

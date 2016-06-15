@@ -126,6 +126,22 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+    root: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                return company.getRootCompanyState()
+            })
+            .then(function(companyState) {
+                this.companyState = companyState;
+                return companyState.stats();
+            })
+            .then(function(stats) {
+                var json = this.companyState.get();
+                res.json({companyState: _.merge(json, stats)});
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
     transactionHistory: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {

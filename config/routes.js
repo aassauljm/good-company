@@ -142,6 +142,11 @@ module.exports.routes = {
         action: 'history',
         modelIdentity: 'company'
     },
+    'GET /api/company/:id/root': {
+        controller: 'CompanyController',
+        action: 'root',
+        modelIdentity: 'company'
+    },
     'GET /api/company/:id/transactions': {
         controller: 'CompanyController',
         action: 'transactionHistory',

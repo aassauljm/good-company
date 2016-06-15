@@ -8,7 +8,7 @@ const types = {
     IMPORT_COMPANY: 'IMPORT_COMPANY',
     SET_PASSWORD: 'SET_PASSWORD',
     CREATE_ACCOUNT: 'CREATE_ACCOUNT',
-    ...require('../../config/enums/transactions')
+    ...require('../../config/enums/transactions').enums
 };
 
 module.exports = {

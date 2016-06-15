@@ -337,7 +337,6 @@ WHERE t.id = $1 and ttt.id != $1
 $$ LANGUAGE SQL;
 
 
-
 -- Bloated function to create the share register
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer, interval default '10 year')
 RETURNS SETOF JSON
@@ -369,7 +368,7 @@ prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId"
     WHERE cs.id = tt."previousCompanyStateId"
  ),
 person_holdings as (
-    SELECT DISTINCT ph."hId", p."personId", ph."transactionId"
+    SELECT DISTINCT ph."hId", p."personId", ph."transactionId", "startId"
     FROM prev_holdings ph
     LEFT OUTER JOIN "holderJ" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
@@ -387,7 +386,7 @@ FROM (
 
 WITH transaction_history as (
     SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as shareClass,
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(t.id)) qq) as siblings
+    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(t.id)) qq) as siblings, "startId"
     FROM person_holdings ph
     INNER JOIN transaction t on t.id = ph."transactionId"
 )
@@ -395,37 +394,43 @@ WITH transaction_history as (
 SELECT *,
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
     AS "issueHistory",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]) )
     AS "repurchaseHistory",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]) )
     AS "transferHistoryTo",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]) )
     AS "transferHistoryFrom",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['AMEND']::enum_transaction_type[]) )
     AS "ambiguousChanges",
 
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId"
+    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
     AS "sumIncreases"
 
@@ -438,6 +443,7 @@ FROM
     first_value(h."companyStateId") OVER wnd = $1 as current,
     first_value(p.address) OVER wnd as address,
     CASE WHEN first_value(h."companyStateId") OVER wnd = $1 THEN first_value(pp.amount) OVER wnd ELSE 0 END as amount,
+    first_value(h."companyStateId") OVER wnd = $1 THEN first_value(pp.amount) OVER wnd as last_amount,
     pp."shareClass" as  "shareClass",
     first_value(h."holdingId") OVER wnd as "holdingId",
     first_value(h."name") OVER wnd as "holdingName",
@@ -458,10 +464,6 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
-
-
-
-
 
 
 

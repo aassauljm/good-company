@@ -1,4 +1,4 @@
-module.exports  = {
+module.exports  = { enums: {
     SEED: 'SEED',
     INCORPORATION: 'INCORPORATION',
     ISSUE: 'ISSUE',
@@ -54,4 +54,4 @@ module.exports  = {
     INFERRED_HOLDER_CHANGE: 'INFERRED_HOLDER_CHANGE',
     INFERRED_NEW_DIRECTOR: 'INFERRED_NEW_DIRECTOR',
     INFERRED_REMOVE_DIRECTOR: 'INFERRED_REMOVE_DIRECTOR'
-};
+}};
