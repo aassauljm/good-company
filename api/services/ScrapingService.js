@@ -269,15 +269,16 @@ const EXTRACT_DOCUMENT_MAP = {
             });
             return acc;
         }, {});
-        result.actions.map(function(a){
-            if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
-               a.transactionType === Transaction.types.REMOVE_ALLOCATION){
-                _.each(a.holders, function(holder){
-                    if(idMap[holder.name]){
-                        holder.companyNumber = idMap[holder.name];
-                    }
-                });
+        function addCompanyNumber(holder){
+            if(idMap[holder.name]){
+                holder.companyNumber = idMap[holder.name];
             }
+        }
+        result.actions.map(function(a){
+
+            _.each(a.holders, addCompanyNumber);
+            _.each(a.afterHolders, addCompanyNumber);
+            _.each(a.beforeHolders, addCompanyNumber);
         });
         return result;
     },

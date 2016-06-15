@@ -53,6 +53,7 @@ module.exports = {
         });
     },
     options: {
+        indexes: [{name: 'person_person_id', fields: ['personId']}],
         freezeTableName: false,
         tableName: 'person',
         classMethods: {

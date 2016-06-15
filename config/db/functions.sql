@@ -358,7 +358,7 @@ prev_company_states(id, "previousCompanyStateId",  generation) as (
     WHERE t.id = tt."previousCompanyStateId"
 ),
 -- previous holdings for every company_state, with the newestHoldingId  (the current id for each holding)
-prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
+prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId", "transactionId", "hId") as (
     SELECT h.id as "startId", cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId"
     FROM company_state as cs
     left outer JOIN _holding h on h."companyStateId" = cs.id
@@ -368,15 +368,12 @@ prev_holdings("startId", id, "previousCompanyStateId", "holdingId", "transaction
     left outer JOIN _holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
     WHERE cs.id = tt."previousCompanyStateId"
  ),
--- get the transactions for above
- prev_holding_transactions as (
-    SELECT t.*, "startId"
-    FROM transaction t
-    JOIN (SELECT DISTINCT  "startId", "transactionId" from prev_holdings)  q
-    ON t.id = q."transactionId"
-    WHERE t."effectiveDate" >= now() - $2
- ),
-
+person_holdings as (
+    SELECT DISTINCT ph."hId", p."personId", ph."transactionId"
+    FROM prev_holdings ph
+    LEFT OUTER JOIN "holderJ" hj on ph."hId" = hj."holdingId"
+    LEFT OUTER JOIN person p on hj."holderId" = p.id
+),
 -- get parcels for a given holdingId
 parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
@@ -387,36 +384,51 @@ parcels as (
 SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 
 FROM (
+
+WITH transaction_history as (
+    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as shareClass,
+    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(t.id)) qq) as siblings
+    FROM person_holdings ph
+    INNER JOIN transaction t on t.id = ph."transactionId"
+)
+
 SELECT *,
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate",
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(id)) qq) as siblings from prev_holding_transactions pht
-        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq )
-        as "issueHistory",
+    FROM transaction_history qq
+    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    AND  type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
+    AS "issueHistory",
+
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate",
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(id)) qq)  as siblings from prev_holding_transactions pht
-        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]))  qq)
-         as "repurchaseHistory",
+    FROM transaction_history qq
+    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    AND  type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]) )
+    AS "repurchaseHistory",
+
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate",
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(id)) qq) as siblings from prev_holding_transactions pht
-        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]))  qq)
-        as "transferHistoryTo",
+    FROM transaction_history qq
+    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    AND  type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]) )
+    AS "transferHistoryTo",
+
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate",
-      (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(id)) qq) as siblings from prev_holding_transactions pht
-        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]))  qq)
-        as "transferHistoryFrom",
+    FROM transaction_history qq
+    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    AND  type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]) )
+    AS "transferHistoryFrom",
+
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate",
-     (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(id)) qq) as siblings  from prev_holding_transactions pht
-        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['AMEND']::enum_transaction_type[]))  qq)
-        as "ambiguousChanges",
+    FROM transaction_history qq
+    WHERE qq."personId" = q."personId" AND  qq.shareClass = "shareClass"
+    AND  type = ANY(ARRAY['AMEND']::enum_transaction_type[]) )
+    AS "ambiguousChanges",
+
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
-     FROM (SELECT *, format_iso_date("effectiveDate") as "effectiveDate"  from prev_holding_transactions pht
-        where pht."startId" = "newestHoldingId" and type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]))  qq)
-        as "sum"
+    FROM transaction_history qq
+    WHERE qq."personId" = q."personId"
+    AND  type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
+    AS "sumIncreases"
+
 FROM
 
     (SELECT DISTINCT ON ("personId", "newestHoldingId", "shareClass")
@@ -446,6 +458,10 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
+
+
+
+
 
 
 

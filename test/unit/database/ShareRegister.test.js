@@ -103,13 +103,15 @@ describe('Share Register', function() {
         it('Confirms share register result', function() {
             return company.getShareRegister()
                 .then(function(sr){
+                    console.log(JSON.stringify(sr))
                     const mikeA = _.find(sr.shareRegister, {name: 'mike', shareClass: 1});
                     const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 1});
                     const johnB = _.find(sr.shareRegister, {name: 'john', shareClass: 2});
                     mikeA.issueHistory.length.should.be.equal(1);
                     mikeA.amount.should.be.equal(100);
                     mikeA.transferHistoryFrom.length.should.be.equal(1);
-                    should.equal(null, mikeA.transferHistoryTo);
+                    mikeA.transferHistoryTo.length.should.be.equal(1);
+
                     johnA.transferHistoryTo.length.should.be.equal(1);
                     should.equal(null, johnA.issueHistory);
                     johnA.amount.should.be.equal(1)
