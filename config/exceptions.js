@@ -14,7 +14,8 @@ module.exports.exceptions = _.defaults({
     InvalidOperation: errorFactory('InvalidOperation', [ 'message', 'context' ]),
     InvalidHoldingOperation: errorFactory('InvalidHolding', [ 'message', 'context' ]),
     CompanyImportException: errorFactory('CompanyImportException', [ 'message', 'context' ]),
-    NameExistsException: errorFactory('NameExistsException', [ 'message', 'context' ])
+    NameExistsException: errorFactory('NameExistsException', [ 'message', 'context' ]),
+    AmbiguiousInverseOperation: errorFactory('AmbiguiousInverseOperation', [ 'message', 'context' ])
 }, require('sequelize/lib/errors'));
 
 

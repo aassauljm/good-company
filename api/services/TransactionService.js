@@ -262,10 +262,9 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             if(!current.length){
                 // DUBIOUS HACK, see http://www.business.govt.nz/companies/app/ui/pages/companies/2484830/15270869/entityFilingRequirement
                 // Update shareholder has already updated the holding
-                current = companyState.getMatchingHoldings({holders: normalizedData.beforeHolders});
+                //current = companyState.getMatchingHoldings({holders: normalizedData.beforeHolders});
             }
             if(!current.length){
-                console.log(sails.config)
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
                     action: data,
                     importErrorType: sails.config.enums.HOLDING_NOT_FOUND})
@@ -280,7 +279,13 @@ export function performInverseHoldingChange(data, companyState, previousState, e
                 current = current[obj.index];
                 //current = _.find(current, {holdingId: obj.keys[obj.index]});
             }
-            else{
+            else if(current.length > 1){
+                throw new sails.config.exceptions.AmbiguiousInverseOperation('Multiple holding matches', {
+                    action: data,
+                    importErrorType: sails.config.enums.HOLDING_NOT_FOUND
+                }
+              )
+            }else{
                 current = current[0];
             }
             return companyState.mutateHolders(current, normalizedData.beforeHolders)

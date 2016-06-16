@@ -12,6 +12,7 @@ describe('Share Register', function() {
              const initialState = {
                 companyName: 'Sharing is caring',
                 holdingList: {holdings: [{
+                        name: 'Allocation 1',
                         holders: [{
                             name: 'mike'
                         }],
@@ -20,6 +21,7 @@ describe('Share Register', function() {
                             shareClass: 1
                         }]
                     },{
+                        name: 'Allocation 2',
                         holders: [{
                             name: 'mike'
                         },{
@@ -130,19 +132,19 @@ describe('Share Register', function() {
             return company.getShareRegister()
                 .then(function(sr){
                     console.log(JSON.stringify(sr))
-                    const mikeA = _.find(sr.shareRegister, {name: 'mike', shareClass: 1});
-                    const mikeB = _.find(sr.shareRegister, {name: 'mike', shareClass: 2});
-                    const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 1});
-                    const johnB = _.find(sr.shareRegister, {name: 'john', shareClass: 2});
+                    const mikeA = _.find(sr.shareRegister, {name: 'mike', shareClass: 1, holdingName: 'Allocation 1'});
+                    const mikeB = _.find(sr.shareRegister, {name: 'mike', shareClass: 2, holdingName: 'Allocation 2'});
+                    const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 1, holdingName: 'Allocation 2'});
+                    const johnB = _.find(sr.shareRegister, {name: 'john', shareClass: 2, holdingName: 'Allocation 2'});
                     mikeA.issueHistory.length.should.be.equal(1);
                     mikeA.amount.should.be.equal(100);
                     mikeA.transferHistoryFrom.length.should.be.equal(1);
-                    mikeA.transferHistoryTo.length.should.be.equal(1);
 
-                    should.equal(null, mikeB.issueHistory);
                     mikeB.transferHistoryFrom.length.should.be.equal(1)
                     johnA.transferHistoryTo.length.should.be.equal(1);
-                    mikeB.transferHistoryTo.length.should.be.equal(1);
+                    should.equal(null, mikeA.transferHistoryTo);
+                    should.equal(null, mikeB.issueHistory);
+                    should.equal(null, mikeB.transferHistoryTo);
                     should.equal(null, johnA.issueHistory);
                     johnA.amount.should.be.equal(1)
                 })

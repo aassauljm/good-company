@@ -350,10 +350,12 @@ export function generateShareClassMap(companyState){
             return acc;
         }, {});
     }
+    return {1 : {name: 'A'}, 2: {name: 'B'}} //
     return {};
 }
 
 
 export function renderShareClass(shareClass, shareClassMap = {}){
-    return shareClassMap[shareClass] ? shareClassMap[shareClass].name : STRINGS.defaultShareClass
+    const result = shareClassMap[shareClass] ? shareClassMap[shareClass].name : STRINGS.defaultShareClass;
+    return result;
 }
