@@ -131,7 +131,6 @@ describe('Share Register', function() {
         it('Confirms share register result', function() {
             return company.getShareRegister()
                 .then(function(sr){
-                    console.log(JSON.stringify(sr))
                     const mikeA = _.find(sr.shareRegister, {name: 'mike', shareClass: 1, holdingName: 'Allocation 1'});
                     const mikeB = _.find(sr.shareRegister, {name: 'mike', shareClass: 2, holdingName: 'Allocation 2'});
                     const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 1, holdingName: 'Allocation 2'});

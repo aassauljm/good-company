@@ -20,44 +20,72 @@ function companiesOfficeDocumentUrl(companyState, documentId){
 
 const INTRODUCTION = 0;
 const LOADING = 1;
-const FEEDBACK = 2;
+const AMBIGUITY = 2;
 const FINISHED = 3;
 
 const PAGES = [];
 
 PAGES[INTRODUCTION] = function() {
-        if(this.props.pendingHistory._status === 'fetching'){
-            return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
-        }
-        if(this.props.pendingHistory._status === 'complete'){
-            return <div><p>There are total of { this.props.pendingHistory.data.length } historic documents from the Companies Office to import.</p>
-            <p>Good Company can usually understand the transactions in these documents, but may need your input to resolve any ambiguities.  </p>
-            <p>If you are unable to provide the requested details, don't worry - you can come back at any point and continue where you left off. </p>
-            </div>
-        }
-    };
+    if(this.props.pendingHistory._status === 'fetching'){
+        return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+    }
+    if(this.props.pendingHistory._status === 'complete'){
+        return <div><p>There are total of { this.props.pendingHistory.data.length } historic documents from the Companies Office to import.</p>
+        <p>Good Company can usually understand the transactions in these documents, but may need your input to resolve any ambiguities.  </p>
+        <p>If you are unable to provide the requested details, don't worry - you can come back at any point and continue where you left off. </p>
+        </div>
+    }
+};
 
 PAGES[LOADING] = function() {
-    console.log(this.props)
-        if(this.props.importHistory._status === 'fetching'){
-            return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
-        }
-        else if(this.props.importHistory._status === 'complete' && !this.props.modalData.companyState.warnings.pendingHistory){
-           return <div><p>All Companies Office documents have successfully been imported.</p></div>
-        }
-        else if(this.props.importHistory._status === 'error'){
-            const companyName = this.props.modalData.companyState.companyName;
-            const context = this.props.importHistory.error.context || {};
+    if(this.props.importHistory._status === 'fetching'){
+        return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+    }
+    else if(this.props.importHistory._status === 'complete' && !this.props.modalData.companyState.warnings.pendingHistory){
+       return <div><p>All Companies Office documents have successfully been imported.</p></div>
+    }
+};
 
-            const documentId =  context.actionSet && context.actionSet.data.documentId;
-            const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.modalData.companyState, documentId);
-           return <div>
-            <p className="text-danger">Could not import from { companyName }.</p>
-            <p className="text-danger">Reason: {this.props.importHistory.error.message}</p>
-            { documentId && <p>Source: <Link target="_blank" to={documentUrl}>Companies Office document {documentId}</Link></p> }
+PAGES[AMBIGUITY] = function(){
+    if(this.props.importHistory._status === 'error'){
+        const companyName = this.props.modalData.companyState.companyName;
+        const context = this.props.importHistory.error.context || {};
+
+        const documentId =  context.actionSet && context.actionSet.data.documentId;
+        const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.modalData.companyState, documentId);
+       return <div>
+        <p className="text-danger">Could not import from { companyName }.</p>
+        <p className="text-danger">Reason: {this.props.importHistory.error.message}</p>
+        { documentId && <p>Source: <Link target="_blank" to={documentUrl}>Companies Office document {documentId}</Link></p> }
+        </div>
+    }
+}
+
+
+
+const FOOTERS = [];
+
+FOOTERS[INTRODUCTION] = function(){
+    if(this.props.pendingHistory._status === 'complete'){
+        return <div className="button-row">
+            <Button onClick={this.props.end} >Cancel</Button>
+            <Button onClick={this.handleStart} bsStyle="primary">Start Importing Company History</Button>
             </div>
-        }
-    };
+    }
+}
+
+FOOTERS[LOADING] = function(){
+    return false;
+}
+
+FOOTERS[AMBIGUITY] = function(){
+    return <div className="button-row">
+        <Button onClick={this.props.end} >Cancel</Button>
+        <Button onClick={this.handleResolve} bsStyle="primary">Resolve</Button>
+        </div>
+}
+
+
 
 @connect((state, ownProps) => {
     return {
@@ -71,14 +99,17 @@ PAGES[LOADING] = function() {
                                                      {
                                                         invalidates: [`/company/${ownProps.modalData.companyId}`]
                                                      })),
-        addNotification: (args) => dispatch(addNotification(args))
+        addNotification: (args) => dispatch(addNotification(args)),
+        // TODO, reopen
+        showResolve: (args) => dispatch(showModal('resolveAmbiguity', args))
     }
 })
 export class ImportHistoryModal extends React.Component {
 
     constructor(props){
         super(props);
-        this.handleNext = ::this.handleNext;
+        this.handleStart = ::this.handleStart;
+        this.handleResolve = ::this.handleResolve;
     }
 
     fetch() {
@@ -97,15 +128,23 @@ export class ImportHistoryModal extends React.Component {
         return PAGES[this.props.index].call(this)
     }
 
-    handleNext() {
-        if(this.props.index === INTRODUCTION){
-            this.props.next({index: LOADING});
-            this.props.performImport()
-                .catch(e => {
-                    const companyName = this.props.modalData.companyState.companyName;
-                    this.props.addNotification({error: true, message: `An issue found while trying to import history for ${companyName}`})
-                })
-        }
+    renderFooter(){
+        return FOOTERS[this.props.index].call(this)
+    }
+
+    handleStart() {
+        this.props.next({index: LOADING});
+        this.props.performImport()
+            .catch(e => {
+                const companyName = this.props.modalData.companyState.companyName;
+                //this.props.addNotification({error: true, message: `An issue found while trying to import history for ${companyName}`});
+                this.props.next({index: AMBIGUITY, data: e})
+
+            })
+    }
+
+    handleResolve() {
+        this.props.showResolve({...this.props.modalData, error: this.props.importHistory.error});
     }
 
     render() {
@@ -117,8 +156,7 @@ export class ImportHistoryModal extends React.Component {
                 { this.renderBody() }
               </Modal.Body>
               <Modal.Footer>
-                <Button onClick={this.props.end} >Close</Button>
-                 <Button onClick={this.handleNext} bsStyle="primary">Start Importing Company History</Button>
+                { this.renderFooter() }
               </Modal.Footer>
             </Modal>
     }

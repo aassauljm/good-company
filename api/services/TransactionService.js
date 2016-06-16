@@ -269,7 +269,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
                     action: data,
                     importErrorType: sails.config.enums.HOLDING_NOT_FOUND})
             }
-            else if(current.length > 1 && session.active){
+            else if(current.length > 1 && session.get('options')){
                 // ambiguity resolving strategy
                 if(!session.get('options')[session.get('index')]){
                     session.get('options')[session.get('index')] = {index: 0, keys: current.map((c, i) => i)} //, keys: current.map(c => c.holdingId).sort()};
@@ -277,7 +277,6 @@ export function performInverseHoldingChange(data, companyState, previousState, e
                 current = _.sortBy(current, c =>c .holdingId);
                 const obj = session.get('options')[session.get('index')]
                 current = current[obj.index];
-                //current = _.find(current, {holdingId: obj.keys[obj.index]});
             }
             else if(current.length > 1){
                 throw new sails.config.exceptions.AmbiguiousInverseOperation('Multiple holding matches', {

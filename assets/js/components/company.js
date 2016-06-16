@@ -133,7 +133,7 @@ class CompanyAlertsWidget extends React.Component {
     render(){
         const shareWarning = (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses) ;
         const historyWarning = !!(this.props.companyState.warnings.pendingHistory);
-        if(!shareWarning){
+        if(!shareWarning && !historyWarning){
             return false;
         }
         return <div className="widget">

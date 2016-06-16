@@ -164,6 +164,14 @@ describe('Company Controller', function() {
                 })
                 .catch(done);
         });
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                })
+                .catch(done);
+        });
         it('Does gets previous version', function(done){
             req.get('/api/company/'+companyId+'/history/2')
                 .expect(200)

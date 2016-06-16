@@ -22,6 +22,7 @@ import { SelectPersonModal  } from './transactions/selectPerson';
 import { SelectDirectorModal  } from './transactions/selectDirector';
 import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
+import { ResolveAmbiguityModal  } from './transactions/resolve';
 import { AddAssignSharesModal, ColsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal } from './transactions/selection';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
@@ -126,6 +127,10 @@ export class Modals extends React.Component {
 
             case 'importHistory':
                 return <ImportHistoryModal {...props} />
+
+            case 'resolveAmbiguity':
+                return <ResolveAmbiguityModal {...props} />
+
             default:
                 return false;
         }
