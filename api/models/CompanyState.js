@@ -791,8 +791,10 @@ module.exports = {
 
             getMatchingHoldings: function(holding,  options={}){
                 return _.filter(this.dataValues.holdingList.dataValues.holdings, function(h){
-                    return (holding.holdingId && holding.holdingId === h.holdingId  ||
-                            h.holdersMatch({holders: holding.holders || []},  options.ignoreCompanyNumber)) &&
+                    if(holding.holdingId){
+                        return holding.holdingId === h.holdingId
+                    }
+                    return h.holdersMatch({holders: holding.holders || []},  options.ignoreCompanyNumber) &&
                         (!holding.parcels || h.parcelsMatch({parcels: holding.parcels}));
                 });
             },

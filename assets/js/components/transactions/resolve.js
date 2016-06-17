@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, createResource, showModal, addNotification } from '../../actions';
+import { requestResource, updateResource, showModal, addNotification } from '../../actions';
 import { pureRender, stringToDate, stringToDateTime } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -31,16 +31,21 @@ const DESCRIPTIONS = {
         }
         return <div>
                 <div className="row">
-                    <div className="col-md-6 col-md-offset-3 summary">
-                        <div className="row">
-                        <div className="col-md-6 summary-label">Registration Date & Time</div>
-                        <div className="col-md-6">{stringToDateTime(actionSet.data.date)}</div>
+                    <div className="col-md-6 col-md-offset-3">
+                    <div className="summary outline">
+                        <div className="outline-header">
+                            <div className="outline-title">Source Information</div>
                         </div>
-                        <div className="row">
-                        <div className="col-md-6 summary-label">Source Document</div>
-                        <div className="col-md-6"><Link target="_blank" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
+                            <div className="row">
+                            <div className="col-md-6 summary-label">Registration Date & Time</div>
+                            <div className="col-md-6">{stringToDateTime(actionSet.data.date)}</div>
+                            </div>
+                            <div className="row">
+                            <div className="col-md-6 summary-label">Source Document</div>
+                            <div className="col-md-6"><Link target="_blank" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
+                            </div>
+                            </div>
                         </div>
-                    </div>
                 </div>
                 <div className="row">
                     <div className="col-md-12">
@@ -71,8 +76,21 @@ const DESCRIPTIONS = {
 }
 
 const PAGES = {
-    [ImportErrorTypes.MULTIPLE_HOLDINGS_FOUND]: function(context, companyState){
+    [ImportErrorTypes.MULTIPLE_HOLDINGS_FOUND]: function(context, companyState, submit){
         const { possibleMatches } = context;
+        function handleSelect(holding){
+            const updatedActions = {...context.actionSet.data};
+            updatedActions.actions = updatedActions.actions.map(a => {
+                a = {...a};
+                if(a.id === context.action.id){
+                    a.holdingId = holding.holdingId;
+                }
+                return a;
+            })
+            submit({
+                pendingActions: [{id: context.actionSet.id, data: updatedActions}]
+            })
+        }
         return <div>
              <div className="row">
                 <div className="col-md-12">
@@ -80,7 +98,7 @@ const PAGES = {
                 </div>
              </div>
              <div className="row">
-             { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares}/></div>) }
+             { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect}/></div>) }
              </div>
 
         </div>
@@ -95,7 +113,10 @@ const PAGES = {
     };
 }, (dispatch, ownProps) => {
     return {
-        addNotification: (args) => dispatch(addNotification(args))
+        addNotification: (args) => dispatch(addNotification(args)),
+        updateAction: (args) => dispatch(updateResource(`/company/${ownProps.modalData.companyId}/update_pending_history`, args, {
+            invalidates: [`/company/${ownProps.modalData.companyId}/import_pending_history`]
+        }))
     }
 })
 export class ResolveAmbiguityModal extends React.Component {
@@ -106,16 +127,15 @@ export class ResolveAmbiguityModal extends React.Component {
 
     renderBody() {
         const context = this.props.modalData.error.context || {};
-        const action = context.action
-           return <div className="resolve">
-                { DESCRIPTIONS[action.transactionType](context, this.props.modalData.companyState)}
-                <hr/>
-                { PAGES[context.importErrorType](context, this.props.modalData.companyState)}
-            </div>
-    }
-
-    renderFooter(){
-        return
+        const action = context.action;
+        if(!DESCRIPTIONS[action.transactionType]){
+            return <div>Unknown Import Error</div>
+        }
+        return <div className="resolve">
+            { DESCRIPTIONS[action.transactionType](context, this.props.modalData.companyState)}
+            <hr/>
+            { PAGES[context.importErrorType](context, this.props.modalData.companyState, this.props.updateAction)}
+        </div>
     }
 
 

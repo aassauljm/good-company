@@ -87,6 +87,7 @@ describe('Scraping Service', function() {
                     companyState.directorList.directors.length.should.be.eql(8);
                     done();
                 })
+                .catch(done)
         })
     });
 
@@ -176,6 +177,7 @@ describe('Scraping Service', function() {
                     stats.totalShares.should.be.equal(136016804)
                     return done();
                 })
+                .catch(done)
         })
     })
     describe('Should get all fields from Timely html doc', function() {
@@ -214,10 +216,10 @@ describe('Scraping Service', function() {
                             });
                         }, {concurrency: 10})
                 })
-                .then(function(documentSummaries){
-                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data, documentSummaries));
-                    var docs = ScrapingService.segmentActions(documentSummaries)
-                    return Promise.each(docs, function(doc){
+                .then(function(_processedDocs){
+                    let processedDocs = _processedDocs.concat(InferenceService.extraActions(data, _processedDocs));
+                    processedDocs = InferenceService.segmentAndSortActions(processedDocs);
+                    return Promise.each(processedDocs, function(doc){
                         return TransactionService.performInverseTransaction({id: '2', ...doc}, company);
                     });
                 })
@@ -233,6 +235,7 @@ describe('Scraping Service', function() {
                     stats.totalShares.should.be.equal(0)
                     done();
                 })
+                .catch(done)
         })
     });
 
@@ -275,9 +278,9 @@ describe('Scraping Service', function() {
                             });
                         }, {concurrency: 10});
                 })
-                .then(function(documentSummaries){
-                    documentSummaries = documentSummaries.concat(ScrapingService.extraActions(data, documentSummaries));
-                    docs = ScrapingService.segmentActions(documentSummaries);
+                .then(function( _processedDocs){
+                    let processedDocs = _processedDocs.concat(InferenceService.extraActions(data, _processedDocs));
+                    docs = InferenceService.segmentAndSortActions(processedDocs);
                     return company.createPrevious();
                 })
                 .then(function(){
@@ -313,6 +316,7 @@ describe('Scraping Service', function() {
                     stats.totalShares.should.be.equal(200)
                     done();
                 })
+                .catch(done)
         })
     });
 
@@ -331,38 +335,10 @@ describe('Scraping Service', function() {
                 })
         });
     });
-    describe('Should segment actions', function() {
-        it('Splits a transaction with multiple dates', function(done){
-            const results = ScrapingService.segmentActions([{
-                actions:
-                    [{data: 'first', effectiveDate: moment('05 May 2000', 'DD MMM YYYY').toDate()},
-                        {data: 'second', effectiveDate: moment('06 May 2000', 'DD MMM YYYY').toDate()},
-                        {data: 'first', effectiveDate: moment('05 May 2000', 'DD MMM YYYY').toDate()}]
-            }]);
-            results.length.should.be.equal(2);
-            results[0].actions.length.should.be.equal(1);
-            results[1].actions.length.should.be.equal(2);
-            results[1].actions[0].data.should.be.equal('first');
-            done();
-        });
-        it('actions take parents date and group if not defined', function(done){
-            const results = ScrapingService.segmentActions([{
-                date: moment('05 May 2000', 'DD MMM YYYY').toDate(),
 
-                actions:
-                    [{data: 'first'},
-                        {data: 'second', effectiveDate: moment('06 May 2000', 'DD MMM YYYY').toDate()},
-                        {data: 'first'}]
-            }]);
-            results.length.should.be.equal(2);
-            results[0].actions.length.should.be.equal(1);
-            results[1].actions.length.should.be.equal(2);
-            results[1].actions[0].data.should.be.equal('first');
-            done();
-        });
 
-    });
 
+    /*
     describe('Should infer action types from large doc', function() {
         // TODO
         it('organize ambigious actions', function(done){
@@ -377,7 +353,7 @@ describe('Scraping Service', function() {
                 })
             });
 
-    });
+    });*/
 
 
     describe('should infer name change actions when documents are missing (1109509)', function(){

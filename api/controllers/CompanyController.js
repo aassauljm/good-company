@@ -280,6 +280,25 @@ module.exports = {
             return res.serverError(e)
         })
     },
+    updatePendingHistory: function(req, res){
+        const args = actionUtil.parseValues(req);
+        let company;
+        Company.findById(req.params.id)
+        .then(function(_company){
+            company  = _company;
+            return company.replacePendingActions(args.pendingActions);
+        })
+        .then(function(){
+            return TransactionService.performInverseAllPending(company);
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
+
     create: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.create({

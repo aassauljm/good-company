@@ -37,7 +37,7 @@ export function validateAnnualReturn(data, companyState){
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
                 sails.log.error('Current', JSON.stringify(currentHoldings))
                 sails.log.error('Expected', JSON.stringify(expectedHoldings))
-                throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match, documentId: ' +data.documentId);
+                throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match');
             }
             return Promise.join(
                          AddressService.normalizeAddress(data.registeredCompanyAddress),
@@ -49,7 +49,7 @@ export function validateAnnualReturn(data, companyState){
                  !AddressService.compareAddresses(state.addressForService, addressForService)){
                 sails.log.error(state.registeredCompanyAddress, registeredCompanyAddress)
                 sails.log.error(state.addressForService, addressForService)
-                throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match, documentId: ' +data.documentId);
+                throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match');
              }
         })
         .then(() => {
@@ -58,10 +58,10 @@ export function validateAnnualReturn(data, companyState){
             }
             if(throwTotal){
                 if(allocatedEqual){
-                    throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Total shares do not match, documentId: ' +data.documentId);
+                    throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Total shares do not match');
                 }
                 else{
-                    throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match, documentId: ' +data.documentId);
+                    throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match');
 
                 }
             }
@@ -82,22 +82,28 @@ export function performAnnualReturn(data, companyState, previousState, effective
 
 
 export function validateInverseAmend(amend, companyState){
+    if(false && amend.transactionType === Transaction.types.AMEND){
+        throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
+            action: amend,
+            importErrorType: sails.config.enums.UNKNOWN_AMEND
+        })
+    }
     const holding = companyState.getMatchingHolding({holders: amend.afterHolders, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]},
                                                     {ignoreCompanyNumber: true});
     if(!holding){
-        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId: ' +amend.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentI:d')
     }
     const sum = _.sum(holding.dataValues.parcels, (p) =>{
         return p.amount;
     });
     if(!Number.isSafeInteger(sum)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +amend.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId')
     }
     if(amend.beforeAmount < 0 || amend.afterAmount < 0){
-        throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ), documentId: ' +amend.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ')
     }
     if(amend.afterAmount && (sum !== amend.afterAmount)){
-        throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend, documentId: ' +amend.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
     }
     return Promise.resolve(holding);
 }
@@ -108,17 +114,17 @@ export function validateInverseIssue(data, companyState){
     return companyState.stats()
         .then((stats) =>{
             if(!Number.isInteger(data.amount) || data.amount <= 0){
-                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )')
             }
             if(!Number.isSafeInteger(data.amount)){
-                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
             }
             if(stats.totalShares !== data.toAmount){
                 sails.log.debug(stats)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue, documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue')
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
-                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up, documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up')
             }
         })
 }
@@ -127,17 +133,17 @@ export function validateInverseDecreaseShares(data, companyState){
     return companyState.stats()
         .then((stats) =>{
             if(!Number.isInteger(data.amount) || data.amount <= 0){
-                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )')
             }
             if(!Number.isSafeInteger(data.amount)){
-                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
             }
             if(stats.totalShares !== data.toAmount){
                 sails.log.debug(stats)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue, documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue')
             }
             if(data.fromAmount - data.amount !== data.toAmount ){
-                throw new sails.config.exceptions.InvalidInverseOperation('Decrease amount sums to not add up, documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidInverseOperation('Decrease amount sums to not add up')
             }
         })
 }
@@ -255,7 +261,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             }))])
         })
         .then(() => {
-            current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders});
+            current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders, holdingId: data.holdingId});
             if(!current.length){
                 current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders}, {ignoreCompanyNumber: true});
             }
@@ -279,7 +285,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
                 current = current[obj.index];
             }
             else if(current.length > 1){
-                throw new sails.config.exceptions.AmbiguiousInverseOperation('Multiple holding matches', {
+                throw new sails.config.exceptions.AmbiguousInverseOperation('Multiple holding matches', {
                     action: data,
                     importErrorType: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
                     possibleMatches: current.map(c => c.toJSON())
@@ -363,7 +369,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
             return holder.setTransaction(transaction);
         })
         .catch((e)=>{
-            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change')
         });
 };
 
@@ -408,7 +414,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount}]}, {ignoreCompanyNumber: true});
         }
         if(!holding){
-            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation')
         }
 
         if(!data.shareClass){
@@ -419,7 +425,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             return p.amount;
         });
         if(sum !== data.amount){
-            throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation')
         }
         holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
         const transaction = Transaction.build({type: data.transactionSubType || data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -453,10 +459,10 @@ export function performInverseRemoveAllocation(data, companyState, previousState
 
 export function validateInverseNameChange(data, companyState,  effectiveDate){
     if(data.newCompanyName !== companyState.companyName){
-        throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('New company name does not match expected name')
     }
     if(data.previousCompanyName === data.newCompanyName){
-        throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ')
     }
 }
 
@@ -474,10 +480,10 @@ export const performInverseNameChange = Promise.method(function(data, companySta
 
 export function validateNameChange(data, companyState,  effectiveDate){
     if(data.previousCompanyName !== companyState.companyName){
-        throw new sails.config.exceptions.InvalidInverseOperation('Previous company name does not match expected name, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Previous company name does not match expected name')
     }
     if(data.previousCompanyName === data.newCompanyName){
-        throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ')
     }
 }
 
@@ -500,12 +506,12 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
     .then((newAddress) => {
         if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
             sails.log.error(newAddress, companyState[data.field])
-            throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected')
         }
         if(['registeredCompanyAddress',
             'addressForShareRegister',
             'addressForService'].indexOf(data.field) === -1){
-            throw new sails.config.exceptions.InvalidInverseOperation('Address field not valid, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidInverseOperation('Address field not valid')
         }
     })
 }
@@ -530,7 +536,7 @@ export function validateAddressChange(data, companyState, effectiveDate){
         if(['registeredCompanyAddress',
             'addressForShareRegister',
             'addressForService'].indexOf(data.field) === -1){
-            throw new sails.config.exceptions.InvalidOperation('Address field not valid, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidOperation('Address field not valid')
         }
     })
 }
@@ -562,7 +568,7 @@ export const validateInverseNewDirector = Promise.method(function(data, companyS
         return d.person.isEqual(data, {skipAddress: true});
     })
     if(!director){
-        throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director')
     }
 });
 
@@ -621,17 +627,17 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
         })
         .catch((e) => {
             console.log(data)
-            throw new sails.config.exceptions.InvalidInverseOperation('Could not update director, documentId: ' +data.documentId);
+            throw new sails.config.exceptions.InvalidInverseOperation('Could not update director');
         });
 
 };
 
 export const validateIssueUnallocated = Promise.method(function(data){
     if(!Number.isInteger(data.amount) || data.amount <= 0){
-        throw new sails.config.exceptions.InvalidOperation('Amount must be natural number ( n >=0 ), documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Amount must be natural number ( n >=0 )')
     }
     if(!Number.isSafeInteger(data.amount)){
-        throw new sails.config.exceptions.InvalidOperation('Unsafe number, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Unsafe number')
     }
 });
 
@@ -664,24 +670,24 @@ export const performPurchase = performDecreaseShares;
 
 export function validateAmend(data, companyState){
     if(!data.holdingId && !(data.holders && data.holders.length)){
-        throw new sails.config.exceptions.InvalidOperation('Holders required, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Holders required')
     }
     const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId},
                                                     {ignoreCompanyNumber: true});
     if(!holding){
-        throw new sails.config.exceptions.InvalidOperation('Matching Holding not found, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Matching Holding not found')
     }
     const sum = _.sum(holding.dataValues.parcels, (p) => {
         if(!Number.isInteger(p.amount)){
-            throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer')
         }
         return p.amount;
     });
     if(data.amount && !Number.isInteger(data.amount)){
-        throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer')
     }
     if(!Number.isSafeInteger(sum)){
-        throw new sails.config.exceptions.InvalidOperation('Unsafe number, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Unsafe number')
     }
     return Promise.resolve(holding);
 }
@@ -722,10 +728,10 @@ export function performRemoveAllocation(data, nextState, companyState, effective
         nextState.dataValues.h_list_id = null;
         const holding = nextState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId});
         if(!holding){
-            throw new sails.config.exceptions.InvalidOperation('Could not find holding, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidOperation('Could not find holding')
         }
         if(holding.hasNonEmptyParcels()){
-            throw new sails.config.exceptions.InvalidOperation('Holding has non empty parcels, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidOperation('Holding has non empty parcels')
         }
         holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -759,7 +765,7 @@ export  function performApplyShareClass(data, nextState, companyState, effective
             return h.dataValues.holdingId === data.holdingId;
         });
         if(index < 0){
-            throw new sails.config.exceptions.InvalidOperation('Cannot find holding to apply share class to, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidOperation('Cannot find holding to apply share class to')
         }
         const newHolding = holdingList.dataValues.holdings[index].buildNext();
         holdingList.dataValues.holdings[index] = newHolding;
@@ -776,7 +782,7 @@ export const validateRemoveDirector = Promise.method(function(data, companyState
         return d.person.isEqual(data, {skipAddress: true});
     })
     if(!director){
-        throw new sails.config.exceptions.InvalidOperation('Could not find expected new director, documentId: ' +data.documentId)
+        throw new sails.config.exceptions.InvalidOperation('Could not find expected new director')
     }
 });
 
@@ -803,7 +809,7 @@ export function performNewDirector(data, companyState, previousState, effectiveD
     })
     .then(person => {
         if(_.find(companyState.dataValues.directorList.dataValues.directors, d => d.person.isEqual(person))){
-            throw new sails.config.exceptions.InvalidOperation('Directorship already appointed, documentId: ' +data.documentId)
+            throw new sails.config.exceptions.InvalidOperation('Directorship already appointed')
         }
         const director = Director.build({
             appointment: effectiveDate, personId: person.id});
@@ -834,7 +840,7 @@ export function performUpdateDirector(data, companyState, previousState, effecti
         })
         .catch((e) => {
             sails.log.error(e);
-            throw new sails.config.exceptions.InvalidOperation('Could not update director, documentId: ' +data.documentId);
+            throw new sails.config.exceptions.InvalidOperation('Could not update director');
         });
 };
 
@@ -947,7 +953,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
-        [Transaction.types.ISSUE_UNALLOCATED]:  TransactionService.performInverseIssueUnallocated,
+        [Transaction.types.ISSUE]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.CONVERSION]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
         [Transaction.types.CONSOLIDATION]:  TransactionService.performInverseConsolidation,
@@ -1132,7 +1138,7 @@ export function performInverseAllPending(company){
 
 export function performTransaction(data, company, companyState){
     const PERFORM_ACTION_MAP = {
-        [Transaction.types.ISSUE_UNALLOCATED]:      TransactionService.performIssueUnallocated,
+        [Transaction.types.ISSUE]:                  TransactionService.performIssueUnallocated,
         [Transaction.types.ACQUISITION]:            TransactionService.performAcquisition,
         [Transaction.types.PURCHASE]:               TransactionService.performPurchase,
         [Transaction.types.CONSOLIDATION]:          TransactionService.performConsolidation,

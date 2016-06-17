@@ -136,6 +136,12 @@ module.exports = {
                 return sequelize.query("select * from all_pending_actions(:id)",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}});
+            },
+
+            replacePendingActions: function(pendingActions){
+                return Promise.all(pendingActions.map(action => {
+                    return PendingAction.update({data: action.data}, {where:{ id: action.id}})
+                }))
             }
 
         },

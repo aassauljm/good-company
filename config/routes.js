@@ -234,4 +234,10 @@ module.exports.routes = {
         action: 'importPendingHistory',
         model: 'company'
     },
+
+     'PUT /api/company/:id/update_pending_history': {
+        controller: 'CompanyController',
+        action: 'updatePendingHistory',
+        model: 'company'
+    }
 };
