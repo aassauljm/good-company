@@ -132,7 +132,7 @@ export class HoldingDL extends React.Component {
                 <dt>Parcels</dt>
                 { this.props.holding.parcels.map((p, i) =>
                     <dd key={i} >{numberWithCommas(p.amount)} of {p.shareClass || STRINGS.defaultShareClass } Shares<br/></dd>) }
-                <dt>Holders</dt>
+                <dt>Shareholders</dt>
                 { this.props.holding.holders.map((holder, i) =>
                     <dd key={i} >{holder.name} <br/>
                     <span className="address">{holder.address}</span></dd>) }
@@ -146,13 +146,13 @@ export class Holding extends React.Component {
     static propTypes = {
         holding: PropTypes.object.isRequired,
         total: PropTypes.number.isRequired,
-        editHolding: PropTypes.func
+        select: PropTypes.func
     };
     render(){
         const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (sum/this.props.total*100).toFixed(2) + '%';
 
-        return <div className="outline actionable shareholding" onClick={() => this.props.editHolding(this.props.holding)}>
+        return <div className="outline actionable shareholding" onClick={() => this.props.select && this.props.select(this.props.holding)}>
 
                 <div className="info">
                     <HoldingDL holding={this.props.holding} total={sum} percentage={percentage}  />
@@ -209,7 +209,7 @@ export class Shareholdings extends React.Component {
                         { holdings.map((holding, i) =>
                             <Holding key={i} holding={holding}
                                 total={this.props.companyState.totalShares}
-                                editHolding={this.editHolding} />
+                                select={this.editHolding} />
                         )}
                     </div>
                     <div className="col-md-6 col-xs-12 text-center">

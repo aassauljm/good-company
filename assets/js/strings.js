@@ -51,7 +51,7 @@ export default {
         DETAILS: 'Details',
         NAME_CHANGE: 'Company Name Change',
         ADDRESS_CHANGE: 'Company Address Change',
-        HOLDING_CHANGE: 'Shareholding Detail Change',
+        HOLDING_CHANGE: 'Amend Shareholding',
         HOLDER_CHANGE: 'Shareholder Change',
         TRANSFER: 'Transfer',
         TRANSFER_TO: 'Transfer To',

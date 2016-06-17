@@ -83,6 +83,7 @@ $right-chevron:url("~catalex_shared/images/right-chevron.png");
 @import "shareholdings";
 @import "shareRegister";
 @import "notifications";
+@import "resolve";
 @import "footer";
 
 @import "betaRibbon";
@@ -185,7 +186,7 @@ p.form-control-static{
 
 
 
-.holding .address{
+.shareholding .address{
     font-size: 0.8em;
     font-style: italic;
 }

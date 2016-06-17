@@ -281,7 +281,8 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             else if(current.length > 1){
                 throw new sails.config.exceptions.AmbiguiousInverseOperation('Multiple holding matches', {
                     action: data,
-                    importErrorType: sails.config.enums.HOLDING_NOT_FOUND
+                    importErrorType: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
+                    possibleMatches: current.map(c => c.toJSON())
                 }
               )
             }else{
