@@ -142,7 +142,7 @@ var transactions = {
             })
             .then(function(_state){
                 state = _state;
-                return company.setSeedCompanyState(state)
+                return company.setSeedCompanyState(state);
             })
             .then(function(){
                 return SourceData.create({data: args, source: 'Companies Office'})

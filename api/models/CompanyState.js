@@ -410,12 +410,13 @@ module.exports = {
                     })
                     .then(function(args){
                         args.directorList = args.directorList || {directors: []}
+                        args.transaction = args.transaction || {type: Transaction.types.SEED};
                         var state = CompanyState.build(args, {include: CompanyState.includes.full()
                                 .concat(CompanyState.includes.docList())
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.holdingList())
                             });
-                        // TODO, document why this is needed
+
                         (state.get('holdingList').get('holdings') || []).map(function(h){
                             h.get('holders').map(function(h){
                                 h.isNewRecord = false;

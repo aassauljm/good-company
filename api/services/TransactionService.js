@@ -1030,7 +1030,7 @@ export function performInverseTransaction(data, company, rootState){
             return removeDocuments(prevState, data.actions);
         })
         .then(function(){
-            return removeActions(prevState, data);
+            //return removeActions(prevState, data);
         })
         .then(function(currentRoot){
             return prevState.save();
@@ -1113,6 +1113,7 @@ export function performInverseAllPending(company){
     function perform(actions){
         return Promise.each(actions, (actionSet, i) => {
             return sequelize.transaction(function(t){
+                state.set('historic_action_id', state.get('pending_historic_action_id'));
                 state.set('pending_historic_action_id', null);
                 current = actionSet;
                 return TransactionService.performInverseTransaction(actionSet.data, company, state)
@@ -1228,7 +1229,7 @@ export function performTransaction(data, company, companyState){
             }
         })
         .then(() => {
-            return addActions(nextState, {...data, document_ids: (data.documents || []).map(d => d.id), documents: null})
+           // return addActions(nextState, {...data, document_ids: (data.documents || []).map(d => d.id), documents: null})
         })
         .then(function(){
             return nextState.save();

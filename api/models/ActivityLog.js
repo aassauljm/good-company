@@ -8,6 +8,8 @@ const types = {
     IMPORT_COMPANY: 'IMPORT_COMPANY',
     SET_PASSWORD: 'SET_PASSWORD',
     CREATE_ACCOUNT: 'CREATE_ACCOUNT',
+    UPDATE_PENDING_HISTORY: 'UPDATE_PENDING_HISTORY',
+    RESET_PENDING_HISTORY: 'RESET_PENDING_HISTORY',
     ...require('../../config/enums/transactions').enums
 };
 

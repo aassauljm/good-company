@@ -239,5 +239,11 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'updatePendingHistory',
         model: 'company'
+    },
+
+     'PUT /api/company/:id/reset_pending_history': {
+        controller: 'CompanyController',
+        action: 'resetPendingHistory',
+        model: 'company'
     }
 };

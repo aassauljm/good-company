@@ -288,6 +288,14 @@ module.exports = {
             company  = _company;
             return company.replacePendingActions(args.pendingActions);
         })
+        .then(() => {
+            return ActivityLog.create({
+                type: ActivityLog.types.UPDATE_PENDING_HISTORY,
+                userId: req.user.id,
+                description: `Updated ${companyName} History.`,
+                data: {companyId: company.id}
+            });
+        })
         .then(function(result){
             return res.json(result)
         })
@@ -295,7 +303,28 @@ module.exports = {
             return res.serverError(e)
         })
     },
-
+    resetPendingHistory: function(req, res){
+        let company;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.resetPendingActions();
+            })
+        .then(() => {
+            return ActivityLog.create({
+                type: ActivityLog.types.RESET_PENDING_HISTORY,
+                userId: req.user.id,
+                description: `Reset ${companyName} History.`,
+                data: {companyId: company.id}
+            });
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
     create: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.create({

@@ -4,6 +4,8 @@
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
+const uuid = require('node-uuid');
+
 
 module.exports = {
     attributes: {
@@ -39,7 +41,6 @@ module.exports = {
                 name: 'currentCompanyStateId'
             }
         });
-
         // represents foreign data
         Company.belongsTo(SourceData, {
             as: 'sourceData',
@@ -139,9 +140,36 @@ module.exports = {
             },
 
             replacePendingActions: function(pendingActions){
-                return Promise.all(pendingActions.map(action => {
-                    return PendingAction.update({data: action.data}, {where:{ id: action.id}})
-                }))
+                // Find root, and replace next x pendingActions
+                let rootState;
+                pendingActions.map((pa, i) => {
+                    pa.originalId = pa.id;
+                    pa.id = uuid.v4();
+                    pa.actions.map(a => a.id = uuid.v4())
+                    if(i-1 >= 0){
+                        pendingActions[i-1].previous_id = pa.id;
+                    }
+                });
+
+                return this.getRootCompanyState()
+                    .then(_rootState => {
+                        rootState = _rootState;
+                        return PendingActions.bulkCreate(pendingActions);
+
+                    })
+                    .then(() => {
+                        return rootState.update('pending_historic_action_id', pendingActions[0].id)
+                    })
+            },
+
+            resetPendingActions: function(){
+                // point SEED transaction to original pending_actions_id
+                // remove SEED previousCompanyState
+                return this.getSeedCompanyState()
+                    .then(companyState => {
+                        return companyState.update({previousCompanyStateId: null, pending_historic_action_id: companyState.get('historic_action_id')})
+                    })
+
             }
 
         },
