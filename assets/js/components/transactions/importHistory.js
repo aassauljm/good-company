@@ -22,6 +22,7 @@ const INTRODUCTION = 0;
 const LOADING = 1;
 const AMBIGUITY = 2;
 const FINISHED = 3;
+const CONTINUE = 4;
 
 const PAGES = [];
 
@@ -101,7 +102,8 @@ FOOTERS[AMBIGUITY] = function(){
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
         // TODO, reopen
-        showResolve: (args) => dispatch(showModal('resolveAmbiguity', args))
+        showResolve: (args) => dispatch(showModal('resolveAmbiguity', {...args,  afterClose: { // open this modal again
+                            showModal: {key: 'importHistory', data: {...ownProps.modalData, index: CONTINUE}}}}))
     }
 })
 export class ImportHistoryModal extends React.Component {
@@ -118,18 +120,26 @@ export class ImportHistoryModal extends React.Component {
 
     componentDidMount() {
         this.fetch();
+        this.checkContinue();
     };
 
     componentDidUpdate() {
         this.fetch();
+        this.checkContinue();
     };
 
+    checkContinue() {
+        if(this.props.index === CONTINUE){
+            this.handleStart();
+        }
+    }
+
     renderBody() {
-        return PAGES[this.props.index].call(this)
+        return PAGES[this.props.index] && PAGES[this.props.index].call(this)
     }
 
     renderFooter(){
-        return FOOTERS[this.props.index].call(this)
+        return FOOTERS[this.props.index] && FOOTERS[this.props.index].call(this)
     }
 
     handleStart() {

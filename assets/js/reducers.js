@@ -238,7 +238,7 @@ function resources(state = default_resources, action){
                 const keys = Object.keys(state);
                 const invalidated = keys.reduce((acc, key) => {
                     return action.invalidateList.reduce((acc, invalid) => {
-                        if(key.indexOf(invalid) === 0){
+                        if(key.indexOf(invalid) === 0 && key !== action.key){
                             acc[key] = null;
                         }
                         return acc;

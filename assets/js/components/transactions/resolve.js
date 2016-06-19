@@ -72,7 +72,14 @@ const DESCRIPTIONS = {
                     </div>
                 </div>
         </div>
-    }
+    },
+    [TransactionTypes.ANNUAL_RETURN]: function(context, companyState){
+        return <div>
+            <p className="text-danger">An Annual Return's listings did not match our own.</p>
+        </div>
+    },
+
+
 }
 
 const PAGES = {
@@ -102,6 +109,38 @@ const PAGES = {
              </div>
 
         </div>
+    },
+    [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: function(context, companyState, submit){
+        function skip(){
+            return submit({
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+            })
+        }
+        function startOver(){
+            return submit({
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+            })
+        }
+        return <div className="button-row">
+            <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+        </div>
+    },
+    [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: function(context, companyState, submit){
+        function skip(){
+            return submit({
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+            })
+        }
+        function startOver(){
+            return submit({
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+            })
+        }
+        return <div className="button-row">
+            <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+        </div>
     }
 }
 
@@ -114,9 +153,14 @@ const PAGES = {
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
-        updateAction: (args) => dispatch(updateResource(`/company/${ownProps.modalData.companyId}/update_pending_history`, args, {
-            invalidates: [`/company/${ownProps.modalData.companyId}/import_pending_history`]
-        }))
+        updateAction: (args) => {
+            return dispatch(updateResource(`/company/${ownProps.modalData.companyId}/update_pending_history`, args, {
+                invalidates: [`/company/${ownProps.modalData.companyId}/import_pending_history`]
+            }))
+            .then(() => {
+                ownProps.end();
+            })
+        }
     }
 })
 export class ResolveAmbiguityModal extends React.Component {
@@ -139,9 +183,6 @@ export class ResolveAmbiguityModal extends React.Component {
     }
 
 
-    handleResolve() {
-        this.props.showResolve(this.props.modalData);
-    }
 
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>

@@ -30,14 +30,18 @@ export function validateAnnualReturn(data, companyState){
             const expectedHoldings = holdingToString(data.holdings)
 
             if(JSON.stringify(currentDirectors) !== JSON.stringify(expectedDirectors)){
-                sails.log.error('Current directors: '+JSON.stringify(currentDirectors) + 'documentId: ' +data.documentId)
+                sails.log.error('Current directors: '+JSON.stringify(currentDirectors))
                 sails.log.error('Expected directors: '+JSON.stringify(expectedDirectors));
                 throwDirectors = true;
             }
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
                 sails.log.error('Current', JSON.stringify(currentHoldings))
                 sails.log.error('Expected', JSON.stringify(expectedHoldings))
-                throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match');
+                throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match', {
+                    action: data,
+                    importErrorType: sails.config.enums.ANNUAL_RETURN_HOLDING_DIFFERENCE,
+                    currentState: companyState.toJSON()
+                });
             }
             return Promise.join(
                          AddressService.normalizeAddress(data.registeredCompanyAddress),
@@ -61,7 +65,11 @@ export function validateAnnualReturn(data, companyState){
                     throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Total shares do not match');
                 }
                 else{
-                    throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match');
+                    throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match', {
+                        action: data,
+                        importErrorType: sails.config.enums.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE,
+                        currentState: companyState.toJSON()
+                    });
 
                 }
             }
@@ -970,7 +978,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
         [Transaction.types.ANNUAL_RETURN]: TransactionService.performAnnualReturn
     };
-    if(!data.actions){
+    if(!data.actions || data.userSkip){
         return Promise.resolve(rootState);
     }
     let prevState, currentRoot, transactions;
@@ -1157,7 +1165,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.UPDATE_DIRECTOR]:        TransactionService.performUpdateDirector,
         [Transaction.types.APPLY_SHARE_CLASS]:      TransactionService.performApplyShareClass
     };
-    if(!data.actions){
+    if(!data.actions || data.userSkip){
         return Promise.resolve(companyState);
     }
     if(data.transactionType === Transaction.types.ANNUAL_RETURN){

@@ -288,9 +288,6 @@ module.exports = {
             company  = _company;
             return company.replacePendingActions(args.pendingActions);
         })
-        .then(function(){
-            return TransactionService.performInverseAllPending(company);
-        })
         .then(function(result){
             return res.json(result)
         })
