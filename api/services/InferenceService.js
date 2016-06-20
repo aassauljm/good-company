@@ -40,6 +40,9 @@ module.exports = {
                         if(a.transactionType === Transaction.types.NEW_ALLOCATION){
                             a.transactionType = Transaction.types.TRANSFER_TO;
                         }
+                        if(a.transactionType === Transaction.types.REMOVE_ALLOCATION){
+                            a.transactionType = Transaction.types.TRANSFER_FROM;
+                        }
                         else if(a.transactionType === Transaction.types.AMEND){
                             a.transactionType  = a.afterAmount > a.beforeAmount ? Transaction.types.TRANSFER_TO : Transaction.types.TRANSFER_FROM;
                         }

@@ -213,9 +213,9 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 companyState.subtractHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
                 companyState.combineUnallocatedParcels(parcel);
             }
-            const current = companyState.getMatchingHolding({holders: data.afterHolders,  parcels: [{amount: data.beforeAmount, shareClass: parcel.shareClass}]},
-                                                            {ignoreCompanyNumber: true})
-
+            const current = companyState.getMatchingHolding({holders: data.afterHolders,
+                    parcels: [{amount: data.beforeAmount, shareClass: parcel.shareClass}]},
+                                                            {ignoreCompanyNumber: true});
             // If holders have changed too
             if(!current.holdersMatch({holders: data.beforeHolders})){
                 return companyState.mutateHolders(current, data.beforeHolders);
@@ -230,8 +230,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
             // if we inferred shareClass from unallocatedParcels, lets assign it here (mutate it)
             if(data.shareClass && !_.find(prevHolding.parcels, p => p.shareClass)){
-                return Promise.all(prevHolding.dataValues.parcels.map(p => p.replace({shareClass: data.shareClass})).map(p => p.save()))
-
+                return Promise.all(prevHolding.dataValues.parcels.map(p => p.replace({shareClass: data.shareClass})).map(p => p.save()));
             }
         })
         .then(parcels => {
@@ -273,11 +272,11 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             if(!current.length){
                 current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders}, {ignoreCompanyNumber: true});
             }
-            if(!current.length){
+            //if(!current.length){
                 // DUBIOUS HACK, see http://www.business.govt.nz/companies/app/ui/pages/companies/2484830/15270869/entityFilingRequirement
                 // Update shareholder has already updated the holding
                 //current = companyState.getMatchingHoldings({holders: normalizedData.beforeHolders});
-            }
+            //}
             if(!current.length){
                  throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
                     action: data,
@@ -305,12 +304,8 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             return companyState.mutateHolders(current, normalizedData.beforeHolders)
         })
         .then(() => {
-            if(data.beforeName){
-                current.dataValues.name =  data.beforeName;
-            }
             const previousHolding = previousState.getMatchingHolding(current);
-            previousHolding.setTransaction(transaction);
-            return previousHolding.save();
+            return previousHolding.setTransaction(transaction);
         })
         .then(() => {
             return transaction;
@@ -634,7 +629,6 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             return transaction;
         })
         .catch((e) => {
-            console.log(data)
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director');
         });
 
@@ -838,8 +832,6 @@ export function performUpdateDirector(data, companyState, previousState, effecti
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            console.log({name: data.beforeName, address: beforeAddress, personId: data.personId},
-                                         {name: data.afterName, address: afterAddress, personId: data.personId});
             return companyState.replaceDirector({name: data.beforeName, address: beforeAddress, personId: data.personId},
                                          {name: data.afterName, address: afterAddress, personId: data.personId}, transaction);
         })
@@ -930,7 +922,7 @@ export function removeActions(state, actionSet){
             return hA.save()
         })
         .then(function(hA){
-            state.set('historical_action_id', hA.id)
+            state.set('historic_action_id', hA.id)
             state.dataValues.historicActions = hA;
             return state;
         })
@@ -939,17 +931,17 @@ export function removeActions(state, actionSet){
 export function addActions(state, actionSet){
     return state.getHistoricActions()
         .then(function(hA){
-            if(!hA){
-                return Actions.build({actions: []})
+            const data = {id: actionSet.id, data: actionSet}
+            if(hA){
+                data.previous_id = hA.id;
             }
-            return hA.buildNext();
+            else{
+                data.previous_id = state.get('pending_historic_action_id');
+            }
+            return Action.create(data);
         })
         .then(function(hA){
-            hA.dataValues.actions.unshift(actionSet);
-            return hA.save()
-        })
-        .then(function(hA){
-            state.set('historical_action_id', hA.id)
+            state.set('historic_action_id', hA.id)
             state.dataValues.historicActions = hA;
             return state;
         })
@@ -989,8 +981,9 @@ export function performInverseTransaction(data, company, rootState){
         })
         .then(function(_prevState){
             prevState = _prevState;
-            prevState.dataValues.transactionId = null;
-            prevState.dataValues.transaction = null;
+            console.log(JSON.stringify(prevState.holdingList.holdings.map(h => h.transactionId, null, 4)));
+            //prevState.dataValues.transactionId = null;
+            //prevState.dataValues.transaction = null;
             return Promise.reduce(data.actions, function(arr, action){
                 sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;
@@ -1030,9 +1023,7 @@ export function performInverseTransaction(data, company, rootState){
             return removeDocuments(prevState, data.actions);
         })
         .then(function(){
-            //return removeActions(prevState, data);
-        })
-        .then(function(currentRoot){
+            //return removePreviousActions(prevState, data);
             return prevState.save();
         })
         .then(function(_prevState){
@@ -1107,6 +1098,75 @@ export function performInverseAll(company, state){
 
 }
 
+export function performInverseAllPendingResolve(company, root){
+
+    // Loop though data
+    // If an exception is found, rollback, and increment permutation for
+    // ambigious options.  give up after completion of breadth first search
+    // TODO, switch to depth first
+    let state = root, current;
+    const options = {};
+    function next(){
+        state = null;
+        // breadth first search through options
+        return _.find(options, option => {
+            if(option){
+                option.index++;
+                if(option.index >= option.keys.length){
+                    option.index = 0;
+                    return false;
+                }
+                return true;
+            }
+        });
+    }
+
+    function loop(actions){
+        // transaction is not bound to cls ns
+        return sequelize.transaction(function(t){
+            return new Promise((resolve, reject) => {
+                state.set('historic_action_id', state.get('pending_historic_action_id'));
+                session.run(() => {
+                    session.set('index', 0);
+                    session.set('options', options);
+                    return Promise.each(actions, (actionSet, i) => {
+                        return TransactionService.performInverseTransaction(actionSet.data, company, state)
+                            .then(_state => {
+                                state = _state;
+                                state.set('pending_historic_action_id', (actions[i+1] || {}).id || null);
+                                return state.save(['pending_historic_action_id'])
+                            });
+                    })
+                    .then(resolve)
+                    .catch(reject)
+                });
+            });
+        })
+        .catch(e => {
+            sails.log.error('Auto resolve conflict found, starting over');
+            if(!next()){
+                throw e;
+            }
+            else{
+                return company.getRootCompanyState()
+                    .then(_state => {
+                        state = _state;
+                        return loop(actions);
+                });
+            }
+        });
+    }
+    return company.getRootCompanyState()
+        .then(_state => {
+            state = _state;
+            return company.getPendingActions()
+        })
+        .then(historicActions => {
+            return historicActions.length && loop(historicActions)
+        });
+}
+
+
 export function performInverseAllPending(company){
     // unlike above this will commit all successful transactions, and complain when one fails
     let state, current;
@@ -1114,7 +1174,6 @@ export function performInverseAllPending(company){
         return Promise.each(actions, (actionSet, i) => {
             return sequelize.transaction(function(t){
                 state.set('historic_action_id', state.get('pending_historic_action_id'));
-                state.set('pending_historic_action_id', null);
                 current = actionSet;
                 return TransactionService.performInverseTransaction(actionSet.data, company, state)
                 })
@@ -1124,6 +1183,10 @@ export function performInverseAllPending(company){
                     return state.save(['pending_historic_action_id'])
                 })
             })
+            .catch(sails.config.exceptions.AmbiguousInverseOperation, e => {
+                sails.log.info('Ambiguious Transaction found, switching to automatic resolve mode')
+                return performInverseAllPendingResolve(company);
+            })
             .catch(e => {
                 sails.log.error(e)
                 sails.log.error('Failed import on action: ', JSON.stringify(current));
@@ -1131,6 +1194,7 @@ export function performInverseAllPending(company){
                 e.context.actionSet = current;
                 throw e;
             })
+
     }
 
     return sequelize.transaction(function(t){
@@ -1142,8 +1206,10 @@ export function performInverseAllPending(company){
         })
         .then(historicActions => {
             return historicActions.length && perform(historicActions)
-        });
+        })
 }
+
+
 
 export function performTransaction(data, company, companyState){
     const PERFORM_ACTION_MAP = {
@@ -1229,7 +1295,7 @@ export function performTransaction(data, company, companyState){
             }
         })
         .then(() => {
-           // return addActions(nextState, {...data, document_ids: (data.documents || []).map(d => d.id), documents: null})
+            return addActions(nextState, {...data, document_ids: (data.documents || []).map(d => d.id), documents: null})
         })
         .then(function(){
             return nextState.save();

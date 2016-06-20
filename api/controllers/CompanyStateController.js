@@ -384,13 +384,14 @@ const selfManagedTransactions = {
                 }, company)
                 .then(_state => {
                     state = _state;
+                    // wipe history
                     state.set('previousCompanyStateId', null);
                     return state.save();
                 })
                 // create previous
                 .then(() => company.createPrevious())
                 .then(function(_state){
-                    // hmmm,
+                    // point pending history current existing history
                     _state.set('pending_historic_action_id', _state.get('historic_action_id'));
                     return _state.save();
                 })

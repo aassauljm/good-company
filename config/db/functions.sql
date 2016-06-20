@@ -368,11 +368,21 @@ prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId"
     WHERE cs.id = tt."previousCompanyStateId"
  ),
 person_holdings as (
-    SELECT ph."hId", p."personId", ph."transactionId", "startId", min(generation) as generation
+    SELECT DISTINCT ON (p."personId", ph."transactionId", "startId")
+
+    first_value(ph."hId") OVER wnd as "hId",
+    first_value(p."personId") OVER wnd as "personId",
+    first_value(ph."transactionId") OVER wnd as "transactionId",
+    first_value("startId") OVER wnd as "startId",
+    first_value(generation) OVER wnd as generation
+
     FROM prev_holdings ph
     LEFT OUTER JOIN "holderJ" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
-    GROUP BY ph."hId", p."personId", ph."transactionId", "startId"
+    WINDOW wnd AS (
+       PARTITION BY p."personId", ph."transactionId", "startId" ORDER BY generation
+       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+     )
 ),
 -- get parcels for a given holdingId
 parcels as (
@@ -427,7 +437,7 @@ SELECT *,
     FROM transaction_history qq
     WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
-    AND  type = ANY(ARRAY['AMEND']::enum_transaction_type[]) )
+    AND  type = ANY(ARRAY['AMEND', 'REMOVE_ALLOCATION', 'NEW_ALLOCATION']::enum_transaction_type[]) )
     AS "ambiguousChanges",
 
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
@@ -467,6 +477,7 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
+
 
 
 

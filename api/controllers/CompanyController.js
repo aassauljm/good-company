@@ -123,7 +123,7 @@ module.exports = {
                 var json = this.companyState.get();
                 res.json({companyState: _.merge(json, stats)});
             }).catch(function(err) {
-                return res.badRequest(err);
+                return res.notFound();
             });
     },
     root: function(req, res) {
@@ -221,11 +221,9 @@ module.exports = {
                     if(actionUtil.parseValues(req)['history'] !== false){
                         return ScrapingService.getDocumentSummaries(data)
                         .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
+
                         .then(function(_processedDocs) {
                             processedDocs = _processedDocs;
-                            return company.createPrevious();
-                        })
-                        .then(function(){
                             return company.getRootCompanyState();
                         })
                         .then(function(_state){

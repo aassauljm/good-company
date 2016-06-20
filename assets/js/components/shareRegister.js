@@ -59,7 +59,7 @@ function renderTransferFromFull(action, shareClassMap){
 }
 
 function renderAmbigiousChangeFull(action, shareClassMap){
-    if(action.data.afterAmount > action.data.beforeAmount){
+    if(action.type === TransactionTypes.NEW_ALLOCATION || action.data.afterAmount > action.data.beforeAmount){
         return  `Ambiguous increase of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`;
     }
     else{
@@ -70,17 +70,17 @@ function renderAmbigiousChangeFull(action, shareClassMap){
 function renderAction(action, shareClassMap) {
     switch(action.type){
         case TransactionTypes.ISSUE_TO:
-        case 'SUBVISION_TO':
-        case 'CONVERSION_TO':
+        case TransactionTypes.SUBVISION_TO:
+        case TransactionTypes.CONVERSION_TO:
             return renderChange(action, shareClassMap);
-        case 'TRANSFER_TO':
+        case TransactionTypes.TRANSFER_TO:
             return renderTransferTo(action, shareClassMap);
-        case 'TRANSFER_FROM':
+        case TransactionTypes.TRANSFER_FROM:
             return renderTransferFrom(action, shareClassMap);
-        case 'PURCHASE_FROM':
-        case 'REDEMPTION_FROM':
-        case 'ACQUISITION_FROM':
-        case 'CONSOLIDATION_FROM':
+        case TransactionTypes.PURCHASE_FROM:
+        case TransactionTypes.REDEMPTION_FROM:
+        case TransactionTypes.ACQUISITION_FROM:
+        case TransactionTypes.CONSOLIDATION_FROM:
             return renderChange(action, shareClassMap);
         default:
             return false;
@@ -102,7 +102,9 @@ function renderActionFull(action, shareClassMap) {
         case 'ACQUISITION_FROM':
         case 'CONSOLIDATION_FROM':
             return renderChangeFull(action, shareClassMap);
-        case 'AMEND':
+        case TransactionTypes.AMEND:
+        case TransactionTypes.REMOVE_ALLOCATION:
+        case TransactionTypes.NEW_ALLOCATION:
             return renderAmbigiousChangeFull(action, shareClassMap);
         default:
             return false;
@@ -290,7 +292,7 @@ export class ShareRegisterDocument extends React.Component {
 
     render() {
         const {shareRegister, shareClassMap, companyState} = this.props;
-        const shareClasses = Object.keys(shareClassMap);
+        const shareClasses = Object.keys(shareClassMap).map(s => parseInt(s, 10) || null);
         let includeDefault = false;
         shareRegister.map(s => {
             if(!s.shareClass){

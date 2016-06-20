@@ -99,7 +99,6 @@ module.exports = {
                               }]})
                     })
                     .then(function(holdingList){
-
                         holdingList.dataValues.holdings.map(function(r){
                             r.isNewRecord = false;
                             r._changed = {};

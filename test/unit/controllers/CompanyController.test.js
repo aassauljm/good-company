@@ -103,7 +103,7 @@ describe('Company Controller', function() {
         });
         it('Confirms no history is present', function(done){
             req.get('/api/company/'+companyId+'/history/1')
-                .expect(400, done);
+                .expect(404, done);
         });
 
     });
@@ -251,6 +251,7 @@ describe('Company Controller', function() {
                 })
                 .catch(done)
             });
+
         it('Gets previous version', function(done){
             req.get('/api/company/'+companyId+'/history/10')
                 .expect(200)
