@@ -17,7 +17,7 @@ module.exports = {
         }
     },
     associations: function(){
-        PendingAction.belongsTo(PendingAction, {
+        Action.belongsTo(Action, {
             as: 'previous',
             foreignKey: {
                 name: 'previous_id',
@@ -26,7 +26,7 @@ module.exports = {
         });
     },
     options: {
-        tableName: 'pending_actions',
+        tableName: 'action',
         classMethods: {},
         instanceMethods: {},
         hooks: {},

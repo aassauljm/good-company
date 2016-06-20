@@ -230,7 +230,7 @@ module.exports = {
                         })
                         .then(function(_state){
                             state = _state;
-                            return PendingAction.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                            return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
                         })
                         .then(function(pendingAction){
                             state.set('pending_historic_action_id', pendingAction[0].id);
@@ -282,13 +282,18 @@ module.exports = {
     },
     updatePendingHistory: function(req, res){
         const args = actionUtil.parseValues(req);
-        let company;
+        let company ,state;
         Company.findById(req.params.id)
         .then(function(_company){
             company  = _company;
+            return company.getCurrentCompanyState()
+        })
+        .then(_state => {
+            state = _state;
             return company.replacePendingActions(args.pendingActions);
         })
         .then(() => {
+            const companyName = state.get('companyName');
             return ActivityLog.create({
                 type: ActivityLog.types.UPDATE_PENDING_HISTORY,
                 userId: req.user.id,

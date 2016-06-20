@@ -126,14 +126,14 @@ module.exports = {
                 name: 's_classes_id'
             }
         });
-        CompanyState.belongsTo(Actions, {
+        CompanyState.belongsTo(Action, {
             as: 'historicActions',
             foreignKey: {
                 as: 'historicActions',
                 name: 'historic_action_id'
             }
         });
-        CompanyState.belongsTo(PendingAction, {
+        CompanyState.belongsTo(Action, {
             as: 'pendingHistoricActions',
             foreignKey: {
                 as: 'pendingHistoricActions',

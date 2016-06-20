@@ -145,7 +145,7 @@ module.exports = {
                 pendingActions.map((pa, i) => {
                     pa.originalId = pa.id;
                     pa.id = uuid.v4();
-                    pa.actions.map(a => a.id = uuid.v4())
+                    (pa.actions || []).map(a => a.id = uuid.v4())
                     if(i-1 >= 0){
                         pendingActions[i-1].previous_id = pa.id;
                     }
@@ -154,11 +154,11 @@ module.exports = {
                 return this.getRootCompanyState()
                     .then(_rootState => {
                         rootState = _rootState;
-                        return PendingActions.bulkCreate(pendingActions);
+                        return Action.bulkCreate(pendingActions);
 
                     })
                     .then(() => {
-                        return rootState.update('pending_historic_action_id', pendingActions[0].id)
+                        return rootState.update({'pending_historic_action_id': pendingActions[0].id})
                     })
             },
 

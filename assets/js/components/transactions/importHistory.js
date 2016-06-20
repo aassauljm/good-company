@@ -97,7 +97,7 @@ FOOTERS[AMBIGUITY] = function(){
     return {
         requestData: () => dispatch(requestResource(`/company/${ownProps.modalData.companyId}/pending_history`)),
         performImport: () => dispatch(createResource(`/company/${ownProps.modalData.companyId}/import_pending_history`,
-                                                     {
+                                                     {}, {
                                                         invalidates: [`/company/${ownProps.modalData.companyId}`]
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),

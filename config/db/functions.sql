@@ -183,17 +183,17 @@ $$ LANGUAGE SQL;
 
 -- A list of pendingActions for a company state
 CREATE OR REPLACE FUNCTION all_pending_actions(companyStateId integer)
-    RETURNS SETOF pending_actions
+    RETURNS SETOF action
     AS $$
 WITH RECURSIVE prev_actions(start_id, id, "previous_id") as (
-    SELECT t.id as start_id, t.id, t."previous_id" FROM pending_actions t
+    SELECT t.id as start_id, t.id, t."previous_id" FROM action t
     UNION ALL
     SELECT pa.start_id, t.id, t."previous_id"
-    FROM pending_actions t, prev_actions pa
+    FROM action t, prev_actions pa
     WHERE t.id = pa."previous_id"
 )
     SELECT p.* from prev_actions pa
-    join pending_actions p on p.id = pa.id
+    join action p on p.id = pa.id
     join company_state cs on cs.pending_historic_action_id = pa.start_id
     where cs.id = root_company_state($1)
 $$ LANGUAGE SQL;
