@@ -1,5 +1,6 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var webpack = require('webpack')
+
 var DEV = process.env.NODE_ENV !== 'production';
 var definePlugin = new webpack.DefinePlugin({
     __DEV__: DEV,

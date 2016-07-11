@@ -981,7 +981,6 @@ export function performInverseTransaction(data, company, rootState){
         })
         .then(function(_prevState){
             prevState = _prevState;
-            console.log(JSON.stringify(prevState.holdingList.holdings.map(h => h.transactionId, null, 4)));
             //prevState.dataValues.transactionId = null;
             //prevState.dataValues.transaction = null;
             return Promise.reduce(data.actions, function(arr, action){

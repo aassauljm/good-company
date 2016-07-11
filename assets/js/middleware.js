@@ -1,6 +1,7 @@
 "use strict";
 import Promise from 'bluebird';
-
+import { logout } from './actions';
+import { push } from 'react-router-redux'
 
 function checkStatus(response) {
   if (response.status >= 200 && response.status <= 304) {
@@ -63,6 +64,11 @@ export function callAPIMiddleware({
                     type: successType
                 })))
                 .catch(error => {
+                    if(error.response.status === 403){
+                        dispatch(logout());
+                        dispatch(push('/login'))
+                        return;
+                    }
                     if(error.response){
                         return parseJSON(error.response)
                         .then(response => {

@@ -1,7 +1,7 @@
 import { fetch } from './utils';
 import FormData from 'form-data';
 import {
-    LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
+    LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT,
     SIGNUP_REQUEST, SIGNUP_SUCCESS, SIGNUP_FAILURE,
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
     SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE,
@@ -65,6 +65,9 @@ export function requestLogin(credentials) {
             body: JSON.stringify(credentials)
         })
     };
+}
+export function logout() {
+    return {type: LOGOUT}
 }
 
 export function setPassword(data) {
@@ -232,6 +235,7 @@ export function companyTransaction(transactionType, companyId, data) {
     const body = new FormData();
     body.append('json', JSON.stringify({...data, documents: null}));
     (data.documents ||[]).map(d => {
+        // documents[] ?????
         body.append('documents', d, d.name);
     });
     return {

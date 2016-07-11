@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import {
-    LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
+    LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT,
     SIGNUP_REQUEST, SIGNUP_SUCCESS, SIGNUP_FAILURE,
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
     SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE,
@@ -53,6 +53,7 @@ function login(state = {
             return state;
         case LOGIN_SUCCESS:
             return {...state, loggedIn: true};
+        case LOGOUT:
         case LOGIN_FAILURE:
             return {...state, loggedIn: false};
         case RESOURCE_CREATE_SUCCESS:

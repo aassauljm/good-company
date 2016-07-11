@@ -13,16 +13,16 @@ import { prepareApp, waitFor } from './helpers';
 import { LoginForm } from ".../../../../assets/js/components/login.js";
 import { Modals } from ".../../../../assets/js/components/modals.js";
 import { ShareClasses } from ".../../../../assets/js/components/shareClasses.js";
-import Modal from 'react-bootstrap/lib/Modal';
+import Search from '.../../../../assets/js/components/search.js';
 import chai from 'chai';
 const should = chai.should();
 
 
-describe.skip('Company Integration Tests', () => {
+describe('Company Integration Tests', () => {
     before('render', prepareApp);
 
     it('Imports Company', function(done){
-        let modal;
+        let search;
         const dom = this.dom,
             form = findRenderedComponentWithType(this.tree, LoginForm),
         input = findRenderedDOMComponentWithTag(form.refs.identifier, 'input'),
@@ -38,22 +38,20 @@ describe.skip('Company Integration Tests', () => {
                 return waitFor('Waiting for user info', '.username.nav-link', dom);
             })
             .then(() => {
-                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'nav-companies'));
-                return waitFor('Companies page to load', '.company-import', dom);
+                return waitFor('Companies page to load', '.auto-suggest', dom);
             })
             .then(() => {
-                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'company-import'));
-                modal = findRenderedComponentWithType(this.tree, Modal)._modal;
-                const input = findRenderedDOMComponentWithTag(modal, 'input');
+                search = findRenderedComponentWithType(this.tree, Search);
+                const input = findRenderedDOMComponentWithTag(search, 'input');
                 input.value = 'integration_test'
                 Simulate.change(input);
-                return waitFor('Modal results to appear', '.modal-body .list-group button', ReactDOM.findDOMNode(modal));
+                return waitFor('Drop down results to appear', '.suggest-container');
             })
             .then(() => {
                 // Click 2nd item
-                Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[1]);
+                //Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[1]);
                 // Import
-                Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[0]);
+                //Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[0]);
                 // Can take some time
                 return waitFor('Company page to load', '.company', dom, 10000);
             })
@@ -62,7 +60,7 @@ describe.skip('Company Integration Tests', () => {
             })
             .catch(done);
    });
-    it('Sets up shares', function(done){
+    /*it('Sets up shares', function(done){
         const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-classes');
         Simulate.click(linkNode, {button: 0});
         return waitFor('Share class page to load', '.create-new', this.dom)
@@ -93,7 +91,7 @@ describe.skip('Company Integration Tests', () => {
                 Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'return-company-page'), {button: 0});
                 done();
             })
-    });
+    });*/
 
     /*it('Applies share classes', function(done){
         let modal;
