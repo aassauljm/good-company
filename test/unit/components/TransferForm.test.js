@@ -326,7 +326,7 @@ describe('Transfer form', () => {
                       from: '2',
                       to: '1',
                       newHolding: undefined,
-                      parcels: [ { shareClass: '2', amount: '2' } ],
+                      parcels: [ { shareClass: '2', amount: 2 } ],
                       documents: undefined })
                 done();
             });
