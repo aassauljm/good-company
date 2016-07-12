@@ -9,6 +9,15 @@ var Promise = require('bluebird');
 var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 
 
+function removeUndefinedValues(obj){
+    return Object.keys(obj).reduce((acc, k) => {
+        if(obj[k]){
+            acc[k] = obj[k];
+        }
+        return acc;
+    }, {})
+}
+
 module.exports = {
     _config: {
         actions: false,
@@ -328,7 +337,8 @@ module.exports = {
                 }
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
-                            return Person.find({where: person})
+                            // TODO, no, collapse this graph
+                            return Person.find({where: removeUndefinedValues(person)})
                         .then(function(p){
                             if(p){
                                 return p.personId
