@@ -17,7 +17,7 @@ function transferHolders(filter, siblings){
     }
     else{
         return joinAnd(siblings.filter(s => s.type === filter).map(s => {
-            return joinAnd((s.data.afterHolders || s.data.holders).map(h => h.name))
+            return joinAnd((s.holding_persons).map(h => h.name))
         }))
     }
 }

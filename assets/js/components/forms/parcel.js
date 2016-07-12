@@ -16,7 +16,7 @@ export class ParcelWithRemove extends React.Component {
                     </div>
                     <div >
                         <Input  className="shareClass" type="select" {...this.formFieldProps('shareClass')}  label={null}>
-                            <option value='' className="default">No Share Class</option>
+                            <option value='undefined' className="default">No Share Class</option>
                             { this.props.shareOptions }
                         </Input>
                     </div>

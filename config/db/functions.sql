@@ -318,16 +318,6 @@ $$ LANGUAGE SQL STABLE;
 
 
 CREATE OR REPLACE FUNCTION transaction_siblings(integer)
-    RETURNS SETOF transaction
-    AS $$
-    SELECT ttt.* FROM transaction t
-    LEFT OUTER JOIN transaction tt on tt.id = t."parentTransactionId"
-    LEFT OUTER JOIN transaction ttt on tt.id = ttt."parentTransactionId"
-    WHERE t.id = $1 and ttt.id != $1
-$$ LANGUAGE SQL;
-
-
-CREATE OR REPLACE FUNCTION transaction_siblings(integer)
 RETURNS SETOF transaction
 AS $$
 SELECT ttt.* FROM transaction t
@@ -335,6 +325,18 @@ LEFT OUTER JOIN transaction tt on tt.id = t."parentTransactionId"
 LEFT OUTER JOIN transaction ttt on tt.id = ttt."parentTransactionId"
 WHERE t.id = $1 and ttt.id != $1
 $$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION holding_persons(id integer)
+RETURNS SETOF JSON
+
+AS $$
+SELECT array_to_json(array_agg(row_to_json(qq))) FROM
+    ( SELECT * FROM holding h
+    left outer join "holderJ" hj on h.id = hj."holdingId"
+    left outer join person p on hj."holderId" = p.id
+    WHERE h.id = $1) qq;
+
+$$ LANGUAGE SQL STABLE;
 
 
 -- Bloated function to create the share register
@@ -397,7 +399,8 @@ FROM (
 
 WITH transaction_history as (
     SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as shareClass,
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT * from transaction_siblings(t.id)) qq) as siblings, "startId",
+    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
+    "startId",
     generation
     FROM person_holdings ph
     INNER JOIN transaction t on t.id = ph."transactionId"

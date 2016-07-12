@@ -638,6 +638,7 @@ module.exports = {
                             (!holdingToAdd.holdingId && nextHolding.holdersMatch(holdingToAdd, {ignoreCompanyNumber: true}))) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             holdings[j] = nextHolding = nextHolding.buildNext();
+
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
                             }

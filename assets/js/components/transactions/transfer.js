@@ -145,7 +145,6 @@ export function transferFormatSubmit(values, companyState){
         }, {})
         return acc;
     }, {})
-
     values.parcels.map(p => {
         const amount = parseInt(p.amount, 10);
         const shareClass = parseInt(p.shareClass, 10) || null;

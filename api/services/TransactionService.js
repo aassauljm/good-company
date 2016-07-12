@@ -707,17 +707,17 @@ export const performAmend = Promise.method(function(data, companyState, previous
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
             const newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
             const transactionType  = data.transactionType;
+            let matches;
             transaction = Transaction.build({type: data.transactionSubType || transactionType,
                 data: {...data, amount: parcel.amount}, effectiveDate: effectiveDate});
 
-
             if(difference < 0){
                 companyState.combineUnallocatedParcels(parcel);
-                companyState.subtractHoldings([newHolding], null, transaction);
+                matches = companyState.subtractHoldings([newHolding], null, transaction);
             }
             else{
                 companyState.subtractUnallocatedParcels(parcel);
-                companyState.combineHoldings([newHolding], null, transaction);
+                matches = companyState.combineHoldings([newHolding], null, transaction);
             }
             return transaction;
         })
