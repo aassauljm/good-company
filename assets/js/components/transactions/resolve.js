@@ -20,6 +20,23 @@ function companiesOfficeDocumentUrl(companyState, documentId){
 }
 
 
+function sourceInfo(companyState, actionSet){
+    return <div className="summary outline">
+        <div className="outline-header">
+            <div className="outline-title">Source Information</div>
+        </div>
+            <div className="row">
+            <div className="col-md-6 summary-label">Registration Date & Time</div>
+            <div className="col-md-6">{stringToDateTime(actionSet.data.date)}</div>
+        </div>
+            <div className="row">
+            <div className="col-md-6 summary-label">Source Document</div>
+            <div className="col-md-6"><Link target="_blank" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
+            </div>
+    </div>
+
+}
+
 const DESCRIPTIONS = {
     [TransactionTypes.HOLDING_CHANGE]: function(context, companyState){
         const { action, actionSet } = context;
@@ -32,20 +49,8 @@ const DESCRIPTIONS = {
         return <div>
                 <div className="row">
                     <div className="col-md-6 col-md-offset-3">
-                    <div className="summary outline">
-                        <div className="outline-header">
-                            <div className="outline-title">Source Information</div>
-                        </div>
-                            <div className="row">
-                            <div className="col-md-6 summary-label">Registration Date & Time</div>
-                            <div className="col-md-6">{stringToDateTime(actionSet.data.date)}</div>
-                            </div>
-                            <div className="row">
-                            <div className="col-md-6 summary-label">Source Document</div>
-                            <div className="col-md-6"><Link target="_blank" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
-                            </div>
-                            </div>
-                        </div>
+                        { sourceInfo(companyState, actionSet) }
+                    </div>
                 </div>
                 <div className="row">
                     <div className="col-md-12">
@@ -78,7 +83,16 @@ const DESCRIPTIONS = {
             <p className="text-danger">An Annual Return's listings did not match our own.</p>
         </div>
     },
-
+    [TransactionTypes.AMEND]: function(context, companyState){
+        const { action, actionSet } = context;
+        return <div>
+                <div className="row">
+                    <div className="col-md-6 col-md-offset-3">
+                        { sourceInfo(companyState, actionSet) }
+                    </div>
+                </div>
+            </div>
+    },
 
 }
 
@@ -95,7 +109,7 @@ const PAGES = {
                 return a;
             })
             submit({
-                pendingActions: [{id: context.actionSet.id, data: updatedActions}]
+                pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
             })
         }
         return <div>
@@ -113,12 +127,12 @@ const PAGES = {
     [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: function(context, companyState, submit){
         function skip(){
             return submit({
-                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
             })
         }
         function startOver(){
             return submit({
-                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
             })
         }
         return <div className="button-row">
@@ -129,18 +143,22 @@ const PAGES = {
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: function(context, companyState, submit){
         function skip(){
             return submit({
-                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
             })
         }
         function startOver(){
             return submit({
-                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}}]
+                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
             })
         }
         return <div className="button-row">
             <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button>
             <Button onClick={startOver} className="btn-danger">Restart Import</Button>
         </div>
+    },
+    [ImportErrorTypes.UNKNOWN_AMEND]: function(context, companyState, submit){
+        console.log(context)
+        return <div>We were unable to infer why these allocations changed.</div>
     }
 }
 

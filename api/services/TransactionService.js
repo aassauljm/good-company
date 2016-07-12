@@ -90,7 +90,7 @@ export function performAnnualReturn(data, companyState, previousState, effective
 
 
 export function validateInverseAmend(amend, companyState){
-    if(false && amend.transactionType === Transaction.types.AMEND){
+    if(amend.transactionType === Transaction.types.AMEND){
         throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
             action: amend,
             importErrorType: sails.config.enums.UNKNOWN_AMEND
@@ -185,7 +185,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
     data = _.cloneDeep(data);
     return Promise.resolve({})
         .then(() => {
-            return validateInverseAmend(data, companyState)
+            return validateInverseAmend(data, companyState);
         })
         .then((_holding) => {
             holding = _holding;
@@ -1168,7 +1168,7 @@ export function performInverseAllPendingResolve(company, root){
 
 export function performInverseAllPending(company){
     // unlike above this will commit all successful transactions, and complain when one fails
-    let state, current;
+    let state, current, firstError;
     function perform(actions){
         return Promise.each(actions, (actionSet, i) => {
             return sequelize.transaction(function(t){
@@ -1183,15 +1183,16 @@ export function performInverseAllPending(company){
                 })
             })
             .catch(sails.config.exceptions.AmbiguousInverseOperation, e => {
-                sails.log.info('Ambiguious Transaction found, switching to automatic resolve mode')
+                sails.log.info('Ambiguous Transaction found, switching to automatic resolve mode');
+                firstError = e;
+                firstError.context = firstError.context || {};
+                firstError.context.actionSet = current;
                 return performInverseAllPendingResolve(company);
             })
             .catch(e => {
                 sails.log.error(e)
                 sails.log.error('Failed import on action: ', JSON.stringify(current));
-                e.context = e.context || {};
-                e.context.actionSet = current;
-                throw e;
+                throw firstError;
             })
 
     }

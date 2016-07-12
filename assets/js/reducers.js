@@ -245,7 +245,7 @@ function resources(state = default_resources, action){
                         return acc;
                     }, acc);
                 }, {});
-                return {...state, ...invalidated }
+                return {...state, ...invalidated, ...{[action.key]: {...{data: action.response, _status: 'complete'}}} }
             }
             else{
                 // basically invalidate our entire cache

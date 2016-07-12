@@ -11,7 +11,8 @@ module.exports = {
         sails.log.verbose('Inferring amend types');
 
         const results = [];
-        const types = [Transaction.types.AMEND, Transaction.types.NEW_ALLOCATION];
+        const types = [Transaction.types.AMEND, Transaction.types.NEW_ALLOCATION, Transaction.types.REMOVE_ALLOCATION];
+
         return _.reduce(actionSets, (acc, d, i) => {
             const needsInference = _.any(d.actions, a => types.indexOf(a.transactionType) >= 0);
             if(needsInference){
@@ -28,13 +29,11 @@ module.exports = {
                     }
                     return null;
                 }
-                const allocationsUp = _.filter(d.actions, a => types.indexOf(a.transactionType) >= 0 && a.afterAmount > a.beforeAmount);
-                const allocationsDown = _.filter(d.actions, a => types.indexOf(a.transactionType) >= 0 && a.afterAmount < a.beforeAmount);
-
+                const allocationsUp = _.filter(d.actions, a => types.indexOf(a.transactionType) >= 0 && a.afterAmount > a.beforeAmount).length;
+                const allocationsDown = _.filter(d.actions, a => types.indexOf(a.transactionType) >= 0 && a.afterAmount < a.beforeAmount).length;
                 // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
                     // totalShares = zero SHOULD mean transfers.  Hopefully.
-
                     d.actions.map(a => {
                         a.transactionMethod = a.transactionType;
                         if(a.transactionType === Transaction.types.NEW_ALLOCATION){
@@ -62,6 +61,12 @@ module.exports = {
                                         case Transaction.types.ISSUE_UNALLOCATED:
                                             a.transactionType = Transaction.types.ISSUE_TO;
                                             break;
+                                        case Transaction.types.CONVERSION:
+                                            a.transactionType = Transaction.types.CONVERSIO_TO;
+                                            break;
+                                        case Transaction.types.SUBDIVISION:
+                                            a.transactionType = Transaction.types.SUBDIVISION_TO;
+                                            break;
                                     }
                                 });
                             }
@@ -83,6 +88,13 @@ module.exports = {
                                             break;
                                         case Transaction.types.ACQUISITION:
                                             a.transactionType = Transaction.types.ACQUISITION_FROM;
+                                            break;
+
+                                        case Transaction.types.CONSOLIDATION:
+                                            a.transactionType = Transaction.types.CONSOLIDATIONFROM;
+                                            break;
+                                        case Transaction.types.REDEMPTION:
+                                            a.transactionType = Transaction.types.REDEMPTION_FROM;
                                             break;
                                     }
                                 });

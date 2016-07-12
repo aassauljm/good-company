@@ -42,7 +42,7 @@ PAGES[LOADING] = function() {
     if(this.props.importHistory._status === 'fetching'){
         return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
     }
-    else if(this.props.importHistory._status === 'complete' && !this.props.modalData.companyState.warnings.pendingHistory){
+    else if(this.props.importHistory._status === 'complete'){
        return <div><p>All Companies Office documents have successfully been imported.</p></div>
     }
 };
@@ -91,7 +91,8 @@ FOOTERS[AMBIGUITY] = function(){
 @connect((state, ownProps) => {
     return {
         pendingHistory: state.resources[`/company/${ownProps.modalData.companyId}/pending_history`] || {},
-        importHistory: state.resources[`/company/${ownProps.modalData.companyId}/import_pending_history`] || {}
+        importHistory: state.resources[`/company/${ownProps.modalData.companyId}/import_pending_history`] || {},
+        companyState: state.resources[`/company/${ownProps.modalData.companyId}`] || {},
     };
 }, (dispatch, ownProps) => {
     return {
