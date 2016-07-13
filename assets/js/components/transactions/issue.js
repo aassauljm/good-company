@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
-import { formFieldProps, requireFields, joinAnd } from '../../utils';
+import { formFieldProps, requireFields, joinAnd, renderShareClass, generateShareClassMap } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
@@ -53,16 +53,18 @@ const validate = (data, props) => {
         parcels: data.parcels.map(p => {
             const errors = requireFields('amount')(p);
             const amount = parseInt(p.amount, 10);
+
+            const shareClass = parseInt(p.shareClass, 10) || '';
             if(!amount){
                 errors.amount = ['Required.'];
             }
             else if(amount <= 0){
                 errors.amount = ['Must be greater than 0.'];
             }
-            if(classes[p.shareClass]){
+            if(classes[shareClass]){
                 errors.shareClass = ['Duplicate share class.'];
             }
-            classes[p.shareClass] = true;
+            classes[shareClass] = true;
             return errors;
         }),
         holdings: data.holdings.map(h => {
@@ -70,7 +72,7 @@ const validate = (data, props) => {
             const errors = requireFields('holding')(h);
             errors.parcels = h.parcels.map(p => {
                 const errors = {};
-                const shareClass = p.shareClass || undefined
+                const shareClass = parseInt(p.shareClass, 10) || '';
                 const amount = parseInt(p.amount, 10);
                 if(!amount){
                     errors.amount = ['Required.'];
@@ -104,17 +106,18 @@ export class Issue extends React.Component {
     static propTypes = {
         holdingOptions: PropTypes.array.isRequired,
         shareOptions: PropTypes.array.isRequired,
+        shareClassMap: PropTypes.object.isRequired,
     };
 
     renderRemaining() {
         if(this.props.error && this.props.error.remainder){
             return Object.keys(this.props.error.remainder).map(r => {
-                return <div key={r}>
+                return this.props.error.remainder[r] && <div key={r}>
                     <div className="alert alert-danger">
                         { this.props.error.remainder[r] > 0 && <span >There are <strong>
-                            { this.props.error.remainder[r] }</strong> shares of class { r || STRINGS.defaultShareClass  } shares left to allocate.</span> }
+                            { this.props.error.remainder[r] }</strong> shares of class { renderShareClass(r, this.props.shareClassMap)} shares left to allocate.</span> }
                         { this.props.error.remainder[r] < 0 && <span >There are <strong>
-                            { -this.props.error.remainder[r] }</strong> shares of class { r || STRINGS.defaultShareClass  } shares over allocated.</span> }
+                            { -this.props.error.remainder[r] }</strong> shares of class { renderShareClass(r, this.props.shareClassMap) } shares over allocated.</span> }
                     </div>
                 </div>
             });
@@ -286,7 +289,7 @@ export class IssueModal extends React.Component {
             acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || undefined }));
             return acc;
         }, {});
-
+        const shareClassMap = generateShareClassMap(companyState);
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <IssueConnected ref="form"
@@ -302,6 +305,7 @@ export class IssueModal extends React.Component {
                             showModal: {key: 'issue', data: {...this.props.modalData}}
                         }
                     }))}
+                    shareClassMap={shareClassMap}
                     onSubmit={this.submit}/>
                 </div>
             </div>

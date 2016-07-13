@@ -61,13 +61,31 @@ function decreaseOptions(){
 };
 
 
+function findHolding(companyState, action, existing){
+    // same names, forget addresses for nwo
+    function personsMatch(h1, h2){
+        const h2Names = h2.map(h => h.name.toLowerCase());
+        return h1.every(p => h2Names.indexOf(p.name.toLowerCase()) >= 0)
+    }
+
+    function parcelsMatch(p1, p2){
+        // forget shareClass for now
+        const sum1 = p1.reduce((sum, p) => sum+p.amount, 0);
+        const sum2 = p2.reduce((sum, p) => sum+p.amount, 0);
+        return sum1 === sum2;
+    }
+
+    return companyState.holdingList.holdings.filter(h => {
+        return personsMatch(action.afterHolders || action.holders, h.holders) &&
+                parcelsMatch([{amount: action.afterAmount || action.amount, shareClass: action.shareClass}], h.parcels) &&
+                existing.indexOf(h) < 0
+    })[0];
+}
+
 const amendFields = [
     'actions[].type',
-    'actions[].data'
+    'actions[].otherHoldings[]'
 ];
-
-
-
 
 
 function renderHolders(h, i){
@@ -77,15 +95,25 @@ function renderHolders(h, i){
     </div>
 }
 
-
+function isTransfer(type){
+    return [TransactionTypes.TRANSFER_FROM, TransactionTypes.TRANSFER_TO].indexOf(type) >= 0;
+}
 
 @formFieldProps()
 class AmendOptions extends React.Component {
+    renderTransfer(action, actions) {
+        const holders = actions.map(a => {
+            return a.afterHolders || a.holders;
+        })
+        return <div className="row">
+
+        </div>
+    }
     render() {
-        const { shareClassMap, fields: {actions} } = this.props;
+        const { shareClassMap, fields: {actions}, amendActions } = this.props;
         return <div>
-            { actions.map((a, i) => {
-                const action = a.data.value;
+            { actions.map((field, i) => {
+                const action = amendActions[i];
                 const increase = action.afterAmount > action.beforeAmount || !action.beforeHolders;
                 const beforeShares = action.beforeHolders ? `${action.beforeAmount} ${renderShareClass(action.shareClass, shareClassMap)} Shares` : 'No Shares';
                 const afterShares = `${action.beforeHolders ? action.afterAmount : action.amount} ${renderShareClass(action.shareClass, shareClassMap)} Shares`;
@@ -101,7 +129,7 @@ class AmendOptions extends React.Component {
                     <div className="col-md-2">
                         <div className="text-center">
                             <Glyphicon glyph="arrow-right" className="big-arrow"/>
-                        <div className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares { increase ? 'added to' : 'removed from'} share allocation by a:</div>
+                            <p><span className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares { increase ? 'added' : 'removed'} via a:</span></p>
                         </div>
                                 <Input type="select" {...this.formFieldProps(['actions', i, 'type'])} label={false}>
                                 <option value=""  disabled></option>
@@ -116,6 +144,7 @@ class AmendOptions extends React.Component {
                         </div>
                     </div>
                 </div>
+                { isTransfer(field.type.value)  && this.renderTransfer(action, amendActions)}
                 <hr/>
                 </div>
             }) }
@@ -123,9 +152,27 @@ class AmendOptions extends React.Component {
     }
 }
 
+
+const validateAmend = (values, props) => {
+    const errors = {};
+    errors.actions = values.actions.map(action => {
+        const errors = {};
+        if(!action.type){
+            errors.type = ['Required']
+        }
+        if(isTransfer(action.type)){
+            // do sums
+        }
+
+        return errors;
+    })
+    return errors;
+}
+
 const AmendOptionsConnected = reduxForm({
     fields: amendFields,
-    form: 'amendAction'
+    form: 'amendAction',
+    validate: validateAmend
 })(AmendOptions);
 
 
@@ -238,125 +285,11 @@ const PAGES = {
             <Button onClick={startOver} className="btn-danger">Restart Import</Button>
         </div>
     },
-    [ImportErrorTypes.UNKNOWN_AMEND1]: function(context, submit){
-        const { actionSet, companyState } = context;
-        const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
-        const increases = amendActions.filter(a => {
-            return a.transactionType === TransactionTypes.NEW_ALLOCATION || a.beforeAmount < a.beforeAmount;
-        });
-        const decreases = amendActions.filter(a => {
-            return a.beforeAmount > a.afterAmount;
-        });
-        const shareClassMap = generateShareClassMap(companyState)
-        function findHolding(companyState, action, existing){
-            // same names, forget addresses for nwo
-            function personsMatch(h1, h2){
-                const h2Names = h2.map(h => h.name.toLowerCase());
-                return h1.every(p => h2Names.indexOf(p.name.toLowerCase()) >= 0)
-            }
-
-            function parcelsMatch(p1, p2){
-                // forget shareClass for now
-                const sum1 = p1.reduce((sum, p) => sum+p.amount, 0);
-                const sum2 = p2.reduce((sum, p) => sum+p.amount, 0);
-                return sum1 === sum2;
-            }
-
-            return companyState.holdingList.holdings.filter(h => {
-                return personsMatch(action.afterHolders || action.holders, h.holders) &&
-                        parcelsMatch([{amount: action.afterAmount || action.amount, shareClass: action.shareClass}], h.parcels) &&
-                        existing.indexOf(h) < 0
-            })[0];
-        }
-        const existing = [];
-        return <div>
-             <div className="row">
-                <div className="col-md-12">
-                <p className="instructions">What happened to result in the shareholdings below?</p>
-                </div>
-             </div>
-
-            { decreases.map((decrease, i) => {
-                const match = findHolding(companyState, decrease, existing);
-                existing.push(match);
-                return <div className="row" key={i}>
-                    <div className="col-md-6">
-                     <p>Decreased { decrease.amount } { renderShareClass(decrease.shareClass, shareClassMap)} Shares</p>
-                    <Holding holding={match} total={companyState.totalShares} shareClassMap={shareClassMap}/>
-                    <DisambiguateAmendConnected increase={false} formKey={`decrease-${i}`} />
-                </div>
-                </div>
-            })}
-
-            { increases.map((increase, i) => {
-                const match = findHolding(companyState, increase, existing);
-                existing.push(match);
-                return  <div className="row" key={i}>
-                <div className="col-md-6"></div>
-                    <div className="col-md-6">
-                    <p>Increased { increase.amount } { renderShareClass(increase.shareClass, shareClassMap)} Shares</p>
-                    <Holding holding={match} total={companyState.totalShares} shareClassMap={shareClassMap}/>
-
-                </div>
-                </div>
-            })}
-        </div>
-    },
-    [ImportErrorTypes.UNKNOWN_AMEND2]: function(context, submit){
-        const { actionSet, companyState } = context;
-        const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
-        const shareClassMap = generateShareClassMap(companyState)
-        return <div>
-
-                { amendActions.map((action, i) => {
-                    if(action.beforeHolders){
-                        return <div className="row separated-row" key={i}>
-                            <div className="col-md-5">
-                                <div className="shareholding action-description outline">
-                                 <div className="shares">{ action.beforeAmount } { renderShareClass(action.shareClass, shareClassMap)} Shares</div>
-                                { action.beforeHolders.map(renderHolders) }
-                                </div>
-                            </div>
-                            <div className="col-md-2">
-                                <div className="text-center">
-                                    <Glyphicon glyph="arrow-right" className="big-arrow"/>
-                                </div>
-                                <DisambiguateAmendConnected increase={action.afterAmount > action.beforeAmount} formKey={`${i}`} />
-                            </div>
-                            <div className="col-md-5">
-                                <div className="shareholding action-description outline">
-                                 <div className="shares">{ action.afterAmount } { renderShareClass(action.shareClass, shareClassMap)} Shares</div>
-                                { action.afterHolders.map(renderHolders) }
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    else{
-                         return <div className="row separated-row" key={i}>
-                            <div className="col-md-5">
-                            </div>
-                            <div className="col-md-2">
-                                <div className="text-center">
-                                    <Glyphicon glyph="arrow-right" className="big-arrow"/>
-                                <DisambiguateAmendConnected increase={true} formKey={`${i}`} />
-                                </div>
-                            </div>
-                            <div className="col-md-5">
-                                <div className="shareholding action-description outline">
-                                <div className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares</div>
-                                { action.holders.map(renderHolders) }
-                                </div>
-                            </div>
-                        </div>
-                    }
-            }) }
-        </div>
-    },
     [ImportErrorTypes.UNKNOWN_AMEND]: function(context, submit){
         const { actionSet, companyState } = context;
         const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
         const shareClassMap = generateShareClassMap(companyState);
-        const initialValues = {actions: amendActions.map(a => ({data: a}))};
+        const initialValues = {actions: amendActions.map(a => ({}))};
         return <div>
                 <AmendOptionsConnected amendActions={amendActions} shareClassMap={shareClassMap} initialValues={initialValues} />
                 </div>

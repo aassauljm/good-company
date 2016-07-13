@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
-import { formFieldProps, requireFields, joinAnd } from '../../utils';
+import { formFieldProps, requireFields, joinAnd, renderShareClass, generateShareClassMap } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
@@ -49,7 +49,8 @@ const validate = (data, props) => {
         parcels: data.parcels.map(p => {
             const errors = requireFields('amount')(p);
             const amount = parseInt(p.amount, 10);
-            if(classes[p.shareClass || '']){
+            const shareClass = parseInt(p.shareClass, 10) || '';
+            if(classes[shareClass]){
                 errors.shareClass = ['Duplicate share class.'];
             }
             if(!amount){
@@ -59,7 +60,7 @@ const validate = (data, props) => {
                 errors.amount = (errors.amount || []).concat(['Must be greater than 0.']);
             }
             // check if has enough
-            classes[p.shareClass] = true;
+            classes[shareClass] = true;
             return errors;
         }),
         holdings: data.holdings.map(h => {
@@ -68,7 +69,8 @@ const validate = (data, props) => {
             errors.parcels = h.parcels.map(p => {
                 const errors = {};
                 const amount = parseInt(p.amount, 10);
-                if(classes[p.shareClass || '']){
+                const shareClass = parseInt(p.shareClass, 10) || '';
+                if(classes[shareClass]){
                     errors.shareClass = ['Duplicate share class.'];
                 }
                 if(!amount){
@@ -77,13 +79,13 @@ const validate = (data, props) => {
                 else if(amount <= 0){
                     errors.amount = (errors.amount || []).concat(['Must be greater than 0.']);
                 }
-                classes[p.shareClass || ''] = true;
+                classes[p.shareClass] = true;
                 if(h.holding){
                     const matchedParcels = props.holdingMap[h.holding].filter(sP => {
-                        if(sP.shareClass === p.shareClass && amount > sP.amount){
+                        if(sP.shareClass === shareClass && amount > sP.amount){
                             errors.amount = (errors.amount || []).concat(['Insufficient shares in source holding.']);
                         }
-                        return sP.shareClass === p.shareClass;
+                        return sP.shareClass === shareClass;
                     });
                     if(!matchedParcels.length){
                         errors.shareClass = (errors.shareClass || []).concat(['Source does not have any parcels of this share class.']);
@@ -112,17 +114,18 @@ export class Decrease extends React.Component {
         remainderVerb: PropTypes.string.isRequired,
         overVerb: PropTypes.string.isRequired,
         parcelHeading: PropTypes.string.isRequired,
+        shareClassMap: PropTypes.object.isRequired,
     };
 
     renderRemaining() {
         if(this.props.error && this.props.error.remainder){
             return Object.keys(this.props.error.remainder).map(r => {
-                return <div key={r}>
+                return this.props.error.remainder[r] && <div key={r}>
                     <div className="alert alert-danger">
                         { this.props.error.remainder[r] > 0 && <span >There are <strong>
-                            { this.props.error.remainder[r] }</strong> shares of class { r || STRINGS.defaultShareClass  } shares left to {this.props.remainderVerb}. </span> }
+                            { this.props.error.remainder[r] }</strong> shares of class { renderShareClass(r, this.props.shareClassMap)}  shares left to {this.props.remainderVerb}. </span> }
                         { this.props.error.remainder[r] < 0 && <span >There are <strong>
-                            { -this.props.error.remainder[r] }</strong> shares of class { r || STRINGS.defaultShareClass  } shares over {this.props.overVerb}.</span> }
+                            { -this.props.error.remainder[r] }</strong> shares of class { renderShareClass(r, this.props.shareClassMap)}  shares over {this.props.overVerb}.</span> }
                     </div>
                 </div>
             });
@@ -295,7 +298,7 @@ export class DecreaseModal extends React.Component {
             acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || undefined }));
             return acc;
         }, {});
-
+        const shareClassMap = generateShareClassMap(companyState);
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <DecreaseConnected ref="form"
@@ -305,6 +308,7 @@ export class DecreaseModal extends React.Component {
                     form={this.props.formName}
                     shareOptions={shareOptions}
                     onSubmit={this.submit}
+                    shareClassMap={shareClassMap}
                     {...this.props.formOptions}/>
                 </div>
             </div>
