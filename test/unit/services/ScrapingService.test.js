@@ -91,7 +91,7 @@ describe('Scraping Service', function() {
         })
     });
 
-    describe('Parse Xero documents', function() {
+    describe.skip('Parse Xero documents', function() {
         it('get and apply data structures for each file', function(done) {
             var data, company, startStats, amend, issue, secondStats;
             fs.readFileAsync('test/fixtures/companies_office/xero.json', 'utf8')

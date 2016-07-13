@@ -999,6 +999,11 @@ module.exports = {
                 else{
                     return this.fullPopulate();
                 }
+            },
+            fullPopulateJSON: function(){
+                return this.fullPopulate()
+                .then(() => this.stats())
+                .then((stats) => ({...this.toJSON(), ...stats}))
             }
         },
         hooks: {

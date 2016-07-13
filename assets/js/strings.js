@@ -58,6 +58,8 @@ export default {
         TRANSFER_FROM: 'Transfer From',
         CONVERSION_TO: 'Conversion To',
         CONVERSION: 'Conversion',
+        SUBDIVISION: 'Subdivison',
+        SUBDIVISION_TO: 'Subdivison To',
         ACQUISITION: 'Acquisition',
         ACQUISITION_TO: 'Acquisition To',
         ANNUAL_RETURN: 'Annual Return',

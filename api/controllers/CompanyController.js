@@ -58,15 +58,10 @@ module.exports = {
             })
             .then(function(company) {
                 this.company = company;
-                return this.company.currentCompanyState.fullPopulate();
+                return this.company.currentCompanyState.fullPopulateJSON();
             })
-            .then(function(){
-                return this.company.currentCompanyState.stats()
-            })
-            .then(function(stats){
-                const json = this.company.toJSON();
-                json.currentCompanyState = _.merge(json.currentCompanyState, stats);
-                return res.json(json);
+            .then(function(currentCompanyState){
+                return res.json({...this.company.toJSON(), currentCompanyState: currentCompanyState});
             })
             .catch(function(err) {
                 return res.notFound(err);

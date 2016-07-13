@@ -404,6 +404,13 @@ export const performHolderChange = function(data, companyState, previousState, e
 
 
 export  function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
+    if(data.transactionType === Transaction.types.AMEND){
+        throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
+            action: data,
+            importErrorType: sails.config.enums.UNKNOWN_AMEND
+        })
+    }
+
     data = _.cloneDeep(data);
     return companyState.dataValues.holdingList.buildNext()
     .then(function(holdingList){
@@ -719,6 +726,9 @@ export const performAmend = Promise.method(function(data, companyState, previous
                 companyState.subtractUnallocatedParcels(parcel);
                 matches = companyState.combineHoldings([newHolding], null, transaction);
             }
+            matches.map(m => {
+
+            })
             return transaction;
         })
 });
@@ -1187,7 +1197,11 @@ export function performInverseAllPending(company){
                 firstError = e;
                 firstError.context = firstError.context || {};
                 firstError.context.actionSet = current;
-                return performInverseAllPendingResolve(company);
+                return state.fullPopulateJSON()
+                    .then(result => {
+                        firstError.context.companyState = result;
+                        return performInverseAllPendingResolve(company);
+                    })
             })
             .catch(e => {
                 sails.log.error(e)

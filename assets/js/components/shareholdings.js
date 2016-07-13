@@ -121,7 +121,8 @@ export class HoldingDL extends React.Component {
     static propTypes = {
         holding: PropTypes.object.isRequired,
         total: PropTypes.number.isRequired,
-        percentage: PropTypes.string.isRequired
+        percentage: PropTypes.string.isRequired,
+        shareClassMap: PropTypes.object.isRequired
     };
     render(){
         return  <dl className="dl-horizontal ">
@@ -131,7 +132,7 @@ export class HoldingDL extends React.Component {
                 <dd>{numberWithCommas(this.props.total) + ' ' + this.props.percentage}</dd>
                 <dt>Parcels</dt>
                 { this.props.holding.parcels.map((p, i) =>
-                    <dd key={i} >{numberWithCommas(p.amount)} of {p.shareClass || STRINGS.defaultShareClass } Shares<br/></dd>) }
+                    <dd key={i} >{numberWithCommas(p.amount)} of {renderShareClass(p.shareClass, this.props.shareClassMap) } Shares<br/></dd>) }
                 <dt>Shareholders</dt>
                 { this.props.holding.holders.map((holder, i) =>
                     <dd key={i} >{holder.name} <br/>
@@ -146,16 +147,20 @@ export class Holding extends React.Component {
     static propTypes = {
         holding: PropTypes.object.isRequired,
         total: PropTypes.number.isRequired,
-        select: PropTypes.func
+        select: PropTypes.func,
+        shareClassMap: PropTypes.object.isRequired
     };
     render(){
         const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
             percentage = (sum/this.props.total*100).toFixed(2) + '%';
-
-        return <div className="outline actionable shareholding" onClick={() => this.props.select && this.props.select(this.props.holding)}>
+        const classes = ["outline", "shareholding"]
+        if(this.props.select){
+            classes.push('actionable');
+        }
+        return <div className={classes.join(' ')} onClick={() => this.props.select && this.props.select(this.props.holding)}>
 
                 <div className="info">
-                    <HoldingDL holding={this.props.holding} total={sum} percentage={percentage}  />
+                    <HoldingDL holding={this.props.holding} total={sum} percentage={percentage} shareClassMap={this.props.shareClassMap} />
                 </div>
                    <div className="hide-graph-labels pie-chart">
                   <PieChart
@@ -194,6 +199,7 @@ export class Shareholdings extends React.Component {
     }
     render() {
         const holdings = [...this.props.companyState.holdingList.holdings];
+        const shareClassMap = generateShareClassMap(this.props.companyState)
         holdings.sort((a, b) => (a.name||'').localeCompare(b.name))
         return <div className="container">
 
@@ -209,6 +215,7 @@ export class Shareholdings extends React.Component {
                         { holdings.map((holding, i) =>
                             <Holding key={i} holding={holding}
                                 total={this.props.companyState.totalShares}
+                                shareClassMap={shareClassMap}
                                 select={this.editHolding} />
                         )}
                     </div>

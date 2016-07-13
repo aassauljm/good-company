@@ -62,7 +62,7 @@ module.exports = {
                                             a.transactionType = Transaction.types.ISSUE_TO;
                                             break;
                                         case Transaction.types.CONVERSION:
-                                            a.transactionType = Transaction.types.CONVERSIO_TO;
+                                            a.transactionType = Transaction.types.CONVERSION_TO;
                                             break;
                                         case Transaction.types.SUBDIVISION:
                                             a.transactionType = Transaction.types.SUBDIVISION_TO;
@@ -78,7 +78,7 @@ module.exports = {
                 else if(d.totalShares < 0 && allocationsUp === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
                     d.actions.map(a => {
-                        if(a.transactionType === Transaction.types.AMEND){
+                        if(a.transactionType === Transaction.types.AMEND || a.transactionType === Transaction.types.REMOVE_ALLOCATION){
                             a.transactionMethod = a.transactionType;
                             if(match){
                                 match.actions.map(m => {
