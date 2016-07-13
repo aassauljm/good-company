@@ -100,11 +100,13 @@ $widget-border: #ccc;
                 }
             }
             float: left;
-            border: 1px solid $widget-border;
             border-radius: 4px;
             padding: 12px;
             margin-bottom: 20px;
             width: 100%;
+            &.no-border{
+                border: none;
+            }
             dl{
                 margin-bottom:0;
             }

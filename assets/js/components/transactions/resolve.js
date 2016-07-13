@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, updateResource, showModal, addNotification } from '../../actions';
-import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap } from '../../utils';
+import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps,requireFields } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from 'react-bootstrap/lib/Input';
@@ -24,7 +24,7 @@ function companiesOfficeDocumentUrl(companyState, documentId){
 
 
 function sourceInfo(companyState, actionSet){
-    return <div className="summary outline">
+    return <div className="summary outline no-border">
         <div className="outline-header">
             <div className="outline-title">Source Information</div>
         </div>
@@ -43,8 +43,8 @@ function sourceInfo(companyState, actionSet){
 
 function increaseOptions(){
     return [
-         <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionTypes[TransactionTypes.TRANSFER_TO]}</option>,
         <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionTypes[TransactionTypes.ISSUE_TO]}</option>,
+         <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionTypes[TransactionTypes.TRANSFER_TO]}</option>,
         <option key={2} value={TransactionTypes.SUBDIVISION_TO}>{STRINGS.transactionTypes[TransactionTypes.SUBDIVISION_TO]}</option>,
         <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionTypes[TransactionTypes.CONVERSION_TO]}</option>
     ];
@@ -52,8 +52,8 @@ function increaseOptions(){
 
 function decreaseOptions(){
     return [
-        <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionTypes[TransactionTypes.TRANSFER_FROM]}</option>,
         <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionTypes[TransactionTypes.PURCHASE_FROM]}</option>,
+        <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionTypes[TransactionTypes.TRANSFER_FROM]}</option>,
         <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionTypes[TransactionTypes.REDEMPTION_FROM]}</option>,
         <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionTypes[TransactionTypes.ACQUISITION_FROM]}</option>,
         <option key={4} value={TransactionTypes.CONSOLIDATION_FROM}>{STRINGS.transactionTypes[TransactionTypes.CONSOLIDATION_FROM]}</option>
@@ -62,33 +62,77 @@ function decreaseOptions(){
 
 
 const amendFields = [
-    'type'
+    'actions[].type',
+    'actions[].data'
 ];
 
-class DisambiguateAmend extends React.Component {
-    render() {
-        const { fields: {type}} = this.props;
-        return <Input type="select" {...type}>
-            {this.props.increase ? increaseOptions() : decreaseOptions() }
-            </Input>
-    }
+
+
+
+
+function renderHolders(h, i){
+    return <div key={i}>
+        <div className="name">{ h.name }{h.companyNumber && ` (${h.companyNumber})`}</div>
+        <div className="address">{ h.address }</div>
+    </div>
 }
 
 
-const DisambiguateAmendConnected = reduxForm({
-  form: 'amendActions',
-  fields: amendFields,
-})(DisambiguateAmend);
+
+@formFieldProps()
+class AmendOptions extends React.Component {
+    render() {
+        const { shareClassMap, fields: {actions} } = this.props;
+        return <div>
+            { actions.map((a, i) => {
+                const action = a.data.value;
+                const increase = action.afterAmount > action.beforeAmount || !action.beforeHolders;
+                const beforeShares = action.beforeHolders ? `${action.beforeAmount} ${renderShareClass(action.shareClass, shareClassMap)} Shares` : 'No Shares';
+                const afterShares = `${action.beforeHolders ? action.afterAmount : action.amount} ${renderShareClass(action.shareClass, shareClassMap)} Shares`;
+
+                return <div  key={i}>
+                    <div className="row separated-row">
+                    <div className="col-md-5">
+                        <div className="shareholding action-description">
+                         <div className="shares">{  beforeShares }</div>
+                            { (action.beforeHolders || action.holders).map(renderHolders) }
+                        </div>
+                    </div>
+                    <div className="col-md-2">
+                        <div className="text-center">
+                            <Glyphicon glyph="arrow-right" className="big-arrow"/>
+                        <div className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares { increase ? 'added to' : 'removed from'} share allocation by a:</div>
+                        </div>
+                                <Input type="select" {...this.formFieldProps(['actions', i, 'type'])} label={false}>
+                                <option value=""  disabled></option>
+                                { increase ? increaseOptions() : decreaseOptions() }
+                                </Input>
+
+                    </div>
+                    <div className="col-md-5">
+                         <div className="shareholding action-description">
+                         <div className="shares">{ afterShares }</div>
+                        { (action.afterHolders || action.holders).map(renderHolders) }
+                        </div>
+                    </div>
+                </div>
+                <hr/>
+                </div>
+            }) }
+        </div>
+    }
+}
+
+const AmendOptionsConnected = reduxForm({
+    fields: amendFields,
+    form: 'amendAction'
+})(AmendOptions);
+
+
 
 const DESCRIPTIONS = {
     [TransactionTypes.HOLDING_CHANGE]: function(context, companyState){
         const { action, actionSet } = context;
-        function holders(h, i){
-            return <div key={i}>
-                <div className="name">{ h.name }{h.companyNumber && ` (${h.companyNumber})`}</div>
-                <div className="address">{ h.address }</div>
-            </div>
-        }
         return <div>
                 <div className="row">
                     <div className="col-md-6 col-md-offset-3">
@@ -105,7 +149,7 @@ const DESCRIPTIONS = {
                 <div className="row">
                     <div className="col-md-5">
                         <div className="shareholding action-description ">
-                        { action.beforeHolders.map(holders) }
+                        { action.beforeHolders.map(renderHolders) }
                         </div>
                     </div>
                     <div className="col-md-2">
@@ -115,7 +159,7 @@ const DESCRIPTIONS = {
                     </div>
                     <div className="col-md-5">
                         <div className="shareholding action-description ">
-                        { action.afterHolders.map(holders) }
+                        { action.afterHolders.map(renderHolders) }
                         </div>
                     </div>
                 </div>
@@ -194,7 +238,7 @@ const PAGES = {
             <Button onClick={startOver} className="btn-danger">Restart Import</Button>
         </div>
     },
-    [ImportErrorTypes.UNKNOWN_AMEND]: function(context, submit){
+    [ImportErrorTypes.UNKNOWN_AMEND1]: function(context, submit){
         const { actionSet, companyState } = context;
         const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
         const increases = amendActions.filter(a => {
@@ -252,11 +296,70 @@ const PAGES = {
                     <div className="col-md-6">
                     <p>Increased { increase.amount } { renderShareClass(increase.shareClass, shareClassMap)} Shares</p>
                     <Holding holding={match} total={companyState.totalShares} shareClassMap={shareClassMap}/>
-                    <DisambiguateAmendConnected increase={true} formKey={`increase-${i}`} />
+
                 </div>
                 </div>
             })}
         </div>
+    },
+    [ImportErrorTypes.UNKNOWN_AMEND2]: function(context, submit){
+        const { actionSet, companyState } = context;
+        const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
+        const shareClassMap = generateShareClassMap(companyState)
+        return <div>
+
+                { amendActions.map((action, i) => {
+                    if(action.beforeHolders){
+                        return <div className="row separated-row" key={i}>
+                            <div className="col-md-5">
+                                <div className="shareholding action-description outline">
+                                 <div className="shares">{ action.beforeAmount } { renderShareClass(action.shareClass, shareClassMap)} Shares</div>
+                                { action.beforeHolders.map(renderHolders) }
+                                </div>
+                            </div>
+                            <div className="col-md-2">
+                                <div className="text-center">
+                                    <Glyphicon glyph="arrow-right" className="big-arrow"/>
+                                </div>
+                                <DisambiguateAmendConnected increase={action.afterAmount > action.beforeAmount} formKey={`${i}`} />
+                            </div>
+                            <div className="col-md-5">
+                                <div className="shareholding action-description outline">
+                                 <div className="shares">{ action.afterAmount } { renderShareClass(action.shareClass, shareClassMap)} Shares</div>
+                                { action.afterHolders.map(renderHolders) }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else{
+                         return <div className="row separated-row" key={i}>
+                            <div className="col-md-5">
+                            </div>
+                            <div className="col-md-2">
+                                <div className="text-center">
+                                    <Glyphicon glyph="arrow-right" className="big-arrow"/>
+                                <DisambiguateAmendConnected increase={true} formKey={`${i}`} />
+                                </div>
+                            </div>
+                            <div className="col-md-5">
+                                <div className="shareholding action-description outline">
+                                <div className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares</div>
+                                { action.holders.map(renderHolders) }
+                                </div>
+                            </div>
+                        </div>
+                    }
+            }) }
+        </div>
+    },
+    [ImportErrorTypes.UNKNOWN_AMEND]: function(context, submit){
+        const { actionSet, companyState } = context;
+        const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
+        const shareClassMap = generateShareClassMap(companyState);
+        const initialValues = {actions: amendActions.map(a => ({data: a}))};
+        return <div>
+                <AmendOptionsConnected amendActions={amendActions} shareClassMap={shareClassMap} initialValues={initialValues} />
+                </div>
     }
 }
 

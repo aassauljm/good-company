@@ -6,6 +6,7 @@
         }
     }
     .action-description{
+        .shares,
         .name{
             font-weight:bold;
         }
@@ -17,5 +18,8 @@
     .instructions{
         margin-bottom:20px;
         text-align: center;
+    }
+    .separated-row{
+        margin-bottom:40px;
     }
 }
