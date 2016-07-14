@@ -424,7 +424,35 @@ const PAGES = {
         const initialValues = {actions: amendActions.map(a => ({recipients: [{}]}))};
         const holdings = {increases: [], decreases: []};
         const handleSubmit = (values) => {
+            const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
+            const pendingActions = [{id: context.actionSet.id, data: otherActions, previous_id: context.actionSet.previous_id}];
+            const transactions = {};
+            const transfers = [];
+            values.actions.map((action, i) => {
+                action.recipients.map((r, j) => {
+                    const amount = parseInt(amount, 10);
+                    amendActions[i].beforeAmount = amendActions[i].afterAmount - amount;
+                    if(isTransfer(r.type)){
+                        transfers.push([{...amendActions[i], transactionType: r.type, amount: amount, recipientIndex: i}]);
+                    }
+                    else{
+                        transactions[r.type] = transactions[r.type] || [];
+                        transactions[r.type].push({...amendActions[i], transactionType: r.type, amount: amount});
+                    }
+                    amendActions[i].afterAmount = amendActions[i].beforeAmount;
+                })
+            })
 
+            // group each other type
+            Object.keys(transactions).map(k => {
+                pendingActions.push({id: context.actionSet.id, data: transactions[k], previous_id: context.actionSet.previous_id});
+            })
+            transfers.map(t => {
+                pendingActions.push({id: context.actionSet.id, data: t, previous_id: context.actionSet.previous_id});
+            })
+            submit({
+                pendingActions: pendingActions
+            })
         }
         amendActions.map((a, i) => {
             const increase = a.afterAmount > a.beforeAmount || !a.beforeHolders;

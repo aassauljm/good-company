@@ -980,7 +980,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
         [Transaction.types.ANNUAL_RETURN]: TransactionService.performAnnualReturn
     };
-    if(!data.actions || data.userSkip){
+    if(!data || !data.actions || data.userSkip){
         return Promise.resolve(rootState);
     }
     let prevState, currentRoot, transactions;
