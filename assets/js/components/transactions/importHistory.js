@@ -56,7 +56,7 @@ PAGES[AMBIGUITY] = function(){
         const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.modalData.companyState, documentId);
        return <div>
         <p className="text-danger">Could not import from { companyName }.</p>
-        <p className="text-danger">Reason: {this.props.importHistory.error.message}</p>
+        <p className="text-danger">Reason: {this.props.importHistory.error.message || 'Processing Error'}</p>
         { documentId && <p>Source: <Link target="_blank" to={documentUrl}>Companies Office document {documentId}</Link></p> }
         </div>
     }

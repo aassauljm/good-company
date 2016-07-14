@@ -430,26 +430,40 @@ const PAGES = {
             const transfers = [];
             values.actions.map((action, i) => {
                 action.recipients.map((r, j) => {
-                    const amount = parseInt(amount, 10);
-                    amendActions[i].beforeAmount = amendActions[i].afterAmount - amount;
+                    const amount = parseInt(r.amount, 10);
+                    if(amendActions[i].beforeAmount !== undefined){
+                        const increase = amendActions[i].beforeAmount < amendActions[i].afterAmount;
+                        amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);
+                    }
                     if(isTransfer(r.type)){
-                        transfers.push([{...amendActions[i], transactionType: r.type, amount: amount, recipientIndex: i}]);
+                        transfers.push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionType, amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)});
                     }
                     else{
                         transactions[r.type] = transactions[r.type] || [];
-                        transactions[r.type].push({...amendActions[i], transactionType: r.type, amount: amount});
+                        transactions[r.type].push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionType, amount: amount});
                     }
-                    amendActions[i].afterAmount = amendActions[i].beforeAmount;
+                    if(amendActions[i].beforeAmount !== undefined){
+                        amendActions[i].afterAmount = amendActions[i].beforeAmount;
+                    }
                 })
             })
 
             // group each other type
             Object.keys(transactions).map(k => {
-                pendingActions.push({id: context.actionSet.id, data: transactions[k], previous_id: context.actionSet.previous_id});
+                pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, actions: transactions[k]}, previous_id: context.actionSet.previous_id});
             })
-            transfers.map(t => {
-                pendingActions.push({id: context.actionSet.id, data: t, previous_id: context.actionSet.previous_id});
-            })
+            //pair up transfers
+            while(transfers.length){
+                const transfer = transfers.shift();
+                const reciprocalIndex = transfers.findIndex(t => {
+                    return t.amount === transfer.amount && t.shareClass === transfer.shareClass && t.recipientIndex === transfer.index;
+                });
+                const reciprocal = transfers.splice(reciprocalIndex, 1)[0];
+                pendingActions.push({
+                    id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], type: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
+                })
+            }
+            debugger
             submit({
                 pendingActions: pendingActions
             })
@@ -508,8 +522,13 @@ export class ResolveAmbiguityModal extends React.Component {
     renderBody() {
         const context = this.props.modalData.error.context || {};
         const action = context.action;
-        if(!DESCRIPTIONS[action.transactionType]){
-            return <div>Unknown Import Error</div>
+        if(!action || !DESCRIPTIONS[action.transactionType]){
+            return <div className="resolve">
+                    <div>Unknown Import Error</div>
+                    <div className="button-row">
+                        <Button onClick={this.props.resetAction} className="btn-danger">Restart Import</Button>
+                    </div>
+                </div>
         }
         return <div className="resolve">
             { DESCRIPTIONS[action.transactionType](context, this.props.modalData.companyState)}

@@ -56,7 +56,7 @@ export default class Companies extends React.Component {
         return <div>
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
-                <Button bsStyle="info" className="company-import" onClick={() => this.props.handleImport}>Import Company</Button>
+                <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Import Companies</Button>
             </div>
             <div className="table-responsive">
                 { this.props.renderTable(data) }

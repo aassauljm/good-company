@@ -308,7 +308,11 @@ module.exports = {
                 company  = _company;
                 return company.resetPendingActions();
             })
-        .then(() => {
+        .then(function(){
+            return company.getCurrentCompanyState()
+        })
+        .then(state => {
+            const companyName = state.get('companyName');
             return ActivityLog.create({
                 type: ActivityLog.types.RESET_PENDING_HISTORY,
                 userId: req.user.id,
