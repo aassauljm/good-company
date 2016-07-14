@@ -101,17 +101,24 @@ function inverseTransfer(type){
 @formFieldProps()
 class Recipient extends React.Component {
     render(){
-        const title = this.props.increase ? 'Source' : 'Recipient';
+        const title = this.props.increase ? 'Transfer From' : 'Transfer To';
         return  <Panel remove={() => this.props.remove()} title={title}>
                 <div className="input-group-pair input-row">
-                    <Input type="select" {...this.formFieldProps('type')} label={false}>
+                    <Input type="select" {...this.formFieldProps('type')}
+                    onChange={(value) => {this.props.type.onChange(value);  this.props.onChange(); }}
+                    label={false}>
                         <option value="" disabled></option>
                         { this.props.increase ? increaseOptions() : decreaseOptions() }
                     </Input>
-                    <Input className="amount" type="number" {...this.formFieldProps('amount')} placeholder={'Amount'} value={this.props.amount.value || 0} label={null}/>
+                    <Input className="amount" type="number" {...this.formFieldProps('amount')}
+                    placeholder={'Amount'} value={this.props.amount.value || 0}
+                    onChange={(value) => {this.props.amount.onChange(value);  this.props.onChange(); }}
+                    label={null}/>
                 </div>
                 { isTransfer(this.props.type.value) && <div className="input-row">
-                    <Input type="select" {...this.formFieldProps('holding')} label={title}>
+                    <Input type="select" {...this.formFieldProps('holding')}
+                        onChange={(value) => {this.props.holding.onChange(value);  this.props.onChange(); }}
+                        label={title}>
                         <option value="" disabled></option>
                         { this.props.holdings.map((h, i) => <option key={i} value={h.value}>{h.label}</option>)}
                     </Input>
@@ -124,7 +131,11 @@ class Recipient extends React.Component {
 function Recipients(props){
     return <div className="col-md-6 col-md-offset-3">
             {props.recipients.map((r, i) => {
-                return <Recipient {...r} key={i} increase={props.increase} holdings={props.holdings} remove={() => props.recipients.removeField(i) }/>
+                return <Recipient {...r} key={i}
+                    increase={props.increase}
+                    holdings={props.holdings}
+                    remove={() => props.recipients.removeField(i)}
+                    onChange={props.onChange(i)}/>
             }) }
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
                 <div className="button-row">
@@ -153,43 +164,37 @@ class AmendOptions extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
-        return <div>
+        // curry the indices, children will populate them
+        const reciprocate = (i) => (j) => () => setTimeout(() => {
+                    // See if this recipient is a in a transfer
+                    const type = this.props.values.actions[i].recipients[j].type; //safe?
+                    const amount = this.props.values.actions[i].recipients[j].amount; //safe?
+                    if(isTransfer(type)){
+                        const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
+                        if(Number.isInteger(actionIndex)){
+                            const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
+                                return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
+                            });
+                            if(reciprocalIndex < 0){
+                                actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString()})
+                            }
+                            else{
+                                actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount.toString());
+                                actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
+                                actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i.toString());
+                            }
+                        }
+                    }
+                    this.props.values;
+                }, 0);
+
+
+        return <form onSubmit={this.props.handleSubmit}>
             { actions.map((field, i) => {
                 const action = amendActions[i];
                 const increase = action.afterAmount > action.beforeAmount || !action.beforeHolders;
                 const beforeShares = action.beforeHolders ? `${action.beforeAmount} ${renderShareClass(action.shareClass, shareClassMap)} Shares` : 'No Shares';
                 const afterShares = `${action.beforeHolders ? action.afterAmount : action.amount} ${renderShareClass(action.shareClass, shareClassMap)} Shares`;
-                actions[i].recipients.map((r, j) => {
-                    const reciprocate = () => setTimeout(() => {
-                        // See if this recipient is a in a transfer
-                        const type = this.props.values.actions[i].recipients[j].type; //safe?
-                        const amount = this.props.values.actions[i].recipients[j].amount; //safe?
-                        if(isTransfer(type)){
-                            const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
-                            if(Number.isInteger(actionIndex)){
-                                const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
-                                    return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
-                                });
-                                if(reciprocalIndex < 0){
-                                    actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString()})
-                                }
-                                else{
-                                    actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount);
-                                    actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
-                                    actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i);
-                                }
-                            }
-                        }
-                        this.props.values;
-                    }, 0);
-                    ['type', 'amount', 'holding'].map(k => {
-                        const onChange = r[k].onChange;
-                        r[k].onChange = (args) => {
-                            reciprocate();
-                            return onChange(args);
-                        };
-                    });
-                });
 
                 return <div  key={i}>
                     <div className="row row-separated">
@@ -218,12 +223,17 @@ class AmendOptions extends React.Component {
                     recipients={actions[i].recipients}
                     increase={increase}
                     error={getError(i)}
+                    onChange={reciprocate(i)}
                     holdings={increase ? this.props.holdings.decreases : this.props.holdings.increases} />
                 </div>
                 <hr/>
                 </div>
             }) }
-        </div>
+
+            <div className="button-row">
+                <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
+            </div>
+        </form>
     }
 }
 
@@ -413,6 +423,9 @@ const PAGES = {
         const shareClassMap = generateShareClassMap(companyState);
         const initialValues = {actions: amendActions.map(a => ({recipients: [{}]}))};
         const holdings = {increases: [], decreases: []};
+        const handleSubmit = (values) => {
+
+        }
         amendActions.map((a, i) => {
             const increase = a.afterAmount > a.beforeAmount || !a.beforeHolders;
             const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
@@ -429,6 +442,7 @@ const PAGES = {
                 amendActions={amendActions}
                 holdings={holdings}
                 shareClassMap={shareClassMap}
+                onSubmit={handleSubmit}
                 initialValues={initialValues} />
             </div>
     }
