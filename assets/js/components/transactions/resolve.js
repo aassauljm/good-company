@@ -94,6 +94,10 @@ function isTransfer(type){
     return [TransactionTypes.TRANSFER_FROM, TransactionTypes.TRANSFER_TO].indexOf(type) >= 0;
 }
 
+function inverseTransfer(type){
+    return type === TransactionTypes.TRANSFER_FROM ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM;
+}
+
 @formFieldProps()
 class Recipient extends React.Component {
     render(){
@@ -155,6 +159,37 @@ class AmendOptions extends React.Component {
                 const increase = action.afterAmount > action.beforeAmount || !action.beforeHolders;
                 const beforeShares = action.beforeHolders ? `${action.beforeAmount} ${renderShareClass(action.shareClass, shareClassMap)} Shares` : 'No Shares';
                 const afterShares = `${action.beforeHolders ? action.afterAmount : action.amount} ${renderShareClass(action.shareClass, shareClassMap)} Shares`;
+                actions[i].recipients.map((r, j) => {
+                    const reciprocate = () => setTimeout(() => {
+                        // See if this recipient is a in a transfer
+                        const type = this.props.values.actions[i].recipients[j].type; //safe?
+                        const amount = this.props.values.actions[i].recipients[j].amount; //safe?
+                        if(isTransfer(type)){
+                            const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
+                            if(Number.isInteger(actionIndex)){
+                                const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
+                                    return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
+                                });
+                                if(reciprocalIndex < 0){
+                                    actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString()})
+                                }
+                                else{
+                                    actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount);
+                                    actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
+                                    actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i);
+                                }
+                            }
+                        }
+                        this.props.values;
+                    }, 0);
+                    ['type', 'amount', 'holding'].map(k => {
+                        const onChange = r[k].onChange;
+                        r[k].onChange = (args) => {
+                            reciprocate();
+                            return onChange(args);
+                        };
+                    });
+                });
 
                 return <div  key={i}>
                     <div className="row row-separated">
@@ -179,7 +214,8 @@ class AmendOptions extends React.Component {
                     </div>
                 </div>
                 <div className="row">
-                    <Recipients recipients={actions[i].recipients}
+                    <Recipients
+                    recipients={actions[i].recipients}
                     increase={increase}
                     error={getError(i)}
                     holdings={increase ? this.props.holdings.decreases : this.props.holdings.increases} />
@@ -198,9 +234,11 @@ const validateAmend = (values, props) => {
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
         let sum = 0;
+        const selectedRecipients = {};
         errors.recipients = action.recipients.map(recipient => {
             const errors = {};
             const amount = parseInt(recipient.amount, 10) || 0;
+
             if(!amount){
                 errors.amount = ['Required.'];
             }
@@ -210,8 +248,17 @@ const validateAmend = (values, props) => {
             if(!recipient.type){
                 errors.type = ['Required.'];
             }
-            if(isTransfer(recipient.type) && !recipient.holding){
-                errors.type = ['Transfer shareholding required.'];
+            if(isTransfer(recipient.type)){
+                if(!recipient.holding){
+                    errors.holding = ['Transfer shareholding required.'];
+                }
+                else{
+                    if(selectedRecipients[recipient.holding]){
+                        errors.holding = ['Share allocation already specified in transaction.'];
+                    }
+                    selectedRecipients[recipient.holding] = true;
+                }
+
             }
             sum += amount;
             return errors;
