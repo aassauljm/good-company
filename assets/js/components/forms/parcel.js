@@ -10,7 +10,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 @formFieldProps()
 export class ParcelWithRemove extends React.Component {
     render() {
-        return <div className="parcel col-xs-12">
+        return <div className="input-group-with-remove col-xs-12">
                     <div>
                         <Input className="amount" type="number" {...this.formFieldProps('amount')} placeholder={'Amount'} label={null}/>
                     </div>

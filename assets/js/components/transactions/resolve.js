@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, updateResource, showModal, addNotification } from '../../actions';
-import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps,requireFields } from '../../utils';
+import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from 'react-bootstrap/lib/Input';
@@ -15,7 +15,7 @@ import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import { Holding } from '../shareholdings';
 import { reduxForm } from 'redux-form';
-
+import Panel from '../panel';
 
 function companiesOfficeDocumentUrl(companyState, documentId){
     const companyNumber = companyState.companyNumber;
@@ -82,11 +82,6 @@ function findHolding(companyState, action, existing){
     })[0];
 }
 
-const amendFields = [
-    'actions[].type',
-    'actions[].otherHoldings[]'
-];
-
 
 function renderHolders(h, i){
     return <div key={i}>
@@ -100,6 +95,46 @@ function isTransfer(type){
 }
 
 @formFieldProps()
+class Recipient extends React.Component {
+    render(){
+        const title = this.props.increase ? 'Source' : 'Recipient';
+        return  <Panel remove={() => this.props.remove()} title={title}>
+                <div className="input-group-pair input-row">
+                    <Input type="select" {...this.formFieldProps('type')} label={false}>
+                        <option value="" disabled></option>
+                        { this.props.increase ? increaseOptions() : decreaseOptions() }
+                    </Input>
+                    <Input className="amount" type="number" {...this.formFieldProps('amount')} placeholder={'Amount'} value={this.props.amount.value || 0} label={null}/>
+                </div>
+                { isTransfer(this.props.type.value) && <div className="input-row">
+                    <Input type="select" {...this.formFieldProps('holding')} label={title}>
+                        <option value="" disabled></option>
+                        { this.props.holdings.map((h, i) => <option key={i} value={h.value}>{h.label}</option>)}
+                    </Input>
+                </div> }
+        </Panel>
+    }
+}
+
+
+function Recipients(props){
+    return <div className="col-md-6 col-md-offset-3">
+            {props.recipients.map((r, i) => {
+                return <Recipient {...r} key={i} increase={props.increase} holdings={props.holdings} remove={() => props.recipients.removeField(i) }/>
+            }) }
+          { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
+                <div className="button-row">
+                <Button type="button" onClick={() => {
+                    props.recipients.addField()    // pushes empty child field onto the end of the array
+                }}>
+                Add {props.increase ? 'Source' : 'Recipient' }
+                </Button>
+          </div>
+    </div>
+}
+
+
+
 class AmendOptions extends React.Component {
     renderTransfer(action, actions) {
         const holders = actions.map(a => {
@@ -111,6 +146,9 @@ class AmendOptions extends React.Component {
     }
     render() {
         const { shareClassMap, fields: {actions}, amendActions } = this.props;
+        const getError = (index) => {
+            return this.props.error && this.props.error.actions && this.props.error.actions[index];
+        }
         return <div>
             { actions.map((field, i) => {
                 const action = amendActions[i];
@@ -119,7 +157,7 @@ class AmendOptions extends React.Component {
                 const afterShares = `${action.beforeHolders ? action.afterAmount : action.amount} ${renderShareClass(action.shareClass, shareClassMap)} Shares`;
 
                 return <div  key={i}>
-                    <div className="row separated-row">
+                    <div className="row row-separated">
                     <div className="col-md-5">
                         <div className="shareholding action-description">
                          <div className="shares">{  beforeShares }</div>
@@ -129,12 +167,8 @@ class AmendOptions extends React.Component {
                     <div className="col-md-2">
                         <div className="text-center">
                             <Glyphicon glyph="arrow-right" className="big-arrow"/>
-                            <p><span className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares { increase ? 'added' : 'removed'} via a:</span></p>
+                            <p><span className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares { increase ? 'added' : 'removed'}</span></p>
                         </div>
-                                <Input type="select" {...this.formFieldProps(['actions', i, 'type'])} label={false}>
-                                <option value=""  disabled></option>
-                                { increase ? increaseOptions() : decreaseOptions() }
-                                </Input>
 
                     </div>
                     <div className="col-md-5">
@@ -144,7 +178,12 @@ class AmendOptions extends React.Component {
                         </div>
                     </div>
                 </div>
-                { isTransfer(field.type.value)  && this.renderTransfer(action, amendActions)}
+                <div className="row">
+                    <Recipients recipients={actions[i].recipients}
+                    increase={increase}
+                    error={getError(i)}
+                    holdings={increase ? this.props.holdings.decreases : this.props.holdings.increases} />
+                </div>
                 <hr/>
                 </div>
             }) }
@@ -155,19 +194,55 @@ class AmendOptions extends React.Component {
 
 const validateAmend = (values, props) => {
     const errors = {};
-    errors.actions = values.actions.map(action => {
+    const formErrors = {};
+    errors.actions = values.actions.map((action, i) => {
         const errors = {};
-        if(!action.type){
-            errors.type = ['Required']
-        }
-        if(isTransfer(action.type)){
-            // do sums
-        }
+        let sum = 0;
+        errors.recipients = action.recipients.map(recipient => {
+            const errors = {};
+            const amount = parseInt(recipient.amount, 10) || 0;
+            if(!amount){
+                errors.amount = ['Required.'];
+            }
+            else if(amount <= 0){
+                errors.amount = ['Must be greater than 0.'];
+            }
+            if(!recipient.type){
+                errors.type = ['Required.'];
+            }
+            if(isTransfer(recipient.type) && !recipient.holding){
+                errors.type = ['Transfer shareholding required.'];
+            }
+            sum += amount;
+            return errors;
+        });
 
+        if(!action.recipients.length){
+            formErrors.actions = formErrors.actions || [];
+            formErrors.actions[i] = ['Required.'];
+        }
+        if(sum !== props.amendActions[i].amount){
+            formErrors.actions = formErrors.actions || [];
+            const diff = sum - props.amendActions[i].amount;
+            if(diff < 0){
+                formErrors.actions[i] = [`${-diff} shares left to allocate.`];
+            }
+            else{
+                formErrors.actions[i] = [`${diff} shares over allocated.`];
+            }
+        }
         return errors;
-    })
+    });
+
+    errors._error = Object.keys(formErrors).length ? formErrors: null;
     return errors;
 }
+
+const amendFields = [
+    'actions[].recipients[].type',
+    'actions[].recipients[].amount',
+    'actions[].recipients[].holding'
+];
 
 const AmendOptionsConnected = reduxForm({
     fields: amendFields,
@@ -289,19 +364,33 @@ const PAGES = {
         const { actionSet, companyState } = context;
         const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
         const shareClassMap = generateShareClassMap(companyState);
-        const initialValues = {actions: amendActions.map(a => ({}))};
+        const initialValues = {actions: amendActions.map(a => ({recipients: [{}]}))};
+        const holdings = {increases: [], decreases: []};
+        amendActions.map((a, i) => {
+            const increase = a.afterAmount > a.beforeAmount || !a.beforeHolders;
+            const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
+            if(increase){
+                holdings.increases.push({value: i, label: `#${i+1} - ${names}`});
+            }
+            else{
+                holdings.decreases.push({value: i, label: `#${i+1} - ${names}`});
+            }
+
+        })
         return <div>
-                <AmendOptionsConnected amendActions={amendActions} shareClassMap={shareClassMap} initialValues={initialValues} />
-                </div>
+                <AmendOptionsConnected
+                amendActions={amendActions}
+                holdings={holdings}
+                shareClassMap={shareClassMap}
+                initialValues={initialValues} />
+            </div>
     }
 }
 
 
 
 @connect((state, ownProps) => {
-    return {
-
-    };
+    return {};
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
@@ -314,8 +403,7 @@ const PAGES = {
             })
         },
         resetAction: (args) => {
-            return dispatch(updateResource(`/company/${ownProps.modalData.companyId}/reset_pending_history`, {}, {
-            }))
+            return dispatch(updateResource(`/company/${ownProps.modalData.companyId}/reset_pending_history`, {}, {}))
             .then(() => {
                 ownProps.end();
             })
@@ -340,8 +428,6 @@ export class ResolveAmbiguityModal extends React.Component {
             { PAGES[context.importErrorType](context, this.props.updateAction, this.props.resetAction)}
         </div>
     }
-
-
 
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
