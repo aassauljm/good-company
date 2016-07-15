@@ -30,6 +30,7 @@ import SetPassword from './components/setPassword';
 import Login from './components/login';
 import SignUp from './components/signup';
 import ImportCompany from './components/importCompany';
+import ImportMenu from './components/importMenu';
 
 
 export default (store) => {
@@ -82,6 +83,7 @@ export default (store) => {
             <Route path="user/edit/:id" component={ Account }  edit={true} />
             <Route path="user/set_password" component={ SetPassword } edit={true} />
             <Route path="user/create" component={ Account }  />
+            <Route path="import" component={ ImportMenu } />
             <Route path="import/:companyNumber" component={ ImportCompany } />
             <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
                 <Route path="shareregister" component={ ShareRegisterDocumentLoader } />

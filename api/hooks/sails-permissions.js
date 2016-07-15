@@ -16,12 +16,13 @@ module.exports = function(sails) {
 
         configure: function() {
             if (!_.isObject(sails.config.permissions)) sails.config.permissions = {};
-
             sails.config.blueprints.populate = false;
         },
         initialize: function(next) {
             sails.log.info('permissions: initializing sails-permissions hook');
-
+            if(sails.config.hooks.userPermissions === false){
+                return next();
+            }
             sails.after('hook:sequelize:loaded', function() {
                 Model.count()
                     .then(function(count) {

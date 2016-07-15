@@ -858,9 +858,39 @@ export function performUpdateDirector(data, companyState, previousState, effecti
 /**
     Seed is a special cause, it doesn't care about previousState
 */
-export function performSeed(data, companyState, previousState, effectiveDate){
-    throw Error('Not implemented');
+export function performSeed(args, company, effectiveDate){
+    let state;
+    if(!args.holdingList.holdings || !args.holdingList.holdings.length) {
+        throw new sails.config.exceptions.ValidationException('Holdings are required');
+    }
+    /*
+    if(args.unallocatedParcels){
+        data.unallocatedParcels = args.unallocatedParcels
+    }*/
+    return company.getCurrentCompanyState()
+        .then(function(companyState){
+            var fields = companyState ? companyState.nonAssociativeFields() : {};
+            return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}}));
+        })
+        .then(function(_state){
+            state = _state;
+            return company.setSeedCompanyState(state);
+        })
+        .then(function(){
+            return SourceData.create({data: args, source: 'Companies Office'})
+        })
+        .then(function(sourceData){
+            return company.setSourceData(sourceData);
+        })
+        .then(function(){
+            return company.setCurrentCompanyState(state)
+        })
+        .then(function(){
+            return company.save();
+        });
 }
+
+
 
 export function removeDocuments(state, actions){
     const ids = _.filter(_.map(actions, 'sourceUrl'))

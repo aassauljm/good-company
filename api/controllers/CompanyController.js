@@ -9,27 +9,6 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
-function checkNameCollision(ownerId, data) {
-    return Company.findAll({
-            where: {
-                ownerId: ownerId
-            },
-            include: [{
-                model: CompanyState,
-                as: 'currentCompanyState',
-                where: {
-                    companyName: data.companyName //and not deleted
-                }
-            }]
-        })
-        .then(function(results) {
-            if (results.length) {
-                throw new sails.config.exceptions.NameExistsException('A company with that name already exists');
-            }
-        })
-}
-
-
 module.exports = {
     find: function(req, res) {
         var Model = actionUtil.parseModel(req);
@@ -201,51 +180,17 @@ module.exports = {
     },
     import: function(req, res) {
         // for now, just companies office
-        let data, company, state, processedDocs, companyName
-        return sequelize.transaction(function(t){
-            return ScrapingService.fetch(req.params.companyNumber)
-                .then(ScrapingService.parseNZCompaniesOffice)
-                .tap(checkNameCollision.bind(null, req.user.id))
-                .then((_data) => {
-                    data = _data;
-                    companyName = data.companyName;
-                    return ScrapingService.populateDB(data, req.user.id);
-                })
-                .then(function(_company) {
-                    company = _company;
-                    if(actionUtil.parseValues(req)['history'] !== false){
-                        return ScrapingService.getDocumentSummaries(data)
-                        .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
-
-                        .then(function(_processedDocs) {
-                            processedDocs = _processedDocs;
-                            return company.getRootCompanyState();
-                        })
-                        .then(function(_state){
-                            state = _state;
-                            return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
-                        })
-                        .then(function(pendingAction){
-                            state.set('pending_historic_action_id', pendingAction[0].id);
-                            return state.save();
-                        })
-                    }
-                })
+        let company;
+        ImportService.importCompany(req.params.companyNumber, {
+            history: actionUtil.parseValues(req)['history'],
+            userId: req.user.id
         })
         /*.then(function(){
             // outside transaction block, because loops with rolledback transactions
             return TransactionService.performInverseAll(company, state);
         })*/
-        .then(() => {
-            return ActivityLog.create({
-                type: ActivityLog.types.IMPORT_COMPANY,
-                userId: req.user.id,
-                description: `Imported ${companyName} from Companies Office.`,
-                data: {companyId: company.id
-                }
-            });
-        })
-        .then(function() {
+        .then(function(_company) {
+            company = _company;
             return res.json(company);
         })
         .catch(sails.config.exceptions.NameExistsException, function(err) {
@@ -255,10 +200,10 @@ module.exports = {
             });
         })
         .catch(function(err) {
-             (company ? company.destroy() : Promise.resolve())
-            .then(() => {
-                return res.serverError(err);
-            });
+             //(company ? company.destroy() : Promise.resolve())
+           // .then(() => {
+            return res.serverError(err);
+            //});
         });
     },
     importPendingHistory: function(req, res){
@@ -382,7 +327,7 @@ module.exports = {
     },
     validate: function(req, res){
         var data = actionUtil.parseValues(req);
-        checkNameCollision(req.user.id, data)
+        ImportService.checkNameCollision(req.user.id, data)
             .then(function(){
                 return res.ok({})
             })

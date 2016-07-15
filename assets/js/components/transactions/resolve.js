@@ -431,6 +431,7 @@ const PAGES = {
             values.actions.map((action, i) => {
                 action.recipients.map((r, j) => {
                     const amount = parseInt(r.amount, 10);
+                    // TODO, this ordering might result in problems
                     if(amendActions[i].beforeAmount !== undefined){
                         const increase = amendActions[i].beforeAmount < amendActions[i].afterAmount;
                         amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);

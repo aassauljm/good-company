@@ -127,35 +127,7 @@ function createActivityLog(user, company, messages){
 // TODO, move to transaction service
 var transactions = {
     seed: function(args, company, date) {
-        let state;
-        if(!args.holdingList.holdings || !args.holdingList.holdings.length) {
-            throw new sails.config.exceptions.ValidationException('Holdings are required');
-        }
-        /*
-        if(args.unallocatedParcels){
-            data.unallocatedParcels = args.unallocatedParcels
-        }*/
-        return company.getCurrentCompanyState()
-            .then(function(companyState){
-                var fields = companyState ? companyState.nonAssociativeFields() : {};
-                return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: date || new Date()}}));
-            })
-            .then(function(_state){
-                state = _state;
-                return company.setSeedCompanyState(state);
-            })
-            .then(function(){
-                return SourceData.create({data: args, source: 'Companies Office'})
-            })
-            .then(function(sourceData){
-                return company.setSourceData(sourceData);
-            })
-            .then(function(){
-                return company.setCurrentCompanyState(state)
-            })
-            .then(function(){
-                return company.save();
-            })
+        TransactionService.performSeed(args, company, date)
             .then(function(){
                 return {message: `Company seeded`}
             })
