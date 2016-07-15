@@ -47,7 +47,7 @@ module.exports = function(sails) {
  * Permissions, and creates an admin user.
  */
 function initializeFixtures(sails) {
-    return require('../../config/fixtures/model').createModels()
+    return (require('../../config/fixtures/model')[sails.config.skipFixtures ? 'queryModels' : 'createModels'])()
         .bind({})
         .then(function(models) {
             this.models = models;

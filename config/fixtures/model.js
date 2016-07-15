@@ -24,3 +24,23 @@ exports.createModels = function () {
         .spread(function(model){ return model; });;
   });
 };
+
+exports.queryModels = function(){
+  var models = _.compact(_.map(sails.controllers, function (controller, name) {
+    var conf = controller._config
+      , modelName = conf && conf.model && conf.model.name
+      , model = sails.models[modelName || name]
+    ;
+    if(model)
+    return model && model.name && model.tableName && {
+      name: model.name,
+      identity: model.tableName,
+      attributes: _.omit(model.attributes, _.functions(model.attributes))
+    };
+  }));
+  return Promise.map(models, function (model) {
+    return Model.find({where: { name: model.name }})
+        .spread(function(model){ return model; });;
+  });
+
+}

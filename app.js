@@ -23,7 +23,7 @@
 process.chdir(__dirname);
 
 // Ensure a "sails" can be located:
-(function() {
+(function(options) {
   var sails;
   try {
     sails = require('sails');
@@ -52,8 +52,6 @@ process.chdir(__dirname);
       rc = function () { return {}; };
     }
   }
-
-
   // Start server
   sails.lift(rc('sails'));
 })();

@@ -79,6 +79,7 @@
     "html-pdf": "^2.0.1",
     "isomorphic-fetch": "^2.1.1",
     "jsdom": "^8.0.4",
+    "kue": "^0.11.1",
     "less": "^2.5.3",
     "less-loader": "^2.2.1",
     "lodash": "^3.10.1",

@@ -94,6 +94,9 @@ module.exports.bootstrap = function(cb) {
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
     patchBluebird(session);
+    if(sails.config.fixtures === false){
+        return cb();
+    }
     return Promise.all([loadDB(), prepTemp()])
         .then(function(){
             cb();
