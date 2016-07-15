@@ -6,7 +6,9 @@ import { pureRender } from '../utils';
 export default class Footer extends React.Component {
     render() {
         return <div className="footer">
-            © Copyright 2016 - CataLex Limited. All rights reserved.
+            <div className="container">
+            <p>© Copyright 2016 - CataLex®. All rights reserved.</p>
+        </div>
         </div>
     }
 }
