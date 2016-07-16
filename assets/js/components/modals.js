@@ -3,7 +3,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
 import FormReducer from '../hoc/formReducer';
-import { TransactionViewModal } from './transaction';
 import { IssueModal } from './transactions/issue';
 import { AcquisitionModal } from './transactions/acquisition';
 import { RedemptionModal } from './transactions/redemption';
@@ -73,9 +72,6 @@ export class Modals extends React.Component {
 
             case 'subdivision':
                 return <SubdivisionModal {...props} />
-
-            case 'transaction':
-                return <TransactionViewModal {...props} />
 
             case 'applyShareClasses':
                 return <ApplyShareClassesModal {...props} />

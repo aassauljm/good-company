@@ -8,14 +8,13 @@ import { numberWithCommas } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router';
 
-export class TransactionView extends React.Component {
+export class TransactionViewBody extends React.Component {
     static propTypes = {
         transaction: PropTypes.object.isRequired,
     };
 
     renderTransaction(transaction) {
         return <div>
-
             { transaction.documents && transaction.documents.map((d, i) => {
                 return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
             }) }
@@ -27,6 +26,34 @@ export class TransactionView extends React.Component {
         return <div>{ this.renderTransaction(this.props.transaction) }</div>
     }
 };
+
+
+export class TransactionView extends React.Component {
+
+    render(){
+        const id = this.props.params.transactionId;
+        let transaction;
+        (this.props.transactions || []).some(t => {
+            if(t.transactionId.toString() === id){
+                transaction = t;
+                return true;
+            }
+            return t.subTransactions.some(t => {
+                if(t.id.toString() === id){
+                    transaction = t;
+                    return true;
+                }
+            })
+        });
+        if(transaction){
+            return <TransactionViewBody transaction={transaction} />
+        }
+        else{
+            return <div className="loading"></div>
+        }
+    }
+}
+
 
 
 export class TransactionViewModal extends React.Component {
@@ -47,7 +74,7 @@ export class TransactionViewModal extends React.Component {
               </Modal.Header>
 
               <Modal.Body>
-                    <TransactionView transaction={this.props.modalData} end={this.props.end} />
+                    <TransactionViewBody transaction={this.props.modalData} end={this.props.end} />
               </Modal.Body>
 
               <Modal.Footer>

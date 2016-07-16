@@ -54,7 +54,7 @@ export class Transfer extends React.Component {
                     { this.props.holdingOptions }
                 </Input>
                 <span className="or-divider">- or -</span>
-                <div className="button-row"><ButtonInput className="new-holding" nClick={() => {
+                <div className="button-row"><ButtonInput className="new-holding" onClick={() => {
                     this.props.showModal('newHolding');
                 }}>Create New Holding</ButtonInput></div></div> }
 
@@ -183,7 +183,7 @@ export function transferFormatSubmit(values, companyState){
     if(values.newHolding){
         results.push({
             effectiveDate: values.effectiveDate,
-            transactionType: 'TRANSFER',
+            transactionType: 'NEW_ALLOCATION',
             actions: [newHoldingFormatAction(values.newHolding)]
         });
     }

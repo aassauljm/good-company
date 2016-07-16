@@ -11,7 +11,7 @@ import Favourites from './components/favourites';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies from './components/companies';
-import Company, { CompanyTransactions, CompanyLoader } from './components/company';
+import Company, { CompanyLoader } from './components/company';
 import { Shareholders } from './components/shareholders';
 import { Shareholdings } from './components/shareholdings';
 import { CompanyDetails } from './components/companyDetails';
@@ -31,6 +31,8 @@ import Login from './components/login';
 import SignUp from './components/signup';
 import ImportCompany from './components/importCompany';
 import ImportMenu from './components/importMenu';
+import { CompanyTransactions } from './components/transactions';
+import { TransactionView } from './components/transaction';
 
 
 export default (store) => {
@@ -60,7 +62,9 @@ export default (store) => {
             <Route path="company/view/:id" component={ Company } childrenOnly={true}>
                 <Route path="shareholdings" component={ Shareholdings } />
                 <Route path="details" component={ CompanyDetails } />
-                <Route path="transactions" component={ CompanyTransactions } />
+                <Route path="transactions" component={ CompanyTransactions }>
+                    <Route path=":transactionId" component={ TransactionView }/>
+                </Route>
                 <Route path="shareregister" component={ ShareRegister } />
                 <Route path="shareholders" component={ Shareholders } />
                 <Route path="documents" component={ CompanyDocuments } />

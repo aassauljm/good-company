@@ -18,77 +18,11 @@ import { ContactDetailsWidget } from './contactDetails';
 import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
+import { TransactionWidget } from './transactions';
 import NotFound from './notFound';
 import BarGraph from './graphs/bar'
 import Notifications from './notifications';
 import { push } from 'react-router-redux'
-
-
-@connect((state, ownProps) => {
-    return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/transactions']}
-})
-export class CompanyTransactions extends React.Component {
-    static propTypes = {
-        data: PropTypes.object.isRequired,
-    };
-
-    key() {
-        return this.props.params.id
-    }
-
-    fetch() {
-        return this.props.dispatch(requestResource('/company/'+this.key()+'/transactions'))
-    };
-
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
-
-    show(data) {
-        this.props.dispatch(showModal('transaction', data));
-    }
-
-    rows(transactions) {
-        const rows = [];
-        transactions.map((t, i) => {
-            const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
-            rows.push(<tr key={i} onClick={() => this.show(t.transaction)}>
-                <td rowSpan={rowSpan}>{ t.transaction.transactionId }</td>
-                <td rowSpan={rowSpan}>{ stringToDate(t.transaction.effectiveDate) }</td>
-                <td rowSpan={rowSpan}>{ STRINGS.transactionTypes[t.transaction.type] }</td>
-                { !t.transaction.subTransactions && <td></td> }
-            </tr>);
-            (t.transaction.subTransactions || []).map((t, j) => {
-                rows.push(<tr key={i+'-'+j} onClick={() => this.show(t)}><td>{STRINGS.transactionTypes[t.type]}</td></tr>)
-            });
-        });
-        return rows;
-    }
-
-    render() {
-        const transactions = (this.props.data || {}).transactions;
-        if(!transactions){
-            return <div className="loading"></div>
-        }
-        return <div className="container">
-                <table className="table table-hover">
-                <thead><tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Subtype</th>
-                </tr></thead>
-                <tbody>
-                    {this.rows(transactions) }
-                </tbody>
-                </table>
-            </div>
-    }
-}
 
 
 
@@ -157,14 +91,6 @@ class CompanyAlertsWidget extends React.Component {
 }
 
 
-/*
-<div className="well">
-    <h1>{current.companyName}</h1>
-    { current.companyNumber && <h5><Link target="_blank" to={ companiesOfficeUrl }>#{current.companyNumber}, {current.companyStatus}</Link></h5> }
-    <h5>As at {stringToDate(current.transaction.effectiveDate) }</h5>
-</div>
-
-*/
 
 function analyseCompany(company){
     company.currentCompanyState.holders = company.currentCompanyState.holdingList.holdings.reduce((acc, holding) => {
@@ -289,7 +215,12 @@ export default class Company extends React.Component {
                         companyState={current}
                         companyId={this.props.params.id}
                      />
-
+                    <TransactionWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'transactions'], expanded) }
+                        expanded={(this.props.widgets.transactions || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
 
                 </div>
 
