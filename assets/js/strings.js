@@ -109,6 +109,7 @@ export default {
         name: 'Share Class',
         documents: 'Documents',
         limitations: 'Restrictions/Limitations',
+        rights: "Rights",
         votingRights: {
             _: 'Voting Rights',
             "appointDirectorAuditor": "Appoint or remove a director or auditor",
@@ -116,7 +117,10 @@ export default {
             "alterConstitution": "Alter a constitution",
             "approveMajorTransactions": "Approve a major transaction",
             "approveAmalgamation": "Approve an amalgation",
-            "liquidation": "Put company into liquidation"
+            "liquidation": "Put company into liquidation",
+            "1(a)": "The right to 1 vote on a poll at a meeting of the company on any resolution",
+            "1(b)": "The right to an equal share in dividends authorised by the board",
+            "1(c)": "The right to an equal share in the distribution of the surplus assets of the company",
         }
     }
 }

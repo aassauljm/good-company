@@ -17,7 +17,7 @@ import Promise from 'bluebird';
 
 export function serverRender(url, cookie, state={}){
     const memoryHistory = createMemoryHistory(url);
-    const store = configureStore(memoryHistory, {...state, login: { loggedIn: true }});
+    const store = configureStore(memoryHistory, state);
     const history = syncHistoryWithStore(memoryHistory, store);
     setFetch(function(url, args){
         url = 'http://localhost:'+sails.config.port+url;

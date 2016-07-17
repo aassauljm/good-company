@@ -15,20 +15,20 @@ import DropZone from 'react-dropzone';
 import StaticField from 'react-bootstrap/lib/FormControls/Static';
 import { push } from 'react-router-redux';
 import FormData from 'form-data';
+import LawBrowserLink from './lawBrowserLink';
 
 const defaultShareClass = '___default';
 
 const shareClassFields = [
     "name",
-    "votingRights.appointDirectorAuditor",
-    "votingRights.adoptConstitution",
-    "votingRights.alterConstitution",
-    "votingRights.approveMajorTransactions",
-    "votingRights.approveAmalgamation",
-    "votingRights.liquidation",
+    "votingRights.1(a)",
+    "votingRights.1(b)",
+    "votingRights.1(c)",
+    "rights[]",
     "limitations[]",
     "documents"
 ];
+
 
 
 const validate = (values) => {
@@ -81,24 +81,26 @@ export class ShareClassForm extends React.Component {
             invalid,
             submitting
         } = this.props;
-
-        const votingRights = [
-            "appointDirectorAuditor",
-            "adoptConstitution",
-            "alterConstitution",
-            "approveMajorTransactions",
-            "approveAmalgamation",
-            "liquidation"];
+        const referenceUrl = 'https://browser.catalex.nz/open_article/instrument/DLM320143';
+        const votingRights = ["1(a)", "1(b)", "1(c)"];
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
             <legend>Create New Share Class</legend>
-
             <Input type="text" {...fields.name} bsStyle={fieldStyle(fields.name)} help={fieldHelp(fields.name)} label="Share Class Name" className="share-class-name" hasFeedback />
 
+            <LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about voting rights</LawBrowserLink>
             { votingRights.map((v, i) => {
                 return <Input key={i} type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])}
                     help={fieldHelp(fields.votingRights[v])} label={STRINGS.shareClasses.votingRights[v]} hasFeedback />
             }) }
+
+            { fields.rights.map((n, i) => {
+                return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Limitation or Restriction" hasFeedback
+                buttonAfter={<button className="btn btn-default" onClick={() => fields.rights.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
+            }) }
+            <div className="button-row"><ButtonInput onClick={() => {
+                fields.rights.addField();    // pushes empty child field onto the end of the array
+            }}>Add Right</ButtonInput></div>
 
             { fields.limitations.map((n, i) => {
                 return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Limitation or Restriction" hasFeedback

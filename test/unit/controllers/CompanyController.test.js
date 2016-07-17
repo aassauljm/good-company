@@ -229,7 +229,7 @@ describe('Company Controller', function() {
                 .catch(done);
         });
 
-        it('Applies history', function(done){
+        it('Applies share classes', function(done){
             req.post('/api/transaction/apply_share_classes/'+companyId)
                 .send({actions: [{
                         transactionType: 'APPLY_SHARE_CLASS',
@@ -251,6 +251,15 @@ describe('Company Controller', function() {
                 })
                 .catch(done)
             });
+
+        it('Applies history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                })
+
+        });
 
         it('Gets previous version', function(done){
             req.get('/api/company/'+companyId+'/history/10')

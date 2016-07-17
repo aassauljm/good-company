@@ -5,7 +5,8 @@ import pdf from 'html-pdf';
 module.exports = {
 
     renderShareRegister: function(req, res){
-        RenderService.serverRender('/company/render/'+req.params.id+'/shareregister', req.get('cookie'), {})
+        const state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user.toJSON(), _status: 'complete'};
+        RenderService.serverRender('/company/render/'+req.params.id+'/shareregister', req.get('cookie'), state)
             .then(result => {
                 res.render('staticContent', {reactOutput: result.reactOutput, assets: sails.config.paths.public}, (err, html) => {
                     const options = { format: 'A4',"border": "2cm", "orientation": "portrait", "base": 'file://'+sails.config.paths.public};

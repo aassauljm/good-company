@@ -6,7 +6,7 @@ import ButtonInput from './forms/buttonInput';
 import { requestLogin, addNotification } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import { push } from 'react-router';
+import { push } from 'react-router-redux'
 import { routeActions } from 'react-router-redux'
 import { fieldStyle, fieldHelp, objectValues, validateWithSchema } from '../utils';
 import { createResource, validateUser } from '../actions';
