@@ -135,7 +135,7 @@ describe('Transfer form', () => {
             const submit = transferFormatSubmit(values, companyState);
             submit.should.be.deep.eql([{
                 effectiveDate: values.effectiveDate,
-                transactionType: "TRANSFER",
+                transactionType: "NEW_ALLOCATION",
                 actions: [{
                     transactionType: 'NEW_ALLOCATION',
                     holders: [{name: 'new guy'}],

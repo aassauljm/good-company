@@ -446,5 +446,7 @@ select.form-control + .form-control-feedback{
 
 a.law-browser-link {
     color: #337ab7;
-    margin-left: 4px;
+    .glyphicon{
+        margin-left: 4px;
+    }
 }

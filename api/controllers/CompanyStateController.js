@@ -126,8 +126,8 @@ function createActivityLog(user, company, messages){
 
 // TODO, move to transaction service
 var transactions = {
-    seed: function(args, company, date) {
-        TransactionService.performSeed(args, company, date)
+    seed: function(args, company) {
+        return TransactionService.performSeed(args, company,  new Date())
             .then(function(){
                 return {message: `Company seeded`}
             })
