@@ -115,6 +115,42 @@ const DEFAULT_OBJ = {};
 }], (state, ownProps) => {
     return {
         data: DEFAULT_OBJ,
+         ...state.resources['/company/'+ownProps.params.id +'/get_info']};
+})
+export class CompanyLoader extends React.Component {
+    key() {
+        return this.props.params.id
+    }
+
+    fetch() {
+        return this.props.requestData(this.key());
+    };
+
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
+
+    render() {
+        return React.cloneElement(this.props.children, {
+                    companyState: this.props.data.currentCompanyState,
+                    companyId: this.key()
+            });
+    }
+}
+
+
+@asyncConnect([{
+    key: 'company',
+    promise: ({store: {dispatch, getState}, params}) => {
+        return dispatch(requestResource('/company/' + params.id + '/get_info', {postProcess: analyseCompany}));
+    }
+}], (state, ownProps) => {
+    return {
+        data: DEFAULT_OBJ,
         companyPage: state.companyPage,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
         modals: state.modals,

@@ -10,8 +10,8 @@ import { numberWithCommas } from '../../utils'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { fieldStyle, fieldHelp } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification } from '../../actions';
-
+import { companyTransaction, addNotification, showModal } from '../../actions';
+import { push } from 'react-router-redux';
 
 function renderHolders(holding){
     return <ul>
@@ -97,6 +97,11 @@ export class ApplyShareClassesModal extends React.Component {
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
                 const key = this.props.modalData.companyId;
             })
+            .then(() => {
+                this.props.dispatch(showModal('importHistory', {companyState: this.props.modalData.companyState, companyId: this.props.modalData.companyId}));
+                this.props.dispatch(push(`/company/view/${this.props.modalData.companyId}/new_transaction`));
+            })
+
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
             });

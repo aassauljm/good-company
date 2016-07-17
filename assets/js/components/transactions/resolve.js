@@ -464,7 +464,6 @@ const PAGES = {
                     id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], type: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
                 })
             }
-            debugger
             submit({
                 pendingActions: pendingActions
             })

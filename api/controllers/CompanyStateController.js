@@ -369,7 +369,7 @@ const selfManagedTransactions = {
                 })
             })
             .then(() => {
-                return TransactionService.performInverseAllPending(company)
+                //return TransactionService.performInverseAllPending(company)
             })
             .then(function(){
                 return {

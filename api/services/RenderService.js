@@ -17,7 +17,7 @@ import Promise from 'bluebird';
 
 export function serverRender(url, cookie, state={}){
     const memoryHistory = createMemoryHistory(url);
-    const store = configureStore(memoryHistory, state);
+    const store = configureStore(memoryHistory, {...state, login: { loggedIn: true }});
     const history = syncHistoryWithStore(memoryHistory, store);
     setFetch(function(url, args){
         url = 'http://localhost:'+sails.config.port+url;
@@ -35,9 +35,13 @@ export function serverRender(url, cookie, state={}){
             else {
                 loadOnServer({...renderProps, store})
                 .then(() => {
-                    const output = renderToString(<Root store={store} history={history}/>);
+                    const output = renderToString(<Root store={store} history={history} />);
                     resolve({reactOutput: output, data: JSON.stringify(store.getState())});
-                });
+                }).
+                catch(error => {
+                    sails.log.error(error);
+                    reject({code: 500, message: error.message});
+                })
             }
         });
     });
