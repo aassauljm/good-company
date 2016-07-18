@@ -109,7 +109,7 @@ export class NewTransaction extends React.Component {
     }
 
     render() {
-        return <div className="new-transaction">
+        return <div className="new-transaction icon-action-page">
                { this.props.modals.showing &&  <Modals {...this.props.modals} /> }
                { !this.props.modals.showing && this.renderBody() }
             </div>

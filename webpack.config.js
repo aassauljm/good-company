@@ -63,6 +63,9 @@ module.exports = {
             test: /\.gif$/,
             loader: "url-loader?mimetype=image/gif"
         }, {
+            test: /\.json$/,
+            loader: "json-loader"
+        }, {
             test: /\.(png|jpg)$/,
             loader: 'url-loader?limit=8192&name=../images/[name].[ext]'
             //loader: "file?name=../images/[name].[ext]"

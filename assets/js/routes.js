@@ -24,7 +24,7 @@ import ReportingDetails from './components/reportingDetails';
 import Directors from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
 import RecentActivity from './components/recentActivity';
-import Templates from './components/templates';
+import Templates, { TemplateView } from './components/templates';
 import Account from './components/account';
 import SetPassword from './components/setPassword';
 import Login from './components/login';
@@ -68,7 +68,9 @@ export default (store) => {
                 <Route path="shareregister" component={ ShareRegister } />
                 <Route path="shareholders" component={ Shareholders } />
                 <Route path="documents" component={ CompanyDocuments } />
-                <Route path="templates" component={ Templates } />
+                <Route path="templates" component={ Templates }>
+                    <Router path=":name" component={ TemplateView }/>
+                </Route>
                 <Route path="contact" component={ ContactDetails } />
                 <Route path="reporting" component={ ReportingDetails } />
                 <Route path="source_data" component={ CompaniesRegister } />

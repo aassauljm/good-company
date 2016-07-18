@@ -1,0 +1,102 @@
+{
+    "definitions": {
+    },
+    "description": "",
+    "title": "Transfer Shares",
+    "properties": {
+        "filename": {
+            "title": "File Name Prefix",
+            "type": "string"
+        },
+        "fileType": {
+            "title": "File Type",
+            "enum": [
+                "docx",
+                "odt",
+                "pdf"
+            ],
+            "enumNames": [
+                "Word Document (.docx)",
+                "OpenDocument Text (.odt)",
+                "Portable Document Format (.pdf)"
+            ]
+        },
+        "company": {
+            "type": "object",
+
+            "properties": {
+                "companyName": {
+                    "title": "Company Name",
+                    "type": "string"
+                },
+                "companyNumber": {
+                    "title": "Company Number",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "companyName", "companyNumber"
+            ]
+        },
+        "transaction": {
+            "type": "object",
+            "properties": {
+                "transferors": {
+                    "type": "array",
+                    "title": "Transferors",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "title": "Name"
+                            },
+                            "address": {
+                                "type": "string",
+                                "title": "Address"
+                            },
+                            "companyNumber": {
+                                "type": "string",
+                                "title": "Company Number"
+                            }
+                        },
+                        "required": ["name", "address"]
+                    }
+                },
+                "effectiveDateString": {
+                    "title": "Date",
+                    "type": "string",
+                    "x-hints" : {
+                        "form": {
+                          "inputComponent": "date"
+                        }
+                    }
+                },
+                "shareClass": {
+                    "title": "Share Class",
+                    "type": "string"
+                },
+                "amount": {
+                    "title": "Number of Shares",
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 1000000000
+                },
+                "consideration": {
+                    "title": "Consideration",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1000000000
+                }
+            },
+            "required": [
+                "effectiveDateString", "shareClass", "amount"
+            ]
+        }
+    },
+    "required": [
+
+    ],
+    "type": "object",
+    "x-ordering": []
+}
