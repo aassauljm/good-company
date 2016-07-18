@@ -190,11 +190,8 @@ export  class TemplateView extends React.Component {
                         companyNumber: this.props.companyState.companyNumber,
                     },
                     transaction: {
-                        transferors: [{name: 'x', address: 'y'}],
-                        transferees: [{name: 'x', address: 'y'}],
-                        shareClass: 'x',
-                        amount: 1,
-                        effectiveDateString: '1 March 2013'
+                        transferors: [],
+                        transferees: []
                     },
                 }}/>
             default:
