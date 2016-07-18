@@ -1,8 +1,21 @@
 "use strict";
 
 import pdf from 'html-pdf';
-import proxy from 'express-http-proxy';
+//import proxy from 'express-http-proxy';
+import fetch from "isomorphic-fetch";
+//import concat from 'concat-stream';
 
+
+function binaryParser(res, callback) {
+    res.setEncoding('binary');
+    res.data = '';
+    res.on('data', function (chunk) {
+        res.data += chunk;
+    });
+    res.on('end', function () {
+        callback(null, new Buffer(res.data, 'binary'));
+    });
+}
 
 module.exports = {
 
@@ -23,10 +36,38 @@ module.exports = {
             })
             .catch(res.negotiate)
     },
+    renderTemplate: function(req, res){
+        let response;
+        fetch(sails.config.renderServiceUrl, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(req.body)
+        })
+        .then((_response) => {
+            response = _response;
 
-    renderTemplate: proxy(sails.config.renderServiceUrl, {
+            res.set('Content-Type', response.headers.get('Content-Type'));
+            res.set('Content-Disposition', response.headers.get('Content-Disposition'));
+            response.body
+              .on('data', function (chunk) {
+                res.write(chunk);
+              })
+              .on('end', function () {
+                res.end();
+              });
+
+
+        })
+        .catch(e => {
+            res.serverError(e);
+        })
+    }
+    /*renderTemplate: proxy(sails.config.renderServiceUrl, {
         forwardPath: function(req, res) {
             return '/render';
         }
-    })
+    })*/
 };

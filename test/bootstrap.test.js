@@ -104,6 +104,7 @@ function lift(cb){
         },
         session: {adapter: 'memory'},
         test: true,
+        renderServiceUrl: 'localhost:5668',
         CACHE_DIR: '/tmp/.gc_test'
     }, cb);
 }

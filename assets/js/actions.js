@@ -165,7 +165,7 @@ export function renderTemplate(data = {}) {
         callAPI: () => fetch('/api/render_template', {
             method: 'POST',
             headers: json_headers,
-            body: JSON.stringify({goodCompany: true, ...data}),
+            body: JSON.stringify({goodCompaniesTemplate: true, ...data}),
             credentials: 'same-origin'
         })
     };

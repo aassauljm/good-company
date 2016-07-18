@@ -35,6 +35,6 @@ module.exports = {
         inspect: false
     },
     serverRender: false,
-    renderServiceUrl: 'localhost:5668', //'https://convert.catalex.nz'
+    renderServiceUrl: 'http://localhost:5668/render', //'https://convert.catalex.nz'
     CACHE_DIR: '/tmp/.gc'
 };

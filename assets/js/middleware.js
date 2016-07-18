@@ -13,10 +13,13 @@ function checkStatus(response) {
   }
 }
 
-function parseJSON(response) {
-  return response.text().then(function(text) {
-    return text ? JSON.parse(text) : {}
-  })
+function parse(response) {
+    if(response.headers.get('Content-Type').indexOf('application/json') === 0){
+        return response.text().then(function(text) {
+            return text ? JSON.parse(text) : text;
+          })
+    }
+    return response;
 }
 
 export function callAPIMiddleware({
@@ -57,7 +60,7 @@ export function callAPIMiddleware({
             }));
             return callAPI()
                 .then(checkStatus)
-                .then(parseJSON)
+                .then(parse)
                 .then(response => postProcess ? postProcess(response) : response)
                 .then(response => dispatch(Object.assign({}, payload, {
                     response: response,
@@ -70,7 +73,7 @@ export function callAPIMiddleware({
                         return;
                     }
                     if(error.response){
-                        return parseJSON(error.response)
+                        return parse(error.response)
                         .then(response => {
                                dispatch(Object.assign({}, payload, {
                             response: response,

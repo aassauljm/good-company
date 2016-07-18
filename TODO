@@ -12,6 +12,11 @@ scrape all, record errors
 
 
 
+#templates:
+consideration
+reference to agreement
+
+
 
 notifications
 backups -> figure out

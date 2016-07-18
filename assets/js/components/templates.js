@@ -11,7 +11,7 @@ import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
 import { renderTemplate } from '../actions';
-import SaveAs from 'file-saver';
+import { saveAs } from 'file-saver';
 
 function componentType(fieldProps){
     return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
@@ -79,7 +79,7 @@ function renderFormSet(schemaProps, fields){
 export  class RenderForm extends React.Component {
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
-        return <form className="generated-form" onSubmit={handleSubmit(onSubmit)}>
+        return <form className="generated-form" onSubmit={handleSubmit}>
             <h4>{ schema.title }</h4>
            { schema.description && <h5>{ schema.description }</h5>}
            { renderFormSet(schema.properties, fields) }
@@ -147,7 +147,7 @@ function getValidate(schema){
 export  class TransferForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={TRANSFER}  {...this.props} onSubmit={(values) => this.props.onSubmit(values)}/>
+        return <RenderForm schema={TRANSFER}  {...this.props} />
     }
 }
 
@@ -161,7 +161,7 @@ const TemplateMap = {
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
 }, {
-    render: (args) => renderTemplate(args)
+    renderTemplate: (args) => renderTemplate(args)
 })
 export  class TemplateView extends React.Component {
     constructor(props){
@@ -169,10 +169,16 @@ export  class TemplateView extends React.Component {
         this.submit = ::this.submit;
     }
     submit(values) {
-        this.props.renderTemplate(values)
-            .then(response => {
-                saveAs(response, 'Transfer Form');
-            });
+        let filename = `${this.props.params.name}`;
+        this.props.renderTemplate({formName: this.props.params.name, values: {...values, filename: filename}})
+            .then((response) => {
+                const disposition = response.response.headers.get('Content-Disposition')
+                filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');
+                return response.response.blob()
+            })
+            .then(blob => {
+                saveAs(blob, filename);
+            })
     }
     renderBody() {
         switch(this.props.params.name){
@@ -183,7 +189,13 @@ export  class TemplateView extends React.Component {
                         companyName: this.props.companyState.companyName,
                         companyNumber: this.props.companyState.companyNumber,
                     },
-                    transaction: {transferors: [{}], transferees: [{}]}
+                    transaction: {
+                        transferors: [{name: 'x', address: 'y'}],
+                        transferees: [{name: 'x', address: 'y'}],
+                        shareClass: 'x',
+                        amount: 1,
+                        effectiveDateString: '1 March 2013'
+                    },
                 }}/>
             default:
             return <div>Not Found</div>
