@@ -14,6 +14,9 @@ export default class DateInput extends React.Component {
          return <Input {...this.props} groupClassName='has-group'>
 
             <DateTimePicker {...this.props}
+            onClick={(e) => {
+                e.preventDefault();
+            }}
             time={false}
             value={this.props.value ? new Date(this.props.value): null }
            // onChange={(date, string) => this.props.onChange(string)}
@@ -31,7 +34,6 @@ export default class DateInput extends React.Component {
                 this.props.onBlur(this.props.value)
             }}
             format={format} />
-
           </Input>
     }
 }

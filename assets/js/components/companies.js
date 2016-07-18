@@ -24,7 +24,7 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
         return <table className={className}>
             <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
             <tbody>
-            { data.map(
+            { data.filter(d => !d.deleted).map(
                 (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
                     { fields.map(f => <td key={f}>{row[f]}</td>) }
                 </tr>) }

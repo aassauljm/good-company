@@ -18,10 +18,7 @@ export function fieldStyle(field){
 }
 
 export function fieldHelp(field){
-    if(!field.touched){
-        return;
-    }
-    if(field.error){
+    if(field.touched && field.error){
         return Array.isArray(field.error) ? field.error[0] : field.error;
     }
 }

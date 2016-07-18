@@ -33,8 +33,8 @@ export class Director extends React.Component {
     render() {
         return <form className="form" >
             <fieldset>
-                { this.props.fields.appointment && <DateInput{...this.formFieldProps('appointment')} /> }
-                { this.props.fields.cessation && <DateInput{...this.formFieldProps('cessation')} /> }
+                { this.props.fields.appointment && <DateInput {...this.formFieldProps('appointment')} /> }
+                { this.props.fields.cessation && <DateInput {...this.formFieldProps('cessation')} description="Setting cessation date will end this directorship."/> }
                 <PersonName {...this.formFieldProps(['person', 'name'])} />
                 <Address {...this.formFieldProps(['person', 'address'])} />
             </fieldset>
