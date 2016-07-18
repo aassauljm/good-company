@@ -2,6 +2,7 @@
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
 import { pureRender, numberWithCommas, stringToDate, fieldStyle, fieldHelp } from '../utils';
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
 import { Link } from 'react-router';
@@ -9,20 +10,33 @@ import TRANSFER from './schemas/transfer.json'
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
+import { renderTemplate } from '../actions';
+import SaveAs from 'file-saver';
 
 function componentType(fieldProps){
     return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
 }
 
 function renderList(fieldProps, componentProps){
-    return <div>
+    return <fieldset className="list">
+        { fieldProps.title && <legend>{fieldProps.title}</legend>}
         { componentProps.map((c, i) => {
-            return <div key={i}>{ renderFormSet(fieldProps, c) } </div>;
+            return <div key={i}>
+                <div className="text-right">
+                 <div className="btn-group btn-group-xs list-controls">
+                    { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
+                    { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
+                    <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
+                </div>
+                </div>
+            { renderFormSet(fieldProps.items.properties, c) }
+                { i < componentProps.length - 1 && <hr/> }
+            </div>;
         }) }
              <div className="button-row">
                 <Button onClick={() => componentProps.addField({})} >Add Item</Button>
             </div>
-        </div>
+        </fieldset>
     }
 
 
@@ -45,7 +59,7 @@ function renderField(fieldProps, componentProps){
         </Input>
     }
     if(fieldProps.type === 'array'){
-        return renderList(fieldProps.items.properties, componentProps);
+        return renderList(fieldProps, componentProps);
     }
 
     if(fieldProps.type === 'object'){
@@ -64,13 +78,13 @@ function renderFormSet(schemaProps, fields){
 
 export  class RenderForm extends React.Component {
     render() {
-        const { fields, schema } = this.props;
-        return <form>
+        const { fields, schema, handleSubmit, onSubmit } = this.props;
+        return <form className="generated-form" onSubmit={handleSubmit(onSubmit)}>
             <h4>{ schema.title }</h4>
            { schema.description && <h5>{ schema.description }</h5>}
            { renderFormSet(schema.properties, fields) }
             <div className="button-row">
-                <Button onClick={this.submit} bsStyle="primary" disabled={!this.props.valid}>Generate</Button>
+                <Button type="submit" bsStyle="primary" >Generate</Button>
             </div>
         </form>
     }
@@ -109,6 +123,11 @@ function getValidate(schema){
                 if(props[key].type === 'object'){
                     acc[key] = loop(props[key].properties, values[key], props[key].required || [])
                 }
+                 if(props[key].type === 'array'){
+                    acc[key] = values[key].map(v => {
+                        return loop(props[key].items.properties, v, props[key].items.required || []);
+                    });
+                }
                 if(required.indexOf(key) >= 0 && (!values || values[key] === undefined || values[key] === null)){
                     acc[key] = ['Required.']
                 }
@@ -126,10 +145,9 @@ function getValidate(schema){
   validate: getValidate(TRANSFER)
 })
 export  class TransferForm extends React.Component {
-
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={TRANSFER}  {...this.props}/>
+        return <RenderForm schema={TRANSFER}  {...this.props} onSubmit={(values) => this.props.onSubmit(values)}/>
     }
 }
 
@@ -140,12 +158,33 @@ const TemplateMap = {
 
 
 
-@pureRender
+@connect((state, ownProps) => {
+    return {...state.resources['renderTemplate']}
+}, {
+    render: (args) => renderTemplate(args)
+})
 export  class TemplateView extends React.Component {
+    constructor(props){
+        super(props);
+        this.submit = ::this.submit;
+    }
+    submit(values) {
+        this.props.renderTemplate(values)
+            .then(response => {
+                saveAs(response, 'Transfer Form');
+            });
+    }
     renderBody() {
         switch(this.props.params.name){
             case 'transfer':
-                return <TransferForm initialValues={{transaction: {transferors: [{}], transferees: [{}]}}}/>
+                return <TransferForm onSubmit={this.submit} initialValues={{
+                    fileType: 'pdf',
+                    company: {
+                        companyName: this.props.companyState.companyName,
+                        companyNumber: this.props.companyState.companyNumber,
+                    },
+                    transaction: {transferors: [{}], transferees: [{}]}
+                }}/>
             default:
             return <div>Not Found</div>
         }
@@ -187,7 +226,7 @@ export default class TemplateList extends React.Component {
                     </div>
                 </div>
                 <div className="widget-body">
-                    { this.props.children ? this.props.children : this.renderBody() }
+                    { this.props.children ?  React.cloneElement(this.props.children, this.props) : this.renderBody() }
                 </div>
                 </div>
             </div>

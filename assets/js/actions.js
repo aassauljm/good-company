@@ -17,6 +17,7 @@ import {
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE,
     VALIDATE_USER_REQUEST, VALIDATE_USER_SUCCESS, VALIDATE_USER_FAILURE,
+    RENDER_DOCUMENT_REQUEST, RENDER_DOCUMENT_SUCCESS, RENDER_DOCUMENT_FAILURE,
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
@@ -158,6 +159,21 @@ export function deleteResource(resource, options = {}) {
     };
 }
 
+export function renderTemplate(data = {}) {
+    return {
+        types: [RENDER_DOCUMENT_REQUEST, RENDER_DOCUMENT_SUCCESS, RENDER_DOCUMENT_FAILURE],
+        callAPI: () => fetch('/api/render_template', {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify({goodCompany: true, ...data}),
+            credentials: 'same-origin'
+        })
+    };
+}
+
+
+
+
 export function lookupCompany(query) {
     return {
         types: [LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE],
@@ -250,6 +266,7 @@ export function companyTransaction(transactionType, companyId, data) {
         payload: {companyId: companyId}
     };
 }
+
 
 
 export function startCreateCompany(formKey, data){

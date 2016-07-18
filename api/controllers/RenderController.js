@@ -1,6 +1,8 @@
 "use strict";
 
 import pdf from 'html-pdf';
+import proxy from 'express-http-proxy';
+
 
 module.exports = {
 
@@ -20,5 +22,11 @@ module.exports = {
                 });
             })
             .catch(res.negotiate)
-    }
+    },
+
+    renderTemplate: proxy(sails.config.renderServiceUrl, {
+        forwardPath: function(req, res) {
+            return '/render';
+        }
+    })
 };

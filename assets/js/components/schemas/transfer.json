@@ -58,11 +58,42 @@
                             "companyNumber": {
                                 "type": "string",
                                 "title": "Company Number"
+                            },
+                            "behalfOf": {
+                                "type": "string",
+                                "title": "Signatory (if required)"
                             }
                         },
                         "required": ["name", "address"]
                     }
                 },
+                "transferees": {
+                    "type": "array",
+                    "title": "Transferees",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "title": "Name"
+                            },
+                            "address": {
+                                "type": "string",
+                                "title": "Address"
+                            },
+                            "companyNumber": {
+                                "type": "string",
+                                "title": "Company Number"
+                            },
+                            "behalfOf": {
+                                "type": "string",
+                                "title": "Signatory (if required)"
+                            }
+                        },
+                        "required": ["name", "address"]
+                    }
+                },
+
                 "effectiveDateString": {
                     "title": "Date",
                     "type": "string",

@@ -205,6 +205,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'POST /api/render_template': {
+        controller: 'RenderController',
+        action: 'renderTemplate',
+    },
+
     'GET /api/company/:id/recent_activity': {
         controller: 'CompanyController',
         action: 'recentActivity',

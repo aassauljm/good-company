@@ -13,6 +13,7 @@ import {
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
+    RENDER_DOCUMENT_REQUEST, RENDER_DOCUMENT_SUCCESS, RENDER_DOCUMENT_FAILURE,
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
@@ -209,6 +210,20 @@ function transactions(state = {}, action){
         }
 }
 
+function renderTemplate(state = {}, action){
+    switch(action.type){
+        case RENDER_DOCUMENT_REQUEST:
+            return {...state, _status: 'fetching'};
+        case RENDER_DOCUMENT_SUCCESS:
+            return {...state, data: action.response, _status: 'complete'};
+        case RENDER_DOCUMENT_FAILURE:
+            return {...state, data: action.response, _status: 'error'};
+        default:
+            return state;
+        }
+}
+
+
 const default_resources = {users: {}, roles: {}, documents: {}, companies: {}}
 
 function resources(state = default_resources, action){
@@ -294,18 +309,6 @@ function processResource(state, action){
       }
 }
 
-function reduxAsyncWithClear(state, action){
-    state = reduxAsyncConnect(state, action);
-    switch(action.type){
-        case TRANSACTION_SUCCESS:
-        case RESOURCE_CREATE_SUCCESS:
-        case RESOURCE_UPDATE_SUCCESS:
-        case RESOURCE_DELETE_SUCCESS:
-            return {} //return {loadState: {company: {loaded: false}}};
-    }
-    return state;
-
-}
 
 
 const normalizeNumber = (value) => {
@@ -392,6 +395,7 @@ const appReducer = combineReducers({
     modals,
     menus,
     widgets,
+    renderTemplate,
     reduxAsyncConnect: reduxAsyncConnect
 });
 

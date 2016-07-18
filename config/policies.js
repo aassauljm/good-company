@@ -72,6 +72,13 @@ module.exports.policies = {
             'passport',
             'sessionAuth'
         ]
+    },
+    RenderController: {
+        renderTemplate: [
+            'basicAuth',
+            'passport',
+            'sessionAuth'
+        ]
     }
 
     /***************************************************************************
