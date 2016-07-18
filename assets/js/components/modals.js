@@ -22,7 +22,9 @@ import { SelectDirectorModal  } from './transactions/selectDirector';
 import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
 import { ResolveAmbiguityModal  } from './transactions/resolve';
-import { AddAssignSharesModal, ColsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal } from './transactions/selection';
+import { DeleteCompanyModal  } from './transactions/deleteCompany';
+import { ResetHistoryModal  } from './transactions/resetHistory';
+import { AddAssignSharesModal, ConsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal, ResetDeleteModal } from './transactions/selection';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
 
@@ -61,8 +63,8 @@ export class Modals extends React.Component {
             case 'addAssignShares':
                 return <AddAssignSharesModal {...props} />
 
-            case 'colsolidateDivide':
-                return <ColsolidateDivideModal {...props} />
+            case 'consolidateDivide':
+                return <ConsolidateDivideModal {...props} />
 
             case 'repurchaseRedeem':
                 return <RepurchaseRedeemModal {...props} />
@@ -126,6 +128,15 @@ export class Modals extends React.Component {
 
             case 'resolveAmbiguity':
                 return <ResolveAmbiguityModal {...props} />
+
+            case 'resetHistory':
+                return <ResetHistoryModal {...props} />
+
+            case 'resetDelete':
+                return <ResetDeleteModal {...props} />
+
+            case 'deleteCompany':
+                return <DeleteCompanyModal {...props} />
 
             default:
                 return false;

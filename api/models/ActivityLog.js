@@ -10,6 +10,7 @@ const types = {
     CREATE_ACCOUNT: 'CREATE_ACCOUNT',
     UPDATE_PENDING_HISTORY: 'UPDATE_PENDING_HISTORY',
     RESET_PENDING_HISTORY: 'RESET_PENDING_HISTORY',
+    DELETE_COMPANY: 'DELETE_COMPANY',
     ...require('../../config/enums/transactions').enums
 };
 

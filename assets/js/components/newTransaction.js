@@ -66,7 +66,7 @@ export class NewTransaction extends React.Component {
                             <span className="glyphicon glyphicon-list-alt"></span>
                             <span className="transaction-button-text">Add & Assign Share Classes</span>
                     </div>
-                    <div className="actionable select-button" onClick={() => this.startTransaction('colsolidateDivide') } >
+                    <div className="actionable select-button" onClick={() => this.startTransaction('consolidateDivide') } >
                             <span className="glyphicon glyphicon-duplicate"></span>
                             <span className="transaction-button-text">Consolidate or Subdivide Shares</span>
                     </div>
@@ -94,6 +94,12 @@ export class NewTransaction extends React.Component {
                             <span className="glyphicon glyphicon-piggy-bank"></span>
                             <span className="transaction-button-text">Update Shareholders</span>
                     </div>
+
+                    <div className="actionable select-button" onClick={() => this.startTransaction('resetDelete')  } >
+                            <span className="glyphicon glyphicon-trash"></span>
+                            <span className="transaction-button-text">Reset or Delete Company</span>
+                    </div>
+
                     </div>
 
                 </div>

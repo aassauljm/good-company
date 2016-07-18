@@ -131,9 +131,24 @@ export class UpdateHoldingHolderModal extends React.Component {
                 <span className="glyphicon glyphicon-user"></span>
                 <span className="transaction-button-text">Update Shareholder</span>
             </div>
+        </SelectionBase>
+    }
+}
 
 
+export class ResetDeleteModal extends React.Component {
 
+    render() {
+        return <SelectionBase {...this.props} title="Update Shareholdings and Shareholders">
+            <div className="actionable select-button"  onClick={() => this.props.show('resetHistory')} >
+                <span className="glyphicon glyphicon-refresh"></span>
+                <span className="transaction-button-text">Reset Company History</span>
+
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('deleteCompany')} >
+                <span className="glyphicon glyphicon-trash"></span>
+                <span className="transaction-button-text">Delete Company</span>
+            </div>
 
         </SelectionBase>
     }

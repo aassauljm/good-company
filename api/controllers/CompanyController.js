@@ -28,6 +28,32 @@ module.exports = {
         });
     },
 
+    destroy: function(req, res) {
+        const args = actionUtil.parseValues(req);
+        let company ,state, companyName;
+        Company.findById(req.params.id)
+        .then(function(_company){
+            company  = _company;
+            return company.getCurrentCompanyState()
+        })
+        .then(_state => {
+            state = _state;
+            companyName = state.get('companyName');
+            company.update({'deleted': true});
+        })
+        .then(() => {
+            return ActivityLog.create({
+                type: ActivityLog.types.UPDATE_PENDING_HISTORY,
+                userId: req.user.id,
+                description: `${companyName} Deleted.`,
+                data: {companyId: company.id}
+            });
+        })
+        .then(() => {
+            res.json({message:  `${companyName} Deleted.`})
+        })
+    },
+
     getInfo: function(req, res) {
         Company.findById(req.params.id, {
                 include: [{
@@ -206,6 +232,9 @@ module.exports = {
             //});
         });
     },
+
+
+
     importPendingHistory: function(req, res){
         Company.findById(req.params.id)
         .then(function(company){
@@ -301,7 +330,8 @@ module.exports = {
     lookupOwn: function(req, res) {
         Company.findAll({
             where: {
-                ownerId: req.user.id
+                ownerId: req.user.id,
+                deleted: false,
             },
             include: [{
                 model: CompanyState,

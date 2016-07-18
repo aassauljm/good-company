@@ -49,7 +49,8 @@ export function importCompany(companyNumber, options) {
 export function checkNameCollision(ownerId, data) {
     return Company.findAll({
             where: {
-                ownerId: ownerId
+                ownerId: ownerId,
+                deleted: false
             },
             include: [{
                 model: CompanyState,

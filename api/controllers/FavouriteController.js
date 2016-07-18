@@ -14,6 +14,7 @@ module.exports = {
                 {
                     model: Company,
                         as: 'company',
+                        where: {deleted: false},
                         include: {
                         model: CompanyState,
                         as: 'currentCompanyState'
@@ -21,14 +22,13 @@ module.exports = {
                 }]
             })
             .then(favourites => {
-                console.log(favourites)
                 return favourites.map(f => {
                     return {...f.company.toJSON(), favourited: true}
                 })
             });
 
         const fallback = () => Company.findAll({
-            where: {ownerId: req.user.id},
+            where: {ownerId: req.user.id, deleted: false},
             include: {
                 model: CompanyState,
                 as: 'currentCompanyState'

@@ -9,6 +9,10 @@ const uuid = require('node-uuid');
 
 module.exports = {
     attributes: {
+        deleted: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
+        }
     },
     associations: function() {
         Company.belongsTo(User, {
@@ -130,7 +134,6 @@ module.exports = {
                     .then(function(root){
                         return root.createPrevious();
                     });
-
             },
 
             getPendingActions: function(){
@@ -154,7 +157,6 @@ module.exports = {
                 return this.getRootCompanyState()
                     .then(_rootState => {
                         rootState = _rootState;
-                        console.log("WRONG", JSON.stringify(pendingActions, null, 4))
                         return Action.bulkCreate(pendingActions);
 
                     })
