@@ -159,7 +159,7 @@ module.exports = {
 
 
         // split holdingchanges into removeAllocation, and 2 transfers
-        /*function holdingChangeToTransfers(docs){
+        function holdingChangeToTransfers(docs){
             const holdingChangeTypes = [Transaction.types.HOLDING_CHANGE];
             return  _.reduce(docs, (acc, doc, i) => {
                 const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
@@ -175,9 +175,7 @@ module.exports = {
                             effectiveDate: a.effectiveDate,
                             beforeHolders: a.beforeHolders,
                             afterHolders: a.beforeHolders,
-                            afterAmount: 0,
-                            amount: a.amount,
-                            beforeAmount: a.amount,
+                            //allSharesFrom: [],
                             transactionType: Transaction.types.TRANSFER_FROM,
                             transactionMethod: Transaction.types.AMEND
                         });
@@ -229,9 +227,43 @@ module.exports = {
                 return acc;
             }, [])
         }
-        */
-        let results = splitAmends(docs)
+
+        function holdingChangeRemovals(docs){
+            const holdingChangeTypes = [Transaction.types.HOLDING_CHANGE];
+            return  _.reduce(docs, (acc, doc, i) => {
+                const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
+                if(!holdingChangeActions.length){
+                    acc.push(doc);
+                }
+                else{
+                    const transfers = _.cloneDeep(doc);
+                    const removals = _.cloneDeep(doc);
+                    const creations = _.cloneDeep(doc);
+                    const results = holdingChangeActions.reduce((acc, a) => {
+                        acc.removals.push({
+                            effectiveDate: a.effectiveDate,
+                            holders: a.beforeHolders,
+                            matchHoldingId: {holders: a.afterHolders},
+                            transactionType: Transaction.types.REMOVE_ALLOCATION
+                        });
+                        return acc;
+                    }, {transfers: [], removals: [], creations: []});
+
+                    removals.actions = results.removals;
+                    removals.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
+                    acc.push(removals);
+
+                    docs.actions = doc.actions.filter(a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) < 0);
+                    acc.push(doc)
+                }
+                return acc;
+            }, [])
+        }
+
+        let results = splitAmends(docs);
         //results = holdingChangeToTransfers(results);
+
+        results = holdingChangeRemovals(docs)
         return results;
     },
 
