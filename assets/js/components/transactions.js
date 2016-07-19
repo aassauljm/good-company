@@ -51,7 +51,7 @@ export class CompanyTransactions extends React.Component {
                 { !t.transaction.subTransactions && <td></td> }
             </tr>);
             (t.transaction.subTransactions || []).map((t, j) => {
-                rows.push(<tr key={i+'-'+j} onClick={() => this.show(t.transactionId)}><td>{STRINGS.transactionTypes[t.type]}</td></tr>)
+                rows.push(<tr key={i+'-'+j} onClick={() => this.show(t.id)}><td>{STRINGS.transactionTypes[t.type]}</td></tr>)
             });
 
         });

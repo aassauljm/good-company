@@ -103,7 +103,7 @@ describe('Transfer form', () => {
         it('confirms validate succeeds', done => {
             const values = {effectiveDate: new Date(), from: '3', to: '2', parcels: [{amount: '1', shareClass: '3'}]}
             const submit = transferFormatSubmit(values, companyState);
-            submit[0].should.be.deep.eql({
+            submit[0].should.containSubset({
                 effectiveDate: values.effectiveDate,
                 transactionType: 'TRANSFER',
                 actions: [
@@ -133,7 +133,7 @@ describe('Transfer form', () => {
         it('confirms validate succeeds, new holder', done => {
             const values = {effectiveDate: new Date(), from: '3', newHolding: {persons: [{name: 'new guy'}]}, parcels: [{amount: '1', shareClass: '3'}]}
             const submit = transferFormatSubmit(values, companyState);
-            submit.should.be.deep.eql([{
+            submit.should.containSubset([{
                 effectiveDate: values.effectiveDate,
                 transactionType: "NEW_ALLOCATION",
                 actions: [{

@@ -74,7 +74,7 @@ export class TransactionView extends React.Component {
                 transaction = t;
                 return true;
             }
-            return t.subTransactions.some(t => {
+            return (t.subTransactions || []).some(t => {
                 if(t.id.toString() === id){
                     transaction = t;
                     return true;
