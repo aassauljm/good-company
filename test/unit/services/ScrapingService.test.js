@@ -180,7 +180,7 @@ describe('Scraping Service', function() {
                 .catch(done)
         })
     })
-    describe('Should get all fields from Timely html doc', function() {
+    describe.skip('Should get all fields from Timely html doc', function() {
         it('passes doc to scraping service', function(done) {
             var data, company;
             return fs.readFileAsync('test/fixtures/companies_office/Timely.html', 'utf8')

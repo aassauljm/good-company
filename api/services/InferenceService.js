@@ -14,6 +14,7 @@ module.exports = {
         const types = [Transaction.types.AMEND, Transaction.types.NEW_ALLOCATION, Transaction.types.REMOVE_ALLOCATION];
 
         return _.reduce(actionSets, (acc, d, i) => {
+
             const needsInference = _.any(d.actions, a => types.indexOf(a.transactionType) >= 0);
             if(needsInference){
                 // TODO, read previous share update doc
@@ -29,9 +30,13 @@ module.exports = {
                     }
                     return null;
                 }
-                const allocationsUp = _.filter(d.actions, a => types.indexOf(a.transactionType) >= 0 && a.afterAmount > a.beforeAmount).length;
-                const allocationsDown = _.filter(d.actions, a => types.indexOf(a.transactionType) >= 0 && a.afterAmount < a.beforeAmount).length;
+                const allocationsUp = _.filter(d.actions, a =>
+                                               (types.indexOf(a.transactionType) >= 0 && a.afterAmount > a.beforeAmount) || a.transactionType === Transaction.types.NEW_ALLOCATION).length;
+                const allocationsDown = _.filter(d.actions, a =>
+                                                 (types.indexOf(a.transactionType) >= 0 && a.afterAmount < a.beforeAmount) || a.transactionType === Transaction.types.REMOVE_ALLOCATION).length;
                 // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
+
+
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
                     // totalShares = zero SHOULD mean transfers.  Hopefully.
                     d.actions.map(a => {
@@ -47,7 +52,6 @@ module.exports = {
                         }
                     })
                 }
-
                 else if(d.totalShares > 0 && allocationsDown === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
                     d.actions.map(a => {
@@ -132,8 +136,8 @@ module.exports = {
                             afterAmount: 0,
                             amount: a.amount,
                             beforeAmount: a.amount,
-                            transactionType: a.transactionType, // TODO, Transfer_from, etc
-                            transactionMethod: Transaction.types.AMEND
+                            transactionMethod: Transaction.types.AMEND,
+                            transactionType: a.transactionType || Transaction.types.AMEND
                         }
                     })
                     doc.actions = doc.actions.filter(a => {
@@ -159,7 +163,7 @@ module.exports = {
 
 
         // split holdingchanges into removeAllocation, and 2 transfers
-        function holdingChangeToTransfers(docs){
+       /* function holdingChangeToTransfers(docs){
             const holdingChangeTypes = [Transaction.types.HOLDING_CHANGE];
             return  _.reduce(docs, (acc, doc, i) => {
                 const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
@@ -252,15 +256,16 @@ module.exports = {
                     removals.actions = results.removals;
                     removals.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
                     acc.push(removals);
-
                     docs.actions = doc.actions.filter(a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) < 0);
                     acc.push(doc)
                 }
                 return acc;
             }, [])
-        }
+        }*/
+
 
         let results = splitAmends(docs);
+
         //results = holdingChangeToTransfers(results);
 
         //results = holdingChangeRemovals(docs)

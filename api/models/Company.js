@@ -170,7 +170,7 @@ module.exports = {
                 // remove SEED previousCompanyState
                 return this.getSeedCompanyState()
                     .then(companyState => {
-                        return companyState.update({previousCompanyStateId: null, pending_historic_action_id: companyState.get('historic_action_id')})
+                        return this.update({previousCompanyStateId: null, pending_historic_action_id: companyState.get('historic_action_id')})
                     })
 
             }

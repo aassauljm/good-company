@@ -252,7 +252,7 @@ describe('Company Controller', function() {
                 .catch(done)
             });
 
-        it('Applies history', function(done){
+        /*it('Applies history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(200)
                 .then(function(res){
@@ -268,7 +268,7 @@ describe('Company Controller', function() {
                     done();
                 })
                 .catch(done)
-        });
+        });*/
 
         it('does a person update', function(done){
             req.post('/api/transaction/compound/'+companyId)

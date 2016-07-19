@@ -362,7 +362,26 @@ const DESCRIPTIONS = {
                 </div>
             </div>
     },
-
+    [TransactionTypes.NEW_ALLOCATION]: function(context, companyState){
+        const { action, actionSet } = context;
+        return <div>
+                <div className="row">
+                    <div className="col-md-6 col-md-offset-3">
+                        { sourceInfo(companyState, actionSet) }
+                    </div>
+                </div>
+            </div>
+    },
+    [TransactionTypes.REMOVE_ALLOCATION]: function(context, companyState){
+        const { action, actionSet } = context;
+        return <div>
+                <div className="row">
+                    <div className="col-md-6 col-md-offset-3">
+                        { sourceInfo(companyState, actionSet) }
+                    </div>
+                </div>
+            </div>
+    },
 }
 
 const PAGES = {
@@ -492,6 +511,7 @@ const PAGES = {
             </div>
     }
 }
+
 
 
 

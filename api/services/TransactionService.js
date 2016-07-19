@@ -339,7 +339,6 @@ export function performInverseHoldingChangeBusted(data, companyState, previousSt
             current = findHolding(normalizedData, companyState);
             holdingId = current.dataValues.holdingId;
             // transfer to this one, from newly created on
-            performInverseNewAllocation
             amount = current.dataValues.parcels.reduce((sum, p) => sum + p.amount, 0);
             return performInverseNewAllocation({
                 ...data,
@@ -463,7 +462,7 @@ export const performHolderChange = function(data, companyState, previousState, e
 
 
 export  function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
-    if(data.transactionType === Transaction.types.AMEND){
+    if(data.transactionType === Transaction.types.NEW_ALLOCATION){
         throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
             action: data,
             importErrorType: sails.config.enums.UNKNOWN_AMEND
