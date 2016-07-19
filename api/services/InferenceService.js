@@ -95,7 +95,7 @@ module.exports = {
                                             break;
 
                                         case Transaction.types.CONSOLIDATION:
-                                            a.transactionType = Transaction.types.CONSOLIDATIONFROM;
+                                            a.transactionType = Transaction.types.CONSOLIDATION_FROM;
                                             break;
                                         case Transaction.types.REDEMPTION:
                                             a.transactionType = Transaction.types.REDEMPTION_FROM;
@@ -137,7 +137,9 @@ module.exports = {
                             amount: a.amount,
                             beforeAmount: a.amount,
                             transactionMethod: Transaction.types.AMEND,
-                            transactionType: a.transactionType || Transaction.types.AMEND
+                            transactionType: [Transaction.types.AMEND,
+                                Transaction.types.NEW_ALLOCATION,
+                                Transaction.types.REMOVE_ALLOCATION].indexOf(a.transactionType) < 0 ? a.transactionType : Transaction.types.AMEND
                         }
                     })
                     doc.actions = doc.actions.filter(a => {
@@ -161,77 +163,6 @@ module.exports = {
             }, []);
         }
 
-
-        // split holdingchanges into removeAllocation, and 2 transfers
-       /* function holdingChangeToTransfers(docs){
-            const holdingChangeTypes = [Transaction.types.HOLDING_CHANGE];
-            return  _.reduce(docs, (acc, doc, i) => {
-                const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
-                if(!holdingChangeActions.length){
-                    acc.push(doc);
-                }
-                else{
-                    const transfers = _.cloneDeep(doc);
-                    const removals = _.cloneDeep(doc);
-                    const creations = _.cloneDeep(doc);
-                    const results = holdingChangeActions.reduce((acc, a) => {
-                        acc.transfers.push({
-                            effectiveDate: a.effectiveDate,
-                            beforeHolders: a.beforeHolders,
-                            afterHolders: a.beforeHolders,
-                            //allSharesFrom: [],
-                            transactionType: Transaction.types.TRANSFER_FROM,
-                            transactionMethod: Transaction.types.AMEND
-                        });
-                        acc.transfers.push({
-                            effectiveDate: a.effectiveDate,
-                            beforeHolders: a.afterHolders,
-                            afterHolders: a.afterHolders,
-                            afterAmount: a.amount,
-                            amount: a.amount,
-                            beforeAmount: 0,
-                            transactionType: Transaction.types.TRANSFER_TO,
-                            transactionMethod: Transaction.types.AMEND
-                        });
-
-                        acc.removals.push({
-                            effectiveDate: a.effectiveDate,
-                            holders: a.beforeHolders,
-                            afterAmount: a.amount,
-                            amount: a.amount,
-                            matchHoldingId: {holders: a.afterHolders},
-                            transactionType: Transaction.types.REMOVE_ALLOCATION
-                        });
-
-                        acc.creations.push({
-                            effectiveDate: a.effectiveDate,
-                            holders: a.afterHolders,
-                            amount: 0,
-                            transactionType: Transaction.types.NEW_ALLOCATION
-                        });
-
-                        return acc;
-                    }, {transfers: [], removals: [], creations: []});
-
-                    removals.actions = results.removals;
-                    removals.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
-                    acc.push(removals);
-
-                    transfers.actions = results.transfers;
-                    transfers.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
-                    acc.push(transfers);
-
-                    creations.actions = results.creations;
-                    creations.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
-                    acc.push(creations);
-
-                    docs.actions = doc.actions.filter(a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) < 0);
-                    acc.push(doc)
-                }
-                return acc;
-            }, [])
-        }
-
         function holdingChangeRemovals(docs){
             const holdingChangeTypes = [Transaction.types.HOLDING_CHANGE];
             return  _.reduce(docs, (acc, doc, i) => {
@@ -247,11 +178,11 @@ module.exports = {
                         acc.removals.push({
                             effectiveDate: a.effectiveDate,
                             holders: a.beforeHolders,
-                            matchHoldingId: {holders: a.afterHolders},
+                            //matchHoldingId: {holders: a.afterHolders},
                             transactionType: Transaction.types.REMOVE_ALLOCATION
                         });
                         return acc;
-                    }, {transfers: [], removals: [], creations: []});
+                    }, {removals: []});
 
                     removals.actions = results.removals;
                     removals.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
@@ -261,14 +192,11 @@ module.exports = {
                 }
                 return acc;
             }, [])
-        }*/
+        }
 
 
         let results = splitAmends(docs);
-
-        //results = holdingChangeToTransfers(results);
-
-        //results = holdingChangeRemovals(docs)
+        results = holdingChangeRemovals(results)
         return results;
     },
 

@@ -179,22 +179,25 @@ describe('Transaction Service', function() {
                 return rootStateSimple.buildPrevious()
                     .then(function(companyState){
                         prevState = companyState;
+                        return TransactionService.performInverseRemoveAllocation({
+                            transactionType: Transaction.types.REMOVE_ALLOCATION,
+                            holders: [{name: 'pete'}],
+                        }, companyState, rootStateSimple, date).should.eventually.be.fulfilled;
+                    })
+                    .then(() => {
                         return TransactionService.performInverseHoldingChange({
                             transactionType: Transaction.types.HOLDING_CHANGE,
-                            beforeHolders: [{name: 'john'}],
+                            beforeHolders: [{name: 'pete'}],
                             afterHolders: [{name: 'mike'}]
-                        }, companyState, rootStateSimple, date).should.eventually.be.fulfilled;
+                        }, prevState, null, date).should.eventually.be.fulfilled;
                     })
                     .then(function(e){
                         const _prevState = prevState.toJSON();
                         _prevState.holdingList.holdings.length.should.be.equal(1);
-                        _prevState.holdingList.holdings[0].holders[0].name.should.be.equal('john');
+                        _prevState.holdingList.holdings[0].holders[0].name.should.be.equal('pete');
                         _prevState.holdingList.holdings[0].parcels[0].amount.should.be.equal(1);
-                        return rootStateSimple.dataValues.holdingList.holdings[0].getTransaction()
-                    }).then(function(transaction){
-                        transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
-                        transaction.effectiveDate.should.be.eql(date);
-                    });
+                    })
+                   // .catch(e => console.log(e));
             });
         });
 

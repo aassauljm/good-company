@@ -400,6 +400,7 @@ const PAGES = {
                 pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
             })
         }
+        const shareClassMap = generateShareClassMap(companyState);
         return <div>
              <div className="row">
                 <div className="col-md-12">
@@ -407,7 +408,7 @@ const PAGES = {
                 </div>
              </div>
              <div className="row">
-             { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect}/></div>) }
+             { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }
              </div>
         </div>
     },

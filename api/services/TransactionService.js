@@ -192,6 +192,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             return companyState.dataValues.holdingList.buildNext();
         })
         .then(holdingList => {
+
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
             const difference = data.afterAmount - data.beforeAmount;
@@ -218,6 +219,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                                                             {ignoreCompanyNumber: true});
             // If holders have changed too
             if(!current.holdersMatch({holders: data.beforeHolders})){
+                /// DANGER!!!!!!!
+                console.log("WOAHAHA", JSON.stringify(data, null, 4))
                 return companyState.mutateHolders(current, data.beforeHolders);
             }
         })
@@ -227,7 +230,9 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             return transaction.save();
         })
         .then(() => {
-            prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
+            if(previousState){
+                prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
+            }
             // if we inferred shareClass from unallocatedParcels, lets assign it here (mutate it)
             if(data.shareClass && !_.find(prevHolding.parcels, p => p.shareClass)){
                 return Promise.all(prevHolding.dataValues.parcels.map(p => p.replace({shareClass: data.shareClass})).map(p => p.save()));
@@ -237,8 +242,10 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             if(parcels){
                 prevHolding.setParcels(parcels);
             }
-            prevHolding.set('transactionId', transaction.id);
-            return prevHolding.save();
+            if(previousState){
+                prevHolding.set('transactionId', transaction.id);
+                return prevHolding.save();
+            }
         })
         .then(() => {
             return transaction;
@@ -280,7 +287,7 @@ function findHolding(data, companyState){
 }
 
 
-export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
+export function performInverseHoldingChangeMutateInPlace(data, companyState, previousState, effectiveDate){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data)
     let current;
@@ -317,11 +324,10 @@ export function performInverseHoldingChange(data, companyState, previousState, e
 
 
 
-export function performInverseHoldingChangeBusted(data, companyState, previousState, effectiveDate){
-    //const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const normalizedData = _.cloneDeep(data)
     let current, holdingId, amount, transactions = [];
-    return companyState.dataValues.holdingList.buildNext()
+    return Promise.resolve(companyState.dataValues.holdingList ? companyState.dataValues.holdingList.buildNext() :  HoldingList.build({}))
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
@@ -344,11 +350,11 @@ export function performInverseHoldingChangeBusted(data, companyState, previousSt
                 ...data,
                 transactionType: Transaction.types.TRANSFER_TO,
                 holders: data.afterHolders,
+                beforeAmount: 0,
                 amount: amount,
                 afterAmount: amount
                 //shareclass
             }, companyState, previousState, effectiveDate)
-            //return companyState.mutateHolders(current, normalizedData.beforeHolders)
         })
         .then((transaction) => {
             transactions.push(transaction);
@@ -482,8 +488,6 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount}]}, {ignoreCompanyNumber: true});
         }
         if(!holding){
-            console.log(data)
-            console.log(JSON.stringify(companyState.dataValues.holdingList))
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation')
         }
 
@@ -501,8 +505,10 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
         return transaction.save()
             .then((transaction) => {
-                const prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
-                return prevHolding.setTransaction(transaction.id);
+                if(previousState){
+                    const prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
+                    return prevHolding.setTransaction(transaction.id);
+                }
             })
             .then(() => {
                 return transaction;
@@ -1097,7 +1103,9 @@ export function performInverseTransaction(data, company, rootState){
                 if(result){
                     return result
                     .then(function(r){
-                        arr.push(r);
+                        if(r){
+                            arr = arr.concat(Array.isArray(r) ? r : [r]);
+                        }
                         return arr;
                     });
                 }
@@ -1510,6 +1518,6 @@ export function createImplicitTransactions(state, transactions, effectiveDate){
         }
         return [];
     }
-
+    // HOLDING CHANGES NEED TO HAVE A REMOVE
     return [...removeEmpty(), ...replaceDirectors(), ...replaceHolders()]
 }
