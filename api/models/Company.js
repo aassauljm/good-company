@@ -170,7 +170,8 @@ module.exports = {
                 // remove SEED previousCompanyState
                 return this.getSeedCompanyState()
                     .then(companyState => {
-                        return this.update({previousCompanyStateId: null, pending_historic_action_id: companyState.get('historic_action_id')})
+                        sails.log.info('Resetting history to',companyState.get('historic_action_id'))
+                        return companyState.update({previousCompanyStateId: null, pending_historic_action_id: companyState.get('historic_action_id')})
                     })
 
             }

@@ -287,7 +287,7 @@ function findHolding(data, companyState){
 }
 
 
-export function performInverseHoldingChangeMutateInPlace(data, companyState, previousState, effectiveDate){
+export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data)
     let current;
@@ -324,7 +324,7 @@ export function performInverseHoldingChangeMutateInPlace(data, companyState, pre
 
 
 
-export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
+export function performInverseHoldingTransfer(data, companyState, previousState, effectiveDate){
     const normalizedData = _.cloneDeep(data)
     let current, holdingId, amount, transactions = [];
     return Promise.resolve(companyState.dataValues.holdingList ? companyState.dataValues.holdingList.buildNext() :  HoldingList.build({}))
@@ -703,9 +703,9 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             return transaction;
         })
         .catch((e) => {
+            sails.log.error(e)
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director');
         });
-
 };
 
 export const validateIssueUnallocated = Promise.method(function(data){
@@ -1059,6 +1059,7 @@ export function performInverseTransaction(data, company, rootState){
     const PERFORM_ACTION_MAP = {
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
+        [Transaction.types.HOLDING_TRANSFER]:  TransactionService.performInverseHoldingTransfer,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
         [Transaction.types.ISSUE]:  TransactionService.performInverseIssueUnallocated,
         [Transaction.types.CONVERSION]:  TransactionService.performInverseIssueUnallocated,
