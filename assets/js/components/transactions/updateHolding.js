@@ -53,7 +53,9 @@ export class UpdateHoldingModal extends React.Component {
             <div className="col-md-6 col-md-offset-3">
                 <HoldingNoParcelsConnected
                     ref="form"
-                    initialValues={{effectiveDate: new Date(), persons: this.props.modalData.holding.holders, holdingName: this.props.modalData.holding.name}}
+                    initialValues={{effectiveDate: new Date(),
+                        persons: this.props.modalData.holding.holders,
+                        holdingName: this.props.modalData.holding.name}}
                     personOptions={personOptions}
                     showModal={(key, index) => this.props.dispatch(showModal(key, {
                         ...this.props.modalData,

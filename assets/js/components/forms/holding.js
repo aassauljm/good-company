@@ -98,8 +98,7 @@ export class HoldingNoParcels extends React.Component {
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
-
-                        { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])} label={'Existing Persons'} >
+                        { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])} label={'Current Shareholder'} >
                             <option></option>
                             { this.props.personOptions }
                         </Input> }
@@ -110,7 +109,7 @@ export class HoldingNoParcels extends React.Component {
                         }}>Create New Person</ButtonInput></div> }
 
                     { p.newPerson.value  &&
-                        <StaticField type="static" label={'New Person'} value={p.newPerson.value.name}
+                        <StaticField type="static" label={'New Shareholder'} value={p.newPerson.value.name}
                         buttonAfter={<button className="btn btn-default" onClick={(e) => {
                             p.newPerson.onChange(null);
                         }}><Glyphicon glyph='trash'/></button>} /> }

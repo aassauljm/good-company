@@ -80,6 +80,7 @@ export default {
     transactionVerbs: {
         ISSUE_TO: 'Issue',
         TRANSFER_TO: 'Transfer',
+        SUBDIVISION_TO: 'Subdivision',
         TRANSFER_FROM: 'Transfer',
         CONVERSION_TO: 'Conversion',
         ACQUISITION_TO: 'Acquisition',

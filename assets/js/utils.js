@@ -309,7 +309,7 @@ export function personList(companyState){
 }
 
 export function personOptionsFromState(companyState){
-    return personList(companyState).map((p, i) => <option key={i} value={p.id}>{p.name}</option>);
+    return personList(companyState).map((p, i) => <option key={i} value={p.personId}>{p.name}</option>);
 }
 
 

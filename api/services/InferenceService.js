@@ -263,7 +263,7 @@ module.exports = {
         let results = splitAmends(docs);
         //results = holdingChangeToTransfers(results);
 
-        results = holdingChangeRemovals(docs)
+        //results = holdingChangeRemovals(docs)
         return results;
     },
 

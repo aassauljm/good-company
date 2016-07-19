@@ -53,7 +53,7 @@ export class NewDirector extends React.Component {
         return <form className="form" >
             <fieldset>
                  { this.props.fields.appointment && <DateInput{...this.formFieldProps('appointment')} /> }
-                { !newPerson.value && <Input type="select" {...this.formFieldProps('personId')} label={'Existing Persons'} >
+                { !newPerson.value && <Input type="select" {...this.formFieldProps('personId')} label={'Current Person'} >
                     <option></option>
                     { this.props.personOptions }
                 </Input> }

@@ -246,6 +246,39 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 };
 
 
+function findHolding(data, companyState){
+    let current = companyState.getMatchingHoldings({holders: data.afterHolders, holdingId: data.holdingId});
+    if(!current.length){
+        current = companyState.getMatchingHoldings({holders: data.afterHolders}, {ignoreCompanyNumber: true});
+    }
+    if(!current.length){
+         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
+            action: data,
+            importErrorType: sails.config.enums.HOLDING_NOT_FOUND})
+    }
+    else if(current.length > 1 && session.get('options')){
+        // ambiguity resolving strategy
+        if(!session.get('options')[session.get('index')]){
+            session.get('options')[session.get('index')] = {index: 0, keys: current.map((c, i) => i)} //, keys: current.map(c => c.holdingId).sort()};
+        }
+        // have to sort by something
+        current = _.sortBy(current, c => c.holdingId);
+        const obj = session.get('options')[session.get('index')]
+        current = current[obj.index];
+    }
+    else if(current.length > 1){
+        throw new sails.config.exceptions.AmbiguousInverseOperation('Multiple holding matches', {
+            action: data,
+            importErrorType: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
+            possibleMatches: current.map(c => c.toJSON())
+        }
+      )
+    }else{
+        current = current[0];
+    }
+    return current;
+}
+
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -281,51 +314,17 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         });
 };
 
-function findHolding(data, companyState){
-    let current = companyState.getMatchingHoldings({holders: data.afterHolders, holdingId: data.holdingId});
-    if(!current.length){
-        current = companyState.getMatchingHoldings({holders: data.afterHolders}, {ignoreCompanyNumber: true});
-    }
-    if(!current.length){
-         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
-            action: data,
-            importErrorType: sails.config.enums.HOLDING_NOT_FOUND})
-    }
-    else if(current.length > 1 && session.get('options')){
-        // ambiguity resolving strategy
-        if(!session.get('options')[session.get('index')]){
-            session.get('options')[session.get('index')] = {index: 0, keys: current.map((c, i) => i)} //, keys: current.map(c => c.holdingId).sort()};
-        }
-        // have to sort by something
-        current = _.sortBy(current, c => c.holdingId);
-        const obj = session.get('options')[session.get('index')]
-        current = current[obj.index];
-    }
-    else if(current.length > 1){
-        throw new sails.config.exceptions.AmbiguousInverseOperation('Multiple holding matches', {
-            action: data,
-            importErrorType: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
-            possibleMatches: current.map(c => c.toJSON())
-        }
-      )
-    }else{
-        current = current[0];
-    }
-    return current;
-}
 
-/*
-export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
+
+
+export function performInverseHoldingChangeBusted(data, companyState, previousState, effectiveDate){
     //const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data)
-    let current, holdingId, amount, transactions;
+    let current, holdingId, amount, transactions = [];
     return companyState.dataValues.holdingList.buildNext()
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
-            return transaction.save()
-        })
-        .then(() => {
             return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
                 AddressService.normalizeAddress(h.address)
                     .then(address => h.address = address)
@@ -341,38 +340,36 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             holdingId = current.dataValues.holdingId;
             // transfer to this one, from newly created on
             performInverseNewAllocation
-            amount = current.dataValues.parcels.reduce((sum, p) => sum + p.amount);
-            return performInverseAmend({
+            amount = current.dataValues.parcels.reduce((sum, p) => sum + p.amount, 0);
+            return performInverseNewAllocation({
                 ...data,
                 transactionType: Transaction.types.TRANSFER_TO,
-                beforeHolders: data.afterHolders,
-                afterHolders: data.afterHolders,
-                beforeAmount: 0,
+                holders: data.afterHolders,
                 amount: amount,
                 afterAmount: amount
                 //shareclass
-            })
+            }, companyState, previousState, effectiveDate)
             //return companyState.mutateHolders(current, normalizedData.beforeHolders)
         })
         .then((transaction) => {
             transactions.push(transaction);
             return performInverseAmend({
                 ...data,
-                transactionType: Transaction.types.TRANSFER_TO,
+                transactionType: Transaction.types.TRANSFER_FROM,
                 beforeHolders: data.beforeHolders,
                 afterHolders: data.beforeHolders,
                 beforeAmount: amount,
                 amount: amount,
                 afterAmount: 0
                 //shareclass
-            })
+            }, companyState, previousState, effectiveDate);
         })
         .then((transaction) => {
             transactions.push(transaction);
             return transactions;
         })
     }
-*/
+
 
 export function performHoldingChange(data, companyState, previousState, effectiveDate){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -486,6 +483,8 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount}]}, {ignoreCompanyNumber: true});
         }
         if(!holding){
+            console.log(data)
+            console.log(JSON.stringify(companyState.dataValues.holdingList))
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation')
         }
 

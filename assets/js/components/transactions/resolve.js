@@ -43,20 +43,20 @@ function sourceInfo(companyState, actionSet){
 
 function increaseOptions(){
     return [
-        <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionTypes[TransactionTypes.ISSUE_TO]}</option>,
-         <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionTypes[TransactionTypes.TRANSFER_TO]}</option>,
-        <option key={2} value={TransactionTypes.SUBDIVISION_TO}>{STRINGS.transactionTypes[TransactionTypes.SUBDIVISION_TO]}</option>,
-        <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionTypes[TransactionTypes.CONVERSION_TO]}</option>
+        <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
+         <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_TO]}</option>,
+        <option key={2} value={TransactionTypes.SUBDIVISION_TO}>{STRINGS.transactionVerbs[TransactionTypes.SUBDIVISION_TO]}</option>,
+        <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionVerbs[TransactionTypes.CONVERSION_TO]}</option>
     ];
 };
 
 function decreaseOptions(){
     return [
-        <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionTypes[TransactionTypes.PURCHASE_FROM]}</option>,
-        <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionTypes[TransactionTypes.TRANSFER_FROM]}</option>,
-        <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionTypes[TransactionTypes.REDEMPTION_FROM]}</option>,
-        <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionTypes[TransactionTypes.ACQUISITION_FROM]}</option>,
-        <option key={4} value={TransactionTypes.CONSOLIDATION_FROM}>{STRINGS.transactionTypes[TransactionTypes.CONSOLIDATION_FROM]}</option>
+        <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
+        <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_FROM]}</option>,
+        <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.REDEMPTION_FROM]}</option>,
+        <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.ACQUISITION_FROM]}</option>,
+        <option key={4} value={TransactionTypes.CONSOLIDATION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.CONSOLIDATION_FROM]}</option>
     ];
 };
 
@@ -101,7 +101,7 @@ function inverseTransfer(type){
 @formFieldProps()
 class Recipient extends React.Component {
     render(){
-        const title = this.props.increase ? 'Transfer From' : 'Transfer To';
+        const title =  'This transaction was a:';
         return  <Panel remove={() => this.props.remove()} title={title}>
                 <div className="input-group-pair input-row">
                     <Input type="select" {...this.formFieldProps('type')}
@@ -111,14 +111,14 @@ class Recipient extends React.Component {
                         { this.props.increase ? increaseOptions() : decreaseOptions() }
                     </Input>
                     <Input className="amount" type="number" {...this.formFieldProps('amount')}
-                    placeholder={'Amount'} value={this.props.amount.value || 0}
+                    placeholder={'Number of Shares'} value={this.props.amount.value }
                     onChange={(value) => {this.props.amount.onChange(value);  this.props.onChange(); }}
                     label={null}/>
                 </div>
                 { isTransfer(this.props.type.value) && <div className="input-row">
                     <Input type="select" {...this.formFieldProps('holding')}
                         onChange={(value) => {this.props.holding.onChange(value);  this.props.onChange(); }}
-                        label={title}>
+                        label={this.props.increase ? 'Transfer From' : 'Transfer To'}>
                         <option value="" disabled></option>
                         { this.props.holdings.map((h, i) => <option key={i} value={h.value}>{h.label}</option>)}
                     </Input>
@@ -142,7 +142,7 @@ function Recipients(props){
                 <Button type="button" onClick={() => {
                     props.recipients.addField()    // pushes empty child field onto the end of the array
                 }}>
-                Add {props.increase ? 'Source' : 'Recipient' }
+                Add Transaction
                 </Button>
           </div>
     </div>
@@ -166,27 +166,30 @@ class AmendOptions extends React.Component {
         }
         // curry the indices, children will populate them
         const reciprocate = (i) => (j) => () => setTimeout(() => {
-                    // See if this recipient is a in a transfer
-                    const type = this.props.values.actions[i].recipients[j].type; //safe?
-                    const amount = this.props.values.actions[i].recipients[j].amount; //safe?
-                    if(isTransfer(type)){
-                        const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
-                        if(Number.isInteger(actionIndex)){
-                            const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
-                                return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
-                            });
-                            if(reciprocalIndex < 0){
-                                actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString()})
-                            }
-                            else{
-                                actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount.toString());
-                                actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
-                                actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i.toString());
-                            }
-                        }
+            // See if this recipient is a in a transfer
+            const type = this.props.values.actions[i].recipients[j].type; //safe?
+            const amount = this.props.values.actions[i].recipients[j].amount; //safe?
+            if(isTransfer(type)){
+                const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
+                if(Number.isInteger(actionIndex)){
+                    const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
+                        return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
+                    });
+                    if(reciprocalIndex < 0){
+                        actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString()})
                     }
-                    this.props.values;
-                }, 0);
+                    else{
+                        actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount.toString());
+                        actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
+                        actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i.toString());
+                    }
+                }
+                else{
+
+                }
+            }
+            this.props.values;
+        }, 0);
 
 
         return <form onSubmit={this.props.handleSubmit}>
