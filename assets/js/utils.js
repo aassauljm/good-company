@@ -347,7 +347,6 @@ export function generateShareClassMap(companyState){
             return acc;
         }, {});
     }
-    return {1 : {name: 'A'}, 2: {name: 'B'}} //
     return {};
 }
 

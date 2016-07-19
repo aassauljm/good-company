@@ -181,19 +181,22 @@ export  class TemplateView extends React.Component {
             })
     }
     renderBody() {
+        const initialTransfer = {
+            fileType: 'pdf',
+            company: {
+                companyName: this.props.companyState.companyName,
+                companyNumber: this.props.companyState.companyNumber,
+            },
+            transaction: {
+                transferors: [{}],
+                transferees: [{}]
+            },
+        };
+        let state = this.props.location.query && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)}
+        console.log(state)
         switch(this.props.params.name){
             case 'transfer':
-                return <TransferForm onSubmit={this.submit} initialValues={{
-                    fileType: 'pdf',
-                    company: {
-                        companyName: this.props.companyState.companyName,
-                        companyNumber: this.props.companyState.companyNumber,
-                    },
-                    transaction: {
-                        transferors: [],
-                        transferees: []
-                    },
-                }}/>
+                return <TransferForm onSubmit={this.submit} initialValues={state || initialTransfer}/>
             default:
             return <div>Not Found</div>
         }

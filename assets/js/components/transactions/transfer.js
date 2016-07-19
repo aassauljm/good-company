@@ -137,8 +137,9 @@ export function createHoldingMap(companyState){
 
 
 export function transferFormatSubmit(values, companyState){
-    const actions = [], results = []
+    const actions = [], results = [], holders = [];
     const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
+        holders[`${holding.holdingId}`] = holding.holders;
         acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
             acc[parcel.shareClass || undefined] = parcel.amount;
             return acc;
@@ -148,8 +149,10 @@ export function transferFormatSubmit(values, companyState){
     values.parcels.map(p => {
         const amount = parseInt(p.amount, 10);
         const shareClass = parseInt(p.shareClass, 10) || null;
+        const fromHoldingId = parseInt(values.from, 10)
         actions.push({
-            holdingId: parseInt(values.from, 10),
+            holdingId: fromHoldingId,
+            holders: holders[values.from],
             shareClass: shareClass,
             amount: amount,
             beforeAmount: amounts[values.from][p.shareClass],
@@ -158,8 +161,10 @@ export function transferFormatSubmit(values, companyState){
             transactionMethod: 'AMEND'
         });
         if(!values.newHolding){
+            const toHoldingId = parseInt(values.to, 10);
             actions.push({
-                holdingId: parseInt(values.to, 10),
+                holdingId: toHoldingId,
+                holders: holders[values.to],
                 shareClass: shareClass,
                 amount: amount,
                 beforeAmount: amounts[values.to][p.shareClass] || 0,
