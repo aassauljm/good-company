@@ -34,7 +34,7 @@ function sourceInfo(companyState, actionSet){
         </div>
             <div className="row">
             <div className="col-md-6 summary-label">Source Document</div>
-            <div className="col-md-6"><Link target="_blank" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
+            <div className="col-md-6"><Link target="_blank" className="external-link" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
             </div>
     </div>
 

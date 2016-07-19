@@ -164,7 +164,7 @@ module.exports = {
         }
 
         function holdingChangeRemovals(docs){
-            const holdingChangeTypes = [Transaction.types.HOLDING_CHANGE];
+            const holdingChangeTypes = [Transaction.types.HOLDING_TRANSFER];
             return  _.reduce(docs, (acc, doc, i) => {
                 const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
                 if(!holdingChangeActions.length){

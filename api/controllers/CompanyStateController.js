@@ -56,55 +56,55 @@ function transactionMessages(transactions, companyName){
     if(issue.length){
         const sum = calcSum(issue, Transaction.types.ISSUE_UNALLOCATED);
         const plural = sum !== 1 ? 'shares' : 'share';
-        results.push({message: `${sum} ${plural} issued for ${companyName}.`})
+        results.push({message: `${sum} ${plural} issued for ${companyName}`})
     }
     if(conversion.length){
         const sum = calcSum(conversion, Transaction.types.CONVERSION);
         const plural = sum !== 1 ? 'shares' : 'share';
-        results.push({message: `${sum} ${plural} converted for ${companyName}.`})
+        results.push({message: `${sum} ${plural} converted for ${companyName}`})
     }
     if(purchase.length){
         const sum = calcSum(purchase, Transaction.types.PURCHASE);
         const plural = sum !== 1 ? 'shares' : 'share';
-        results.push({message: `${sum} ${plural} purchased for ${companyName}.`})
+        results.push({message: `${sum} ${plural} purchased for ${companyName}`})
     }
     if(acquisition.length){
         const sum = calcSum(acquisition, Transaction.types.ACQUISITION);
         const plural = sum !== 1 ? 'shares' : 'share';
-        results.push({message: `${sum} ${plural} purchased for ${companyName}.`})
+        results.push({message: `${sum} ${plural} purchased for ${companyName}`})
     }
     if(consolidation.length){
         const sum = calcSum(acquisition, Transaction.types.CONSOLIDATION);
         const plural = sum !== 1 ? 'shares' : 'share';
-        results.push({message: `${sum} ${plural} consolidated for ${companyName}.`})
+        results.push({message: `${sum} ${plural} consolidated for ${companyName}`})
     }
     if(subdivision.length){
         const sum = calcSum(subdivided, Transaction.types.SUBDIVISION);
         const plural = sum !== 1 ? 'shares' : 'share';
-        results.push({message: `${sum} ${plural} subdivided for ${companyName}.`})
+        results.push({message: `${sum} ${plural} subdivided for ${companyName}`})
     }
     if(transfer.length){
         const sum = calcSum(transfer, Transaction.types.TRANSFER_FROM);
         const plural = sum !== 1 ? 'shares' : 'share';
-        results.push({message: `${sum} ${plural} transfered for ${companyName}.`})
+        results.push({message: `${sum} ${plural} transfered for ${companyName}`})
     }
     if(details.length){
-        results.push({message: `Details updated for ${companyName}.`})
+        results.push({message: `Details updated for ${companyName}`})
     }
     if(holdings.length){
-        results.push({message: `Shareholding updated for ${companyName}.`})
+        results.push({message: `Shareholding updated for ${companyName}`})
     }
     if(holders.length){
-        results.push({message: `Shareholder updated for ${companyName}.`})
+        results.push({message: `Shareholder updated for ${companyName}`})
     }
     if(addDirector.length){
-        results.push({message: `Director added for ${companyName}.`})
+        results.push({message: `Director added for ${companyName}`})
     }
     if(removeDirector.length){
-        results.push({message: `Director removed for ${companyName}.`})
+        results.push({message: `Director removed for ${companyName}`})
     }
     if(updateDirector.length){
-        results.push({message: `Director updated for ${companyName}.`})
+        results.push({message: `Director updated for ${companyName}`})
     }
     return results;
 

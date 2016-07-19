@@ -1,7 +1,7 @@
 "use strict";
 
 export function importCompany(companyNumber, options) {
-    let data, company, state, processedDocs, companyName;
+    let data, company, state, newRoot, processedDocs, companyName, pendingAction;
     return sequelize.transaction(function(t){
         return ScrapingService.fetch(companyNumber)
             .then(ScrapingService.parseNZCompaniesOffice)
@@ -16,16 +16,31 @@ export function importCompany(companyNumber, options) {
                 if(options.history !== false){
                     return ScrapingService.getDocumentSummaries(data)
                     .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
-                    .then(function(_processedDocs) {
+                    .then((_processedDocs) => {
                         processedDocs = _processedDocs;
                         return company.getRootCompanyState();
                     })
-                    .then(function(_state){
+                    .then(_state => {
                         state = _state;
+                        return state.buildPrevious({transaction: null, transactionId: null})
+                    })
+                    .then(function(_newRoot){
+                        newRoot = _newRoot
+                        return newRoot.save();
+                    })
+                    .then(function(){
+                        return state.setPreviousCompanyState(newRoot);
+                    })
+                    .then(() => {
                         return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
                     })
-                    .then(function(pendingAction){
-                        state.set('pending_historic_action_id', pendingAction[0].id);
+                    .then(function(_pendingAction){
+                        pendingAction = _pendingAction;
+                        newRoot.set('pending_historic_action_id', pendingAction[0].id);
+                        return newRoot.save()
+                    })
+                    .then(() => {
+                        state.set('original_historic_action_id', pendingAction[0].id);
                         return state.save();
                     })
                 }
@@ -35,7 +50,7 @@ export function importCompany(companyNumber, options) {
         return ActivityLog.create({
             type: ActivityLog.types.IMPORT_COMPANY,
             userId: options.userId,
-            description: `Imported ${companyName} from Companies Office.`,
+            description: `Imported ${companyName} from Companies Office`,
             data: {companyId: company.id
             }
         });

@@ -168,11 +168,24 @@ module.exports = {
             resetPendingActions: function(){
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
+                let state, newRoot;
                 return this.getSeedCompanyState()
-                    .then(companyState => {
-                        sails.log.info('Resetting history to',companyState.get('historic_action_id'))
-                        return companyState.update({previousCompanyStateId: null, pending_historic_action_id: companyState.get('historic_action_id')})
+                    .then(_state => {
+                        state = _state;
+                        if(!state.get('original_historic_action_id')){
+                            throw Exception('Cannot find original action list')
+                        }
+                        sails.log.info('Resetting history to', state.get('original_historic_action_id'));
+                        return state.buildPrevious({transaction: null, transactionId: null,
+                            pending_historic_action_id: state.get('original_historic_action_id')})
                     })
+                    .then(function(_newRoot){
+                        newRoot = _newRoot
+                        return newRoot.save();
+                    })
+                    .then(() => {
+                        return state.update({previousCompanyStateId: newRoot.id})
+                    });
 
             }
 

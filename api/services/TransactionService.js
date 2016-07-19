@@ -435,6 +435,9 @@ export const performInverseHolderChange = function(data, companyState, previousS
             const holder = previousState.getHolderBy(normalizedData.afterHolder);
             return holder.setTransaction(transaction);
         })
+        .then(() => {
+            return transaction;
+        })
         .catch((e)=>{
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change')
         });

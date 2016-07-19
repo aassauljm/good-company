@@ -45,7 +45,7 @@ module.exports = {
             return ActivityLog.create({
                 type: ActivityLog.types.UPDATE_PENDING_HISTORY,
                 userId: req.user.id,
-                description: `${companyName} Deleted.`,
+                description: `${companyName} Deleted`,
                 data: {companyId: company.id}
             });
         })
@@ -264,7 +264,7 @@ module.exports = {
             return ActivityLog.create({
                 type: ActivityLog.types.UPDATE_PENDING_HISTORY,
                 userId: req.user.id,
-                description: `Updated ${companyName} History.`,
+                description: `Updated ${companyName} History`,
                 data: {companyId: company.id}
             });
         })
@@ -290,7 +290,7 @@ module.exports = {
             return ActivityLog.create({
                 type: ActivityLog.types.RESET_PENDING_HISTORY,
                 userId: req.user.id,
-                description: `Reset ${companyName} History.`,
+                description: `Reset ${companyName} History`,
                 data: {companyId: company.id}
             });
         })
