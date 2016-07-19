@@ -27,7 +27,7 @@ import { push } from 'react-router-redux'
 
 
 @pureRender
-class SpecifyClasses extends React.Component {
+class SpecifyShareClasses extends React.Component {
     render(){
         return  <div><Link to={`/company/view/${this.props.companyId}/share_classes`} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
         You need to specify share classes.  Click here to start.</Link></div>
@@ -57,7 +57,7 @@ class PopulateHistory extends React.Component {
 const AlertWarnings = {
     ApplyShareClasses: ApplyShareClasses,
     PopulateHistory: PopulateHistory,
-    SpecifyClasses: SpecifyClasses
+    SpecifyShareClasses: SpecifyShareClasses
 };
 
 @connect(() => DEFAULT_OBJ, (dispatch, ownProps) => {
