@@ -339,6 +339,7 @@ SELECT array_to_json(array_agg(row_to_json(qq))) FROM
 $$ LANGUAGE SQL STABLE;
 
 
+
 -- Bloated function to create the share register
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer, interval default '10 year')
 RETURNS SETOF JSON
@@ -398,7 +399,7 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 FROM (
 
 WITH transaction_history as (
-    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as shareClass,
+    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as shareClass, ph."hId",
     (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
     "startId",
     generation
@@ -435,6 +436,17 @@ SELECT *,
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]) )
     AS "transferHistoryFrom",
+
+    ( SELECT array_to_json(array_agg(row_to_json(qqq)))
+    FROM (SELECT *, (SELECT TRUE  -- was this person in the previous holding
+        FROM person_holdings ph
+        JOIN (select "hId" from prev_holdings where "startId" != "hId" and "startId" = qq."startId" order by generation desc limit 1) s on s."hId" = ph."hId"
+        WHERE "personId" = q."personId" limit 1) as "inPreviousHolding"
+    FROM transaction_history qq
+    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    AND qq."startId" = q."newestHoldingId"
+    AND  type = ANY(ARRAY['HOLDING_CHANGE']::enum_transaction_type[]) ) as qqq)
+    AS "holdingChanges",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
@@ -480,7 +492,5 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
-
-
 
 
