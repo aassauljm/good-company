@@ -58,14 +58,14 @@ function renderTransferFromFull(action, shareClassMap){
     return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${transferRecipients(action.siblings)}`
 }
 
-function renderHoldingChange(action, shareClassMap){
+/*function renderHoldingChange(action, shareClassMap){
     if(action.inPreviousHolding){
-        return  `Transfer of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${joinAnd((action.data.afterHolders).map(h => h.name))}`;
+        return  `Transfer of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} to ${joinAnd((action.data.afterHolders).map(h => h.name))}`;
     }
     else{
-        return  `Transfer of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} from ${joinAnd((action.data.beforeHolders).map(h => h.name))}`;
+        return  `Transfer of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} from ${joinAnd((action.data.beforeHolders).map(h => h.name))}`;
     }
-}
+}*/
 
 function renderAmbigiousChangeFull(action, shareClassMap){
     if(action.type === TransactionTypes.NEW_ALLOCATION || action.data.afterAmount > action.data.beforeAmount){
@@ -86,8 +86,8 @@ function renderAction(action, shareClassMap) {
             return renderTransferTo(action, shareClassMap);
         case TransactionTypes.TRANSFER_FROM:
             return renderTransferFrom(action, shareClassMap);
-        case TransactionTypes.HOLDING_CHANGE:
-            return renderHoldingChange(action, shareClassMap);
+        //case TransactionTypes.HOLDING_CHANGE:
+        //    return renderHoldingChange(action, shareClassMap);
         case TransactionTypes.PURCHASE_FROM:
         case TransactionTypes.REDEMPTION_FROM:
         case TransactionTypes.ACQUISITION_FROM:
@@ -113,8 +113,8 @@ function renderActionFull(action, shareClassMap) {
         case 'ACQUISITION_FROM':
         case 'CONSOLIDATION_FROM':
             return renderChangeFull(action, shareClassMap);
-        case TransactionTypes.HOLDING_CHANGE:
-            return renderHoldingChange(action, shareClassMap);
+        //case TransactionTypes.HOLDING_CHANGE:
+        //    return renderHoldingChange(action, shareClassMap);
         case TransactionTypes.AMEND:
         case TransactionTypes.REMOVE_ALLOCATION:
         case TransactionTypes.NEW_ALLOCATION:

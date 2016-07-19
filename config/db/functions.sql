@@ -399,7 +399,7 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 FROM (
 
 WITH transaction_history as (
-    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as shareClass, ph."hId",
+    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as "shareClass", ph."hId",
     (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
     "startId",
     generation
@@ -411,53 +411,55 @@ WITH transaction_history as (
 SELECT *,
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
     AS "issueHistory",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]) )
     AS "repurchaseHistory",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]) )
     AS "transferHistoryTo",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]) )
     AS "transferHistoryFrom",
 
-    ( SELECT array_to_json(array_agg(row_to_json(qqq)))
-    FROM (SELECT *, (SELECT TRUE  -- was this person in the previous holding
-        FROM person_holdings ph
-        JOIN (select "hId" from prev_holdings where "startId" != "hId" and "startId" = qq."startId" order by generation desc limit 1) s on s."hId" = ph."hId"
-        WHERE "personId" = q."personId" limit 1) as "inPreviousHolding"
-    FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
-    AND qq."startId" = q."newestHoldingId"
-    AND  type = ANY(ARRAY['HOLDING_CHANGE']::enum_transaction_type[]) ) as qqq)
-    AS "holdingChanges",
+  --  ( SELECT array_to_json(array_agg(row_to_json(qqq)))
+  --  FROM (SELECT *, pp.amount, pp."shareClass", (SELECT TRUE  -- was this person in the previous holding
+  --      FROM person_holdings ph
+  --      JOIN (select "hId" from prev_holdings where "startId" != "hId" and "startId" = qq."startId" order by generation desc limit 1) s on s."hId" = ph."hId"
+  --      WHERE "personId" = q."personId" limit 1) as "inPreviousHolding"
+   -- FROM transaction_history qq
+   -- join parcels pp on pp."holdingId" = qq."hId"
+  --  WHERE qq."personId" = q."personId"
+  --  AND qq."startId" = q."newestHoldingId"
+  --  AND (pp."shareClass" = q."shareClass" or pp."shareClass" IS NULL and q."shareClass" IS NULL)
+  --  AND  type = ANY(ARRAY['HOLDING_CHANGE']::enum_transaction_type[]) ) as qqq)
+  --  AS "holdingChanges",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = "shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['AMEND', 'REMOVE_ALLOCATION', 'NEW_ALLOCATION']::enum_transaction_type[]) )
     AS "ambiguousChanges",
 
     ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
     FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq.shareClass = "shareClass" or qq.shareClass IS NULL and "shareClass" IS NULL)
+    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = "shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
     AS "sumIncreases"
