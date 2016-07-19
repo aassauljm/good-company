@@ -192,7 +192,7 @@ export  class TemplateView extends React.Component {
                 transferees: [{}]
             },
         };
-        let state = this.props.location.query && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)}
+        let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)}
         console.log(state)
         switch(this.props.params.name){
             case 'transfer':

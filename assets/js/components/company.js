@@ -26,12 +26,21 @@ import { push } from 'react-router-redux'
 
 
 
+@pureRender
+class SpecifyClasses extends React.Component {
+    render(){
+        return  <div><Link to={`/company/view/${this.props.companyId}/share_classes`} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
+        You need to specify share classes.  Click here to start.</Link></div>
+    }
+}
 
 @pureRender
 class ApplyShareClasses extends React.Component {
     render(){
-        return  <div><Link to={`/company/view/${this.props.companyId}/share_classes`} className="text-danger alert-entry"> <Glyphicon glyph="warning-sign" className="big-icon"/>
-        You need to specify share classes.  Click here to start.</Link></div>
+        return  <div><a href="#" onClick={this.props.startApplyShareClasses} className="text-danger alert-entry">
+        <Glyphicon glyph="warning-sign" className="big-icon"/>
+        You need to apply share classes to existing share allocations.  Click here to start.</a>
+        </div>
     }
 }
 
@@ -47,14 +56,18 @@ class PopulateHistory extends React.Component {
 
 const AlertWarnings = {
     ApplyShareClasses: ApplyShareClasses,
-    PopulateHistory: PopulateHistory
-}
-
+    PopulateHistory: PopulateHistory,
+    SpecifyClasses: SpecifyClasses
+};
 
 @connect(() => DEFAULT_OBJ, (dispatch, ownProps) => {
     return {
         startHistoryImport: () => {
             dispatch(showModal('importHistory', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+            dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
+        },
+        startApplyShareClasses: () => {
+            dispatch(showModal('applyShareClasses', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
         }
     }
@@ -67,7 +80,8 @@ class CompanyAlertsWidget extends React.Component {
     render(){
         const shareWarning = (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses) ;
         const historyWarning = !!(this.props.companyState.warnings.pendingHistory);
-        if(!shareWarning && !historyWarning){
+        const applyShareWarning = !shareWarning && !!this.props.companyState.shareCountByClass['null'];
+        if(!shareWarning && !historyWarning && !applyShareWarning){
             return false;
         }
         return <div className="widget">
@@ -82,7 +96,8 @@ class CompanyAlertsWidget extends React.Component {
 
             <div className="widget-body">
                 <ul>
-                { shareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId}/></li>}
+                { shareWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
+                { applyShareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
                 { historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId} startHistoryImport={this.props.startHistoryImport}/></li>}
                 </ul>
             </div>

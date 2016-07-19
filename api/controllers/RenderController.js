@@ -36,6 +36,7 @@ module.exports = {
             })
             .catch(res.negotiate)
     },
+
     renderTemplate: function(req, res){
         let response;
         fetch(sails.config.renderServiceUrl, {
@@ -65,6 +66,7 @@ module.exports = {
             res.serverError(e);
         })
     }
+
     /*renderTemplate: proxy(sails.config.renderServiceUrl, {
         forwardPath: function(req, res) {
             return '/render';
