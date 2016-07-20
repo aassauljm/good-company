@@ -4,10 +4,6 @@
     "description": "",
     "title": "Transfer Shares",
     "properties": {
-        "filename": {
-            "title": "File Name Prefix",
-            "type": "string"
-        },
         "fileType": {
             "title": "File Type",
             "enum": [
@@ -93,7 +89,10 @@
                         "required": ["name", "address"]
                     }
                 },
-
+                "referenceToAgreement": {
+                    "title": "Reference to agreement (if any)",
+                    "type": "string"
+                },
                 "effectiveDateString": {
                     "title": "Date",
                     "type": "string",

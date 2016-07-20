@@ -148,7 +148,7 @@ export class Issue extends React.Component {
             }}>Add Parcel</ButtonInput></div>
              </fieldset>
             <fieldset>
-            <legend>Recepients</legend>
+            <legend>Recipients</legend>
              { this.props.fields.holdings.map((p, i) => {
                 return <div className="row " key={i}>
                     <HoldingWithRemove fields={p}

@@ -149,7 +149,15 @@ function renderField(key, data, row, shareClassMap) {
         case 'votingRights':
             return renderRights(((shareClassMap[row.shareClass] || {}).properties || {}).votingRights);
         case 'limitations':
-            return renderLimitations(((shareClassMap[row.shareClass] || {}).properties || {}).limitations);
+            const props = ((shareClassMap[row.shareClass] || {}).properties || {})
+            let limitations = props.limitations;
+            if(props.transferRestriction){
+                limitations.push(STRINGS.shareClasses.transferRestriction);
+                if(props.transferRestrictionDocument){
+                    limitations.push(`${STRINGS.shareClasses.transferRestrictionDocument}: ${props.transferRestrictionDocument}`)
+                }
+            }
+            return renderLimitations(limitations);
         case 'current':
             return data ? 'Yes': 'No';
         case 'amount':
@@ -232,16 +240,23 @@ export class ShareRegisterDocument extends React.Component {
 
     renderShareClass(k) {
         const {shareRegister, shareClassMap} = this.props;
-
+        const properties = ((shareClassMap[k] || {}).properties || {})
+        let limitations = properties.limitations;
+        if(properties.transferRestriction){
+            limitations.push(STRINGS.shareClasses.transferRestriction);
+            if(properties.transferRestrictionDocument){
+                limitations.push(`${STRINGS.shareClasses.transferRestrictionDocument}: ${properties.transferRestrictionDocument}`)
+            }
+        }
         return <div >
                 <h4>{ renderShareClass(k, shareClassMap) }</h4>
                 <div className="row"><div className="col-md-6">
                     <h5>{ STRINGS.shareRegister['votingRights'] }</h5>
-                    { renderRights(((shareClassMap[k] || {}).properties || {}).votingRights) }
+                    { renderRights(properties.votingRights) }
                     </div>
                 <div className="col-md-6">
                 <h5>{ STRINGS.shareRegister['limitations'] }</h5>
-                    { renderLimitations(((shareClassMap[k] || {}).properties || {}).limitations) }
+                    { renderLimitations(limitations) }
                     </div>
                     </div>
                 { this.renderTable(k) }
