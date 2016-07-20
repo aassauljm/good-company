@@ -111,6 +111,9 @@ export default {
         documents: 'Documents',
         limitations: 'Restrictions/Limitations',
         rights: "Rights",
+        "transferRestriction": "Restrictions on transfers",
+        "transferRestrictionDocument": "Source of document containing transfer restrictions",
+
         votingRights: {
             _: 'Voting Rights',
             "appointDirectorAuditor": "Appoint or remove a director or auditor",

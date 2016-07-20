@@ -623,7 +623,8 @@ module.exports = {
                     .then(function(prev){
                         self.setPreviousCompanyState(prev);
                         return self.save();
-                    });
+                    })
+                    .then(() => prev)
             },
 
 

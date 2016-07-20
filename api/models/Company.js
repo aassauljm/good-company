@@ -129,10 +129,10 @@ module.exports = {
                     return {shareholders: register[0].shareholders};
                 });
             },
-            createPrevious: function(){
+            createPrevious: function(args){
                 return this.getRootCompanyState()
                     .then(function(root){
-                        return root.createPrevious();
+                        return root.createPrevious(args);
                     });
             },
 

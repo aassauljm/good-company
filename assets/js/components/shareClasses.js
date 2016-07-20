@@ -26,6 +26,8 @@ const shareClassFields = [
     "votingRights.1(c)",
     "rights[]",
     "limitations[]",
+    "transferRestriction",
+    "transferRestrictionDocument",
     "documents"
 ];
 
@@ -107,6 +109,14 @@ export class ShareClassForm extends React.Component {
                 return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Limitation or Restriction" hasFeedback
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.limitations.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
             }) }
+             <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div>
+             <Input type="checkbox" {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
+                    help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestriction} hasFeedback />
+
+             { fields.transferRestriction.value && <Input type="text" {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)}
+                    help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback /> }
+
+
             <div className="button-row"><ButtonInput onClick={() => {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div>
@@ -115,6 +125,8 @@ export class ShareClassForm extends React.Component {
                   onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
                   <div>Try dropping some files here, or click to select files to upload.</div>
             </DropZone>
+
+
 
            {((fields.documents|| {}).value || []).map((file, i) => {
                 return  <StaticField type="static" key={i} label="File" key={i}

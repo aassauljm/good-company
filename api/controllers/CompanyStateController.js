@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 var fs = Promise.promisifyAll(require("fs"));
-
+const uuid = require('node-uuid')
 
 function validateHoldings(newHoldings){
     if (!newHoldings || !newHoldings.length) {
@@ -282,10 +282,12 @@ var transactions = {
 
     createShareClass: function(data, company){
         let companyState, shareClasses;
+        let effectiveDate = new Date();
+        const actions = [{..._.omit(data, 'documents'), id: uuid.v4(), transactionType: Transaction.types.CREATE_SHARE_CLASS}]
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
             return currentCompanyState.buildNext({
-                transaction: {type: Transaction.types.CREATE_SHARE_CLASS, data: _.omit(data, 'documents'), effectiveDate: new Date() }
+                transaction: {type: Transaction.types.CREATE_SHARE_CLASS, data: actions[0], effectiveDate: effectiveDate }
             });
         })
         .then(function(cs){
@@ -328,8 +330,19 @@ var transactions = {
             companyState.set('s_classes_id', shareClasses.id);
             return companyState.save();
         })
-        .then(function(nextCompanyState){
+        .then(function(){
             return company.setCurrentCompanyState(companyState);
+        })
+        .then(() => {
+            return TransactionService.addActions(companyState, {
+               id:  uuid.v4(),
+                actions: actions,
+                effectiveDate: effectiveDate,
+                transactionType: Transaction.types.CREATE_SHARE_CLASS
+            },  company);
+        })
+        .then(() => {
+            return companyState.save();
         })
         .then(function(){
             return {message: `Share Class created for ${companyState.companyName}.`}

@@ -1038,16 +1038,23 @@ export function removeActions(state, actionSet){
         })
 }
 
-export function addActions(state, actionSet){
+export function addActions(state, actionSet, company){
     return state.getHistoricActions()
         .then(function(hA){
             const data = {id: actionSet.id, data: actionSet}
             if(hA){
                 data.previous_id = hA.id;
+                return data;
             }
             else{
-                data.previous_id = state.get('pending_historic_action_id');
+                return company.getRootCompanyState()
+                    .then(_root => {
+                        data.previous_id = _root.get('pending_historic_action_id');
+                        return data;
+                    })
             }
+        })
+        .then(data => {
             return Action.create(data);
         })
         .then(function(hA){
@@ -1407,7 +1414,7 @@ export function performTransaction(data, company, companyState){
             }
         })
         .then(() => {
-            return addActions(nextState, {...data, document_ids: (data.documents || []).map(d => d.id), documents: null})
+            return addActions(nextState, {...data, document_ids: (data.documents || []).map(d => d.id), documents: null}, company)
         })
         .then(function(){
             return nextState.save();
