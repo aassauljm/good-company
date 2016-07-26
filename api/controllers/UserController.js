@@ -10,8 +10,12 @@ function checkNameCollision(data) {
     return User.findAll({
             where: {
                 $or: {
-                    email: data.email,
-                    username: data.username
+                    email: {
+                        $iLike:data.email
+                    },
+                    username: {
+                        $iLike: data.username
+                    }
                 }
             }
         })

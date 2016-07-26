@@ -8,6 +8,8 @@ const fetch = require("isomorphic-fetch");
 const fs = Promise.promisifyAll(require("fs"));
 const moment = require('moment');
 const uuid = require('node-uuid')
+const querystring = require('querystring');
+
 
 const DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
@@ -665,7 +667,8 @@ const ScrapingService = {
     },
 
     fetchSearchResults: function(query){
-        const url = 'https://www.business.govt.nz/companies/app/ui/pages/search?q='+encodeURIComponent(query)+'&type=entities';
+        const qs = typeof query === 'object' ? 'companies/search?'+querystring.stringify(query) : 'search?q='+encodeURIComponent(query)
+        const url = 'https://www.business.govt.nz/companies/app/ui/pages/'+ qs +'&type=entities';
         sails.log.verbose('Getting url', url);
         return fetch(url)
             .then(function(res){
