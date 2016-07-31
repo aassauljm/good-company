@@ -30,6 +30,10 @@ http://www.business.govt.nz/companies/app/ui/pages/companies/2484830/2944705/ent
 
 -- CATALEX SD
 
+#companies office query
+
+https://www.business.govt.nz/companies/app/ui/pages/companies/search?q=&entityTypes=LTD&entityTypes=UNLTD&entityTypes=COOP&entityStatusGroups=REGISTERED&incorpFrom=01%2F01%2F1900&incorpTo=01%2F01%2F1901&addressTypes=ALL&addressKeyword=&start=0&limit=200&sf=&sd=&advancedPanel=true&mode=advanced#results
+
 
 NOTIFICATIONS:
 from companies ct 1993, s 208
