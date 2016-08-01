@@ -1,0 +1,1 @@
+ALTER TABLE migrations ADD CONSTRAINT migration_name UNIQUE (name);

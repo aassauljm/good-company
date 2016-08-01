@@ -25,7 +25,6 @@ module.exports.policies = {
     },
 
     '*': [
-        'basicAuth',
         'passport',
         'sessionAuth',
         'ModelPolicy',
@@ -68,14 +67,12 @@ module.exports.policies = {
     },
     FavouriteController: {
         removeFavourite: [
-            'basicAuth',
             'passport',
             'sessionAuth'
         ]
     },
     RenderController: {
         renderTemplate: [
-            'basicAuth',
             'passport',
             'sessionAuth'
         ]
