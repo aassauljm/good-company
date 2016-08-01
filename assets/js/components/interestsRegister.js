@@ -14,7 +14,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import { push } from 'react-router-redux';
 import DropZone from 'react-dropzone';
-import StaticField from 'react-bootstrap/lib/FormControls/Static';
+import { StaticField } from 'react-bootstrap/lib/FormControl';
 
 
 export const fields = [

@@ -1,10 +1,9 @@
 
 
-
 module.exports = function(renderProps) {
     const urls = {
         loginUrl: sails.config.USERS_LOGIN_URL,
-        userUrl: sails.config.USER_RESOURCE_URL,
+        userUrl: sails.config.ACCOUNT_URL,
         logoutUrl: sails.config.USER_LOGOUT_URL
     }
 

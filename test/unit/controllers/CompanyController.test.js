@@ -6,7 +6,7 @@ var login = function(req){
     return req
         .post('/auth/local')
         .send({'identifier': 'companycreator@email.com', 'password': 'testtest'})
-        .expect(200)
+        .expect(302)
         .then(function(){
             return;
         })

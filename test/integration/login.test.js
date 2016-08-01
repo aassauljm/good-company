@@ -11,7 +11,7 @@ import chai from 'chai';
 const should = chai.should();
 
 
-describe('Renders full ', () => {
+describe.skip('Renders full ', () => {
 
     before('render', prepareApp);
 

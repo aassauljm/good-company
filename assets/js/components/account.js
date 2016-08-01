@@ -60,8 +60,7 @@ export default class AccountForm extends React.Component {
     }
 }
 
-// DANGER, do other accounts
-//@connect((state, ownProps) => {return {state.resources[ownProps.route.edit ? '/user/'+ownProps.params.id : '/user'] || {data: {}})
+
 @connect((state) => state.userInfo)
 export default class Account extends React.Component {
 

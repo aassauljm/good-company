@@ -65,7 +65,6 @@ passport.protocols = require('./protocols');
  */
 passport.connect = function (req, query, profile, next) {
   var user = { };
-
   req.session.tokens = query.tokens;
 
   // Get the authentication provider from the query.
@@ -88,6 +87,10 @@ passport.connect = function (req, query, profile, next) {
   if (profile.emails && profile.emails[0]) {
     user.email = profile.emails[0].value;
   }
+  if (profile.email) {
+    user.email = profile.email;
+  }
+
   // If the profile object contains a username, add it to the user.
   if (_.has(profile, 'username')) {
     user.username = profile.username;
@@ -99,69 +102,77 @@ passport.connect = function (req, query, profile, next) {
   if (!user.username && !user.email) {
     return next(new Error('Neither a username nor email was available'));
   }
+  return sequelize.transaction(t => {
+      return sails.models.passport.findOne({ where: {
+          provider: provider,
+          identifier: query.identifier.toString()
+        }})
+        .then(function (passport) {
+          if (!req.user) {
+            // Scenario: A new user is attempting to sign up using a third-party
+            //           authentication provider.
+            // Action:   Create a new user and assign them a passport.
+            if (!passport) {
+              sails.log.info('Creating User');
+              return sails.models.user.create(user)
+                .then(function (_user) {
+                  user = _user;
+                  return sails.models.passport.create(_.extend({ userId: user.id }, query))
+                })
+                .then(function (passport) {
+                  next(null, user);
+                })
+                .catch(next);
 
-  sails.models.passport.findOne({
-      provider: provider,
-      identifier: query.identifier.toString()
-    })
-    .then(function (passport) {
-      if (!req.user) {
-        // Scenario: A new user is attempting to sign up using a third-party
-        //           authentication provider.
-        // Action:   Create a new user and assign them a passport.
-        if (!passport) {
-          return sails.models.user.create(user)
-            .then(function (_user) {
-              user = _user;
-              return sails.models.passport.create(_.extend({ user: user.id }, query))
-            })
-            .then(function (passport) {
-              next(null, user);
-            })
-            .catch(next);
-
-        }
-        // Scenario: An existing user is trying to log in using an already
-        //           connected passport.
-        // Action:   Get the user associated with the passport.
-        else {
-          // If the tokens have changed since the last session, update them
-          if (_.has(query, 'tokens') && query.tokens != passport.tokens) {
-            passport.tokens = query.tokens;
+            }
+            // Scenario: An existing user is trying to log in using an already
+            //           connected passport.
+            // Action:   Get the user associated with the passport.
+            else {
+              // If the tokens have changed since the last session, update them
+              if (_.has(query, 'tokens') && query.tokens != passport.tokens) {
+                passport.tokens = query.tokens;
+              }
+              // Save any updates to the Passport before moving on
+              return passport.save()
+                .then(function (passport) {
+                  // Fetch the user associated with the Passport
+                  return sails.models.user.findOne({where: {id: passport.userId}});
+                })
+                .then(function (user) {
+                    if(user.email !== profile.email || user.username !== profile.username){
+                        user.update({email: profile.email, username: profile.username})
+                            .then(function() {
+                                next(null, user);
+                            })
+                    }
+                    else{
+                        next(null, user);
+                    }
+                })
+                .catch(next);
+            }
           }
-
-          // Save any updates to the Passport before moving on
-          return passport.save()
-            .then(function (passport) {
-
-              // Fetch the user associated with the Passport
-              return sails.models.user.findOne(passport.user.id);
-            })
-            .then(function (user) {
-              next(null, user);
-            })
-            .catch(next);
-        }
-      }
-      else {
-        // Scenario: A user is currently logged in and trying to connect a new
-        //           passport.
-        // Action:   Create and assign a new passport to the user.
-        if (!passport) {
-          return sails.models.passport.create(_.extend({ user: req.user.id }, query))
-            .then(function (passport) {
+          else {
+            // Scenario: A user is currently logged in and trying to connect a new
+            //           passport.
+            // Action:   Create and assign a new passport to the user.
+            if (!passport) {
+              return sails.models.passport.create(_.extend({ userId: req.user.id }, query))
+                .then(function (passport) {
+                    next(null, req.user);
+                })
+                .catch(next);
+            }
+            // Scenario: The user is a nutjob or spammed the back-button.
+            // Action:   Simply pass along the already established session.
+            else {
               next(null, req.user);
-            })
-            .catch(next);
-        }
-        // Scenario: The user is a nutjob or spammed the back-button.
-        // Action:   Simply pass along the already established session.
-        else {
-          next(null, req.user);
-        }
-      }
-    })
-    .catch(next)
+            }
+          }
+        })
+        .catch(next)
+    });
 };
 
 /**
@@ -262,7 +273,6 @@ passport.callback = function (req, res, next) {
  */
 passport.loadStrategies = function () {
   var strategies = sails.config.passport;
-
   _.each(strategies, function (strategy, key) {
     var options = { passReqToCallback: true };
     var Strategy;
@@ -275,7 +285,6 @@ passport.loadStrategies = function () {
       // Only load the local strategy if it's enabled in the config
       if (strategies.local) {
         Strategy = strategies[key].strategy;
-
         passport.use(new Strategy(options, this.protocols.local.login));
       }
     }
@@ -308,7 +317,6 @@ passport.loadStrategies = function () {
       // defaults can be overriden, but I don't see a reason why you'd want to
       // do that.
       _.extend(options, strategies[key].options);
-
       passport.use(new Strategy(options, this.protocols[protocol]));
     }
   }, this);

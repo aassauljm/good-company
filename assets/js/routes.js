@@ -25,10 +25,7 @@ import Directors from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
 import RecentActivity from './components/recentActivity';
 import Templates, { TemplateView } from './components/templates';
-import Account from './components/account';
-import SetPassword from './components/setPassword';
-import Login from './components/login';
-import SignUp from './components/signup';
+import  { LoginWithCatalex } from './components/login';
 import ImportCompany from './components/importCompany';
 import ImportMenu from './components/importMenu';
 import { CompanyTransactions } from './components/transactions';
@@ -40,8 +37,8 @@ export default (store) => {
         function checkAuth() {
             const { login: { loggedIn, loginUrl }} = store.getState();
             if (!loggedIn) {
-                //replace(loginUrl);
-                window.location = loginUrl;
+                replace('/login');
+                cb();
             }
             else{
                 cb();
@@ -52,8 +49,7 @@ export default (store) => {
 
 
     return <Route path="/" component={ App }>
-        { /*<Route path="login" component={ Login }  />
-        <Route path="signup" component={ SignUp }  /> */ }
+        <Route path="login" component={ LoginWithCatalex }  />
         <Route onEnter={requireLogin} component={ LoggedInApp }>
             <IndexRoute component={ Home }  />
             <Route path="recent_activity" component={ RecentActivity }  />
@@ -89,9 +85,6 @@ export default (store) => {
                 <Route path="new_transaction" component={ NewTransaction } />
             </Route>
             <Route path="company/view/:id/history/:generation" component={ Company }  />
-            <Route path="user/edit/:id" component={ Account }  edit={true} />
-            <Route path="user/set_password" component={ SetPassword } edit={true} />
-            <Route path="user/create" component={ Account }  />
             <Route path="import" component={ ImportMenu } />
             <Route path="import/:companyNumber" component={ ImportCompany } />
             <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>

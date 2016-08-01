@@ -9,7 +9,7 @@ describe('Model Controller', function() {
             req
                 .post('/auth/local')
                 .send({'identifier': 'admintester@email.com', 'password': 'testtest'})
-                .expect(200)
+                .expect(302)
                 .then(function(){
                     return req.get('/api/model').expect(200)
                 })
@@ -57,7 +57,7 @@ describe('Model Controller', function() {
             req
                 .post('/auth/local')
                 .send({'identifier': 'test@email.com', 'password': 'testtest'})
-                .expect(200)
+                .expect(302)
                 .then(function(){
                     return req.get('/api/model').expect(403)
                 })

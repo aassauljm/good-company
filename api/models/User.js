@@ -27,11 +27,6 @@ module.exports = {
             validate: {
                 isEmail: true,
             }
-        },
-        catalex_id: {
-            type: Sequelize.INTEGER,
-            unique: true,
-            allowNull: true
         }
     },
     associations: function() {

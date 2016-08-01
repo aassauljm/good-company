@@ -31,7 +31,7 @@ describe('AuthController', function() {
             req
                 .post('/auth/local')
                 .send({'identifier': 'testacular@email.com', 'password': 'testtest'})
-                .expect(200, done)
+                .expect(302, done)
         });
         it('should navigate to protected page', function(done) {
             req

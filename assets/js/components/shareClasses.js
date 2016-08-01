@@ -2,7 +2,7 @@
 import React, {PropTypes} from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
-import ButtonInput from 'react-bootstrap/lib/ButtonInput';
+import ButtonInput from './forms/buttonInput';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
@@ -12,7 +12,7 @@ import { fieldStyle, fieldHelp, formFieldProps, requireFields, renderDocumentLin
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { createResource, addNotification } from '../actions';
 import DropZone from 'react-dropzone';
-import StaticField from 'react-bootstrap/lib/FormControls/Static';
+import { StaticField } from 'react-bootstrap/lib/FormControl';
 import { push } from 'react-router-redux';
 import FormData from 'form-data';
 import LawBrowserLink from './lawBrowserLink';

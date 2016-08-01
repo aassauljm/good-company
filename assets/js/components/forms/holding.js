@@ -6,7 +6,7 @@ import { formFieldProps, newHoldingString, populatePerson } from '../../utils';
 import { ParcelWithRemove } from './parcel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../../strings';
-import StaticField from 'react-bootstrap/lib/FormControls/Static';
+import { StaticField } from 'react-bootstrap/lib/FormControl';
 import { reduxForm } from 'redux-form';
 import DateInput from './dateInput';
 import { Documents } from './documents';

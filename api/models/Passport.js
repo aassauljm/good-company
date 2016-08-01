@@ -84,14 +84,14 @@ module.exports = {
         },
         hooks: {
             beforeCreate: function(passport) {
-                return hashPassword(passport);
+                return passport.password && hashPassword(passport);
             },
             beforeValidate: function(passport) {
                 if(passport.identifier)
                     passport.identifier = passport.identifier.toLowerCase();
             },
             beforeUpdate: function(passport) {
-                return hashPassword(passport);
+                return passport.password && hashPassword(passport);
             }
         }
     }

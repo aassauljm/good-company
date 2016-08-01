@@ -2,7 +2,7 @@
 import React, {PropTypes} from 'react';
 import Modal from '../forms/modal';
 import Button from 'react-bootstrap/lib/Button';
-import ButtonInput from 'react-bootstrap/lib/ButtonInput';
+import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
 import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
@@ -12,7 +12,7 @@ import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import StaticField from 'react-bootstrap/lib/FormControls/Static';
+import { StaticField } from 'react-bootstrap/lib/FormControl';
 import { ParcelWithRemove } from '../forms/parcel';
 import { newHoldingFormatAction } from '../forms/holding';
 import { Documents } from '../forms/documents';

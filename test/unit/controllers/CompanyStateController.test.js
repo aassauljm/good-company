@@ -12,7 +12,7 @@ describe('CompanyStateController', function() {
             req
                 .post('/auth/local')
                 .send({'identifier': 'transactor@email.com', 'password': 'testtest'})
-                .expect(200, done)
+                .expect(302, done)
         });
         it('should get company id', function(done) {
             req

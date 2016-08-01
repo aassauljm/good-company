@@ -102,6 +102,9 @@ function lift(cb){
             pubsub: false,
             permissions: false,
         },
+        passport: {
+            local: true,
+        },
         session: {adapter: 'memory'},
         test: true,
         renderServiceUrl: 'localhost:5668',

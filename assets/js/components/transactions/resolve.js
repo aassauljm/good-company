@@ -4,7 +4,7 @@ import { requestResource, updateResource, showModal, addNotification } from '../
 import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
-import Input from 'react-bootstrap/lib/Input';
+import Input from '../forms/input';
 import { Link } from 'react-router'
 import STRINGS from '../../strings'
 import { asyncConnect } from 'redux-connect';

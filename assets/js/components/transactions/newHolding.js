@@ -14,7 +14,7 @@ import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import StaticField from 'react-bootstrap/lib/FormControls/Static';
+import { StaticField } from 'react-bootstrap/lib/FormControl';
 
 
 @connect(undefined)

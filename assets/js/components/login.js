@@ -67,5 +67,33 @@ class Login extends React.Component {
     }
 }
 
-// Wrap the component to inject dispatch and state into it
+@connect(state => state.login)
+@pureRender
+export class LoginWithCatalex extends React.Component {
+    static propTypes = { login: React.PropTypes.object };
+    componentDidMount() {
+        this.nav()
+    }
+    componentDidUpdate() {
+        this.nav()
+    }
+    nav() {
+        if(this.props.loggedIn){
+            this.props.dispatch(replace((this.props.location.query || {}).next || '/'));
+        }
+    }
+    render() {
+        return <div className="container-fluid page-top">
+                <div className="container">
+                    <div className="text-center">
+                        <a href={this.props.loginUrl}>
+                            <h5>Login with CataLex</h5>
+                            <img src={'/images/logo-colour.png'} />
+                        </a>
+                    </div>
+                </div>
+            </div>
+    }
+}
+
 export default Login;

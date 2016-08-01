@@ -2,7 +2,7 @@
 import React, {PropTypes} from 'react';
 import Modal from '../forms/modal';
 import Button from 'react-bootstrap/lib/Button';
-import ButtonInput from 'react-bootstrap/lib/ButtonInput';
+import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import Input from '../forms/input';

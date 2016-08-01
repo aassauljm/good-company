@@ -21,7 +21,7 @@ describe('DocumentController', function() {
         req
             .post('/auth/local')
             .send({'identifier': 'documentuploader@email.com', 'password': 'testtest'})
-            .expect(200, done)
+            .expect(302, done)
     });
 
     it('should upload document', function(done) {
@@ -77,7 +77,7 @@ describe('DocumentController', function() {
         req
             .post('/auth/local')
             .send({'identifier': 'documentstealer@email.com', 'password': 'testtest'})
-            .expect(200)
+            .expect(302)
             .then(function(){
                 return req
                 .get('/api/document/'+document_id)
@@ -100,7 +100,7 @@ describe('DocumentController', function() {
         req
             .post('/auth/local')
             .send({'identifier': 'documentuploader@email.com', 'password': 'testtest'})
-            .expect(200)
+            .expect(302)
             .then(function(){
                 return req.get('/api/document/get_document/'+document_id)
                      .expect(200)

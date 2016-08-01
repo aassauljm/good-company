@@ -99,7 +99,7 @@
     "react": "15.1.0",
     "react-addons-shallow-compare": "^15.0.0",
     "react-autosuggest": "^3.7.3",
-    "react-bootstrap": "^0.28.1",
+    "react-bootstrap": "^0.30.0",
     "react-d3-components": "joshgagnon/react-d3-components",
     "react-date-picker": "^3.1.8",
     "react-dom": "^15.0.0",

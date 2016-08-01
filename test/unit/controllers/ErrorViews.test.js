@@ -9,7 +9,7 @@ describe('Error Views', function() {
             req
                 .post('/auth/local')
                 .send({'identifier': 'testacular@email.com', 'password': 'testtest'})
-                .expect(200, done)
+                .expect(302, done)
         });
         // test environment return 500 instead of 404
         /*it('should get model not found', function(done) {

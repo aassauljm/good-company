@@ -16,5 +16,6 @@ module.exports = {
   basic: require('./basic'),
   oauth: require('./oauth'),
   oauth2: require('./oauth2'),
-  openid: require('./openid')
+  openid: require('./openid'),
+  catalex: require('./catalex')
 };
