@@ -79,7 +79,7 @@ export default class Header extends React.Component {
     showLogin() {
         if(!this.props.loggedIn){
             return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to={"/login"}>Login</Link>
+            <a href={this.props.loginUrl} className="nav-link">Login</a>
             </li>;
         }
     }
@@ -87,7 +87,7 @@ export default class Header extends React.Component {
     showSignUp() {
         if(!this.props.loggedIn){
             return <li className="nav-item">
-                <Link activeClassName="active" className="nav-link" to={"/signup"}>Sign Up</Link>
+                <a href={this.props.loginUrl} className="nav-link">Sign Up</a>
             </li>;
         }
     }

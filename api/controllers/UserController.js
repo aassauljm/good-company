@@ -126,7 +126,7 @@ module.exports = {
                             .then(() => {
                                 MailService.signup(user)
                             })
-                    });
+                        });
                     });
                 });
             })

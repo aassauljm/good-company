@@ -2,10 +2,16 @@
 
 
 module.exports = function(renderProps) {
+    const urls = {
+        loginUrl: sails.config.USERS_LOGIN_URL,
+        userUrl: sails.config.USER_RESOURCE_URL,
+        logoutUrl: sails.config.USER_LOGOUT_URL
+    }
+
     if(sails.config.serverRender){
         const req = this.req,
             res = this.res;
-        const state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user ? {...req.user.toJSON(), _status: 'complete'} : {}};
+        const state = {login: {loggedIn: req.isAuthenticated(), ...urls}, userInfo: req.user ? {...req.user.toJSON(), _status: 'complete'} : {}};
         RenderService.serverRender(req.url, req.get('cookie'), state)
             .then(result => {
                 res.status(200);
@@ -13,16 +19,16 @@ module.exports = function(renderProps) {
             })
             .catch(result => {
                 if(result.redirectLocation){
-                    res.redirect(301, result.redirectLocation.pathname + result.redirectLocation.search)
+                    res.redirect(301, result.redirectLocation.pathname + result.redirectLocation.search);
                 }
                 else{
-                    res.send(result.code, result.message)
+                    res.send(result.code, result.message);
                 }
             })
 
     }
     else{
         this.res.render('content.ejs', { reactOutput: '', data: JSON.stringify(
-                        {login: {loggedIn: this.req.isAuthenticated()}}),  _layoutFile: 'layout.ejs'});
+                        {login: {loggedIn: this.req.isAuthenticated(), ...urls}}),  _layoutFile: 'layout.ejs'});
     }
 }

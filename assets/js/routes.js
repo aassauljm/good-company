@@ -38,19 +38,22 @@ import { TransactionView } from './components/transaction';
 export default (store) => {
     const requireLogin = (nextState, replace, cb) => {
         function checkAuth() {
-            const { login: { loggedIn }} = store.getState();
+            const { login: { loggedIn, loginUrl }} = store.getState();
             if (!loggedIn) {
-                replace('/login');
+                //replace(loginUrl);
+                window.location = loginUrl;
             }
-            cb();
+            else{
+                cb();
+            }
         }
-        checkAuth();``
+        checkAuth();
     };
 
 
     return <Route path="/" component={ App }>
-        <Route path="login" component={ Login }  />
-        <Route path="signup" component={ SignUp }  />
+        { /*<Route path="login" component={ Login }  />
+        <Route path="signup" component={ SignUp }  /> */ }
         <Route onEnter={requireLogin} component={ LoggedInApp }>
             <IndexRoute component={ Home }  />
             <Route path="recent_activity" component={ RecentActivity }  />

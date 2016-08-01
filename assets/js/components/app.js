@@ -37,7 +37,7 @@ export default class App extends React.Component {
         let name = this.props.location.pathname;
         name = name.split('/')[1] || 'root'
         return <div onDrop={prevent} onDragOver={prevent}>
-            <Header loggedIn={this.props.login.loggedIn } userInfo={ this.props.userInfo }/>
+            <Header {...this.props.login } userInfo={ this.props.userInfo }/>
                  <Notifications/>
                 <div className="app-container" >
                   <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>

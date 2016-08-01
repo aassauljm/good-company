@@ -101,6 +101,10 @@ body{
 	margin:0;
     font-family: -apple-system, "Helvetica Neue", "Roboto", "Segoe UI", "Lucida Grande", sans-serif;
 
+    & > .error{
+        text-align:center;
+        margin-top: 20px;
+    }
 }
 
 nav.navbar{

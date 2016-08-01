@@ -8,7 +8,7 @@
         "blueprints": false,
         "orm": false,
         "permissions": false,
-        "pubsub": false
+        "pubsub": false,
     },
     "log": {
         "level": "silly"

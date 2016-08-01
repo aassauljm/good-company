@@ -38,14 +38,17 @@ module.exports.routes = {
     },
 
 
-    'GET /logout': 'AuthController.logout',
+'GET /logout': 'AuthController.logout',
 
-    'POST /auth/local': 'AuthController.callback',
+    /*'POST /auth/local': 'AuthController.callback',
     'POST /auth/local/:action': 'AuthController.callback',
 
     'GET /auth/:provider': 'AuthController.provider',
     'GET /auth/:provider/callback': 'AuthController.callback',
-    'GET /auth/:provider/:action': 'AuthController.callback',
+    'GET /auth/:provider/:action': 'AuthController.callback',*/
+
+    'GET /login': 'AuthController.catalexLogin',
+
 
 
     'GET /api/get_info': {

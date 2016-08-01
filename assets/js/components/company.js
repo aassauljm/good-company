@@ -287,7 +287,7 @@ export default class Company extends React.Component {
             return <NotFound descriptor="Company" />
         }
         return <div className="company">
-                <CompanyHeader companyId={this.key()} companyState={current || {}}/>
+                <CompanyHeader companyId={this.key()} companyState={current || {}} />
                 <div className="company-page">
                     <div className="container-fluid page-top">
                     <Notifications />
