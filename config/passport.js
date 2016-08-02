@@ -29,6 +29,7 @@ OAuth2Strat.prototype.authenticate = function(req, options) {
         'client_secret': sails.config.OAUTH_CLIENT_SECRET,
         'redirect_uri': sails.config.GOOD_COMPANIES_LOGIN_URL
     };
+    sails.log.info(params);
     let query = querystring.stringify(params);
 
     fetch(sails.config.OAUTH_ACCESS_TOKEN_URL, {
@@ -44,6 +45,7 @@ OAuth2Strat.prototype.authenticate = function(req, options) {
     })
     .then(data => {
         query = querystring.stringify({'access_token': data['access_token']});
+        sails.log.info('Getting token:', sails.config.USER_RESOURCE_URL + '?' + query);
         return fetch(sails.config.USER_RESOURCE_URL + '?' + query);
     })
     .then(response => {

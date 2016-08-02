@@ -4,7 +4,7 @@ var _ = require('lodash');
 
 
 module.exports = function (req, profile, next) {
-        sails.log.info('User found', profile);
+      sails.log.info('User found', profile);
       var query = {
         identifier: profile.id.toString(),
         protocol: 'oauth2',
