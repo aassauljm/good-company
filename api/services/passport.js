@@ -114,7 +114,11 @@ passport.connect = function (req, query, profile, next) {
             // Action:   Create a new user and assign them a passport.
             if (!passport) {
               sails.log.info('Creating User');
-              return sails.models.user.create(user)
+              // dangerous if we allow other strategies, might delete this later
+              return sails.models.user.findOne({where: {email: user.email}})
+                .then(_user => {
+                    return _user ? _user : sails.models.user.create(user)
+                })
                 .then(function (_user) {
                   user = _user;
                   return sails.models.passport.create(_.extend({ userId: user.id }, query))

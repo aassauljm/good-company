@@ -18,9 +18,12 @@ _.merge(exports, {
         delete req.session.passport;
         // TESTING FOUND A PROBLEM WITH THIS NOT BEING SET
         req.session.authenticated = false;
+        if(sails.config.USER_LOGOUT_URL){
+            res.redirect(sails.config.USER_LOGOUT_URL)
+        }
 
-        if (!req.isSocket) {
-            res.redirect(sails.config.USER_LOGOUT_URL);
+        else if (!req.isSocket) {
+            res.redirect(req.query.next || '/');
         } else {
             res.ok();
         }
