@@ -85,7 +85,7 @@ export class AddAssignSharesModal extends React.Component {
 
 
 
-export class ColsolidateDivideModal extends React.Component {
+export class ConsolidateDivideModal extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Consolidate or Divide Shares">
