@@ -20,7 +20,7 @@ _.merge(exports, {
         req.session.authenticated = false;
 
         if (!req.isSocket) {
-            res.redirect(req.query.next || '/');
+            res.redirect(sails.config.USER_LOGOUT_URL);
         } else {
             res.ok();
         }
