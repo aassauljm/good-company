@@ -1,0 +1,56 @@
+
+nav.navbar{
+    background-color: $deep-red;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: none;
+    transition: height .2s ease-in-out;
+
+    -webkit-font-smoothing: antialiased;
+    margin-bottom: 0;
+    border-radius:0;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+
+    @media (min-width: $screen-sm-min) {
+        height: $navbar-height;
+    }
+
+    .container {
+        a.navbar-brand {
+            color:$white;
+            margin-left:0;
+            font-weight: bold;
+            @media (min-width: $screen-sm-min) {
+                width: 191px;
+                height: 74px;
+                margin-top: 13px;
+                padding: 0;
+                background-image :url("~catalex_shared/images/good-company-w-icon-sml.png");
+                span{
+                    display:none;
+                }
+            }
+        }
+         .navbar-right {
+            margin-right: 0;
+            min-height:1px;
+            font-size:1em;
+            a{
+                padding:4px;
+            }
+        }
+
+        a{
+            color:#ffffff;
+             &:hover, &:focus{
+                color: $header-link-hover;
+            }
+        }
+    }
+
+}
+
+
+.footer, nav.navbar{
+    background-image: $header-image;
+}

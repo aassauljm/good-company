@@ -33,5 +33,4 @@ app.load({
         console.log(err)
     };
     ImportService.importCompany(2345234, {})
-
-})
+});
