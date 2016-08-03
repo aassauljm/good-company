@@ -141,7 +141,6 @@ export class SearchWidget extends React.Component {
             value: fields.input.value || '',
             onChange: fields.input.onChange
         };
-        console.log(fields.input.value)
         return (
             <div>
                 <Autosuggest theme={theme}

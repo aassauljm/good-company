@@ -22,7 +22,15 @@ const DOCUMENT_TYPES = {
     UNKNOWN: 'UNKNOWN',
 };
 
-
+function checkStatus(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response
+  } else {
+    var error = new Error(response.statusText)
+    error.response = response
+    throw error
+  }
+}
 
 const toInt = function (value) {
   if(/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
@@ -629,10 +637,11 @@ const ScrapingService = {
                 });
     },
 
-    fetchDocument: function(companyNumber, documentId){
+    fetchDocument: function(companyNumber, documentId, attempts=0){
         const url = documentUrl(companyNumber, documentId);
         sails.log.verbose('Getting url', url);
         return fetch(url)
+                .then(checkStatus)
                 .then(function(res){
                     return res.text();
                 })
@@ -664,6 +673,12 @@ const ScrapingService = {
                     }
                     return {text: text};
                 })
+            .catch(e => {
+                if(attempts > 5){
+                    throw new Error(`Cannot get document ${url}`)
+                }
+                return ScrapingService.fetchDocument(companyNumber, documentId, attempts+1)
+            })
     },
 
     fetchSearchResults: function(query){

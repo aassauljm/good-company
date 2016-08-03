@@ -108,7 +108,7 @@ passport.connect = function (req, query, profile, next) {
           identifier: query.identifier.toString()
         }})
         .then(function (passport) {
-          if (!req.user) {
+          if (!req.user || true) { // force this user to log in, again, if needed
             // Scenario: A new user is attempting to sign up using a third-party
             //           authentication provider.
             // Action:   Create a new user and assign them a passport.

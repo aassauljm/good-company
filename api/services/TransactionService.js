@@ -683,7 +683,6 @@ export function performInverseRemoveDirector(data, companyState, previousState, 
 }
 
 export function performInverseUpdateDirector(data, companyState, previousState, effectiveDate){
-    // find them as a share holder?
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.directorList.buildNext()
         .then(function(dl){
@@ -699,7 +698,7 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             .then(() => {
                  _.find(previousState.dataValues.directorList.dataValues.directors, function(d, i){
                     return d.dataValues.person.isEqual({name: data.afterName, address: afterAddress});
-                }).person.setTransaction(transaction);
+                }).dataValues.person.setTransaction(transaction);
              })
         })
         .then(() => {

@@ -358,7 +358,7 @@ describe('Scraping Service', function() {
 
 
     describe('should infer name change actions when documents are missing (1109509)', function(){
-        it('populates actions, checks that inferred name changes are present', function(done){
+        it('populates actions, checks that inferred name changes are present', function(){
             let data;
              return fs.readFileAsync('test/fixtures/companies_office/1109509.html', 'utf8')
                 .then(ScrapingService.parseNZCompaniesOffice)
@@ -373,9 +373,9 @@ describe('Scraping Service', function() {
                             return a.transactionType === Transaction.types.NAME_CHANGE
                         }).length;
                     }, 0).should.be.equal(4);
-                    done();
                 })
             })
     });
+
 
 });
