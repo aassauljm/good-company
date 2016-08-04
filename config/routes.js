@@ -175,11 +175,11 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'import'
     },
-    'GET /api/company/lookup/:query': {
+    'GET /api/company/lookup': {
         controller: 'CompanyController',
         action: 'lookup'
     },
-    'GET /api/company/lookup_own/:query': {
+    'GET /api/company/lookup_own': {
         controller: 'CompanyController',
         action: 'lookupOwn'
     },

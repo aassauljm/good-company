@@ -177,7 +177,7 @@ export function renderTemplate(data = {}) {
 export function lookupCompany(query) {
     return {
         types: [LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE],
-        callAPI: () => fetch('/api/company/lookup/' + encodeURIComponent(query), {
+        callAPI: () => fetch('/api/company/lookup?query=' + encodeURIComponent(query), {
             headers: json_headers,
             credentials: 'same-origin'
         }),
@@ -188,7 +188,7 @@ export function lookupCompany(query) {
 export function lookupOwnCompany(query) {
     return {
         types: [LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE],
-        callAPI: () => fetch('/api/company/lookup_own/' + encodeURIComponent(query), {
+        callAPI: () => fetch('/api/company/lookup_own?query=' + encodeURIComponent(query), {
             headers: json_headers,
             credentials: 'same-origin'
         }),

@@ -64,6 +64,14 @@ function stubs(){
     global.__DEV__ = false;
 }
 
+function addMigrations(){
+    return fs.readdirAsync(__dirname + '/../migrations')
+        .then(function(files){
+            return Migrations.bulkCreate(files.map(function(f){ return {name: f}}));
+        })
+}
+
+
 function dom(){
     global.__DEV__ = false;
     global.__SERVER__ = true;
@@ -133,6 +141,7 @@ before(function(done) {
                     .then(function(){
                         return sequelize.query('SELECT reset_sequences();')
                     })
+                    .then(addMigrations)                    
                     .then(function(){
                         stubs();
                         done();

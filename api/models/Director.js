@@ -18,6 +18,9 @@ module.exports = {
         },
         consentUrl: {
             type: Sequelize.TEXT
+        },
+        data: {
+            type: Sequelize.JSON
         }
     },
     associations: function(n) {

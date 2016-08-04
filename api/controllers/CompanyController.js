@@ -320,7 +320,7 @@ module.exports = {
             });
     },
     lookup: function(req, res) {
-        ScrapingService.getSearchResults(req.params.query)
+        ScrapingService.getSearchResults(req.param('query'))
             .then(function(data) {
                 return res.json(data);
             }).catch(function(err) {
@@ -338,7 +338,7 @@ module.exports = {
                 as: 'currentCompanyState',
                 where: {
                     companyName: {
-                      $ilike: `%${req.params.query}%`
+                      $ilike: `%${req.param('query')}%`
                     }
                 }
             }],
