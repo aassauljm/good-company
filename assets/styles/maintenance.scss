@@ -1,0 +1,52 @@
+// Core variables and mixins
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/variables";
+//@import "variables";
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+$input-border-width: 2px;
+$brand-primary: #2C3E50;
+$border-light: #ccc;
+
+$well-bg: #fff;
+$well-border: $border-light;
+
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/mixins";
+
+// Reset and dependencies
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
+// Core CSS
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/forms";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/navs";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/navbar";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
+@import "~catalex_shared/sass/catalex-vars";
+
+$header-image:url("~catalex_shared/images/hero-bg.jpg");
+
+@import "home";
+@import "header";
+@import "footer";
+@import "betaRibbon";
+
+
+html{
+    min-height: 100%;
+    position:relative;
+}
+
+html,body{
+    background-color: #f2f2f2;
+}
+
+body{
+    margin:0;
+    font-family: -apple-system, "Helvetica Neue", "Roboto", "Segoe UI", "Lucida Grande", sans-serif;
+
+    & > .error{
+        text-align:center;
+        margin-top: 20px;
+    }
+}
+
