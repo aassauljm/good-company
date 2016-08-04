@@ -64,6 +64,17 @@ describe('Company Controller', function() {
                     done();
                 });
         });
+        it('Gets pending history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .expect(200)
+                .then(function(res){
+                   
+                    _.find(res.body, action => {
+                        return action.data &&  action.data.transactionType === Transaction.types.INCORPORATION;
+                    }).should.not.be.equal(null);
+                    done();
+                });
+        });
     });
 
     describe('Test import from companies office, pew holdings', function(){

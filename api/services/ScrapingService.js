@@ -33,9 +33,10 @@ function checkStatus(response) {
 }
 
 const toInt = function (value) {
-  if(/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
-    return Number(value);
-  return NaN;
+    value = value.replace(',', '');
+    if(/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
+        return Number(value);
+    return NaN;
 }
 
 function cleanString(str){
@@ -565,6 +566,144 @@ const EXTRACT_DOCUMENT_MAP = {
 }
 
 
+const EXTRACT_BIZ_DOCUMENT_MAP= {
+       [DOCUMENT_TYPES.INCORPORATION]: ($) => {
+
+
+        const match = (match) => {
+            return $('table td font').filter(function(){
+                return $(this).text().match(match);
+            });
+        }
+
+        const heading = $('table table').eq(2);
+        const title = heading.find('td').first().find('font b').text();
+     
+        const matches = /^(\d+)\S+(.+)$/.exec(title);
+        if(!matches){
+            //then old style doc,
+            return {}
+        }
+        const companyNumber = matches[1];
+        const companyName = matches[2];
+        const date = moment(cleanString(match('Registration Date:').parent().text().replace('Registration Date:', '')), 'DD MMM YYYY').toDate();
+
+
+        function nextUntil(node, has) {
+            const results = [];
+            while(node.length && !node.find(has).length){
+                let str = cleanString(node.text());
+                if(str){
+                    results.push(str);
+                }
+                node =  node.next();
+            }
+            return results;
+        }
+
+        function *nextUntilChunks(node, has, sel) {
+            while(node.length){
+                let results = [];
+                while(node.length && !node.find(has).length){
+                    results = results.concat(node.find(sel).map((i, e) => cleanString($(e).text())).get());
+                    node =  node.next();
+                }
+                if(results.length){
+                    yield results;
+                }
+                node = node.next();
+            }
+        }
+
+        const registeredCompanyAddressNode = match('Registered Office').closest('tr').next();
+        const registeredCompanyAddress = nextUntil(registeredCompanyAddressNode, 'img').join(', ');        
+        const addressForShareRegisterNode = match('Address for Share Register').closest('tr').next();
+        const addressForShareRegister = nextUntil(addressForShareRegisterNode, 'img').join(', ');        
+        const addressForServiceNode = match('Address for Service').closest('tr').next();
+        const addressForService = nextUntil(addressForServiceNode, 'img').join(', ');
+        const addressForCommunicationNode = match('Address for Communication').closest('tr').next();
+        const addressForCommunication = nextUntil(addressForCommunicationNode, 'img').join(', ');
+        const result = {
+            transactionType: Transaction.types.INCORPORATION,
+            effectiveDate: date,
+            actions: [{
+                fields:{
+                    companyNumber: companyNumber,
+                    companyName: companyName,
+                    incorporationDate: date,
+                    registeredCompanyAddress:  registeredCompanyAddress || null,
+                    addressForShareRegister:  addressForShareRegister || null,
+                    addressForService:  addressForService || null,
+                    addressForCommunication: addressForCommunication || null,
+                },
+                transactionType: Transaction.types.DETAILS_MASS
+            }]
+        }
+
+        const issue = match('Total Company Shares').closest('td');
+        const total = toInt(cleanString(issue.next().find('font').text().replace(',','')));
+        const holdings = issue.closest('table').next('table');
+        const chunks = Array.from(nextUntilChunks(holdings.find('tr').first(), 'img', 'td'))
+            .map(chunk => {
+                return chunk.filter(c => c);
+            });
+
+        result.actions.push({
+            fromAmount: 0,
+            toAmount: total,
+            byAmount: total,
+            amount: total,
+            transactionType: Transaction.types.ISSUE
+        });
+
+        const getHolders = (rows) => {
+            const results = [];
+            let i = 0;
+            while(i < rows.length){
+                const holder = {};
+                const company = /^(\d+) (.+)$/.exec(rows[i]);
+                if(company){
+                    holder.companyNumber= company[1]
+                    holder.name = company[2];
+                }   
+                else{
+                    holder.name = invertName(rows[i]);
+                }
+                holder.address = rows[i+1];
+                i += 2;
+                results.push(holder);
+            }
+            return results;
+        }
+
+        chunks.map(chunk => {
+            if(chunk.length){
+                result.actions.push({
+                    transactionMethod: Transaction.types.NEW_ALLOCATION,
+                    transactionType: Transaction.types.ISSUE_TO,
+                    amount: toInt(chunk[0]),
+                    holders: getHolders(chunk.slice(1))
+                })
+            }
+        })
+    
+       
+        const directorsTable =  match(/2. Directors$/g).closest('table').closest('tr').next();
+
+        const directors = _.chunk(directorsTable.find('td')
+            .map((i, el) => cleanString($(el).text())).get().filter(e => e), 2);
+
+        directors.map(d => {
+            result.actions.push({
+                transactionType: Transaction.types.NEW_DIRECTOR,
+                name: invertName(d[0]),
+                address: d[1]
+            })
+        });
+        return result;
+    },
+}
+
 const DOCUMENT_TYPE_MAP = {
     'Particulars of Director':{
         type: DOCUMENT_TYPES.PARTICULARS_OF_DIRECTOR
@@ -597,6 +736,13 @@ const DOCUMENT_TYPE_MAP = {
 };
 
 
+const BIZ_DOCUMENT_TYPE_MAP = {
+    'Application To Incorporate A Company': {
+        type: DOCUMENT_TYPES.INCORPORATION
+    }
+};
+
+
 
 function processCompaniesOffice($){
     let result = {};
@@ -609,9 +755,13 @@ function processCompaniesOffice($){
     return result
 }
 
-function processBizNet($){
+function processBizNet($, info){
     let result = {};
-    return {}
+    let docType = BIZ_DOCUMENT_TYPE_MAP[info.documentType];
+    if(docType && docType.type){
+        result = {...result, ...EXTRACT_BIZ_DOCUMENT_MAP[docType.type]($)}
+    }
+    return result;
 }
 
 
@@ -833,10 +983,10 @@ const ScrapingService = {
 
         let result = {};
         if($('#page-body').length){
-            result = processCompaniesOffice($)
+            result = processCompaniesOffice($, info)
         }
         else{
-            result = processBizNet($)
+            result = processBizNet($, info)
         }
         return {...result, ...info, date: moment(info.date, 'DD MMM YYYY HH:mm').toDate()}
     },
