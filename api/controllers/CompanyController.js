@@ -13,16 +13,14 @@ module.exports = {
     find: function(req, res) {
         var Model = actionUtil.parseModel(req);
         Model.findAll({
-            where: actionUtil.parseCriteria(req),
-            limit: actionUtil.parseLimit(req),
-            offset: actionUtil.parseSkip(req),
+            where: {ownerId: req.body.ownerId},
             order: actionUtil.parseSort(req),
             include: [{
                 model: CompanyState,
                 as: 'currentCompanyState'
             }]
         }).then(function(matchingRecords) {
-            sails.log.error('found '+matchingRecords.length+ 'comapnies')
+            sails.log.error('found '+matchingRecords.length+ 'companies')
             res.ok(matchingRecords.map(x => x.toJSON()));
         }).catch(function(err) {
             return res.notFound(err);
