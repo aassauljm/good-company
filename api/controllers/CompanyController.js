@@ -13,7 +13,7 @@ module.exports = {
     find: function(req, res) {
         var Model = actionUtil.parseModel(req);
         Model.findAll({
-            where: {ownerId: req.body.ownerId},
+            where: {ownerId: req.user.id},
             order: actionUtil.parseSort(req),
             include: [{
                 model: CompanyState,
