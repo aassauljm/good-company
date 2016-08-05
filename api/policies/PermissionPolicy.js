@@ -72,7 +72,7 @@ function responsePolicy (_data, options) {
           return permission.permits(result.relation, method);
         });
       });
-
+      sails.log.error('Permission policy: ' + permitted.length, ' allowed, of ' + results.length)
       if (permitted.length === 0) {
         return res.send(404);
       }
