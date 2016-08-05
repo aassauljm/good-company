@@ -22,6 +22,7 @@ module.exports = {
                 as: 'currentCompanyState'
             }]
         }).then(function(matchingRecords) {
+            sails.log.error('found '+matchingRecords.length+ 'comapnies')
             res.ok(matchingRecords.map(x => x.toJSON()));
         }).catch(function(err) {
             return res.notFound(err);
