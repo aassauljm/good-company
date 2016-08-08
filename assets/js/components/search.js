@@ -56,25 +56,19 @@ function getSectionSuggestions(section) {
   return section.list;
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
     return {
-        onChange(event, { newValue }) {
-            dispatch(updateInputValue(newValue));
-            const value = newValue.trim();
-            if (value === ''){
-                dispatch(clearSuggestions());
+        onSuggestionsUpdateRequested: debounce(({ value, reason }) => {
+            if(reason === 'type'){
+                dispatch(lookupOwnCompany(value));
+                dispatch(lookupCompany(value));
             }
-        },
-        onSuggestionsUpdateRequested: debounce(({ value }) => {
-            dispatch(lookupOwnCompany(value));
-            dispatch(lookupCompany(value));
         }),
         onSelectOwnCompany: (id) => {
             dispatch(push("/company/view/"+ id));
         },
         onSelectCompany: (item) => {
             dispatch(push({pathname: `/import/${item.companyNumber}`,  query: item}));
-
         }
     };
 }
@@ -82,7 +76,6 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
     return {lookupCompany: state.lookupCompany, lookupOwnCompany: state.lookupOwnCompany};
 };
-
 
 
 const theme = {
@@ -132,7 +125,7 @@ export class SearchWidget extends React.Component {
 
         if(this.props.lookupOwnCompany._status === 'complete' &&
            this.props.lookupCompany._status === 'complete' &&
-           suggestions.length === 0){
+           suggestions.length === 0 && fields.input.value){
             noSuggestions = true;
         }
 
@@ -153,8 +146,7 @@ export class SearchWidget extends React.Component {
                     renderSuggestion={renderSuggestion}
                     renderSectionTitle={renderSectionTitle}
                     inputProps={inputProps} />
-
-                { (noSuggestions && fields.input.value) && <div className="no-suggestions">
+                { (noSuggestions) && <div className="no-suggestions">
                   No results found
                 </div> }
             </div>

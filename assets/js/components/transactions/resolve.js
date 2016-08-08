@@ -50,10 +50,27 @@ function increaseOptions(){
     ];
 };
 
+function increaseOptionsNoTransfer(){
+    return [
+        <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
+        <option key={2} value={TransactionTypes.SUBDIVISION_TO}>{STRINGS.transactionVerbs[TransactionTypes.SUBDIVISION_TO]}</option>,
+        <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionVerbs[TransactionTypes.CONVERSION_TO]}</option>
+    ];
+};
+
 function decreaseOptions(){
     return [
         <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
         <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_FROM]}</option>,
+        <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.REDEMPTION_FROM]}</option>,
+        <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.ACQUISITION_FROM]}</option>,
+        <option key={4} value={TransactionTypes.CONSOLIDATION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.CONSOLIDATION_FROM]}</option>
+    ];
+};
+
+function decreaseOptionsNoTransfer(){
+    return [
+        <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
         <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.REDEMPTION_FROM]}</option>,
         <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.ACQUISITION_FROM]}</option>,
         <option key={4} value={TransactionTypes.CONSOLIDATION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.CONSOLIDATION_FROM]}</option>
@@ -182,6 +199,7 @@ class AmendOptions extends React.Component {
                         actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount.toString());
                         actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
                         actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i.toString());
+                        actions[actionIndex].recipients[reciprocalIndex].isInverse.onChange(true);
                     }
                 }
                 else{
@@ -301,7 +319,8 @@ const validateAmend = (values, props) => {
 const amendFields = [
     'actions[].recipients[].type',
     'actions[].recipients[].amount',
-    'actions[].recipients[].holding'
+    'actions[].recipients[].holding',
+    'actions[].recipients[].isInverse',
 ];
 
 const AmendOptionsConnected = reduxForm({
