@@ -15,7 +15,7 @@ import STRINGS from '../strings';
 import { push } from 'react-router-redux';
 import DropZone from 'react-dropzone';
 import { StaticField } from 'react-bootstrap/lib/FormControl';
-
+import LawBrowserLink from './lawBrowserLink';
 
 export const fields = [
   'persons[]',
@@ -97,11 +97,10 @@ class EntryForm extends React.Component {
             invalid,
             submitting
         } = this.props;
-
+        //189(1)(c)
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
             <legend>Create Interests Registry Entry</legend>
-
             { fields.persons.map((n, i) => {
                 return <Input type="select" key={i} {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Name"
                 hasFeedback groupClassName='has-group'
@@ -140,6 +139,7 @@ class EntryForm extends React.Component {
 
             </fieldset>
             <div className="button-row">
+                <ButtonInput onClick={() => this.props.dispatch(push(`/company/view/${this.props.companyId}/interests_register`))}>Cancel</ButtonInput>
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
                 <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid}>Create</ButtonInput>
             </div>
@@ -273,6 +273,7 @@ export class InterestsRegister extends React.Component {
                     </div>
                 </div>
                 <div className="widget-body">
+                            <p><LawBrowserLink title="Companies Act 1993" location="189(1)(c)">Learn more about the Interest Register</LawBrowserLink></p>
                         { !this.props.children && this.renderList(interestsRegister) }
                          { this.props.children && React.cloneElement(this.props.children, {
                                 companyId: this.key(),
