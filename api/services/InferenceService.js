@@ -24,16 +24,15 @@ module.exports = {
                     for(let i=0, j=index-1, neg=-1; i<MAX_DISTANCE; i++, j+=i*neg, neg*=-1){
                         const k = Math.min(Math.max(0, j), actionSets.length-1);
                         if(k === index) continue;
+
                         if(actionSets[k].totalShares === matchValue){
                             return actionSets[k];
                         }
                     }
                     return null;
                 }
-                const allocationsUp = _.filter(d.actions, a =>
-                                               (types.indexOf(a.transactionType) >= 0 && a.afterAmount > a.beforeAmount) || a.transactionType === Transaction.types.NEW_ALLOCATION).length;
-                const allocationsDown = _.filter(d.actions, a =>
-                                                 (types.indexOf(a.transactionType) >= 0 && a.afterAmount < a.beforeAmount) || a.transactionType === Transaction.types.REMOVE_ALLOCATION).length;
+                const allocationsUp = _.filter(d.actions, a => a.amount && a.afterAmount > a.beforeAmount).length;
+                const allocationsDown = _.filter(d.actions, a => a.mount && a.afterAmount < a.beforeAmount).length;
                 // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
 
 
@@ -95,7 +94,6 @@ module.exports = {
                                         case Transaction.types.ACQUISITION:
                                             a.transactionType = Transaction.types.ACQUISITION_FROM;
                                             break;
-
                                         case Transaction.types.CONSOLIDATION:
                                             a.transactionType = Transaction.types.CONSOLIDATION_FROM;
                                             break;
@@ -168,7 +166,7 @@ module.exports = {
         function holdingChangeRemovals(docs){
             const holdingChangeTypes = [Transaction.types.HOLDING_TRANSFER];
             return  _.reduce(docs, (acc, doc, i) => {
-                const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
+                const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionType) >= 0);
                 if(!holdingChangeActions.length){
                     acc.push(doc);
                 }
@@ -189,7 +187,7 @@ module.exports = {
                     removals.actions = results.removals;
                     removals.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
                     acc.push(removals);
-                    docs.actions = doc.actions.filter(a => holdingChangeTypes.indexOf(a.transactionMethod || a.transactionType) < 0);
+                    docs.actions = doc.actions.filter(a => holdingChangeTypes.indexOf(a.transactionType) < 0);
                     acc.push(doc)
                 }
                 return acc;
@@ -197,10 +195,48 @@ module.exports = {
         }
 
         function splitMultiTransfers(docs){
-            const transferes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
+            const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
             return  _.reduce(docs, (acc, doc, i) => {
-                //if(doc.actions.)
-                acc.push(doc);
+                const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);
+                if(!transferActions.length || transferActions.length === 2){
+                    // if no transfers, or already a pair, then continue
+                    acc.push(doc);
+                }
+                else{
+                    // to make this this far, you must have 1 down, >=1 up, or vice versa.
+                    let up = doc.actions.filter(a => a.afterAmount > a.beforeAmount);
+                    let down = doc.actions.filter(a => a.afterAmount < a.beforeAmount);
+                    if(up.length === 1){
+                        up = _.cloneDeep(up[0]);
+                        down.map(action => {
+                            const docClone = _.cloneDeep(doc);
+                            up.amount = action.amount;
+                            up.beforeAmount = up.afterAmount - up.amount;
+                            docClone.actions = [
+                                _.cloneDeep(up),
+                                action
+                            ];
+                            docClone.totalShares = 0;
+                            acc.push(docClone);
+                            up.afterAmount = up.beforeAmount;
+                        });
+                    }
+                    else{
+                        down = _.cloneDeep(down[0]);
+                        up.map(action => {
+                            const docClone = _.cloneDeep(doc);
+                            down.amount = action.amount;
+                            down.beforeAmount = down.afterAmount - up.amount;
+                            docClone.actions = [
+                                _.cloneDeep(down),
+                                action
+                            ];
+                            docClone.totalShares = 0;
+                            acc.push(docClone);
+                            down.afterAmount = down.beforeAmount;
+                        });
+                    }
+                }
                 return acc;
             }, []);
         }
@@ -340,6 +376,10 @@ module.exports = {
             [Transaction.types.INFERRED_REMOVE_DIRECTOR]: 1,
             [Transaction.types.INFERRED_NEW_DIRECTOR]: 0
         }
+
+        // before sort, fine amend types
+        docs = InferenceService.inferAmendTypes(docs);
+
         docs = docs.reduce((acc, doc) =>{
             const docDate = doc.date;
             const groups = _.groupBy(doc.actions, action => action.effectiveDate);
@@ -372,8 +412,8 @@ module.exports = {
                            ).reverse();
 
         // AFTER SORT
-        docs = InferenceService.inferAmendTypes(docs);
         docs = InferenceService.insertIntermediateActions(docs);
+        // Add ids
         docs.map(p => {
             p.id = uuid.v4();
             (p.actions || []).map(a => a.id = uuid.v4())

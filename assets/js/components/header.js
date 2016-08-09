@@ -2,6 +2,7 @@
 import React from 'react'
 import { pureRender }  from '../utils';
 import { Link } from 'react-router';
+import { connect } from 'react-redux';
 import Actions from '../actions';
 import Navbar from 'react-bootstrap/lib/Navbar'
 import Collapse from 'react-bootstrap/lib/Collapse'
@@ -31,7 +32,7 @@ function RoleAllows(roles = [], menu){
 }
 
 /** Can't be pure, because router Links use context to show active */
-export default class Header extends React.Component {
+export class Header extends React.Component {
     users() {
         if(this.props.userInfo && RoleAllows(this.props.userInfo.roles, 'users' )){
             return <li className="nav-item">
@@ -120,3 +121,10 @@ export default class Header extends React.Component {
     }
 }
 
+
+function HeaderWithProps(props){
+    return <Header {...props.login } userInfo={ props.userInfo } />
+}
+
+const HeaderConnected = connect(state => { return {login: state.login, userInfo: state.userInfo} })(HeaderWithProps);
+export default HeaderConnected;

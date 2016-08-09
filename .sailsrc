@@ -11,7 +11,7 @@
         "pubsub": false
     },
     "log": {
-        "level": "silly"
+        "level": "info"
     },
     "models": {
         "migrate": "alter"

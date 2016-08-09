@@ -242,10 +242,12 @@ const EXTRACT_DOCUMENT_MAP = {
                 return {...parseAmendHolder($, $el), transactionType: Transaction.types.HOLDER_CHANGE};
             }
             else if(head.match(newAllocRegex)){
-                return {...parseAllocation($, $el), transactionType: Transaction.types.NEW_ALLOCATION};
+                let data = parseAllocation($, $el)
+                return {...data, transactionType: Transaction.types.NEW_ALLOCATION, beforeAmount: 0, afterAmount: data.amount};
             }
             else if(head.match(removedAllocRegex)){
-                return {...parseAllocation($, $el), transactionType: Transaction.types.REMOVE_ALLOCATION};
+                let data = parseAllocation($, $el)
+                return {...data, transactionType: Transaction.types.REMOVE_ALLOCATION, beforeAmount: data.amount, afterAmount: 0};
             }
             else if(head.match(newHolderRegex)){
                 return parseHolder($, $el);
@@ -578,7 +580,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
 
         const heading = $('table table').eq(2);
         const title = heading.find('td').first().find('font b').text();
-     
+
         const matches = /^(\d+)\S+(.+)$/.exec(title);
         if(!matches){
             //then old style doc,
@@ -616,9 +618,9 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         }
 
         const registeredCompanyAddressNode = match('Registered Office').closest('tr').next();
-        const registeredCompanyAddress = nextUntil(registeredCompanyAddressNode, 'img').join(', ');        
+        const registeredCompanyAddress = nextUntil(registeredCompanyAddressNode, 'img').join(', ');
         const addressForShareRegisterNode = match('Address for Share Register').closest('tr').next();
-        const addressForShareRegister = nextUntil(addressForShareRegisterNode, 'img').join(', ');        
+        const addressForShareRegister = nextUntil(addressForShareRegisterNode, 'img').join(', ');
         const addressForServiceNode = match('Address for Service').closest('tr').next();
         const addressForService = nextUntil(addressForServiceNode, 'img').join(', ');
         const addressForCommunicationNode = match('Address for Communication').closest('tr').next();
@@ -665,7 +667,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                 if(company){
                     holder.companyNumber= company[1]
                     holder.name = company[2];
-                }   
+                }
                 else{
                     holder.name = invertName(rows[i]);
                 }
@@ -686,8 +688,8 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                 })
             }
         })
-    
-       
+
+
         const directorsTable =  match(/2. Directors$/g).closest('table').closest('tr').next();
 
         const directors = _.chunk(directorsTable.find('td')
@@ -909,7 +911,7 @@ const ScrapingService = {
         result.directorList = {
             directors : data.directors.map(function(d){
                 return {
-                    consentUrl: d.consentUrl,
+                    ntUrl: d.consentUrl,
                     appointment: moment(d.appointmentDate, 'DD MMM YYYY HH:mm').toDate(),
                     person: {
                         name: d.fullName,

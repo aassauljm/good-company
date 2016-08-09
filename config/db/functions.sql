@@ -372,13 +372,11 @@ prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId"
  ),
 person_holdings as (
     SELECT DISTINCT ON (p."personId", ph."transactionId", "startId")
-
     first_value(ph."hId") OVER wnd as "hId",
     first_value(p."personId") OVER wnd as "personId",
     first_value(ph."transactionId") OVER wnd as "transactionId",
     first_value("startId") OVER wnd as "startId",
     first_value(generation) OVER wnd as generation
-
     FROM prev_holdings ph
     LEFT OUTER JOIN "holderJ" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
@@ -387,6 +385,7 @@ person_holdings as (
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
      )
 ),
+
 -- get parcels for a given holdingId
 parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
@@ -436,19 +435,6 @@ SELECT *,
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]) )
     AS "transferHistoryFrom",
-
-  --  ( SELECT array_to_json(array_agg(row_to_json(qqq)))
-  --  FROM (SELECT *, pp.amount, pp."shareClass", (SELECT TRUE  -- was this person in the previous holding
-  --      FROM person_holdings ph
-  --      JOIN (select "hId" from prev_holdings where "startId" != "hId" and "startId" = qq."startId" order by generation desc limit 1) s on s."hId" = ph."hId"
-  --      WHERE "personId" = q."personId" limit 1) as "inPreviousHolding"
-   -- FROM transaction_history qq
-   -- join parcels pp on pp."holdingId" = qq."hId"
-  --  WHERE qq."personId" = q."personId"
-  --  AND qq."startId" = q."newestHoldingId"
-  --  AND (pp."shareClass" = q."shareClass" or pp."shareClass" IS NULL and q."shareClass" IS NULL)
-  --  AND  type = ANY(ARRAY['HOLDING_CHANGE']::enum_transaction_type[]) ) as qqq)
-  --  AS "holdingChanges",
 
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq

@@ -23,6 +23,7 @@ import NotFound from './notFound';
 import BarGraph from './graphs/bar'
 import Notifications from './notifications';
 import { push } from 'react-router-redux'
+import Header from './header';
 
 
 
@@ -284,7 +285,9 @@ export default class Company extends React.Component {
         const data = this.props.data || DEFAULT_OBJ;
         const current = data.currentCompanyState || data.companyState;
         if(this.props._status === 'error'){
-            return <NotFound descriptor="Company" />
+            return <div><Header />
+                <NotFound descriptor="Company" />
+            </div>
         }
         return <div className="company">
                 <CompanyHeader companyId={this.key()} companyState={current || {}} />

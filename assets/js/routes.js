@@ -91,6 +91,7 @@ export default (store) => {
                 <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
             </Route>
             <Route path="favourites" component={ Favourites } />
+            <Route path="*" component={ NotFound } />
         </Route>
         <Route path="*" component={ NotFound } />
     </Route>;

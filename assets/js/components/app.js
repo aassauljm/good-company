@@ -3,7 +3,6 @@ import Header from './header';
 import Footer from './footer';
 import Login from './login';
 import { pureRender } from '../utils';
-import { connect } from 'react-redux';
 import { requestUserInfo } from '../actions';
 import { createResource } from '../actions'
 import Notifications from './notifications';
@@ -25,7 +24,6 @@ const transition = __SERVER__ ? 0 : 200;
     return Promise.all(promises);
   }
 }])
-@connect(state => { return {login: state.login, userInfo: state.userInfo} })
 export default class App extends React.Component {
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){
@@ -37,7 +35,7 @@ export default class App extends React.Component {
         let name = this.props.location.pathname;
         name = name.split('/')[1] || 'root'
         return <div onDrop={prevent} onDragOver={prevent}>
-            <Header {...this.props.login } userInfo={ this.props.userInfo }/>
+            <Header />
                  <Notifications/>
                 <div className="app-container" >
                   <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>

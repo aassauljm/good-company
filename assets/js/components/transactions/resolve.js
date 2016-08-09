@@ -207,7 +207,7 @@ class AmendOptions extends React.Component {
                         return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
                     });
                     if(reciprocalIndex < 0){
-                        actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString()})
+                        actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString(), isInverse: true})
                     }
                     else{
                         actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount.toString());
