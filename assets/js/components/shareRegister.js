@@ -50,6 +50,11 @@ function renderChangeFull(action, shareClassMap){
     return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
 }
 
+function renderConversionFull(action, shareClassMap){
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.beforeAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${numberWithCommas(action.data.afterAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+}
+
+
 function renderTransferToFull(action, shareClassMap){
     return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
 }
@@ -101,9 +106,10 @@ function renderAction(action, shareClassMap) {
 function renderActionFull(action, shareClassMap) {
     switch(action.type){
         case 'ISSUE_TO':
+            return renderChangeFull(action, shareClassMap);
         case 'SUBVISION_TO':
         case 'CONVERSION_TO':
-            return renderChangeFull(action, shareClassMap);
+            return renderConversionFull(action, shareClassMap);
         case 'TRANSFER_TO':
             return renderTransferToFull(action, shareClassMap);
         case 'TRANSFER_FROM':

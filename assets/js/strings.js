@@ -82,7 +82,7 @@ export default {
         TRANSFER_TO: 'Transfer',
         SUBDIVISION_TO: 'Subdivision',
         TRANSFER_FROM: 'Transfer',
-        CONVERSION_TO: 'Conversion',
+        CONVERSION_TO: 'Conversion/Subdivision',
         ACQUISITION_TO: 'Acquisition',
         PURCHASE_FROM: 'Purchase',
         REDEMPTION_FROM: 'Redemption',

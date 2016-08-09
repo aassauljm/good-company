@@ -32,20 +32,25 @@ function sourceInfo(companyState, actionSet){
             <div className="col-md-6 summary-label">Registration Date & Time</div>
             <div className="col-md-6">{stringToDateTime(actionSet.data.date)}</div>
         </div>
-            <div className="row">
+        <div className="row">
             <div className="col-md-6 summary-label">Source Document</div>
             <div className="col-md-6"><Link target="_blank" className="external-link" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
-            </div>
+        </div>
     </div>
 
 }
 
+function actionAmountDirection(action){
+    return action.afterAmount > action.beforeAmount || !action.beforeHolders;
+}
 
-function increaseOptions(){
+function increaseOptions(includeTransfer){
+    if(!includeTransfer){
+        return increaseOptionsNoTransfer();
+    }
     return [
         <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
          <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_TO]}</option>,
-        <option key={2} value={TransactionTypes.SUBDIVISION_TO}>{STRINGS.transactionVerbs[TransactionTypes.SUBDIVISION_TO]}</option>,
         <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionVerbs[TransactionTypes.CONVERSION_TO]}</option>
     ];
 };
@@ -53,12 +58,14 @@ function increaseOptions(){
 function increaseOptionsNoTransfer(){
     return [
         <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
-        <option key={2} value={TransactionTypes.SUBDIVISION_TO}>{STRINGS.transactionVerbs[TransactionTypes.SUBDIVISION_TO]}</option>,
         <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionVerbs[TransactionTypes.CONVERSION_TO]}</option>
     ];
 };
 
-function decreaseOptions(){
+function decreaseOptions(includeTransfer){
+    if(!includeTransfer){
+        return decreaseOptionsNoTransfer();
+    }
     return [
         <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
         <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_FROM]}</option>,
@@ -119,22 +126,28 @@ function inverseTransfer(type){
 class Recipient extends React.Component {
     render(){
         const title =  'This transaction was a:';
+        const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         return  <Panel remove={() => this.props.remove()} title={title}>
+            { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
                 <div className="input-group-pair input-row">
                     <Input type="select" {...this.formFieldProps('type')}
+                    disabled={this.props.isInverse.value}
                     onChange={(value) => {this.props.type.onChange(value);  this.props.onChange(); }}
                     label={false}>
                         <option value="" disabled></option>
-                        { this.props.increase ? increaseOptions() : decreaseOptions() }
+                        { options }
                     </Input>
                     <Input className="amount" type="number" {...this.formFieldProps('amount')}
-                    placeholder={'Number of Shares'} value={this.props.amount.value }
+                    placeholder={'Number of Shares'}
+                    value={this.props.amount.value }
+                    disabled={this.props.isInverse.value}
                     onChange={(value) => {this.props.amount.onChange(value);  this.props.onChange(); }}
                     label={null}/>
                 </div>
                 { isTransfer(this.props.type.value) && <div className="input-row">
                     <Input type="select" {...this.formFieldProps('holding')}
                         onChange={(value) => {this.props.holding.onChange(value);  this.props.onChange(); }}
+                        disabled={this.props.isInverse.value}
                         label={this.props.increase ? 'Transfer From' : 'Transfer To'}>
                         <option value="" disabled></option>
                         { this.props.holdings.map((h, i) => <option key={i} value={h.value}>{h.label}</option>)}
@@ -150,6 +163,7 @@ function Recipients(props){
             {props.recipients.map((r, i) => {
                 return <Recipient {...r} key={i}
                     increase={props.increase}
+                    allSameDirection={props.allSameDirection}
                     holdings={props.holdings}
                     remove={() => props.recipients.removeField(i)}
                     onChange={props.onChange(i)}/>
@@ -177,7 +191,7 @@ class AmendOptions extends React.Component {
         </div>
     }
     render() {
-        const { shareClassMap, fields: {actions}, amendActions } = this.props;
+        const { shareClassMap, fields: {actions}, amendActions, allSameDirection } = this.props;
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
@@ -208,15 +222,12 @@ class AmendOptions extends React.Component {
             }
             this.props.values;
         }, 0);
-
-
         return <form onSubmit={this.props.handleSubmit}>
             { actions.map((field, i) => {
                 const action = amendActions[i];
-                const increase = action.afterAmount > action.beforeAmount || !action.beforeHolders;
+                const increase = actionAmountDirection(action);
                 const beforeShares = action.beforeHolders ? `${action.beforeAmount} ${renderShareClass(action.shareClass, shareClassMap)} Shares` : 'No Shares';
                 const afterShares = `${action.beforeHolders ? action.afterAmount : action.amount} ${renderShareClass(action.shareClass, shareClassMap)} Shares`;
-
                 return <div  key={i}>
                     <div className="row row-separated">
                     <div className="col-md-5">
@@ -243,6 +254,7 @@ class AmendOptions extends React.Component {
                     <Recipients
                     recipients={actions[i].recipients}
                     increase={increase}
+                    allSameDirection={allSameDirection}
                     error={getError(i)}
                     onChange={reciprocate(i)}
                     holdings={increase ? this.props.holdings.decreases : this.props.holdings.increases} />
@@ -463,7 +475,7 @@ const PAGES = {
         const { actionSet, companyState } = context;
         const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
         const shareClassMap = generateShareClassMap(companyState);
-        const initialValues = {actions: amendActions.map(a => ({recipients: [{}]}))};
+
         const holdings = {increases: [], decreases: []};
         const handleSubmit = (values) => {
             const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
@@ -475,7 +487,7 @@ const PAGES = {
                     const amount = parseInt(r.amount, 10);
                     // TODO, this ordering might result in problems
                     if(amendActions[i].beforeAmount !== undefined){
-                        const increase = amendActions[i].beforeAmount < amendActions[i].afterAmount;
+                        const increase = actionAmountDirection(amendActions[i])
                         amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);
                     }
                     if(isTransfer(r.type)){
@@ -510,8 +522,40 @@ const PAGES = {
                 pendingActions: pendingActions
             })
         }
+        const allSameDirectionSum = amendActions.reduce((acc, action) => {
+            return acc + actionAmountDirection(action) ? 1 : 0
+        }, 0);
+        const allSameDirection = allSameDirectionSum === 0 || allSameDirectionSum === amendActions.length;
+
+        const amountValues = amendActions.reduce((acc, action, i) => {
+            const dir = (action.afterAmount > action.beforeAmount || !action.beforeHolders);
+            acc[dir][action.amount] = (acc[dir][action.amount] || []).concat({...action, index: i});
+            return acc;
+        }, {true: {}, false: {}})
+
+        const initialValues = {actions: amendActions.map((a, i) => {
+            // if all same direction, set amount;
+            let amount, holding;
+            if(allSameDirection){
+                return {
+                    recipients: [{amount:  a.amount}]
+                };
+            }
+            // else if one exact opposite transaction, then set that
+            const increase =  actionAmountDirection(a);
+            if(amountValues[increase][a.amount] && amountValues[increase][a.amount].length === 1 &&
+               amountValues[!increase][a.amount] && amountValues[!increase][a.amount].length === 1){
+                return {recipients: [{
+                    amount: a.amount,
+                    type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
+                    holding: amountValues[!increase][a.amount][0].index
+                }]};
+            }
+            return {recipients: [{amount:  a.amount}]};
+        })};
+
         amendActions.map((a, i) => {
-            const increase = a.afterAmount > a.beforeAmount || !a.beforeHolders;
+            const increase = actionAmountDirection(a);
             const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
             if(increase){
                 holdings.increases.push({value: i, label: `#${i+1} - ${names}`});
@@ -524,6 +568,7 @@ const PAGES = {
         return <div>
                 <AmendOptionsConnected
                 amendActions={amendActions}
+                allSameDirection={allSameDirection}
                 holdings={holdings}
                 shareClassMap={shareClassMap}
                 onSubmit={handleSubmit}

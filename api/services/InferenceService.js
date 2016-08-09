@@ -51,6 +51,7 @@ module.exports = {
                             a.transactionType  = a.afterAmount > a.beforeAmount ? Transaction.types.TRANSFER_TO : Transaction.types.TRANSFER_FROM;
                         }
                     })
+                    acc.push(d);
                 }
                 else if(d.totalShares > 0 && allocationsDown === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
@@ -77,6 +78,7 @@ module.exports = {
 
                         }
                     })
+                    acc.push(d);
                 }
 
                 else if(d.totalShares < 0 && allocationsUp === 0){
@@ -105,8 +107,8 @@ module.exports = {
                             }
                         }
                     })
+                    acc.push(d);
                 }
-                acc.push(d);
             }
             else{
                 acc.push(d);
@@ -194,9 +196,19 @@ module.exports = {
             }, [])
         }
 
+        function splitMultiTransfers(docs){
+            const transferes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
+            return  _.reduce(docs, (acc, doc, i) => {
+                //if(doc.actions.)
+                acc.push(doc);
+                return acc;
+            }, []);
+        }
+
 
         let results = splitAmends(docs);
-        results = holdingChangeRemovals(results)
+        results = holdingChangeRemovals(results);
+        results = splitMultiTransfers(results);
         return results;
     },
 
