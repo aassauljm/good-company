@@ -339,6 +339,59 @@ SELECT array_to_json(array_agg(row_to_json(qq))) FROM
 $$ LANGUAGE SQL STABLE;
 
 
+CREATE OR REPLACE FUNCTION company_persons("companyStateId" integer)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "lastEffectiveDate" timestamp with time zone, "current" boolean)
+AS $$
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
+        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+ SELECT
+        "id",
+        "personId",
+        "name",
+        "address",
+        "companyNumber",
+        "lastEffectiveDate",
+        bool_or("current") as "current"
+        FROM (
+             SELECT DISTINCT ON ("personId")
+            "personId",
+            first_value(p.id) OVER wnd as "id",
+            first_value(p.name) OVER wnd as name,
+            first_value(p."companyNumber") OVER wnd as "companyNumber",
+            first_value(p.address) OVER wnd as address,
+            first_value(t."effectiveDate") OVER wnd as "lastEffectiveDate",
+            generation,
+            generation = 0 as current
+            from prev_company_states pt
+            join company_state cs on pt.id = cs.id
+            join transaction t on cs."transactionId" = t.id
+            left outer join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
+            left outer join holding h on h.id = hlj.h_j_id
+            left outer join "holderJ" hj on h.id = hj."holdingId"
+            left outer join person p on hj."holderId" = p.id
+             WINDOW wnd AS (
+               PARTITION BY "personId", h."holdingId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+             )
+        ) as q
+        GROUP BY "personId", q.name, q."companyNumber", q.address, generation, "id", "lastEffectiveDate"
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION user_persons("userId" integer)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "lastEffectiveDate" timestamp with time zone, "current" boolean)
+AS $$
+    SELECT company_persons(c."currentCompanyStateId")
+    FROM company c
+    where c."ownerId" = $1 and deleted = FALSE
+
+$$ LANGUAGE SQL;
+
+
 
 -- Bloated function to create the share register
 CREATE OR REPLACE FUNCTION share_register(companyStateId integer, interval default '10 year')
@@ -453,7 +506,7 @@ SELECT *,
 FROM
 
     (SELECT DISTINCT ON ("personId", "newestHoldingId", "shareClass")
-    "personId",
+    p."personId",
     first_value(p.name) OVER wnd as name,
     first_value(p."companyNumber") OVER wnd as "companyNumber",
     first_value(h."companyStateId") OVER wnd = $1 as current,
@@ -472,13 +525,13 @@ FROM
     left outer join _holding h on h."companyStateId" = pt.id
     left outer join parcels pp on pp."holdingId" = h.id
     left outer join "holderJ" hj on h.id = hj."holdingId"
-    left outer join person p on hj."holderId" = p.id
+    left outer join person ppp on hj."holderId" = ppp.id
+    join company_persons($1) p on p."personId" = ppp."personId"
     WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2
      WINDOW wnd AS (
-       PARTITION BY "personId", h."holdingId", pp."shareClass" ORDER BY generation asc
+       PARTITION BY p."personId", h."holdingId", pp."shareClass" ORDER BY generation asc
      )) as q
     ) as q
 
 $$ LANGUAGE SQL STABLE;
-
 

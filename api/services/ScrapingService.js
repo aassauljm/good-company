@@ -861,20 +861,20 @@ const ScrapingService = {
             })
     },
 
-    populateDB: function(data, user_id){
+    populateDB: function(data, userId){
         return  Company.create({
-                ownerId: user_id,
-                createdById: user_id,
+                ownerId: userId,
+                createdById: userId,
             })
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
                 return TransactionService.performSeed({
                     ...data,
-                    ...ScrapingService.formatHoldings(data, user_id),
-                    ...ScrapingService.formatDirectors(data, user_id),
-                    ...ScrapingService.formatDocuments(data, user_id),
-                }, company, new Date());
+                    ...ScrapingService.formatHoldings(data, userId),
+                    ...ScrapingService.formatDirectors(data, userId),
+                    ...ScrapingService.formatDocuments(data, userId),
+                }, company, new Date(), userId);
             })
             .then(function(){
                 sails.log.verbose('CompanyState populated in DB');

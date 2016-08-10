@@ -156,7 +156,13 @@ module.exports = {
                 name: 'original_historic_action_id'
             }
         });
-
+        CompanyState.belongsTo(HistoricPersonList, {
+            as: 'historicPersonsList',
+            foreignKey: {
+                as: 'historicPersonsList',
+                name: 'h_person_list_id'
+            }
+        });
     },
     options: {
         freezeTableName: true,
@@ -318,14 +324,14 @@ module.exports = {
                 }
             },
 
-            populatePersonIds: function(persons, user_id){
+            populatePersonIds: function(persons, userId){
                 // TODO, collaspse, subset of graph
                 persons = _.cloneDeep(persons)
                 return Promise.map(persons || [], function(person){
                     return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             person.address = address;
-                            return Person.find({where: person})
+                            return PersonService.find(userId, {where: person})
                             .then(function(p){
                                 if(p){
                                     person.personId = p.personId
@@ -338,14 +344,14 @@ module.exports = {
                 })
             },
 
-            findPersonId: function(person, user_id){
+            findPersonId: function(person, userId){
                 if(person.personId){
                     return Promise.resolve(person.personId)
                 }
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             // TODO, no, collapse this graph
-                            return Person.find({where: removeUndefinedValues(person)})
+                            return PersonService.find(userId, {where: removeUndefinedValues(person)})
                         .then(function(p){
                             if(p){
                                 return p.personId
@@ -353,13 +359,13 @@ module.exports = {
                     })
                 })
             },
-            findOrCreatePerson: function(person){
+            findOrCreatePerson: function(person, userId){
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             person = _.merge({}, person, {address: address})
                             // this is unique, so any match is jackpot
                             if(person.companyNumber){
-                                return Person.findOne({where: {companyNumber: person.companyNumber}})
+                                return PersonService.findOne(userId, {where: {companyNumber: person.companyNumber}})
                                     .then(p => {
                                         if(p){
                                             person.personId = p.personId;
@@ -368,13 +374,13 @@ module.exports = {
                             }
                         })
                         .then(() => {
-                            return Person.findOrCreate({where: person, defaults: person})
+                            return PersonService.findOrCreate(userId, {where: person, defaults: person})
                                 .spread(function(person){
                                     return person;
                                 });
                             })
             },
-            findOrCreatePersons: function(obj){
+            findOrCreatePersons: function(obj, userId){
                 // persons can be in:
                 // obj.holdings.holders
                 // obj.directors.persons
@@ -386,9 +392,8 @@ module.exports = {
                         return AddressService.normalizeAddress(holder.address)
                             .then(function(address){
                                 holder = _.merge({}, holder, {address: address})
-                                return Person.findOrCreate({where: holder, defaults: holder})
+                                return PersonService.findOrCreate(userId, {where: holder, defaults: holder})
                                     .spread(function(holder){
-
                                         return holder;
                                     });
                             });
@@ -403,7 +408,7 @@ module.exports = {
                             return AddressService.normalizeAddress(director.person.address)
                                 .then(function(address){
                                     director.person = _.merge({}, director.person, {address: address});
-                                    return Person.findOrCreate({where: director.person, defaults: director.person})
+                                    return PersonService.findOrCreate(userId, {where: director.person, defaults: director.person})
                                     .spread(function(person){
                                         director.person = person;
                                     })
@@ -418,9 +423,9 @@ module.exports = {
             },
 
 
-            createDedup: function(args){
+            createDedup: function(args, userId){
                 sails.log.verbose('Deduplication persons')
-                return CompanyState.findOrCreatePersons(args)
+                return CompanyState.findOrCreatePersons(args, userId)
                     .then(function(args){
                         const shareClasses = _.flatten(_.map(args.holdings, 'parcels'));
                         return args;
@@ -688,11 +693,11 @@ module.exports = {
                 return this.combineHoldings(subtractHoldings, parcelHint, transaction, true);
             },
 
-            mutateHolders: function(holding, newHolders, transaction){
+            mutateHolders: function(holding, newHolders, transaction, userId){
                 //these new holders may have new members or address changes or something
                 // TODO, rewrite, hard to follow
                 const holdingList = this.dataValues.holdingList;
-                return Promise.map(newHolders, CompanyState.findOrCreatePerson, {concurrency: 1})
+                return Promise.map(newHolders, (h) => CompanyState.findOrCreatePerson(h, userId), {concurrency: 1})
                 .then(function(newHolders){
                     const existingHolders = [];
                     const index = holdingList.dataValues.holdings.indexOf(holding);
@@ -727,11 +732,11 @@ module.exports = {
                 })
             },
 
-            replaceHolder: function(currentHolder, newHolder, transaction){
+            replaceHolder: function(currentHolder, newHolder, transaction, userId){
                 let personId, newPerson, state = this;
-                return CompanyState.findPersonId(newHolder)
+                return CompanyState.findPersonId(newHolder, userId)
                     .then(function(id){
-                        if(!id) return CompanyState.findPersonId(currentHolder);
+                        if(!id) return CompanyState.findPersonId(currentHolder, userId);
                         return id
                     })
                     .then(function(id){
@@ -763,12 +768,12 @@ module.exports = {
                     });
             },
 
-            replaceDirector: function(currentDirector, newDirector, transaction){
+            replaceDirector: function(currentDirector, newDirector, transaction, userId){
                 const directors = this.dataValues.directorList.dataValues.directors;
                 let newPerson, state = this;
-                return CompanyState.findPersonId(newDirector)
+                return CompanyState.findPersonId(newDirector, userId)
                     .then(function(personId){
-                        if(!personId) return CompanyState.findPersonId(currentDirector);
+                        if(!personId) return CompanyState.findPersonId(currentDirector, userId);
                         return personId
                     })
                     .then(function(personId){

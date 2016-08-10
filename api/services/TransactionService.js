@@ -180,7 +180,7 @@ export const performInverseRedemption = performInverseDecreaseShares;
 export const performInverseConsolidation = performInverseDecreaseShares;
 export const performInverseAcquisition = performInverseDecreaseShares;
 
-export  function performInverseAmend(data, companyState, previousState, effectiveDate){
+export  function performInverseAmend(data, companyState, previousState, effectiveDate, userId){
     let transaction, holding, prevHolding;
     data = _.cloneDeep(data);
     return Promise.resolve({})
@@ -221,7 +221,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             if(!current.holdersMatch({holders: data.beforeHolders})){
                 /// DANGER!!!!!!!
                 console.log("WOAHAHA", JSON.stringify(data, null, 4))
-                return companyState.mutateHolders(current, data.beforeHolders);
+                return companyState.mutateHolders(current, data.beforeHolders, null, userId);
             }
         })
         .then(() => {
@@ -287,7 +287,7 @@ function findHolding(data, companyState){
 }
 
 
-export function performInverseHoldingChange(data, companyState, previousState, effectiveDate){
+export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data)
     let current;
@@ -310,7 +310,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         .then(() => {
             current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders, holdingId: data.holdingId});
             current = findHolding(normalizedData, companyState);
-            return companyState.mutateHolders(current, normalizedData.beforeHolders)
+            return companyState.mutateHolders(current, normalizedData.beforeHolders, null, userId)
         })
         .then(() => {
             const previousHolding = previousState.getMatchingHolding(current);
@@ -376,7 +376,7 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
     }
 
 
-export function performHoldingChange(data, companyState, previousState, effectiveDate){
+export function performHoldingChange(data, companyState, previousState, effectiveDate, userId){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data);
      return companyState.dataValues.holdingList.buildNext()
@@ -405,14 +405,14 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             if(data.afterName){
                 current.dataValues.name =  data.afterName;
             }
-            return companyState.mutateHolders(current, normalizedData.afterHolders, transaction);
+            return companyState.mutateHolders(current, normalizedData.afterHolders, transaction, userId);
         })
         .then(() => {
             return transaction;
         });
 };
 
-export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate){
+export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.holdingList.buildNext()
@@ -425,7 +425,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
         .spread((afterAddress, beforeAddress) => {
             normalizedData.afterHolder.address = afterAddress;
             normalizedData.beforeHolder.address = beforeAddress;
-            return companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder);
+            return companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder, null, userId);
         })
         .then(function(){
             return transaction.save();
@@ -443,7 +443,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
         });
 };
 
-export const performHolderChange = function(data, companyState, previousState, effectiveDate){
+export const performHolderChange = function(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.holdingList.buildNext()
@@ -459,7 +459,7 @@ export const performHolderChange = function(data, companyState, previousState, e
             return transaction.save()
         })
         .then(function(){
-            return companyState.replaceHolder(normalizedData.beforeHolder, normalizedData.afterHolder, transaction);
+            return companyState.replaceHolder(normalizedData.beforeHolder, normalizedData.afterHolder, transaction, userId);
         })
         .then(function(){
             return transaction;
@@ -682,7 +682,7 @@ export function performInverseRemoveDirector(data, companyState, previousState, 
     });
 }
 
-export function performInverseUpdateDirector(data, companyState, previousState, effectiveDate){
+export function performInverseUpdateDirector(data, companyState, previousState, effectiveDate, userId){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.directorList.buildNext()
         .then(function(dl){
@@ -691,7 +691,7 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
         })
         .spread((afterAddress, beforeAddress) => {
             return companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId},
-                                         {name: data.beforeName, address: beforeAddress, personId: data.personId})
+                                         {name: data.beforeName, address: beforeAddress, personId: data.personId}, null, userId)
             .then(() => {
                return transaction.save()
             })
@@ -900,7 +900,7 @@ export function performNewDirector(data, companyState, previousState, effectiveD
     });
 }
 
-export function performUpdateDirector(data, companyState, previousState, effectiveDate){
+export function performUpdateDirector(data, companyState, previousState, effectiveDate, userId){
     const transaction = Transaction.build({type:  data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.directorList.buildNext()
         .then(function(dl){
@@ -912,7 +912,7 @@ export function performUpdateDirector(data, companyState, previousState, effecti
         })
         .spread((afterAddress, beforeAddress) => {
             return companyState.replaceDirector({name: data.beforeName, address: beforeAddress, personId: data.personId},
-                                         {name: data.afterName, address: afterAddress, personId: data.personId}, transaction);
+                                         {name: data.afterName, address: afterAddress, personId: data.personId}, transaction, userId);
         })
         .then(() => {
             return transaction;
@@ -927,7 +927,7 @@ export function performUpdateDirector(data, companyState, previousState, effecti
 /**
     Seed is a special cause, it doesn't care about previousState
 */
-export function performSeed(args, company, effectiveDate){
+export function performSeed(args, company, effectiveDate, userId){
     let state;
     if(!args.holdingList.holdings || !args.holdingList.holdings.length) {
         throw new sails.config.exceptions.ValidationException('Holdings are required');
@@ -939,7 +939,7 @@ export function performSeed(args, company, effectiveDate){
     return company.getCurrentCompanyState()
         .then(function(companyState){
             var fields = companyState ? companyState.nonAssociativeFields() : {};
-            return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}}));
+            return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}}), userId);
         })
         .then(function(_state){
             state = _state;
@@ -1108,7 +1108,7 @@ export function performInverseTransaction(data, company, rootState){
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, prevState, currentRoot, data.effectiveDate);
+                    }, prevState, currentRoot, data.effectiveDate, company.get("ownerId"));
                 }
                 if(result){
                     return result
@@ -1380,7 +1380,7 @@ export function performTransaction(data, company, companyState){
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, nextState, current, data.effectiveDate || new Date);
+                    }, nextState, current, data.effectiveDate || new Date, company.get("ownerId"));
                 }
                 if(result){
                     return result.then(function(r){

@@ -141,7 +141,7 @@ before(function(done) {
                     .then(function(){
                         return sequelize.query('SELECT reset_sequences();')
                     })
-                    .then(addMigrations)                    
+                    .then(addMigrations)
                     .then(function(){
                         stubs();
                         done();
