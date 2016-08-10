@@ -13,8 +13,3 @@ export function findOne(userId, args) {
 }
 
 
-
-export function find(userId, args) {
-    //return sequelize.query("", {userId: userId});
-    return Person.find(args);
-}

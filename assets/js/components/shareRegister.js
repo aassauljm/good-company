@@ -55,6 +55,7 @@ function renderConversionFull(action, shareClassMap){
 }
 
 
+
 function renderTransferToFull(action, shareClassMap){
     return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
 }
@@ -109,6 +110,7 @@ function renderActionFull(action, shareClassMap) {
             return renderChangeFull(action, shareClassMap);
         case 'SUBVISION_TO':
         case 'CONVERSION_TO':
+        case 'CONSOLIDATION_TO':
             return renderConversionFull(action, shareClassMap);
         case 'TRANSFER_TO':
             return renderTransferToFull(action, shareClassMap);

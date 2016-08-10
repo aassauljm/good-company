@@ -382,13 +382,53 @@ AS $$
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION user_persons("userId" integer)
+CREATE OR REPLACE FUNCTION historic_company_persons("companyStateId" integer)
+RETURNS TABLE("id" integer, "name" text, "address" text, "companyNumber" text)
+AS $$
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
+        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+ SELECT
+        "personId",
+        "name",
+        "address",
+        "companyNumber"
+        FROM (
+             SELECT
+            "personId",
+            p.name as name,
+            p."companyNumber" as "companyNumber",
+            p.address as address
+            from prev_company_states pt
+            join company_state cs on pt.id = cs.id
+            join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
+            left outer join holding h on h.id = hlj.h_j_id
+            left outer join "holderJ" hj on h.id = hj."holdingId"
+            left outer join person p on hj."holderId" = p.id
+        ) as q
+        GROUP BY "personId", q.name, q."companyNumber", q.address  ORDER BY "personId"
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION latest_user_persons("userId" integer)
 RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "lastEffectiveDate" timestamp with time zone, "current" boolean)
 AS $$
-    SELECT company_persons(c."currentCompanyStateId")
-    FROM company c
+    SELECT f.*
+    FROM   company c, company_persons(c."currentCompanyStateId") f
     where c."ownerId" = $1 and deleted = FALSE
+$$ LANGUAGE SQL;
 
+
+CREATE OR REPLACE FUNCTION historic_user_persons("userId" integer)
+RETURNS TABLE("personId" integer, "name" text, "address" text, "companyNumber" text)
+AS $$
+    SELECT f.*
+    FROM   company c, historic_company_persons(c."currentCompanyStateId") f
+    WHERE  c."ownerId" = $1 and deleted = FALSE;
 $$ LANGUAGE SQL;
 
 
