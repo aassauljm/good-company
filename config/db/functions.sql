@@ -382,8 +382,12 @@ AS $$
 $$ LANGUAGE SQL;
 
 
+DROP FUNCTION IF EXISTS historic_user_persons("userId" integer);
+DROP FUNCTION IF EXISTS historic_company_persons("companyStateId" integer);
+
+
 CREATE OR REPLACE FUNCTION historic_company_persons("companyStateId" integer)
-RETURNS TABLE("id" integer, "name" text, "address" text, "companyNumber" text)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text)
 AS $$
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
         SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
@@ -393,6 +397,7 @@ AS $$
         WHERE t.id = tt."previousCompanyStateId"
     )
  SELECT
+        "id",
         "personId",
         "name",
         "address",
@@ -402,15 +407,33 @@ AS $$
             "personId",
             p.name as name,
             p."companyNumber" as "companyNumber",
-            p.address as address
+            p.address as address,
+            p.id as id
             from prev_company_states pt
             join company_state cs on pt.id = cs.id
             join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
             left outer join holding h on h.id = hlj.h_j_id
             left outer join "holderJ" hj on h.id = hj."holdingId"
             left outer join person p on hj."holderId" = p.id
+
+         UNION
+
+             SELECT
+            p."personId",
+            p.name as name,
+            p."companyNumber" as "companyNumber",
+            p.address as address,
+            p.id as id
+            from prev_company_states pt
+            join company_state cs on pt.id = cs.id
+            join director_list dl on dl.id = cs.director_list_id
+            left outer join d_d_j ddj on ddj.directors_id = dl.id
+            left outer join director d on d.id = ddj.director_id
+            left outer join person p on d."personId" = p.id
+
+
         ) as q
-        GROUP BY "personId", q.name, q."companyNumber", q.address  ORDER BY "personId"
+        GROUP BY "personId", q.name, q."companyNumber", q.address, "id"  ORDER BY "personId"
 $$ LANGUAGE SQL;
 
 
@@ -424,7 +447,7 @@ $$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION historic_user_persons("userId" integer)
-RETURNS TABLE("personId" integer, "name" text, "address" text, "companyNumber" text)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text)
 AS $$
     SELECT f.*
     FROM   company c, historic_company_persons(c."currentCompanyStateId") f

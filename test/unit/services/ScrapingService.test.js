@@ -377,5 +377,4 @@ describe('Scraping Service', function() {
             })
     });
 
-
 });

@@ -375,7 +375,7 @@ module.exports = {
                         })
                         .then(() => {
                             return PersonService.findOrCreate(userId, {where: person, defaults: person})
-                                .spread(function(person){
+                                .then(function(person){
                                     return person;
                                 });
                             })
@@ -393,7 +393,7 @@ module.exports = {
                             .then(function(address){
                                 holder = _.merge({}, holder, {address: address})
                                 return PersonService.findOrCreate(userId, {where: holder, defaults: holder})
-                                    .spread(function(holder){
+                                    .then(function(holder){
                                         return holder;
                                     });
                             });
@@ -409,7 +409,7 @@ module.exports = {
                                 .then(function(address){
                                     director.person = _.merge({}, director.person, {address: address});
                                     return PersonService.findOrCreate(userId, {where: director.person, defaults: director.person})
-                                    .spread(function(person){
+                                    .then(function(person){
                                         director.person = person;
                                     })
                                 });
