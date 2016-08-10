@@ -331,7 +331,7 @@ module.exports = {
                     return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             person.address = address;
-                            return PersonService.find(userId, {where: person})
+                            return PersonService.findOne(userId, {where: person})
                             .then(function(p){
                                 if(p){
                                     person.personId = p.personId
@@ -351,7 +351,7 @@ module.exports = {
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             // TODO, no, collapse this graph
-                            return PersonService.find(userId, {where: removeUndefinedValues(person)})
+                            return PersonService.findOne(userId, {where: removeUndefinedValues(person)})
                         .then(function(p){
                             if(p){
                                 return p.personId
