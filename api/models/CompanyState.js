@@ -205,7 +205,11 @@ module.exports = {
                     return [{
                         model: HoldingList,
                         as: 'holdingList',
-                        include: [{
+                        include: CompanyState.includes.holdings()
+                    }]
+                },
+                holdings: function(){
+                    return [{
                             model: Holding,
                             as: 'holdings',
                             include: [{
@@ -225,7 +229,6 @@ module.exports = {
                                 as: 'transaction',
                             }]
                         }]
-                    }]
                 },
                 unallocatedParcels: function(){
                     return [{
@@ -464,37 +467,30 @@ module.exports = {
                                             replacements: { id: this.id}});
             },
             getWarnings: function(){
-                return sequelize.query('select has_pending_historic_actions(:id)',
+                return Promise.join(sequelize.query('select has_pending_historic_actions(:id)',
                                        { type: sequelize.QueryTypes.SELECT,
-                                            replacements: { id: this.id}})
-                    .then(result => {
+                                            replacements: { id: this.id}}),
+                                    this.votingShareholdersCheck(),
+                        (pendingActions, votingShareholders) => {
                         return {
-                            pendingHistory: result[0].has_pending_historic_actions
+                            pendingHistory: pendingActions[0].has_pending_historic_actions,
+                            missingVotingShareholders: votingShareholders
                         }
+                    });
+            },
+            votingShareholdersCheck: function() {
+                return this.getHoldingList({include: CompanyState.includes.holdings()})
+                    .then(function(holdingList) {
+                        const holdings = holdingList.dataValues.holdings;
+                        return !holdings.every(h => {
+                            return h.dataValues.holders.reduce((acc, p) => {
+                                return (p.attr || {}).votingHolder ? 1 : 0;
+                            }, 0) === 1;
+                        });
                     })
-
             },
             groupShares: function() {
-                return this.getHoldingList({include: [{
-                            model: Holding,
-                            as: 'holdings',
-                            include: [{
-                                model: Parcel,
-                                as: 'parcels',
-                                through: {attributes: []}
-                            }, {
-                                model: Person,
-                                as: 'holders',
-                                through: {attributes: []},
-                                include: [{
-                                    model: Transaction,
-                                    as: 'transaction',
-                                }]
-                            },{
-                                model: Transaction,
-                                as: 'transaction',
-                            }]
-                        }]})
+                return this.getHoldingList({include: CompanyState.includes.holdings()})
                     .then(function(holdingList) {
                         const holdings = holdingList.dataValues.holdings;
                         return _.groupBy(_.flatten(holdings.map(function(s) {
@@ -523,33 +519,7 @@ module.exports = {
             totalAllocatedShares: function() {
                 return Promise.resolve(this.isNewRecord || this.dataValues.holdingList.dataValues.holdings ?
                                       this.dataValues.holdingList.dataValues.holdings :
-                        this.getHoldingList({
-                            include: [{
-                                model: Holding,
-                                as: 'holdings',
-                                include: [{
-                                    model: Parcel,
-                                    as: 'parcels',
-                                    through: {
-                                        attributes: []
-                                    }
-                                }, {
-                                    model: Person,
-                                    as: 'holders',
-                                    through: {
-                                        attributes: []
-                                    },
-                                    include: [{
-                                        model: Transaction,
-                                        as: 'transaction',
-                                    }]
-                                }, {
-                                    model: Transaction,
-                                    as: 'transaction',
-                                }]
-                            }]})
-)
-
+                        this.getHoldingList({include: CompanyState.includes.holdings()}))
                     .then(function(holdings) {
                         return _.sum(_.flatten(holdings.map(function(s) {
                             return s.parcels;

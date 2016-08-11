@@ -16,7 +16,7 @@ var plugins = [
         definePlugin,
         // extract inline css into separate 'styles.css'
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
-        new ExtractTextPlugin('../css/[name].[hash].css'),
+        new ExtractTextPlugin(DEV ? '../css/[name].css' : '../css/[name].[hash].css'),
         new webpack.optimize.DedupePlugin(),
     ];
 

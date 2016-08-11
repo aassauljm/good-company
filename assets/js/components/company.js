@@ -55,10 +55,21 @@ class PopulateHistory extends React.Component {
     }
 }
 
+@pureRender
+class SpecifyVotingHolders extends React.Component {
+    render(){
+        return  <div><a  href="#" onClick={this.props.startVotingHolders} className="text-danger alert-entry">
+        <Glyphicon glyph="warning-sign" className="big-icon"/>
+        Voting shareholders for each allocation must be specified.  Click here to start.</a>
+        </div>
+    }
+}
+
 const AlertWarnings = {
     ApplyShareClasses: ApplyShareClasses,
     PopulateHistory: PopulateHistory,
-    SpecifyShareClasses: SpecifyShareClasses
+    SpecifyShareClasses: SpecifyShareClasses,
+    SpecifyVotingHolders: SpecifyVotingHolders
 };
 
 @connect(() => DEFAULT_OBJ, (dispatch, ownProps) => {
@@ -100,6 +111,7 @@ class CompanyAlertsWidget extends React.Component {
                 { shareWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
                 { applyShareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
                 { historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId} startHistoryImport={this.props.startHistoryImport}/></li>}
+                { historyWarning && <li><AlertWarnings.SpecifyVotingHolders companyId={this.props.companyId} startVotingHolders={this.props.startVotingHolders} /></li>}
                 </ul>
             </div>
         </div>

@@ -54,14 +54,12 @@ function renderConversionFull(action, shareClassMap){
     return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.beforeAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${numberWithCommas(action.data.afterAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
 }
 
-
-
 function renderTransferToFull(action, shareClassMap){
-    return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
 }
 
 function renderTransferFromFull(action, shareClassMap){
-    return  `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${transferRecipients(action.siblings)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${transferRecipients(action.siblings)}`
 }
 
 /*function renderHoldingChange(action, shareClassMap){
@@ -75,10 +73,10 @@ function renderTransferFromFull(action, shareClassMap){
 
 function renderAmbigiousChangeFull(action, shareClassMap){
     if(action.type === TransactionTypes.NEW_ALLOCATION || action.data.afterAmount > action.data.beforeAmount){
-        return  `Ambiguous increase of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`;
+        return `Ambiguous increase of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`;
     }
     else{
-        return  `Ambiguous decrease of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+        return `Ambiguous decrease of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
     }
 }
 
