@@ -38,7 +38,7 @@ module.exports = {
         fs: 'empty'
     },
     output: {
-        filename: "main.js",
+        filename: DEV ? "[name].js" : "[name].[chunkhash].js",
         chunkFilename: "[name].[id].js",
         path: __dirname + "/.tmp/public/js"
     },

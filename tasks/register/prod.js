@@ -1,7 +1,8 @@
 module.exports = function (grunt) {
 	grunt.registerTask('prod', [
-		'clean:dev',
+		/*'clean:dev',
 		'copy:dev',
-        'webpack:build'
+        'webpack:build',
+        'readStats'*/
 	]);
 };

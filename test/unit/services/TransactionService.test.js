@@ -619,6 +619,7 @@ describe('Transaction Service', function() {
             it('removes are holder, then updates their info', function() {
                 return rootStateMultiple.buildNext({previousCompanyStateId: rootStateMultiple.dataValues.id})
                     .then(function(companyState){
+                        // Start with a sarah in the shareholdings, and amend it to 0
                         nextState = companyState;
                         states.push(nextState);
                         holdingId = companyState.getMatchingHolding({holders: [{name: 'sarah'}], parcels: [{amount: 1}]}).holdingId;
@@ -639,6 +640,7 @@ describe('Transaction Service', function() {
                         return nextState.buildNext({previousCompanyStateId: nextState.dataValues.id});
                     })
                     .then(function(companyState){
+                        // How remove sarah from the company
                         nextState = companyState;
                         states.push(nextState);
                         return TransactionService.performRemoveAllocation({
@@ -664,6 +666,7 @@ describe('Transaction Service', function() {
                     .then(function(companyState){
                         nextState = companyState;
                         states.push(nextState);
+                        // Now update sarahs name
                         return TransactionService.performHistoricHolderChange({
                             beforeHolder: {
                                 name: 'sarah',
@@ -679,15 +682,44 @@ describe('Transaction Service', function() {
                         return nextState.save();
                     })
                     .then(function(companyState){
+                        // Now make sure its the result of company_persons
+                        return sequelize.query("select * from company_persons(:id) where current = FALSE",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: companyState.id}})
+                    })
+                    .then(function(results){
+                        results.length.should.be.equal(1);
+                        results[0].should.containSubset({name: 'sara', personId: personId});
+                    })
+                    .then(function(){
+                        return nextState.buildNext({previousCompanyStateId: nextState.dataValues.id});
+                    })
+                    .then(function(companyState){
+                        nextState = companyState;
+                        states.push(nextState);
+                        return TransactionService.performHistoricHolderChange({
+                            beforeHolder: {
+                                name: 'sara',
+                                personId: personId
+                            },
+                            afterHolder: {
+                                name: 'sarak'
+                            },
+                            transactionType: Transaction.types.HISTORIC_HOLDER_CHANGE,
+                        }, nextState, states[2], new Date(), USER_ID).should.eventually.be.fulfilled;
+                    })
+                    .then(function(){
+                        return nextState.save();
+                    })
+                    .then(function(companyState){
                         console.log(companyState.id)
                         return sequelize.query("select * from company_persons(:id) where current = FALSE",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: companyState.id}})
                     })
                     .then(function(results){
-
                         results.length.should.be.equal(1);
-                        results[0].should.containSubset({name: 'sara', personId: personId});
+                        results[0].should.containSubset({name: 'sarak', personId: personId});
                     })
             })
         });
