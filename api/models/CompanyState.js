@@ -331,6 +331,8 @@ module.exports = {
                     return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             person.address = address;
+                            person.ownerId = userId;
+                            person.createdById = userId;
                             return PersonService.findOne(userId, {where: person})
                             .then(function(p){
                                 if(p){
@@ -352,17 +354,18 @@ module.exports = {
                         .then(function(address){
                             // TODO, no, collapse this graph
                             return PersonService.findOne(userId, {where: removeUndefinedValues(person)})
+                        })
                         .then(function(p){
                             if(p){
                                 return p.personId
                             }
                     })
-                })
+
             },
             findOrCreatePerson: function(person, userId){
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
-                            person = _.merge({}, person, {address: address})
+                            person = _.merge({}, person, {address: address, ownerId: userId, createdById: userId})
                             // this is unique, so any match is jackpot
                             if(person.companyNumber){
                                 return PersonService.findOne(userId, {where: {companyNumber: person.companyNumber}})
@@ -740,7 +743,7 @@ module.exports = {
                         return id
                     })
                     .then(function(id){
-                        return Person.buildFull(_.merge(newHolder, {personId: id})).save()
+                        return PersonService.buildFull(userId, _.merge(newHolder, {personId: id})).save()
                     })
                     .then(function(person){
                         newPerson = person;
@@ -777,7 +780,7 @@ module.exports = {
                         return personId
                     })
                     .then(function(personId){
-                        return Person.buildFull(_.merge(newDirector, {personId: personId})).save()
+                        return PersonService.buildFull(userId, _.merge(newDirector, {personId: personId})).save()
                     })
                     .then(function(person){
                         newPerson = person;

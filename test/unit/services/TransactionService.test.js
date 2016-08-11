@@ -4,6 +4,8 @@ import moment from 'moment';
 import chai from 'chai';
 const should = chai.should();
 
+const USER_ID = 1;
+
 
 describe('Transaction Service', function() {
     describe('Inverse Transactions', function(){
@@ -60,10 +62,10 @@ describe('Transaction Service', function() {
         };
 
         before(function(){
-            return CompanyState.createDedup(initialStateSimple)
+            return CompanyState.createDedup(initialStateSimple, USER_ID)
                 .then(function(_companyState){
                     rootStateSimple = _companyState;
-                    return CompanyState.createDedup(initialStateMultiple);
+                    return CompanyState.createDedup(initialStateMultiple, USER_ID);
                 })
                 .then(function(_companyState){
                     rootStateMultiple = _companyState;
@@ -78,7 +80,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.NAME_CHANGE,
                             previousCompanyName: 'x',
                             newCompanyName: 'x',
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     })
             });
 
@@ -88,7 +90,7 @@ describe('Transaction Service', function() {
                         return TransactionService.performInverseNameChange({
                             transactionType: Transaction.types.NAME_CHANGE,
                             newCompanyName: 'dingbat limited',
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
 
@@ -99,7 +101,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.NAME_CHANGE,
                             newCompanyName: 'dingbat limited',
                             previousCompanyName: 'dingbat limited'
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
 
@@ -112,7 +114,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.NAME_CHANGE,
                             newCompanyName: 'dingbat limited',
                             previousCompanyName: 'dingbat unlimited'
-                        }, companyState, rootStateSimple).should.eventually.be.fulfilled;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(transaction){
                         transaction.type.should.be.equal(Transaction.types.NAME_CHANGE);
@@ -131,7 +133,7 @@ describe('Transaction Service', function() {
                             oldAddress: 'japan',
                             newAddress: 'chinatown',
                             field: 'addressForService',
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     })
             });
 
@@ -145,7 +147,7 @@ describe('Transaction Service', function() {
                             previousAddress: 'japan',
                             newAddress: 'china',
                             field: 'addressForService',
-                        }, companyState, rootStateSimple).should.eventually.be.fulfilled;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){
                         prevState.addressForService.should.be.equal('japan');
@@ -163,7 +165,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.HOLDING_CHANGE,
                             beforeHolders: [{name: 'mike'}],
                             afterHolders: [{name: 'john'}]
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     })
                 })
                 .then(function(){
@@ -183,7 +185,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.HOLDING_CHANGE,
                             beforeHolders: [{name: 'john'}],
                             afterHolders: [{name: 'mike'}]
-                        }, companyState, rootStateSimple, date).should.eventually.be.fulfilled;
+                        }, companyState, rootStateSimple, date, USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(e){
                         const _prevState = prevState.toJSON();
@@ -209,7 +211,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.HOLDING_CHANGE,
                             beforeHolder: {name: 'michael'},
                             afterHolder: {name: 'mike'}
-                        }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                 })
                 .then(function(){
                     return prevState.save();
@@ -223,7 +225,7 @@ describe('Transaction Service', function() {
                     should.equal(rootStateMultiple.getHolderBy({name: 'michael'}), undefined);
                     prevState.getHolderBy({name: 'michael'}).should.not.be.equal(null);
                     should.equal(prevState.getHolderBy({name: 'mike'}), undefined);
-                    rootStateMultiple.getHolderBy({name: 'mike'}).personId.should.be.equal(prevState.getHolderBy({name: 'michael'}).personId)
+                    rootStateMultiple.getHolderBy({name: 'mike'}).personId.should.be.equal(prevState.getHolderBy({name: 'michael'}).personId);
                     rootStateMultiple.getHolderBy({name: 'mike'}).transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
                     return prevState.getHolderBy({name: 'michael'}).getHoldings()
                 })
@@ -244,7 +246,7 @@ describe('Transaction Service', function() {
                             beforeHolders: [{name: 'mike'}, {name: 'cindy'}],
                             beforeAmount: 0,
                             afterAmount: 1
-                        }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
             it('amend holding with issue, fail due to negative value', function() {
@@ -257,7 +259,7 @@ describe('Transaction Service', function() {
                             beforeHolders: [{name: 'mike'}],
                             beforeAmount: -1,
                             afterAmount: 1
-                        }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
             it('amend holding with issue, fail due non matching value', function() {
@@ -270,7 +272,7 @@ describe('Transaction Service', function() {
                             beforeHolders: [{name: 'mike'}],
                             beforeAmount: 0,
                             afterAmount: 2
-                        }, companyState, rootStateMultiple).should.eventually.be.rejected;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
             it('amend holding with issue, success', function() {
@@ -285,7 +287,7 @@ describe('Transaction Service', function() {
                             beforeHolders: [{name: 'mike'}],
                             beforeAmount: 0,
                             afterAmount: 1
-                        }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){
                         return rootStateMultiple.reload();
@@ -376,7 +378,7 @@ describe('Transaction Service', function() {
             return CompanyState.createDedup(initialStateSimple)
                 .then(function(_companyState){
                     rootStateSimple = _companyState;
-                    return CompanyState.createDedup(initialStateMultiple);
+                    return CompanyState.createDedup(initialStateMultiple, USER_ID);
                 })
                 .then(function(_companyState){
                     rootStateMultiple = _companyState;
@@ -392,7 +394,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.NAME_CHANGE,
                             previousCompanyName: 'x',
                             newCompanyName: 'x',
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     })
             });
 
@@ -402,7 +404,7 @@ describe('Transaction Service', function() {
                         return TransactionService.performNameChange({
                             transactionType: Transaction.types.NAME_CHANGE,
                             newCompanyName: 'dingbat limited',
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
 
@@ -413,7 +415,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.NAME_CHANGE,
                             newCompanyName: 'dingbat limited',
                             previousCompanyName: 'dingbat limited'
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
 
@@ -426,7 +428,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.NAME_CHANGE,
                             newCompanyName: 'dingbat unlimited',
                             previousCompanyName: 'dingbat limited'
-                        }, companyState, rootStateSimple).should.eventually.be.fulfilled;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(transaction){
                         transaction.type.should.be.equal(Transaction.types.NAME_CHANGE);
@@ -474,7 +476,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.HOLDING_CHANGE,
                             beforeHolders: [{name: 'john'}],
                             afterHolders: [{name: 'mike'}]
-                        }, companyState, rootStateSimple).should.eventually.be.rejected;
+                        }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     })
 
             });
@@ -488,7 +490,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.HOLDING_CHANGE,
                             beforeHolders: [{name: 'mike'}],
                             afterHolders: [{name: 'john'}]
-                        }, companyState, rootStateSimple, date).should.eventually.be.fulfilled;
+                        }, companyState, rootStateSimple, date, USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(e){
                         const _nextState = nextState.toJSON();
@@ -512,7 +514,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.HOLDING_CHANGE,
                             afterHolder: {name: 'mitchel'},
                             beforeHolder: {name: 'mike'}
-                        }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                 })
                 .then(function(){
                     return nextState.save();
@@ -545,7 +547,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.APPLY_SHARE_CLASS,
                             holdingId: holdingId,
                             shareClass: 1,
-                        }, companyState, rootStateMultiple).should.eventually.be.fulfilled;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){
                         return nextState.save();
@@ -577,7 +579,7 @@ describe('Transaction Service', function() {
                                 afterAmount: 1,
                                 transactionType: Transaction.types.TRANSFER_FROM,
                                 transactionMethod: Transaction.types.AMEND
-                        }, companyState).should.eventually.be.fulfilled;
+                        }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){
                         return TransactionService.performAmend({
@@ -587,7 +589,7 @@ describe('Transaction Service', function() {
                             afterAmount: 4,
                             transactionType: Transaction.types.TRANSFER_TO,
                             transactionMethod: Transaction.types.AMEND
-                        }, nextState).should.eventually.be.fulfilled;
+                        }, nextState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){
                         return nextState.save();

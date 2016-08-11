@@ -249,5 +249,11 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'resetPendingHistory',
         model: 'company'
+    },
+
+    'GET /api/company/:id/historic_holders': {
+        controller: 'CompanyController',
+        action: 'getHistoricHolders',
+        model: 'company'
     }
 };

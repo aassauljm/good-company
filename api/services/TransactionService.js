@@ -1322,7 +1322,7 @@ export function performInverseAllPending(company){
         })
         .then(historicActions => {
             return historicActions.length && perform(historicActions)
-        })
+        });
 }
 
 
@@ -1346,7 +1346,8 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.NEW_DIRECTOR]:           TransactionService.performNewDirector,
         [Transaction.types.REMOVE_DIRECTOR]:        TransactionService.performRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]:        TransactionService.performUpdateDirector,
-        [Transaction.types.APPLY_SHARE_CLASS]:      TransactionService.performApplyShareClass
+        [Transaction.types.APPLY_SHARE_CLASS]:      TransactionService.performApplyShareClass,
+        [Transaction.types.HISTORIC_HOLDER_CHANGE]: TransactionService.performHistoricHolderHolderChange
     };
     if(!data.actions || data.userSkip){
         return Promise.resolve(companyState);

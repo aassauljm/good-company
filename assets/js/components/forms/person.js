@@ -8,6 +8,8 @@ export const fields = ['name', 'address']
 import { formFieldProps, requireFields, populatePerson } from '../../utils';
 import DateInput from './dateInput';
 import { Documents } from './documents';
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
+
 
 @formFieldProps()
 export class Person extends React.Component {
@@ -112,7 +114,7 @@ export const NewDirectorConnected = reduxForm({
 
 export function updatePersonAction(values, oldPerson){
     const action = {
-        transactionType: 'HOLDER_CHANGE',
+        transactionType: TransactionTypes.HOLDER_CHANGE,
         afterHolder: {name: values.name, address: values.address, companyNumber: oldPerson.companyNumber},
         beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId, companyNumber: oldPerson.companyNumber}
     }
@@ -123,9 +125,28 @@ export function updatePersonSubmit(values, oldPerson){
     return [{
         actions: [updatePersonAction(values, oldPerson)],
         effectiveDate: values.effectiveDate,
-        transactionType: 'HOLDER_CHANGE'
+        transactionType: TransactionTypes.HOLDER_CHANGE
     }]
 }
+
+export function updateHistoricPersonAction(values, oldPerson){
+    const action = {
+        transactionType: TransactionTypes.HISTORIC_HOLDER_CHANGE,
+        afterHolder: {name: values.name, address: values.address, companyNumber: oldPerson.companyNumber},
+        beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId, companyNumber: oldPerson.companyNumber}
+    }
+    return action;
+}
+
+export function updateHistoricPersonSubmit(values, oldPerson){
+    return [{
+        actions: [updateHistoricPersonAction(values, oldPerson)],
+        effectiveDate: values.effectiveDate,
+        transactionType: TransactionTypes.HISTORIC_HOLDER_CHANGE
+    }]
+}
+
+
 
 export function directorSubmit(values, oldDirector, companyState){
     let actions;
@@ -134,7 +155,7 @@ export function directorSubmit(values, oldDirector, companyState){
         return [{
             effectiveDate: values.appointment,
             actions: [{
-                transactionType: 'NEW_DIRECTOR',
+                transactionType: TransactionTypes.NEW_DIRECTOR,
                 name: person.name,
                 address: person.address,
                 personId: person.personId,
@@ -146,7 +167,7 @@ export function directorSubmit(values, oldDirector, companyState){
         return [{
             effectiveDate: values.cessation,
             actions: [{
-                transactionType: 'REMOVE_DIRECTOR',
+                transactionType: TransactionTypes.REMOVE_DIRECTOR,
                 name: values.person.name,
                 address: values.person.address,
                 personId: oldDirector.person.personId
@@ -157,7 +178,7 @@ export function directorSubmit(values, oldDirector, companyState){
         return [{
             effectiveDate: new Date(),
             actions: [{
-                transactionType: 'UPDATE_DIRECTOR',
+                transactionType: TransactionTypes.UPDATE_DIRECTOR,
                 beforeName: oldDirector.person.name,
                 afterName: values.person.name,
                 beforeAddress: oldDirector.person.address,

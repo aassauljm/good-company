@@ -16,8 +16,8 @@ import { UpdateHoldingModal } from './transactions/updateHolding';
 import { SelectHoldingModal } from './transactions/selectHolding';
 import { ImportHistoryModal } from './transactions/importHistory';
 import { NewPersonModal } from './transactions/newPerson';
-import { UpdatePersonModal  } from './transactions/updatePerson';
-import { SelectPersonModal  } from './transactions/selectPerson';
+import { UpdatePersonModal, UpdateHistoricPersonModal } from './transactions/updatePerson';
+import { SelectPersonModal, SelectHistoricPersonModal  } from './transactions/selectPerson';
 import { SelectDirectorModal  } from './transactions/selectDirector';
 import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
@@ -108,8 +108,14 @@ export class Modals extends React.Component {
             case 'selectPerson':
                 return <SelectPersonModal {...props} />
 
+            case 'selectHistoricPerson':
+                return <SelectHistoricPersonModal {...props} />
+
             case 'updatePerson':
-                return <UpdatePersonModal {...props} />
+                return <UpdateHistoricPersonModal {...props} />
+
+            case 'updateHistoricPerson':
+                return <UpdateHistoricPersonModal {...props} />
 
             case 'selectHolding':
                 return <SelectHoldingModal {...props} />

@@ -6,11 +6,11 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
-import { UpdatePersonConnected, updatePersonSubmit } from '../forms/person';
+import { UpdatePersonConnected, updatePersonSubmit, updateHistoricPersonSubmit } from '../forms/person';
 
 
 @connect(undefined)
-export class UpdatePersonModal extends React.Component {
+class UpdatePersonModalBase extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -39,7 +39,7 @@ export class UpdatePersonModal extends React.Component {
     }
 
     submit(values) {
-        const transactions = updatePersonSubmit(values, this.props.modalData.person)
+        const transactions = this.props.submitFormat(values, this.props.modalData.person)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
@@ -62,7 +62,7 @@ export class UpdatePersonModal extends React.Component {
     render() {
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
-                <Modal.Title>Update Shareholder</Modal.Title>
+                <Modal.Title>{this.props.title}</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 { this.renderBody(this) }
@@ -74,4 +74,14 @@ export class UpdatePersonModal extends React.Component {
             </Modal>
     }
 
+
 }
+
+export function UpdatePersonModal(props) {
+    return <UpdatePersonModalBase {...props} submitFormat={updatePersonSubmit} title="Update Shareholder"/>
+}
+
+export function UpdateHistoricPersonModal(props) {
+    return <UpdatePersonModalBase {...props} submitFormat={updateHistoricPersonSubmit} title="Update Historic Shareholder"/>
+}
+

@@ -51,6 +51,19 @@ module.exports = {
                 as: 'entity'
             }
         });
+        Person.belongsTo(User, {
+            as: 'owner',
+            foreignKey: {
+                name: 'ownerId'
+            }
+        });
+        Person.belongsTo(User, {
+            as: 'createdBy',
+            foreignKey: {
+                name: 'createdById'
+            }
+        });
+
     },
     options: {
         indexes: [{name: 'person_person_id', fields: ['personId']}],
@@ -64,6 +77,9 @@ module.exports = {
                             as: 'transaction',
                         }]
                     });
+            },
+            toJSON: function(){
+                return _.omit(this.get({plain: true}), 'ownerId', 'createdBy');
             }
         },
         instanceMethods: {
