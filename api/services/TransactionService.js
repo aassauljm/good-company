@@ -936,7 +936,7 @@ export function performHistoricHolderChange(data, nextState, previousState, effe
             return historicPersonList.buildNext();
         })
         .then(function(historicPersonList){
-            historicPersonList.dataValues.persons = _.reject(historicPersonList.dataValues.persons, (p) => p.isEqual(data.previousHolder));
+            historicPersonList.dataValues.persons = _.reject(historicPersonList.dataValues.persons, (p) => p.isEqual(data.beforeHolder));
             historicPersonList.dataValues.persons.push(PersonService.buildFull(userId, {...data.beforeHolder, ...data.afterHolder, transaction}));
             return historicPersonList.save();
         })
