@@ -157,9 +157,9 @@ module.exports = {
             }
         });
         CompanyState.belongsTo(HistoricPersonList, {
-            as: 'historicPersonsList',
+            as: 'historicPersonList',
             foreignKey: {
-                as: 'historicPersonsList',
+                as: 'historicPersonList',
                 name: 'h_person_list_id'
             }
         });

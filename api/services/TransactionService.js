@@ -923,6 +923,29 @@ export function performUpdateDirector(data, companyState, previousState, effecti
         });
 };
 
+export function performHistoricHolderChange(data, nextState, previousState, effectiveDate, userId){
+    if(!data.beforeHolder.personId){
+        throw new sails.config.exceptions.InvalidOperation('Historic holder change requires a personId');
+    }
+    const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
+    return nextState.getHistoricPersonList()
+        .then(function(historicPersonList){
+            if(!historicPersonList){
+                return HistoricPersonList.build({persons: []}, {include: [{model: Person, as: 'persons'}]});
+            }
+            return historicPersonList.buildNext();
+        })
+        .then(function(historicPersonList){
+            historicPersonList.dataValues.persons = _.reject(historicPersonList.dataValues.persons, (p) => p.isEqual(data.previousHolder));
+            historicPersonList.dataValues.persons.push(PersonService.buildFull(userId, {...data.beforeHolder, ...data.afterHolder, transaction}));
+            return historicPersonList.save();
+        })
+        .then((historicPersonList) => {
+            nextState.dataValues.historicPersonList = historicPersonList;
+            nextState.set('h_person_list_id', historicPersonList.dataValues.id)
+            return transaction;
+        })
+}
 
 /**
     Seed is a special cause, it doesn't care about previousState
@@ -1347,7 +1370,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.REMOVE_DIRECTOR]:        TransactionService.performRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]:        TransactionService.performUpdateDirector,
         [Transaction.types.APPLY_SHARE_CLASS]:      TransactionService.performApplyShareClass,
-        [Transaction.types.HISTORIC_HOLDER_CHANGE]: TransactionService.performHistoricHolderHolderChange
+        [Transaction.types.HISTORIC_HOLDER_CHANGE]: TransactionService.performHistoricHolderChange
     };
     if(!data.actions || data.userSkip){
         return Promise.resolve(companyState);

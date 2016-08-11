@@ -339,31 +339,42 @@ SELECT array_to_json(array_agg(row_to_json(qq))) FROM
 $$ LANGUAGE SQL STABLE;
 
 
+
+DROP FUNCTION IF EXISTS company_persons("companyStateId" integer);
 CREATE OR REPLACE FUNCTION company_persons("companyStateId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "lastEffectiveDate" timestamp with time zone, "current" boolean)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean)
 AS $$
+
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
         SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
         UNION ALL
         SELECT t.id, t."previousCompanyStateId", generation + 1
         FROM company_state t, prev_company_states tt
         WHERE t.id = tt."previousCompanyStateId"
+    ),
+    historic_persons(id, "personId", "effectiveDate") as (
+    SELECT p.id, "personId", t."effectiveDate"
+    FROM company_State cs
+    JOIN h_person_list pl on pl.id = cs.h_person_list_id
+    LEFT OUTER JOIN h_person_list_j plj on plj.h_person_list_id = pl.id
+    LEFT OUTER JOIN person p on p.id = plj.person_id
+    LEFT OUTER JOIN transaction t on t.id = p."transactionId"
+    WHERE cs.id = $1
     )
- SELECT
+SELECT p."id", p."personId", "name", "address", "companyNumber", "attr", "lastEffectiveDate", "current" FROM
+(
+SELECT *, rank() OVER wnd
+    FROM (
+    SELECT
         "id",
         "personId",
-        "name",
-        "address",
-        "companyNumber",
         "lastEffectiveDate",
-        bool_or("current") as "current"
+        "generation",
+        "generation" = 0 as "current"
         FROM (
              SELECT DISTINCT ON ("personId")
             "personId",
             first_value(p.id) OVER wnd as "id",
-            first_value(p.name) OVER wnd as name,
-            first_value(p."companyNumber") OVER wnd as "companyNumber",
-            first_value(p.address) OVER wnd as address,
             first_value(t."effectiveDate") OVER wnd as "lastEffectiveDate",
             generation,
             generation = 0 as current
@@ -378,7 +389,19 @@ AS $$
                PARTITION BY "personId", h."holdingId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
              )
         ) as q
-        GROUP BY "personId", q.name, q."companyNumber", q.address, generation, "id", "lastEffectiveDate"
+        GROUP BY "personId", generation, "id", "lastEffectiveDate"
+    UNION
+    SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", false as "current" FROM
+    historic_persons hp
+
+        ) as qq
+
+WINDOW wnd AS (
+    PARTITION BY "personId" ORDER BY generation asc
+)) q
+ LEFT OUTER JOIN person p on q.id = p.id
+ WHERE rank = 1;
+
 $$ LANGUAGE SQL;
 
 
@@ -436,9 +459,9 @@ AS $$
         GROUP BY "personId", q.name, q."companyNumber", q.address, "id"  ORDER BY "personId"
 $$ LANGUAGE SQL;
 
-
+DROP FUNCTION IF EXISTS latest_user_persons("userId" integer);
 CREATE OR REPLACE FUNCTION latest_user_persons("userId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "lastEffectiveDate" timestamp with time zone, "current" boolean)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean)
 AS $$
     SELECT f.*
     FROM   company c, company_persons(c."currentCompanyStateId") f

@@ -257,7 +257,6 @@ describe('CompanyState Model', function() {
                 .then(function(companyState){
                     var firstMicky = _.find(companyState.holdingList.holdings[0].holders, {name: 'Mickey Twofists'});
                     var secondMicky = _.find(companyState.holdingList.holdings[1].holders, {name: 'Mickey Twofists'});
-                    console.log(firstMicky, secondMicky)
                     firstMicky.dataValues.should.be.deep.equal(secondMicky.dataValues);
                     const holdings = companyState.holdingList.holdings;
                     holdings.length.should.be.equal(2);

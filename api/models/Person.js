@@ -64,6 +64,12 @@ module.exports = {
             }
         });
 
+        Person.belongsToMany(HistoricPersonList, {
+            as: 'historicPersonList',
+            foreignKey: 'person_id',
+            through: 'h_person_list_j'
+        });
+
     },
     options: {
         indexes: [{name: 'person_person_id', fields: ['personId']}],
