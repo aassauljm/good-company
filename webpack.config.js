@@ -1,5 +1,6 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var webpack = require('webpack')
+var path = require("path");
 
 var DEV = process.env.NODE_ENV !== 'production';
 var definePlugin = new webpack.DefinePlugin({
@@ -15,7 +16,7 @@ var plugins = [
         definePlugin,
         // extract inline css into separate 'styles.css'
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
-        new ExtractTextPlugin('../css/styles.css'),
+        new ExtractTextPlugin('../css/[name].[hash].css'),
         new webpack.optimize.DedupePlugin(),
     ];
 
@@ -25,6 +26,13 @@ if(!DEV){
               warnings: false
             }
     }));
+    plugins.push(function() {
+        this.plugin("done", function(stats) {
+          require("fs").writeFileSync(
+            path.join(__dirname, "stats.json"),
+            JSON.stringify({hash: stats.hash}));
+        });
+  })
 }
 
 
@@ -38,8 +46,7 @@ module.exports = {
         fs: 'empty'
     },
     output: {
-        filename: DEV ? "[name].js" : "[name].[chunkhash].js",
-        chunkFilename: "[name].[id].js",
+        filename: DEV ? "[name].js" : "[name].[hash].js",
         path: __dirname + "/.tmp/public/js"
     },
     devtool: DEV ? 'inline-source-map' : null,
@@ -71,7 +78,7 @@ module.exports = {
             //loader: "file?name=../images/[name].[ext]"
         }, {
             test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
-            loader: "file?name=../css/[name].[ext]"
+            loader: DEV ? "file?name=../css/[name].[ext]" : "file?name=../css/[name].[ext]"
         }],
     },
     plugins: plugins

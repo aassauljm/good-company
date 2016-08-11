@@ -87,6 +87,19 @@ function prepTemp(){
         })
 }
 
+function stats(){
+    if(__DEV__){
+        return;
+    }
+    return fs.readFileAsync('stats.json', 'utf8')
+         .then(function(text){
+            return JSON.parse(text)
+        })
+         .then(function(data){
+            sails.config.ASSET_HASH = data.hash;
+         })
+}
+
 module.exports.bootstrap = function(cb) {
     sails.services.passport.loadStrategies();
     // It's very important to trigger this callback method when you are finished
@@ -97,7 +110,7 @@ module.exports.bootstrap = function(cb) {
     if(sails.config.fixtures === false){
         return cb();
     }
-    return Promise.all([loadDB(), prepTemp()])
+    return Promise.all([loadDB(), prepTemp(), stats()])
         .then(function(){
             cb();
         })

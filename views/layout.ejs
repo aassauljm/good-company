@@ -6,7 +6,7 @@
     <!-- Viewport mobile tag for sensible mobile support -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="Manage your business's share register the right way. Developed by Catalex®"/>
-    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/main<%- sails.config.ASSET_HASH ? '.'+sails.config.ASSET_HASH : ''%>.css" />
 
     <link rel="icon"
           type="image/png"
@@ -21,6 +21,6 @@
 
     <%- body %>
 
-      <script src="/js/main.js"></script>
+      <script src="/js/main<%- sails.config.ASSET_HASH ? '.'+sails.config.ASSET_HASH : ''%>.js"></script>
   </body>
 </html>
