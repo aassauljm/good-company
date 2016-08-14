@@ -47,7 +47,7 @@ module.exports = {
                 as: 'holders',
                 name: 'holdingId'
             },
-            through: 'holderJ'
+            through: HolderJ
         });
         Holding.belongsTo(Transaction, {
             as: 'transaction',

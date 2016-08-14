@@ -28,7 +28,7 @@ module.exports = {
                 as: 'holdings',
                 name: 'holderId'
             },
-            through: 'holderJ'
+            through: HolderJ
         });
         Person.hasMany(Director, {
             as: 'directorships',
