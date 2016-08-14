@@ -80,7 +80,7 @@ export const fields = [
     'holdingName',
     'persons[].personId',
     'persons[].newPerson',
-    'persons[].attr.votingShareholder',
+    'persons[].votingShareholder',
     'documents'
 ]
 
@@ -100,7 +100,7 @@ export class HoldingNoParcels extends React.Component {
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
-                        {  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'attr', 'votingShareholder'])} label={'Voting Shareholder'} >
+                        {  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'votingShareholder'])} label={'Voting Shareholder'} >
                         </Input> }
 
                         { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])} label={'Current Shareholder'} >
@@ -147,9 +147,8 @@ export class HoldingNoParcels extends React.Component {
 const validate = (values, props) => {
     const errors = {}
     const personId = [];
-    console.log(values)
     errors.persons = values.persons.map((p, i) => {
-        const errors = {attr: {}};
+        const errors = {};
         if(p.personId && personId.indexOf(p.personId) >= 0){
             errors.personId = (errors.personId || []).concat(['Person already included'])
         }
@@ -157,15 +156,15 @@ const validate = (values, props) => {
         if(!p.personId && !p.newPerson){
             errors.personId = (errors.personId || []).concat(['Required'])
         }
-        errors.attr.votingShareholder = p.attr.votingShareholder && values.persons.reduce((acc, p) => {
-            return acc + (p.attr.votingShareholder ? 1 : 0)
+        errors.votingShareholder = p.votingShareholder && values.persons.reduce((acc, p) => {
+            return acc + (p.votingShareholder ? 1 : 0)
         }, 0) > 1 ? ['Only one Voting Shareholder allowed'] : null;
         return errors;
     });
     if(!values.persons.length){
         errors._error = (errors._error || []).concat(['At least 1 holder required'])
     }
-    else if(values.persons.reduce((acc, p) => acc + (p.attr.votingShareholder ? 1 : 0), 0) !== 1){
+    else if(values.persons.reduce((acc, p) => acc + (p.votingShareholder ? 1 : 0), 0) !== 1){
         errors._error = (errors._error || []).concat(['Please select a voting shareholder'])
     };
     return errors;

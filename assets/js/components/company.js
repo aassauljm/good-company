@@ -81,6 +81,10 @@ const AlertWarnings = {
         startApplyShareClasses: () => {
             dispatch(showModal('applyShareClasses', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
+        },
+        startVotingHolders: () => {
+            dispatch(showModal('votingShareholders', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+            dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
         }
     }
 })

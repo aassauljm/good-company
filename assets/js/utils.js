@@ -324,13 +324,13 @@ export function populatePerson(person, companyState){
         companyState.holdingList.holdings.map((h) => {
             h.holders.map((p) => {
                 if(p.personId === id){
-                    result = {name: p.name, address: p.address, personId: p.personId, companyNumber: p.companyNumber, attr: person.attr};
+                    result = {name: p.name, address: p.address, personId: p.personId, companyNumber: p.companyNumber};
                 }
             });
         });
         companyState.directorList.directors.map((d) => {
             if(d.person.personId === id){
-                result = {name: d.person.name, address: d.person.address, personId: d.person.personId,  attr: person.attr};
+                result = {name: d.person.name, address: d.person.address, personId: d.person.personId};
             }
         });
         return result;

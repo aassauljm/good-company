@@ -1,0 +1,1 @@
+ALTER TABLE "holding" ADD COLUMN "attr" JSON;
