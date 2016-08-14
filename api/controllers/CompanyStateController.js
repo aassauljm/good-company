@@ -458,19 +458,7 @@ function createTransaction(req, res, type){
     });
 }
 
-/*
-    return ActivityLog.create({
-        type: ActivityLog.types.REGISTER_ENTRY,
-        user: req.user,
-        description: result.message
-    });
 
-    return ActivityLog.create({
-        type: ActivityLog.types.CREATE_SHARE_CLASS,
-        user: req.user,
-        description: result.message
-    });
-*/
 
 module.exports = {
     transactions: transactions,

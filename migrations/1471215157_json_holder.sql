@@ -1,0 +1,1 @@
+ALTER TABLE "holderJ" ADD COLUMN "data" JSON;

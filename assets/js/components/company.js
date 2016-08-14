@@ -92,6 +92,7 @@ class CompanyAlertsWidget extends React.Component {
     render(){
         const shareWarning = (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses) ;
         const historyWarning = !!(this.props.companyState.warnings.pendingHistory);
+        const votingShareholderWarning = !!(this.props.companyState.warnings.missingVotingShareholders);
         const applyShareWarning = !shareWarning && !!this.props.companyState.shareCountByClass['null'];
         if(!shareWarning && !historyWarning && !applyShareWarning){
             return false;
@@ -111,7 +112,7 @@ class CompanyAlertsWidget extends React.Component {
                 { shareWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
                 { applyShareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
                 { historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId} startHistoryImport={this.props.startHistoryImport}/></li>}
-                { historyWarning && <li><AlertWarnings.SpecifyVotingHolders companyId={this.props.companyId} startVotingHolders={this.props.startVotingHolders} /></li>}
+                { votingShareholderWarning && <li><AlertWarnings.SpecifyVotingHolders companyId={this.props.companyId} startVotingHolders={this.props.startVotingHolders} /></li>}
                 </ul>
             </div>
         </div>

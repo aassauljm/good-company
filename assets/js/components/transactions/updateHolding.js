@@ -11,11 +11,13 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons } from '../forms/holding';
 import { Documents } from '../forms/documents';
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
+
 
 function updateHoldingSubmit(values, oldHolding){
     const actions = updateHoldingFormatAction(values, oldHolding);
     return [{
-        transactionType: 'HOLDING_CHANGE',
+        transactionType: TransactionTypes.HOLDING_CHANGE,
         effectiveDate: values.effectiveDate,
         actions: [actions]
     }]
@@ -54,7 +56,7 @@ export class UpdateHoldingModal extends React.Component {
                 <HoldingNoParcelsConnected
                     ref="form"
                     initialValues={{effectiveDate: new Date(),
-                        persons: this.props.modalData.holding.holders,
+                        persons: this.props.modalData.holding.holders.map(p => ({...p, personId: p.personId + '', attr: p.attr || {}})),
                         holdingName: this.props.modalData.holding.name}}
                     personOptions={personOptions}
                     showModal={(key, index) => this.props.dispatch(showModal(key, {

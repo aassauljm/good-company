@@ -93,7 +93,7 @@ module.exports = {
                 // if name is same, but other details change
                 return this.dataValues.name.toLowerCase() === other.name.toLowerCase() &&
                     this.dataValues.companyNumber === other.companyNumber &&
-                    (this.dataValues.address !== other.address);
+                    (this.dataValues.address !== other.address || JSON.stringify(this.dataValues.attr) !== JSON.stringify(other.attr));
             },
             isEqual: function(other, options={}){
                 if(other.personId && other.personId === this.dataValues.personId){

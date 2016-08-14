@@ -484,8 +484,8 @@ module.exports = {
                         const holdings = holdingList.dataValues.holdings;
                         return !holdings.every(h => {
                             return h.dataValues.holders.reduce((acc, p) => {
-                                return (p.attr || {}).votingHolder ? 1 : 0;
-                            }, 0) === 1;
+                                return acc + (p.attr || {}).votingShareholder ? 1 : 0;
+                            }, 0) === 1 || h.dataValues.holders.length === 1;
                         });
                     })
             },

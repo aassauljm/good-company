@@ -11,6 +11,7 @@ import { reduxForm } from 'redux-form';
 import DateInput from './dateInput';
 import { Documents } from './documents';
 import Panel from '../panel';
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 
 
 @formFieldProps()
@@ -79,6 +80,7 @@ export const fields = [
     'holdingName',
     'persons[].personId',
     'persons[].newPerson',
+    'persons[].attr.votingShareholder',
     'documents'
 ]
 
@@ -98,17 +100,20 @@ export class HoldingNoParcels extends React.Component {
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
+                        {  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'attr', 'votingShareholder'])} label={'Voting Shareholder'} >
+                        </Input> }
+
                         { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])} label={'Current Shareholder'} >
                             <option></option>
                             { this.props.personOptions }
                         </Input> }
 
-                        { !p.newPerson.value &&
+                        { !p.newPerson.value && !p.personId.value &&
                         <div className="button-row"><ButtonInput className="new-person" onClick={() => {
                             this.props.showModal('newPerson', i);
                         }}>Create New Person</ButtonInput></div> }
 
-                    { p.newPerson.value  &&
+                    { p.newPerson.value &&
                         <StaticField type="static" label={'New Shareholder'} value={p.newPerson.value.name}
                         buttonAfter={<button className="btn btn-default" onClick={(e) => {
                             p.newPerson.onChange(null);
@@ -142,20 +147,27 @@ export class HoldingNoParcels extends React.Component {
 const validate = (values, props) => {
     const errors = {}
     const personId = [];
+    console.log(values)
     errors.persons = values.persons.map((p, i) => {
-        const errors = {};
+        const errors = {attr: {}};
         if(p.personId && personId.indexOf(p.personId) >= 0){
-            errors.personId = (errors.personId || []).concat(['Person already included.'])
+            errors.personId = (errors.personId || []).concat(['Person already included'])
         }
         personId.push(p.personId);
         if(!p.personId && !p.newPerson){
             errors.personId = (errors.personId || []).concat(['Required'])
         }
+        errors.attr.votingShareholder = p.attr.votingShareholder && values.persons.reduce((acc, p) => {
+            return acc + (p.attr.votingShareholder ? 1 : 0)
+        }, 0) > 1 ? ['Only one Voting Shareholder allowed'] : null;
         return errors;
     });
     if(!values.persons.length){
-        errors._error = (errors._error || []).concat(['At least 1 holder required.'])
+        errors._error = (errors._error || []).concat(['At least 1 holder required'])
     }
+    else if(values.persons.reduce((acc, p) => acc + (p.attr.votingShareholder ? 1 : 0), 0) !== 1){
+        errors._error = (errors._error || []).concat(['Please select a voting shareholder'])
+    };
     return errors;
 
 }
@@ -166,7 +178,7 @@ export function reformatPersons(values, companyState){
 
 export function newHoldingFormatAction(values){
     const action = {
-        transactionType: 'NEW_ALLOCATION',
+        transactionType: TransactionTypes.NEW_ALLOCATION,
         holders: values.persons,
         name: values.holdingName
     }
@@ -174,8 +186,9 @@ export function newHoldingFormatAction(values){
 }
 
 export function updateHoldingFormatAction(values, oldHolding){
+    // if only changing meta data, then HOLDING_CHANGE
     const action = {
-        transactionType: 'HOLDING_CHANGE',
+        transactionType: TransactionTypes.HOLDING_CHANGE,
         afterHolders: values.persons,
         beforeHolders: oldHolding.holders,
         afterName: values.holdingName,
