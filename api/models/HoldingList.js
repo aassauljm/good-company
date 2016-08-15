@@ -40,7 +40,7 @@ module.exports = {
                                 model: Person,
                                 as: 'holders',
                                 through: {
-                                    attributes: []
+                                   attributes: ['attr']
                                 },
                                 include: [{
                                     model: Transaction,
@@ -86,7 +86,7 @@ module.exports = {
                                     model: Person,
                                     as: 'holders',
                                     through: {
-                                        attributes: []
+                                        attributes: ['attr']
                                     },
                                     include: [{
                                         model: Transaction,

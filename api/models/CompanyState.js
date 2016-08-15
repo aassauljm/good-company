@@ -577,6 +577,7 @@ module.exports = {
                         }
                         setNew(next);
                         next._populated = true;
+                        console.log(JSON.stringify(this, null ,4))
                         sails.log.verbose('Next company state build');
                         return next;
                     });

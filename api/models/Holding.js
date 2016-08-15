@@ -4,6 +4,8 @@
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
+var Promise = require('bluebird');
+
 
 module.exports = {
      _config: {
@@ -154,7 +156,7 @@ module.exports = {
             },
             buildNext: function(){
                 if(this.isNewRecord){
-                    return this;
+                    return Promise.resolve(this);
                 }
                 const holding = Holding.build(_.merge({}, this.get(), {id: null}), {include: [{
                                 model: Parcel,
@@ -165,9 +167,9 @@ module.exports = {
                             }, {
                                 model: Person,
                                 as: 'holders',
-                                //through: {
-                                //    attributes: []
-                               // },
+                                through: {
+                                    attributes: ['attr']
+                                },
                                 include: [{
                                     model: Transaction,
                                     as: 'transaction',
@@ -188,7 +190,7 @@ module.exports = {
                     holding.transaction.isNewRecord = false;
                     holding.transaction._change = {};
                 }
-                return holding;
+                return Promise.resolve(holding);
             }
         },
         hooks: {

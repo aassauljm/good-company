@@ -253,7 +253,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 };
 
 
-function findHolding(data, companyState){
+function inverseFindHolding(data, companyState){
     let current = companyState.getMatchingHoldings({holders: data.afterHolders, holdingId: data.holdingId});
     if(!current.length){
         current = companyState.getMatchingHoldings({holders: data.afterHolders}, {ignoreCompanyNumber: true});
@@ -287,7 +287,8 @@ function findHolding(data, companyState){
 }
 
 
-export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
+export function performInverseHoldingChangeDIFFERENTPERSONS(data, companyState, previousState, effectiveDate, userId){
+    // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data)
     let current;
@@ -308,9 +309,8 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             }))])
         })
         .then(() => {
-            current = companyState.getMatchingHoldings({holders: normalizedData.afterHolders, holdingId: data.holdingId});
-            current = findHolding(normalizedData, companyState);
-            return companyState.mutateHolders(current, normalizedData.beforeHolders, null, userId)
+            current = invserseFindHolding(normalizedData, companyState);
+            return companyState.mutateHolding(current, normalizedData.beforeHolders, null, userId)
         })
         .then(() => {
             const previousHolding = previousState.getMatchingHolding(current);
@@ -321,6 +321,47 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         });
 };
 
+export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
+    // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
+    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+    return companyState.dataValues.holdingList.buildNext()
+        .then(holdingList => {
+            companyState.dataValues.holdingList = holdingList;
+            companyState.dataValues.h_list_id = null;
+            return transaction.save()
+        })
+        .then(() => {
+            return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+
+            })), Promise.all(normalizedData.beforeHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+            }))])
+        })
+        .then(() => {
+            current = inverseFindHolding(normalizedData, companyState);
+            if(data.beforeName){
+                current.dataValues.name =  data.beforeName;
+            }
+            if(data.beforeVotingShareholder){
+                const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
+                return current.buildNext()
+                    .then((newHolding) => {
+                        // do it here
+                    })
+            }
+            //return companyState.mutateHolders(current, normalizedData.beforeHolders, null, userId)
+        })
+        .then(() => {
+            const previousHolding = previousState.getMatchingHolding(current);
+            return previousHolding.setTransaction(transaction);
+        })
+        .then(() => {
+            return transaction;
+        });
+};
 
 
 
@@ -342,7 +383,7 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
         })
         .then(() => {
             // resolve ambiguities
-            current = findHolding(normalizedData, companyState);
+            current = inverseFindHolding(normalizedData, companyState);
             holdingId = current.dataValues.holdingId;
             // transfer to this one, from newly created on
             amount = current.dataValues.parcels.reduce((sum, p) => sum + p.amount, 0);
@@ -397,17 +438,26 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             }))])
         })
         .then(() => {
-            let current = companyState.getMatchingHoldings({holdingId: data.holdingId, holders: normalizedData.beforeHolders});
-            current = current[0];
+            let current = companyState.getMatchingHolding({holdingId: data.holdingId, holders: normalizedData.beforeHolders});
             if(!current){
-                 throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding documentId: ' +data.documentId)
+                throw new sails.config.exceptions.InvalidOperation('Cannot find holding, holding change')
             }
-            if(data.afterName){
-                current.dataValues.name =  data.afterName;
+            if(data.afterVotingShareholder || data.afterName){
+                const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
+                if(data.afterName){
+                    current.dataValues.name =  data.afterName;
+                }
+                return current.buildNext()
+                    .then((newHolding) => {
+                        // do it here
+                        console.log(JSON.stringify(newHolding.toJSON(), null, 4));
+                        companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
+                        newHolding.dataValues.transaction = transaction;
+                    })
             }
-            return companyState.mutateHolders(current, normalizedData.afterHolders, transaction, userId);
         })
         .then(() => {
+
             return transaction;
         });
 };
