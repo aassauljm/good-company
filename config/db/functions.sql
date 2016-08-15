@@ -242,7 +242,7 @@ AS $$
         WHERE t.id = tt."previousCompanyStateId"
     ), parcels as (
         SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
-        FROM "parcelJ" pj
+        FROM "parcel_j" pj
         LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
         GROUP BY p."shareClass", pj."holdingId"
     )
@@ -277,7 +277,7 @@ AS $$
                 join transaction t on cs."transactionId" = t.id
                 left outer join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
                 left outer join holding h on h.id = hlj.h_j_id
-                left outer join "holderJ" hj on h.id = hj."holdingId"
+                left outer join "holder_j" hj on h.id = hj."holdingId"
                 left outer join person p on hj."holderId" = p.id
                  WINDOW wnd AS (
                    PARTITION BY "personId", h."holdingId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
@@ -332,7 +332,7 @@ RETURNS SETOF JSON
 AS $$
 SELECT array_to_json(array_agg(row_to_json(qq))) FROM
     ( SELECT * FROM holding h
-    left outer join "holderJ" hj on h.id = hj."holdingId"
+    left outer join "holder_j" hj on h.id = hj."holdingId"
     left outer join person p on hj."holderId" = p.id
     WHERE h.id = $1) qq;
 
@@ -383,7 +383,7 @@ SELECT *, rank() OVER wnd
             join transaction t on cs."transactionId" = t.id
             left outer join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
             left outer join holding h on h.id = hlj.h_j_id
-            left outer join "holderJ" hj on h.id = hj."holdingId"
+            left outer join "holder_j" hj on h.id = hj."holdingId"
             left outer join person p on hj."holderId" = p.id
              WINDOW wnd AS (
                PARTITION BY "personId", h."holdingId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
@@ -436,7 +436,7 @@ AS $$
             join company_state cs on pt.id = cs.id
             join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
             left outer join holding h on h.id = hlj.h_j_id
-            left outer join "holderJ" hj on h.id = hj."holdingId"
+            left outer join "holder_j" hj on h.id = hj."holdingId"
             left outer join person p on hj."holderId" = p.id
 
          UNION
@@ -517,7 +517,7 @@ person_holdings as (
     first_value("startId") OVER wnd as "startId",
     first_value(generation) OVER wnd as generation
     FROM prev_holdings ph
-    LEFT OUTER JOIN "holderJ" hj on ph."hId" = hj."holdingId"
+    LEFT OUTER JOIN "holder_j" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
     WINDOW wnd AS (
        PARTITION BY p."personId", ph."transactionId", "startId" ORDER BY generation
@@ -528,7 +528,7 @@ person_holdings as (
 -- get parcels for a given holdingId
 parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
-    FROM "parcelJ" pj
+    FROM "parcel_j" pj
     LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
     GROUP BY p."shareClass", pj."holdingId"
 )
@@ -610,7 +610,7 @@ FROM
     join transaction t on cs."transactionId" = t.id
     left outer join _holding h on h."companyStateId" = pt.id
     left outer join parcels pp on pp."holdingId" = h.id
-    left outer join "holderJ" hj on h.id = hj."holdingId"
+    left outer join "holder_j" hj on h.id = hj."holdingId"
     left outer join person ppp on hj."holderId" = ppp.id
     join company_persons($1) p on p."personId" = ppp."personId"
     WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2

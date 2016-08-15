@@ -219,7 +219,7 @@ module.exports = {
                             }, {
                                 model: Person,
                                 as: 'holders',
-                                through: {attributes: []},
+                                through: {attributes: ['attr']},
                                 include: [{
                                     model: Transaction,
                                     as: 'transaction',
@@ -898,7 +898,8 @@ module.exports = {
                                     model: Person,
                                     as: 'holders',
                                     through: {
-                                        attributes: []
+                                        attributes: ['attr'],
+                                        as: 'holderAttributes'
                                     },
                                     include: [{
                                         model: Transaction,

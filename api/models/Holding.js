@@ -39,13 +39,14 @@ module.exports = {
                 as: 'parcels',
                 name: 'holdingId'
             },
-            through: 'parcelJ'
+            through: 'parcel_j'
         });
         Holding.belongsToMany(Person, {
+            //foreignKey: 'HoldingId',
             as: 'holders',
             foreignKey: {
-                as: 'holders',
-                name: 'holdingId'
+                name: 'holdingId',
+                as: 'holders'
             },
             through: HolderJ
         });
@@ -164,9 +165,9 @@ module.exports = {
                             }, {
                                 model: Person,
                                 as: 'holders',
-                                through: {
-                                    attributes: []
-                                },
+                                //through: {
+                                //    attributes: []
+                               // },
                                 include: [{
                                     model: Transaction,
                                     as: 'transaction',

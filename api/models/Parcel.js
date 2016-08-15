@@ -27,7 +27,7 @@ module.exports = {
                 as: 'parcels',
                 name: 'parcelId'
             },
-            through: 'parcelJ'
+            through: 'parcel_j'
         });
         Parcel.belongsTo(ShareClass, {
             as: 'sc',
