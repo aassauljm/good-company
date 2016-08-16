@@ -1,5 +1,6 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var webpack = require('webpack')
+var webpack = require('webpack');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 var path = require("path");
 
 var DEV = process.env.NODE_ENV !== 'production';
@@ -18,6 +19,10 @@ var plugins = [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
         new ExtractTextPlugin(DEV ? '../css/[name].css' : '../css/[name].[hash].css'),
         new webpack.optimize.DedupePlugin(),
+        new CopyWebpackPlugin([
+                { from: '*.*', to: '../'  },
+                { from: 'images/*.*',  to: '../'}
+        ])
     ];
 
 if(!DEV){

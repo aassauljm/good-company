@@ -9,6 +9,8 @@ import { syncHistoryWithStore } from 'react-router-redux'
 
 import "../styles/style.scss";
 
+
+
 let mountNode = document.getElementById("main");
 let data = {};
 try{
