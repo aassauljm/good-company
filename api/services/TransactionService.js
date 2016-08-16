@@ -287,7 +287,7 @@ function inverseFindHolding(data, companyState){
 }
 
 
-export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
+export function performInverseHoldingChangeOLD(data, companyState, previousState, effectiveDate, userId){
     // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data)
@@ -321,7 +321,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         });
 };
 
-export function performInverseHoldingChangeTOUPDATE(data, companyState, previousState, effectiveDate, userId){
+export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
     // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.holdingList.buildNext()
@@ -347,12 +347,18 @@ export function performInverseHoldingChangeTOUPDATE(data, companyState, previous
             }
             if(data.beforeVotingShareholder){
                 const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
-                return current.buildNext()
-                    .then((newHolding) => {
-                        // do it here
-                    })
+                const newHolding =  current.buildNext()
+                companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
+                newHolding.dataValues.holders = newHolding.dataValues.holders.map(h => {
+                    if(h.isEqual(data.beforeVotingShareholder)){
+                        h.dataValues.data = {...h.dataValues.data, votingShareholder: true};
+                    }
+                    else{
+                        h.dataValues.data = _.omit(h.dataValues.data || {}, 'votingShareholder');
+                    }
+                    return h;
+                });
             }
-            //return companyState.mutateHolders(current, normalizedData.beforeHolders, null, userId)
         })
         .then(() => {
             const previousHolding = previousState.getMatchingHolding(current);
@@ -438,7 +444,11 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             }))])
         })
         .then(() => {
-            let current = companyState.getMatchingHolding({holdingId: data.holdingId, holders: normalizedData.beforeHolders});
+            let current = companyState.getMatchingHoldings({holdingId: data.holdingId, holders: normalizedData.beforeHolders});
+            if(current && current.length > 1){
+                throw new sails.config.exceptions.InvalidOperation('Multiple holdings found, holding change')
+            }
+            current = current[0];
             if(!current){
                 throw new sails.config.exceptions.InvalidOperation('Cannot find holding, holding change')
             }
@@ -447,9 +457,22 @@ export function performHoldingChange(data, companyState, previousState, effectiv
                 if(data.afterName){
                     current.dataValues.name =  data.afterName;
                 }
-                const newHolding = current.buildNext()
-                companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
-                newHolding.dataValues.transaction = transaction;
+                if(data.afterVotingShareholder){
+                    const newHolding = current.buildNext()
+                    companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
+                    newHolding.dataValues.transaction = transaction;
+                    newHolding.dataValues.holders = current.dataValues.holders.map(h => {
+                        if(h.isEqual(data.afterVotingShareholder)){
+                            h = h.buildNext();
+                            h.data = h.dataValues.data = {...h.dataValues.data, votingShareholder: true};
+                        }
+                        else if((h.dataValues.data || {}).afterVotingShareholder){
+                            h = h.buildNext();
+                            h.data = h.dataValues.data = _.omit(h.dataValues.data || {}, 'votingShareholder');
+                        }
+                        return h;
+                    });
+                }
             }
         })
         .then(() => {
@@ -457,6 +480,10 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             return transaction;
         });
 };
+
+
+
+
 
 export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);

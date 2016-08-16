@@ -475,14 +475,14 @@ describe('Transaction Service', function() {
             });
         });
 
-        describe.skip('change holding transactions', function() {
+        describe('change holding transactions', function() {
             it('changes holding, fail validation (wrong current holding)', function() {
                 return rootStateSimple.buildNext()
                     .then(function(companyState){
                         return TransactionService.performHoldingChange({
                             transactionType: Transaction.types.HOLDING_CHANGE,
-                            beforeHolders: [{name: 'jim'}],
-                            afterHolders: [{name: 'mike'}]
+                            beforeHolders: [{name: 'john'}],
+                            afterHolders: [{name: 'john'}]
                         }, companyState, rootStateSimple, new Date(), USER_ID).should.eventually.be.rejected;
                     })
 
@@ -495,7 +495,8 @@ describe('Transaction Service', function() {
                         nextState = companyState;
                         return TransactionService.performHoldingChange({
                             transactionType: Transaction.types.HOLDING_CHANGE,
-                            afterVotingShareholder: [{name: 'john'}],
+                            afterVotingShareholder: {name: 'john'},
+                            afterName:'xxx',
                             beforeHolders: [{name: 'john'}, {name: 'mike'}],
                             afterHolders: [{name: 'john'}, {name: 'mike'}],
                         }, companyState, rootStateSimple, date, USER_ID).should.eventually.be.fulfilled;
@@ -503,10 +504,14 @@ describe('Transaction Service', function() {
                     .then(function(e){
                         const _nextState = nextState.toJSON();
                         _nextState.holdingList.holdings.length.should.be.equal(5);
-                        _nextState.holdingList.holdings[0].parcels[0].amount.should.be.equal(1);
-                        const transaction = nextState.dataValues.holdingList.holdings[0].dataValues.transaction;
+                        const holding = _.find(_nextState.holdingList.holdings, {name: 'xxx'});
+
+                        holding.parcels[0].amount.should.be.equal(2);
+                        const transaction = holding.transaction;
                         transaction.type.should.be.equal(Transaction.types.HOLDING_CHANGE);
                         transaction.effectiveDate.should.be.eql(date);
+                        const holder = _.find(holding.holders, h => _.isMatch(h.person, {name: 'john'}));
+                         holder.data.votingShareholder.should.be.equal(true);
                     });
             });
         });
