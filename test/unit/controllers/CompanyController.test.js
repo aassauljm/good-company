@@ -68,7 +68,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/pending_history')
                 .expect(200)
                 .then(function(res){
-                   
+
                     _.find(res.body, action => {
                         return action.data &&  action.data.transactionType === Transaction.types.INCORPORATION;
                     }).should.not.be.equal(null);
@@ -297,10 +297,12 @@ describe('Company Controller', function() {
             .expect(200)
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
+
                 const oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
-                const oldHolder = _.find(oldHolding.holders, {name: 'LYSAGHT TRUSTEES LIMITED'})
+                const oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'LYSAGHT TRUSTEES LIMITED'})).person;
                 const newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
-                const newHolder = _.find(newHolding.holders, {name: 'NEW PERSON'});
+                console.log(JSON.stringify(newHolding, null ,4));;
+                const newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'NEW PERSON'})).person;
                 oldHolder.personId.should.be.equal(newHolder.personId);
                 done();
             })
@@ -321,15 +323,15 @@ describe('Company Controller', function() {
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
                 let oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
-                let oldHolder = _.find(oldHolding.holders, {name: 'Susan Ruth LYSAGHT'})
+                let oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'Susan Ruth LYSAGHT'})).person;
                 let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
-                let newHolder = _.find(newHolding.holders, {name: 'Directy'});
+                let newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directy'})).person;
                 oldHolder.personId.should.be.equal(newHolder.personId);
 
                 oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
-                oldHolder = _.find(oldHolding.holders, {name: 'Susan Ruth LYSAGHT'})
+                oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'Susan Ruth LYSAGHT'})).person;
                 newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
-                newHolder = _.find(newHolding.holders, {name: 'Directy'});
+                newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directy'})).person;
 
                 oldHolder.personId.should.be.equal(newHolder.personId);
                 res.body.currentCompanyState.directorList.directors[0].person.personId.should.be.equal(newHolder.personId);
@@ -354,10 +356,10 @@ describe('Company Controller', function() {
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
                 let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
-                let newHolder = _.find(newHolding.holders, {name: 'Directio'});
+                let newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directio'})).person;;
 
                 newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
-                newHolder = _.find(newHolding.holders, {name: 'Directio'});
+                newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directio'})).person;;
 
                 res.body.currentCompanyState.directorList.directors[0].person.personId.should.be.equal(newHolder.personId);
                 res.body.currentCompanyState.directorList.directors[0].person.name.should.be.equal(newHolder.name);

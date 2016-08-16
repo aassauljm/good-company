@@ -894,7 +894,9 @@ const ScrapingService = {
                 counted += holding.shares;
                 return {
                     parcels: [{amount: holding.shares}],
-                    holders: holding.holders,
+                    holders: holding.holders.map((h) => {
+                        return { person: h, data: {}}
+                    }),
                     name: holding.name
                 }
             })
@@ -911,7 +913,7 @@ const ScrapingService = {
         result.directorList = {
             directors : data.directors.map(function(d){
                 return {
-                    ntUrl: d.consentUrl,
+                    consentUrl: d.consentUrl,
                     appointment: moment(d.appointmentDate, 'DD MMM YYYY HH:mm').toDate(),
                     person: {
                         name: d.fullName,

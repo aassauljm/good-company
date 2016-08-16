@@ -39,7 +39,7 @@ describe('CompanyStateController', function() {
         });
         it('Try no parcels', function(done) {
             req.post('/api/transaction/seed/'+companyId)
-                .send({holders: [{name: 'Gary'}, {name: 'Busey'}]})
+                .send({holders: [{person: {name: 'Gary'}}, {person: {name: 'Busey'}}]})
                 .expect(500, done)
         });
         it('Try no parcels', function(done) {
@@ -52,7 +52,7 @@ describe('CompanyStateController', function() {
         it('Try valid post', function(done) {
             req.post('/api/transaction/seed/'+companyId)
                 .send({holdingList: {holdings: [{
-                    holders: [{name: 'Gary'}, {name: 'Busey'}],
+                    holders: [{person: {name: 'Gary'}}, {person: {name: 'Busey'}}],
                     parcels: [{amount: 1111, shareClass: 1},
                         {amount: 1, shareClass: 2},
                         {amount: 10, shareClass: 4}]
@@ -71,7 +71,7 @@ describe('CompanyStateController', function() {
                         },
                         holdingList: {holdings: [
                                 {
-                                    holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                    holders: [{person: {name: 'Busey'}}, {person: {name: 'Gary'}}],
                                     parcels: [{amount: 1111, shareClass: 1}, {amount: 1, shareClass: 2}, {amount: 10, shareClass: 4}]
                                 }
                             ]
@@ -140,7 +140,7 @@ describe('CompanyStateController', function() {
                         },
                         holdingList: {holdings: [
                             {
-                                holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                holders: [{person: {name: 'Busey'}}, {person: {name: 'Gary'}}],
                                 parcels: [{amount: 1113, shareClass: 1}, {amount: 101, shareClass: 2},{amount: 1, shareClass: 3}, {amount: 10, shareClass: 4}]
                             }
                         ]}
@@ -189,7 +189,7 @@ describe('CompanyStateController', function() {
                         },
                         holdingList: { holdings: [
                             {
-                                holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                holders: [{person: {name: 'Busey'}}, {person: {name: 'Gary'}}],
                                 parcels: [{amount: 1113, shareClass: 1}, {amount: 1201, shareClass: 2},{amount: 1, shareClass: 3}]
                             }
                         ] }
@@ -294,11 +294,11 @@ describe('CompanyStateController', function() {
                         },
                         holdingList: { holdings: [
                             {
-                                holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                holders: [{person: {name: 'Busey'}}, {person: {name: 'Gary'}}],
                                 parcels: [{amount: 1112, shareClass: 1}, {amount: 1201, shareClass: 2},{amount: 1, shareClass: 3}]
                             },
                             {
-                                holders: [{name: 'Jim'}],
+                                holders: [{person: {name: 'Jim'}}],
                                 parcels: [{amount: 1, shareClass: 1}]
                             }
                         ] }
@@ -341,7 +341,7 @@ describe('CompanyStateController', function() {
                     res.body.currentCompanyState.should.containSubset({
                         holdingList: { holdings: [
                             {
-                                holders: [{name: 'Busey'}, {name: 'Gary'}],
+                                holders: [{person: {name: 'Busey'}}, {person: {name: 'Gary'}}],
                                 parcels: [{amount: 1113, shareClass: 1}, {amount: 1201, shareClass: 2},{amount: 1, shareClass: 3}]
                             }
                         ] }

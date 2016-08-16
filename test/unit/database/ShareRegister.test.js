@@ -14,7 +14,7 @@ describe('Share Register', function() {
                 holdingList: {holdings: [{
                         name: 'Allocation 1',
                         holders: [{
-                            name: 'mike'
+                            person: {name: 'mike'}
                         }],
                         parcels: [{
                             amount: 1,
@@ -23,9 +23,9 @@ describe('Share Register', function() {
                     },{
                         name: 'Allocation 2',
                         holders: [{
-                            name: 'mike'
+                            person: {name: 'mike'}
                         },{
-                            name: 'john'
+                            person: {name: 'john'}
                         }],
                         parcels: [{
                             amount: 2,

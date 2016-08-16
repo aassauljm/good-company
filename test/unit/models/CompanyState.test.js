@@ -14,7 +14,7 @@ describe('CompanyState Model', function() {
                             shareClass: 2
                         }],
                         holders: [{
-                            name: 'Mike'
+                            person:{name: 'Mike'}
                         }]
                     }, {
                         parcels: [{
@@ -25,7 +25,7 @@ describe('CompanyState Model', function() {
                             shareClass: 3
                         }],
                         holders: [{
-                            name: 'Gary'
+                            person:{name: 'Gary'}
                         }]
                     }, {
                         parcels: [{
@@ -51,8 +51,12 @@ describe('CompanyState Model', function() {
                                 model: Parcel,
                                 as: 'parcels'
                             }, {
-                                model: Person,
-                                as: 'holders'
+                                model: Holder,
+                                as: 'holders',
+                                include: [{
+                                    model: Person,
+                                    as: 'person'
+                                }]
                             }]
                         }]
 
@@ -114,7 +118,7 @@ describe('CompanyState Model', function() {
                             shareClass: 2
                         }],
                         holders: [{
-                            name: 'Simon Slimjim'
+                            person: {name: 'Simon Slimjim'}
                         }]
                     }]
                 }
@@ -129,8 +133,12 @@ describe('CompanyState Model', function() {
                                 model: Parcel,
                                 as: 'parcels'
                             }, {
-                                model: Person,
-                                as: 'holders'
+                                model: Holder,
+                                as: 'holders',
+                                include: [{
+                                    model: Person,
+                                    as: 'person'
+                                }]
                             }]
                         }]
                     }]
@@ -161,10 +169,10 @@ describe('CompanyState Model', function() {
                 first_tran_share_b.id.should.be.eql(second_tran_share_b.id);
                 this.first_state.holdingList.holdings[0].holders.length.should.be.eql(1);
                 this.second_state.holdingList.holdings[0].holders.length.should.be.eql(1);
-                this.first_state.holdingList.holdings[0].holders[0].id.should.be.eql(
-                    this.second_state.holdingList.holdings[0].holders[0].id);
-                this.first_state.holdingList.holdings[0].holders[0].personId.should.be.eql(
-                    this.second_state.holdingList.holdings[0].holders[0].personId);
+                this.first_state.holdingList.holdings[0].holders[0].person.id.should.be.eql(
+                    this.second_state.holdingList.holdings[0].holders[0].person.id);
+                this.first_state.holdingList.holdings[0].holders[0].person.personId.should.be.eql(
+                    this.second_state.holdingList.holdings[0].holders[0].person.personId);
 
                 done();
             });
@@ -179,7 +187,7 @@ describe('CompanyState Model', function() {
                             shareClass: 1
                         }],
                         holders: [{
-                            name: 'Randy'
+                            person: {name: 'Randy'}
                         }]
                     }]
                 },
@@ -199,8 +207,12 @@ describe('CompanyState Model', function() {
                                 model: Parcel,
                                 as: 'parcels'
                             }, {
-                                model: Person,
-                                as: 'holders'
+                                model: Holder,
+                                as: 'holders',
+                                include: [{
+                                    model: Person,
+                                    as: 'person'
+                                }]
                             }]
                         }]
                     }, {
@@ -229,9 +241,9 @@ describe('CompanyState Model', function() {
                             shareClass: 2
                         }],
                         holders: [{
-                            name: 'Sally Slimjim'
+                            person:{ name: 'Sally Slimjim'}
                         },{
-                            name: 'Mickey Twofists'
+                            person: {name: 'Mickey Twofists'}
                         }]
                     },
                     {
@@ -244,9 +256,9 @@ describe('CompanyState Model', function() {
                             shareClass: 2
                         }],
                         holders: [{
-                            name: 'Mickey Twofists'
+                            person:{ name: 'Mickey Twofists'}
                         }, {
-                            name: 'Johansen McKenzie'
+                            person:{ name: 'Johansen McKenzie'}
                         }]
                 }]
                 }
@@ -255,8 +267,8 @@ describe('CompanyState Model', function() {
         it('populates company state and confirms person deduplication and associations', function(done){
             CompanyState.createDedup(initialState, 1)
                 .then(function(companyState){
-                    var firstMicky = _.find(companyState.holdingList.holdings[0].holders, {name: 'Mickey Twofists'});
-                    var secondMicky = _.find(companyState.holdingList.holdings[1].holders, {name: 'Mickey Twofists'});
+                    var firstMicky = _.find(companyState.holdingList.holdings[0].holders, h => _.isMatch(h.person, {name: 'Mickey Twofists'})).person;
+                    var secondMicky = _.find(companyState.holdingList.holdings[1].holders, h => _.isMatch(h.person,  {name: 'Mickey Twofists'})).person;
                     firstMicky.dataValues.should.be.deep.equal(secondMicky.dataValues);
                     const holdings = companyState.holdingList.holdings;
                     holdings.length.should.be.equal(2);

@@ -37,14 +37,15 @@ module.exports = {
                                     attributes: []
                                 }
                             }, {
-                                model: Person,
+                                model: Holder,
                                 as: 'holders',
-                                through: {
-                                   attributes: ['attr']
-                                },
-                                include: [{
-                                    model: Transaction,
-                                    as: 'transaction',
+                                include:[{
+                                    model: Person,
+                                    as: 'person',
+                                    include: [{
+                                        model: Transaction,
+                                        as: 'transaction',
+                                    }]
                                 }]
                             }, {
                                 model: Transaction,
@@ -62,6 +63,9 @@ module.exports = {
                                 [{
                                     model: Holding,
                                     as: 'holdings'
+                                },{
+                                    model: Holder,
+                                    as: 'holder'
                                 },{
                                     model: Person,
                                     as: 'holders'
@@ -83,14 +87,15 @@ module.exports = {
                                         attributes: []
                                     }
                                 }, {
-                                    model: Person,
+                                    model: Holder,
                                     as: 'holders',
-                                    through: {
-                                        attributes: ['attr']
-                                    },
-                                    include: [{
-                                        model: Transaction,
-                                        as: 'transaction',
+                                    include:[{
+                                        model: Person,
+                                        as: 'person',
+                                        include: [{
+                                            model: Transaction,
+                                            as: 'transaction',
+                                        }]
                                     }]
                                 }, {
                                     model: Transaction,

@@ -23,10 +23,12 @@ module.exports = {
         }
     },
     associations: function(){
-        Person.belongsToMany(Holding, {
-            as: 'holdings',
-            foreignKey: 'holderId',
-            through: HolderJ
+        Person.hasMany(Holder, {
+            as: 'holder',
+            foreignKey: {
+                name: 'holderId',
+                as: 'holderships',
+            }
         });
         Person.hasMany(Director, {
             as: 'directorships',

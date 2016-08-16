@@ -217,12 +217,15 @@ module.exports = {
                                 as: 'parcels',
                                 through: {attributes: []}
                             }, {
-                                model: Person,
+                                model: Holder,
                                 as: 'holders',
-                                through: {attributes: ['attr']},
-                                include: [{
-                                    model: Transaction,
-                                    as: 'transaction',
+                                include:[{
+                                    model: Person,
+                                    as: 'person',
+                                    include: [{
+                                        model: Transaction,
+                                        as: 'transaction',
+                                    }]
                                 }]
                             },{
                                 model: Transaction,
@@ -306,7 +309,7 @@ module.exports = {
                     return [
                         [{model: Holding, as: 'holdings'}, 'id', 'ASC'],
                         [{model: Holding, as: 'holdings'}, {model: Parcel, as: 'parcels'}, 'shareClass', 'ASC'],
-                        [{model: Holding, as: 'holdings'}, {model: Person, as: 'holders'}, 'name', 'ASC'],
+                        [{model: Holding, as: 'holdings'}, {model: Holders, as: 'holders'}, {model: Person, as: 'person'}, 'name', 'ASC'],
                         [{model: DirectorList, as: 'directors'}, {model: Director, as: 'directors'}, {model: Person, as: 'person'}, 'name', 'ASC'],
                     ]
                 },
@@ -319,7 +322,7 @@ module.exports = {
                     return [
                         [{model: Holding, as: 'holdings'}, 'id', 'ASC'],
                         [{model: Holding, as: 'holdings'}, {model: Parcel, as: 'parcels'}, 'shareClass', 'ASC'],
-                        [{model: Holding, as: 'holdings'}, {model: Person, as: 'holders'}, 'name', 'ASC']
+                        [{model: Holding, as: 'holdings'}, {model: Holders, as: 'holders'}, {model: Person, as: 'person'}, 'name', 'ASC']
                     ]
                 },
                 iRegister: function() {
@@ -388,18 +391,19 @@ module.exports = {
             },
             findOrCreatePersons: function(obj, userId){
                 // persons can be in:
-                // obj.holdings.holders
+                // obj.holdings.holders.person
                 // obj.directors.persons
                 // TODO, start with list of people from db, will be short, and find them in js
                 obj = _.cloneDeep(obj);
 
                 return Promise.each(obj.holdingList.holdings || [], function(holding){
                     return Promise.map(holding.holders || [], function(holder){
-                        return AddressService.normalizeAddress(holder.address)
+                        return AddressService.normalizeAddress(holder.person.address)
                             .then(function(address){
-                                holder = _.merge({}, holder, {address: address})
-                                return PersonService.findOrCreate(userId, {where: holder, defaults: holder})
-                                    .then(function(holder){
+                                holder.person = _.merge({}, holder.person, {address: address});
+                                return PersonService.findOrCreate(userId, {where: holder.person, defaults: holder.person})
+                                    .then(function(person){
+                                        holder.person = person;
                                         return holder;
                                     });
                             });
@@ -447,8 +451,8 @@ module.exports = {
 
                         (state.get('holdingList').get('holdings') || []).map(function(h){
                             h.get('holders').map(function(h){
-                                h.isNewRecord = false;
-                                h._changed = {};
+                                h.get('person').isNewRecord = false;
+                                h.get('person')._changed = {};
                             })
                         });
                         (state.get('directorList').get('directors') || []).map(function(d){
@@ -484,7 +488,7 @@ module.exports = {
                         const holdings = holdingList.dataValues.holdings;
                         return !holdings.every(h => {
                             return h.dataValues.holders.reduce((acc, p) => {
-                                return acc + (p.attr || {}).votingShareholder ? 1 : 0;
+                                return acc + (p.data || {}).votingShareholder ? 1 : 0;
                             }, 0) === 1 || h.dataValues.holders.length === 1;
                         });
                     })
@@ -577,7 +581,6 @@ module.exports = {
                         }
                         setNew(next);
                         next._populated = true;
-                        console.log(JSON.stringify(this, null ,4))
                         sails.log.verbose('Next company state build');
                         return next;
                     });
@@ -625,7 +628,6 @@ module.exports = {
                             (!holdingToAdd.holdingId && nextHolding.holdersMatch(holdingToAdd, {ignoreCompanyNumber: true}))) &&
                            (!parcelHint || nextHolding.parcelsMatch({parcels: parcelHint}))){
                             holdings[j] = nextHolding = nextHolding.buildNext();
-
                             if(subtractHoldings){
                                 nextHolding.subtractParcels(holdingToAdd);
                             }
@@ -723,18 +725,22 @@ module.exports = {
                         }
                     })
                     .then(function(){
-                        let replaced = false;
-                        state.dataValues.holdingList.dataValues.holdings.map(function(holding, i){
-                            var index = _.findIndex(holding.dataValues.holders, function(h, i){
+                        return Promise.reduce(state.dataValues.holdingList.dataValues.holdings, function(replaced, holding, j){
+                            const index = _.findIndex(holding.dataValues.holders, function(h, i){
                                 return h.isEqual(currentHolder);
                             });
                             if(index > -1){
-                                replaced = true;
-                                holding = holding.buildNext();
-                                state.dataValues.holdingList.dataValues.holdings[i] = holding;
-                                holding.dataValues.holders[index] = newPerson;
+                                holding = holding.buildNext()
+                                state.dataValues.holdingList.holdings[j] = state.dataValues.holdingList.dataValues.holdings[j] = holding;
+                                const holder = holding.dataValues.holders[index].buildNext();
+                                holder.person = holder.dataValues.person = newPerson;
+                                holding.holders[index] = holding.dataValues.holders[index] = holder;
+                                return true
                             }
-                        });
+                            return replaced;
+                        }, false);
+                    })
+                    .then(replaced => {
                         if(!replaced){
                             throw new sails.config.exceptions.InvalidOperation('Unknown holder to replace');
                         }
@@ -809,7 +815,7 @@ module.exports = {
                 var result;
                  _.some(this.dataValues.holdingList.dataValues.holdings, function(holding){
                     return _.some(holding.dataValues.holders, function(holder){
-                        if(holder.isEqual(data)){
+                        if(holder.person.isEqual(data)){
                             result = holder;
                             return result;
                         }
@@ -896,15 +902,15 @@ module.exports = {
                                         attributes: []
                                     }
                                 }, {
-                                    model: Person,
+                                    model: Holder,
                                     as: 'holders',
-                                    through: {
-                                        attributes: ['attr'],
-                                        as: 'holderAttributes'
-                                    },
-                                    include: [{
-                                        model: Transaction,
-                                        as: 'transaction',
+                                    include:[{
+                                        model: Person,
+                                        as: 'person',
+                                        include: [{
+                                            model: Transaction,
+                                            as: 'transaction',
+                                        }]
                                     }]
                                 }, {
                                     model: Transaction,
@@ -917,8 +923,11 @@ module.exports = {
                                     model: Holding,
                                     as: 'holdings'
                                 },{
-                                    model: Person,
+                                    model: Holder,
                                     as: 'holders'
+                                },{
+                                    model: Person,
+                                    as: 'person'
                                 }, 'name', 'ASC']
                             ]
                         }),

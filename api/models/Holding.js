@@ -43,14 +43,13 @@ module.exports = {
             },
             through: 'parcel_j'
         });
-        Holding.belongsToMany(Person, {
+        Holding.hasMany(Holder, {
             //foreignKey: 'HoldingId',
             as: 'holders',
             foreignKey: {
                 name: 'holdingId',
                 as: 'holders'
             },
-            through: HolderJ
         });
         Holding.belongsTo(Transaction, {
             as: 'transaction',
@@ -73,15 +72,23 @@ module.exports = {
         classMethods: {
             buildDeep: function(data){
                 // NEEDS NOT CREATE NEW PERSONS IF THEY HAVE IDS,
-                var holding = Holding.build(data, {include: [
-                            {model: Parcel, as: 'parcels'},
-                            {model: Person, as: 'holders', include: [{
-                                    model: Transaction,
-                                    as: 'transaction',
-                                }]},
-                            {model: Transaction, as: 'transaction'}]});
+                var holding = Holding.build(data, {include: Holding.include.all()});
                 return holding;
 
+            },
+            include: {
+                all: function(){
+                    return [
+                    {model: Parcel, as: 'parcels'},
+                    {model: Holder, as: 'holders', include: [{
+                            model: Person, as: 'person',
+                            include: [{
+                                model: Transaction,
+                                as: 'transaction'
+                            }]
+                    }]},
+                    {model: Transaction, as: 'transaction'}]
+                }
             }
         },
         instanceMethods: {
@@ -96,7 +103,7 @@ module.exports = {
                         return _.pick(_.pick(s.get ? s.get() : s, 'name', ignoreCompanyNumber ? null : 'companyNumber'), _.identity);
                     }), 'name');
                 }
-                return _.isEqual(clean(other.holders), clean(this.dataValues.holders), function(a, b){
+                return _.isEqual(clean(other.holders.map(h => h.person ? h.person: h)), clean(this.dataValues.holders.map(h => h.person)), function(a, b){
                     if(a.toLowerCase){
                         return (a||'').toLowerCase() === (b||'').toLowerCase();
                     }
@@ -156,7 +163,7 @@ module.exports = {
             },
             buildNext: function(){
                 if(this.isNewRecord){
-                    return Promise.resolve(this);
+                    return this;
                 }
                 const holding = Holding.build(_.merge({}, this.get(), {id: null}), {include: [{
                                 model: Parcel,
@@ -165,22 +172,27 @@ module.exports = {
                                     attributes: []
                                 }
                             }, {
-                                model: Person,
+                                model: Holder,
                                 as: 'holders',
-                                through: {
-                                    attributes: ['attr']
-                                },
-                                include: [{
-                                    model: Transaction,
-                                    as: 'transaction',
+                                include:[{
+                                    model: Person,
+                                    as: 'person',
+                                    include: [{
+                                        model: Transaction,
+                                        as: 'transaction',
+                                    }]
                                 }]
                             }, {
                                 model: Transaction,
                                 as: 'transaction',
                             }]});
                 holding.dataValues.holders.map(h => {
-                    h.isNewRecord = false;
+                    h.isNewRecord = true;
                     h._changed = {};
+                    h.dataValues.holdingId = null;
+                    h.dataValues.id = null;
+                    h.dataValues.person.isNewRecord = false;
+                    h.dataValues.person._changed = {};
                 });
                 holding.dataValues.parcels.map(p => {
                     p.isNewRecord = false;
@@ -190,7 +202,7 @@ module.exports = {
                     holding.transaction.isNewRecord = false;
                     holding.transaction._change = {};
                 }
-                return Promise.resolve(holding);
+                return holding;
             }
         },
         hooks: {
