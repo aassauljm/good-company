@@ -37,7 +37,6 @@ export function validateAnnualReturn(data, companyState){
             if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
                 sails.log.error('Current', JSON.stringify(currentHoldings))
                 sails.log.error('Expected', JSON.stringify(expectedHoldings))
-                console.log(JSON.stringify(companyState));
                 throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match', {
                     action: data,
                     importErrorType: sails.config.enums.ANNUAL_RETURN_HOLDING_DIFFERENCE,
@@ -287,39 +286,6 @@ function inverseFindHolding(data, companyState){
 }
 
 
-export function performInverseHoldingChangeOLD(data, companyState, previousState, effectiveDate, userId){
-    // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
-    const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-    const normalizedData = _.cloneDeep(data)
-    let current;
-    return companyState.dataValues.holdingList.buildNext()
-        .then(holdingList => {
-            companyState.dataValues.holdingList = holdingList;
-            companyState.dataValues.h_list_id = null;
-            return transaction.save()
-        })
-        .then(() => {
-            return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
-                AddressService.normalizeAddress(h.address)
-                    .then(address => h.address = address)
-
-            })), Promise.all(normalizedData.beforeHolders.map(h => {
-                AddressService.normalizeAddress(h.address)
-                    .then(address => h.address = address)
-            }))])
-        })
-        .then(() => {
-            current = inverseFindHolding(normalizedData, companyState);
-            return companyState.mutateHolding(current, normalizedData.beforeHolders, null, userId)
-        })
-        .then(() => {
-            const previousHolding = previousState.getMatchingHolding(current);
-            return previousHolding.setTransaction(transaction);
-        })
-        .then(() => {
-            return transaction;
-        });
-};
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
     // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
@@ -347,7 +313,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             }
             if(data.beforeVotingShareholder){
                 const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
-                const newHolding =  current.buildNext()
+                const newHolding =  current.buildNext();
                 companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
                 newHolding.dataValues.holders = newHolding.dataValues.holders.map(h => {
                     if(h.isEqual(data.beforeVotingShareholder)){
@@ -396,6 +362,7 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
             return performInverseNewAllocation({
                 ...data,
                 transactionType: Transaction.types.TRANSFER_TO,
+                transactionMethod: Transaction.types.AMEND,
                 holders: data.afterHolders,
                 beforeAmount: 0,
                 amount: amount,
@@ -408,6 +375,7 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
             return performInverseAmend({
                 ...data,
                 transactionType: Transaction.types.TRANSFER_FROM,
+                transactionMethod: Transaction.types.AMEND,
                 beforeHolders: data.beforeHolders,
                 afterHolders: data.beforeHolders,
                 beforeAmount: amount,
@@ -466,7 +434,7 @@ export function performHoldingChange(data, companyState, previousState, effectiv
                             h = h.buildNext();
                             h.data = h.dataValues.data = {...h.dataValues.data, votingShareholder: true};
                         }
-                        else if((h.dataValues.data || {}).afterVotingShareholder){
+                        else if((h.dataValues.data || {}).votingShareholder){
                             h = h.buildNext();
                             h.data = h.dataValues.data = _.omit(h.dataValues.data || {}, 'votingShareholder');
                         }
@@ -476,7 +444,6 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             }
         })
         .then(() => {
-
             return transaction;
         });
 };
@@ -535,13 +502,9 @@ export const performHolderChange = function(data, companyState, previousState, e
             return companyState.replaceHolder(normalizedData.beforeHolder, normalizedData.afterHolder, transaction, userId);
         })
         .then(function(){
-            console.log(companyState.dataValues.holdingList.dataValues.holdings[0].dataValues.holders)
-            console.log(companyState.dataValues.holdingList.dataValues.holdings[1].dataValues.holders)
-            console.log(companyState.dataValues.holdingList.dataValues.holdings[2].dataValues.holders)
             return transaction;
         })
         .catch((e)=>{
-            console.log(e)
             throw new sails.config.exceptions.InvalidOperation('Cannot find holder, holder change')
         });
 };

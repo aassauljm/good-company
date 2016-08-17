@@ -301,7 +301,6 @@ describe('Company Controller', function() {
                 const oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
                 const oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'LYSAGHT TRUSTEES LIMITED'})).person;
                 const newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
-                console.log(JSON.stringify(newHolding, null ,4));;
                 const newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'NEW PERSON'})).person;
                 oldHolder.personId.should.be.equal(newHolder.personId);
                 done();

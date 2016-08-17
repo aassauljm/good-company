@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
 import { reduxForm, change, destroy } from 'redux-form';
-import { personOptionsFromState } from '../../utils';
+import { personOptionsFromState, populatePerson } from '../../utils';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -56,7 +56,7 @@ export class UpdateHoldingModal extends React.Component {
                 <HoldingNoParcelsConnected
                     ref="form"
                     initialValues={{effectiveDate: new Date(),
-                        persons: this.props.modalData.holding.holders.map(p => ({...p, personId: p.personId + '', attr: p.attr || {}})),
+                        persons: this.props.modalData.holding.holders.map(p => ({...p.person, personId: p.person.personId + '', votingShareholder: (p.data || {}).votingShareholder})),
                         holdingName: this.props.modalData.holding.name}}
                     personOptions={personOptions}
                     showModal={(key, index) => this.props.dispatch(showModal(key, {
@@ -72,15 +72,20 @@ export class UpdateHoldingModal extends React.Component {
             </div>
     }
 
-
     submit(values) {
+        values.votingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.modalData.companyState);
+        let previous = this.props.modalData.holding.holders.filter(h => (h.data || {}).votingShareholder);
+        if(previous.length){
+            values.previousVotingShareholder = populatePerson(previous[0].person, this.props.modalData.companyState)
+        }
+        values.previousVotingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.modalData.companyState);
         values.persons = reformatPersons(values, this.props.modalData.companyState);
         const transactions = updateHoldingSubmit(values, this.props.modalData.holding)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
-                                    'compound',
-                                    this.props.modalData.companyId,
-                                    {transactions: transactions, documents: values.documents} ))
+                                'compound',
+                                this.props.modalData.companyId,
+                                {transactions: transactions, documents: values.documents} ))
                 .then(() => {
                     this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Shareholding Updated'}));

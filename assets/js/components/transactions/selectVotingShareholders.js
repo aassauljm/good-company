@@ -6,32 +6,29 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import Input from '../forms/input';
 import STRINGS from '../../strings'
-import { numberWithCommas } from '../../utils'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { fieldStyle, fieldHelp } from '../../utils';
+import { fieldStyle, fieldHelp, populatePerson, numberWithCommas } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import { push } from 'react-router-redux';
 import LawBrowserLink from '../lawBrowserLink';
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
+
 
 function renderHolders(holding){
     return <ul>
         { holding.holders.map((h, i) => {
-            return <li key={i}>{ h.name } </li>
+            return <li key={i}>{ h.person.name } </li>
         })}
     </ul>
 }
 
 
 export class VoterSelect extends React.Component {
-    static propTypes = {
-        options: PropTypes.array.isRequired,
-    };
     renderSelect(field, holders) {
         return <Input type="select" {...field} bsStyle={fieldStyle(field)} help={fieldHelp(field)}
             hasFeedback >
-                <option></option>
-                { holders.map((h, i) => <option key={i} value={h.personId.toString()}>{h.name}</option> ) }
+                { holders.map((h, i) => <option key={i} value={h.person.personId.toString()}>{h.person.name}</option> ) }
             </Input>
     }
 
@@ -58,6 +55,16 @@ const VoterSelectConnected = reduxForm({
 })(VoterSelect);
 
 
+function populateHolders(holdingId, companyState){
+    let result;
+    companyState.holdingList.holdings.map(h => {
+        if(h.holdingId === holdingId){
+            result = h;
+        }
+    });
+    return result.holders.map(h => ({name: h.person.name, address: h.person.address, personId: h.person.personId, companyNumber: h.person.companyNumber}))
+}
+
 
 @connect(undefined)
 export class VotingShareholdersModal extends React.Component {
@@ -71,28 +78,41 @@ export class VotingShareholdersModal extends React.Component {
     }
 
     submit(values) {
-        const holdings = [];
+        const actions = [];
         Object.keys(values).map(k => {
-            //if(!values[k]) return;
-            holdings.push({
-                holdingId: parseInt(k, 10),
-                shareClass: parseInt(values[k], 10) || undefined,
-                transactionType: 'APPLY_SHARE_CLASS'
+            const holdingId = parseInt(k, 10);
+            const person = populatePerson({personId: values[k]}, this.props.modalData.companyState);
+            const holding = this.props.modalData.companyState.holdingList.holdings.filter(h => {
+                return h.holdingId === holdingId;
+              })[0];
+            const currentVoter = holding.holders.filter(h => (h.data || {}).votingShareholder);
+            let previousPerson = null;
+            if(currentVoter.length){
+                previousPerson =  populatePerson({personId: currentVoter[0].person.personId}, this.props.modalData.companyState);
+            }
+            actions.push({
+                holdingId: holdingId,
+                beforeHolders: populateHolders(holdingId, this.props.modalData.companyState),
+                afterHolders: populateHolders(holdingId, this.props.modalData.companyState),
+                afterVotingShareholder: person,
+                beforeVotingShareholder: previousPerson,
+                transactionType: TransactionTypes.HOLDING_CHANGE
             });
         });
-        this.props.dispatch(companyTransaction('apply_share_classes',
+
+        const transactions = [{
+            transactionType: TransactionTypes.HOLDING_CHANGE,
+            actions: actions
+        }];
+
+        this.props.dispatch(companyTransaction('compound',
                                 this.props.modalData.companyId,
-                                {actions: holdings}))
+                                {transactions: transactions}))
             .then(() => {
                 this.props.end({reload: true});
-                this.props.dispatch(addNotification({message: 'Share classes applied.'}));
+                this.props.dispatch(addNotification({message: 'Voting Shareholders applied'}));
                 const key = this.props.modalData.companyId;
             })
-            .then(() => {
-                this.props.dispatch(showModal('importHistory', {companyState: this.props.modalData.companyState, companyId: this.props.modalData.companyId}));
-                this.props.dispatch(push(`/company/view/${this.props.modalData.companyId}/new_transaction`));
-            })
-
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
             });
@@ -100,7 +120,9 @@ export class VotingShareholdersModal extends React.Component {
 
     renderBody(companyState) {
         const fields = companyState.holdingList.holdings.map(h => `${h.holdingId}`)
-        const initialValues = companyState.holdingList.holdings.reduce((acc, value, key) => {
+        const initialValues = companyState.holdingList.holdings.reduce((acc, holding, key) => {
+            const voter = holding.holders.filter(h => (h.data || {}).votingShareholder)
+            acc[holding.holdingId] = (voter.length ? voter : holding.holders)[0].person.personId;
             return acc;
         }, {})
         return <VoterSelectConnected ref="form" companyState={companyState}

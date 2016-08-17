@@ -135,8 +135,8 @@ export class HoldingDL extends React.Component {
                     <dd key={i} >{numberWithCommas(p.amount)} of {renderShareClass(p.shareClass, this.props.shareClassMap) } Shares<br/></dd>) }
                 <dt>Shareholders</dt>
                 { this.props.holding.holders.map((holder, i) =>
-                    <dd key={i} >{holder.name} <br/>
-                    <span className="address">{holder.address}</span></dd>) }
+                    <dd key={i} >{holder.person.name} {(holder.data||{}).votingShareholder && <strong>(Voting Shareholder)</strong>}<br/>
+                    <span className="address">{holder.person.address}</span></dd>) }
             </dl>
     }
 }

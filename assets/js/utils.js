@@ -247,7 +247,7 @@ export function stringToDate(date){
 
 
 export function stringToDateTime(date){
-    return moment(date).format('h:ma D MMM YYYY')
+    return moment(date).format('h:mma D MMM YYYY')
 }
 
 
@@ -297,14 +297,14 @@ export function newHoldingString(newHolding){
 export function personList(companyState){
     const persons = companyState.holdingList.holdings.reduce((acc, h) => {
         return h.holders.reduce((acc, p) => {
-            acc[p.personId] = {...p}
+            acc[p.person.personId] = {...p.person}
             return acc;
         }, acc);
     }, {});
     const orderedPersons = Object.keys(persons).map(k => {
         return {id: k, ...persons[k]};
     })
-    orderedPersons.sort((a, b) => a.name.localeCompare(b));
+    orderedPersons.sort((a, b) => a.name.localeCompare(b.name));
     return orderedPersons;
 }
 
@@ -323,8 +323,8 @@ export function populatePerson(person, companyState){
         let result;
         companyState.holdingList.holdings.map((h) => {
             h.holders.map((p) => {
-                if(p.personId === id){
-                    result = {name: p.name, address: p.address, personId: p.personId, companyNumber: p.companyNumber};
+                if(p.person.personId === id){
+                    result = {name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber};
                 }
             });
         });

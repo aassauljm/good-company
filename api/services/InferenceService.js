@@ -117,7 +117,6 @@ module.exports = {
     },
 
     insertIntermediateActions: function (docs){
-
         //  split removeAllocations into amend to zero, then removeAllocation.
         function splitAmends(docs){
             const removalTypes = [Transaction.types.REMOVE_ALLOCATION];
@@ -195,6 +194,7 @@ module.exports = {
         }
 
         function splitMultiTransfers(docs){
+            // segment out transfers into separate transactions
             const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
             return  _.reduce(docs, (acc, doc, i) => {
                 const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);

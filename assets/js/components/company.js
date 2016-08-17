@@ -126,13 +126,15 @@ class CompanyAlertsWidget extends React.Component {
 
 
 function analyseCompany(company){
+    // create a list of holders for a c
     company.currentCompanyState.holders = company.currentCompanyState.holdingList.holdings.reduce((acc, holding) => {
         holding.holders.reduce((acc, holder) => {
-            acc[holder.personId] = (acc[holder.personId] || []).concat([holding.holdingId])
+            acc[holder.person.personId] = (acc[holder.person.personId] || []).concat([holding.holdingId]);
             return acc
         }, acc)
         return acc;
     }, {});
+    company.currentCompanyState.holdingList.holdings.sort((a, b) => a.name.localeCompare(b.name))
     return company;
 }
 

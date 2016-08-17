@@ -16,7 +16,7 @@ import { companyTransaction, addNotification } from '../../actions';
 function renderHolders(holding){
     return <ul>
         { holding.holders.map((h, i) => {
-            return <li key={i}>{ h.name } </li>
+            return <li key={i}>{ h.person.name } </li>
         })}
     </ul>
 }

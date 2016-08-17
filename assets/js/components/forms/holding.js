@@ -162,10 +162,10 @@ const validate = (values, props) => {
         return errors;
     });
     if(!values.persons.length){
-        errors._error = (errors._error || []).concat(['At least 1 holder required'])
+        errors._error = (errors._error || []).concat(['At least 1 holder required']);
     }
     else if(values.persons.reduce((acc, p) => acc + (p.votingShareholder ? 1 : 0), 0) !== 1){
-        errors._error = (errors._error || []).concat(['Please select a voting shareholder'])
+        errors._error = (errors._error || []).concat(['Please select a voting shareholder']);
     };
     return errors;
 
@@ -192,7 +192,9 @@ export function updateHoldingFormatAction(values, oldHolding){
         beforeHolders: oldHolding.holders,
         afterName: values.holdingName,
         beforeName: oldHolding.name,
-        holdingId: oldHolding.holdingId
+        holdingId: oldHolding.holdingId,
+        afterVotingShareholder: values.votingShareholder,
+        beforeVotingShareholder: values.previousVotingShareholder,
     }
     return action;
 }

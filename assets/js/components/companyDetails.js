@@ -23,7 +23,7 @@ function companyStateToTree(state){
                 children: state.holdingList.holdings.map(h => ({
                     name: h.name,
                     children: h.holders.map(h => ({
-                                name: h.name
+                                name: h.person.name
                             }))
                 }))
             }
