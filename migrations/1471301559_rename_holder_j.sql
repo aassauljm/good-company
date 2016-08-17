@@ -1,4 +1,4 @@
-ALTER TABLE "holder_j" rename TO "holder";
+ALTER TABLE "holderJ" rename TO "holder";
 
 ALTER TABLE "holder" DROP CONSTRAINT holder_j_pkey;
 
