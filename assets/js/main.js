@@ -15,6 +15,7 @@ let mountNode = document.getElementById("main");
 let data = {};
 try{
     data = JSON.parse(document.getElementById("data").textContent);
+    console.log('Data loaded');
 }catch(e){
     //do nothing
 }
