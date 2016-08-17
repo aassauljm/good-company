@@ -61,6 +61,24 @@ module.exports.connections = {
                 idle: 10000
             }
         }
+    },
+    gc_error: {
+        user: process.env.USER || 'postgres',
+        password: '',
+        database: 'gc_error',
+        dialect: 'postgres',
+        options: {
+            dialect: 'postgres',
+            host: 'localhost',
+            port: 5432,
+            logging: true,
+            pool: {
+                max: 5,
+                min: 0,
+                idle: 10000
+            }
+        }
     }
+
 
 };

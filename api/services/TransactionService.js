@@ -388,8 +388,60 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
             transactions.push(transaction);
             return transactions;
         })
-    }
+}
 
+export function performHoldingTransfer(data, companyState, previousState, effectiveDate){
+    const normalizedData = _.cloneDeep(data)
+    let current, holdingId, amount, transactions = [];
+    return Promise.resolve(companyState.dataValues.holdingList ? companyState.dataValues.holdingList.buildNext() :  HoldingList.build({}))
+        .then(holdingList => {
+            companyState.dataValues.holdingList = holdingList;
+            companyState.dataValues.h_list_id = null;
+            return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+
+            })), Promise.all(normalizedData.beforeHolders.map(h => {
+                AddressService.normalizeAddress(h.address)
+                    .then(address => h.address = address)
+            }))])
+        })
+        .then(() => {
+            // resolve ambiguities
+            current = inverseFindHolding(normalizedData, companyState);
+            holdingId = current.dataValues.holdingId;
+            // transfer to this one, from newly created on
+            amount = current.dataValues.parcels.reduce((sum, p) => sum + p.amount, 0);
+            return performNewAllocation({
+                ...data,
+                transactionType: Transaction.types.TRANSFER_TO,
+                transactionMethod: Transaction.types.AMEND,
+                holders: data.afterHolders,
+                beforeAmount: 0,
+                amount: amount,
+                afterAmount: amount
+                //shareclass
+            }, companyState, previousState, effectiveDate)
+        })
+        .then((transaction) => {
+            transactions.push(transaction);
+            return performAmend({
+                ...data,
+                transactionType: Transaction.types.TRANSFER_FROM,
+                transactionMethod: Transaction.types.AMEND,
+                beforeHolders: data.beforeHolders,
+                afterHolders: data.beforeHolders,
+                beforeAmount: amount,
+                amount: amount,
+                afterAmount: 0
+                //shareclass
+            }, companyState, previousState, effectiveDate);
+        })
+        .then((transaction) => {
+            transactions.push(transaction);
+            return transactions;
+        })
+}
 
 export function performHoldingChange(data, companyState, previousState, effectiveDate, userId){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -1375,7 +1427,14 @@ export function performInverseAllPending(company){
             .catch(e => {
                 sails.log.error(e)
                 sails.log.error('Failed import on action: ', JSON.stringify(current));
-                throw firstError;
+                if(firstError){
+                    throw firstError;
+                }
+                else{
+                    e.context = e.context || {};
+                    e.context.actionSet = current;
+                    throw e;
+                }
             })
 
     }
