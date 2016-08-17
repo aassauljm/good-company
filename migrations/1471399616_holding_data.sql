@@ -1,0 +1,1 @@
+ALTER TABLE "holding" RENAME COLUMN "attr" TO "data";
