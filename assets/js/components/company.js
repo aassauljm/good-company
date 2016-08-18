@@ -151,7 +151,9 @@ const DEFAULT_OBJ = {};
     return {
         data: DEFAULT_OBJ,
          ...state.resources['/company/'+ownProps.params.id +'/get_info']};
-})
+}, (dispatch, ownProps) => ({
+    requestData: (id) => dispatch(requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany}))
+}))
 export class CompanyLoader extends React.Component {
     key() {
         return this.props.params.id

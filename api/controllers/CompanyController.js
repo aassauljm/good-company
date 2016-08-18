@@ -42,7 +42,7 @@ module.exports = {
         })
         .then(() => {
             return ActivityLog.create({
-                type: ActivityLog.types.UPDATE_PENDING_HISTORY,
+                type: ActivityLog.types.DELETE_COMPANY,
                 userId: req.user.id,
                 description: `${companyName} Deleted`,
                 data: {companyId: company.id}
@@ -241,6 +241,14 @@ module.exports = {
         })
         .then(function(result){
             return res.json(result)
+        })
+        .then(() => {
+            return ActivityLog.create({
+                type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                userId: req.user.id,
+                description: `Complete ${companyName} History Import`,
+                data: {companyId: req.params.id}
+            });
         })
         .catch(function(e){
             return res.serverError(e)

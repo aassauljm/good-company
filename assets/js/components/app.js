@@ -29,7 +29,7 @@ export default class App extends React.Component {
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDrop={prevent} onDragOver={prevent}>
                 { this.props.children }
-                { !this.props.print && <Footer />}
+                { !this.props.routes.some(r => r.print) && <Footer />}
             </div>
         }
         let name = this.props.location.pathname;
@@ -56,7 +56,7 @@ export class LoggedInApp extends React.Component {
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDrop={prevent} onDragOver={prevent}>
                 { this.props.children }
-                { !this.props.print && <Footer />}
+                { !this.props.routes.some(r => r.print) && <Footer />}
             </div>
         }
         return  <div>

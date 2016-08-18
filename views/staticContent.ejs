@@ -2,7 +2,7 @@
 <html>
   <head>
 
-    <link rel="stylesheet" href="<%- assets %>/css/styles.css" />
+    <link rel="stylesheet" href="<%- assets %>/css/main<%- sails.config.ASSET_HASH ? '.'+sails.config.ASSET_HASH : ''%>.css" />
     <style>
 html {
 zoom: 0.55;
@@ -12,5 +12,7 @@ zoom: 0.55;
 
   <body>
 <div id="main"><%- reactOutput %></div>
+
+ <p class="static-footer">© Copyright <%= (new Date()).getFullYear() %> - CataLex®. All rights reserved.</p>
   </body>
 </html>

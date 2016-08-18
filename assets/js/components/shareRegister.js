@@ -242,7 +242,7 @@ export class ShareRegisterDocument extends React.Component {
         companyState: PropTypes.object.isRequired
     };
 
-    currentFields = ['name', 'address', 'amount']
+    shareholderFields = ['name', 'address', 'amount']
 
     renderShareClass(k) {
         const {shareRegister, shareClassMap} = this.props;
@@ -256,7 +256,7 @@ export class ShareRegisterDocument extends React.Component {
         }
         return <div >
                 <h4>{ renderShareClass(k, shareClassMap) }</h4>
-                <div className="row"><div className="col-md-6">
+                <div ><div className="col-md-6">
                     <h5>{ STRINGS.shareRegister['votingRights'] }</h5>
                     { renderRights(properties.votingRights) }
                     </div>
@@ -269,21 +269,49 @@ export class ShareRegisterDocument extends React.Component {
             </div>
     }
 
+    renderCurrentShareholdingsForClass(k) {
+        const {shareRegister, shareClassMap, companyState} = this.props;
+        const holdings = [...companyState.holdingList.holdings.filter(h => h.parcels.some(p => p.shareClass === k))];
+        holdings.sort((a, b) => {
+            return b.parcels.filter(p => p.shareClass === k)[0].amount - a.parcels.filter(p => p.shareClass === k)[0].amount
+        })
+        return <div >
+                <h4>{ renderShareClass(k, shareClassMap) }</h4>
+                    { holdings.map((holding, i) => {
+                    const holders = [...holding.holders];
+                    holders.sort((a, b) => {
+                        return ((a.data||{}).votingShareholder && -1) || ((b.data||{}).votingShareholder && 1) || a.person.name.localeCompare(b.person.name)
+                    })
+                    return <table key={i} className="table share-register">
+                                <thead>
+                                <tr><th>{holding.name || `Shareholding #${i+1}`}</th><th>{ STRINGS.shareRegister['amount']}</th></tr>
+                             </thead>
+                        <tbody>
+                            <tr>
+                            <td>{ holders.map((h, i) => <div key={i}>{h.person.name}{ ((h.data||{}).votingShareholder || holding.holders.length ===1) && <strong> (Voting Shareholder)</strong>}</div>) }</td>
+                                <td className="share-register-amount">{ numberWithCommas(holding.parcels.filter(p => p.shareClass === k)[0].amount) }</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }) }
+            </div>
+    }
+
     renderTable(k) {
         const {shareRegister, shareClassMap, companyState} = this.props;
-        const rows = shareRegister.filter(s=>s.shareClass === k);
+        const rows = shareRegister.filter(s => s.shareClass === k);
         if(!rows.length) {
             return 'No shareholdings with this class.'
         }
         return <table className="table share-register">
             <thead>
-                <tr>{ this.currentFields.map((f, i) => {
+                <tr>{ this.shareholderFields.map((f, i) => {
                     return <th key={i}>{STRINGS.shareRegister[f]}</th>
                 })}</tr>
             </thead>
             <tbody>
                 { rows.map((s, i) => {
-                    return <tr key={i}>{ this.currentFields.map((f, j) => {
+                    return <tr key={i}>{ this.shareholderFields.map((f, j) => {
                         return <td key={j} className={"share-register-"+f}>{renderField(f, shareRegister[i][f], shareRegister[i], shareClassMap)}</td>
                     })}</tr>
                 }) }
@@ -302,6 +330,16 @@ export class ShareRegisterDocument extends React.Component {
                     return <div key={i}>{ this.renderShareClass(k) }</div>
                 }) }
 
+            </div>
+    }
+
+
+    renderCurrentShareholdings(shareClasses) {
+        return <div>
+            <h3>Current Shareholdings</h3>
+                { shareClasses.map((k, i) => {
+                    return <div key={i}>{ this.renderCurrentShareholdingsForClass(k) }</div>
+                }) }
             </div>
     }
 
@@ -350,6 +388,7 @@ export class ShareRegisterDocument extends React.Component {
                 </tbody>
             </table>
             <div>Generated on { stringToDate() }</div>
+            { this.renderCurrentShareholdings(shareClasses) }
             { this.renderShareClasses(shareClasses) }
             { this.renderHistory(shareClasses) }
 

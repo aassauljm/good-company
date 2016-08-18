@@ -7,7 +7,7 @@ export default class Footer extends React.Component {
     render() {
         return <div className="footer">
             <div className="container">
-            <p>© Copyright 2016 - CataLex®. All rights reserved.</p>
+            <p>© Copyright { (new Date()).getFullYear() } - CataLex®. All rights reserved.</p>
         </div>
         </div>
     }
