@@ -164,7 +164,7 @@ const validate = (values, props) => {
     if(!values.persons.length){
         errors._error = (errors._error || []).concat(['At least 1 holder required']);
     }
-    else if(values.persons.reduce((acc, p) => acc + (p.votingShareholder ? 1 : 0), 0) !== 1){
+    else if(values.persons.length > 1 && values.persons.reduce((acc, p) => acc + (p.votingShareholder ? 1 : 0), 0) !== 1){
         errors._error = (errors._error || []).concat(['Please select a voting shareholder']);
     };
     return errors;
