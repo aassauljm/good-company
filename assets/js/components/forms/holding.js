@@ -90,6 +90,16 @@ export class HoldingNoParcels extends React.Component {
 
     };
 
+    warnings(values) {
+        if(!this.props.holding){
+            return false;
+        }
+        var hasChanged = holdersChanged(values, this.props.holding);
+        return hasChanged && <div className="alert alert-warning">
+            Changing shareholders will result in a transfer to a new share allocation
+        </div>
+    }
+
     render() {
         return <form className="form" >
         <fieldset>
@@ -137,7 +147,7 @@ export class HoldingNoParcels extends React.Component {
         { this.props.error && <div className="alert alert-danger">
             { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
         </div> }
-        { this.props.warnings && this.props.warnings(this.props.values)  }
+        { this.warnings(this.props.values)  }
 
         <Documents documents={this.props.fields.documents}/>
         </form>
@@ -172,6 +182,16 @@ const validate = (values, props) => {
 
 }
 
+export function holdersChanged(values, oldHolding){
+    let newPerson = false;
+    const existing = oldHolding.holders.map((p) => p.person.personId.toString());
+    const matches = values.persons.every(p => {
+        return existing.indexOf(p.personId) >= 0;
+    })
+    return !matches || existing.length !== values.persons.length;
+}
+
+
 export function reformatPersons(values, companyState){
     return values.persons.map(p => populatePerson(p, companyState));
 }
@@ -185,12 +205,13 @@ export function newHoldingFormatAction(values){
     return action;
 }
 
-export function updateHoldingFormatAction(values, oldHolding){
+export function updateHoldingFormatAction(values, oldHolding, beforeHolders){
     // if only changing meta data, then HOLDING_CHANGE
+
     const action = {
         transactionType: TransactionTypes.HOLDING_CHANGE,
         afterHolders: values.persons,
-        beforeHolders: oldHolding.holders,
+        beforeHolders: beforeHolders,
         afterName: values.holdingName,
         beforeName: oldHolding.name,
         holdingId: oldHolding.holdingId,
@@ -199,6 +220,50 @@ export function updateHoldingFormatAction(values, oldHolding){
     }
     return action;
 }
+
+export function holdingTransferFormatAction(values, oldHolding, beforeHolders){
+    const action = {
+        transactionType: TransactionTypes.HOLDING_TRANSFER,
+        afterHolders: values.persons,
+        beforeHolders: beforeHolders,
+        afterName: values.holdingName,
+        beforeName: oldHolding.name,
+        holdingId: oldHolding.holdingId,
+        afterVotingShareholder: values.votingShareholder,
+        beforeVotingShareholder: values.previousVotingShareholder,
+    }
+    return action;
+}
+
+export function updateHoldingSubmit(values, oldHolding){
+    // One or two transactions to process here.
+    // first, check for holder changes
+    //debugger
+    const beforeHolders = oldHolding.holders.map(p =>
+            ({name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber}));
+    if(holdersChanged(values, oldHolding)){
+        return [{
+            transactionType: TransactionTypes.HOLDING_TRANSFER,
+            effectiveDate: values.effectiveDate,
+            actions: [holdingTransferFormatAction(values, oldHolding, beforeHolders)]
+        },{
+            transactionType: TransactionTypes.INFERRED_INTRA_ALLOCATION_TRANSFER,
+            effectiveDate: values.effectiveDate,
+            actions: [{
+                transactionType: TransactionTypes.REMOVE_ALLOCATION,
+                effectiveDate: values.effectiveDate,
+                holders: beforeHolders,
+            }]
+        }]
+    }
+    return [{
+        transactionType: TransactionTypes.HOLDING_CHANGE,
+        effectiveDate: values.effectiveDate,
+        actions: [updateHoldingFormatAction(values, oldHolding, beforeHolders)]
+    }]
+}
+
+
 
 export const HoldingNoParcelsConnected = reduxForm({
   form: 'holding',

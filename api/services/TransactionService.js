@@ -1478,6 +1478,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.ADDRESS_CHANGE]:         TransactionService.performAddressChange,
         [Transaction.types.HOLDING_CHANGE]:         TransactionService.performHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:          TransactionService.performHolderChange,
+        [Transaction.types.HOLDING_TRANSFER]:          TransactionService.performHoldingTransfer,
         [Transaction.types.NEW_ALLOCATION]:         TransactionService.performNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]:      TransactionService.performRemoveAllocation,
         [Transaction.types.NEW_DIRECTOR]:           TransactionService.performNewDirector,

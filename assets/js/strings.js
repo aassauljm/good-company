@@ -75,7 +75,8 @@ export default {
         APPLY_SHARE_CLASS: 'Apply Share Class',
         APPLY_SHARE_CLASSES: 'Apply Share Classes',
         CREATE_SHARE_CLASS: 'Create Share Class',
-        COMPOUND_REMOVALS: 'Removals'
+        COMPOUND_REMOVALS: 'Removals',
+        HOLDING_TRANSFER: 'Transfer'
     },
     transactionVerbs: {
         ISSUE_TO: 'Issue',
