@@ -60,7 +60,7 @@ class SpecifyVotingHolders extends React.Component {
     render(){
         return  <div><a  href="#" onClick={this.props.startVotingHolders} className="text-danger alert-entry">
         <Glyphicon glyph="warning-sign" className="big-icon"/>
-        Voting shareholders for each allocation must be specified.  Click here to start.</a>
+        Voting shareholders for each joint allocation must be specified.  Click here to start.</a>
         </div>
     }
 }

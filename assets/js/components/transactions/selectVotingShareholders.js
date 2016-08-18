@@ -38,7 +38,7 @@ export class VoterSelect extends React.Component {
             <tr><th>Name</th><th>Shareholders</th><th>Voting Shareholder</th></tr>
             </thead>
             <tbody>
-                { this.props.companyState.holdingList.holdings.map((h, i) => {
+                { this.props.holdings.map((h, i) => {
                     return <tr key={i}>
                         <td>{ h.name }</td>
                         <td>{ renderHolders(h) }</td>
@@ -119,13 +119,14 @@ export class VotingShareholdersModal extends React.Component {
     }
 
     renderBody(companyState) {
-        const fields = companyState.holdingList.holdings.map(h => `${h.holdingId}`)
-        const initialValues = companyState.holdingList.holdings.reduce((acc, holding, key) => {
+        const holdings = companyState.holdingList.holdings.filter(h => h.holders.length > 1);
+        const fields = holdings.map(h => `${h.holdingId}`);
+        const initialValues = holdings.reduce((acc, holding, key) => {
             const voter = holding.holders.filter(h => (h.data || {}).votingShareholder)
             acc[holding.holdingId] = (voter.length ? voter : holding.holders)[0].person.personId;
             return acc;
         }, {})
-        return <VoterSelectConnected ref="form" companyState={companyState}
+        return <VoterSelectConnected ref="form" holdings={holdings}
             fields={fields} onSubmit={this.submit} initialValues={initialValues}/>
     }
 
