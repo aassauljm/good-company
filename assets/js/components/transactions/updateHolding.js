@@ -13,12 +13,21 @@ import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons }
 import { Documents } from '../forms/documents';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 
+function holdersChanged(values, oldHolding){
+    let newPerson = false;
+    const existing = oldHolding.holders.map((p) => p.person.personId.toString());
+    const matches = values.persons.every(p => {
+        return existing.indexOf(p.personId) >= 0;
+    })
+    return !matches || existing.length !== values.persons.length;
+}
+
+
 
 function updateHoldingSubmit(values, oldHolding){
     // One or two transactions to process here.
     // first, check for holder changes
-    debugger
-
+    //debugger
     const actions = updateHoldingFormatAction(values, oldHolding);
     return [{
         transactionType: TransactionTypes.HOLDING_CHANGE,
@@ -42,6 +51,16 @@ export class UpdateHoldingModal extends React.Component {
         this.submit = ::this.submit;
         this.handleClose = ::this.handleClose;
         this.handleNext = ::this.handleNext;
+        this.warnings = ::this.warnings;
+    }
+
+    warnings(values) {
+        var hasChanged = holdersChanged(values, this.props.modalData.holding);
+        console.log(values, this.props.modalData.holding);
+        console.log(hasChanged);
+        return hasChanged && <div className="alert alert-warning">
+            Changing shareholders will result in a transfer to a new share allocation
+        </div>
     }
 
     handleNext() {
@@ -63,6 +82,7 @@ export class UpdateHoldingModal extends React.Component {
                         persons: this.props.modalData.holding.holders.map(p => ({...p.person, personId: p.person.personId + '', votingShareholder: (p.data || {}).votingShareholder})),
                         holdingName: this.props.modalData.holding.name}}
                     personOptions={personOptions}
+                    warnings={this.warnings}
                     showModal={(key, index) => this.props.dispatch(showModal(key, {
                         ...this.props.modalData,
                         formName: 'holding',

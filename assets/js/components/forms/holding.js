@@ -6,7 +6,6 @@ import { formFieldProps, newHoldingString, populatePerson } from '../../utils';
 import { ParcelWithRemove } from './parcel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../../strings';
-import { StaticField } from 'react-bootstrap/lib/FormControl';
 import { reduxForm } from 'redux-form';
 import DateInput from './dateInput';
 import { Documents } from './documents';
@@ -114,7 +113,7 @@ export class HoldingNoParcels extends React.Component {
                         }}>Create New Person</ButtonInput></div> }
 
                     { p.newPerson.value &&
-                        <StaticField type="static" label={'New Shareholder'} value={p.newPerson.value.name}
+                        <Input type="static" label={'New Shareholder'} value={p.newPerson.value.name}
                         buttonAfter={<button className="btn btn-default" onClick={(e) => {
                             p.newPerson.onChange(null);
                         }}><Glyphicon glyph='trash'/></button>} /> }
@@ -138,6 +137,8 @@ export class HoldingNoParcels extends React.Component {
         { this.props.error && <div className="alert alert-danger">
             { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
         </div> }
+        { this.props.warnings && this.props.warnings(this.props.values)  }
+
         <Documents documents={this.props.fields.documents}/>
         </form>
     }
