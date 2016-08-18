@@ -210,10 +210,6 @@ module.exports = {
             history: actionUtil.parseValues(req)['history'],
             userId: req.user.id
         })
-        /*.then(function(){
-            // outside transaction block, because loops with rolledback transactions
-            return TransactionService.performInverseAll(company, state);
-        })*/
         .then(function(_company) {
             company = _company;
             return res.json(company);
@@ -235,8 +231,14 @@ module.exports = {
 
 
     importPendingHistory: function(req, res){
+        let company, companyName;
         Company.findById(req.params.id)
-        .then(function(company){
+        .then(function(_company){
+            company  = _company;
+            return company.getCurrentCompanyState()
+        })
+        .then(_state => {
+            companyName = _state.get('companyName');
             return TransactionService.performInverseAllPending(company);
         })
         .then(function(result){

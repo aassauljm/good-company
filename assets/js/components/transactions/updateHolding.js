@@ -28,6 +28,9 @@ function updateHoldingSubmit(values, oldHolding){
     // One or two transactions to process here.
     // first, check for holder changes
     //debugger
+    if(holdersChanged(values, oldHolding)){
+
+    }
     const actions = updateHoldingFormatAction(values, oldHolding);
     return [{
         transactionType: TransactionTypes.HOLDING_CHANGE,

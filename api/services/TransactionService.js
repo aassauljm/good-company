@@ -366,7 +366,9 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
                 holders: data.afterHolders,
                 beforeAmount: 0,
                 amount: amount,
-                afterAmount: amount
+                afterAmount: amount,
+                votingShareholder: data.afterVotingShareholder,
+                name: data.afterName
                 //shareclass
             }, companyState, previousState, effectiveDate)
         })
@@ -419,7 +421,10 @@ export function performHoldingTransfer(data, companyState, previousState, effect
                 holders: data.afterHolders,
                 beforeAmount: 0,
                 amount: amount,
-                afterAmount: amount
+                afterAmount: amount,
+                votingShareholder: data.afterVotingShareholder,
+                name: data.afterName
+                // do name, share class, votingShareholder
                 //shareclass
             }, companyState, previousState, effectiveDate)
         })
@@ -920,8 +925,14 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
     })
     .then(function(personData){
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
-        const holding = Holding.buildDeep({holders: personData.map(p => ({person: p})), transaction: transaction, name: data.name,
-            parcels: []}); // [{amount: 0, shareClass: data.shareClass}]});
+        function votingShareholder(person){
+            if(data.votingShareholder && Person.build(person).isEqual(data.votingShareholder)){
+                return {votingShareholder: true}
+            }
+        }
+        const holding = Holding.buildDeep({
+            holders: personData.map(p => ({person: p, ...votingShareholder(p)})), transaction: transaction, name: data.name,
+            parcels: [{amount: data.amount || 0, shareClass: data.shareClass}]});
         nextState.dataValues.holdingList.dataValues.holdings.push(holding);
         return transaction;
     });
