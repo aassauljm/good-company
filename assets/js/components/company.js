@@ -98,7 +98,7 @@ class CompanyAlertsWidget extends React.Component {
         const historyWarning = !!(this.props.companyState.warnings.pendingHistory);
         const votingShareholderWarning = !!(this.props.companyState.warnings.missingVotingShareholders);
         const applyShareWarning = !shareWarning && !!this.props.companyState.shareCountByClass['null'];
-        if(!shareWarning && !historyWarning && !applyShareWarning){
+        if(!shareWarning && !historyWarning && !applyShareWarning && !votingShareholderWarning){
             return false;
         }
         return <div className="widget">
