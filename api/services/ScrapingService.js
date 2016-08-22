@@ -752,7 +752,6 @@ function processCompaniesOffice($){
     let typeRegex =/^Document Type$/;
     result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
     let docType = DOCUMENT_TYPE_MAP[result.label];
-    console.log("DOC TYPE", docType, result.label);
     if(docType && docType.type){
         result = {...result, ...EXTRACT_DOCUMENT_MAP[docType.type]($)}
     }

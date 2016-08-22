@@ -488,7 +488,7 @@ module.exports = {
                         const holdings = holdingList.dataValues.holdings;
                         return !holdings.every(h => {
                             return h.dataValues.holders.reduce((acc, p) => {
-                                return acc + (p.data || {}).votingShareholder ? 1 : 0;
+                                return acc + ((p.dataValues.data || {}).votingShareholder ? 1 : 0);
                             }, 0) === 1 || h.dataValues.holders.length === 1;
                         });
                     })
@@ -701,7 +701,7 @@ module.exports = {
                             return true;
                         }
                     });
-                    holding.dataValues.holders = existingHolders.concat(newHolders);
+                    holding.dataValues.holders = existingHolders.concat(newHolders.map(h => Holder.buildFull({person: h})));
                     if(transaction){
                         holding.dataValues.transaction = transaction;
                     }

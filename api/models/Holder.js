@@ -57,6 +57,9 @@ module.exports = {
             isEqual: function(other, options={}){
                 return this.dataValues.person.isEqual(other.person ? other.person : other);
             },
+            buildFull: function(attr){
+                return Holder.build(attr, {include: [{model: Person, as: 'person'}]});
+            }
         },
         hooks: {}
     }

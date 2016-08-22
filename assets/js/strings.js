@@ -29,9 +29,10 @@ export default {
         address: 'Address',
         current: 'Current Holder',
         holdingName: 'Allocation',
-        limitations: 'Restrictions / Limitations',
-        votingRights: 'Voting Rights',
+        limitations: 'Transfer Restrictions / Limitations',
+        votingRights: 'Rights Attached to Shares',
         amount: 'Current No. of Shares Held',
+        last_amount: 'Current No. of Shares Held',
         sumIncreases: 'Sum of all No. Increases',
         issueHistory: 'Date and No. of Shares Issued by Company',
         repurchaseHistory: 'Date and No. of Repurchase or Redemption',
@@ -113,7 +114,7 @@ export default {
         limitations: 'Restrictions/Limitations',
         rights: "Rights",
         "transferRestriction": "Restrictions on transfers",
-        "transferRestrictionDocument": "Source of document containing transfer restrictions",
+        "transferRestrictionDocument": "Location of document containing transfer restrictions",
 
         votingRights: {
             _: 'Voting Rights',

@@ -118,6 +118,15 @@ export function validateInverseAmend(amend, companyState){
     if(amend.afterAmount && (sum !== amend.afterAmount)){
         throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
     }
+    // If holders have changed too
+    if(!holding.holdersMatch({holders: amend.beforeHolders})){
+        throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
+            action: amend,
+            importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
+            currentState: companyState.toJSON()
+        });
+    }
+
     return Promise.resolve(holding);
 }
 
@@ -222,11 +231,6 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             const current = companyState.getMatchingHolding({holders: data.afterHolders,
                     parcels: [{amount: data.beforeAmount, shareClass: parcel.shareClass}]},
                                                             {ignoreCompanyNumber: true});
-            // If holders have changed too
-            if(!current.holdersMatch({holders: data.beforeHolders})){
-                /// DANGER!!!!!!!
-                return companyState.mutateHolders(current, data.beforeHolders, null, userId);
-            }
         })
         .then(() => {
             const transactionType  = data.transactionType;
@@ -293,6 +297,8 @@ function inverseFindHolding(data, companyState){
 
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
+    const normalizedData = _.cloneDeep(data);
+     let current;
     // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     return companyState.dataValues.holdingList.buildNext()
@@ -491,7 +497,7 @@ export function performHoldingChange(data, companyState, previousState, effectiv
                     const newHolding = current.buildNext()
                     companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
                     newHolding.dataValues.transaction = transaction;
-                    newHolding.dataValues.holders = current.dataValues.holders.map(h => {
+                    newHolding.dataValues.holders = newHolding.dataValues.holders.map(h => {
                         if(h.isEqual(data.afterVotingShareholder)){
                             h = h.buildNext();
                             h.data = h.dataValues.data = {...h.dataValues.data, votingShareholder: true};
@@ -1494,7 +1500,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.ADDRESS_CHANGE]:         TransactionService.performAddressChange,
         [Transaction.types.HOLDING_CHANGE]:         TransactionService.performHoldingChange,
         [Transaction.types.HOLDER_CHANGE]:          TransactionService.performHolderChange,
-        [Transaction.types.HOLDING_TRANSFER]:          TransactionService.performHoldingTransfer,
+        [Transaction.types.HOLDING_TRANSFER]:       TransactionService.performHoldingTransfer,
         [Transaction.types.NEW_ALLOCATION]:         TransactionService.performNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]:      TransactionService.performRemoveAllocation,
         [Transaction.types.NEW_DIRECTOR]:           TransactionService.performNewDirector,

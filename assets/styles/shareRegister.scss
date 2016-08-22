@@ -19,9 +19,6 @@
             width:20%;
         }
     }
-    td.share-register-amount{
-        text-align: right;
-    }
     * {
         color:#000;
     }
@@ -35,7 +32,7 @@
         text-align: center;
     }
 
-    th:last-of-type{
+    th:last-of-type, td:last-of-type{
         text-align: right;
     }
 
