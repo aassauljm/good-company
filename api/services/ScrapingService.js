@@ -214,11 +214,12 @@ const EXTRACT_DOCUMENT_MAP = {
                 break;
             case(Transaction.types.ACQUISITION):
                 result = {...result, ...parseAcquisition($)}
+                break;
             case(Transaction.types.PURCHASE):
                 result = {...result, ...parseAcquisition($, 'Date of Purchase:')}
+                break;
             case(Transaction.types.CONSOLIDATION):
                 result = {...result, ...parseAcquisition($, 'Date of Consolidation:')}
-
                 break;
             default:
         }
@@ -751,6 +752,7 @@ function processCompaniesOffice($){
     let typeRegex =/^Document Type$/;
     result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
     let docType = DOCUMENT_TYPE_MAP[result.label];
+    console.log("DOC TYPE", docType, result.label);
     if(docType && docType.type){
         result = {...result, ...EXTRACT_DOCUMENT_MAP[docType.type]($)}
     }

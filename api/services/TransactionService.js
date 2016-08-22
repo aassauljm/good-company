@@ -93,13 +93,18 @@ export function validateInverseAmend(amend, companyState){
     if(amend.transactionType === Transaction.types.AMEND){
         throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
             action: amend,
+            companyState: companyState,
             importErrorType: sails.config.enums.UNKNOWN_AMEND
         })
     }
     const holding = companyState.getMatchingHolding({holders: amend.afterHolders, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]},
                                                     {ignoreCompanyNumber: true});
     if(!holding){
-        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentI:d')
+        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId',{
+            action: amend,
+            companyState: companyState,
+            importErrorType: sails.config.enums.HOLDING_NOT_FOUND
+        })
     }
     const sum = _.sum(holding.dataValues.parcels, (p) =>{
         return p.amount;
@@ -294,7 +299,7 @@ export function performInverseHoldingChange(data, companyState, previousState, e
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
-            return transaction.save()
+            return transaction.save();
         })
         .then(() => {
             return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
@@ -530,13 +535,18 @@ export const performInverseHolderChange = function(data, companyState, previousS
         .then(function(){
             // find previousState person instance, attach mutating transaction
             const holder = previousState.getHolderBy(normalizedData.afterHolder);
-            return holder.setTransaction(transaction);
+            return holder.dataValues.person.setTransaction(transaction);
         })
         .then(() => {
             return transaction;
         })
         .catch((e)=>{
-            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change')
+            sails.log.error(e);
+            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change', {
+                action: data,
+                importErrorType: sails.config.enums.HOLDING_NOT_FOUND,
+                currentState: companyState.toJSON()
+            })
         });
 };
 
@@ -588,7 +598,11 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount}]}, {ignoreCompanyNumber: true});
         }
         if(!holding){
-            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation')
+            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation', {
+                action: data,
+                importErrorType: sails.config.enums.HOLDING_NOT_FOUND,
+                currentState: companyState.toJSON()
+            });
         }
 
         if(!data.shareClass){
@@ -599,7 +613,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             return p.amount;
         });
         if(sum !== data.amount){
-            throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation')
+            throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation');
         }
         holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -1226,6 +1240,7 @@ export function performInverseTransaction(data, company, rootState){
             currentRoot = _rootState;
             return currentRoot.buildPrevious({transaction: null, transactionId: null});
         })
+
         .then(function(_prevState){
             prevState = _prevState;
             return Promise.reduce(data.actions, function(arr, action){
@@ -1465,6 +1480,7 @@ export function performInverseAllPending(company){
 
 
 export function performTransaction(data, company, companyState){
+
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE]:                  TransactionService.performIssueUnallocated,
         [Transaction.types.ACQUISITION]:            TransactionService.performAcquisition,
@@ -1487,6 +1503,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.APPLY_SHARE_CLASS]:      TransactionService.performApplyShareClass,
         [Transaction.types.HISTORIC_HOLDER_CHANGE]: TransactionService.performHistoricHolderChange
     };
+
     if(!data.actions || data.userSkip){
         return Promise.resolve(companyState);
     }

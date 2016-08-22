@@ -556,7 +556,7 @@ module.exports = {
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.iRegister())
                                 .concat(CompanyState.includes.holdingList())
-                            })
+                            });
                     })
                     .then((next) => {
                         function setNew(obj){

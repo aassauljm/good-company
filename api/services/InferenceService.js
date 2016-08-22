@@ -76,7 +76,7 @@ module.exports = {
                             }
 
                         }
-                    })
+                    });
                     acc.push(d);
                 }
 
@@ -104,7 +104,10 @@ module.exports = {
                                 });
                             }
                         }
-                    })
+                    });
+                    acc.push(d);
+                }
+                else{
                     acc.push(d);
                 }
             }
@@ -240,8 +243,6 @@ module.exports = {
                 return acc;
             }, []);
         }
-
-
         let results = splitAmends(docs);
         results = holdingChangeRemovals(results);
         results = splitMultiTransfers(results);
@@ -372,6 +373,7 @@ module.exports = {
 
     segmentAndSortActions: function(docs){
         // split group actions by date
+
         const TRANSACTION_ORDER = {
             [Transaction.types.INFERRED_REMOVE_DIRECTOR]: 1,
             [Transaction.types.INFERRED_NEW_DIRECTOR]: 0
@@ -405,6 +407,8 @@ module.exports = {
             }
             return acc;
         }, []);
+
+
         docs = _.sortByAll(docs,
                            'effectiveDate',
                            (d) => parseInt(d.documentId, 10),
