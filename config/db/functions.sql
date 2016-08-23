@@ -499,32 +499,21 @@ prev_company_states(id, "previousCompanyStateId",  generation) as (
     WHERE t.id = tt."previousCompanyStateId"
 ),
 -- previous holdings for every company_state, with the newestHoldingId  (the current id for each holding)
-prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId", "transactionId", "hId", generation) as (
-    SELECT h.id as "startId", cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId", 0
-    FROM company_state as cs
+prev_holdings as (
+    SELECT cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId", generation
+    FROM prev_company_states as cs
     left outer JOIN _holding h on h."companyStateId" = cs.id
-    WHERE cs.id = $1
-    UNION ALL
-    SELECT "startId", cs.id, cs."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId", generation + 1
-    FROM company_state cs, prev_holdings tt
-    left outer JOIN _holding h on h."companyStateId" = tt."previousCompanyStateId" and h."holdingId" = tt."holdingId"
-    WHERE cs.id = tt."previousCompanyStateId"
- ),
+),
 person_holdings as (
-    SELECT DISTINCT ON (p."personId", ph."transactionId", "startId")
-    first_value(ph."hId") OVER wnd as "hId",
-    first_value(p."personId") OVER wnd as "personId",
-    first_value(ph."transactionId") OVER wnd as "transactionId",
-    first_value("startId") OVER wnd as "startId",
-    first_value(ph."holdingId") OVER wnd as "holdingId",
-    first_value(generation) OVER wnd as generation
+    SELECT DISTINCT ON (p."personId", ph."transactionId", "holdingId")
+    ph."hId" "hId",
+    p."personId",
+    ph."transactionId",
+    ph."holdingId",
+    generation
     FROM prev_holdings ph
     LEFT OUTER JOIN "holder" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
-    WINDOW wnd AS (
-       PARTITION BY p."personId", ph."transactionId", "startId" ORDER BY generation ASC
-       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-     )
 ),
 
 -- get parcels for a given holdingId
@@ -615,4 +604,3 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
-

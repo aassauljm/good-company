@@ -1432,6 +1432,7 @@ export function performInverseAllPendingResolve(company, root){
 export function performInverseAllPending(company){
     // unlike above this will commit all successful transactions, and complain when one fails
     let state, current, firstError;
+
     function perform(actions){
         return Promise.each(actions, (actionSet, i) => {
             return sequelize.transaction(function(t){
