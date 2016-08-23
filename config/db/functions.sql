@@ -503,6 +503,7 @@ prev_holdings("startId", "companyStateId", "previousCompanyStateId", "holdingId"
     SELECT h.id as "startId", cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId", 0
     FROM company_state as cs
     left outer JOIN _holding h on h."companyStateId" = cs.id
+    WHERE cs.id = $1
     UNION ALL
     SELECT "startId", cs.id, cs."previousCompanyStateId", tt."holdingId", h."transactionId", h.id as "hId", generation + 1
     FROM company_state cs, prev_holdings tt
@@ -520,7 +521,7 @@ person_holdings as (
     LEFT OUTER JOIN "holder" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
     WINDOW wnd AS (
-       PARTITION BY p."personId", ph."transactionId", "startId" ORDER BY generation
+       PARTITION BY p."personId", ph."transactionId", "startId" ORDER BY generation ASC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
      )
 ),
@@ -580,14 +581,14 @@ SELECT *,
     WHERE qq."personId" = q."personId" AND  (qq."shareClass" = "shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."startId" = q."newestHoldingId"
     AND  type = ANY(ARRAY['AMEND', 'REMOVE_ALLOCATION', 'NEW_ALLOCATION']::enum_transaction_type[]) )
-    AS "ambiguousChanges",
-
-    ( SELECT COALESCE(sum((data->'amount')::text::int), 0)
-    FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = "shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
-    AND qq."startId" = q."newestHoldingId"
-    AND  type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
-    AS "sumIncreases"
+    AS "ambiguousChanges"
+    --,
+    --( SELECT COALESCE(sum((data->'amount')::text::int), 0)
+    --FROM transaction_history qq
+    --WHERE qq."personId" = q."personId" AND  (qq."shareClass" = "shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
+    --AND qq."startId" = q."newestHoldingId"
+    --AND  type = ANY(ARRAY['ISSUE_TO', 'TRANSFER_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
+    --AS "sumIncreases"
 
 FROM
 

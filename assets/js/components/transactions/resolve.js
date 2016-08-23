@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, updateResource, showModal, addNotification } from '../../actions';
-import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd } from '../../utils';
+import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../forms/input';
@@ -131,7 +131,7 @@ class Recipient extends React.Component {
             { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
                 <div className="input-group-pair input-row">
                     <Input type="select" {...this.formFieldProps('type')}
-                    disabled={this.props.isInverse.value}
+                    disabled={!!this.props.isInverse.value}
                     onChange={(value) => {this.props.type.onChange(value);  this.props.onChange(); }}
                     label={false}>
                         <option value="" disabled></option>
@@ -140,14 +140,14 @@ class Recipient extends React.Component {
                     <Input className="amount" type="number" {...this.formFieldProps('amount')}
                     placeholder={'Number of Shares'}
                     value={this.props.amount.value }
-                    disabled={this.props.isInverse.value}
+                    disabled={!!this.props.isInverse.value}
                     onChange={(value) => {this.props.amount.onChange(value);  this.props.onChange(); }}
                     label={null}/>
                 </div>
                 { isTransfer(this.props.type.value) && <div className="input-row">
                     <Input type="select" {...this.formFieldProps('holding')}
                         onChange={(value) => {this.props.holding.onChange(value);  this.props.onChange(); }}
-                        disabled={this.props.isInverse.value}
+                        disabled={!!this.props.isInverse.value}
                         label={this.props.increase ? 'Transfer From' : 'Transfer To'}>
                         <option value="" disabled></option>
                         { this.props.holdings.map((h, i) => <option key={i} value={h.value}>{h.label}</option>)}
@@ -391,7 +391,33 @@ const DESCRIPTIONS = {
                         { sourceInfo(companyState, actionSet) }
                     </div>
                 </div>
-            </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="text-center">
+                        <h5>{ STRINGS.transactionTypes[action.transactionType] }</h5>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-5">
+                        <div className="shareholding action-description ">
+                        <p>{ numberWithCommas(action.beforeAmount) } Shares</p>
+                        { action.beforeHolders.map(renderHolders) }
+                        </div>
+                    </div>
+                    <div className="col-md-2">
+                        <div className="text-center">
+                            <Glyphicon glyph="arrow-right" className="big-arrow"/>
+                        </div>
+                    </div>
+                    <div className="col-md-5">
+                        <div className="shareholding action-description ">
+                        <p>{ numberWithCommas(action.afterAmount) } Shares</p>
+                        { action.afterHolders.map(renderHolders) }
+                        </div>
+                    </div>
+                </div>
+        </div>
     },
     [TransactionTypes.HOLDING_TRANSFER]: function(context, companyState){
         const { action, actionSet } = context;
@@ -425,6 +451,28 @@ const DESCRIPTIONS = {
     },
 }
 
+function skipOrRestart(allowSkip, context, submit, reset){
+    function skip(){
+        return submit({
+            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
+        })
+    }
+    function startOver(){
+        return reset();
+    }
+    return <div>
+        { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
+        <div className="button-row">
+        { allowSkip && <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button> }
+        <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+    </div>
+    </div>
+}
+
+const submitRestart = (...rest) => skipOrRestart(false, ...rest);
+const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
+
+
 const PAGES = {
     [ImportErrorTypes.MULTIPLE_HOLDINGS_FOUND]: function(context,  submit){
         const { possibleMatches, companyState } = context;
@@ -453,34 +501,94 @@ const PAGES = {
              </div>
         </div>
     },
-    [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: function(context, submit, reset){
-        function skip(){
+    [ImportErrorTypes.HOLDING_NOT_FOUND]: submitRestart,
+    [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: submitSkipRestart,
+    [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
+    [ImportErrorTypes.AMEND_TRANSFER_ORDER]: function(context, submit, reset){
+        const ignoredAction = {...context.actionSet.data, totalShares: null};
+        ignoredAction.actions = ignoredAction.actions.filter(r => {
+            return r.id !== context.action.id;
+        });
+
+        function doSubmit(pendingActions){
+            if(ignoredAction.actions.length){
+                pendingActions.push(ignoredAction)
+            }
             return submit({
-                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
-            })
+                pendingActions: pendingActions.map(p => ({id: context.action.id, data: p, previous_id: context.actionSet.previous_id}))
+            });
         }
-        function startOver(){
-            return reset();
+
+
+
+        function after(){
+            const pendingActions = [{
+                // REMOVE FIRST
+                ...context.actionSet.data, totalShares: null, actions: [{
+                        effectiveDate: context.action.effectiveDate,
+                        holders: context.action.beforeHolders,
+                        transactionType: TransactionTypes.REMOVE_ALLOCATION
+                    }]
+                },{ // THE TRANSFER
+                    ...context.actionSet.data, totalShares: null, actions: [{
+                        ...context.action,
+                        transactionType: TransactionTypes.HOLDING_TRANSFER,
+                        transactionMethod: null,
+                        amount: null,
+                        beforeAmount: context.action.afterAmount
+                    }]
+                }, {
+                    // THEN THE AMEND
+                    ...context.actionSet.data, totalShares: null, actions: [{
+                        ...context.action,
+                        afterHolders: context.action.beforeHolders,
+                    }]
+                }
+            ];
+            //THEN THE REST
+            doSubmit(pendingActions);
         }
-        return <div className="button-row">
-            <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+
+        function before(){
+            const pendingActions = [{
+                    //  AMEND FIRST
+                    ...context.actionSet.data, totalShares: null, actions: [{
+                        ...context.action,
+                        beforeHolders: context.action.afterHolders,
+                    }]
+                }, {
+                // THEN THE REMOVE
+                ...context.actionSet.data, totalShares: null, actions: [{
+                        effectiveDate: context.action.effectiveDate,
+                        holders: context.action.beforeHolders,
+                        transactionType: TransactionTypes.REMOVE_ALLOCATION
+                    }]
+                },{ // THE TRANSFER
+                    ...context.actionSet.data, totalShares: null, actions: [{
+                        ...context.action,
+                        transactionType: TransactionTypes.HOLDING_TRANSFER,
+                        transactionMethod: null,
+                        amount: null,
+                        afterAmount: context.action.beforeAmount,
+                    }]
+                },
+            ];
+            doSubmit(pendingActions);
+        }
+
+        return <div>
+             <div className="row">
+                <div className="col-md-12">
+                <p className="instructions">Did the change of shareholders happen before or after the change in share amount?</p>
+                </div>
+             </div>
+                <div className="button-row">
+                    <Button onClick={before} className="btn-primary">Before</Button>
+                    <Button onClick={after} className="btn-primary">After</Button>
+                </div>
         </div>
     },
-    [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: function(context, submit, reset){
-        function skip(){
-            return submit({
-                pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
-            })
-        }
-        function startOver(){
-            return reset();
-        }
-        return <div className="button-row">
-            <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
-        </div>
-    },
+
     [ImportErrorTypes.UNKNOWN_AMEND]: function(context, submit){
         const { actionSet, companyState } = context;
         const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
@@ -620,7 +728,7 @@ export class ResolveAmbiguityModal extends React.Component {
     renderBody() {
         const context = this.props.modalData.error.context || {};
         const action = context.action;
-        if(!action || !DESCRIPTIONS[action.transactionType]){
+        if(!action || !DESCRIPTIONS[action.transactionMethod || action.transactionType]){
             return <div className="resolve">
                     <div>Unknown Import Error</div>
                     <div className="button-row">
@@ -629,7 +737,7 @@ export class ResolveAmbiguityModal extends React.Component {
                 </div>
         }
         return <div className="resolve">
-            { DESCRIPTIONS[action.transactionType](context, this.props.modalData.companyState)}
+            { DESCRIPTIONS[action.transactionMethod || action.transactionType](context, this.props.modalData.companyState)}
             <hr/>
             { PAGES[context.importErrorType](context, this.props.updateAction, this.props.resetAction)}
         </div>

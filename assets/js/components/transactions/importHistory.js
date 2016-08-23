@@ -40,7 +40,10 @@ PAGES[INTRODUCTION] = function() {
 
 PAGES[LOADING] = function() {
     if(this.props.importHistory._status === 'fetching'){
-        return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+        return <div>
+            <p className="text-center">This may take a few monments</p>
+            <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+            </div>
     }
     else if(this.props.importHistory._status === 'complete'){
        return <div><p>All Companies Office documents have successfully been imported.</p></div>

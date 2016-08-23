@@ -154,7 +154,7 @@ module.exports = {
                     pa.originalId = pa.id;
                     pa.id = uuid.v4();
                     (pa.actions || []).map(a => a.id = uuid.v4())
-                    if(i-1 >= 0){
+                    if(i >= 1){
                         pendingActions[i-1].previous_id = pa.id;
                     }
                 });
@@ -182,7 +182,7 @@ module.exports = {
                         }
                         sails.log.info('Resetting history to', state.get('original_historic_action_id'));
                         return state.buildPrevious({transaction: null, transactionId: null,
-                            pending_historic_action_id: state.get('original_historic_action_id')})
+                            pending_historic_action_id: state.get('original_historic_action_id'), previousCompanyStateId: null})
                     })
                     .then(function(_newRoot){
                         newRoot = _newRoot
