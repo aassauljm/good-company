@@ -545,7 +545,7 @@ module.exports = {
                 return _.omit(_.pick.apply(_, [this.dataValues].concat(_.keys(CompanyState.attributes))), 'id');
             },
 
-            buildNext: function(attr){
+            buildNext: function(attr, options={}){
                 sails.log.info('Building next company state');
                 return this.populateIfNeeded()
                     .then(() => {
@@ -565,13 +565,19 @@ module.exports = {
                                     return;
                                 }
                                 function set(obj){
-                                    if(obj.dataValues.id){
+                                    setNew(obj);
+                                    if(!options.newRecords && obj.dataValues.id){
                                         obj.isNewRecord = false;
                                         obj._changed = {};
                                     }
-                                    setNew(obj);
+                                    else if(options.newRecords){
+                                        delete obj.dataValues.id;
+                                    }
                                 }
-                                if(Array.isArray(obj.dataValues[name])){
+                                if(obj.$options.includeMap[name]._pseudo){
+                                     delete obj.dataValues[name];
+                                }
+                                else if(Array.isArray(obj.dataValues[name])){
                                     obj.dataValues[name].map(set);
                                 }
                                 else{
@@ -587,8 +593,8 @@ module.exports = {
             },
 
 
-            buildPrevious: function(attr){
-                return this.buildNext(attr)
+            buildPrevious: function(attr, options){
+                return this.buildNext(attr, options)
                     .then(function(state){
                         state.dataValues.previousCompanyStateId = null;
                         return state;

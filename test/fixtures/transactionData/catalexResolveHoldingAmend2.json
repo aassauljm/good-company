@@ -1,0 +1,95 @@
+{
+    "pendingActions": [
+        {
+            "data": {
+                "actions": [
+                    {
+                        "afterAmount": 5000,
+                        "afterHolders": [
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": "5387329",
+                                "name": "BLOY CONSULTING LIMITED"
+                            }
+                        ],
+                        "amount": 4500,
+                        "beforeAmount": 500,
+                        "beforeHolders": [
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": "5387329",
+                                "name": "BLOY CONSULTING LIMITED"
+                            }
+                        ],
+                        "documentId": "19941799",
+                        "id": "ae18d8f5-f42d-4e1d-b6f8-cb2f68bacd5e",
+                        "transactionMethod": "AMEND",
+                        "transactionType": "ISSUE_TO"
+                    }
+                ],
+                "date": "2014-07-31T17:48:00.000Z",
+                "documentId": "19941799",
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-07-31T17:48:00.000Z",
+                "label": "Particulars of Shareholding",
+                "totalShares": null
+            }
+        },
+        {
+            "data": {
+                "actions": [
+                    {
+                        "holders": [
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": null,
+                                "name": "Thomas David BLOY"
+                            }
+                        ],
+                        "transactionType": "REMOVE_ALLOCATION"
+                    }
+                ],
+                "date": "2014-07-31T17:48:00.000Z",
+                "documentId": "19941799",
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-07-31T17:48:00.000Z",
+                "label": "Particulars of Shareholding",
+                "totalShares": null
+            }
+        },
+        {
+            "data": {
+                "actions": [
+                    {
+                        "afterAmount": 500,
+                        "afterHolders": [
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": "5387329",
+                                "name": "BLOY CONSULTING LIMITED"
+                            }
+                        ],
+                        "amount": null,
+                        "beforeAmount": 500,
+                        "beforeHolders": [
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": null,
+                                "name": "Thomas David BLOY"
+                            }
+                        ],
+                        "documentId": "19941799",
+                        "transactionMethod": null,
+                        "transactionType": "HOLDING_TRANSFER"
+                    }
+                ],
+                "date": "2014-07-31T17:48:00.000Z",
+                "documentId": "19941799",
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-07-31T17:48:00.000Z",
+                "label": "Particulars of Shareholding",
+                "totalShares": null
+            }
+        }
+    ]
+}

@@ -280,4 +280,65 @@ describe('CompanyState Model', function() {
                 });
         });
     });
+
+    describe('Creation of new states with various options', function() {
+        var initialState = {
+                companyName: 'German Dumptrucks',
+                holdingList: {
+                    holdings: [{
+                        name: 'Allocation 1',
+                        parcels: [{
+                            amount: 10,
+                            shareClass: 1
+                        }],
+                        holders: [{
+                            person:{ name: 'Sally Slimjim'}
+                        }]
+                    }]
+                }
+            };
+
+        it('populates company state, builds new, checks ids', function(done){
+            let firstState, nextState, newRecordState;
+            CompanyState.createDedup(initialState, 1)
+                .then(function(companyState){
+                    firstState = companyState.toJSON();
+                    return companyState.buildNext()
+                })
+                .then(function(s){ return s.save();})
+                .then(function(companyState){
+                    nextState = companyState.toJSON();
+                    return companyState.buildNext({}, {newRecords: true});
+                })
+                .then(function(s){ return s.save();})
+                .then(function(companyState){
+                    newRecordState = companyState.toJSON();
+
+                    firstState.holdingList.id.should.be.equal(nextState.holdingList.id);
+                    firstState.holdingList.id.should.not.be.equal(newRecordState.holdingList.id);
+
+                    firstState.holdingList.id.should.not.be.equal(newRecordState.holdingList.id);
+
+                    firstState.holdingList.holdings[0].id.should.be.equal(nextState.holdingList.holdings[0].id);
+                    firstState.holdingList.holdings[0].id.should.not.be.equal(newRecordState.holdingList.holdings[0].id);
+
+                    firstState.holdingList.holdings[0].id.should.be.equal(nextState.holdingList.holdings[0].id);
+                    firstState.holdingList.holdings[0].id.should.not.be.equal(newRecordState.holdingList.holdings[0].id);
+
+                    firstState.holdingList.holdings[0].holdingId.should.be.equal(nextState.holdingList.holdings[0].holdingId);
+                    firstState.holdingList.holdings[0].holdingId.should.be.equal(newRecordState.holdingList.holdings[0].holdingId);
+
+
+                    firstState.holdingList.holdings[0].holders[0].person.id.should.be.equal(nextState.holdingList.holdings[0].holders[0].person.id);
+                    firstState.holdingList.holdings[0].holders[0].person.id.should.not.be.equal(newRecordState.holdingList.holdings[0].holders[0].person.id);
+
+                    firstState.holdingList.holdings[0].holders[0].person.personId.should.be.equal(nextState.holdingList.holdings[0].holders[0].person.personId);
+                    firstState.holdingList.holdings[0].holders[0].person.personId.should.be.equal(newRecordState.holdingList.holdings[0].holders[0].person.personId);
+
+                    done();
+                });
+        });
+    });
+
+
 });
