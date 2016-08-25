@@ -12,6 +12,6 @@ export default class LawBrowserLink extends React.Component {
         return `https://browser.catalex.nz/open_article/query?doc_type=instrument&title=${this.props.title}&find=location&location=${this.props.location}`;
     }
     render() {
-        return <a className="law-browser-link" href={this.formatLink()} target="_blank">{ this.props.children }<Glyphicon glyph="new-window"/></a>
+        return <a className="law-browser-link" href={this.formatLink()} rel="noopener noreferrer" target="_blank">{ this.props.children }<Glyphicon glyph="new-window"/></a>
     }
 };

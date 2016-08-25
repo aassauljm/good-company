@@ -1,8 +1,19 @@
+FOR MONDAY:
+
+DO IMPORT WIZARD
+FIX RESET BUG
+
+
+
+NOTIFICATIONS
+
+
+
 #TODO
 
-CHECK DOCUMENT UPLOAD ARRAY
 
-EMAILS WORKING
+
+
 MASS IMPORT
 FILE CABINET
 SUBDIVIDE - just make user deal with remainder
@@ -51,6 +62,11 @@ CCH
 * not clear how to actually start using (you must link, or become their lawyer, or something)
 * menus only load some of the time
 * scroll slow, can't use mousewheel
+PERSON #ID
+
+
+
+
 * add shareholding layout broken
 * import super slow, most transactions get excluded
 CCH Companies
@@ -83,7 +99,7 @@ the names, alphabetically arranged, and the latest known address of each person 
 (b)
 the number of shares of that class held by each shareholder within the last 10 years; and
 (c)
-the date of any—
+the date of any—ap
 (i) issue of shares to; or
 (ii) repurchase or redemption of shares from; or
 (iii)

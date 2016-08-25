@@ -95,10 +95,10 @@ export class ShareClassForm extends React.Component {
                 return <Input key={i} type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])}
                     help={fieldHelp(fields.votingRights[v])} label={STRINGS.shareClasses.votingRights[v]} hasFeedback />
             }) }
-            <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about voting rights</LawBrowserLink></div>
+            <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about rights attached to shares</LawBrowserLink></div>
 
             { fields.rights.map((n, i) => {
-                return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Limitation or Restriction" hasFeedback
+                return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Describe Right" hasFeedback
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.rights.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
             }) }
             <div className="button-row"><ButtonInput onClick={() => {
@@ -111,7 +111,7 @@ export class ShareClassForm extends React.Component {
             }) }
              <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div>
              <Input type="checkbox" {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
-                    help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestriction} hasFeedback />
+                    help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestrictionQuestion} hasFeedback />
 
              { fields.transferRestriction.value && <Input type="text" {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)}
                     help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback /> }
@@ -179,7 +179,7 @@ export class ShareClassView extends React.Component {
     render() {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
-                VIEW/EDIT to be implemented.
+                <ShareClassFormConnected {...this.props} />
             </div>
         </div>
     }

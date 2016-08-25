@@ -98,8 +98,9 @@ html,body{
 }
 
 body{
-	margin:0;
+    margin:0;
     font-family: -apple-system, "Helvetica Neue", "Roboto", "Segoe UI", "Lucida Grande", sans-serif;
+    -webkit-font-smoothing: antialiased;
 
     & > .error{
         text-align:center;

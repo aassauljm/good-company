@@ -111,13 +111,14 @@ export default {
     shareClasses: {
         name: 'Share Class',
         documents: 'Documents',
-        limitations: 'Restrictions/Limitations',
+        limitations: 'Restrictions or limitations on transfer',
         rights: "Rights",
         "transferRestriction": "Restrictions on transfers",
+        "transferRestrictionQuestion": "Are there restrictions or limitations on the transfer of shares?",
         "transferRestrictionDocument": "Location of document containing transfer restrictions",
 
         votingRights: {
-            _: 'Voting Rights',
+            _: 'Rights Attached to Shares"',
             "appointDirectorAuditor": "Appoint or remove a director or auditor",
             "adoptConstitution": "Adopt a constitution",
             "alterConstitution": "Alter a constitution",
