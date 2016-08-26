@@ -10,12 +10,15 @@ import Input from './forms/input';
 import STRINGS from '../strings'
 import { fieldStyle, fieldHelp, formFieldProps, requireFields, renderDocumentLinks, pureRender } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { createResource, addNotification } from '../actions';
+import { createResource, updateResource, addNotification } from '../actions';
 import DropZone from 'react-dropzone';
 import { StaticField } from 'react-bootstrap/lib/FormControl';
 import { push } from 'react-router-redux';
 import FormData from 'form-data';
 import LawBrowserLink from './lawBrowserLink';
+import Combobox   from 'react-widgets/lib/Combobox';
+
+
 
 const defaultShareClass = '___default';
 
@@ -31,7 +34,22 @@ const shareClassFields = [
     "documents"
 ];
 
+const transferRestrictionDocumentLocations = [
+    "The company's registered office",
+    "The company's address for service",
+    "The document is stored electronically within Good Companies"
+]
 
+const SelectBoolean = (props) => {
+    return <Input type="select" {...props} value={!!props.value} onChange={val => props.onChange(!!val)}>
+        { props.children }
+    </Input>
+}
+
+
+const Anchor = (props) => {
+    return <a href="#" {...props}>{props.text}</a>
+}
 
 const validate = (values) => {
     const errors = {};
@@ -64,10 +82,11 @@ export class ShareClassForm extends React.Component {
             body.append('documents', d, d.name);
         });
         const key = this.props.companyId;
-        return this.props.dispatch(createResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
+        return (this.props.edit ?  this.props.dispatch(updateResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
+             : this.props.dispatch(createResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false})))
             .then(() => {
                 this.props.dispatch(addNotification({message: 'Share Class Added'}))
-                this.props.dispatch(push(`/company/view/${key}/share_classes`))
+                this.props.dispatch(push(`/company/view/${key}/share_classes`));
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}))
@@ -104,22 +123,30 @@ export class ShareClassForm extends React.Component {
             <div className="button-row"><ButtonInput onClick={() => {
                 fields.rights.addField();    // pushes empty child field onto the end of the array
             }}>Add Right</ButtonInput></div>
+             <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div>
+
+             <SelectBoolean {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
+                    help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestrictionQuestion} hasFeedback >
+                    <option value="">No</option>
+                    <option value="true">Yes</option>
+            </SelectBoolean>
+             { fields.transferRestriction.value &&
+              <Input  {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)} className="combobox-wrapper"
+                    help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback >
+                        <Combobox {...fields.transferRestrictionDocument} data={transferRestrictionDocumentLocations} itemComponent={Anchor}/>
+                    </Input>
+                }
 
             { fields.limitations.map((n, i) => {
                 return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Limitation or Restriction" hasFeedback
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.limitations.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
             }) }
-             <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div>
-             <Input type="checkbox" {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
-                    help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestrictionQuestion} hasFeedback />
-
-             { fields.transferRestriction.value && <Input type="text" {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)}
-                    help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback /> }
 
 
-            <div className="button-row"><ButtonInput onClick={() => {
+
+            { fields.transferRestriction.value &&  <div className="button-row"><ButtonInput onClick={() => {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
-            }}>Add Limitation/Restriction</ButtonInput></div>
+            }}>Add Limitation/Restriction</ButtonInput></div> }
 
             <DropZone className="dropzone" { ...fields.documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
                   onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
@@ -150,19 +177,7 @@ const ShareClassFormConnected = reduxForm({
   form: 'shareClass',
   fields: shareClassFields,
   validate
-}, state => ({
-    initialValues: {
-        votingRights: {
-        appointDirectorAuditor: true,
-        adoptConstitution: true,
-        alterConstitution: true,
-        approveMajorTransactions: true,
-        approveAmalgamation: true,
-        liquidation: true
-        }
-    }
-})
-)(ShareClassForm);
+})(ShareClassForm);
 
 
 export class ShareClassCreate extends React.Component {
@@ -177,9 +192,13 @@ export class ShareClassCreate extends React.Component {
 
 export class ShareClassView extends React.Component {
     render() {
+        const state = this.props.shareClasses.filter(s => {
+            return s.id.toString() === this.props.routeParams.shareClassId;
+        })[0];
+
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
-                <ShareClassFormConnected {...this.props} />
+                <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
             </div>
         </div>
     }

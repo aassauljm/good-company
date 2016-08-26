@@ -198,6 +198,11 @@ module.exports.routes = {
         action: 'createShareClass'
     },
 
+    'PUT /api/company/:companyId/share_classes/:shareClassId': {
+        controller: 'CompanyStateController',
+        action: 'updateShareClass'
+    },
+
     'GET /api/company/render/:id/shareregister': {
         controller: 'RenderController',
         action: 'renderShareRegister',

@@ -40,7 +40,8 @@ export default class Notifications extends React.Component {
     render(){
        return  <div className="notifications">
        <div className="container">
-            { this.props.list.map((n, i) => <Notification key={i} notification={n} close={this.close.bind(this, i)} />)}
+            {/* this.props.list.map((n, i) => <Notification key={i} notification={n} close={this.close.bind(this, i)} /> ) */}
+            { !!this.props.list.length && <Notification notification={this.props.list[this.props.list.length-1]} close={this.close.bind(this, this.props.list.length-1)} /> }
             </div>
         </div>
     }

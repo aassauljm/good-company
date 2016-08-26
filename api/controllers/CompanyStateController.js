@@ -347,7 +347,13 @@ var transactions = {
         .then(function(){
             return {message: `Share Class created for ${companyState.companyName}.`}
         })
+    },
+
+    updateShareClass: function(data, company){
+
+        throw new sails.config.exceptions.ValidationException('Currently we cannot update share classes');
     }
+
 }
 
 const selfManagedTransactions = {
@@ -470,5 +476,8 @@ module.exports = {
     },
     createShareClass: function(req, res){
         createTransaction(req, res, 'createShareClass');
+    },
+    updateShareClass: function(req, res){
+        createTransaction(req, res, 'updateShareClass');
     }
 };

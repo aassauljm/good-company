@@ -57,6 +57,44 @@ $rw-version:          "4.1.0";
 }
 
 
+.rw-combobox.rw-widget{
+    position: relative;
+
+    .rw-input{
+        @extend .form-control;
+    }
+
+    button.rw-select{
+
+        position: absolute;
+        width: 1.9em;
+        right: 1px;
+        top: 1px;
+        bottom: 1px;
+        border: none;
+        background: none;
+
+    }
+    & + .form-control-feedback{
+        right: 8px;
+    }
+    .rw-popup{
+        border:none;
+        padding:0;
+        @extend .list-group;
+       ul {
+            li{
+                @extend .list-group-item;
+                cursor:pointer;
+                 &:hover{
+                     @extend a.list-group-item:hover;
+                }
+            }
+        }
+    }
+}
+
+
 
 .rw-popup {
   position: absolute;

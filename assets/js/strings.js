@@ -118,7 +118,7 @@ export default {
         "transferRestrictionDocument": "Location of document containing transfer restrictions",
 
         votingRights: {
-            _: 'Rights Attached to Shares"',
+            _: 'Rights Attached to Shares',
             "appointDirectorAuditor": "Appoint or remove a director or auditor",
             "adoptConstitution": "Adopt a constitution",
             "alterConstitution": "Alter a constitution",
