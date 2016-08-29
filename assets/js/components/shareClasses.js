@@ -85,8 +85,8 @@ export class ShareClassForm extends React.Component {
         return (this.props.edit ?  this.props.dispatch(updateResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
              : this.props.dispatch(createResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false})))
             .then(() => {
-                this.props.dispatch(addNotification({message: 'Share Class Added'}))
-                this.props.dispatch(push(`/company/view/${key}/share_classes`));
+                this.props.dispatch(addNotification({message: 'Share Class Added'}));
+                this.props.end();
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}))
@@ -120,9 +120,9 @@ export class ShareClassForm extends React.Component {
                 return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Describe Right" hasFeedback
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.rights.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
             }) }
-            <div className="button-row"><ButtonInput onClick={() => {
+            <div className="form-group"><div className="button-row"><ButtonInput onClick={() => {
                 fields.rights.addField();    // pushes empty child field onto the end of the array
-            }}>Add Right</ButtonInput></div>
+            }}>Add Right</ButtonInput></div></div>
              <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div>
 
              <SelectBoolean {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
@@ -144,9 +144,9 @@ export class ShareClassForm extends React.Component {
 
 
 
-            { fields.transferRestriction.value &&  <div className="button-row"><ButtonInput onClick={() => {
+            { fields.transferRestriction.value &&  <div className="form-group"><div className="button-row"><ButtonInput onClick={() => {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
-            }}>Add Limitation/Restriction</ButtonInput></div> }
+            }}>Add Limitation/Restriction</ButtonInput></div></div> }
 
             <DropZone className="dropzone" { ...fields.documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
                   onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
@@ -237,30 +237,30 @@ function renderField(key, data, row) {
 @connect(undefined, {
     viewShareClass: (path, id) => push(path + '/view/'+id)
 })
-export class ShareClasses extends React.Component {
+export class ShareClassesTable extends React.Component {
     static fields = ['name', 'votingRights', 'limitations', 'documents']
 
     renderList(data) {
         return <div>
             <table className="table table-hover table-striped">
                 <thead>
-                <tr>{ ShareClasses.fields.map((f, i) => {
+                <tr>{ ShareClassesTable.fields.map((f, i) => {
                     return <th key={i}>{STRINGS.shareClasses[f]._ || STRINGS.shareClasses[f]}</th>
                 })}</tr>
                 </thead>
                 <tbody>
                     { data.map((row, i) => {
                         return <tr key={i} onClick={() => this.props.viewShareClass(this.props.location.pathname, row.id)}>
-                            { ShareClasses.fields.map((field, i) => {
+                            { ShareClassesTable.fields.map((field, i) => {
                                 return <td key={i}>{renderField(field, row[field], row)}</td>
                             }) }
                         </tr>
                     })}
                 </tbody>
             </table>
-            <div className="button-row">
-            <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary create-new">Create New Share Class</Link></div>
-            </div>
+            { this.props.navButton && <div className="button-row">
+                <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary create-new">Create New Share Class</Link></div>
+            </div> }
         </div>
     }
 
@@ -283,7 +283,8 @@ export class ShareClasses extends React.Component {
                      { this.props.children && React.cloneElement(this.props.children, {
                             companyId: this.key(),
                             companyState: this.props.companyState,
-                            shareClasses: classes
+                            shareClasses: classes,
+                            end: () => this.props.dispatch(push(`/company/view/${this.key()}/share_classes`))
                     }) }
                 </div>
             </div>
@@ -292,5 +293,5 @@ export class ShareClasses extends React.Component {
     }
 }
 
-
+export const ShareClasses = (props) => <ShareClassesTable navButton={true} {...props} />
 

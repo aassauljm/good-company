@@ -30,6 +30,10 @@ import ImportCompany from './components/importCompany';
 import ImportMenu from './components/importMenu';
 import { CompanyTransactions } from './components/transactions';
 import { TransactionView } from './components/transaction';
+import { GuidedSetupRoutes } from './components/guidedSetup';
+import { ApplyShareClassesModal } from './components/transactions/applyShareClasses';
+import { ImportHistoryModal } from './components/transactions/importHistory';
+import { VotingShareholdersModal  } from './components/transactions/selectVotingShareholders';
 
 
 export default (store) => {
@@ -83,6 +87,7 @@ export default (store) => {
                     <Route path="view/:entryId" component={ InterestsRegisterView } />
                 </Route>
                 <Route path="new_transaction" component={ NewTransaction } />
+                { GuidedSetupRoutes() }
             </Route>
             <Route path="company/view/:id/history/:generation" component={ Company }  />
             <Route path="import" component={ ImportMenu } />

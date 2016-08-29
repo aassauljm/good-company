@@ -153,8 +153,7 @@ export class ImportHistoryModal extends React.Component {
                 const companyName = this.props.modalData.companyState.companyName;
                 //this.props.addNotification({error: true, message: `An issue found while trying to import history for ${companyName}`});
                 this.props.next({index: AMBIGUITY, data: e})
-
-            })
+            });
     }
 
     handleResolve() {

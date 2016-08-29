@@ -25,9 +25,8 @@ try{
     console.log('Please specify config file');
     process.exit(1);
 }
+connections = _.merge(connections, config.connections);
 var dbConfig = connections[config.models.connection];
-
-
 
 var db = pgp(dbConfig);
 var completed;

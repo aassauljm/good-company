@@ -26,6 +26,19 @@ import { push } from 'react-router-redux'
 import Header from './header';
 
 
+export function getWarnings(companyState) {
+    const shareWarning = (!companyState.shareClasses || !companyState.shareClasses.shareClasses) ;
+    const historyWarning = !!(companyState.warnings.pendingHistory);
+    const votingShareholderWarning = !!(companyState.warnings.missingVotingShareholders);
+    const applyShareWarning = !shareWarning && !!companyState.shareCountByClass['null'];
+    return {
+        shareWarning,
+        historyWarning,
+        votingShareholderWarning,
+        applyShareWarning
+    }
+}
+
 
 @pureRender
 class SpecifyShareClasses extends React.Component {
@@ -68,9 +81,10 @@ class SpecifyVotingHolders extends React.Component {
 @pureRender
 class ResolveAllWarnings extends React.Component {
     render(){
-        return  <div><a  href="#" onClick={this.props.startResolveAllWarnings} className="text-success alert-entry">
+        return  <div>
+        <Link to={`/company/view/${this.props.companyId}/guided_setup`} className="text-success alert-entry">
         <Glyphicon glyph="forward" className="big-icon"/>
-        Click here for a guided company setup.</a>
+        Click here for a guided company setup.</Link>
         </div>
     }
 }
@@ -105,11 +119,8 @@ class CompanyAlertsWidget extends React.Component {
         companyId: PropTypes.string.isRequired,
     };
     render(){
-        const shareWarning = (!this.props.companyState.shareClasses || !this.props.companyState.shareClasses.shareClasses) ;
-        const historyWarning = !!(this.props.companyState.warnings.pendingHistory);
-        const votingShareholderWarning = !!(this.props.companyState.warnings.missingVotingShareholders);
-        const applyShareWarning = !shareWarning && !!this.props.companyState.shareCountByClass['null'];
-        if(!shareWarning && !historyWarning && !applyShareWarning && !votingShareholderWarning){
+        const warn = getWarnings(this.props.companyState);
+        if(!warn.shareWarning && !warn.historyWarning && !warn.applyShareWarning && !warn.votingShareholderWarning){
             return false;
         }
         return <div className="widget">
@@ -125,10 +136,10 @@ class CompanyAlertsWidget extends React.Component {
             <div className="widget-body">
                 <ul>
                 { <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId}/></li>}
-                { shareWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
-                { applyShareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
-                { historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId} startHistoryImport={this.props.startHistoryImport}/></li>}
-                { votingShareholderWarning && <li><AlertWarnings.SpecifyVotingHolders companyId={this.props.companyId} startVotingHolders={this.props.startVotingHolders} /></li>}
+                { warn.shareWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
+                { warn.applyShareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
+                { warn.historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId} startHistoryImport={this.props.startHistoryImport}/></li>}
+                { warn.votingShareholderWarning && <li><AlertWarnings.SpecifyVotingHolders companyId={this.props.companyId} startVotingHolders={this.props.startVotingHolders} /></li>}
                 </ul>
             </div>
         </div>
