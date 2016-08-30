@@ -335,7 +335,7 @@ var transactions = {
         })
         .then(() => {
             return TransactionService.addActions(companyState, {
-               id:  uuid.v4(),
+                id:  uuid.v4(),
                 actions: actions,
                 effectiveDate: effectiveDate,
                 transactionType: Transaction.types.CREATE_SHARE_CLASS
@@ -350,7 +350,6 @@ var transactions = {
     },
 
     updateShareClass: function(data, company){
-
         throw new sails.config.exceptions.ValidationException('Currently we cannot update share classes');
     }
 
@@ -361,38 +360,37 @@ const selfManagedTransactions = {
         /* to apply, retroactively, a share class:
             * clone current state without apply previousCompanyStateId.
             * set shareClass ids on parcels
-            * replay all historical actions
+            * reset all historical actions
 
             * perhaps keep a reference to previous head?
             * perhaps flag companyState to show that share classes have been applied?
         */
-        let state;
+        let state, companyName, historic_action_id;
         return sequelize.transaction(function(t){
-            return TransactionService.performTransaction({
-                    actions: data.actions,
-                    effectiveDate: data.effectiveDate || new Date(),
-                    transactionType: Transaction.types.APPLY_SHARE_CLASSES
-                }, company)
+            return company.getCurrentCompanyState()
+                .then(currentState => {
+                    historic_action_id = currentState.get('historic_action_id');
+                    return currentState.save();
+                })
+                .then(() => {
+                    return TransactionService.performTransaction({
+                            actions: data.actions,
+                            effectiveDate: data.effectiveDate || new Date(),
+                            transactionType: Transaction.types.APPLY_SHARE_CLASSES
+                        }, company)
+                })
                 .then(_state => {
                     state = _state;
                     // wipe history
+                    companyName = state.get('companyName')
                     state.set('previousCompanyStateId', null);
+                    state.set('pending_historic_action_id', historic_action_id);
                     return state.save();
-                })
-                // create previous
-                .then(() => company.createPrevious())
-                .then(function(_state){
-                    // point pending history current existing history
-                    _state.set('pending_historic_action_id', _state.get('historic_action_id'));
-                    return _state.save();
-                })
+                });
             })
-            .then(() => {
-                //return TransactionService.performInverseAllPending(company)
-            })
-            .then(function(){
+            .then(function() {
                 return {
-                    message: `Share Classes applied for ${state.companyName}.`
+                    message: `Share Classes applied for ${companyName}.`
                 }
             });
     },

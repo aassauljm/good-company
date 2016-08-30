@@ -43,6 +43,14 @@ export function importCompany(companyNumber, options) {
                         state.set('original_historic_action_id', pendingAction[0].id);
                         return state.save();
                     })
+
+                    .then(() => {
+                        state.getHistoricActions()
+                            .then(hA => {
+                                hA.set({previous_id: pendingAction[0].id});
+                                return hA.save();
+                            })
+                    })
                 }
             })
     })

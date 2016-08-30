@@ -1,6 +1,8 @@
 var Promise = require("bluebird");
 var request = require("supertest-as-promised");
 var fs = Promise.promisifyAll(require("fs"));
+import chai from 'chai';
+const should = chai.should();
 
 var login = function(req){
     return req
@@ -263,23 +265,6 @@ describe('Company Controller', function() {
                 .catch(done)
             });
 
-        /*it('Applies history', function(done){
-            req.post('/api/company/'+companyId+'/import_pending_history')
-                .expect(200)
-                .then(function(res){
-                    done();
-                })
-
-        });
-
-        it('Gets previous version', function(done){
-            req.get('/api/company/'+companyId+'/history/10')
-                .expect(200)
-                .then(function(res){
-                    done();
-                })
-                .catch(done)
-        });*/
 
         it('does a person update', function(done){
             req.post('/api/transaction/compound/'+companyId)
@@ -428,7 +413,7 @@ describe('Company Controller', function() {
     });
 
     describe('Test import with resolution and reset catalex (5311842)', function(){
-        var req, companyId, context;
+        var req, companyId, context, classes, holdings;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
             login(req).then(done);
@@ -441,6 +426,13 @@ describe('Company Controller', function() {
                     done();
                 })
                 .catch(done);
+        });
+        it('check pending history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then(function(res){
+                    res.body.length.should.be.equal(27);
+                    done();
+                });
         });
         it('Imports history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
@@ -511,12 +503,101 @@ describe('Company Controller', function() {
                      return req.post('/api/company/'+companyId+'/import_pending_history')
                         .expect(200)
                 })
+                .then(function(){
+                    return req.get('/api/company/'+companyId+'/share_register')
+                })
                 .then(function(res){
+                    res.body.shareRegister[0].issueHistory.length.should.be.at.least(0);
+                    res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
+                    res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
                     done();
                 })
         });
+        it('check pending history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then(function(res){
+                    res.body.length.should.be.equal(0);
+                    done();
+                });
+        });
+       it('Creates share classes', function(done){
+            req.post('/api/company/'+companyId+'/share_classes/create')
+                .send({json: JSON.stringify({name: 'Class A'})})
+                .then(function(){
+                    done();
+                })
+                .catch(done);
+        });
 
-        // TODO, apply share classes, attempt to reimport history
+        it('Gets current stats', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    classes = _.reduce(res.body.currentCompanyState.shareClasses.shareClasses, (acc, item, key) => {
+                        acc[item.name] = item.id;
+                        return acc;
+                    }, {});
+                    holdings = _.map(res.body.currentCompanyState.holdingList.holdings, (holding, key) => {
+                        return holding.holdingId;
+                    });
+                    done();
+                })
+                .catch(done);
+        });
+
+
+        it('Applies share classes', function(done){
+            req.post('/api/transaction/apply_share_classes/'+companyId)
+                .send({actions: holdings.map(h => ({
+                        transactionType: 'APPLY_SHARE_CLASS',
+                        shareClass: classes['Class A'],
+                        holdingId: h
+                    }))
+                })
+                .expect(200)
+                .then(function(res){
+                    done();
+                })
+                .catch(done)
+            });
+
+
+        it('check pending history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then(function(res){
+                    res.body.length.should.be.equal(29);
+                    done();
+                });
+        });
+
+
+
+        it('check share register', function(done){
+            req.get('/api/company/'+companyId+'/share_register')
+                .then(function(res){
+                    should.equal(null, res.body.shareRegister[0].issueHistory)
+                    should.equal(null, res.body.shareRegister[0].transferHistoryTo)
+                    should.equal(null, res.body.shareRegister[0].transferHistoryFrom)
+                    done();
+                });
+        });
+
+
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+return ;
+        it('check pending history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then(function(res){
+                    res.body.length.should.be.equal(0);
+                    done();
+                });
+        });
 
 
     });

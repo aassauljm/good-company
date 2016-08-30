@@ -962,6 +962,7 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
 
 export  function performApplyShareClass(data, nextState, companyState, effectiveDate){
     let index, holdingList;
+    // TODO, what if there is more than one match?
     return nextState.dataValues.holdingList.buildNext()
     .then(function(_holdingList){
         holdingList = _holdingList;
@@ -1105,6 +1106,12 @@ export function performSeed(args, company, effectiveDate, userId){
             return company.setCurrentCompanyState(state)
         })
         .then(function(){
+            return addActions(state, {id: uuid.v4(), transaction:{type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date(), actions:[{type: Transaction.types.SEED}]}}, company)
+        })
+        .then(function(state){
+            return state.save();
+        })
+        .then(function(){
             return company.save();
         });
 }
@@ -1196,11 +1203,13 @@ export function addActions(state, actionSet, company){
                 return data;
             }
             else{
-                return company.getRootCompanyState()
-                    .then(_root => {
-                        data.previous_id = _root.get('pending_historic_action_id');
+                return state.getPreviousCompanyState()
+                    .then(prev => {
+                        if(prev){
+                            data.previous_id = prev.get('historic_action_id');
+                        }
                         return data;
-                    })
+                    });
             }
         })
         .then(data => {
@@ -1295,6 +1304,12 @@ export function performInverseTransaction(data, company, rootState){
         .then(function(_prevState){
             return currentRoot.setPreviousCompanyState(_prevState);
         })
+        .then(function(){
+            if(data.transactionType === Transaction.types.SEED){
+                return company.setSeedCompanyState(prevState);
+            }
+        })
+
          .then(function(){
             return prevState;
          })
