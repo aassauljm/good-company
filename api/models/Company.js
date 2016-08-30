@@ -168,9 +168,13 @@ module.exports = {
                     .then(() => {
                         return rootState.update({'pending_historic_action_id': pendingActions[0].id})
                     })
+                    .then(() => {
+                        return Actions.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId, fields: ['previous_id']}})
+                    })
             },
 
             resetPendingActions: function(){
+                // TODO, get this from some where else
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
                 let state, newRoot;
