@@ -70,15 +70,15 @@ export class GuidedSetup extends React.Component {
 
                 if(after){
                     if(after.showModal){
-                        this.props.dispatch(showModal(after.showModal.key, {companyId: this.props.companyId, companyState: this.props.companyState}));
+                        this.props.dispatch(showModal(after.showModal.key, after.showModal.data));
                     }
                 }
 
             }
         }
 
-        if(!props.modalData.historic){
-            props.modalData = {...props.modalData, companyId: this.props.companyId, companyState: this.props.companyState};
+        if(props.modalData.loadCompanyState){
+            props.modalData = {...props.modalData, companyState: this.props.companyState, companyId: this.props.companyId};
         }
 
 

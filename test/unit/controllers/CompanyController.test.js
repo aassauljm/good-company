@@ -516,6 +516,9 @@ describe('Company Controller', function() {
                 })
         });
 
+        // TODO, apply share classes, attempt to reimport history
+
+
     });
 
 });

@@ -327,7 +327,7 @@ export const ShareClasses = (props) => <ShareClassesTable navButton={true} {...p
 export const ShareClassManageModal  = (props) => {
     return <ShareClassesTable  {...props.modalData}
     modalButton={true}
-    createModal={() => props.show('createShareClasses', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses'}}  })}
+    createModal={() => props.show('createShareClasses', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
     end={props.end} />
 };
 

@@ -8,7 +8,6 @@ import { Link } from 'react-router'
 import STRINGS from '../../strings'
 import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { push } from 'react-router-redux'
 import Modal from '../forms/modal';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
 
@@ -105,7 +104,6 @@ FOOTERS[AMBIGUITY] = function(){
                                                         invalidates: [`/company/${ownProps.modalData.companyId}`]
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
-        // TODO, reopen
         showResolve: (args) => dispatch(showModal('resolveAmbiguity', {...args,  afterClose: { // open this modal again
                             showModal: {key: 'importHistory', data: {...ownProps.modalData, index: CONTINUE}}}}))
     }
