@@ -25,41 +25,15 @@ import { ResolveAmbiguityModal  } from './transactions/resolve';
 import { DeleteCompanyModal  } from './transactions/deleteCompany';
 import { ResetHistoryModal  } from './transactions/resetHistory';
 import { VotingShareholdersModal  } from './transactions/selectVotingShareholders';
+import { ShareClassCreateModal, ShareClassManageModal } from './shareClasses';
 import { AddAssignSharesModal, ConsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal, ResetDeleteModal } from './transactions/selection';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
 
 
+export const ModalSwitch = (props) => {
 
-export class Modals extends React.Component {
-
-
-    renderModal(showing) {
-        const data = this.props[showing] || {};
-        const props = {
-            ref: 'modal',
-            index: data.index,
-            modalData: data.data,
-            next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
-            previous: () => {this.props.dispatch(previousModal(this.props.showing))},
-            show: (key) => this.props.dispatch(showModal(key, data.data)),
-            navigate: (url) => this.props.dispatch(push(url)),
-            end: (data) => {
-                const after = (this.props[this.props.showing].data || {}).afterClose;
-                this.props.dispatch(endModal(this.props.showing, data));
-                if(after){
-                    if(after.showModal){
-                        this.props.dispatch(showModal(after.showModal.key, after.showModal.data));
-                    }
-                    if(data && after.location){
-                        this.props.dispatch(push(after.location));
-                    }
-                }
-
-            }
-        }
-
-        switch(this.props.showing){
+        switch(props.showing){
 
             case 'addAssignShares':
                 return <AddAssignSharesModal {...props} />
@@ -148,9 +122,44 @@ export class Modals extends React.Component {
             case 'votingShareholders':
                 return <VotingShareholdersModal {...props} />
 
+            case 'createShareClasses':
+                return <ShareClassCreateModal {...props} />
+
+            case 'manageShareClasses':
+                return <ShareClassManageModal {...props} />
+
             default:
                 return false;
         }
+
+}
+
+
+export class Modals extends React.Component {
+    renderModal(showing) {
+        const data = this.props[showing] || {};
+        const props = {
+            index: data.index,
+            modalData: data.data,
+            next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
+            previous: () => {this.props.dispatch(previousModal(this.props.showing))},
+            show: (key, extraData) => this.props.dispatch(showModal(key, {...data.data, ...extraData})),
+            navigate: (url) => this.props.dispatch(push(url)),
+            end: (data) => {
+                const after = (this.props[this.props.showing].data || {}).afterClose;
+                this.props.dispatch(endModal(this.props.showing, data));
+                if(after){
+                    if(after.showModal){
+                        this.props.dispatch(showModal(after.showModal.key, after.showModal.data));
+                    }
+                    if(data && after.location){
+                        this.props.dispatch(push(after.location));
+                    }
+                }
+
+            }
+        }
+        return <ModalSwitch showing={showing} {...props} />;
     }
 
 

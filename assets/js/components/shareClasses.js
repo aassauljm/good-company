@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import Modal from './forms/modal';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from './forms/buttonInput';
 import { connect } from 'react-redux';
@@ -82,11 +82,11 @@ export class ShareClassForm extends React.Component {
             body.append('documents', d, d.name);
         });
         const key = this.props.companyId;
-        return (this.props.edit ?  this.props.dispatch(updateResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
-             : this.props.dispatch(createResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false})))
+        return (!this.props.edit ? this.props.dispatch(createResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
+             : this.props.dispatch(updateResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false})))
             .then(() => {
                 this.props.dispatch(addNotification({message: 'Share Class Added'}));
-                this.props.end();
+                this.props.end && this.props.end();
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}))
@@ -204,6 +204,26 @@ export class ShareClassView extends React.Component {
     }
 }
 
+
+export class ShareClassCreateModal extends React.Component {
+    render() {
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <Modal.Header closeButton>
+                <Modal.Title>Create Share Class</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+              <div className="row">
+                <div className="col-md-6 col-md-offset-3">
+                    <ShareClassFormConnected {...this.props.modalData} end={this.props.end} />
+                </div>
+            </div>
+
+          </Modal.Body>
+        </Modal>
+    }
+
+}
+
 export function renderRights(data = {}){
     if(Object.keys(data || {}).filter(d => data[d]).length){
         return <ul>{ Object.keys(data || {}).filter(d => data[d]).map((d, i) => {
@@ -261,6 +281,12 @@ export class ShareClassesTable extends React.Component {
             { this.props.navButton && <div className="button-row">
                 <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary create-new">Create New Share Class</Link></div>
             </div> }
+
+            { this.props.modalButton && <div className="button-row">
+               <Button bsStyle="primary" onClick={this.props.createModal}>Create New Share Class</Button>
+               { !!data.length && <Button bsStyle="success" onClick={this.props.end}>Finished Creating Share Classes</Button> }
+            </div> }
+
         </div>
     }
 
@@ -293,5 +319,16 @@ export class ShareClassesTable extends React.Component {
     }
 }
 
-export const ShareClasses = (props) => <ShareClassesTable navButton={true} {...props} />
+export const ShareClasses = (props) => <ShareClassesTable navButton={true} {...props} />;
+
+
+
+
+export const ShareClassManageModal  = (props) => {
+    return <ShareClassesTable  {...props.modalData}
+    modalButton={true}
+    createModal={() => props.show('createShareClasses', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses'}}  })}
+    end={props.end} />
+};
+
 

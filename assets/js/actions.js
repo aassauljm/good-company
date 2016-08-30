@@ -22,7 +22,7 @@ import {
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL,
-    NEXT_MODAL, PREVIOUS_MODAL,
+    NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
     UPDATE_MENU,
     TOGGLE_WIDGET_SIZE
      } from './actionTypes';
@@ -314,6 +314,12 @@ export function nextModal(modal, data){
 export function previousModal(modal){
     return {
         type: PREVIOUS_MODAL, modal
+    }
+}
+
+export function resetModals(){
+    return {
+        type: RESET_MODALS
     }
 }
 

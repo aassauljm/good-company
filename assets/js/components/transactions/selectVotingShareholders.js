@@ -78,6 +78,7 @@ export class VotingShareholdersModal extends React.Component {
     }
 
     submit(values) {
+        const date = new Date();
         const actions = [];
         Object.keys(values).map(k => {
             const holdingId = parseInt(k, 10);
@@ -96,13 +97,15 @@ export class VotingShareholdersModal extends React.Component {
                 afterHolders: populateHolders(holdingId, this.props.modalData.companyState),
                 afterVotingShareholder: person,
                 beforeVotingShareholder: previousPerson,
-                transactionType: TransactionTypes.HOLDING_CHANGE
+                transactionType: TransactionTypes.HOLDING_CHANGE,
+                effectiveDate: date
             });
         });
 
         const transactions = [{
             transactionType: TransactionTypes.HOLDING_CHANGE,
-            actions: actions
+            actions: actions,
+            effectiveDate: date
         }];
 
         this.props.dispatch(companyTransaction('compound',

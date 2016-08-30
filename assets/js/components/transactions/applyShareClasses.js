@@ -132,7 +132,8 @@ export class ApplyShareClassesModal extends React.Component {
                 { this.renderBody(this.props.modalData.companyState) }
               </Modal.Body>
               <Modal.Footer>
-                <Button onClick={this.props.end} >Close</Button>
+                <Button onClick={() => this.props.show('manageShareClasses')} bsStyle="success">Manage Share Classes</Button>
+                <Button onClick={this.props.end} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary" className="submit">{ 'Submit' }</Button>
               </Modal.Footer>
             </Modal>

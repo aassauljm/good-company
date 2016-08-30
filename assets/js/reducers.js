@@ -18,7 +18,7 @@ import {
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL,
-    NEXT_MODAL, PREVIOUS_MODAL,
+    NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
     UPDATE_MENU, TOGGLE_WIDGET_SIZE
      } from './actionTypes';
 
@@ -141,7 +141,7 @@ function companyPage(state = {tabIndex: 0}, action){
     }
 }
 
-function modals(state = {createCompany: {index: 0}}, action){
+function modals(state = {}, action){
     switch(action.type){
         case START_CREATE_COMPANY:
             return {...state, showing: 'createCompany', createCompany: {index: 0}};
@@ -155,7 +155,6 @@ function modals(state = {createCompany: {index: 0}}, action){
             if(state.showing === 'importCompany')
                 return {...state, showing: null};
             return state;
-
         case SHOW_MODAL:
             return {...state, showing: action.modal, [action.modal]: {index: (action.data||{}).index || 0, data: action.data}};
         case END_MODAL:
@@ -165,6 +164,9 @@ function modals(state = {createCompany: {index: 0}}, action){
             return {...state,  [action.modal]: {index: index, data: {...state[action.modal].data, ...action.data}}};
         case PREVIOUS_MODAL:
             return {...state,  [action.modal]: {index: state[action.modal].index - 1}};
+        case RESET_MODALS:
+            return {} ;
+
         default:
             return state;
     }

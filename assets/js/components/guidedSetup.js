@@ -14,76 +14,92 @@ import LawBrowserLink from './lawBrowserLink';
 import { Route } from 'react-router';
 import { getWarnings } from './company'
 import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
-
-
+import { ModalSwitch }  from './modals'
+/*
 import { ApplyShareClassesModal } from './transactions/applyShareClasses';
 import { ImportHistoryModal } from './transactions/importHistory';
 import { VotingShareholdersModal  } from './transactions/selectVotingShareholders';
+*/
 
 
-
-@connect(undefined)
+const DEFAULT_OBJ = {};
+@connect(state => ({modals: state.modals || DEFAULT_OBJ}))
 export class GuidedSetup extends React.Component {
     constructor(props) {
         super(props);
     }
     componentWillMount() {
-        this.checkRedirect(this.props);
+        this.checkOpenNext(this.props);
     }
 
-    checkRedirect(props) {
-        if(!props.children){
+    checkOpenNext(props) {
+        if(!props.modals.showing){
             const warnings = getWarnings(props.companyState);
-            let location;
+
             if(warnings.votingShareholderWarning){
-                location = 'voting_share_holders';
+                props.dispatch(showModal('votingShareholders', {companyId: props.companyId, companyState: props.companyState}));
             }
-            if(location){
-                props.dispatch(replace(`${props.location.pathname}/${location}`));
+            else if(warnings.shareClassWarning){
+                props.dispatch(showModal('manageShareClasses', {companyId: props.companyId, companyState: props.companyState}));
+            }
+            else if(warnings.applyShareClassWarning){
+                props.dispatch(showModal('applyShareClasses', {companyId: props.companyId, companyState: props.companyState}));
+            }
+            else if(warnings.historyWarning){
+                props.dispatch(showModal('importHistory', {companyId: props.companyId, companyState: props.companyState}));
             }
         }
     }
 
     componentWillReceiveProps(newProps) {
-        this.checkRedirect(newProps);
+        this.checkOpenNext(newProps);
     }
-
-    renderModal(showing) {
-    }
-
-    handleNext() {
-       // this.refs.form.submit();
-    }
-
 
     render() {
+        const data = this.props.modals[this.props.modals.showing] || {};
         const props = {
-            modalData: {companyId: this.props.companyId, companyState: this.props.companyState},
-            next : (...args) => { },
-            previous: () => { },
+            index: data.index,
+            modalData: data.data || {},
+            next : (...args) => {this.props.dispatch(nextModal(this.props.modals.showing, ...args))},
+            previous: () => {this.props.dispatch(previousModal(this.props.modals.showing))},
+            show: (key, extraData) => this.props.dispatch(showModal(key, {...data.data, ...extraData})),
             navigate: (url) => this.props.dispatch(push(url)),
             end: (data) => {
+                const after = ((this.props.modals[this.props.modals.showing] || {}).data || {}).afterClose;
+                this.props.dispatch(endModal(this.props.modals.showing, data));
+
+                if(after){
+                    if(after.showModal){
+                        this.props.dispatch(showModal(after.showModal.key, {companyId: this.props.companyId, companyState: this.props.companyState}));
+                    }
+                }
 
             }
         }
-        return <div>
-        { this.props.children && React.cloneElement(this.props.children, props) }
-        { !this.props.children && <div>
 
-        </div>}
-            <div className="container ">
+        if(!props.modalData.historic){
+            props.modalData = {...props.modalData, companyId: this.props.companyId, companyState: this.props.companyState};
+        }
+
+
+        return <div className="modals">
+            { this.props.modals.showing && <ModalSwitch showing={this.props.modals.showing} {...props}  /> }
+
+            { !this.props.modals.showing &&  <div className="container">
+                <div className="row">
                 <div className="widget">
-                    <div className=" button-row">
-                        <Button bsStyle="success">Next</Button>
+                    <div className="widget-header">
+                        <div className="widget-title">
+                            Guided Setup
+                        </div>
+                    </div>
+                    <div className="widget-body">
+                       Congratulations, { this.props.companyState.companyName } has succesfully been setup up.
                     </div>
                 </div>
-            </div>
+                </div>
+            </div> }
         </div>
     }
 }
 
-export const GuidedSetupRoutes = () =>
-        <Route path="guided_setup" component={ GuidedSetup }>
-            <Route path="apply_share_classes" component={ ApplyShareClassesModal } />
-            <Route path="voting_share_holders" component={ VotingShareholdersModal } />
-        </Route>

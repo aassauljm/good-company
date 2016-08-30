@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { requestResource, changeCompanyTab, showModal, toggleWidget } from '../actions';
+import { requestResource, changeCompanyTab, showModal, toggleWidget, resetModals } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -27,15 +27,15 @@ import Header from './header';
 
 
 export function getWarnings(companyState) {
-    const shareWarning = (!companyState.shareClasses || !companyState.shareClasses.shareClasses) ;
+    const shareClassWarning = (!companyState.shareClasses || !companyState.shareClasses.shareClasses) ;
     const historyWarning = !!(companyState.warnings.pendingHistory);
     const votingShareholderWarning = !!(companyState.warnings.missingVotingShareholders);
-    const applyShareWarning = !shareWarning && !!companyState.shareCountByClass['null'];
+    const applyShareClassWarning = !shareClassWarning && !!companyState.shareCountByClass['null'];
     return {
-        shareWarning,
+        shareClassWarning,
         historyWarning,
         votingShareholderWarning,
-        applyShareWarning
+        applyShareClassWarning
     }
 }
 
@@ -82,7 +82,7 @@ class SpecifyVotingHolders extends React.Component {
 class ResolveAllWarnings extends React.Component {
     render(){
         return  <div>
-        <Link to={`/company/view/${this.props.companyId}/guided_setup`} className="text-success alert-entry">
+        <Link to={`/company/view/${this.props.companyId}/guided_setup`} onClick={this.props.resetModals} className="text-success alert-entry">
         <Glyphicon glyph="forward" className="big-icon"/>
         Click here for a guided company setup.</Link>
         </div>
@@ -100,17 +100,18 @@ const AlertWarnings = {
 @connect(() => DEFAULT_OBJ, (dispatch, ownProps) => {
     return {
         startHistoryImport: () => {
-            dispatch(showModal('importHistory', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
+            dispatch(showModal('importHistory', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
         },
         startApplyShareClasses: () => {
-            dispatch(showModal('applyShareClasses', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
+            dispatch(showModal('applyShareClasses', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
         },
         startVotingHolders: () => {
-            dispatch(showModal('votingShareholders', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
-        }
+            dispatch(showModal('votingShareholders', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+        },
+        resetModals: () => dispatch(resetModals())
     }
 })
 class CompanyAlertsWidget extends React.Component {
@@ -120,7 +121,7 @@ class CompanyAlertsWidget extends React.Component {
     };
     render(){
         const warn = getWarnings(this.props.companyState);
-        if(!warn.shareWarning && !warn.historyWarning && !warn.applyShareWarning && !warn.votingShareholderWarning){
+        if(!warn.shareClassWarning && !warn.historyWarning && !warn.applyShareClassWarning && !warn.votingShareholderWarning){
             return false;
         }
         return <div className="widget">
@@ -135,9 +136,9 @@ class CompanyAlertsWidget extends React.Component {
 
             <div className="widget-body">
                 <ul>
-                { <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId}/></li>}
-                { warn.shareWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
-                { warn.applyShareWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
+                { <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}
+                { warn.shareClassWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
+                { warn.applyShareClassWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
                 { warn.historyWarning && <li><AlertWarnings.PopulateHistory companyId={this.props.companyId} startHistoryImport={this.props.startHistoryImport}/></li>}
                 { warn.votingShareholderWarning && <li><AlertWarnings.SpecifyVotingHolders companyId={this.props.companyId} startVotingHolders={this.props.startVotingHolders} /></li>}
                 </ul>

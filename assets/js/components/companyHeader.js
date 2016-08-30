@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react'
 import { pureRender }  from '../utils';
 import { Link, IndexLink } from 'react-router';
-import { requestResource, createResource, deleteResource, addNotification, showModal } from '../actions';
+import { requestResource, createResource, deleteResource, addNotification, showModal, resetModals } from '../actions';
 import Navbar from 'react-bootstrap/lib/Navbar'
 import Collapse from 'react-bootstrap/lib/Collapse'
 import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
@@ -31,6 +31,7 @@ export class CompanyHeader extends React.Component {
     }
 
     closeMenu() {
+        this.props.resetData();
         // ugly ugly
         this.refs.dropdown.refs.inner.handleClose()
     }
@@ -181,6 +182,7 @@ const CompanyHeaderConnected = connect(state => {
 }, {
     requestData: (key) => requestResource('/favourites'),
     navigate: (url) => push(url),
+    resetData: () => resetModals(),
     addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),
     removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']}),
     addNotification: (args) => addNotification(args),

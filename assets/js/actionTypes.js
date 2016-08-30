@@ -86,6 +86,7 @@ export const END_MODAL = 'END_MODAL';
 
 export const NEXT_MODAL = 'NEXT_MODAL';
 export const PREVIOUS_MODAL = 'PREVIOUS_MODAL';
+export const RESET_MODALS = 'RESET_MODALS';
 
 
 
