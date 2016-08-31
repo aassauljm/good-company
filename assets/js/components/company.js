@@ -84,7 +84,7 @@ class ResolveAllWarnings extends React.Component {
         return  <div>
         <Link to={`/company/view/${this.props.companyId}/guided_setup`} onClick={this.props.resetModals} className="text-success alert-entry">
         <Glyphicon glyph="forward" className="big-icon"/>
-        Click here for a guided company setup.</Link>
+        Click here to setup your share register.</Link>
         </div>
     }
 }

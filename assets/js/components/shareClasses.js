@@ -133,7 +133,7 @@ export class ShareClassForm extends React.Component {
              { fields.transferRestriction.value &&
               <Input  {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)} className="combobox-wrapper"
                     help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback >
-                        <Combobox {...fields.transferRestrictionDocument} data={transferRestrictionDocumentLocations} itemComponent={Anchor}/>
+                        <Combobox {...fields.transferRestrictionDocument} data={transferRestrictionDocumentLocations} itemComponent={Anchor} placeholder={STRINGS.shareClasses.transferRestrictionPlaceholder}/>
                     </Input>
                 }
 
@@ -221,8 +221,8 @@ export class ShareClassCreateModal extends React.Component {
           </Modal.Body>
         </Modal>
     }
-
 }
+
 
 export function renderRights(data = {}){
     if(Object.keys(data || {}).filter(d => data[d]).length){
@@ -244,6 +244,8 @@ function renderField(key, data, row) {
     switch(key){
         case 'limitations':
             return renderLimitations(row.properties.limitations);
+        case 'transferRestriction':
+            return row.properties.transferRestriction ? 'Yes' : 'No';
         case 'votingRights':
             return renderRights(row.properties.votingRights);
         case 'documents':
@@ -255,10 +257,11 @@ function renderField(key, data, row) {
 
 
 @connect(undefined, {
-    viewShareClass: (path, id) => push(path + '/view/'+id)
+    viewShareClass: (path, id) => push(path + '/view/'+id),
+    navigate: (url)=> push(url)
 })
 export class ShareClassesTable extends React.Component {
-    static fields = ['name', 'votingRights', 'limitations', 'documents']
+    static fields = ['name', 'votingRights', 'transferRestriction', 'documents']
 
     renderList(data) {
         return <div>
@@ -310,7 +313,7 @@ export class ShareClassesTable extends React.Component {
                             companyId: this.key(),
                             companyState: this.props.companyState,
                             shareClasses: classes,
-                            end: () => this.props.dispatch(push(`/company/view/${this.key()}/share_classes`))
+                            end: () => this.props.navigate(`/company/view/${this.key()}/share_classes`)
                     }) }
                 </div>
             </div>

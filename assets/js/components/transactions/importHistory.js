@@ -40,7 +40,7 @@ PAGES[INTRODUCTION] = function() {
 PAGES[LOADING] = function() {
     if(this.props.importHistory._status === 'fetching'){
         return <div>
-            <p className="text-center">This may take a few monments</p>
+            <p className="text-center">This may take a few moments</p>
             <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
             </div>
     }

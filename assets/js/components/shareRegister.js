@@ -149,13 +149,13 @@ function renderField(key, data, row, shareClassMap) {
     if(Array.isArray(data)){
         return  <RenderActions actions={data}/>
     }
+    const props = ((shareClassMap[row.shareClass] || {}).properties || {})
     switch(key){
         case 'shareClass':
             return renderShareClass(data, shareClassMap);
         case 'votingRights':
             return renderRights(((shareClassMap[row.shareClass] || {}).properties || {}).votingRights);
         case 'limitations':
-            const props = ((shareClassMap[row.shareClass] || {}).properties || {})
             let limitations = props.limitations;
             if(props.transferRestriction){
                 limitations.push(STRINGS.shareClasses.transferRestriction);
@@ -164,8 +164,11 @@ function renderField(key, data, row, shareClassMap) {
                 }
             }
             return renderLimitations(limitations);
+        case 'transferRestriction':
+            return props.transferRestriction ? STRINGS.shareRegister.hasTransferRestriction : STRINGS.shareRegister.hasNoTransferRestriction;
         case 'current':
             return data ? 'Yes': 'No';
+        case 'last_amount':
         case 'amount':
         case 'sum':
             return numberWithCommas(data);
@@ -209,7 +212,7 @@ export class ShareRegisterTable extends React.Component {
         shareClassMap: PropTypes.object.isRequired
     };
 
-    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sumIncreases', 'votingRights', 'limitations', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
+    fields = ['shareClass', 'name', 'address', 'holdingName', 'current', 'amount', 'sumIncreases', 'votingRights', 'transferRestriction', 'issueHistory', 'repurchaseHistory', 'transferHistoryFrom', 'transferHistoryTo'];
     wideFields = {'name': 1, 'address': 1, 'votingRights': 1, 'limitations': 1, 'issueHistory': 1, 'repurchaseHistory': 1, 'transferHistoryFrom': 1, 'transferHistoryTo': 1};
 
     render() {
@@ -248,6 +251,7 @@ export class ShareRegisterDocument extends React.Component {
         const {shareRegister, shareClassMap} = this.props;
         const properties = ((shareClassMap[k] || {}).properties || {})
         let limitations = properties.limitations;
+        let transferRestriction = properties.transferRestriction;
         if(properties.transferRestriction){
             limitations.push(STRINGS.shareClasses.transferRestriction);
             if(properties.transferRestrictionDocument){
@@ -257,14 +261,18 @@ export class ShareRegisterDocument extends React.Component {
         return <div >
                 <h4>{ renderShareClass(k, shareClassMap) }</h4>
                 <div ><div className="col-md-6">
-                    <h5>{ STRINGS.shareRegister['votingRightsLong'] }</h5>
+                    <h5>{ STRINGS.shareRegister['votingRights'] }</h5>
                     { renderRights(properties.votingRights) }
                     </div>
-                <div className="col-md-6">
-                <h5>{ STRINGS.shareRegister['limitationsLong'] }</h5>
-                    { renderLimitations(limitations) }
+                    <div className="col-md-6">
+                        <h5>{ STRINGS.shareClasses['transferRestriction'] }</h5>
+                        { transferRestriction ? STRINGS.shareRegister.hasTransferRestriction : STRINGS.shareRegister.hasNoTransferRestriction }
+
+                        { transferRestriction && <h5>{ STRINGS.shareClasses['transferRestrictionDocument']} </h5>  }
+                        { transferRestriction &&  properties.transferRestrictionDocument }
+
                     </div>
-                    </div>
+                </div>
                 { this.renderTable(k) }
             </div>
     }
@@ -301,7 +309,7 @@ export class ShareRegisterDocument extends React.Component {
         const {shareRegister, shareClassMap, companyState} = this.props;
         const rows = shareRegister.filter(s => s.shareClass === k);
         if(!rows.length) {
-            return 'No shareholdings with this class.'
+            return false;
         }
         return <table className="table share-register">
             <thead>
@@ -327,7 +335,7 @@ export class ShareRegisterDocument extends React.Component {
         return <div>
             <h3>Shareholders by Share Class</h3>
                 { shareClasses.map((k, i) => {
-                    return <div key={i}>{ this.renderShareClassSection(k) }</div>
+                    return !!this.props.shareRegister.filter(s => s.shareClass === k).length && <div key={i}>{ this.renderShareClassSection(k) }</div>
                 }) }
 
             </div>
@@ -338,7 +346,7 @@ export class ShareRegisterDocument extends React.Component {
         return <div>
             <h3>Current Shareholdings</h3>
                 { shareClasses.map((k, i) => {
-                    return <div key={i}>{ this.renderCurrentShareholdingsForClass(k) }</div>
+                    return !!this.props.shareRegister.filter(s => s.shareClass === k).length && <div key={i}>{ this.renderCurrentShareholdingsForClass(k) }</div>
                 }) }
             </div>
     }

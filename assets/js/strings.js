@@ -37,7 +37,9 @@ export default {
         issueHistory: 'Date and No. of Shares Issued by Company',
         repurchaseHistory: 'Date and No. of Repurchase or Redemption',
         transferHistoryTo: 'Date of transfer of Shares to the Shareholder',
-        transferHistoryFrom: 'Date of transfer of Shares from the Shareholder'
+        transferHistoryFrom: 'Date of transfer of Shares from the Shareholder',
+        hasNoTransferRestriction: "There are no restrictions or limitations on the transfer of shares",
+        hasTransferRestriction: "There are restrictions or limitations on the transfer of shares"
     },
     transactionTypes: {
         SEED: 'Seed from Companies Office',
@@ -116,6 +118,7 @@ export default {
         "transferRestriction": "Restrictions on transfers",
         "transferRestrictionQuestion": "Are there restrictions or limitations on the transfer of shares?",
         "transferRestrictionDocument": "Location of document containing transfer restrictions",
+        "transferRestrictionPlaceholder": "Type or select from the following",
 
         votingRights: {
             _: 'Rights Attached to Shares',

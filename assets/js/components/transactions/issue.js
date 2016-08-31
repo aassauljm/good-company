@@ -280,7 +280,7 @@ export class IssueModal extends React.Component {
 
     renderBody(companyState) {
         const holdingOptions = companyState.holdingList.holdings.map((h, i) => {
-                    return <option key={i} value={h.holdingId}>{(h.name ? h.name + ': ' : '') + joinAnd(h.holders, {prop: 'name'}) }</option>
+                    return <option key={i} value={h.holdingId}>{(h.name ? h.name + ': ' : '') + joinAnd(h.holders.map(h => h.person), {prop: 'name'}) }</option>
                 });
         const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
