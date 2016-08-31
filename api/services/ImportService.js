@@ -31,6 +31,12 @@ export function importCompany(companyNumber, options) {
                     .then(function(){
                         return state.setPreviousCompanyState(newRoot);
                     })
+                    .then(function(){
+                        return SourceData.create({data: processedDocs});
+                    })
+                    .then(function(sourceData){
+                        company.setHistoricSourceData(sourceData);
+                    })
                     .then(() => {
                         return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
                     })
@@ -39,11 +45,6 @@ export function importCompany(companyNumber, options) {
                         newRoot.set('pending_historic_action_id', pendingAction[0].id);
                         return newRoot.save()
                     })
-                    .then(() => {
-                        state.set('original_historic_action_id', pendingAction[0].id);
-                        return state.save();
-                    })
-
                     .then(() => {
                         state.getHistoricActions()
                             .then(hA => {

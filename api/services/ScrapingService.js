@@ -572,7 +572,6 @@ const EXTRACT_DOCUMENT_MAP = {
 const EXTRACT_BIZ_DOCUMENT_MAP= {
        [DOCUMENT_TYPES.INCORPORATION]: ($) => {
 
-
         const match = (match) => {
             return $('table td font').filter(function(){
                 return $(this).text().match(match);

@@ -565,7 +565,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(29);
+                    res.body.length.should.be.equal(38);
                     done();
                 });
         });
@@ -590,7 +590,6 @@ describe('Company Controller', function() {
                     done();
                 });
         });
-return ;
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){

@@ -53,7 +53,13 @@ module.exports = {
                 name: 'source_data_id'
             }
         });
-
+        Company.belongsTo(SourceData, {
+            as: 'historicSourceData',
+            foreignKey: {
+                as: 'historicSourceData',
+                name: 'historic_source_data_id'
+            }
+        });
     },
     options: {
         freezeTableName: false,
@@ -169,7 +175,7 @@ module.exports = {
                         return rootState.update({'pending_historic_action_id': pendingActions[0].id})
                     })
                     .then(() => {
-                        return Actions.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId, fields: ['previous_id']}})
+                        return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
                     })
             },
 
@@ -177,16 +183,27 @@ module.exports = {
                 // TODO, get this from some where else
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
-                let state, newRoot;
-                return this.getSeedCompanyState()
+                let state, newRoot, pendingActions;
+                return this.getHistoricDataSource()
+                    .then(dS => {
+                        pendingActions = dS.data.map((d, i) => d)
+                        pendingActions.map((pa, i) => {
+                            pa.id = uuid.v4();
+                            (pa.actions || []).map(a => a.id = uuid.v4())
+                            if(i >= 1){
+                                pendingActions[i-1].previous_id = pa.id;
+                            }
+                        })
+                        return Action.bulkCreate(pendingActions);
+                    })
+                    .then(() => {
+                        return this.getSeedCompanyState()
+                    })
                     .then(_state => {
                         state = _state;
-                        if(!state.get('original_historic_action_id')){
-                            throw Exception('Cannot find original action list')
-                        }
-                        sails.log.info('Resetting history to', state.get('original_historic_action_id'));
+                        sails.log.info('Resetting history to');
                         return state.buildPrevious({transaction: null, transactionId: null,
-                            pending_historic_action_id: state.get('original_historic_action_id'), previousCompanyStateId: null})
+                            pending_historic_action_id: pendingActions[0].id, previousCompanyStateId: null})
                     })
                     .then(function(_newRoot){
                         newRoot = _newRoot

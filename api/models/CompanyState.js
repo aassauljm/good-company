@@ -149,13 +149,6 @@ module.exports = {
                 name: 'pending_historic_action_id'
             }
         });
-         CompanyState.belongsTo(Action, {
-            as: 'originalHistoricActions',
-            foreignKey: {
-                as: 'originalHistoricActions',
-                name: 'original_historic_action_id'
-            }
-        });
         CompanyState.belongsTo(HistoricPersonList, {
             as: 'historicPersonList',
             foreignKey: {
