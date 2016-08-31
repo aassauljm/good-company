@@ -454,7 +454,7 @@ const DESCRIPTIONS = {
 function skipOrRestart(allowSkip, context, submit, reset){
     function skip(){
         return submit({
-            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true, previous_id: context.actionSet.previous_id}}]
+            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
         })
     }
     function startOver(){

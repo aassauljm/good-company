@@ -1106,7 +1106,11 @@ export function performSeed(args, company, effectiveDate, userId){
             return company.setCurrentCompanyState(state)
         })
         .then(function(){
-            return addActions(state, {id: uuid.v4(), transaction:{type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date(), actions:[{type: Transaction.types.SEED}]}}, company)
+            return addActions(state, {
+                id: uuid.v4(),
+                transactionType: Transaction.types.SEED,
+                effectiveDate: effectiveDate || new Date(),
+                actions:[{transactionType: Transaction.types.SEED}] }, company)
         })
         .then(function(state){
             return state.save();
@@ -1246,6 +1250,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
         [Transaction.types.ANNUAL_RETURN]: TransactionService.performAnnualReturn
     };
+
     if(!data || !data.actions || data.userSkip){
         return Promise.resolve(rootState);
     }
@@ -1309,7 +1314,6 @@ export function performInverseTransaction(data, company, rootState){
                 return company.setSeedCompanyState(prevState);
             }
         })
-
          .then(function(){
             return prevState;
          })

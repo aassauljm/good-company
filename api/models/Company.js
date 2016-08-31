@@ -175,6 +175,7 @@ module.exports = {
                         return rootState.update({'pending_historic_action_id': pendingActions[0].id})
                     })
                     .then(() => {
+                        // HUGE security risk.  Need to validate this pendingAction is owned by this user
                         return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
                     })
             },
@@ -184,12 +185,14 @@ module.exports = {
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
                 let state, newRoot, pendingActions;
-                return this.getHistoricDataSource()
+                return this.getHistoricSourceData()
                     .then(dS => {
-                        pendingActions = dS.data.map((d, i) => d)
+                        pendingActions = dS.data.map(d => ({data: d}))
+
                         pendingActions.map((pa, i) => {
                             pa.id = uuid.v4();
-                            (pa.actions || []).map(a => a.id = uuid.v4())
+                            pa.data.id = pa.id;
+                            (pa.data.actions || []).map(a => a.id = uuid.v4())
                             if(i >= 1){
                                 pendingActions[i-1].previous_id = pa.id;
                             }
@@ -201,7 +204,6 @@ module.exports = {
                     })
                     .then(_state => {
                         state = _state;
-                        sails.log.info('Resetting history to');
                         return state.buildPrevious({transaction: null, transactionId: null,
                             pending_historic_action_id: pendingActions[0].id, previousCompanyStateId: null})
                     })

@@ -510,6 +510,9 @@ describe('Company Controller', function() {
                     res.body.shareRegister[0].issueHistory.length.should.be.at.least(0);
                     res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
                     res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
+                     res.body.shareRegister.map(s => {
+                        should.equal(s.shareClass, null);
+                    })
                     done();
                 })
         });
@@ -571,13 +574,15 @@ describe('Company Controller', function() {
         });
 
 
-
         it('check share register', function(done){
             req.get('/api/company/'+companyId+'/share_register')
                 .then(function(res){
                     should.equal(null, res.body.shareRegister[0].issueHistory)
                     should.equal(null, res.body.shareRegister[0].transferHistoryTo)
                     should.equal(null, res.body.shareRegister[0].transferHistoryFrom)
+                    res.body.shareRegister.map(s => {
+                        should.equal(s.shareClass, classes['Class A']);
+                    })
                     done();
                 });
         });
@@ -590,6 +595,7 @@ describe('Company Controller', function() {
                     done();
                 });
         });
+
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
@@ -598,7 +604,51 @@ describe('Company Controller', function() {
                 });
         });
 
+        it('check share register', function(done){
+            req.get('/api/company/'+companyId+'/share_register')
+                .then(function(res){
+                    res.body.shareRegister[0].issueHistory.length.should.be.at.least(0);
+                    res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
+                    res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
+                    res.body.shareRegister.map(s => {
+                        should.equal(s.shareClass, classes['Class A']);
+                    })
+                    done();
+                });
+        });
 
+        it('reset history', function(done){
+            req.put('/api/company/'+companyId+'/reset_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+        it('check pending history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then(function(res){
+                    res.body.length.should.be.equal(27);
+                    done();
+                });
+        });
+
+        it('check pending history', function(done){
+            req.get('/api/company/'+companyId+'/transactions')
+                .then(function(res){
+                    res.body.transactions.length.should.be.equal(3);
+                    done();
+                });
+        });
+        it('Imports history, fails', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(500)
+                .then(function(res){
+                    context = res.body.context;
+                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    done();
+                });
+        });
     });
 
 });
