@@ -467,7 +467,7 @@ module.exports = {
                 return Promise.join(sequelize.query('select has_pending_historic_actions(:id)',
                                        { type: sequelize.QueryTypes.SELECT,
                                             replacements: { id: this.id}}),
-                                    this.votingShareholdersCheck(),
+                                   // this.votingShareholdersCheck(),
                         (pendingActions, votingShareholders) => {
                         return {
                             pendingHistory: pendingActions[0].has_pending_historic_actions,
@@ -875,7 +875,12 @@ module.exports = {
                                     this.groupTotals(),
                                     this.getTransactionSummary(),
                                     this.getWarnings(),
-                        function(total, totalUnallocated, countByClass, transactionSummary, warnings){
+                        function(total,
+                                 totalUnallocated,
+                                countByClass,
+                                transactionSummary,
+                                warnings
+                                ){
                         stats.totalUnallocatedShares = totalUnallocated;
                         stats.totalAllocatedShares = total;
                         stats.shareCountByClass = countByClass;

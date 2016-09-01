@@ -203,8 +203,9 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
-    SELECT EXISTS (SELECT pending_historic_action_id from company_state cs
-                   where cs.id  = root_company_state($1) and pending_historic_action_id is not null);
+    SELECT pending_historic_action_id is not null from  company_state cs
+      INNER JOIN
+      (SELECT root_company_state($1)) s on s.root_company_state = cs.id
 $$ LANGUAGE SQL;
 
 -- A brief(er) summary of transactions, part of standard companyState info
