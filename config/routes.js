@@ -125,10 +125,9 @@ module.exports.routes = {
         action: 'validate'
     },
 
-    'POST /api/transaction/:type/:companyId': {
+    'POST /api/transaction/:type/:id': {
         controller: 'CompanyStateController',
-        modelIdentity: 'company',
-
+        model: 'company',
         action: 'create'
     },
     'GET /api/company/:id/get_info': {
@@ -149,27 +148,27 @@ module.exports.routes = {
     'GET /api/company/:id/transactions': {
         controller: 'CompanyController',
         action: 'transactionHistory',
-        modelIdentity: 'company'
+        model: 'company'
     },
     'GET /api/company/:id/issues': {
         controller: 'CompanyController',
         action: 'issueHistory',
-        modelIdentity: 'company'
+        model: 'company'
     },
     'GET /api/company/:id/share_register': {
         controller: 'CompanyController',
         action: 'shareRegister',
-        modelIdentity: 'company'
+        model: 'company'
     },
     'GET /api/company/:id/interests_register': {
         controller: 'CompanyController',
         action: 'interestsRegister',
-        modelIdentity: 'company'
+        model: 'company'
     },
     'GET /api/company/:id/shareholders': {
         controller: 'CompanyController',
         action: 'shareholders',
-        modelIdentity: 'company'
+        model: 'company'
     },
     'POST /api/company/import/companiesoffice/:companyNumber': {
         controller: 'CompanyController',
@@ -188,19 +187,22 @@ module.exports.routes = {
         action: 'lookup'
     },
 
-    'POST /api/company/:companyId/interests_register/create': {
+    'POST /api/company/:id/interests_register/create': {
         controller: 'CompanyStateController',
-        action: 'createRegisterEntry'
+        action: 'createRegisterEntry',
+        model: 'company'
     },
 
-    'POST /api/company/:companyId/share_classes/create': {
+    'POST /api/company/:id/share_classes/create': {
         controller: 'CompanyStateController',
-        action: 'createShareClass'
+        action: 'createShareClass',
+        model: 'company'
     },
 
-    'PUT /api/company/:companyId/share_classes/:shareClassId': {
+    'PUT /api/company/:id/share_classes/:shareClassId': {
         controller: 'CompanyStateController',
-        action: 'updateShareClass'
+        action: 'updateShareClass',
+        model: 'company'
     },
 
     'GET /api/company/render/:id/shareregister': {

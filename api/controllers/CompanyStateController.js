@@ -400,12 +400,13 @@ const selfManagedTransactions = {
 
 function createTransaction(req, res, type){
     let company, args = actionUtil.parseValues(req);
+    delete args.id;
     delete args.type;
     delete args.createdById;
     delete args.ownerId;
     return req.file('documents').upload(function(err, uploadedFiles){
         return sequelize.transaction(function(t){
-            return Company.findById(req.params.companyId)
+            return Company.findById(req.params.id)
                 .then(function(_company) {
                     company = _company;
                     return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)

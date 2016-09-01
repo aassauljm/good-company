@@ -13,7 +13,7 @@ import { Link } from 'react-router';
 import { push, replace } from 'react-router-redux';
 import LawBrowserLink from './lawBrowserLink';
 import { Route } from 'react-router';
-import { getWarnings } from './company'
+import { getWarnings } from './warnings'
 import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
 import { ModalSwitch }  from './modals';
 /*
@@ -101,11 +101,13 @@ export class GuidedSetup extends React.Component {
             { this.props.modals.showing && <div>
                 <div className="container">
                     <div className="row">
+                    <div className="col-md-12">
                     <div className="widget">
                          <div className="widget-body">
                             < h5 className="text-center">Company Setup {warningSteps - warningCount} / {warningSteps}</h5>
                             <ProgressBar now={now} striped bsStyle="success" /></div>
                         </div>
+                    </div>
                     </div>
                 </div>
                 <ModalSwitch showing={this.props.modals.showing} {...props}  />
@@ -115,6 +117,7 @@ export class GuidedSetup extends React.Component {
 
             { !this.props.modals.showing &&  <div className="container">
                 <div className="row">
+                <div className="col-md-12">
                 <div className="widget">
                     <div className="widget-header">
                         <div className="widget-title">
@@ -124,6 +127,7 @@ export class GuidedSetup extends React.Component {
                     <div className="widget-body">
                        Congratulations, { this.props.companyState.companyName } has succesfully been setup up.
                     </div>
+                </div>
                 </div>
                 </div>
             </div> }

@@ -130,6 +130,7 @@ export class ShareClassForm extends React.Component {
                     <option value="">No</option>
                     <option value="true">Yes</option>
             </SelectBoolean>
+
              { fields.transferRestriction.value &&
               <Input  {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)} className="combobox-wrapper"
                     help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback >
@@ -167,7 +168,7 @@ export class ShareClassForm extends React.Component {
             </fieldset>
             <div className="button-row">
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
-                <ButtonInput type="submit" bsStyle="primary" className="submit-new" disabled={submitting || invalid}>Create</ButtonInput>
+                <ButtonInput type="submit" bsStyle="primary" className="submit-new" disabled={submitting || invalid}>{ this.props.edit ? 'Update': 'Create'}</ButtonInput>
             </div>
         </form>
     }
@@ -223,6 +224,24 @@ export class ShareClassCreateModal extends React.Component {
     }
 }
 
+
+export class ShareClassEditModal extends React.Component {
+    render() {
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <Modal.Header closeButton>
+                <Modal.Title>Create Share Class</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+              <div className="row">
+                <div className="col-md-6 col-md-offset-3">
+                    <ShareClassFormConnected {...this.props.modalData} end={this.props.end} />
+                </div>
+            </div>
+
+          </Modal.Body>
+        </Modal>
+    }
+}
 
 export function renderRights(data = {}){
     if(Object.keys(data || {}).filter(d => data[d]).length){
@@ -301,6 +320,7 @@ export class ShareClassesTable extends React.Component {
         const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
         return <div className="container">
             <div className="row">
+            <div className="col-md-12">
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -318,6 +338,7 @@ export class ShareClassesTable extends React.Component {
                 </div>
             </div>
             </div>
+            </div>
         </div>
     }
 }
@@ -331,6 +352,7 @@ export const ShareClassManageModal  = (props) => {
     return <ShareClassesTable  {...props.modalData}
     modalButton={true}
     createModal={() => props.show('createShareClasses', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
+    editModal={() => props.show('createShareClasses', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
     end={props.end} />
 };
 

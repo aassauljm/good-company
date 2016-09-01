@@ -467,13 +467,16 @@ module.exports = {
                 return Promise.join(sequelize.query('select has_pending_historic_actions(:id)',
                                        { type: sequelize.QueryTypes.SELECT,
                                             replacements: { id: this.id}}),
-                                   // this.votingShareholdersCheck(),
+                                    this.votingShareholdersCheck(),
                         (pendingActions, votingShareholders) => {
                         return {
                             pendingHistory: pendingActions[0].has_pending_historic_actions,
                             missingVotingShareholders: votingShareholders
                         }
                     });
+            },
+            getDeadlines: function(){
+                return {};
             },
             votingShareholdersCheck: function() {
                 return this.getHoldingList({include: CompanyState.includes.holdings()})
@@ -875,11 +878,13 @@ module.exports = {
                                     this.groupTotals(),
                                     this.getTransactionSummary(),
                                     this.getWarnings(),
+                                    this.getDeadlines(),
                         function(total,
                                  totalUnallocated,
                                 countByClass,
                                 transactionSummary,
-                                warnings
+                                warnings,
+                                deadlines
                                 ){
                         stats.totalUnallocatedShares = totalUnallocated;
                         stats.totalAllocatedShares = total;
@@ -887,6 +892,7 @@ module.exports = {
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
                         stats.transactions = transactionSummary[0].transaction_summary;
                         stats.warnings = warnings;
+                        stats.deadlines = deadlines;
                         return stats
                     });
             },

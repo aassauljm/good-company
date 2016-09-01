@@ -53,10 +53,10 @@ export class DirectorsWidget extends React.Component {
         const holders = this.props.companyState.holders;
         return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div  key="body">
-            <dl className="dl-horizontal">
-                <dt>{ directors.length}</dt>
-                <dd>Current {directors.length === 1 ? 'Director' : 'Directors'}</dd>
-            </dl>
+            { directors.length > 1 && <dl className="dl-horizontal">
+                <dt>Number of Directors</dt>
+                <dd>{ directors.length}</dd>
+            </dl> }
 
             { directors.map((director, i) => <div key={i}>{ renderDirector(director, holders) }</div>) }
 

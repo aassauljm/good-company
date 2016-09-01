@@ -289,7 +289,8 @@ export class ShareRegisterDocument extends React.Component {
                     const holders = [...holding.holders];
                     holders.sort((a, b) => {
                         return ((a.data||{}).votingShareholder && -1) || ((b.data||{}).votingShareholder && 1) || a.person.name.localeCompare(b.person.name)
-                    })
+                    });
+                    console.log(holders)
                     return <table key={j} className="table share-register">
                                 <thead>
                                 <tr><th>{holding.name || `Shareholding #${j+1}`}</th><th>{ STRINGS.shareRegister['amount']}</th></tr>
@@ -464,6 +465,7 @@ export class ShareRegister extends React.Component {
     renderTop() {
         return <div className="container">
             <div className="row">
+                <div className="col-md-12">
                 <div className="widget">
                     <div className="widget-header">
                         <div className="widget-title">
@@ -473,6 +475,7 @@ export class ShareRegister extends React.Component {
                     <div className="widget-body">
                         <LawBrowserLink title="Companies Act 1993" location="s 87">As defined under s 87 of the Companies Act 1993</LawBrowserLink>
                     </div>
+            </div>
             </div>
 
             </div>
