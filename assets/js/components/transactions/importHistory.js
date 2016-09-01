@@ -57,7 +57,7 @@ PAGES[AMBIGUITY] = function(){
         const documentId =  context.actionSet && context.actionSet.data.documentId;
         const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.modalData.companyState, documentId);
        return <div>
-        <p className="text-danger">Ambiguous transaction found in { companyName } history.</p>
+        <p className="text-danger">We need your help understand a document from the Companies Office.</p>
         <p className="text-danger">Reason: {this.props.importHistory.error.message || 'Processing Error'}</p>
         { documentId && <p>Source: <Link target="_blank" to={documentUrl}>Companies Office document {documentId}</Link></p> }
         </div>

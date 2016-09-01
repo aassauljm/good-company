@@ -1,5 +1,9 @@
 #Sailsjs, Sequelize Project
 
+
+// Type or select from the following
+
+
 [![Build Status](https://travis-ci.org/joshgagnon/good-company.svg)](https://travis-ci.org/joshgagnon/good-company)
 
 
