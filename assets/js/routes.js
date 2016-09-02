@@ -22,7 +22,7 @@ import { NewTransaction } from './components/newTransaction';
 import ContactDetails from './components/contactDetails';
 import ReportingDetails from './components/reportingDetails';
 import Directors from './components/directors';
-import { ShareClasses, ShareClassCreate, ShareClassView } from './components/shareClasses';
+import { ShareClasses, ShareClassCreate, ShareClassEdit } from './components/shareClasses';
 import RecentActivity from './components/recentActivity';
 import Templates, { TemplateView } from './components/templates';
 import  { LoginWithCatalex } from './components/login';
@@ -80,7 +80,7 @@ export default (store) => {
                 <Route path="directors" component={ Directors } />
                 <Route path="share_classes" component={ ShareClasses } >
                     <Route path="create" component={ ShareClassCreate } />
-                    <Route path="view/:shareClassId" component={ ShareClassView } />
+                    <Route path="view/:shareClassId" component={ ShareClassEdit } />
                 </Route>
                 <Route path="interests_register" component={ InterestsRegister } >
                     <Route path="create" component={ InterestsRegisterCreate } />

@@ -133,13 +133,15 @@ export function createResource(resource, data, options = {stringify: true}) {
     };
 }
 
-export function updateResource(resource, data, options = {}) {
+export function updateResource(resource, data, options = {stringify: true}) {
     return {
         types: [RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {
             method: 'PUT',
-            headers: json_headers,
-            body: JSON.stringify(data),
+            headers: (options.stringify && data) ? json_headers : {
+                ...accept_json_headers
+            },
+            body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
         payload: {key: resource, form: options.form, invalidateList: options.invalidates}

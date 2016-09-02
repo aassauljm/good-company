@@ -25,7 +25,7 @@ import { ResolveAmbiguityModal  } from './transactions/resolve';
 import { DeleteCompanyModal  } from './transactions/deleteCompany';
 import { ResetHistoryModal  } from './transactions/resetHistory';
 import { VotingShareholdersModal  } from './transactions/selectVotingShareholders';
-import { ShareClassCreateModal, ShareClassManageModal } from './shareClasses';
+import { ShareClassCreateModal, ShareClassEditModal, ShareClassManageModal } from './shareClasses';
 import { AddAssignSharesModal, ConsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal, ResetDeleteModal } from './transactions/selection';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
@@ -122,8 +122,11 @@ export const ModalSwitch = (props) => {
             case 'votingShareholders':
                 return <VotingShareholdersModal {...props} />
 
-            case 'createShareClasses':
+            case 'createShareClass':
                 return <ShareClassCreateModal {...props} />
+
+            case 'editShareClass':
+                return <ShareClassEditModal {...props} />
 
             case 'manageShareClasses':
                 return <ShareClassManageModal {...props} />

@@ -350,7 +350,34 @@ var transactions = {
     },
 
     updateShareClass: function(data, company){
-        throw new sails.config.exceptions.ValidationException('Currently we cannot update share classes');
+        let companyState;
+        return company.getCurrentCompanyState()
+            .then(function(_companyState) {
+                companyState = _companyState;
+                return companyState.groupTotals();
+            })
+            .then(groupTotals => {
+                if(groupTotals[data.shareClassId] && groupTotals[data.shareClassId].amount > 0){
+                    throw new sails.config.exceptions.ValidationException('Cannot share classes that are on issue');
+                }
+                return companyState.getShareClasses({
+                            include: [{
+                                model: ShareClass,
+                                as: 'shareClasses',
+                                where: {id: parseInt(data.shareClassId, 10) }
+                            }],
+                        })
+            })
+            .then(function(shareClasses) {
+                if(shareClasses.dataValues.shareClasses.length !== 1){
+                    throw new sails.config.exceptions.ValidationException('Share class not found');
+                }
+                return shareClasses.dataValues.shareClasses[0].update({name: data.name, properties: data.properties});
+            })
+            .then(function(){
+                return {message: 'Share Class updated'};
+            })
+
     }
 
 }
@@ -428,8 +455,9 @@ function createTransaction(req, res, type){
                     })
                 })
                 .then((files) => {
-                    args = args.json ? JSON.parse(args.json) : args;
+                    args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
                     args.documents = files;
+
                 })
                 .then((results) => {
                     return transactions[type] ? transactions[type](args, company) : null;

@@ -191,7 +191,7 @@ export class ShareClassCreate extends React.Component {
     }
 }
 
-export class ShareClassView extends React.Component {
+export class ShareClassEdit extends React.Component {
     render() {
         const state = this.props.shareClasses.filter(s => {
             return s.id.toString() === this.props.routeParams.shareClassId;
@@ -227,6 +227,10 @@ export class ShareClassCreateModal extends React.Component {
 
 export class ShareClassEditModal extends React.Component {
     render() {
+        const state = this.props.modalData.shareClasses.filter(s => {
+            return s.id === this.props.modalData.shareClassId;
+        })[0];
+
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>Create Share Class</Modal.Title>
@@ -234,7 +238,7 @@ export class ShareClassEditModal extends React.Component {
               <Modal.Body>
               <div className="row">
                 <div className="col-md-6 col-md-offset-3">
-                    <ShareClassFormConnected {...this.props.modalData} end={this.props.end} />
+                    <ShareClassFormConnected {...this.props.modalData} end={this.props.end}  initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
                 </div>
             </div>
 
@@ -275,10 +279,7 @@ function renderField(key, data, row) {
 }
 
 
-@connect(undefined, {
-    viewShareClass: (path, id) => push(path + '/view/'+id),
-    navigate: (url)=> push(url)
-})
+
 export class ShareClassesTable extends React.Component {
     static fields = ['name', 'votingRights', 'transferRestriction', 'documents']
 
@@ -292,7 +293,7 @@ export class ShareClassesTable extends React.Component {
                 </thead>
                 <tbody>
                     { data.map((row, i) => {
-                        return <tr key={i} onClick={() => this.props.viewShareClass(this.props.location.pathname, row.id)}>
+                        return <tr key={i} onClick={() => this.props.editShareClass(row.id)}>
                             { ShareClassesTable.fields.map((field, i) => {
                                 return <td key={i}>{renderField(field, row[field], row)}</td>
                             }) }
@@ -343,16 +344,21 @@ export class ShareClassesTable extends React.Component {
     }
 }
 
-export const ShareClasses = (props) => <ShareClassesTable navButton={true} {...props} />;
+export const ShareClasses = connect(undefined, (dispatch, ownProps) => ({
+    editShareClass: (id) => dispatch(push(`${ownProps.location.pathname}/view/${id}`)),
+    navigate: (url) => dispatch(push(url))
+}))((props) => <ShareClassesTable navButton={true} {...props} />)
+
 
 
 
 
 export const ShareClassManageModal  = (props) => {
+    const shareClasses = ((props.modalData.companyState.shareClasses || {}).shareClasses || []);
     return <ShareClassesTable  {...props.modalData}
     modalButton={true}
-    createModal={() => props.show('createShareClasses', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
-    editModal={() => props.show('createShareClasses', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
+    createModal={() => props.show('createShareClass', {...props.modalData, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
+    editShareClass={(id) => props.show('editShareClass', {...props.modalData, shareClasses: shareClasses, shareClassId: id, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
     end={props.end} />
 };
 

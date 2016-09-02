@@ -873,6 +873,7 @@ module.exports = {
 
             stats: function(){
                 var stats = {};
+
                 return Promise.join(this.totalAllocatedShares(),
                                     this.totalUnallocatedShares(),
                                     this.groupTotals(),
