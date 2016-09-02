@@ -6,6 +6,7 @@
  */
 var _ = require('lodash');
 var Promise = require('bluebird');
+var moment = require('moment');
 var months = Sequelize.ENUM('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 
 
@@ -436,7 +437,7 @@ module.exports = {
                     .then(function(args){
                         args.directorList = args.directorList || {directors: []}
                         args.transaction = args.transaction || {type: Transaction.types.SEED};
-                        var state = CompanyState.build(args, {include: CompanyState.includes.full()
+                        let state = CompanyState.build(args, {include: CompanyState.includes.full()
                                 .concat(CompanyState.includes.docList())
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.holdingList())
@@ -476,7 +477,31 @@ module.exports = {
                     });
             },
             getDeadlines: function(){
-                return {};
+                const  annualReturn = () => {
+                    if(!this.dataValues.arFilingMonth){
+                        return {annualReturn : {status: 'danger', 'message': 'No Annual Return filing month specified'}};
+                    }
+                    const documents = this.dataValues.docList ? this.dataValues.docList.dataValues.documents : [];
+                    const due = moment().month(this.dataValues.arFilingMonth).endOf('month');
+                    const diff = due.clone().diff(moment())
+                    const humanDiff = due.clone().from(moment());
+                    const thisYear = (new Date()).getFullYear();
+                    const ar = _.find(documents, d => {
+                        return d.type === 'Companies Office' && d.filename === 'Online Annual Return' && d.date.getFullYear() === thisYear;
+                    });
+                    if(!ar){
+                        if(diff > 0){
+                            return {annualReturn : {status: moment.duration(diff).asMonths() > 1 ? 'pending' : 'warning', 'message': `Annual Return due ${humanDiff}`}};
+                        }
+                        else{
+                            return {annualReturn : {status: 'danger', 'message': `Annual Return due ${humanDiff}`}};
+                        }
+                    }
+                    else{
+                        return {annualReturn : {status: 'safe', 'message': 'Completed for the current year'}};
+                    }
+                }
+                return {...annualReturn()}
             },
             votingShareholdersCheck: function() {
                 return this.getHoldingList({include: CompanyState.includes.holdings()})
@@ -505,7 +530,7 @@ module.exports = {
                 return this.groupShares()
                     .then(function(groups) {
                         return Promise.reduce(_.values(groups), function(acc, shares) {
-                            var result = _.reduce(shares, function(total, share) {
+                            let result = _.reduce(shares, function(total, share) {
                                     return total.combine(share);
                                 }, Parcel.build({
                                     shareClass: shares[0].shareClass,
@@ -598,7 +623,7 @@ module.exports = {
             },
 
             createPrevious: function(attr){
-                var self = this, prev;
+                let self = this, prev;
                 return this.buildPrevious(_.merge(attr, {transactionId: null, transaction: null}))
                     .then(function(_prev){
                         prev = _prev;
@@ -624,7 +649,7 @@ module.exports = {
                 const holdings = this.dataValues.holdingList.dataValues.holdings;
                 const matches = [];
                 _.some(holdings, function(nextHolding, j){
-                    var toRemove;
+                    let toRemove;
                     newHoldings.forEach(function(holdingToAdd, i){
                         if(((holdingToAdd.holdingId && nextHolding.holdingId === holdingToAdd.holdingId ) ||
                             (!holdingToAdd.holdingId && nextHolding.holdersMatch(holdingToAdd, {ignoreCompanyNumber: true}))) &&
@@ -651,7 +676,7 @@ module.exports = {
                         return true;
                     }
                 });
-                var extraHoldings = newHoldings.map(function(holdingToAdd, i){
+                let extraHoldings = newHoldings.map(function(holdingToAdd, i){
                     // TODO, make sure persons are already looked up
                     const extraHolding = Holding.buildDeep(holdingToAdd)
                     if(transaction){
@@ -681,7 +706,7 @@ module.exports = {
                     const index = holdingList.dataValues.holdings.indexOf(holding);
                     holdingList.dataValues.holdings[index] = holding = holding.buildNext();
                     _.some(holding.dataValues.holders, function(holder){
-                        var toRemove;
+                        let toRemove;
                         newHolders.forEach(function(newHolder, i){
                             if(holder.detailChange(newHolder)){
                                 existingHolders.push(holder.replaceWith(newHolder))
@@ -768,7 +793,7 @@ module.exports = {
                         }
                     })
                     .then(function(){
-                        var index = _.findIndex(directors, function(d, i){
+                        let index = _.findIndex(directors, function(d, i){
                                 return d.dataValues.person.isEqual(currentDirector);
                         });
                         // TODO, think of better way
@@ -814,7 +839,7 @@ module.exports = {
 
             getHolderBy: function(data){
                 // probably has to collapse whole tree for this to work
-                var result;
+                let result;
                  _.some(this.dataValues.holdingList.dataValues.holdings, function(holding){
                     return _.some(holding.dataValues.holders, function(holder){
                         if(holder.person.isEqual(data)){
@@ -828,7 +853,7 @@ module.exports = {
             },
             getDirectorBy: function(data){
                 // probably has to collapse whole tree for this to work
-                var result;
+                let result;
                  _.some(this.dataValues.directorList.dataValues.directors, function(director){
                     if(director.person.isEqual(data)){
                         result = director;
@@ -838,8 +863,8 @@ module.exports = {
                 return result;
             },
             combineUnallocatedParcels: function(parcel, subtract){
-                var match, result;
-                var parcel = Parcel.build(parcel);
+                let match, result;
+                parcel = Parcel.build(parcel);
                 _.some(this.dataValues.unallocatedParcels, function(p){
                     if(Parcel.match(p, parcel)){
                         match = p;
@@ -872,7 +897,7 @@ module.exports = {
             },
 
             stats: function(){
-                var stats = {};
+                let stats = {};
 
                 return Promise.join(this.totalAllocatedShares(),
                                     this.totalUnallocatedShares(),

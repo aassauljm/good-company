@@ -83,6 +83,34 @@ const AlertWarnings = {
     ResolveAllWarnings: ResolveAllWarnings
 };
 
+
+const statusIs = (type, list) =>{
+    return list.indexOf(type.status) > -1;
+}
+
+const deadlineToClassName = (type) => {
+    return {
+        'danger': ' alert-entry text-danger',
+        'warning': ' alert-entry text-warning',
+        'safe': ' alert-entry text-success',
+        'pending': ' alert-entry'
+    }[type.status]
+}
+
+const deadlineToGlyph = (type) => {
+    return {
+        'danger': <Glyphicon glyph="warning-sign" className="big-icon"/>,
+        'warning': <Glyphicon glyph="warning-sign" className="big-icon"/>,
+        'safe': <Glyphicon glyph="ok" className="big-icon"/>,
+        'pending': <Glyphicon glyph="refresh" className="big-icon"/>,
+    }[type.status]
+}
+
+const Deadlines = (props) => {
+
+}
+
+
 @connect(() => DEFAULT_OBJ, (dispatch, ownProps) => {
     return {
         startHistoryImport: () => {
@@ -106,7 +134,17 @@ export class CompanyAlertsWidget extends React.Component {
         companyId: PropTypes.string.isRequired,
     };
 
-    renderSubWarnings(warn) {
+    renderDeadlines(deadlines, showTypes) {
+        return ['annualReturn'].map((key, i) => {
+            return  statusIs(deadlines.annualReturn, showTypes) &&
+                <li key={i}>
+                <div><a href="#" className={deadlineToClassName(deadlines[key])}>{deadlineToGlyph(deadlines[key])} { deadlines[key].message}</a></div>
+            </li>
+        });
+
+    }
+
+    renderImportWarnings(warn) {
         return <div>
             { warn.shareClassWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
             { warn.applyShareClassWarning && <li><AlertWarnings.ApplyShareClasses companyId={this.props.companyId} startApplyShareClasses={this.props.startApplyShareClasses}/></li>}
@@ -134,7 +172,8 @@ export class CompanyAlertsWidget extends React.Component {
             <div className="widget-body">
                 <ul>
                 { <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}
-                { showAllWarnings && renderSubWarnings(warn) }
+                { this.renderDeadlines(this.props.companyState.deadlines, ['danger', 'warning']) }
+                { showAllWarnings && renderImportWarnings(warn) }
                 </ul>
             </div>
         </div>
