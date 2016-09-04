@@ -31,9 +31,8 @@ import ImportMenu from './components/importMenu';
 import { CompanyTransactions } from './components/transactions';
 import { TransactionView } from './components/transaction';
 import { GuidedSetup } from './components/guidedSetup';
-import { ApplyShareClassesModal } from './components/transactions/applyShareClasses';
-import { ImportHistoryModal } from './components/transactions/importHistory';
-import { VotingShareholdersModal  } from './components/transactions/selectVotingShareholders';
+import { CompanyAlerts } from './components/warnings';
+
 
 
 export default (store) => {
@@ -88,6 +87,7 @@ export default (store) => {
                 </Route>
                 <Route path="new_transaction" component={ NewTransaction } />
                 <Route path="guided_setup" component={ GuidedSetup } />
+                <Route path="notifications" component={ CompanyAlerts } />
             </Route>
             <Route path="company/view/:id/history/:generation" component={ Company }  />
             <Route path="import" component={ ImportMenu } />

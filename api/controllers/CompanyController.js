@@ -100,7 +100,7 @@ module.exports = {
                 return ScrapingService.fetch(company.sourceData.companyNumber)
             })
             .then(ScrapingService.parseNZCompaniesOffice)
-            .then(data => company.update({data: data}))
+            .then(data => company.update({sourceData: data}))
             .then(function(company) {
                 const json = company.toJSON();
                 return res.json(json.sourceData);

@@ -122,6 +122,7 @@ export default {
 
         votingRights: {
             _: 'Rights Attached to Shares',
+            votingRights: 'Rights Attached to Shares',
             "appointDirectorAuditor": "Appoint or remove a director or auditor",
             "adoptConstitution": "Adopt a constitution",
             "alterConstitution": "Alter a constitution",

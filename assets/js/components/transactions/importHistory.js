@@ -45,7 +45,9 @@ PAGES[LOADING] = function() {
             </div>
     }
     else if(this.props.importHistory._status === 'complete'){
-       return <div><p>All Companies Office documents have successfully been imported.</p></div>
+       return <div>
+        <p>All Companies Office documents have successfully been imported.</p>
+        </div>
     }
 };
 
@@ -137,11 +139,11 @@ export class ImportHistoryModal extends React.Component {
     }
 
     renderBody() {
-        return PAGES[this.props.index] && PAGES[this.props.index].call(this)
+        return PAGES[this.props.index] && PAGES[this.props.index].call(this);
     }
 
     renderFooter(){
-        return FOOTERS[this.props.index] && FOOTERS[this.props.index].call(this)
+        return FOOTERS[this.props.index] && FOOTERS[this.props.index].call(this);
     }
 
     handleStart() {
@@ -149,7 +151,6 @@ export class ImportHistoryModal extends React.Component {
         this.props.performImport()
             .catch(e => {
                 const companyName = this.props.modalData.companyState.companyName;
-                //this.props.addNotification({error: true, message: `An issue found while trying to import history for ${companyName}`});
                 this.props.next({index: AMBIGUITY, data: e})
             });
     }

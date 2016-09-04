@@ -499,7 +499,7 @@ module.exports = {
                         }
                     }
                     else{
-                        return {annualReturn : {status: 'safe', 'message': 'Completed for the current year'}};
+                        return {annualReturn : {status: 'safe', 'message': 'Annual Return Filed for the current year'}};
                     }
                 }
                 return {...annualReturn()}

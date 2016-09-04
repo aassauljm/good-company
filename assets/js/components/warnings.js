@@ -128,19 +128,18 @@ const Deadlines = (props) => {
         resetModals: () => dispatch(resetModals())
     }
 })
-export class CompanyAlertsWidget extends React.Component {
+export class CompanyAlertsBase extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired,
     };
 
     renderDeadlines(deadlines, showTypes) {
-        return ['annualReturn'].map((key, i) => {
-            return  statusIs(deadlines.annualReturn, showTypes) &&
-                <li key={i}>
+        return ['annualReturn'].filter((key, i) => statusIs(deadlines.annualReturn, showTypes))
+                                .map((key, i) => <li key={i}>
                 <div><a href="#" className={deadlineToClassName(deadlines[key])}>{deadlineToGlyph(deadlines[key])} { deadlines[key].message}</a></div>
             </li>
-        });
+        );
 
     }
 
@@ -155,6 +154,26 @@ export class CompanyAlertsWidget extends React.Component {
 
     render() {
         const warn = getWarnings(this.props.companyState);
+        const guide = warn.shareClassWarning || warn.historyWarning || warn.applyShareClassWarning || warn.votingShareholderWarning;
+        const deadlines = this.renderDeadlines(this.props.companyState.deadlines, this.props.showTypes)
+
+        return <ul>
+                { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}
+                { deadlines }
+                { this.props.showAllWarnings && this.renderImportWarnings(warn) }
+                { !guide && !dealines.length && !this.props.showAllWarnings && <li>No current Notifications</li>}
+                </ul>
+    }
+}
+
+
+export class CompanyAlertsWidget extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object.isRequired,
+        companyId: PropTypes.string.isRequired,
+    };
+    render() {
+        const warn = getWarnings(this.props.companyState);
         if(!warn.shareClassWarning && !warn.historyWarning && !warn.applyShareClassWarning && !warn.votingShareholderWarning){
             return false;
         }
@@ -165,17 +184,30 @@ export class CompanyAlertsWidget extends React.Component {
                     Notifications
                 </div>
                 <div className="widget-control">
-                <Link to={`/company/view/${this.props.companyId}/alerts`} >View All</Link>
+                <Link to={`/company/view/${this.props.companyId}/notifications`} >View All</Link>
                 </div>
             </div>
 
             <div className="widget-body">
-                <ul>
-                { <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}
-                { this.renderDeadlines(this.props.companyState.deadlines, ['danger', 'warning']) }
-                { showAllWarnings && renderImportWarnings(warn) }
-                </ul>
+                <CompanyAlertsBase {...this.props} showTypes={['danger', 'warning']} />
             </div>
         </div>
     }
+}
+
+export const CompanyAlerts = (props) => {
+    return <div className="container">
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        All Notifications
+                    </div>
+                </div>
+                <div className="widget-body">
+                    <CompanyAlertsBase {...props} showTypes={['danger', 'warning', 'pending', 'safe']} showAllWarnings={true} />
+                </div>
+            </div>
+            </div>
+        </div>
 }

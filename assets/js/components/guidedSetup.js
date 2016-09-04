@@ -104,7 +104,7 @@ export class GuidedSetup extends React.Component {
                     <div className="col-md-12">
                     <div className="widget">
                          <div className="widget-body">
-                            < h5 className="text-center">Company Setup {warningSteps - warningCount} / {warningSteps}</h5>
+                            < h5 className="text-center">Share Register Setup {warningSteps - warningCount} / {warningSteps}</h5>
                             <ProgressBar now={now} striped bsStyle="success" /></div>
                         </div>
                     </div>
