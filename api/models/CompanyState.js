@@ -483,8 +483,9 @@ module.exports = {
                     }
                     const documents = this.dataValues.docList ? this.dataValues.docList.dataValues.documents : [];
                     const due = moment().month(this.dataValues.arFilingMonth).endOf('month');
-                    const diff = due.clone().diff(moment())
-                    const humanDiff = due.clone().from(moment());
+                    const now = moment().tz("New_Zealand/Auckland");
+                    const diff = due.clone().diff(now)
+                    const humanDiff = due.clone().from(now);
                     const thisYear = (new Date()).getFullYear();
                     const ar = _.find(documents, d => {
                         return d.type === 'Companies Office' && (d.filename === 'Online Annual Return' || d.filename === 'Annual Return Filed') && d.date.getFullYear() === thisYear;
