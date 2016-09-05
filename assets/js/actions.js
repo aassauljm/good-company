@@ -134,6 +134,10 @@ export function createResource(resource, data, options = {stringify: true}) {
 }
 
 export function updateResource(resource, data, options = {stringify: true}) {
+    if(options && options.stringify === undefined){
+        options = {...options, stringify: true}
+    }
+
     return {
         types: [RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {

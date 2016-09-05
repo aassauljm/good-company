@@ -290,7 +290,6 @@ export class ShareRegisterDocument extends React.Component {
                     holders.sort((a, b) => {
                         return ((a.data||{}).votingShareholder && -1) || ((b.data||{}).votingShareholder && 1) || a.person.name.localeCompare(b.person.name)
                     });
-                    console.log(holders)
                     return <table key={j} className="table share-register">
                                 <thead>
                                 <tr><th>{holding.name || `Shareholding #${j+1}`}</th><th>{ STRINGS.shareRegister['amount']}</th></tr>
