@@ -12,7 +12,6 @@ export function findOrCreateHistoric(userId, args) {
                 const person = Person.build(result[0]);
                 person.isNewRecord = false;
                 person._changed = {};
-                console.log('found or created', person.toJSON());
                 return person;
             }
             else{
@@ -24,7 +23,6 @@ export function findOrCreateHistoric(userId, args) {
 
 export function findOneHistoric(userId, args) {
     const where = Object.keys(args.where).map(k => `"${k}" = :${k}`).join(' and ');
-    console.log(where, {id: userId, ...args.where})
     return sequelize.query(`select * from historic_user_persons(:id) where ${where}`,
                    { type: sequelize.QueryTypes.SELECT,
                     replacements: {id: userId, ...args.where}})

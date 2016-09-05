@@ -57,7 +57,6 @@ export function subsetSum(items, targetSum) {
 export function subsetSumMemoFail(items, targetSum) {
     // The value of subset[i][j] will be true if there is a subset of set[0..j-1]
     //  with sum equal to i
-    console.log(items, targetSum)
     const subset = [[]], n = items.length;
     // trivial case
     for (let i = 0; i < items.length; i++) {
@@ -90,7 +89,6 @@ export function subsetSumMemoFail(items, targetSum) {
           printf ("%4d", subset[i][j]);
        printf("\n");
      } */
-    console.log(subset)
     if(!subset[targetSum][n]){
         throw Error('Could not find solution')
     }

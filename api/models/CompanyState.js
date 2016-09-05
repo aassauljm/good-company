@@ -487,7 +487,6 @@ module.exports = {
                     const humanDiff = due.clone().from(moment());
                     const thisYear = (new Date()).getFullYear();
                     const ar = _.find(documents, d => {
-                        console.log(d, d.date.getFullYear(), thisYear)
                         return d.type === 'Companies Office' && (d.filename === 'Online Annual Return' || d.filename === 'Annual Return Filed') && d.date.getFullYear() === thisYear;
                     });
                     if(!ar){
