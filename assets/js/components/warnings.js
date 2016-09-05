@@ -161,7 +161,7 @@ export class CompanyAlertsBase extends React.Component {
                 { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}
                 { deadlines }
                 { this.props.showAllWarnings && this.renderImportWarnings(warn) }
-                { !guide && !dealines.length && !this.props.showAllWarnings && <li>No current Notifications</li>}
+                { !guide && !deadlines.length && !this.props.showAllWarnings && <li>No current Notifications</li>}
                 </ul>
     }
 }
@@ -173,11 +173,6 @@ export class CompanyAlertsWidget extends React.Component {
         companyId: PropTypes.string.isRequired,
     };
     render() {
-        const warn = getWarnings(this.props.companyState);
-        if(!warn.shareClassWarning && !warn.historyWarning && !warn.applyShareClassWarning && !warn.votingShareholderWarning){
-            return false;
-        }
-        const showAllWarnings = false;
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
