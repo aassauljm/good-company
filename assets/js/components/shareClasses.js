@@ -41,7 +41,7 @@ const transferRestrictionDocumentLocations = [
 ]
 
 const SelectBoolean = (props) => {
-    return <Input type="select" {...props} value={!!props.value} onChange={val => props.onChange(!!val)}>
+    return <Input type="select" {...props} value={props.value ? 'true' : 'false'} onChange={e => {props.onChange(e.target.value === 'true');  }} onBlur={ () => props.onBlur(props.value)}   >
         { props.children }
     </Input>
 }
@@ -127,8 +127,8 @@ export class ShareClassForm extends React.Component {
 
              <SelectBoolean {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
                     help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestrictionQuestion} hasFeedback >
-                    <option value="">No</option>
-                    <option value="true">Yes</option>
+                    <option value={false}>No</option>
+                    <option value={true}>Yes</option>
             </SelectBoolean>
 
              { fields.transferRestriction.value &&

@@ -358,7 +358,7 @@ var transactions = {
             })
             .then(groupTotals => {
                 if(groupTotals[data.shareClassId] && groupTotals[data.shareClassId].amount > 0){
-                    throw new sails.config.exceptions.ValidationException('Cannot share classes that are on issue');
+                    throw new sails.config.exceptions.ValidationException('Cannot update share classes that are on issue');
                 }
                 return companyState.getShareClasses({
                             include: [{
@@ -372,7 +372,7 @@ var transactions = {
                 if(shareClasses.dataValues.shareClasses.length !== 1){
                     throw new sails.config.exceptions.ValidationException('Share class not found');
                 }
-                return shareClasses.dataValues.shareClasses[0].update({name: data.name, properties: data.properties});
+                return shareClasses.dataValues.shareClasses[0].update({name: data.name, properties: _.omit(data, 'name')});
             })
             .then(function(){
                 return {message: 'Share Class updated'};
