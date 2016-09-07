@@ -345,7 +345,7 @@ var transactions = {
             return companyState.save();
         })
         .then(function(){
-            return {message: `Share Class created for ${companyState.companyName}.`}
+            return {message: `Share Class created for ${companyState.companyName}`}
         })
     },
 
@@ -375,7 +375,7 @@ var transactions = {
                 return shareClasses.dataValues.shareClasses[0].update({name: data.name, properties: _.omit(data, 'name')});
             })
             .then(function(){
-                return {message: 'Share Class updated'};
+                return {message: `Share Class updated for ${companyState.companyName}`};
             })
 
     }

@@ -1,4 +1,5 @@
-var cluster = require('cluster');
+var cluster = require('cluster'),
+    kue = require('kue');
 
 /**
  * app.js
@@ -36,32 +37,19 @@ if (cluster.isMaster) {
     }
   }
 
+  kue.app.listen(3000);
   // Start workers and listen for messages containing notifyRequest
-  const numCPUs = require('os').cpus().length;
-  for (var i = 0; i < numCPUs; i++) {
+  for (var i = 0; i < process.env.NUM_WORKERS; i++) {
     cluster.fork();
   }
 
-  Object.keys(cluster.workers).forEach((id) => {
+ /* Object.keys(cluster.workers).forEach((id) => {
     cluster.workers[id].on('message', messageHandler);
-  });
+  });*/
 
 } else {
 
-  // Worker processes
- // require('./app')
-
-    var sails = require('sails');
-    sails.lift({
-        fixtures: false,
-        hooks: {
-            "blueprints": false,
-            "orm": false,
-            "permissions": false,
-            "pubsub": false,
-            grunt: false
-        }
-    })
+    require('./worker');
 
 
 }

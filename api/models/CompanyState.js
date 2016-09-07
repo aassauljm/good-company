@@ -483,7 +483,7 @@ module.exports = {
                     }
                     const documents = this.dataValues.docList ? this.dataValues.docList.dataValues.documents : [];
                     const due = moment().month(this.dataValues.arFilingMonth).endOf('month');
-                    const now = moment().tz("New_Zealand/Auckland");
+                    const now = moment();
                     const diff = due.clone().diff(now)
                     const humanDiff = due.clone().from(now);
                     const thisYear = (new Date()).getFullYear();
@@ -492,14 +492,14 @@ module.exports = {
                     });
                     if(!ar){
                         if(diff > 0){
-                            return {annualReturn : {status: moment.duration(diff).asMonths() > 1 ? 'pending' : 'warning', 'message': `Annual Return due ${humanDiff}`}};
+                            return {annualReturn : {status: moment.duration(diff).asMonths() > 1 ? 'pending' : 'warning', 'message': `Annual Return due ${humanDiff}`, diff: diff}};
                         }
                         else{
-                            return {annualReturn : {status: 'danger', 'message': `Annual Return due ${humanDiff}`}};
+                            return {annualReturn : {status: 'danger', 'message': `Annual Return due ${humanDiff}`, diff: diff}};
                         }
                     }
                     else{
-                        return {annualReturn : {status: 'safe', 'message': 'Annual Return Filed for the current year'}};
+                        return {annualReturn : {status: 'safe', 'message': 'Annual Return Filed for the current year', diff: diff}};
                     }
                 }
                 return {...annualReturn()}

@@ -32,6 +32,9 @@ npm run test-coverage
 npm run build-dev
 
 
+npm install -g pm2
+
+
 
 #server
 

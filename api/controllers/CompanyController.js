@@ -8,6 +8,8 @@
 var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
+var kue = require('kue')
+  , queue = kue.createQueue();
 
 module.exports = {
     find: function(req, res) {
@@ -228,7 +230,13 @@ module.exports = {
         });
     },
 
-
+    importBulk: function(req, res) {
+        var job = queue.create('import', {
+            title: 'Importing Company Blah'
+        }).save( function(err){
+           if( !err ) console.log( job.id );
+        });
+    },
 
     importPendingHistory: function(req, res){
         let company, companyName;

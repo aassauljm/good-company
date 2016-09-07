@@ -40,7 +40,6 @@
     "redux-devtools": "^3.0.0-beta-3",
     "redux-devtools-dock-monitor": "^1.0.0-beta-3",
     "redux-devtools-log-monitor": "^1.0.0-beta-3",
-    "sails-hook-autoreload": "^0.13.1",
     "sass-loader": "^2.0.1",
     "style-loader": "^0.12.4",
     "supertest": "^1.0.1",

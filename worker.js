@@ -1,5 +1,7 @@
 var Sails = require('sails').constructor;
+var kue = require('kue');
 var app = new Sails();
+var queue = kue.createQueue();
 
 app.load({
         log: {
@@ -31,6 +33,11 @@ app.load({
 }, function(err, app){
     if(err){
         console.log(err)
+        return;
     };
-    ImportService.importCompany(2345234, {})
+
+    queue.process('import', 10, function(job, done){
+        ImportService.importCompany(2345234, {});
+    });
+
 });

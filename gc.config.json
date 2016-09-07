@@ -1,0 +1,23 @@
+{
+    "apps" : [{
+        "name": "good-company",
+        "script": "app.js",
+        "env": {
+            "TZ": "Pacific/Auckland",
+            "NODE_ENV": "development"
+        },
+        "env_production" : {
+           "NODE_ENV": "production",
+            "instances"  : -2,
+            "exec_mode"  : "cluster_mode"
+        }
+    }, {
+        "name": "workers",
+        "script": "cluster.js",
+        "env": {
+            "TZ": "Pacific/Auckland",
+            "NODE_ENV": "production",
+            "NUM_WORKERS": 2
+        },
+    }]
+}

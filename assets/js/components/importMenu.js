@@ -3,7 +3,7 @@ import React, {PropTypes} from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import { importCompany, addNotification, requestResource } from '../actions';
+import { importCompany, addNotification, requestResource, createResource } from '../actions';
 import { reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
@@ -28,12 +28,18 @@ export class ImportMenu extends React.Component {
                         </div>
                     </div>
                     <div className="widget-body">
+                        <Button onClick={this.props.import}>Import</Button>
                     </div>
                 </div>
                 </div>
             </div>
     }
-}
 
-const ImportMenuConnected = connect(state => ({}))(ImportMenu);
+}
+const DEFAULT_STATE = {};
+
+
+const ImportMenuConnected = connect(state => DEFAULT_STATE, {
+    import: () => createResource('/company/import_bulk/companiesoffice')
+})(ImportMenu);
 export default ImportMenuConnected;

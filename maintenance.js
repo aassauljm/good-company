@@ -10,7 +10,13 @@ function render(req, res) {
   res.render('maintenance.ejs', {});
 }
 
+function json_response(req, res) {
+    res.status(503);
+    res.json({maintenance: true})
+}
+
 app.get('/', render);
+app.get('/api/*', json_response);
 app.get('/*', render);
 
 app.listen(config.port, function () {
