@@ -89,6 +89,7 @@ module.exports = {
                 return res.notFound(err);
             });
     },
+
     updateSourceData: function(req, res){
         let company;
         Company.findById(req.params.id, {
@@ -111,6 +112,7 @@ module.exports = {
                 return res.notFound(err);
             });
     },
+
     history: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
@@ -127,6 +129,7 @@ module.exports = {
                 return res.notFound();
             });
     },
+
     root: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
@@ -143,6 +146,7 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
     transactionHistory: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
@@ -154,6 +158,7 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
     issueHistory: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
@@ -165,6 +170,7 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
     shareRegister: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
@@ -176,6 +182,7 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
     shareholders: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
@@ -187,6 +194,7 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
     interestsRegister: function(req, res) {
         Company.findById(req.params.id, {
                 include: [{
@@ -205,6 +213,7 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
     import: function(req, res) {
         // for now, just companies office
         let company;
@@ -223,18 +232,35 @@ module.exports = {
             });
         })
         .catch(function(err) {
-             //(company ? company.destroy() : Promise.resolve())
-           // .then(() => {
             return res.serverError(err);
-            //});
         });
     },
 
     importBulk: function(req, res) {
-        var job = queue.create('import', {
-            title: 'Importing Company Blah'
-        }).save( function(err){
-           if( !err ) console.log( job.id );
+        const args = actionUtil.parseValues(req);
+        Promise.all(args.list.map(list => {
+            return new Promise((resolve, reject)  => {
+                const job = queue.create('import', {
+                    title: 'Bulk Import',
+                    userId: req.user.id,
+                    query: list,
+                    queryType: args.listType
+                })
+                .save( function(err){
+                   if(err) {
+                        reject(err);
+                   }
+                   else{
+                        resolve(job.id);
+                    }
+                });
+            });
+        }))
+        .then(ids => {
+            return res.json({jobIds: ids})
+        })
+        .catch(err => {
+            return res.serverError(err);
         });
     },
 
@@ -264,6 +290,7 @@ module.exports = {
             return res.serverError(e)
         })
     },
+
     updatePendingHistory: function(req, res){
         const args = actionUtil.parseValues(req);
         let company ,state;
@@ -292,6 +319,7 @@ module.exports = {
             return res.serverError(e)
         })
     },
+
     resetPendingHistory: function(req, res){
         let company;
         Company.findById(req.params.id)
@@ -318,6 +346,7 @@ module.exports = {
             return res.serverError(e)
         })
     },
+
     create: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.create({
@@ -336,6 +365,7 @@ module.exports = {
                 return res.negotiate(err);
             });
     },
+
     lookup: function(req, res) {
         ScrapingService.getSearchResults(req.param('query'))
             .then(function(data) {
@@ -344,6 +374,7 @@ module.exports = {
                 return res.negotiate(err);
             });
     },
+
     lookupOwn: function(req, res) {
         Company.findAll({
             where: {
@@ -372,6 +403,7 @@ module.exports = {
             })));
         })
     },
+
     validate: function(req, res){
         var data = actionUtil.parseValues(req);
         ImportService.checkNameCollision(req.user.id, data)
@@ -382,6 +414,7 @@ module.exports = {
                 return res.badRequest(err);
             })
     },
+
     recentActivity: function(req, res) {
         ActivityLog.findAll({
             where: {companyId: req.params.id},
@@ -390,6 +423,7 @@ module.exports = {
         })
         .then(activities => res.json(activities));
     },
+
     getPendingHistoricActions: function(req, res) {
         Company.findById(req.params.id)
         .then(company => company.getPendingActions())

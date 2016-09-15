@@ -17,9 +17,12 @@ export function fieldStyle(field){
     }
 }
 
-export function fieldHelp(field){
+export function fieldHelp(field, help){
     if(field.touched && field.error){
         return Array.isArray(field.error) ? field.error[0] : field.error;
+    }
+    if(help){
+        return help;
     }
 }
 
@@ -172,7 +175,7 @@ export function formFieldProps(args = {}){
                     labelClassName: args.labelClassName,
                     wrapperClassName: args.wrapperClassName,
                     hasFeedback: true,
-                    help: fieldHelp(field)
+                    help: fieldHelp(field, strings[`${Array.isArray(name) ? name[name.length-1] : name}Help`])
                 }
         }
        return component;

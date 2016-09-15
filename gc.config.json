@@ -4,7 +4,7 @@
         "script": "app.js",
         "env": {
             "TZ": "Pacific/Auckland",
-            "NODE_ENV": "development"
+            "NODE_ENV": "development",
         },
         "env_production" : {
            "NODE_ENV": "production",

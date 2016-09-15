@@ -41,6 +41,13 @@ export default {
         hasNoTransferRestriction: "There are no restrictions or limitations on the transfer of shares",
         hasTransferRestriction: "There are restrictions or limitations on the transfer of shares"
     },
+    bulkImport: {
+        'listType': 'Identifier Type',
+        'identifierListHelp': 'Each entry should on a separate line',
+        'companyName': 'Full Company Name',
+        'companyNumber': 'Company Number',
+        'nzbn': 'NZBN'
+    },
     transactionTypes: {
         SEED: 'Seed from Companies Office',
         INCORPORATION: 'Incorporation',

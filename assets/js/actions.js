@@ -15,6 +15,7 @@ import {
     LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE,
     LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
+    IMPORT_BULK_REQUEST, IMPORT_BULK_SUCCESS, IMPORT_BULK_FAILURE,
     VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE,
     VALIDATE_USER_REQUEST, VALIDATE_USER_SUCCESS, VALIDATE_USER_FAILURE,
     RENDER_DOCUMENT_REQUEST, RENDER_DOCUMENT_SUCCESS, RENDER_DOCUMENT_FAILURE,
@@ -250,6 +251,20 @@ export function importCompany(companyNumber) {
         }),
         shouldCallAPI: (state) => state.importCompany._status !== 'fetching',
         payload: {companyNumber: companyNumber}
+    };
+}
+
+export function importBulk(data) {
+    return {
+        types: [IMPORT_BULK_REQUEST, IMPORT_BULK_SUCCESS, IMPORT_BULK_FAILURE],
+        callAPI: () => fetch('/api/company/import_bulk/companiesoffice', {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        }),
+        shouldCallAPI: (state) => state.importBulk._status !== 'fetching',
+        payload: {}
     };
 }
 
