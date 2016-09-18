@@ -8,8 +8,8 @@
 var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
-var kue = require('kue')
-  , queue = kue.createQueue();
+
+
 
 module.exports = {
     find: function(req, res) {
@@ -240,12 +240,14 @@ module.exports = {
         const args = actionUtil.parseValues(req);
         Promise.all(args.list.map(list => {
             return new Promise((resolve, reject)  => {
-                const job = queue.create('import', {
+                const job = QueueService.importQueue.create('import', {
                     title: 'Bulk Import',
                     userId: req.user.id,
                     query: list,
                     queryType: args.listType
                 })
+                .searchKeys( ['userId'] )
+                .removeOnComplete( true )
                 .save( function(err){
                    if(err) {
                         reject(err);

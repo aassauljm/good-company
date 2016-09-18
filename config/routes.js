@@ -49,13 +49,13 @@ module.exports.routes = {
 
     'GET /api/get_info': {
         controller: 'UserController',
-        modelIdentity: 'user',
+        model: 'user',
         action: 'userInfo'
     },
 
     'GET /api/recent_activity': {
         controller: 'UserController',
-        modelIdentity: 'user',
+        model: 'user',
         action: 'recentActivity'
     },
 
@@ -267,5 +267,11 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'getHistoricHolders',
         model: 'company'
+    },
+
+    'GET /api/pending_jobs': {
+        controller: 'UserController',
+        model: 'user',
+        action: 'pendingJobs'
     }
 };

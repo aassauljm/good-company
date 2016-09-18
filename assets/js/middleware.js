@@ -67,12 +67,12 @@ export function callAPIMiddleware({
                     type: successType
                 })))
                 .catch(error => {
-                    if(error.response.status === 403){
+                    if(error.response && error.response.status === 403){
                         dispatch(logout());
                         dispatch(push('/login'))
                         return;
                     }
-                    if(error.response.status === 503){
+                    if(error.response && error.response.status === 503){
                         setTimeout(() => alert('Good Companies is currently undergoing maintenance.  Please try again in a few moments.'), 0);
                         throw new Error('Currently undergoing Maintenance');
                         return;

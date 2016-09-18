@@ -56,7 +56,7 @@ export default class Companies extends React.Component {
         return <div>
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
-                <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Import Companies</Button>
+                <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
             </div>
             <div className="table-responsive">
                 { this.props.renderTable(data) }
@@ -87,6 +87,7 @@ export default class Companies extends React.Component {
     return state.resources[`companies`] || {};
 }, {
     requestData: () => requestResource(`companies`),
+    handleImport: () => push('/import'),
     push: (id) => push(`/company/view/${id}`)
 })
 @CompaniesHOC
@@ -110,6 +111,10 @@ export class CompaniesWidget extends React.Component {
         <div className="table-responsive">
             { this.props.renderTable(data.slice(0, 6), true) }
         </div>
+           <div className="button-row">
+                { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
+                <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
+            </div>
         </div>
     }
 

@@ -5,6 +5,8 @@ var Promise = require("bluebird");
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 var moment = require('moment');
+var search = require('kue/lib/http/routes/json').search;
+var kue = require('kue');
 
 function checkNameCollision(data) {
     return User.findAll({
@@ -136,6 +138,14 @@ module.exports = {
             .catch(function(err){
                 return res.serverError(err);
             });
+    },
 
+    pendingJobs: function(req, res) {
+        kue.Job.rangeByType('import', 'inactive', 0, 1000, 'asc', function( err, jobs ) {
+            const result = {
+                pending: jobs.filter(j => j.data.userId === req.user.id)
+            }
+            res.json(result);
+        })
     }
 }

@@ -47,17 +47,20 @@ const BulkImportConnected = reduxForm({
 
 @connect(state => state.importBulk, {
     importBulk: (data) => importBulk(data),
-    addNotification: (data) => addNotification(data)
+    addNotification: (data) => addNotification(data),
+    navigateHome: () => push('/')
 })
 export class ImportMenu extends React.Component {
 
     handleSubmit(values) {
+        const list = values.identifierList.split('\n');
         this.props.importBulk({
             listType: values.listType,
-            list: values.identifierList.split('\n')
+            list: list
         })
             .then((result = {response: {message: 'No connection'}}) => {
-                this.props.addNotification({message: 'Bulk Company Import Queued'});
+                this.props.addNotification({message: `${list.length} Compan${list > 1 ? 'ies': 'y'} queued for import`});
+                this.props.navigateHome();
             })
             .catch(error => {
                 this.props.addNotification({message: `Could not import companies, Reason: ${error.message}`, error: true});
