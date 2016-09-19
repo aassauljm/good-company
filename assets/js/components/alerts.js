@@ -18,7 +18,7 @@ import { Link } from 'react-router';
     navigate: (url) => push(url)
 })
 export class AlertsWidget extends React.Component {
-    static POLL_INTERVAL = 5000;
+    static POLL_INTERVAL = 15000;
 
      constructor(props) {
         super(props);
