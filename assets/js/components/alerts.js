@@ -52,10 +52,6 @@ export class AlertsWidget extends React.Component {
         this.poll();
     }
 
-    componentDidUpdate() {
-        this.fetch();
-    }
-
     componentWillUnmount() {
         clearInterval(this._interval);
     }

@@ -46,6 +46,16 @@ module.exports.policies = {
         'setPassword': ['passport', 'sessionAuth'],
         'signup': true,
         'validateUser': true,
+        'pendingJobs': [
+            'passport',
+            'sessionAuth',
+            //'ModelPolicy',
+            //'AuditPolicy',
+            //'OwnerPolicy',
+            //'PermissionPolicy',
+            //'RolePolicy',
+            //'CriteriaPolicy'
+        ]
     },
     ModelController:{
         'create': false,
