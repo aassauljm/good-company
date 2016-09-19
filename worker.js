@@ -41,31 +41,53 @@ app.load({
 
     queue.process('import', function(job, done){
         const userId = job.data.userId;
-        let companyNumber;
-        if(job.data.queryType !== 'companyNumber'){
-            companyNumber = ScrapingService.getSearchResults(job.data.query)
-                .then(function(results) {
-                    return results[0].companyNumber
-                });
+        function getNumber() {
+            let companyNumber;
+            if(job.data.queryType !== 'companyNumber'){
+                return ScrapingService.getSearchResults(job.data.query)
+                    .then(function(results) {
+                        return results[0].companyNumber
+                    });
+            }
+            else{
+                return job.data.query;
+            }
         }
-        else{
-            companyNumber = Promise.resolve(job.data.query);
-        }
-
-        companyNumber.then(function(companyNumber) {
-            return ImportService.importCompany(companyNumber, {
-                history: true,
-                userId: job.data.userId
+        Promise.resolve(getNumber())
+            .then(function(companyNumber) {
+                return ImportService.importCompany(companyNumber, {
+                    history: true,
+                    userId: job.data.userId
+                })
             })
-        })
-        .then(function() {
-            done();
-        })
-        .catch(function(e) {
-            console.log(e)
-            return done(new Error('Could not find company: '+job.data.query));
-        })
-
+            .then(function() {
+                return done();
+            })
+            .catch(sails.config.exceptions.NameExistsException, function(e){
+                return ActivityLog.create({
+                    type: ActivityLog.types.IMPORT_COMPANY_FAIL,
+                    userId: userId,
+                    description: `Company has already been imported: ${job.data.query}`,
+                    data: {}
+                })
+                .then(function(){
+                    return done(new Error('Duplicate name: '+job.data.query));
+                });
+            })
+            .catch(function(e) {
+                return ActivityLog.create({
+                    type: ActivityLog.types.IMPORT_COMPANY_FAIL,
+                    userId: userId,
+                    description: `Could not find company with identifier: ${job.data.query}`,
+                    data: {}
+                })
+                .then(function(){
+                    return done(new Error('Could not find company: '+job.data.query));
+                });
+            })
+            .then(function(){
+                job.remove();
+            })
     });
 
 });

@@ -59,7 +59,7 @@ export class ImportMenu extends React.Component {
             list: list
         })
             .then((result = {response: {message: 'No connection'}}) => {
-                this.props.addNotification({message: `${list.length} Compan${list > 1 ? 'ies': 'y'} queued for import`});
+                this.props.addNotification({message: `${list.length} Compan${list.length > 1 ? 'ies': 'y'} queued for import`});
                 this.props.navigateHome();
             })
             .catch(error => {

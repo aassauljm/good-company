@@ -251,7 +251,7 @@ function resources(state = default_resources, action){
         case RESOURCE_CREATE_REQUEST:
         case RESOURCE_UPDATE_REQUEST:
         case RESOURCE_DELETE_REQUEST:
-            return {...state, ...{[action.key]: {_status: 'fetching'}}};
+            return {...state, ...{[action.key]: {...state[action.key], _status: 'fetching'}}};
 
         case RESOURCE_SUCCESS:
             return {...state, ...{[action.key]: {...{data: action.response, _status: 'complete'}}}};

@@ -5,8 +5,18 @@ var Promise = require("bluebird");
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 var moment = require('moment');
-var search = require('kue/lib/http/routes/json').search;
 var kue = require('kue');
+var reds   = require('reds');
+var asyncJob = Promise.promisifyAll(kue.Job);
+
+
+var search;
+
+function getSearch() {
+  if( search ) return search;
+  reds.createClient = require('kue/lib/redis').createClient;
+  return search = reds.createSearch(QueueService.importQueue.client.getKey('search'));
+}
 
 function checkNameCollision(data) {
     return User.findAll({
@@ -141,11 +151,27 @@ module.exports = {
     },
 
     pendingJobs: function(req, res) {
-        kue.Job.rangeByType('import', 'inactive', 0, 1000, 'asc', function( err, jobs ) {
-            const result = {
-                pending: jobs.filter(j => j.data.userId === req.user.id)
-            }
-            res.json(result);
-        })
+      /*/getSearch().query(req.user.id)
+        .end(function( err, ids ) {
+        if( err ) return res.json({ error: err.message });
+        console.log('ids', ids)
+        return Promise.map(ids, (id) => asyncJob.getAsync(id, 'import'))
+        .then(function(results){
+            console.log(results)
+        });
+      })*/
+
+        Promise.join(
+                     asyncJob.rangeByTypeAsync('import', 'active', 0, 1000, 'asc'),
+                     asyncJob.rangeByTypeAsync('import', 'inactive', 0, 1000, 'asc'))
+            .spread(function(active, inactive){
+                const result = {
+                    pending: active.filter(j => j.data.userId === req.user.id).concat(inactive.filter(j => j.data.userId === req.user.id))
+                }
+                res.json(result);
+            })
+            .catch(e => {
+                sails.log.error(e);
+            });
     }
 }
