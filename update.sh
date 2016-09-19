@@ -3,8 +3,7 @@
 
 rm .tmp/public/*/*
 git pull
-pm2 stop gc.config.json --only good-company && pm2 start gc.config.json --only maintenance
+pm2 stop gc.config.json && pm2 start maintenance.config.json
 node scripts/migrate.js config/env/production.js
 NODE_ENV=production webpack
-pm2 stop gc.config.json --only maintenance && pm2 start gc.config.json --only good-company
-pm2 gracefulRestart gc.config.json --only workers
+pm2 stop maintenance.config.json && pm2 start gc.config.json
