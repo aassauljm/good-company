@@ -32,6 +32,7 @@ import { CompanyTransactions } from './components/transactions';
 import { TransactionView } from './components/transaction';
 import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/warnings';
+import Alerts from './components/alerts';
 
 
 
@@ -96,6 +97,7 @@ export default (store) => {
                 <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
             </Route>
             <Route path="favourites" component={ Favourites } />
+            <Route path="alerts" component={ Alerts } />
         </Route>
         <Route path="*" component={ NotFound } />
     </Route>;

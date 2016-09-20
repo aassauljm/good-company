@@ -26,6 +26,7 @@ export class AlertsWidget extends React.Component {
     }
 
     fetch(refresh) {
+        this.props.requestData();
         return this.props.requestJobs(refresh)
             .then((r) => {
                 if(r.response){
@@ -33,14 +34,12 @@ export class AlertsWidget extends React.Component {
                         this.refreshAll();
                     }
                     this.setState({pendingJobs: r.response.pending.length || 0})
+                    if(r.response.pending.length){
+                        this._setTimeout = setTimeout(() => this.fetch(true), AlertsWidget.POLL_INTERVAL)
+                    }
                 }
             })
     };
-
-    poll() {
-        clearInterval(this._interval);
-        this._interval = setInterval(() => this.fetch(true), AlertsWidget.POLL_INTERVAL)
-    }
 
     refreshAll() {
         this.props.refreshCompanies();
@@ -49,11 +48,10 @@ export class AlertsWidget extends React.Component {
 
     componentDidMount() {
         this.fetch(true);
-        this.poll();
     }
 
     componentWillUnmount() {
-        clearInterval(this._interval);
+        clearTimeout(this._interval);
     }
 
     handleClick(activity) {
@@ -76,9 +74,9 @@ export class AlertsWidget extends React.Component {
                 <div className="widget-title">
                     Notifications
                 </div>
-                <div className="widget-control">
-                <Link to="/alerts" >View All</Link>
-                </div>
+                { !this.props.noViewAll && <div className="widget-control">
+                    <Link to="/alerts" >View All</Link>
+                </div> }
             </div>
 
             <div className="widget-body">
@@ -87,3 +85,12 @@ export class AlertsWidget extends React.Component {
         </div>
     }
 }
+
+const Alerts = (props) => {
+    return <div className="container">
+            <div className="row">
+                    <AlertsWidget noViewAll={true}/>
+            </div>
+        </div>
+};
+export default Alerts;

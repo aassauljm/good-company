@@ -273,5 +273,11 @@ module.exports.routes = {
         controller: 'UserController',
         model: 'user',
         action: 'pendingJobs'
+    },
+
+    'GET /api/alerts': {
+        controller: 'UserController',
+        model: 'user',
+        action: 'alerts'
     }
 };

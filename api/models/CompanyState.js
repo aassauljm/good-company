@@ -1026,6 +1026,7 @@ module.exports = {
                         return cs;
                     })
             },
+
             populateIfNeeded: function(){
                 if(this._populated){
                     return Promise.resolve(this)
@@ -1034,6 +1035,7 @@ module.exports = {
                     return this.fullPopulate();
                 }
             },
+
             fullPopulateJSON: function(){
                 return this.fullPopulate()
                 .then(() => this.stats())

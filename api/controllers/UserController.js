@@ -151,20 +151,21 @@ module.exports = {
     },
 
     pendingJobs: function(req, res) {
+        // should be using this, but it shows removed jobs
       /*/getSearch().query(req.user.id)
-        .end(function( err, ids ) {
-        if( err ) return res.json({ error: err.message });
-        console.log('ids', ids)
-        return Promise.map(ids, (id) => asyncJob.getAsync(id, 'import'))
-        .then(function(results){
-            console.log(results)
-        });
+            .end(function( err, ids ) {
+            if( err ) return res.json({ error: err.message });
+            return Promise.map(ids, (id) => asyncJob.getAsync(id, 'import'))
+            .then(function(results){
+                console.log(results)
+            });
       })*/
 
         Promise.join(
                      asyncJob.rangeByTypeAsync('import', 'active', 0, 1000, 'asc'),
                      asyncJob.rangeByTypeAsync('import', 'inactive', 0, 1000, 'asc'))
             .spread(function(active, inactive){
+                // probably don't need to send job data
                 const result = {
                     pending: active.filter(j => j.data.userId === req.user.id).concat(inactive.filter(j => j.data.userId === req.user.id))
                 }
@@ -173,5 +174,9 @@ module.exports = {
             .catch(e => {
                 sails.log.error(e);
             });
+    },
+
+    alerts: function(req, res) {
+
     }
 }
