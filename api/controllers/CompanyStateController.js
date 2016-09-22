@@ -417,7 +417,7 @@ const selfManagedTransactions = {
             })
             .then(function() {
                 return {
-                    message: `Share Classes applied for ${companyName}.`
+                    message: `Share Classes applied for ${companyName}`
                 }
             });
     },

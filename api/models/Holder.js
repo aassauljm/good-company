@@ -34,6 +34,10 @@ module.exports = {
     },
 
     options: {
+        indexes: [
+            {name: 'holder_holderId_idx', fields: ['holderId']},
+            {name: 'holder_holdingId_idx', fields: ['holdingId']}
+            ],
         freezeTableName: false,
         tableName: 'holder',
         classMethods: {},

@@ -13,9 +13,8 @@ var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 module.exports = {
     find: function(req, res) {
-        var Model = actionUtil.parseModel(req);
-        Model.findAll({
-            where: {ownerId: req.user.id},
+        Company.findAll({
+            where: {ownerId: req.user.id, deleted: false},
             order: actionUtil.parseSort(req),
             include: [{
                 model: CompanyState,

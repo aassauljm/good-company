@@ -436,7 +436,7 @@ module.exports = {
                     })
                     .then(function(args){
                         args.directorList = args.directorList || {directors: []}
-                        args.transaction = args.transaction || {type: Transaction.types.SEED};
+                    args.transaction = args.transaction || {type: Transaction.types.SEED};
                         let state = CompanyState.build(args, {include: CompanyState.includes.full()
                                 .concat(CompanyState.includes.docList())
                                 .concat(CompanyState.includes.directorList())
@@ -465,16 +465,10 @@ module.exports = {
                                             replacements: { id: this.id}});
             },
             getWarnings: function(){
-                return Promise.join(sequelize.query('select has_pending_historic_actions(:id)',
+                return sequelize.query('select get_warnings(:id)',
                                        { type: sequelize.QueryTypes.SELECT,
-                                            replacements: { id: this.id}}),
-                                    this.votingShareholdersCheck(),
-                        (pendingActions, votingShareholders) => {
-                        return {
-                            pendingHistory: pendingActions[0].has_pending_historic_actions,
-                            missingVotingShareholders: votingShareholders
-                        }
-                    });
+                                            replacements: { id: this.id}})
+                    .then(results => results[0])
             },
             getDeadlines: function(){
                 const  annualReturn = () => {
@@ -507,6 +501,9 @@ module.exports = {
             votingShareholdersCheck: function() {
                 return this.getHoldingList({include: CompanyState.includes.holdings()})
                     .then(function(holdingList) {
+                        if(!holdingList){
+                            return;
+                        }
                         const holdings = holdingList.dataValues.holdings;
                         return !holdings.every(h => {
                             return h.dataValues.holders.reduce((acc, p) => {

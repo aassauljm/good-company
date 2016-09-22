@@ -208,6 +208,85 @@ CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)
       (SELECT root_company_state($1)) s on s.root_company_state = cs.id
 $$ LANGUAGE SQL;
 
+
+CREATE OR REPLACE FUNCTION has_missing_voting_shareholders(companyStateId integer)
+    RETURNS BOOLEAN
+    AS $$
+    SELECT bool_or(missing)
+    FROM (
+        SELECT (count(h.id) = 1 or bool_or(hh.data->'votingShareholder' IS NOT NULL)) as missing
+        FROM company_state cs
+        JOIN h_list_j hlj ON cs.h_list_id = hlj.holdings_id
+        LEFT OUTER JOIN holding h ON h.id = hlj.h_j_id
+        LEFT OUTER JOIN holder hh on h.id = hh."holdingId"
+        where cs.id = $1
+        GROUP BY h.id
+        ) q
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
+    RETURNS JSON
+    AS $$
+    SELECT json_build_object(
+        'pendingHistory', has_pending_historic_actions($1),
+        'missingVotingShareholders', has_missing_voting_shareholders($1)
+        )
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default 'Pacific/Auckland')
+    RETURNS JSON
+    AS $$
+    SELECT row_to_json(q)
+        FROM (
+        SELECT "arFilingMonth",
+        format_iso_date(date) as "lastFiling",
+        "filedThisYear",
+        EXTRACT(EPOCH FROM now() AT TIME ZONE $2 - due) as "seconds",
+        not "filedThisYear" and due < now() and not "incorporatedThisYear" as "overdue"
+        FROM (
+            SELECT "arFilingMonth", date,
+         EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland') as "incorporatedThisYear",
+                EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM now()) as "filedThisYear",
+                make_timestamptz(
+                    EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland')::integer,
+                    EXTRACT(MONTH FROM TO_TIMESTAMP("arFilingMonth"::text, 'Month'))::integer,
+                    1,
+                    0,0,0.0, $2) + INTERVAL '1 month - 1 second' as "due"
+            FROM company_state cs
+            LEFT OUTER JOIN doc_list_j dlj on cs.doc_list_id = dlj.doc_list_id
+            LEFT OUTER JOIN document d on d.id = dlj.document_id
+
+            WHERE cs.id = $1 and type = 'Companies Office' and (filename = 'File Annual Return' or filename = 'Online Annual Return' or filename = 'Annual Return Filed')
+            ORDER BY d.date DESC LIMIT 1
+        ) qq
+    ) q
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION get_deadlines(companyStateId integer)
+    RETURNS JSON
+    AS $$
+    SELECT json_build_object(
+        'annualReturn', ar_deadline($1)
+        )
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
+    RETURNS JSON
+    AS $$
+    SELECT array_to_json(array_agg(row_to_json(q)))
+    FROM (
+        SELECT c.id, cs."companyName", get_warnings(cs.id) as warnings, get_deadlines(cs.id) as deadlines
+        FROM company c
+        JOIN company_state cs ON cs.id = c."currentCompanyStateId"
+        WHERE c."ownerId" = 15 AND deleted = FALSE
+    ) q;
+$$ LANGUAGE SQL;
+
+
+
 -- A brief(er) summary of transactions, part of standard companyState info
 CREATE OR REPLACE FUNCTION transaction_summary(companyStateId integer)
     RETURNS JSON
@@ -327,18 +406,16 @@ LEFT OUTER JOIN transaction ttt on tt.id = ttt."parentTransactionId"
 WHERE t.id = $1 and ttt.id != $1
 $$ LANGUAGE SQL;
 
+
 CREATE OR REPLACE FUNCTION holding_persons(id integer)
 RETURNS SETOF JSON
-
 AS $$
 SELECT array_to_json(array_agg(row_to_json(qq))) FROM
     ( SELECT * FROM holding h
     left outer join "holder" hj on h.id = hj."holdingId"
     left outer join person p on hj."holderId" = p.id
     WHERE h.id = $1) qq;
-
 $$ LANGUAGE SQL STABLE;
-
 
 
 DROP FUNCTION IF EXISTS company_persons("companyStateId" integer);

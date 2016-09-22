@@ -62,6 +62,12 @@ module.exports = {
         });
     },
     options: {
+        indexes: [
+            {name: 'company_currentCompanyStateId_idx', fields: ['currentCompanyStateId']},
+            {name: 'company_ownerId_idx', fields: ['ownerId']},
+            {name: 'company_deleted_idx', fields: ['deletedId']},
+            ],
+
         freezeTableName: false,
         tableName: 'company',
         classMethods: {

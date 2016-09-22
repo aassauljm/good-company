@@ -3,22 +3,32 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource } from '../actions';
+import { requestResource, resetModals } from '../actions';
 import { stringToDateTime } from '../utils';
 import { Link } from 'react-router';
+import { AlertWarnings } from './warnings';
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import moment from 'moment';
 
+function sortAlerts(response) {
+    response.sort((a, b) => {
+        return ((a.deadlines || {}).overdue ? 1 : -1) - ((b.deadlines || {}).overdue ? 1 : -1)
+    })
+    return response;
+}
 
 @connect((state, ownProps) => {
     return {alerts: state.resources['/alerts'] || {}, pendingJobs:  state.resources['/pending_jobs'] || {}};
 }, {
-    requestData: (key) => requestResource('/alerts'),
+    requestData: (key) => requestResource('/alerts', {postProcess: sortAlerts}),
     requestJobs: (refresh) => requestResource('/pending_jobs', {refresh: refresh}),
     refreshCompanies: () => requestResource('/company', {refresh: true}),
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
-    navigate: (url) => push(url)
+    navigate: (url) => push(url),
+    resetModals: () => resetModals()
 })
 export class AlertsWidget extends React.Component {
-    static POLL_INTERVAL = 15000;
+    static POLL_INTERVAL = 10000;
 
      constructor(props) {
         super(props);
@@ -26,8 +36,8 @@ export class AlertsWidget extends React.Component {
     }
 
     fetch(refresh) {
-        this.props.requestData();
-        return this.props.requestJobs(refresh)
+        this.props.requestData()
+        this.props.requestJobs(refresh)
             .then((r) => {
                 if(r.response){
                     if(this.state.pendingJobs && this.state.pendingJobs !== r.response.pending.length){
@@ -60,10 +70,36 @@ export class AlertsWidget extends React.Component {
         }
     }
 
+    renderAlerts() {
+        if(this.props.alerts._status === 'complete'){
+            const thisMonth = moment().format('MMMM')
+            const warnings = [], danger = [];
+            this.props.alerts.data.map((a, i) => {
+                if(a.warnings.pendingHistory || a.warnings.missingVotingShareholder){
+                    warnings.push(<li key={i}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetModals={this.props.resetModals} companyName={a.companyName}/></li>)
+                }
+                if(a.deadlines.annualReturn){
+                    if(a.deadlines.annualReturn.overdue){
+                        danger.push(<li key={i}><div><Link to={`/company/view/${a.id}`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue.</Link></div></li>);
+                    }
+                    if(!a.deadlines.annualReturn.filedThisYear && thisMonth === a.deadlines.annualReturn.arFilingMonth){
+                        warnings.push(<li key={i}><div><Link to={`/company/view/${a.id}`} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
+                    }
+                }
+
+            });
+            const results = [...danger, ...warnings]
+            if(!this.props.full){
+                return results.slice(0, 10);
+            }
+            return results;
+        }
+    }
+
     renderBody() {
         return <ul>
         {!!this.state.pendingJobs && <li>{ this.state.pendingJobs } Company { this.state.pendingJobs > 1 ? 'imports' : 'import'} remaining</li> }
-        <li>No current Notifications</li>
+        { this.renderAlerts() }
         </ul>
     }
 
@@ -74,7 +110,7 @@ export class AlertsWidget extends React.Component {
                 <div className="widget-title">
                     Notifications
                 </div>
-                { !this.props.noViewAll && <div className="widget-control">
+                { !this.props.full && <div className="widget-control">
                     <Link to="/alerts" >View All</Link>
                 </div> }
             </div>
@@ -89,7 +125,7 @@ export class AlertsWidget extends React.Component {
 const Alerts = (props) => {
     return <div className="container">
             <div className="row">
-                    <AlertsWidget noViewAll={true}/>
+                    <AlertsWidget full={true}/>
             </div>
         </div>
 };

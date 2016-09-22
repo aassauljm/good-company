@@ -177,6 +177,11 @@ module.exports = {
     },
 
     alerts: function(req, res) {
-
+         sequelize.query("select all_company_notifications(:id) as result",
+                   { type: sequelize.QueryTypes.SELECT,
+                    replacements: { id: req.user.id }})
+         .then(results => {
+            return res.json(results[0].result)
+         })
     }
 }
