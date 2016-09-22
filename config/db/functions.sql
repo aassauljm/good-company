@@ -281,7 +281,7 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
         SELECT c.id, cs."companyName", get_warnings(cs.id) as warnings, get_deadlines(cs.id) as deadlines
         FROM company c
         JOIN company_state cs ON cs.id = c."currentCompanyStateId"
-        WHERE c."ownerId" = 15 AND deleted = FALSE
+        WHERE c."ownerId" = $1 AND deleted = FALSE
     ) q;
 $$ LANGUAGE SQL;
 
