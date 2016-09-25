@@ -214,7 +214,7 @@ CREATE OR REPLACE FUNCTION has_missing_voting_shareholders(companyStateId intege
     AS $$
     SELECT bool_or(missing)
     FROM (
-        SELECT (count(h.id) = 1 or bool_or(hh.data->'votingShareholder' IS NOT NULL)) as missing
+        SELECT (count(h.id) = 1 or bool_or((hh.data->'votingShareholder') IS NOT NULL)) as missing
         FROM company_state cs
         JOIN h_list_j hlj ON cs.h_list_id = hlj.holdings_id
         LEFT OUTER JOIN holding h ON h.id = hlj.h_j_id
@@ -233,6 +233,7 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
         'missingVotingShareholders', has_missing_voting_shareholders($1)
         )
 $$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default 'Pacific/Auckland')
     RETURNS JSON
