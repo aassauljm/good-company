@@ -468,10 +468,14 @@ module.exports = {
                 return sequelize.query('select get_warnings(:id)',
                                        { type: sequelize.QueryTypes.SELECT,
                                             replacements: { id: this.id}})
-                    .then(results => results[0])
+                    .then(results => results[0].get_warnings)
             },
             getDeadlines: function(){
-                const  annualReturn = () => {
+                return sequelize.query('select get_deadlines(:id)',
+                                       { type: sequelize.QueryTypes.SELECT,
+                                            replacements: { id: this.id}})
+                    .then(results => results[0].get_deadlines)
+                /*const  annualReturn = () => {
                     if(!this.dataValues.arFilingMonth){
                         return {annualReturn : {status: 'danger', 'message': 'No Annual Return filing month specified'}};
                     }
@@ -496,7 +500,7 @@ module.exports = {
                         return {annualReturn : {status: 'safe', 'message': 'Annual Return Filed for the current year', diff: diff}};
                     }
                 }
-                return {...annualReturn()}
+                return {...annualReturn()}*/
             },
             votingShareholdersCheck: function() {
                 return this.getHoldingList({include: CompanyState.includes.holdings()})

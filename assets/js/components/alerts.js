@@ -72,18 +72,22 @@ export class AlertsWidget extends React.Component {
 
     renderAlerts() {
         if(this.props.alerts._status === 'complete'){
-            const thisMonth = moment().format('MMMM')
-            const warnings = [], danger = [];
+            const thisMonth = moment().format('MMMM');
+            let warnings = [], danger = [], safe = [];
             this.props.alerts.data.map((a, i) => {
                 if(a.warnings.pendingHistory || a.warnings.missingVotingShareholder){
-                    warnings.push(<li key={i}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetModals={this.props.resetModals} companyName={a.companyName}/></li>)
+                    warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetModals={this.props.resetModals} companyName={a.companyName}/></li>)
                 }
                 if(a.deadlines.annualReturn){
                     if(a.deadlines.annualReturn.overdue){
-                        danger.push(<li key={i}><div><Link to={`/company/view/${a.id}`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue.</Link></div></li>);
+                        const dueDiff = moment(a.deadlines.annualReturn.dueDate).from(moment());
+                        danger.push(<li key={i+'.1'}><div><Link to={`/company/view/${a.id}`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue ({dueDiff}).</Link></div></li>);
                     }
                     if(!a.deadlines.annualReturn.filedThisYear && thisMonth === a.deadlines.annualReturn.arFilingMonth){
-                        warnings.push(<li key={i}><div><Link to={`/company/view/${a.id}`} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
+                        warnings.push(<li key={i+'.2'}><div><Link to={`/company/view/${a.id}`} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
+                    }
+                    if(a.deadlines.annualReturn.filedThisYear){
+                        safe.push(<li key={i+'.3'}><div><Link to={`/company/view/${a.id}`} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return for { a.companyName } already filed this year.</Link></div></li>);
                     }
                 }
 

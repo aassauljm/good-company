@@ -55,7 +55,6 @@ export class ImportCompany extends React.Component {
                 this.props.dispatch(addNotification({message: 'Company Imported'}));
                 this.props.dispatch(requestResource('companies', {refresh: true}));
                 this.props.dispatch(push('/company/view/'+result.response.id))
-
             })
             .catch(error => {
                 this.props.dispatch(addNotification({message: `Could not import company, Reason: ${error.message}`, error: true}));

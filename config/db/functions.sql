@@ -243,7 +243,8 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default '
         format_iso_date(date) as "lastFiling",
         "filedThisYear",
         EXTRACT(EPOCH FROM now() AT TIME ZONE $2 - due) as "seconds",
-        not "filedThisYear" and due < now() and not "incorporatedThisYear" as "overdue"
+        not "filedThisYear" and due < now() and not "incorporatedThisYear" as "overdue",
+        format_iso_date(due) as "dueDate"
         FROM (
             SELECT "arFilingMonth", date,
          EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland') as "incorporatedThisYear",

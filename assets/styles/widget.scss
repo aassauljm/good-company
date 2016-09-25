@@ -19,7 +19,6 @@ $widget-border: #ccc;
         }
         .widget-control{
             float: right;
-
             cursor: pointer;
             border-left: 1px solid $widget-border;
             padding-left:12px;
@@ -40,7 +39,7 @@ $widget-border: #ccc;
         ul{
             margin:0;
             padding:0;
-            li{
+            li, li > div{
                 list-style-type:none;
                   white-space: nowrap;
                   overflow: hidden;

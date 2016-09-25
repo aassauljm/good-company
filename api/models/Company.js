@@ -65,7 +65,7 @@ module.exports = {
         indexes: [
             {name: 'company_currentCompanyStateId_idx', fields: ['currentCompanyStateId']},
             {name: 'company_ownerId_idx', fields: ['ownerId']},
-            {name: 'company_deleted_idx', fields: ['deletedId']},
+            {name: 'company_deleted_idx', fields: ['deleted']},
             ],
 
         freezeTableName: false,

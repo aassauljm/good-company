@@ -8,7 +8,7 @@ import { Link } from 'react-router';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import { push } from 'react-router-redux'
-
+import moment from 'moment';
 
 const DEFAULT_OBJ = {};
 
@@ -134,15 +134,22 @@ export class CompanyAlertsBase extends React.Component {
         companyId: PropTypes.string.isRequired,
     };
 
-    renderDeadlines(deadlines, showTypes) {
-        return ['annualReturn'].filter((key, i) => statusIs(deadlines.annualReturn, showTypes))
-                                .map((key, i) => <li key={i}>
-                <div><a href="#" className={deadlineToClassName(deadlines[key])}>{deadlineToGlyph(deadlines[key])} { deadlines[key].message}</a></div>
-            </li>
-        );
-
+    renderDeadlines(deadlines, showTypes, companyId) {
+        let i = 0;
+        const results = [];
+        const thisMonth = moment().format('MMMM')
+        if(showTypes.indexOf('danger') > -1 && deadlines.annualReturn.overdue){
+            const dueDiff = moment(deadlines.annualReturn.dueDate).from(moment());
+            results.push(<li key={i++}><div><Link to={`/company/view/${companyId}`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return is overdue ({dueDiff}).</Link></div></li>);
+        }
+        if(showTypes.indexOf('warning') > -1  && !deadlines.annualReturn.filedThisYear && thisMonth === deadlines.annualReturn.arFilingMonth){
+            results.push(<li key={i++}><div><Link to={`/company/view/${companyId}`} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return is due this month.</Link></div></li>);
+        }
+        if(showTypes.indexOf('safe') > -1  && deadlines.annualReturn.filedThisYear){
+            results.push(<li key={i++}><div><Link to={`/company/view/${companyId}`} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return already filed this year.</Link></div></li>);
+        }
+        return results;
     }
-
     renderImportWarnings(warn) {
         return <div>
             { warn.shareClassWarning && <li><AlertWarnings.SpecifyShareClasses companyId={this.props.companyId}/></li>}
@@ -155,7 +162,7 @@ export class CompanyAlertsBase extends React.Component {
     render() {
         const warn = getWarnings(this.props.companyState);
         const guide = warn.shareClassWarning || warn.historyWarning || warn.applyShareClassWarning || warn.votingShareholderWarning;
-        const deadlines = this.renderDeadlines(this.props.companyState.deadlines, this.props.showTypes)
+        const deadlines = this.renderDeadlines(this.props.companyState.deadlines, this.props.showTypes, this.props.companyId)
 
         return <ul>
                 { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}

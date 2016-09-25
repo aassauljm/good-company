@@ -1,6 +1,6 @@
 import kue from 'kue';
 
-export  const importQueue = kue.createQueue({
+export const importQueue = kue.createQueue({
     disableSearch: false
 })
 
