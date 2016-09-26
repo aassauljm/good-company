@@ -275,9 +275,11 @@ module.exports = {
 
         Promise.all(promises)
         .then((results) => {
+            sails.log.info('Sending mail')
             return MailService.sendImportComplete(req.user, results.reduce((acc, x) => acc + x, 0), list.length);
         })
         .catch(() => {
+            sails.log.error("Failed to send mail");
         })
     },
 
