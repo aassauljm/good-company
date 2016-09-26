@@ -27,11 +27,12 @@ module.exports = {
         })
 
     },
-    sendCataLexMail: function(template, email, data) {
+    sendCataLexMail: function(template, email, subject, data) {
         var form = new FormData();
         form.append('client_id', sails.config.OAUTH_CLIENT_ID);
         form.append('client_secret', sails.config.OAUTH_CLIENT_SECRET);
         form.append('data', JSON.stringify(data));
+        form.append('subject', subject);
         form.append('email', email);
         form.append('template', template);
         return fetch(sails.config.EMAIL_URL, {
@@ -48,7 +49,8 @@ module.exports = {
         return MailService.sendMail(user.email, template);
     },
     sendImportComplete: function(user, successCount, totalCount){
-        return MailService.sendCataLexMail('emails.goodcompanies.import-complete', user.email, {name: user.username, successCount, totalCount, link: sails.config.APP_URL})
+        return MailService.sendCataLexMail('emails.goodcompanies.import-complete', user.email, 'Good Companies - Companies Imported',
+                                           {name: user.username, successCount, totalCount, link: sails.config.APP_URL})
     }
 };
 
