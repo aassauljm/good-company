@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 
 app.load({
         log: {
-            level: 'silly'
+            level: 'info'
         },
     models: {
         migrate: 'safe'
@@ -86,8 +86,8 @@ app.load({
                 });
             })
             .then(function(){
-                job.remove();
+                return job.remove();
             })
-    });
+    })
 
 });

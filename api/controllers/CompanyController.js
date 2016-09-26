@@ -237,7 +237,12 @@ module.exports = {
 
     importBulk: function(req, res) {
         const args = actionUtil.parseValues(req);
-        Promise.all(args.list.map(list => {
+        const list = args.list.filter(f => f);
+        const promises = [];
+        Promise.all(list.map(list => {
+            let resolveJob;
+            const complete = new Promise((_resolve, _reject)  => {resolveJob = _resolve});
+            promises.push(complete)
             return new Promise((resolve, reject)  => {
                 const job = QueueService.importQueue.create('import', {
                     title: 'Bulk Import',
@@ -247,6 +252,8 @@ module.exports = {
                 })
                 .searchKeys( ['userId'] )
                 .removeOnComplete( true )
+                .on('complete', () => {resolveJob(1);})
+                .on('failed', () => {resolveJob(0)})
                 .save( function(err){
                    if(err) {
                         reject(err);
@@ -254,7 +261,8 @@ module.exports = {
                    else{
                         resolve(job.id);
                     }
-                });
+                })
+
             });
         }))
         .then(ids => {
@@ -263,6 +271,14 @@ module.exports = {
         .catch(err => {
             return res.serverError(err);
         });
+
+
+        Promise.all(promises)
+        .then((results) => {
+            return MailService.sendImportComplete(req.user, results.reduce((acc, x) => acc + x, 0), list.length);
+        })
+        .catch(() => {
+        })
     },
 
     importPendingHistory: function(req, res){

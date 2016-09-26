@@ -44,5 +44,7 @@ module.exports = {
     USER_LOGOUT_URL: 'http://localhost:8000/auth/logout',
     OAUTH_CLIENT_ID: 'gc',
     OAUTH_CLIENT_SECRET: 'gc',
-    CACHE_DIR: '/tmp/.gc'
+    CACHE_DIR: '/tmp/.gc',
+    APP_URL: 'http://localhost:5667',
+    EMAIL_URL: 'http://localhost:8000/mail/send'
 };

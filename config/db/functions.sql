@@ -214,7 +214,7 @@ CREATE OR REPLACE FUNCTION has_missing_voting_shareholders(companyStateId intege
     AS $$
     SELECT bool_or(missing)
     FROM (
-        SELECT (count(h.id) != 1 and bool_or((hh.data->'votingShareholder') IS NULL)) as missing
+        SELECT (count(h.id) != 1 and bool_and((hh.data->'votingShareholder') IS NULL)) as missing
         FROM company_state cs
         JOIN h_list_j hlj ON cs.h_list_id = hlj.holdings_id
         LEFT OUTER JOIN holding h ON h.id = hlj.h_j_id
