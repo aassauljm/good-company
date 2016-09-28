@@ -11,10 +11,11 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment';
 
 function sortAlerts(response) {
-    response.sort((a, b) => {
+    const data = (response || [])
+    data.sort((a, b) => {
         return ((a.deadlines || {}).overdue ? 1 : -1) - ((b.deadlines || {}).overdue ? 1 : -1)
-    })
-    return response;
+    });
+    return data;
 }
 
 @connect((state, ownProps) => {
@@ -102,7 +103,7 @@ export class AlertsWidget extends React.Component {
 
     renderBody() {
         return <ul>
-        {!!this.state.pendingJobs && <li>{ this.state.pendingJobs } Company { this.state.pendingJobs > 1 ? 'imports' : 'import'} remaining</li> }
+        {!!this.state.pendingJobs && <li><div className={'text-success alert-entry'}><Glyphicon glyph="export" className="big-icon"/>{ this.state.pendingJobs } Company { this.state.pendingJobs > 1 ? 'imports' : 'import'} remaining</div></li> }
         { this.renderAlerts() }
         </ul>
     }

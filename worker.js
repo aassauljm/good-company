@@ -7,9 +7,9 @@ var Promise = require('bluebird');
 
 
 app.load({
-        log: {
-            level: 'info'
-        },
+    log: {
+        level: 'info'
+    },
     models: {
         migrate: 'safe'
     },
@@ -21,8 +21,8 @@ app.load({
         grunt: false,
         http: false,
         i18n: false,
-        "orm": false,
-        "userPermissions": false,
+        orm: false,
+        userPermissions: false,
         //logger: false,
         policies: false,
         pubsub: false,
@@ -34,17 +34,20 @@ app.load({
         views: false
     }
 }, function(err, app){
+    sails.log.info('Worker Ready');
     if(err){
-        console.log(err);
+        sails.log.error('Worker Error');
         return;
     };
 
     queue.process('import', function(job, done){
+        sails.log.info('Receiving Job: '+JSON.stringify(job.data));
         const userId = job.data.userId;
         function getNumber() {
             let companyNumber;
             if(job.data.queryType !== 'companyNumber'){
-                return ScrapingService.getSearchResults(job.data.query)
+                return ScrapingService.cleanUpQuery(job.data.query)
+                    .then(ScrapingService.getSearchResults)
                     .then(function(results) {
                         return results[0].companyNumber
                     });
@@ -72,6 +75,17 @@ app.load({
                 })
                 .then(function(){
                     return done(new Error('Duplicate name: '+job.data.query));
+                });
+            })
+            .catch(sails.config.exceptions.ValidationException, function(e){
+                return ActivityLog.create({
+                    type: ActivityLog.types.IMPORT_COMPANY_FAIL,
+                    userId: userId,
+                    description: `${e.message}: ${job.data.query}`,
+                    data: {}
+                })
+                .then(function(){
+                    return done(new Error(`${e.message}: ${job.data.query}`));
                 });
             })
             .catch(function(e) {

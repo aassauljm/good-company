@@ -35,11 +35,11 @@ const entityInfoRegex = /\((\d+)\) \(NZBN: (\d+)\)/;
 
 var cs = new pgp.helpers.ColumnSet(['companyName', 'companyNumber', 'nzbn', 'incorporationDate'], {table: 'company_basic_info'});
 
-var offset = 0;
+var count = 0;
 
 function getNext() {
-    console.log('index', offset)
-    return db.one('select "companyNumber" from company_basic_info  where data is null order by "companyNumber" desc limit 1 offset ${offset}', {offset: offset++});
+    console.log('index', count++)
+    return db.one('select "companyNumber" from company_basic_info  where data is null order by random() limit 1 ');
 }
 
 

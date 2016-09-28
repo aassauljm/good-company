@@ -843,6 +843,10 @@ const ScrapingService = {
             })
     },
 
+    cleanUpQuery: function(query) {
+        return Promise.resolve(query.replace(/ ltd\.?$/gi, ' LIMITED'))
+    },
+
     getSearchResults: function(query){
         return ScrapingService.fetchSearchResults(query)
             .then(function(html){

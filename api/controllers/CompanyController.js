@@ -250,6 +250,8 @@ module.exports = {
                     query: list,
                     queryType: args.listType
                 })
+                .attempts(5)
+                .backoff( {type:'exponential'} )
                 .searchKeys( ['userId'] )
                 .removeOnComplete( true )
                 .on('complete', () => {resolveJob(1);})

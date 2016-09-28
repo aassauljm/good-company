@@ -21,8 +21,8 @@ function dateToString(date){
     return date.format('DD/MM/YYYY')
 }
 
-var startDate = moment({ years:2007, months:2, day: 18});
-var endDate = moment({ years:2007, months:2, day: 18});
+var startDate = moment({ years:1900, months:1, day: 1});
+var endDate = moment({ years:1910, months:1, day: 1});
 
 var MAX = 200;
 var SLEEP = 5000;
@@ -33,7 +33,8 @@ var db = pgp(config);
 
 var args = {
     q: '',
-    entityTypes: ['LTD', 'UNLTD', 'COOP'],
+    //entityTypes: ['LTD', 'UNLTD', 'COOP'],
+    entityTypes: ['ASIC', 'NON_ASIC'],
     entityStatusGroups: 'REGISTERED',
     address: 'ALL',
     start: 0,
@@ -104,19 +105,22 @@ var diff = 0
 function nextQuery(){
     console.log('next query')
     startDate = endDate.clone();
-    startDate = startDate.clone().add(1, 'days');
-    endDate = startDate;
-    /*if(!diff){
-        endDate = endDate.clone().add(3, 'days');
+    //startDate = startDate.clone().add(1, 'days');
+
+    if(!diff){
+        endDate = endDate.clone().add(10, 'year');
     }
     else{
         endDate = endDate.clone().add(diff, 'milliseconds');
     }
+    /*
     if(args.incorpTo === args.incorpFrom){
         console.log('same day')
         startDate = startDate.clone().add('1', 'days');
         endDate = endDate.clone().add('2', 'days');
     }*/
+    //startDate = endDate.clone().add('1', 'days');
+    //endDate = startDate;
 
      applyDates();
 }

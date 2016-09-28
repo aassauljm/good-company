@@ -28,6 +28,7 @@ module.exports = {
 
     },
     sendCataLexMail: function(template, email, subject, data) {
+        sails.log.info(`Sending Mail: ${email} ${subject} ${template} ${JSON.stringify(data)}`);
         var form = new FormData();
         form.append('client_id', sails.config.OAUTH_CLIENT_ID);
         form.append('client_secret', sails.config.OAUTH_CLIENT_SECRET);
