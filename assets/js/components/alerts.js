@@ -10,7 +10,7 @@ import { AlertWarnings } from './warnings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment';
 
-function sortAlerts(response) {
+export function sortAlerts(response) {
     const data = (response || [])
     data.sort((a, b) => {
         return ((a.deadlines || {}).overdue ? 1 : -1) - ((b.deadlines || {}).overdue ? 1 : -1)
@@ -75,8 +75,17 @@ export class AlertsWidget extends React.Component {
         if(this.props.alerts._status === 'complete'){
             const thisMonth = moment().format('MMMM');
             let warnings = [], danger = [], safe = [];
+
+            const count = this.props.alerts.data.reduce((acc, a) => {
+                return acc + (Object.keys(a.warnings).some(warning => a.warnings[warning]) ? 1 : 0);
+            }, 0);
+            console.log(count);
+            if(count > 1){
+                danger.push(<li><div><Link to={`/mass_setup`} className={'text-success alert-entry'}><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk setup your companies.</Link></div></li>);
+            }
+
             this.props.alerts.data.map((a, i) => {
-                if(a.warnings.pendingHistory || a.warnings.missingVotingShareholder){
+                if(Object.keys(a.warnings).some(warning => a.warnings[warning])){
                     warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetModals={this.props.resetModals} companyName={a.companyName}/></li>)
                 }
                 if(a.deadlines.annualReturn){

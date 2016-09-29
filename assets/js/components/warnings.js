@@ -13,10 +13,10 @@ import moment from 'moment';
 const DEFAULT_OBJ = {};
 
 export function getWarnings(companyState) {
-    const shareClassWarning = (!companyState.shareClasses || !companyState.shareClasses.shareClasses) ;
-    const historyWarning = !!(companyState.warnings.pendingHistory);
-    const votingShareholderWarning = !!(companyState.warnings.missingVotingShareholders);
-    const applyShareClassWarning = !shareClassWarning && !!companyState.shareCountByClass['null'];
+    const shareClassWarning = !!companyState.warnings.pendingHistory;
+    const historyWarning = !!companyState.warnings.pendingHistory;
+    const votingShareholderWarning = !!companyState.warnings.missingVotingShareholders;
+    const applyShareClassWarning = !shareClassWarning && !!companyState.warnings.applyShareClassWarning
     return {
         shareClassWarning,
         historyWarning,

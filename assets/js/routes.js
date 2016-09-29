@@ -30,6 +30,7 @@ import ImportCompany from './components/importCompany';
 import ImportMenu from './components/importMenu';
 import { CompanyTransactions } from './components/transactions';
 import { TransactionView } from './components/transaction';
+import { MassSetup } from './components/massSetup';
 import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/warnings';
 import Alerts from './components/alerts';
@@ -62,6 +63,7 @@ export default (store) => {
             <Route path="documents" component={ Documents }  />
             <Route path="document/view/:id" component={ Document }  />
             <Route path="companies" component={ Companies }  />
+            <Route path="mass_setup" component={ MassSetup }  />
             <Route path="company/view/:id" component={ Company } childrenOnly={true}>
                 <Route path="shareholdings" component={ Shareholdings } />
                 <Route path="details" component={ CompanyDetails } />

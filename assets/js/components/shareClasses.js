@@ -76,6 +76,9 @@ export class ShareClassForm extends React.Component {
     }
 
     submit(data) {
+        if(this.props.submit){
+            return this.props.submit(data);
+        }
         const body = new FormData();
         body.append('json', JSON.stringify({...data, documents: null}));
         (data.documents || []).map(d => {
@@ -361,5 +364,7 @@ export const ShareClassManageModal  = (props) => {
     editShareClass={(id) => props.show('editShareClass', {...props.modalData, shareClasses: shareClasses, shareClassId: id, afterClose: {showModal: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}
     end={props.end} />
 };
+
+
 
 

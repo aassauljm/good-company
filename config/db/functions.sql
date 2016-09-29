@@ -225,12 +225,39 @@ CREATE OR REPLACE FUNCTION has_missing_voting_shareholders(companyStateId intege
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION has_no_share_classes(companyStateId integer)
+    RETURNS BOOLEAN
+    AS $$
+    SELECT NOT EXISTS(SELECT 1
+    FROM company_state cs
+    JOIN s_c_j scj on cs.s_classes_id = scj.s_classes_id
+    JOIN share_class s on scj.s_class_id = s.id
+    WHERE cs.id = $1)
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION has_no_applied_share_classes(companyStateId integer)
+    RETURNS BOOLEAN
+    AS $$
+    SELECT bool_or(missing)
+    FROM (
+        SELECT p."shareClass" is NULL as missing
+        FROM company_state cs
+        JOIN h_list_j hlj ON cs.h_list_id = hlj.holdings_id
+        LEFT OUTER JOIN holding h ON h.id = hlj.h_j_id
+        LEFT OUTER JOIN parcel_j pj on pj."holdingId" =  h.id
+        JOIN parcel p on p.id = pj."parcelId"
+        where cs.id = $1
+        ) q
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
     RETURNS JSON
     AS $$
     SELECT json_build_object(
         'pendingHistory', has_pending_historic_actions($1),
-        'missingVotingShareholders', has_missing_voting_shareholders($1)
+        'missingVotingShareholders', has_missing_voting_shareholders($1),
+        'shareClassWarning', has_no_share_classes($1),
+        'applyShareClassWarning', has_no_applied_share_classes($1)
         )
 $$ LANGUAGE SQL;
 

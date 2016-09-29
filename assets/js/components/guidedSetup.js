@@ -16,11 +16,6 @@ import { Route } from 'react-router';
 import { getWarnings } from './warnings'
 import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
 import { ModalSwitch }  from './modals';
-/*
-import { ApplyShareClassesModal } from './transactions/applyShareClasses';
-import { ImportHistoryModal } from './transactions/importHistory';
-import { VotingShareholdersModal  } from './transactions/selectVotingShareholders';
-*/
 
 
 const DEFAULT_OBJ = {};
@@ -104,7 +99,7 @@ export class GuidedSetup extends React.Component {
                     <div className="col-md-12">
                     <div className="widget">
                          <div className="widget-body">
-                            < h5 className="text-center">Share Register Setup {warningSteps - warningCount} / {warningSteps}</h5>
+                            <h5 className="text-center">Share Register Setup {warningSteps - warningCount} / {warningSteps}</h5>
                             <ProgressBar now={now} striped bsStyle="success" /></div>
                         </div>
                     </div>
