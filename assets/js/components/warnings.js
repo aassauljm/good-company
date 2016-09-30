@@ -13,7 +13,7 @@ import moment from 'moment';
 const DEFAULT_OBJ = {};
 
 export function getWarnings(companyState) {
-    const shareClassWarning = !!companyState.warnings.pendingHistory;
+    const shareClassWarning = !!companyState.warnings.shareClassWarning;
     const historyWarning = !!companyState.warnings.pendingHistory;
     const votingShareholderWarning = !!companyState.warnings.missingVotingShareholders;
     const applyShareClassWarning = !shareClassWarning && !!companyState.warnings.applyShareClassWarning

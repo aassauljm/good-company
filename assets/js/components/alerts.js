@@ -40,7 +40,7 @@ export class AlertsWidget extends React.Component {
         this.props.requestData()
         this.props.requestJobs(refresh)
             .then((r) => {
-                if(r.response){
+                if(!this._unmounted && r.response){
                     if(this.state.pendingJobs && this.state.pendingJobs !== r.response.pending.length){
                         this.refreshAll();
                     }
@@ -63,6 +63,7 @@ export class AlertsWidget extends React.Component {
 
     componentWillUnmount() {
         clearTimeout(this._interval);
+        this._unmounted = true;
     }
 
     handleClick(activity) {
@@ -77,11 +78,11 @@ export class AlertsWidget extends React.Component {
             let warnings = [], danger = [], safe = [];
 
             const count = this.props.alerts.data.reduce((acc, a) => {
-                return acc + (Object.keys(a.warnings).some(warning => a.warnings[warning]) ? 1 : 0);
+                return acc + (a.warnings.shareClassWarning ? 1 : 0);
             }, 0);
             console.log(count);
             if(count > 1){
-                danger.push(<li><div><Link to={`/mass_setup`} className={'text-success alert-entry'}><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk setup your companies.</Link></div></li>);
+                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'}><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk setup your companies.</Link></div></li>);
             }
 
             this.props.alerts.data.map((a, i) => {

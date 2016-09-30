@@ -102,6 +102,42 @@ app.load({
             .then(function(){
                 return job.remove();
             })
+    });
+
+
+    queue.process('history', function(job, done) {
+        let company, companyName;
+        Company.findById(job.data.companyId)
+        .then(function(_company){
+            company  = _company;
+            return company.getCurrentCompanyState()
+        })
+        .then(_state => {
+            companyName = _state.get('companyName');
+            return TransactionService.performInverseAllPending(company);
+        })
+        .then(() => {
+            return ActivityLog.create({
+                type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                userId: job.data.userId,
+                description: `Complete ${companyName} History Import`,
+                data: {companyId: job.data.companyId}
+            });
+        })
+        .then(function() {
+            return done();
+        })
+        .catch(function(e){
+            return ActivityLog.create({
+                type: ActivityLog.types.IMPORT_HISTORY_FAIL,
+                userId: job.data.userId,
+                description: `Failed to complete ${companyName} History Import`,
+                data: {companyId: job.data.companyId}
+            })
+            .then(function(){
+                return done(new Error(`Failed to complete ${companyName} History Import`));
+            });
+        })
     })
 
 });

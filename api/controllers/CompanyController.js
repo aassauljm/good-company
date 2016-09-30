@@ -285,6 +285,102 @@ module.exports = {
         })
     },
 
+    transactionBulk: function(req, res) {
+        const args = actionUtil.parseValues(req);
+        const promises = [];
+        Promise.all(args.companyIds.map(id => {
+            let company, companyState, shareClass;
+            return Company.findById(id)
+                .then(function(_company) {
+                    company = _company;
+                    return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+                })
+                .then(function(){
+                    return sails.controllers.companystate.transactions.createShareClass(args.shareClass, company);
+                })
+                .then(function(){
+                    return company.getCurrentCompanyState()
+                })
+                .then(function(_companyState){
+                    companyState = _companyState;
+                    return companyState.getShareClasses({
+                            include: [{
+                                model: ShareClass,
+                                as: 'shareClasses'
+                            }]
+                        })
+                })
+                .then(function(shareClasses){
+                    shareClass = shareClasses.dataValues.shareClasses[0].id;
+                    return companyState.getHoldingList({include: CompanyState.includes.holdings()})
+                })
+                .then(function(holdingList){
+                    const actions = holdingList.dataValues.holdings.map(function(h){
+                        return {
+                            holdingId: h.holdingId,
+                            shareClass: shareClass,
+                            transactionType: Transaction.types.APPLY_SHARE_CLASS
+                        };
+                    });
+                    return sails.controllers.companystate.selfManagedTransactions.apply_share_classes({
+                        actions: actions
+                    }, company);
+                })
+                .then(function(m){
+                    return ActivityLog.create({
+                            userId: req.user.id,
+                            companyId: company.id,
+                            description: m.message,
+                            data: {companyId: company.id}
+                        })
+                })
+                .then(function(){
+                    let resolveJob;
+                    const complete = new Promise((_resolve, _reject)  => {resolveJob = _resolve});
+                    promises.push(complete)
+                    return new Promise((resolve, reject)  => {
+                        const job = QueueService.importHistoryQueue.create('history', {
+                            title: 'History Import',
+                            userId: req.user.id,
+                            companyId: id,
+                        })
+                        .searchKeys( ['userId'] )
+                        .removeOnComplete( true )
+                        .on('complete', () => {resolveJob(1);})
+                        .on('failed', () => {resolveJob(0)})
+                        .save( function(err){
+                           if(err) {
+                                reject(err);
+                           }
+                           else{
+                                resolve(job.id);
+                            }
+                        })
+
+                    });
+                })
+        }))
+
+        .then((ids) => {
+            return res.json({jobIds: ids})
+        })
+        .catch(e => {
+            //return res.forbidden();
+            return res.serverError(e);
+        });
+
+        Promise.all(promises)
+        .then((results) => {
+            sails.log.info('Sending mail')
+            return MailService.sendImportHistoryComplete(req.user, results.reduce((acc, x) => acc + x, 0), list.length);
+        })
+        .catch(() => {
+            sails.log.error("Failed to send mail");
+        })
+
+    },
+
+
     importPendingHistory: function(req, res){
         let company, companyName;
         Company.findById(req.params.id)

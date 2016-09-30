@@ -378,7 +378,7 @@ var transactions = {
                 return {message: `Share Class updated for ${companyState.companyName}`};
             })
 
-    }
+    },
 
 }
 
@@ -495,6 +495,7 @@ function createTransaction(req, res, type){
 
 module.exports = {
     transactions: transactions,
+    selfManagedTransactions: selfManagedTransactions,
     create: (req, res) => {
         createTransaction(req, res, req.params.type)
     },

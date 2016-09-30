@@ -10,7 +10,7 @@ import Input from './forms/input';
 import { sortAlerts } from './alerts';
 import { reduxForm } from 'redux-form';
 import ButtonInput from './forms/buttonInput';
-
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 const CREATE_SHARE = 0;
 const SELECT_COMPANIES = 1;
@@ -53,7 +53,24 @@ const SelectCompaniesConnected = reduxForm({
   }
 })(SelectCompanies);
 
-
+const MassSetupLoading = (props) => {
+    return <div>
+            <div className="row">
+                <div className="col-md-12">
+                    <div className="widget">
+                        <div className="widget-header">
+                            <div className="widget-title">
+                                Mass Share Register Setup
+                            </div>
+                        </div>
+                        <div className="widget-body">
+                                <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+}
 
 const PAGES = {
     [CREATE_SHARE]: (props) => {
@@ -181,7 +198,7 @@ const PAGES = {
         showModal: () => dispatch(showModal('massSetup')),
         submit: (data) => {
             return dispatch(transactionBulk({
-                companyIds: data.companies.map(c => c.id),
+                companyIds: data.companies.map(c => c.companyId),
                 shareClass: data.shareClass
             }))
         },
@@ -207,7 +224,9 @@ export class MassSetup extends React.Component {
     }
 
     render() {
-        console.log(this.props.massSetup)
+        if(this.props.massSetup._status === 'pending'){
+            return <MassSetupLoading />;
+        }
         return PAGES[this.props.massSetup.index || 0]({...this.props})
     }
 }

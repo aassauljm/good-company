@@ -178,7 +178,10 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'importBulk'
     },
-
+    'POST /api/bulk/transaction': {
+        controller: 'CompanyController',
+        action: 'transactionBulk'
+    },
     'GET /api/company/lookup': {
         controller: 'CompanyController',
         action: 'lookup'

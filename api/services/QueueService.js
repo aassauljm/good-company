@@ -2,7 +2,10 @@ import kue from 'kue';
 
 export const importQueue = kue.createQueue({
     disableSearch: false
-})
+});
+export const importHistoryQueue = kue.createQueue({
+    disableSearch: false
+});
 /*.on('job complete', function(id, result){
     kue.Job.get(id, function(err, job){
         console.log('success', err)
