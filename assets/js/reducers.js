@@ -14,6 +14,7 @@ import {
     LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     IMPORT_BULK_REQUEST, IMPORT_BULK_SUCCESS, IMPORT_BULK_FAILURE,
+    TRANSACTION_BULK_REQUEST, TRANSACTION_BULK_SUCCESS, TRANSACTION_BULK_FAILURE,
     RENDER_DOCUMENT_REQUEST, RENDER_DOCUMENT_SUCCESS, RENDER_DOCUMENT_FAILURE,
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
@@ -146,6 +147,19 @@ function importBulk(state = {}, action){
     }
 }
 
+function transactionBulk(state = {}, action){
+    switch(action.type){
+        case TRANSACTION_BULK_REQUEST:
+            return {...state, _status: 'fetching'};
+        case TRANSACTION_BULK_SUCCESS:
+            return {...state, data: action.response, _status: 'complete'};
+        case TRANSACTION_BULK_FAILURE:
+            return {...state, data: action.response, _status: 'error'};
+        default:
+            return state;
+    }
+}
+
 function companyPage(state = {tabIndex: 0}, action){
     switch(action.type){
         case COMPANY_TAB_CHANGE:
@@ -175,7 +189,7 @@ function modals(state = {}, action){
             return {...state, showing: null, [action.modal]: null };
         case NEXT_MODAL:
             const index = action.data && action.data.index !== undefined ? action.data.index : state[action.modal].index + 1;
-            return {...state,  [action.modal]: {index: index, data: {...state[action.modal].data, ...action.data}}};
+            return {...state,  [action.modal]: {index: index, data: {...(state[action.modal] || {}).data, ...action.data}}};
         case PREVIOUS_MODAL:
             return {...state,  [action.modal]: {index: state[action.modal].index - 1}};
         case RESET_MODALS:
@@ -404,6 +418,7 @@ const appReducer = combineReducers({
     lookupOwnCompany,
     importCompany,
     importBulk,
+    transactionBulk,
     login,
     userInfo,
     resources,

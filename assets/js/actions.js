@@ -16,6 +16,7 @@ import {
     LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     IMPORT_BULK_REQUEST, IMPORT_BULK_SUCCESS, IMPORT_BULK_FAILURE,
+    TRANSACTION_BULK_REQUEST, TRANSACTION_BULK_SUCCESS, TRANSACTION_BULK_FAILURE,
     VALIDATE_COMPANY_REQUEST, VALIDATE_COMPANY_SUCCESS, VALIDATE_COMPANY_FAILURE,
     VALIDATE_USER_REQUEST, VALIDATE_USER_SUCCESS, VALIDATE_USER_FAILURE,
     RENDER_DOCUMENT_REQUEST, RENDER_DOCUMENT_SUCCESS, RENDER_DOCUMENT_FAILURE,
@@ -264,6 +265,20 @@ export function importBulk(data) {
             credentials: 'same-origin'
         }),
         shouldCallAPI: (state) => state.importBulk._status !== 'fetching',
+        payload: {}
+    };
+}
+
+export function transactionBulk(data) {
+    return {
+        types: [TRANSACTION_BULK_REQUEST, TRANSACTION_BULK_SUCCESS, TRANSACTION_BULK_FAILURE],
+        callAPI: () => fetch('/api/bulk/transaction', {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        }),
+        shouldCallAPI: (state) => state.transactionBulk._status !== 'fetching',
         payload: {}
     };
 }

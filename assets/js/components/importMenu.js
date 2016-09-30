@@ -53,7 +53,7 @@ const BulkImportConnected = reduxForm({
 export class ImportMenu extends React.Component {
 
     handleSubmit(values) {
-        const list = values.identifierList.split('\n');
+        const list = values.identifierList.split('\n').filter(v => v);
         this.props.importBulk({
             listType: values.listType,
             list: list

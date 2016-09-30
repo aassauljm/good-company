@@ -53,6 +53,15 @@ $widget-border: #ccc;
             li:hover{
                 color:$deep-red;
             }
+
+            &.bulleted {
+                li{
+                    list-style-type: disc;
+                    overflow: visible;
+                    padding: 4px;
+                }
+
+            }
         }
 
         &.expandable{
