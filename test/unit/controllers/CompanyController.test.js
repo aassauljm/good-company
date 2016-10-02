@@ -650,5 +650,27 @@ describe('Company Controller', function() {
                 });
         });
     });
-
+    describe('Test import with tricky person amend (1951111)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/1951111')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+    });
 });

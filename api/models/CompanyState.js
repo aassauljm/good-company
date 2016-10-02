@@ -764,7 +764,8 @@ module.exports = {
                                 const holder = holding.dataValues.holders[index].buildNext();
                                 holder.person = holder.dataValues.person = newPerson;
                                 holding.holders[index] = holding.dataValues.holders[index] = holder;
-                                return true
+                                sails.log.debug('Replaced holder: ' + JSON.stringify(holder.toJSON()))
+                                return true;
                             }
                             return replaced;
                         }, false);
@@ -850,9 +851,21 @@ module.exports = {
                         }
                     });
                 });
-
                 return result;
             },
+            getHoldersBy: function(data){
+                // probably has to collapse whole tree for this to work
+                let results = [];
+                 _.map(this.dataValues.holdingList.dataValues.holdings, function(holding){
+                    return _.map(holding.dataValues.holders, function(holder){
+                        if(holder.person.isEqual(data)){
+                            results.push(holder);
+                        }
+                    });
+                });
+                return results;
+            },
+
             getDirectorBy: function(data){
                 // probably has to collapse whole tree for this to work
                 let result;

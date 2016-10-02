@@ -587,7 +587,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             return {}
         }
         const companyNumber = matches[1];
-        const companyName = matches[2];
+        const companyName = cleanString(matches[2]);
         const date = moment(cleanString(match('Registration Date:').parent().text().replace('Registration Date:', '')), 'DD MMM YYYY').toDate();
 
 
@@ -645,7 +645,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         const issue = match('Total Company Shares').closest('td');
         const total = toInt(cleanString(issue.next().find('font').text().replace(',','')));
         const holdings = issue.closest('table').next('table');
-        const chunks = Array.from(nextUntilChunks(holdings.find('tr').first(), 'img', 'td'))
+        const chunks = Array.from(nextUntilChunks(holdings.find('tr').first(), 'img[height=5]', 'td'))
             .map(chunk => {
                 return chunk.filter(c => c);
             });

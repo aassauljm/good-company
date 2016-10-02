@@ -363,8 +363,39 @@ module.exports = {
         return results;
     },
 
+    massageAmendAllocations: function(docs){
+        // if a 'Amended Shareholder' happens just before a 'Amended Share Allocation',
+        // then the name needs to be set to the old version
+        // See Judith Elisabeth HERBERT in
+        // http://www.business.govt.nz/companies/app/ui/pages/companies/1951111/21005885/entityFilingRequirement
+        docs.map(d => {
+            (d.actions || []).map(action => {
+                if(action.transactionType === Transaction.types.HOLDER_CHANGE){
+                    const changedPerson = Person.build(action.afterHolder);
+                    const beforeHolder = action.beforeHolder;
+                    d.actions.map(otherAction => {
+                        const transactionMatch = [
+                            Transaction.types.HOLDING_CHANGE,
+                            Transaction.types.HOLDING_TRANSFER
+                            ].indexOf(otherAction.transactionType) > -1;
+
+                        if(transactionMatch){
+                            otherAction.afterHolders.map((afterHolder, i) => {
+                                if(changedPerson.isEqual(afterHolder)){
+                                    otherAction.afterHolders[i] = beforeHolder;
+                                    console.log(JSON.stringify(otherAction))
+                                }
+                            })
+                        }
+                    });
+                }
+            })
+        })
+        return docs;
+    },
+
     extraActions: function(data, docs){
-        // This are INFERED actions
+        // These are INFERED actions
         let results = InferenceService.inferDirectorshipActions(data, docs);
         results = results.concat(InferenceService.inferNameChanges(data, docs));
         return results;
@@ -381,6 +412,9 @@ module.exports = {
 
         // before sort, fine amend types
         docs = InferenceService.inferAmendTypes(docs);
+
+
+        docs = InferenceService.massageAmendAllocations(docs)
 
         docs = docs.reduce((acc, doc) =>{
             const docDate = doc.date;

@@ -84,6 +84,10 @@ export function compareAddresses(first, second){
         return true;
     }
 
+    if(firstParts[0] === secondParts[0] && _.intersection(firstParts, secondParts).length === firstParts.length-1){
+        return true;
+    }
+
     first =  first.replace(/,/g, ' ').replace(/ +/g, ' ');
     second = second.replace(/,/g, ' ').replace(/ +/g, ' ');
 

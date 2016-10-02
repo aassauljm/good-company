@@ -269,6 +269,7 @@ function inverseFindHolding(data, companyState){
     if(!current.length){
          throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
             action: data,
+            companyState: companyState.toJSON(),
             importErrorType: sails.config.enums.HOLDING_NOT_FOUND})
     }
     else if(current.length > 1 && session.get('options')){
@@ -540,6 +541,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
         })
         .then(function(){
             // find previousState person instance, attach mutating transaction
+            // TODO, loop
             const holder = previousState.getHolderBy(normalizedData.afterHolder);
             return holder.dataValues.person.setTransaction(transaction);
         })
