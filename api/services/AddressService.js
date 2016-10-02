@@ -1,5 +1,5 @@
 const Promise = require('bluebird');
-
+import _ from 'lodash';
 
 
 
@@ -75,7 +75,8 @@ export function compareAddresses(first, second){
     const firstParts = first.split(',')
     const secondParts = second.split(',')
     // split and see if first or second just has extra token
-    if(_.xor(firstParts, secondParts).length === 1){
+
+    if(_.xor(firstParts, secondParts).length === 0 || _.xor(firstParts, secondParts).length === 1){
         return true;
     }
 

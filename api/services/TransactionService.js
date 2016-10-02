@@ -49,11 +49,15 @@ export function validateAnnualReturn(data, companyState){
                          )
             })
         .spread((registeredCompanyAddress, addressForService) => {
-             if(!AddressService.compareAddresses(state.registeredCompanyAddress, registeredCompanyAddress) ||
-                 !AddressService.compareAddresses(state.addressForService, addressForService)){
-                sails.log.error(state.registeredCompanyAddress, registeredCompanyAddress)
-                sails.log.error(state.addressForService, addressForService)
-                throw new sails.config.exceptions.InvalidInverseOperation('Addresses do not match');
+            const reg = AddressService.compareAddresses(state.registeredCompanyAddress, registeredCompanyAddress);
+            const serv = AddressService.compareAddresses(state.addressForService, addressForService)
+             if(!reg){
+                sails.log.error(state.registeredCompanyAddress, '/', registeredCompanyAddress)
+                throw new sails.config.exceptions.InvalidInverseOperation('Registered Address does not match');
+             }
+             if(!serv){
+                sails.log.error(state.addressForService, '/', addressForService)
+                throw new sails.config.exceptions.InvalidInverseOperation('Service Address does not match');
              }
         })
         .then(() => {
