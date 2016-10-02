@@ -875,6 +875,7 @@ export function validateAmend(data, companyState){
     }
     const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId},
                                                     {ignoreCompanyNumber: true});
+
     if(!holding){
         throw new sails.config.exceptions.InvalidOperation('Matching Holding not found')
     }

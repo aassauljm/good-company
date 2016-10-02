@@ -206,7 +206,7 @@ module.exports = {
                     acc.push(doc);
                 }
                 else{
-                    // to make this this far, you must have 1 down, >=1 up, or vice versa.
+                    // to make it this far, you must have 1 down, >=1 up, or vice versa.
                     let up = doc.actions.filter(a => a.afterAmount > a.beforeAmount);
                     let down = doc.actions.filter(a => a.afterAmount < a.beforeAmount);
                     if(up.length === 1){
@@ -214,7 +214,15 @@ module.exports = {
                         down.map(action => {
                             const docClone = _.cloneDeep(doc);
                             up.amount = action.amount;
-                            up.beforeAmount = up.afterAmount - up.amount;
+                            up.beforeAmount = up.afterAmount - action.amount;
+                            if(up.beforeAmount !== 0 && up.transactionMethod === Transaction.types.NEW_ALLOCATION){
+                                up.transactionMethod = Transaction.types.AMEND;
+                                up.afterHolders = up.holders;
+                                up.beforeHolders = up.holders;
+                            }
+                            else if(up.beforeAmount === 0){
+                                up.transactionMethod = Transaction.types.NEW_ALLOCATION;
+                            }
                             docClone.actions = [
                                 _.cloneDeep(up),
                                 action
@@ -229,7 +237,7 @@ module.exports = {
                         up.map(action => {
                             const docClone = _.cloneDeep(doc);
                             down.amount = action.amount;
-                            down.beforeAmount = down.afterAmount - up.amount;
+                            down.beforeAmount = down.afterAmount - action.amount;
                             docClone.actions = [
                                 _.cloneDeep(down),
                                 action
@@ -243,6 +251,7 @@ module.exports = {
                 return acc;
             }, []);
         }
+
         let results = splitAmends(docs);
         results = holdingChangeRemovals(results);
         results = splitMultiTransfers(results);
@@ -383,7 +392,6 @@ module.exports = {
                             otherAction.afterHolders.map((afterHolder, i) => {
                                 if(changedPerson.isEqual(afterHolder)){
                                     otherAction.afterHolders[i] = beforeHolder;
-                                    console.log(JSON.stringify(otherAction))
                                 }
                             })
                         }

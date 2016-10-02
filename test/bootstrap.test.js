@@ -13,7 +13,7 @@ chai.use(chaiAsPromised);
 chai.use(chaiSubset);
 chai.should();
 var events = require("events"),
-    EventEmitter = events.EventEmitter;
+EventEmitter = events.EventEmitter;
 EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
 var setFetch = require("../assets/js/utils").setFetch;
