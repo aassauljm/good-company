@@ -43,6 +43,12 @@ app.load({
     queue.process('import', function(job, done){
         sails.log.info('Receiving Job: '+JSON.stringify(job.data));
         const userId = job.data.userId;
+        let company;
+
+        function deleteCompany(){
+            return (company ? company.destroy() : Promise.resolve())
+        })
+
         function getNumber() {
             let companyNumber;
             if(job.data.queryType !== 'companyNumber'){
@@ -63,6 +69,9 @@ app.load({
                     userId: job.data.userId
                 })
             })
+            .then(function(_company) {
+                company = _company;
+            })
             .then(function() {
                 return done();
             })
@@ -74,6 +83,7 @@ app.load({
                     data: {}
                 })
                 .then(function(){
+                    deleteCompany();
                     return done(new Error('Duplicate name: '+job.data.query));
                 });
             })
@@ -85,6 +95,7 @@ app.load({
                     data: {}
                 })
                 .then(function(){
+                    deleteCompany();
                     return done(new Error(`${e.message}: ${job.data.query}`));
                 });
             })
@@ -96,6 +107,7 @@ app.load({
                     data: {}
                 })
                 .then(function(){
+                    deleteCompany();
                     return done(new Error('Could not find company: '+job.data.query));
                 });
             })

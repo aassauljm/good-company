@@ -231,8 +231,14 @@ module.exports = {
             });
         })
         .catch(function(err) {
+            (company ? company.destroy() : Promise.resolve())
+            .then(() => {
+                return res.badRequest(err);
+            });
+        })
+        /*.catch(function(err) {
             return res.serverError(err);
-        });
+        });*/
     },
 
     importBulk: function(req, res) {

@@ -168,5 +168,9 @@ nav.navbar{
             color: yellow;
         }
     }
+    .nav.navbar-nav.pull-right{
+        position: absolute;
+        right: 0;
+    }
 
 }

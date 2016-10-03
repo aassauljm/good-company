@@ -117,7 +117,7 @@ export class CompanyHeader extends React.Component {
     renderRightActions() {
         const glyph = this.isFavourite() ? 'star' : 'star-empty';
         return [<li key={0} className="nav-item">
-            <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}><Glyphicon glyph={glyph}/> Favourite</a>
+        <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}><Glyphicon glyph={glyph}/> <span className="visible-lg-inline">Favourite</span></a>
             </li>]
     }
 
