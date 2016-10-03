@@ -150,8 +150,9 @@ export class ImportHistoryModal extends React.Component {
         this.props.next({index: LOADING});
         this.props.performImport()
             .catch(e => {
-                const companyName = this.props.modalData.companyState.companyName;
-                this.props.next({index: AMBIGUITY, data: e})
+                //const companyName = this.props.modalData.companyState.companyName;
+                //this.props.next({index: AMBIGUITY, data: e})
+                this.handleResolve();
             });
     }
 

@@ -152,16 +152,21 @@ module.exports = {
 
     pendingJobs: function(req, res) {
         // should be using this, but it shows removed jobs
-      /*/getSearch().query(req.user.id)
-            .end(function( err, ids ) {
+      getSearch()
+        .query(req.user.id)
+        .end(function( err, ids ) {
             if( err ) return res.json({ error: err.message });
-            return Promise.map(ids, (id) => asyncJob.getAsync(id, 'import'))
-            .then(function(results){
-                console.log(results)
-            });
-      })*/
+            return Promise.map(ids, (id) => asyncJob.getAsync(id).catch(e => null))
+                .then(function(results){
+                    res.json({pending: results.filter(r => r).map(r => r.toJSON()).filter(r => r.state !== 'failed')});
+                })
+                .catch(e => {
+                    res.json({pending:[]});
+                    sails.log.error(e);
+                });
+        })
 
-        Promise.join(
+       /* Promise.join(
                      asyncJob.rangeByStateAsync('active', 0, 1000, 'asc'),
                      asyncJob.rangeByStateAsync('inactive', 0, 1000, 'asc'))
             .spread(function(active, inactive){
@@ -174,7 +179,7 @@ module.exports = {
             })
             .catch(e => {
                 sails.log.error(e);
-            });
+            });*/
     },
 
     alerts: function(req, res) {

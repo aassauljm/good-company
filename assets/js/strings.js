@@ -71,7 +71,6 @@ export default {
         SUBDIVISION: 'Subdivison',
         SUBDIVISION_TO: 'Subdivison To',
         ACQUISITION: 'Acquisition',
-        ACQUISITION_TO: 'Acquisition To',
         ANNUAL_RETURN: 'Annual Return',
         NEW_DIRECTOR: 'New Director',
         REMOVE_DIRECTOR: 'Remove Director',
@@ -81,12 +80,26 @@ export default {
         REDEMPTION: 'Redemption',
         REDEMPTION_FROM: 'Redemption From',
         ACQUISITION_FROM: 'Acquisition From',
+        CONSOLIDATION: 'Consolidation',
         CONSOLIDATION_FROM: 'Consolidation From',
         APPLY_SHARE_CLASS: 'Apply Share Class',
         APPLY_SHARE_CLASSES: 'Apply Share Classes',
         CREATE_SHARE_CLASS: 'Create Share Class',
         COMPOUND_REMOVALS: 'Removals',
         HOLDING_TRANSFER: 'Transfer'
+    },
+    amendTypes: {
+        ISSUE_TO: 'Issue',
+        CONVERSION_TO: 'Conversion/Subdivision',
+
+        REDEMPTION_FORM: 'Redemption',
+        ACQUISITION_FROM: 'Acquisition',
+        CONSOLIDATION_FROM: 'Consolidation',
+        PURCHASE_FROM: 'Purchase',
+
+        TRANSFER_TO: 'Transfer',
+        TRANSFER_FROM: 'Transfer',
+
     },
     transactionVerbs: {
         ISSUE_TO: 'Issue',

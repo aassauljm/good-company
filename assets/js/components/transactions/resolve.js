@@ -367,7 +367,7 @@ const DESCRIPTIONS = {
                     </div>
                     <div className="col-md-2">
                         <div className="text-center">
-                            <Glyphicon glyph="arrow-right" className="big-arrow"/>
+                            <Glyphicon glyph="arrow-right" className="big-arrow" />
                         </div>
                     </div>
                     <div className="col-md-5">
@@ -394,7 +394,7 @@ const DESCRIPTIONS = {
                 <div className="row">
                     <div className="col-md-12">
                         <div className="text-center">
-                        <h5>{ STRINGS.transactionTypes[action.transactionType] }</h5>
+                        <h5>{ `${STRINGS.amendTypes[action.transactionType]} of ${numberWithCommas(action.amount)} shares` }</h5>
                         </div>
                     </div>
                 </div>
@@ -407,7 +407,7 @@ const DESCRIPTIONS = {
                     </div>
                     <div className="col-md-2">
                         <div className="text-center">
-                            <Glyphicon glyph="arrow-right" className="big-arrow"/>
+                            <Glyphicon glyph="arrow-right" className="big-arrow" />
                         </div>
                     </div>
                     <div className="col-md-5">
@@ -504,6 +504,7 @@ const PAGES = {
     [ImportErrorTypes.HOLDING_NOT_FOUND]: submitRestart,
     [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: submitSkipRestart,
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
+
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: function(context, submit, reset){
         const ignoredAction = {...context.actionSet.data, totalShares: null};
         ignoredAction.actions = ignoredAction.actions.filter(r => {
@@ -579,12 +580,12 @@ const PAGES = {
         return <div>
              <div className="row">
                 <div className="col-md-12">
-                <p className="instructions">Did the change of shareholders happen before or after the change in share amount?</p>
+                <p className="instructions">What happened first?</p>
                 </div>
              </div>
                 <div className="button-row">
-                    <Button onClick={before} className="btn-primary">Before</Button>
-                    <Button onClick={after} className="btn-primary">After</Button>
+                    <Button onClick={before} className="btn-primary">The shareholders changed</Button>
+                    <Button onClick={after} className="btn-primary">The number of shares changed</Button>
                 </div>
         </div>
     },
