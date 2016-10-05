@@ -829,7 +829,11 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
         })
         .catch((e) => {
             sails.log.error(e)
-            throw new sails.config.exceptions.InvalidInverseOperation('Could not update director');
+            throw new sails.config.exceptions.InvalidInverseOperation('Could not update director', {
+                action: data,
+                importErrorType: sails.config.enums.DIRECTOR_NOT_FOUND,
+                currentState: companyState.toJSON()
+            });
         });
 };
 

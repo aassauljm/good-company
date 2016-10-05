@@ -341,6 +341,16 @@ const AmendOptionsConnected = reduxForm({
     validate: validateAmend
 })(AmendOptions);
 
+const basicSummary = function(context, companyState){
+    const { action, actionSet } = context;
+    return <div>
+            <div className="row">
+                <div className="col-md-6 col-md-offset-3">
+                    { sourceInfo(companyState, actionSet) }
+                </div>
+            </div>
+        </div>
+}
 
 
 const DESCRIPTIONS = {
@@ -419,36 +429,10 @@ const DESCRIPTIONS = {
                 </div>
         </div>
     },
-    [TransactionTypes.HOLDING_TRANSFER]: function(context, companyState){
-        const { action, actionSet } = context;
-        return <div>
-                <div className="row">
-                    <div className="col-md-6 col-md-offset-3">
-                        { sourceInfo(companyState, actionSet) }
-                    </div>
-                </div>
-            </div>
-    },
-    [TransactionTypes.NEW_ALLOCATION]: function(context, companyState){
-        const { action, actionSet } = context;
-        return <div>
-                <div className="row">
-                    <div className="col-md-6 col-md-offset-3">
-                        { sourceInfo(companyState, actionSet) }
-                    </div>
-                </div>
-            </div>
-    },
-    [TransactionTypes.REMOVE_ALLOCATION]: function(context, companyState){
-        const { action, actionSet } = context;
-        return <div>
-                <div className="row">
-                    <div className="col-md-6 col-md-offset-3">
-                        { sourceInfo(companyState, actionSet) }
-                    </div>
-                </div>
-            </div>
-    },
+    [TransactionTypes.HOLDING_TRANSFER]: basicSummary,
+    [TransactionTypes.NEW_ALLOCATION]: basicSummary,
+    [TransactionTypes.REMOVE_ALLOCATION]: basicSummary,
+    [TransactionTypes.UPDATE_DIRECTOR]: basicSummary
 }
 
 function skipOrRestart(allowSkip, context, submit, reset){
@@ -462,8 +446,9 @@ function skipOrRestart(allowSkip, context, submit, reset){
     }
     return <div>
         { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
+        { context.message &&  <p className="instructions">{ context.message} </p> }
         <div className="button-row">
-        { allowSkip && <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button> }
+        { allowSkip && <Button onClick={skip} className="btn-primary">Skip {STRINGS.transactionTypes[context.action.transactionType]} Validation</Button> }
         <Button onClick={startOver} className="btn-danger">Restart Import</Button>
     </div>
     </div>
@@ -503,6 +488,7 @@ const PAGES = {
     },
     [ImportErrorTypes.HOLDING_NOT_FOUND]: submitRestart,
     [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: submitSkipRestart,
+    [ImportErrorTypes.DIRECTOR_NOT_FOUND]: submitSkipRestart,
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: function(context, submit, reset){
@@ -727,7 +713,7 @@ export class ResolveAmbiguityModal extends React.Component {
     }
 
     renderBody() {
-        const context = this.props.modalData.error.context || {};
+        const context = {message: this.props.modalData.error.message, ...this.props.modalData.error.context};
         const action = context.action;
         if(!action || !DESCRIPTIONS[action.transactionMethod || action.transactionType]){
             return <div className="resolve">
