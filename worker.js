@@ -47,7 +47,7 @@ app.load({
 
         function deleteCompany(){
             return (company ? company.destroy() : Promise.resolve())
-        })
+        }
 
         function getNumber() {
             let companyNumber;
@@ -62,6 +62,7 @@ app.load({
                 return job.data.query;
             }
         }
+
         Promise.resolve(getNumber())
             .then(function(companyNumber) {
                 return ImportService.importCompany(companyNumber, {
@@ -113,7 +114,7 @@ app.load({
             })
             .then(function(){
                 return job.remove();
-            })
+            });
     });
 
 
