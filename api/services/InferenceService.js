@@ -32,10 +32,8 @@ module.exports = {
                     return null;
                 }
                 const allocationsUp = _.filter(d.actions, a => a.amount && a.afterAmount > a.beforeAmount).length;
-                const allocationsDown = _.filter(d.actions, a => a.mount && a.afterAmount < a.beforeAmount).length;
+                const allocationsDown = _.filter(d.actions, a => a.amount && a.afterAmount < a.beforeAmount).length;
                 // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
-
-
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
                     // totalShares = zero SHOULD mean transfers.  Hopefully.
                     d.actions.map(a => {
@@ -185,7 +183,6 @@ module.exports = {
                         });
                         return acc;
                     }, {removals: []});
-
                     removals.actions = results.removals;
                     removals.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
                     acc.push(removals);
@@ -237,7 +234,7 @@ module.exports = {
                         up.map(action => {
                             const docClone = _.cloneDeep(doc);
                             down.amount = action.amount;
-                            down.beforeAmount = down.afterAmount - action.amount;
+                            down.beforeAmount = down.afterAmount + action.amount;
                             docClone.actions = [
                                 _.cloneDeep(down),
                                 action

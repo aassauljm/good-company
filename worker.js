@@ -5,6 +5,12 @@ var app = new Sails();
 var queue = kue.createQueue();
 var Promise = require('bluebird');
 
+process.once( 'SIGTERM', function ( sig ) {
+  queue.shutdown( 5000, function(err) {
+    console.log( 'Kue shutdown: ', err||'' );
+    process.exit( 0 );
+  });
+});
 
 app.load({
     log: {
@@ -151,6 +157,9 @@ app.load({
                 return done(new Error(`Failed to complete ${companyName} History Import`));
             });
         })
+        .then(function(){
+            return job.remove();
+        });
     })
 
 });

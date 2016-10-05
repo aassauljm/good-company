@@ -697,4 +697,33 @@ describe('Company Controller', function() {
                 });
         });
     });
+
+   describe('Test again import with multi person transfer (2284911)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/2284911')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(500)
+                .then(function(res){
+                    res.body.context.action.afterAmount.should.be.equal(20);
+                    res.body.context.action.beforeAmount.should.be.equal(40);
+                    res.body.context.importErrorType.should.be.equal('AMEND_TRANSFER_ORDER');
+                    done();
+                });
+        });
+    });
+
+
 });

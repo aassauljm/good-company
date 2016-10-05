@@ -14,7 +14,7 @@ import { push, replace } from 'react-router-redux';
 import LawBrowserLink from './lawBrowserLink';
 import { Route } from 'react-router';
 import { getWarnings } from './warnings'
-import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal, requestResource, resetModals } from '../actions';
+import { nextModal, previousModal, endModal, showModal, requestResource } from '../actions';
 import { ModalSwitch }  from './modals';
 import { sortAlerts } from './alerts';
 
@@ -39,11 +39,13 @@ export class NextCompanyControls extends React.Component {
         const currentIndex = data.findIndex(a => {
             return a.id.toString() === this.props.companyId;
         }) + 1;
-        let index = currentIndex + 1;
-        while(index < data.length && !Object.keys(data[index].warnings).some(k => data[index].warnings[k])){
+        let index = (currentIndex + 1) % data.length;
+        while(index !== currentIndex && index < data.length && !Object.keys(data[index].warnings).some(k => data[index].warnings[k])){
             index++;
+            index = index % data.length;
         }
-        if(index >= data.length){
+        console.log(index, currentIndex, data.length)
+        if(index === currentIndex){
             return false;
         }
         return <div className="container">
@@ -98,9 +100,6 @@ export class GuidedSetup extends React.Component {
 
     componentWillReceiveProps(newProps) {
         this.checkOpenNext(newProps);
-        if(newProps.companyId !== this.props.companyId){
-            this.props.dispatch(resetModals());
-        }
     }
 
 
@@ -116,7 +115,7 @@ export class GuidedSetup extends React.Component {
         const now = ((warningSteps - warningCount) / warningSteps * 100);
         const props = {
             index: data.index,
-            modalData: data.data || {},
+            modalData: {...data.data, companyId: this.props.companyId, companyState: this.props.companyState},
             next : (...args) => {this.props.dispatch(nextModal(this.props.modals.showing, ...args))},
             previous: () => {this.props.dispatch(previousModal(this.props.modals.showing))},
             show: (key, extraData) => this.props.dispatch(showModal(key, {...data.data, ...extraData})),
@@ -174,7 +173,7 @@ export class GuidedSetup extends React.Component {
                 </div>
             </div> }
 
-            <NextCompanyControls companyId={this.props.companyId} showSkip={!!this.props.modals.showing} reset={() => this.props.dispatch(resetModals())}/>
+            <NextCompanyControls companyId={this.props.companyId} showSkip={!!this.props.modals.showing}/>
         </div>
     }
 }
