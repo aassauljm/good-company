@@ -138,6 +138,9 @@ export class CompanyAlertsBase extends React.Component {
         let i = 0;
         const results = [];
         const thisMonth = moment().format('MMMM')
+        if(!deadlines.annualReturn){
+            return [];
+        }
         if(showTypes.indexOf('danger') > -1 && deadlines.annualReturn.overdue){
             const dueDiff = moment(deadlines.annualReturn.dueDate).from(moment());
             results.push(<li key={i++}><div><Link to={`/company/view/${companyId}`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return is overdue ({dueDiff}).</Link></div></li>);

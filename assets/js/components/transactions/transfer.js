@@ -12,7 +12,7 @@ import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { StaticField } from 'react-bootstrap/lib/FormControl';
+import StaticField from '../forms/staticField';
 import { ParcelWithRemove } from '../forms/parcel';
 import { newHoldingFormatAction } from '../forms/holding';
 import { Documents } from '../forms/documents';

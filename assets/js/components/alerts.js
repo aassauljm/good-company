@@ -75,15 +75,27 @@ export class AlertsWidget extends React.Component {
     renderAlerts() {
         if(this.props.alerts._status === 'complete'){
             const thisMonth = moment().format('MMMM');
-            let warnings = [], danger = [], safe = [];
+            let warnings = [], danger = [], safe = [], firstCompanyId;
 
-            const count = this.props.alerts.data.reduce((acc, a) => {
+            const shareClassWarningCount = this.props.alerts.data.reduce((acc, a) => {
                 return acc + (a.warnings.shareClassWarning ? 1 : 0);
             }, 0);
-            console.log(count);
-            if(count > 1){
-                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'}><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk setup your companies.</Link></div></li>);
+
+            this.props.alerts.data.map(a => {
+                if(Object.keys(a.warnings).some(k => a.warnings[k]) && !firstCompanyId){
+                    firstCompanyId = a.id;
+                }
+            }, 0);
+
+            if(shareClassWarningCount > 1){
+                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={this.props.resetModals} ><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk setup your companies.</Link></div></li>);
             }
+
+            if(firstCompanyId){
+                danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={this.props.resetModals} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
+            }
+
+
 
             this.props.alerts.data.map((a, i) => {
                 if(Object.keys(a.warnings).some(warning => a.warnings[warning])){

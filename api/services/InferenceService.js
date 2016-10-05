@@ -312,21 +312,24 @@ module.exports = {
                     transactionType: Transaction.types.NEW_DIRECTOR,
                     name: d.fullName,
                     address: d.residentialAddress,
-                    effectiveDate: appointmentDate
+                    effectiveDate: appointmentDate,
+                    orderingCoef: 0
                 };
 
             if(doesNotContain(docs, action) && doesNotContain(results, action)){
                 results.push({
                     actions: [action],
                     effectiveDate: appointmentDate,
-                    transactionType: Transaction.types.INFERRED_NEW_DIRECTOR
+                    transactionType: Transaction.types.INFERRED_NEW_DIRECTOR,
+                    orderingCoef: 0
                 });
             }
             action = {
                 transactionType: Transaction.types.REMOVE_DIRECTOR,
                 name: d.fullName,
                 address: d.residentialAddress,
-                effectiveDate: ceasedDate
+                effectiveDate: ceasedDate,
+                orderingCoef: 1
             };
 
 
@@ -334,7 +337,8 @@ module.exports = {
                 results.push({
                     actions: [action],
                     effectiveDate: ceasedDate,
-                    transactionType: Transaction.types.INFERRED_REMOVE_DIRECTOR
+                    transactionType: Transaction.types.INFERRED_REMOVE_DIRECTOR,
+                    orderingCoef: 1
                 });
             }
         });
@@ -453,6 +457,7 @@ module.exports = {
 
         docs = _.sortByAll(docs,
                            'effectiveDate',
+                           'orderingCoef',
                            (d) => parseInt(d.documentId, 10),
                            (d) => d.actions && d.actions.length && TRANSACTION_ORDER[d.transactionType]
                            ).reverse();

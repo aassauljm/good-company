@@ -23,7 +23,7 @@ function largestHolders(shareClass, total, companyState, count = 3){
 
 
 function renderHolders(holding){
-    return joinAnd(holding.holders, {prop: 'name'});
+    return joinAnd(holding.holders.map(h => h.person), {prop: 'name'});
 }
 
 

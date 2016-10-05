@@ -14,11 +14,54 @@ import { push, replace } from 'react-router-redux';
 import LawBrowserLink from './lawBrowserLink';
 import { Route } from 'react-router';
 import { getWarnings } from './warnings'
-import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
+import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal, requestResource, resetModals } from '../actions';
 import { ModalSwitch }  from './modals';
-
+import { sortAlerts } from './alerts';
 
 const DEFAULT_OBJ = {};
+
+@connect(state => ({alerts: state.resources['/alerts'] ||  DEFAULT_OBJ}))
+export class NextCompanyControls extends React.Component {
+
+    componentWillMount() {
+        this.fetch();
+    }
+
+    fetch() {
+        return this.props.dispatch(requestResource('/alerts', {postProcess: sortAlerts}))
+    }
+
+    render() {
+        if(this.props.alerts._status !== 'complete'){
+            return false;
+        }
+        const data = this.props.alerts.data;
+        const currentIndex = data.findIndex(a => {
+            return a.id.toString() === this.props.companyId;
+        }) + 1;
+        let index = currentIndex + 1;
+        while(index < data.length && !Object.keys(data[index].warnings).some(k => data[index].warnings[k])){
+            index++;
+        }
+        if(index >= data.length){
+            return false;
+        }
+        return <div className="container">
+                    <div className="row">
+                    <div className="col-md-12">
+                         <div className="button-row">
+                            <Link className="btn btn-info" to={`/company/view/${data[index].id}/guided_setup`}>{ this.props.showSkip && 'Skip and '}Setup {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+    }
+
+}
+
+
 @connect(state => ({modals: state.modals || DEFAULT_OBJ}))
 export class GuidedSetup extends React.Component {
     static warningCounts = {
@@ -55,7 +98,11 @@ export class GuidedSetup extends React.Component {
 
     componentWillReceiveProps(newProps) {
         this.checkOpenNext(newProps);
+        if(newProps.companyId !== this.props.companyId){
+            this.props.dispatch(resetModals());
+        }
     }
+
 
     render() {
         const data = this.props.modals[this.props.modals.showing] || {};
@@ -66,7 +113,7 @@ export class GuidedSetup extends React.Component {
         const warningSteps =  Object.keys(GuidedSetup.warningCounts).reduce((acc, key) => {
             return acc + GuidedSetup.warningCounts[key];
         }, 0);
-        const now = ((warningSteps - warningCount) / warningSteps * 100).toFixed(0);
+        const now = ((warningSteps - warningCount) / warningSteps * 100);
         const props = {
             index: data.index,
             modalData: data.data || {},
@@ -126,6 +173,8 @@ export class GuidedSetup extends React.Component {
                 </div>
                 </div>
             </div> }
+
+            <NextCompanyControls companyId={this.props.companyId} showSkip={!!this.props.modals.showing} reset={() => this.props.dispatch(resetModals())}/>
         </div>
     }
 }

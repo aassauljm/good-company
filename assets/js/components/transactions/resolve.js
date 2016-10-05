@@ -394,7 +394,7 @@ const DESCRIPTIONS = {
                 <div className="row">
                     <div className="col-md-12">
                         <div className="text-center">
-                        <h5>{ `${STRINGS.amendTypes[action.transactionType]} of ${numberWithCommas(action.amount)} shares` }</h5>
+                        <h5>{ `${STRINGS.amendTypes[action.transactionType] || 'Amendment'} of ${numberWithCommas(action.amount)} shares` }</h5>
                         </div>
                     </div>
                 </div>

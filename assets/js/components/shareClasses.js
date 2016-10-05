@@ -12,7 +12,7 @@ import { fieldStyle, fieldHelp, formFieldProps, requireFields, renderDocumentLin
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { createResource, updateResource, addNotification } from '../actions';
 import DropZone from 'react-dropzone';
-import { StaticField } from 'react-bootstrap/lib/FormControl';
+import StaticField from './forms/staticField';
 import { push } from 'react-router-redux';
 import FormData from 'form-data';
 import LawBrowserLink from './lawBrowserLink';

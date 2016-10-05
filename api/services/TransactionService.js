@@ -53,11 +53,11 @@ export function validateAnnualReturn(data, companyState){
             const serv = AddressService.compareAddresses(state.addressForService, addressForService)
              if(!reg){
                 sails.log.error(state.registeredCompanyAddress, '/', registeredCompanyAddress)
-                throw new sails.config.exceptions.InvalidInverseOperation('Registered Address does not match');
+                throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Registered Address does not match');
              }
              if(!serv){
                 sails.log.error(state.addressForService, '/', addressForService)
-                throw new sails.config.exceptions.InvalidInverseOperation('Service Address does not match');
+                throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Service Address does not match');
              }
         })
         .then(() => {

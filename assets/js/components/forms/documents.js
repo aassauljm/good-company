@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import DropZone from 'react-dropzone';
-import { StaticField } from 'react-bootstrap/lib/FormControl';
+import StaticField from './staticField';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 export class Documents extends React.Component {

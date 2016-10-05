@@ -49,7 +49,7 @@ const validate = (data, props) => {
     }
 
     const classes = {}, holdingIds = {};
-    return { ...requireFields('effectiveDate')(data),
+    const errors = { ...requireFields('effectiveDate')(data),
         parcels: data.parcels.map(p => {
             const errors = requireFields('amount')(p);
             const amount = parseInt(p.amount, 10);
@@ -69,7 +69,7 @@ const validate = (data, props) => {
         }),
         holdings: data.holdings.map(h => {
             const classes = {};
-            const errors = requireFields('holding')(h);
+            const errors = {};
             errors.parcels = h.parcels.map(p => {
                 const errors = {};
                 const shareClass = parseInt(p.shareClass, 10) || '';
@@ -86,7 +86,6 @@ const validate = (data, props) => {
                 classes[shareClass] = true;
                 return errors;
             })
-
             if(!h.newHolding){
                 if(!h.holding){
                     errors.holding = ['Required.'];
@@ -98,6 +97,7 @@ const validate = (data, props) => {
             }
             return errors;
         }), _error: Object.keys(formErrors).length ? formErrors: null };
+        return errors;
 }
 
 
@@ -187,7 +187,7 @@ export function issueFormatSubmit(values, companyState){
         actions.push({
             shareClass: shareClass,
             amount: amount,
-            transactionType: 'ISSUE_UNALLOCATED',
+            transactionType: 'ISSUE',
             effectiveDate: values.effectiveDate
         });
     });
@@ -200,8 +200,8 @@ export function issueFormatSubmit(values, companyState){
                 holders: (h.newHolding || {}).persons,
                 shareClass: shareClass,
                 amount: amount,
-                beforeAmount: amounts[h.holding][p.shareClass] || 0,
-                afterAmount: (amounts[h.holding][p.shareClass] || 0) + amount,
+                beforeAmount: (amounts[h.holding] || {})[p.shareClass] || 0,
+                afterAmount: ((amounts[h.holding] || {})[p.shareClass] || 0) + amount,
                 transactionType: 'ISSUE_TO',
                 transactionMethod: 'AMEND'
             });
@@ -209,7 +209,9 @@ export function issueFormatSubmit(values, companyState){
                 newHoldings.push({
                     holders: h.newHolding.persons,
                     effectiveDate: values.effectiveDate,
-                    transactionType: 'NEW_ALLOCATION'
+                    name: h.newHolding.name,
+                    transactionType: 'NEW_ALLOCATION',
+                    effectiveDate: values.effectiveDate
                 })
             }
         });
@@ -218,7 +220,7 @@ export function issueFormatSubmit(values, companyState){
     if(newHoldings.length){
         results.push({
             effectiveDate: values.effectiveDate,
-            actions: [newHoldingFormatAction(values.newHolding)]
+            actions: newHoldings
         });
     }
     results.push({

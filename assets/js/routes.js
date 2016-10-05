@@ -38,6 +38,7 @@ import Alerts from './components/alerts';
 
 
 export default (store) => {
+
     const requireLogin = (nextState, replace, cb) => {
         function checkAuth() {
             const { login: { loggedIn, loginUrl }} = store.getState();

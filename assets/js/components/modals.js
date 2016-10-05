@@ -179,3 +179,4 @@ const DEFAULT_OBJ = {};
 
 const ModalsConnected = connect(() => DEFAULT_OBJ)(Modals);
 export default ModalsConnected;
+

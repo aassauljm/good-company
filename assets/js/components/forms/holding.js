@@ -11,6 +11,7 @@ import DateInput from './dateInput';
 import { Documents } from './documents';
 import Panel from '../panel';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
+import StaticField from './staticField';
 
 
 @formFieldProps()

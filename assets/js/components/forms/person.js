@@ -9,6 +9,7 @@ import { formFieldProps, requireFields, populatePerson } from '../../utils';
 import DateInput from './dateInput';
 import { Documents } from './documents';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
+import StaticField from './staticField';
 
 
 @formFieldProps()
