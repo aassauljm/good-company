@@ -1239,6 +1239,16 @@ export function addActions(state, actionSet, company){
 
 
 export function performInverseTransaction(data, company, rootState){
+
+    /*const checkValidTransaction = (data) => {
+        const INVALID_ACTIONS = [Transaction.types.HOLDING_CHANGE];
+        data.actions.map(d => {
+            if(INVALID_ACTIONS.indexOf(action.transactionType)){
+                throw sails.config.exceptions.AmbiguousInverseOperation()
+            }
+        })
+    }*/
+
     const PERFORM_ACTION_MAP = {
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
@@ -1266,6 +1276,9 @@ export function performInverseTransaction(data, company, rootState){
         return Promise.resolve(rootState);
     }
     let prevState, currentRoot, transactions;
+
+    //checkValidTransaction(data);
+
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then(function(_rootState){
             currentRoot = _rootState;
@@ -1458,6 +1471,13 @@ export function performInverseAllPendingResolve(company, root){
         });
 }
 
+function getRelatedActions(companyStateId, documentId) {
+    console.log(companyStateId, documentId)
+        return sequelize.query("select * from all_pending_actions(:id) where data->>'documentId' = :documentId",
+                   { type: sequelize.QueryTypes.SELECT,
+                    replacements: { id: companyStateId, documentId: documentId}});
+}
+
 
 export function performInverseAllPending(company){
     // unlike above this will commit all successful transactions, and complain when one fails
@@ -1481,9 +1501,11 @@ export function performInverseAllPending(company){
                 firstError = e;
                 firstError.context = firstError.context || {};
                 firstError.context.actionSet = current;
-                return state.fullPopulateJSON()
-                    .then(result => {
-                        firstError.context.companyState = result;
+
+                return Promise.all([state.fullPopulateJSON(), getRelatedActions(state.id, current.data.documentId)])
+                    .spread((fullState, relatedActions) => {
+                        firstError.context.companyState = fullState;
+                        firstError.context.relatedActions = relatedActions
                         return performInverseAllPendingResolve(company);
                     })
             })
@@ -1494,9 +1516,13 @@ export function performInverseAllPending(company){
                     throw firstError;
                 }
                 else{
-                    e.context = e.context || {};
-                    e.context.actionSet = current;
-                    throw e;
+                    return getRelatedActions(state.id, current.data.documentId)
+                        .then(relatedActions => {
+                            e.context = e.context || {};
+                            e.context.relatedActions = relatedActions;
+                            e.context.actionSet = current;
+                            throw e;
+                        });
                 }
             })
 

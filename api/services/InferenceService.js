@@ -194,7 +194,7 @@ module.exports = {
         }
 
         function splitMultiTransfers(docs){
-            // segment out transfers into separate transactions
+            // segment out transfers into separate pairwise transactions
             const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
             return  _.reduce(docs, (acc, doc, i) => {
                 const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);
@@ -208,10 +208,12 @@ module.exports = {
                     let down = doc.actions.filter(a => a.afterAmount < a.beforeAmount);
                     if(up.length === 1){
                         up = _.cloneDeep(up[0]);
+                        const originalTransactionGroupId = uuid.v4();
                         down.map(action => {
                             const docClone = _.cloneDeep(doc);
                             up.amount = action.amount;
                             up.beforeAmount = up.afterAmount - action.amount;
+                            up.originalTransactionGroupId = originalTransactionGroupId;
                             if(up.beforeAmount !== 0 && up.transactionMethod === Transaction.types.NEW_ALLOCATION){
                                 up.transactionMethod = Transaction.types.AMEND;
                                 up.afterHolders = up.holders;
@@ -231,10 +233,12 @@ module.exports = {
                     }
                     else{
                         down = _.cloneDeep(down[0]);
+                        const originalTransactionGroupId = uuid.v4();
                         up.map(action => {
                             const docClone = _.cloneDeep(doc);
                             down.amount = action.amount;
                             down.beforeAmount = down.afterAmount + action.amount;
+                            down.originalTransactionGroupId = originalTransactionGroupId;
                             docClone.actions = [
                                 _.cloneDeep(down),
                                 action
@@ -469,6 +473,66 @@ module.exports = {
 
         return docs;
     },
+
+    splitMultiTransfers: function(doc){
+        // segment out transfers into separate pairwise transactions
+        const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
+        const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);
+        const acc = [];
+        if(!transferActions.length || transferActions.length === 2){
+            // if no transfers, or already a pair, then continue
+            acc.push(doc);
+        }
+        else{
+            // to make it this far, you must have 1 down, >=1 up, or vice versa.
+            let up = doc.actions.filter(a => a.afterAmount > a.beforeAmount);
+            let down = doc.actions.filter(a => a.afterAmount < a.beforeAmount);
+            if(up.length === 1){
+                up = _.cloneDeep(up[0]);
+                const originalTransactionGroupId = uuid.v4();
+                down.map(action => {
+                    const docClone = _.cloneDeep(doc);
+                    up.amount = action.amount;
+                    up.beforeAmount = up.afterAmount - action.amount;
+                    up.originalTransactionGroupId = originalTransactionGroupId;
+                    if(up.beforeAmount !== 0 && up.transactionMethod === Transaction.types.NEW_ALLOCATION){
+                        up.transactionMethod = Transaction.types.AMEND;
+                        up.afterHolders = up.holders;
+                        up.beforeHolders = up.holders;
+                    }
+                    else if(up.beforeAmount === 0){
+                        up.transactionMethod = Transaction.types.NEW_ALLOCATION;
+                    }
+                    docClone.actions = [
+                        _.cloneDeep(up),
+                        action
+                    ];
+                    docClone.totalShares = 0;
+                    acc.push(docClone);
+                    up.afterAmount = up.beforeAmount;
+                });
+            }
+            else{
+                down = _.cloneDeep(down[0]);
+                const originalTransactionGroupId = uuid.v4();
+                up.map(action => {
+                    const docClone = _.cloneDeep(doc);
+                    down.amount = action.amount;
+                    down.beforeAmount = down.afterAmount + action.amount;
+                    down.originalTransactionGroupId = originalTransactionGroupId;
+                    docClone.actions = [
+                        _.cloneDeep(down),
+                        action
+                    ];
+                    docClone.totalShares = 0;
+                    acc.push(docClone);
+                    down.afterAmount = down.beforeAmount;
+                });
+            }
+        }
+        return acc;
+    }, []);
+
 
 }
 

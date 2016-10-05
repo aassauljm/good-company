@@ -141,6 +141,7 @@ SLAM G PROPERTIES LIMITED
 BOLLORE LOGISTICS NEW ZEALAND LIMITED
  -- holder mismatch
 
+
 # scrape incorporation
 http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916263/entityFilingRequirement
 
@@ -152,11 +153,27 @@ http://www.business.govt.nz/companies/app/ui/pages/companies/3354560/21698011/en
 http://www.business.govt.nz/companies/app/ui/pages/companies/614119/21730040/entityFilingRequirement
 
 
-PINESCAPE HOLDINGS LIMITED
-bad address
-http://www.business.govt.nz/companies/app/ui/pages/companies/234234/20959981/entityFilingRequirement
 
 
 ISSUE INFO MISSING
 https://www.business.govt.nz/companies/app/ui/pages/companies/971/documents
+
+
+
+
+ROSCOMMON COURT LIMITED
+http://www.business.govt.nz/companies/app/ui/pages/companies/65409/17358771/entityFilingRequirement
+
+
+WOODEND BEACH ROAD DEVELOPMENTS LIMITED
+address issue
+
+
+
+
+
+SEMI SOLVED:
+
+WELLINGTON REGIONAL CHAMBER OF COMMERCE
+# director updated outside of appointment
 

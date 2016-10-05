@@ -13,7 +13,7 @@ module.exports = {
             primaryKey: true
         },
         data: {
-            type: Sequelize.JSON
+            type: Sequelize.JSONB
         }
     },
     associations: function(){

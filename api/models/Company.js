@@ -24,7 +24,7 @@ module.exports = {
         });
         Company.belongsTo(User, {
             foreignKey: {
-                onDelete: 'cascade',
+            onDelete: 'cascade',
                 as: 'createdBy',
                 name: 'createdById'
             }
