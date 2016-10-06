@@ -10,8 +10,8 @@
     "build-dev": "webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p ",
     "run": "sails lift",
-    "test-coverage": "istanbul cover _mocha -- --recursive test --compilers js:babel-core/register --timeout 30000",
-    "test": "NODE_ENV=test  _mocha --recursive test --compilers js:babel-core/register --timeout 25000"
+    "test-coverage": "istanbul cover _mocha -- --recursive test --compilers js:babel-core/register --timeout 45000",
+    "test": "NODE_ENV=test  _mocha --recursive test --compilers js:babel-core/register --timeout 45000"
   },
   "repository": {
     "type": "git",
