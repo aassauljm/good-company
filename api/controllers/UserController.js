@@ -158,6 +158,7 @@ module.exports = {
             if( err ) return res.json({ error: err.message });
             return Promise.map(ids, (id) => asyncJob.getAsync(id).catch(e => null))
                 .then(function(results){
+                    // split on type
                     res.json({pending: results.filter(r => r).map(r => r.toJSON()).filter(r => r.state !== 'failed')});
                 })
                 .catch(e => {

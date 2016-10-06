@@ -148,7 +148,9 @@ function parseAmendAllocation($, $el){
         }).get(),
         transactionType: Transaction.types.AMEND
     }
-    if(!result.beforeAmount && !result.afterAmount){ //} || JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
+    // if the holdings change, we must wait and prompt user to figure out order
+    //JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
+    if(!result.beforeAmount && !result.afterAmount ){
         result.transactionType = Transaction.types.HOLDING_TRANSFER;
     }
 
