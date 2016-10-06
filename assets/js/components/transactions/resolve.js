@@ -17,33 +17,9 @@ import HoldingTransfer from './resolvers/holdingTransfer';
 import { Holding } from '../shareholdings';
 import { reduxForm } from 'redux-form';
 import Panel from '../panel';
-
-function companiesOfficeDocumentUrl(companyState, documentId){
-    const companyNumber = companyState.companyNumber;
-    return `http://www.business.govt.nz/companies/app/ui/pages/companies/${companyNumber}/${documentId}/entityFilingRequirement`;
-}
+import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './resolvers/summaries'
 
 
-function sourceInfo(companyState, actionSet){
-    return <div className="summary outline no-border">
-        <div className="outline-header">
-            <div className="outline-title">Source Information</div>
-        </div>
-            <div className="row">
-            <div className="col-md-6 summary-label">Registration Date & Time</div>
-            <div className="col-md-6">{stringToDateTime(actionSet.data.date)}</div>
-        </div>
-        <div className="row">
-            <div className="col-md-6 summary-label">Source Document</div>
-            <div className="col-md-6"><Link target="_blank" className="external-link" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office</Link></div>
-        </div>
-    </div>
-
-}
-
-function actionAmountDirection(action){
-    return action.afterAmount > action.beforeAmount || !action.beforeHolders;
-}
 
 function increaseOptions(includeTransfer){
     if(!includeTransfer){
@@ -107,13 +83,6 @@ function findHolding(companyState, action, existing){
     })[0];
 }
 
-
-function renderHolders(h, i){
-    return <div key={i}>
-        <div className="name">{ h.name }{h.companyNumber && ` (${h.companyNumber})`}</div>
-        <div className="address">{ h.address }</div>
-    </div>
-}
 
 function isTransfer(type){
     return [TransactionTypes.TRANSFER_FROM, TransactionTypes.TRANSFER_TO].indexOf(type) >= 0;
@@ -227,30 +196,9 @@ class AmendOptions extends React.Component {
             { actions.map((field, i) => {
                 const action = amendActions[i];
                 const increase = actionAmountDirection(action);
-                const beforeShares = action.beforeHolders ? `${action.beforeAmount} ${renderShareClass(action.shareClass, shareClassMap)} Shares` : 'No Shares';
-                const afterShares = `${action.beforeHolders ? action.afterAmount : action.amount} ${renderShareClass(action.shareClass, shareClassMap)} Shares`;
                 return <div  key={i}>
-                    <div className="row row-separated">
-                    <div className="col-md-5">
-                        <div className="shareholding action-description">
-                         <div className="shares">{  beforeShares }</div>
-                            { (action.beforeHolders || action.holders).map(renderHolders) }
-                        </div>
-                    </div>
-                    <div className="col-md-2">
-                        <div className="text-center">
-                            <Glyphicon glyph="arrow-right" className="big-arrow"/>
-                            <p><span className="shares">{ action.amount } { renderShareClass(action.shareClass, shareClassMap)} Shares { increase ? 'added' : 'removed'}</span></p>
-                        </div>
+                        { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
 
-                    </div>
-                    <div className="col-md-5">
-                         <div className="shareholding action-description">
-                         <div className="shares">{ afterShares }</div>
-                        { (action.afterHolders || action.holders).map(renderHolders) }
-                        </div>
-                    </div>
-                </div>
                 <div className="row">
                     <Recipients
                     recipients={actions[i].recipients}
@@ -342,126 +290,25 @@ const AmendOptionsConnected = reduxForm({
     validate: validateAmend
 })(AmendOptions);
 
-const basicSummary = function(context, companyState){
-    const { action, actionSet } = context;
-    return <div>
-            <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                    { sourceInfo(companyState, actionSet) }
-                </div>
-            </div>
-        </div>
-}
 
+
+
+const submitRestart = (...rest) => skipOrRestart(false, ...rest);
+const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
 
 const DESCRIPTIONS = {
-    [TransactionTypes.HOLDING_CHANGE]: function(context, companyState){
-        const { action, actionSet } = context;
-        return <div>
-                <div className="row">
-                    <div className="col-md-6 col-md-offset-3">
-                        { sourceInfo(companyState, actionSet) }
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="text-center">
-                        <h5>{ STRINGS.transactionTypes[action.transactionType] }</h5>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-5">
-                        <div className="shareholding action-description ">
-                        { action.beforeHolders.map(renderHolders) }
-                        </div>
-                    </div>
-                    <div className="col-md-2">
-                        <div className="text-center">
-                            <Glyphicon glyph="arrow-right" className="big-arrow" />
-                        </div>
-                    </div>
-                    <div className="col-md-5">
-                        <div className="shareholding action-description ">
-                        { action.afterHolders.map(renderHolders) }
-                        </div>
-                    </div>
-                </div>
-        </div>
-    },
-    [TransactionTypes.ANNUAL_RETURN]: function(context, companyState){
-        return <div>
-            <p className="text-danger">An Annual Return's listings did not match our own.</p>
-        </div>
-    },
-    [TransactionTypes.AMEND]: function(context, companyState){
-        const { action, actionSet } = context;
-        return <div>
-                <div className="row">
-                    <div className="col-md-6 col-md-offset-3">
-                        { sourceInfo(companyState, actionSet) }
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="text-center">
-                        <h5>{ `${STRINGS.amendTypes[action.transactionType] || 'Amendment'} of ${numberWithCommas(action.amount)} shares` }</h5>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-5">
-                        <div className="shareholding action-description ">
-                        <p>{ numberWithCommas(action.beforeAmount) } Shares</p>
-                        { action.beforeHolders.map(renderHolders) }
-                        </div>
-                    </div>
-                    <div className="col-md-2">
-                        <div className="text-center">
-                            <Glyphicon glyph="arrow-right" className="big-arrow" />
-                        </div>
-                    </div>
-                    <div className="col-md-5">
-                        <div className="shareholding action-description ">
-                        <p>{ numberWithCommas(action.afterAmount) } Shares</p>
-                        { action.afterHolders.map(renderHolders) }
-                        </div>
-                    </div>
-                </div>
-        </div>
-    },
+    [TransactionTypes.HOLDING_CHANGE]: holdingChangeSummary,
+    [TransactionTypes.ANNUAL_RETURN]: basicSummary,
+    [TransactionTypes.AMEND]:  beforeAndAfterSummary,
     [TransactionTypes.HOLDING_TRANSFER]: basicSummary,
     [TransactionTypes.NEW_ALLOCATION]: basicSummary,
     [TransactionTypes.REMOVE_ALLOCATION]: basicSummary,
     [TransactionTypes.UPDATE_DIRECTOR]: basicSummary
 }
 
-function skipOrRestart(allowSkip, context, submit, reset){
-    function skip(){
-        return submit({
-            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
-        })
-    }
-    function startOver(){
-        return reset();
-    }
-    return <div>
-        { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
-        { context.message &&  <p className="instructions">{ context.message} </p> }
-        <div className="button-row">
-        { allowSkip && <Button onClick={skip} className="btn-primary">Skip {STRINGS.transactionTypes[context.action.transactionType]} Validation</Button> }
-        <Button onClick={startOver} className="btn-danger">Restart Import</Button>
-    </div>
-    </div>
-}
-
-const submitRestart = (...rest) => skipOrRestart(false, ...rest);
-const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
-
-
 const PAGES = {
     [ImportErrorTypes.MULTIPLE_HOLDINGS_FOUND]: function(context,  submit){
-        const { possibleMatches, companyState } = context;
+        const { possibleMatches, companyState, shareClassMap } = context;
         function handleSelect(holding){
             const updatedActions = {...context.actionSet.data};
             updatedActions.actions = updatedActions.actions.map(a => {
@@ -475,8 +322,8 @@ const PAGES = {
                 pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
             })
         }
-        const shareClassMap = generateShareClassMap(companyState);
         return <div>
+            { DESCRIPTIONS[context.action.transactionMethod](context, context.companyState) }
              <div className="row">
                 <div className="col-md-12">
                 <p className="instructions">Which shareholding does the result of the transaction refer to?</p>
@@ -495,9 +342,8 @@ const PAGES = {
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
 
     [ImportErrorTypes.UNKNOWN_AMEND]: function(context, submit){
-        const { actionSet, companyState } = context;
+        const { actionSet, companyState, shareClassMap } = context;
         const amendActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) >= 0);
-        const shareClassMap = generateShareClassMap(companyState);
 
         const holdings = {increases: [], decreases: []};
         const handleSubmit = (values) => {
@@ -589,6 +435,7 @@ const PAGES = {
 
         })
         return <div>
+
                 <AmendOptionsConnected
                 amendActions={amendActions}
                 allSameDirection={allSameDirection}
@@ -633,7 +480,8 @@ export class ResolveAmbiguityModal extends React.Component {
     renderBody() {
         const context = {message: this.props.modalData.error.message, ...this.props.modalData.error.context};
         const action = context.action;
-        if(!action || !DESCRIPTIONS[action.transactionMethod || action.transactionType]){
+        context.shareClassMap = generateShareClassMap(context.companyState);
+        if(!action || !PAGES[context.importErrorType]){
             return <div className="resolve">
                     <div>Unknown Import Error</div>
                     <div className="button-row">
@@ -642,7 +490,7 @@ export class ResolveAmbiguityModal extends React.Component {
                 </div>
         }
         return <div className="resolve">
-            { DESCRIPTIONS[action.transactionMethod || action.transactionType](context, this.props.modalData.companyState)}
+            { basicSummary(context, this.props.modalData.companyState)}
             <hr/>
             { PAGES[context.importErrorType](context, this.props.updateAction, this.props.resetAction)}
         </div>

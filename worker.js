@@ -83,6 +83,7 @@ app.load({
                 return done();
             })
             .catch(sails.config.exceptions.NameExistsException, function(e){
+                sails.log.error(e);
                 return ActivityLog.create({
                     type: ActivityLog.types.IMPORT_COMPANY_FAIL,
                     userId: userId,
@@ -95,6 +96,7 @@ app.load({
                 });
             })
             .catch(sails.config.exceptions.ValidationException, function(e){
+                sails.log.error(e);
                 return ActivityLog.create({
                     type: ActivityLog.types.IMPORT_COMPANY_FAIL,
                     userId: userId,
@@ -107,6 +109,7 @@ app.load({
                 });
             })
             .catch(function(e) {
+                sails.log.error(e);
                 return ActivityLog.create({
                     type: ActivityLog.types.IMPORT_COMPANY_FAIL,
                     userId: userId,

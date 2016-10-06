@@ -203,17 +203,15 @@ module.exports = {
                     acc.push(doc);
                 }
                 else{
-                    // to make it this far, you must have 1 down, >=1 up, or vice versa.
                     let up = doc.actions.filter(a => a.afterAmount > a.beforeAmount);
                     let down = doc.actions.filter(a => a.afterAmount < a.beforeAmount);
                     if(up.length === 1){
+                        // to make it this far, you must have 1 down, >=1 up, or vice versa.
                         up = _.cloneDeep(up[0]);
-                        const originalTransactionGroupId = uuid.v4();
                         down.map(action => {
                             const docClone = _.cloneDeep(doc);
                             up.amount = action.amount;
                             up.beforeAmount = up.afterAmount - action.amount;
-                            up.originalTransactionGroupId = originalTransactionGroupId;
                             if(up.beforeAmount !== 0 && up.transactionMethod === Transaction.types.NEW_ALLOCATION){
                                 up.transactionMethod = Transaction.types.AMEND;
                                 up.afterHolders = up.holders;
@@ -231,14 +229,12 @@ module.exports = {
                             up.afterAmount = up.beforeAmount;
                         });
                     }
-                    else{
+                    else if(down.length === 1){
                         down = _.cloneDeep(down[0]);
-                        const originalTransactionGroupId = uuid.v4();
                         up.map(action => {
                             const docClone = _.cloneDeep(doc);
                             down.amount = action.amount;
                             down.beforeAmount = down.afterAmount + action.amount;
-                            down.originalTransactionGroupId = originalTransactionGroupId;
                             docClone.actions = [
                                 _.cloneDeep(down),
                                 action
@@ -247,6 +243,9 @@ module.exports = {
                             acc.push(docClone);
                             down.afterAmount = down.beforeAmount;
                         });
+                    }
+                    else {
+                        acc.push(doc);
                     }
                 }
                 return acc;
@@ -474,7 +473,7 @@ module.exports = {
         return docs;
     },
 
-    splitMultiTransfers: function(doc){
+    /*splitMultiTransfers: function(doc){
         // segment out transfers into separate pairwise transactions
         const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
         const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);
@@ -531,7 +530,7 @@ module.exports = {
             }
         }
         return acc;
-    }, []);
+    }*/
 
 
 }

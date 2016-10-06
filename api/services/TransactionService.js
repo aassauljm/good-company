@@ -40,7 +40,7 @@ export function validateAnnualReturn(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match', {
                     action: data,
                     importErrorType: sails.config.enums.ANNUAL_RETURN_HOLDING_DIFFERENCE,
-                    currentState: companyState.toJSON()
+                    companyState: companyState.toJSON()
                 });
             }
             return Promise.join(
@@ -72,7 +72,7 @@ export function validateAnnualReturn(data, companyState){
                     throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match', {
                         action: data,
                         importErrorType: sails.config.enums.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE,
-                        currentState: companyState.toJSON()
+                        companyState: companyState.toJSON()
                     });
 
                 }
@@ -127,7 +127,7 @@ export function validateInverseAmend(amend, companyState){
         throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
             action: amend,
             importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
-            currentState: companyState.toJSON()
+            companyState: companyState.toJSON()
         });
     }
 
@@ -210,7 +210,6 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             return companyState.dataValues.holdingList.buildNext();
         })
         .then(holdingList => {
-
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
             const difference = data.afterAmount - data.beforeAmount;
@@ -557,7 +556,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change', {
                 action: data,
                 importErrorType: sails.config.enums.HOLDING_NOT_FOUND,
-                currentState: companyState.toJSON()
+                companyState: companyState.toJSON()
             })
         });
 };
@@ -613,7 +612,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation', {
                 action: data,
                 importErrorType: sails.config.enums.HOLDING_NOT_FOUND,
-                currentState: companyState.toJSON()
+                companyState: companyState.toJSON()
             });
         }
 
@@ -832,7 +831,7 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director', {
                 action: data,
                 importErrorType: sails.config.enums.DIRECTOR_NOT_FOUND,
-                currentState: companyState.toJSON()
+                companyState: companyState.toJSON()
             });
         });
 };

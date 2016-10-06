@@ -148,9 +148,10 @@ function parseAmendAllocation($, $el){
         }).get(),
         transactionType: Transaction.types.AMEND
     }
-    if(!result.beforeAmount && !result.afterAmount){
+    if(!result.beforeAmount && !result.afterAmount){ //} || JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
         result.transactionType = Transaction.types.HOLDING_TRANSFER;
     }
+
     result.amount = Math.abs(result.beforeAmount - result.afterAmount)
     return result;
 }
@@ -769,7 +770,7 @@ function processBizNet($, info){
 
 
 function documentUrl(companyNumber, documentId){
-    return 'http://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
+    return 'http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
 }
 
 
@@ -777,7 +778,7 @@ function documentUrl(companyNumber, documentId){
 const ScrapingService = {
 
     fetch: function(companyNumber){
-        const url = 'https://www.business.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/detail';
+        const url = 'https://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/detail';
         sails.log.verbose('Getting url', url);
         return new Promise(function(resolve, reject){
                     fetch(url)
@@ -835,7 +836,7 @@ const ScrapingService = {
 
     fetchSearchResults: function(query){
         const qs = typeof query === 'object' ? 'companies/search?'+querystring.stringify(query) : 'search?q='+encodeURIComponent(query)
-        const url = 'https://www.business.govt.nz/companies/app/ui/pages/'+ qs +'&type=entities';
+        const url = 'https://www.companiesoffice.govt.nz/companies/app/ui/pages/'+ qs +'&type=entities';
         sails.log.verbose('Getting url', url);
         return fetch(url)
             .then(function(res){
@@ -862,6 +863,12 @@ const ScrapingService = {
                         }).get()
                     };
                 }).get();
+            })
+            .then(results => {
+                if(!results.length){
+                    sails.log.error('Could not find results for : '+ query);
+                }
+                return results;
             })
     },
 

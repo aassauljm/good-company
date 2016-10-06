@@ -8,9 +8,9 @@ import { Link } from 'react-router'
 import STRINGS from '../../../strings'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { enums as TransactionTypes } from '../../../../../config/enums/transactions';
+import { beforeAndAfterSummary, holdingChangeSummary } from './summaries'
 
-
-function holdingTranferSimple(context, submit, reset){
+function holdingTransferSimple(context, submit, reset){
     const ignoredAction = {...context.actionSet.data, totalShares: null};
     ignoredAction.actions = ignoredAction.actions.filter(r => {
         return r.id !== context.action.id;
@@ -81,8 +81,9 @@ function holdingTranferSimple(context, submit, reset){
         ];
         doSubmit(pendingActions);
     }
-
     return <div>
+        { beforeAndAfterSummary(context, context.companyState) }
+        <hr/>
          <div className="row">
             <div className="col-md-12">
             <p className="instructions">What happened first?</p>
@@ -96,6 +97,35 @@ function holdingTranferSimple(context, submit, reset){
 }
 
 
+
+function holdingTransferComplex(context, submit, reset){
+    const groupId = context.action.originalTransactionGroupId;
+    const pairs = context.relatedActions.filter(a => a.data.actions.find(a => a.originalTransactionGroupId === groupId));
+
+    return <div>
+         { pairs.map((p, i) => {
+            return <div key={i}> {
+                beforeAndAfterSummary({...context, action: p.data.actions.filter(a => !a.originalTransactionGroupId)[0]}, context.companyState)
+            }
+         <div className="row">
+            <div className="col-md-12">
+            <p className="instructions">Who transfered the shares?</p>
+            </div>
+         </div>
+
+            <hr/></div>
+         }) }
+            <div className="button-row">
+
+            </div>
+    </div>
+}
+
 export default function HoldingTransfer(context, submit, reset){
-    return holdingTranferSimple(context, submit, reset);
+    //originalTransactionGroupId means that the transfer is actually part of a set
+    if(!context.action.originalTransactionGroupId){
+        return holdingTransferSimple(context, submit, reset);
+    }
+
+    return holdingTransferComplex(context, submit, reset);
 }
