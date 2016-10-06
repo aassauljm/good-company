@@ -33,7 +33,7 @@ export class AlertsWidget extends React.Component {
 
      constructor(props) {
         super(props);
-        this.state = {pendingJobs: (props.pendingJobs.data && props.pendingJobs.data.pending.length) || 0};
+        this.state = {pendingJobs: (props.pendingJobs.data && props.pendingJobs.data.pending) || []};
     }
 
     fetch(refresh) {
@@ -41,10 +41,10 @@ export class AlertsWidget extends React.Component {
         this.props.requestJobs(refresh)
             .then((r) => {
                 if(!this._unmounted && r.response){
-                    if(this.state.pendingJobs && this.state.pendingJobs !== r.response.pending.length){
+                    if(this.state.pendingJobs.length && this.state.pendingJobs.length !== r.response.pending.length){
                         this.refreshAll();
                     }
-                    this.setState({pendingJobs: r.response.pending.length || 0})
+                    this.setState({pendingJobs: r.response.pending})
                     if(r.response.pending.length){
                         this._setTimeout = setTimeout(() => this.fetch(true), AlertsWidget.POLL_INTERVAL)
                     }
@@ -123,9 +123,27 @@ export class AlertsWidget extends React.Component {
         }
     }
 
+    renderPendingJobs(){
+        if(!this.state.pendingJobs.length){
+            return false;
+        }
+        const importCount = this.state.pendingJobs.filter(p => p.type === 'import').length;
+        const historyCount = this.state.pendingJobs.filter(p => p.type === 'history').length;
+        const imports = `${ importCount } company ${ importCount > 1 ? 'imports' : 'import'}`;
+        const history = `${ historyCount } history ${ historyCount > 1 ? 'imports' : 'import'}`;
+        return <li>
+            <div className={'text-success alert-entry'}>
+                <Glyphicon glyph="export" className="big-icon"/>
+                { !!importCount && imports }
+                { !!importCount && !!historyCount && ', '}
+                { !!historyCount && history } remaining
+                </div>
+            </li>
+    }
+
     renderBody() {
         return <ul>
-        {!!this.state.pendingJobs && <li><div className={'text-success alert-entry'}><Glyphicon glyph="export" className="big-icon"/>{ this.state.pendingJobs } Company { this.state.pendingJobs > 1 ? 'imports' : 'import'} remaining</div></li> }
+        { this.renderPendingJobs() }
         { this.renderAlerts() }
         </ul>
     }

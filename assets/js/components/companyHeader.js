@@ -82,7 +82,7 @@ export class CompanyHeader extends React.Component {
                 </li>,
 
               <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
-                    <a href="#" onClick={e => e.preventDefault}  bsRole="toggle">
+                    <a href={`/company/view/${id}/new_transaction`} onClick={e => e.preventDefault()}  bsRole="toggle">
                         Update Company
                    </a>
                     <Dropdown.Menu>
@@ -139,7 +139,7 @@ export class CompanyHeader extends React.Component {
                     <Navbar.Brand>
 
                         <Dropdown id="title-dropdown"  ref="dropdown">
-                            <a href="#" onClick={e => e.preventDefault}  bsRole="toggle">
+                            <a href="/" onClick={e => e.preventDefault()}  bsRole="toggle">
                                 <span className="company-title"><Glyphicon glyph='menu-hamburger'/> {this.props.companyState.companyName}</span>
                             </a>
                             <Dropdown.Menu>
