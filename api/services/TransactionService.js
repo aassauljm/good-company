@@ -126,7 +126,7 @@ export function validateInverseAmend(amend, companyState){
     if(!holding.holdersMatch({holders: amend.beforeHolders})){
         throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
             action: amend,
-            importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
+            importErrorType: amend.requiresTransferOrdering ? sails.config.enums.MULTI_AMEND_TRANSFER_ORDER : sails.config.enums.AMEND_TRANSFER_ORDER,
             companyState: companyState.toJSON()
         });
     }

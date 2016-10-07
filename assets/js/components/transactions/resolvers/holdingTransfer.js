@@ -99,33 +99,10 @@ function holdingTransferSimple(context, submit, reset){
 
 
 function holdingTransferComplex(context, submit, reset){
-    const groupId = context.action.originalTransactionGroupId;
-    const pairs = context.relatedActions.filter(a => a.data.actions.find(a => a.originalTransactionGroupId === groupId));
 
-    return <div>
-         { pairs.map((p, i) => {
-            return <div key={i}> {
-                beforeAndAfterSummary({...context, action: p.data.actions.filter(a => !a.originalTransactionGroupId)[0]}, context.companyState)
-            }
-         <div className="row">
-            <div className="col-md-12">
-            <p className="instructions">Who transfered the shares?</p>
-            </div>
-         </div>
-
-            <hr/></div>
-         }) }
-            <div className="button-row">
-
-            </div>
-    </div>
 }
 
 export default function HoldingTransfer(context, submit, reset){
-    //originalTransactionGroupId means that the transfer is actually part of a set
-    if(!context.action.originalTransactionGroupId){
-        return holdingTransferSimple(context, submit, reset);
-    }
-
-    return holdingTransferComplex(context, submit, reset);
+    return holdingTransferSimple(context, submit, reset);
 }
+

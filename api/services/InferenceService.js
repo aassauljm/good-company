@@ -198,8 +198,14 @@ module.exports = {
             const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
             return  _.reduce(docs, (acc, doc, i) => {
                 const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);
+                const holdingChange = _.filter(doc.actions, a => a.unknownHoldingChange)
                 if(!transferActions.length || transferActions.length === 2){
                     // if no transfers, or already a pair, then continue
+                    acc.push(doc);
+                }
+                else if(holdingChange.length){
+                    // don't know in what order to do pairing
+                    holdingChange.map(a => a.requiresTransferOrdering = true);
                     acc.push(doc);
                 }
                 else{
@@ -229,7 +235,7 @@ module.exports = {
                             up.afterAmount = up.beforeAmount;
                         });
                     }
-                    else if(down.length === 1){
+                    else{
                         down = _.cloneDeep(down[0]);
                         up.map(action => {
                             const docClone = _.cloneDeep(doc);
@@ -243,9 +249,6 @@ module.exports = {
                             acc.push(docClone);
                             down.afterAmount = down.beforeAmount;
                         });
-                    }
-                    else {
-                        acc.push(doc);
                     }
                 }
                 return acc;

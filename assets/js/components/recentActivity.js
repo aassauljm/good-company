@@ -110,7 +110,10 @@ export class RecentCompanyActivityWidget extends React.Component {
         return dispatch(requestResource('/recent_activity/full'))
       }
     }],
-    state => state.resources['/recent_activity/full'])
+    state => state.resources['/recent_activity/full'],
+    {
+        navigate: (url) => push(url)
+    })
 export default class RecentActivity extends React.Component {
     handleClick(activity) {
         if(activity.data.companyId){
@@ -129,11 +132,11 @@ export default class RecentActivity extends React.Component {
 
             <div className="widget-body">
                 <div className="table-responsive">
-                <table className="table">
+                <table className="table table-hover">
                 <thead><tr><th>Time & Date</th><th>Description</th></tr></thead>
                     <tbody>
                     {activities.map(
-                        (row, i) => <tr key={i}>
+                        (row, i) => <tr key={i} className="actionable" onClick={() => this.handleClick(row)}>
                         <td>{stringToDateTime(row.createdAt)}</td>
                         <td>{row.description}</td>
                         </tr>) }

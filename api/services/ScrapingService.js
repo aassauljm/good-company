@@ -154,6 +154,11 @@ function parseAmendAllocation($, $el){
         result.transactionType = Transaction.types.HOLDING_TRANSFER;
     }
 
+    if(JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
+        result.unknownHoldingChange = true;
+    }
+
+
     result.amount = Math.abs(result.beforeAmount - result.afterAmount)
     return result;
 }
