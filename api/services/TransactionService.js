@@ -1130,8 +1130,6 @@ export function performSeed(args, company, effectiveDate, userId){
         });
 }
 
-
-
 export function removeDocuments(state, actions){
     const ids = _.filter(_.map(actions, 'sourceUrl'))
     if(ids.length){
@@ -1281,7 +1279,7 @@ export function performInverseTransaction(data, company, rootState){
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then(function(_rootState){
             currentRoot = _rootState;
-            return currentRoot.buildPrevious({transaction: null, transactionId: null});
+            return currentRoot.buildPrevious({transaction: null, transactionId: null}, {newRecords: data.transactionType === Transaction.types.SEED});
         })
 
         .then(function(_prevState){

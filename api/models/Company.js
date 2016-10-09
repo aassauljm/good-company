@@ -187,7 +187,6 @@ module.exports = {
             },
 
             resetPendingActions: function(){
-                // TODO, get this from some where else
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
                 let state, newRoot, pendingActions;
@@ -214,7 +213,7 @@ module.exports = {
                             transaction: null,
                             transactionId: null,
                             pending_historic_action_id: pendingActions[0].id,
-                            previousCompanyStateId: null})
+                            previousCompanyStateId: null}, {newRecords: true})
                     })
                     .then(function(_newRoot){
                         newRoot = _newRoot

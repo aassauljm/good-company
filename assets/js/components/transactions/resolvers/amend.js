@@ -250,14 +250,14 @@ const validateAmend = (values, props) => {
             formErrors.actions = formErrors.actions || [];
             formErrors.actions[i] = ['Required.'];
         }
-        if(sum !== props.amendActions[i].amount){
+        const amount = props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount;
+        if(sum !== amount){
             formErrors.actions = formErrors.actions || [];
-            const absoluteAmount = props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount;
-            const diff = sum - props.amendActions[i].amount;
+            const diff = sum - amount;
             if(diff < 0){
                 formErrors.actions[i] = [`${-diff} shares left to allocate.`];
             }
-            else{
+            else if(diff > 0){
                 formErrors.actions[i] = [`${diff} shares over allocated.`];
             }
         }
