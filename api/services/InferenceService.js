@@ -255,9 +255,77 @@ module.exports = {
             }, []);
         }
 
+
+        function decomposeAmbiguousHoldingTransfers(docs){
+            // decompose transfers that are a holding_transfer + multiple transfers
+            return  _.reduce(docs, (acc, doc, i) => {
+                const transferActions = _.filter(doc.actions, a => a.requiresTransferOrdering);
+                if(!transferActions.length){
+                    acc.push(doc);
+                }
+                else{
+                    doc.actions = _.filter(doc.actions, a => !a.requiresTransferOrdering);
+                    transferActions.map(a => {
+                        doc.actions.push({
+                            ...a,
+                            transactionType: Transaction.types.TRANSFER_TO,
+                            transactionMethod: Transaction.types.NEW_ALLOCATION,
+                            requiresTransferOrdering: false,
+                            unknownHoldingChange: false,
+                            holders: a.afterHolders,
+                            beforeHolders: null,
+                            afterHolders: null,
+                            beforeAmount: 0,
+                            amount: a.afterAmount,
+                            afterAmount: a.afterAmount,
+                            votingShareholder: a.afterVotingShareholder,
+                            name: a.afterName
+                        });
+
+                        doc.actions.push({
+                            ...a,
+                            transactionType: Transaction.types.AMEND,
+                            transactionMethod: Transaction.types.AMEND,
+                            requiresTransferOrdering: false,
+                            unknownHoldingChange: false,
+                            holders: a.beforeHolders,
+                            beforeHolders: a.beforeHolders,
+                            afterHolders: a.beforeHolders,
+                            beforeAmount: a.beforeAmount,
+                            amount: a.beforeAmount,
+                            afterAmount: 0
+                        });
+                    });
+
+
+
+                const removals = {
+                    ...doc,
+                    transactionType: Transaction.types.COMPOUND_REMOVALS,
+                    actions: transferActions.map(a => ({
+                        ...a,
+                        holders: a.beforeHolders,
+                        amount: 0,
+                        beforeAmount: 0,
+                        afterAmount:0,
+                        transactionMethod: null,
+                        transactionType: Transaction.types.REMOVE_ALLOCATION,
+
+                    }))
+                }
+
+                acc.push(removals);
+                acc.push(doc);
+            }
+            return acc;
+        }, []);
+        }
+
+
         let results = splitAmends(docs);
         results = holdingChangeRemovals(results);
         results = splitMultiTransfers(results);
+        results = decomposeAmbiguousHoldingTransfers(results);
         return results;
     },
 

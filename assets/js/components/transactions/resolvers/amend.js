@@ -15,10 +15,7 @@ import { reduxForm } from 'redux-form';
 import Panel from '../../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './summaries'
 
-function increaseOptions(includeTransfer){
-    if(!includeTransfer){
-        return increaseOptionsNoTransfer();
-    }
+function increaseOptions(){
     return [
         <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
          <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_TO]}</option>,
@@ -26,28 +23,9 @@ function increaseOptions(includeTransfer){
     ];
 };
 
-function increaseOptionsNoTransfer(){
+function decreaseOptions(){
     return [
-        <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
-        <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionVerbs[TransactionTypes.CONVERSION_TO]}</option>
-    ];
-};
-
-function decreaseOptions(includeTransfer){
-    if(!includeTransfer){
-        return decreaseOptionsNoTransfer();
-    }
-    return [
-        <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
         <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_FROM]}</option>,
-        <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.REDEMPTION_FROM]}</option>,
-        <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.ACQUISITION_FROM]}</option>,
-        <option key={4} value={TransactionTypes.CONSOLIDATION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.CONSOLIDATION_FROM]}</option>
-    ];
-};
-
-function decreaseOptionsNoTransfer(){
-    return [
         <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
         <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.REDEMPTION_FROM]}</option>,
         <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.ACQUISITION_FROM]}</option>,
@@ -86,11 +64,20 @@ function inverseTransfer(type){
     return type === TransactionTypes.TRANSFER_FROM ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM;
 }
 
+function absoluteAmount(type, amount){
+    if([TransactionTypes.ISSUE_TO, TransactionTypes.TRANSFER_TO, TransactionTypes.CONVERSION_TO].indexOf(type) >- 1){
+        return amount;
+    }
+    return Number.isInteger(amount) ? -amount : 0;
+}
+
+
 @formFieldProps()
 class Recipient extends React.Component {
     render(){
         const title =  'This transaction was a:';
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
+        const holdings = this.props.holdings;
         return  <Panel remove={() => this.props.remove()} title={title}>
             { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
                 <div className="input-group-pair input-row">
@@ -99,7 +86,10 @@ class Recipient extends React.Component {
                     onChange={(value) => {this.props.type.onChange(value);  this.props.onChange(); }}
                     label={false}>
                         <option value="" disabled></option>
-                        { options }
+                            {  this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
+                            {  this.props.increase && <optgroup label="Decreases">{ decreaseOptions() } </optgroup> }
+                            {  !this.props.increase &&<optgroup label="Decreases">{ decreaseOptions() } </optgroup> }
+                            {  !this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
                     </Input>
                     <Input className="amount" type="number" {...this.formFieldProps('amount')}
                     placeholder={'Number of Shares'}
@@ -115,9 +105,12 @@ class Recipient extends React.Component {
                         <Input type="select" {...this.formFieldProps('holding')}
                             onChange={(value) => {this.props.holding.onChange(value);  this.props.onChange(); }}
                             disabled={!!this.props.isInverse.value}
-                            label={this.props.increase ? 'Transfer From' : 'Transfer To'}>
+                            label={this.props.type.value === TransactionTypes.TRANSFER_TO ? 'Transfer From' : 'Transfer To'}>
                             <option value="" disabled></option>
-                            { this.props.holdings.map((h, i) => <option key={i} value={h.value}>{h.label}</option>)}
+                            {  this.props.increase && <optgroup label="Suggested">{ holdings.filter(h => !h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
+                            {  this.props.increase && <optgroup label="Other">{ holdings.filter(h => h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
+                            {  !this.props.increase && <optgroup label="Suggested">{ holdings.filter(h => h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
+                            {  !this.props.increase && <optgroup label="Other">{ holdings.filter(h => !h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
                         </Input>
                 </div> }
         </Panel>
@@ -170,7 +163,6 @@ class AmendOptions extends React.Component {
             if(isTransfer(type)){
                 const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
                 if(Number.isInteger(actionIndex)){
-                    debugger
                     const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
                         return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
                     });
@@ -178,7 +170,7 @@ class AmendOptions extends React.Component {
                         actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString(), isInverse: true})
                     }
                     else{
-                        actions[actionIndex].recipients[reciprocalIndex].amount.onChange(amount.toString());
+                        actions[actionIndex].recipients[reciprocalIndex].amount.onChange((amount||0).toString());
                         actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
                         actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i.toString());
                         actions[actionIndex].recipients[reciprocalIndex].isInverse.onChange(true);
@@ -204,7 +196,7 @@ class AmendOptions extends React.Component {
                     allSameDirection={allSameDirection}
                     error={getError(i)}
                     onChange={reciprocate(i)}
-                    holdings={increase ? this.props.holdings.decreases : this.props.holdings.increases} />
+                    holdings={this.props.holdings.filter(h => h.index !== i)} />
                 </div>
                 <hr/>
                 </div>
@@ -250,7 +242,7 @@ const validateAmend = (values, props) => {
                 }
 
             }
-            sum += amount;
+            sum += absoluteAmount(recipient.type, amount);
             return errors;
         });
 
@@ -260,6 +252,7 @@ const validateAmend = (values, props) => {
         }
         if(sum !== props.amendActions[i].amount){
             formErrors.actions = formErrors.actions || [];
+            const absoluteAmount = props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount;
             const diff = sum - props.amendActions[i].amount;
             if(diff < 0){
                 formErrors.actions[i] = [`${-diff} shares left to allocate.`];
@@ -296,7 +289,8 @@ export default function Amend(context, submit){
         return [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionMethod) >= 0;
     });
 
-    const holdings = {increases: [], decreases: []};
+
+
     const handleSubmit = (values) => {
         const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
         const pendingActions = [{id: context.actionSet.id, data: otherActions, previous_id: context.actionSet.previous_id}];
@@ -311,11 +305,11 @@ export default function Amend(context, submit){
                     amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);
                 }
                 if(isTransfer(r.type)){
-                    transfers.push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionType, amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)});
+                    transfers.push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod, amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)});
                 }
                 else{
                     transactions[r.type] = transactions[r.type] || [];
-                    transactions[r.type].push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionType, amount: amount});
+                    transactions[r.type].push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod, amount: amount});
                 }
                 if(amendActions[i].beforeAmount !== undefined){
                     amendActions[i].afterAmount = amendActions[i].beforeAmount;
@@ -372,35 +366,18 @@ export default function Amend(context, submit){
             }]};
         }
         return {recipients: [{
-            amount:  a.amount, type: a.transactionType !== TransactionTypes.AMEND ? a.transactionType : null
+            amount:  a.amount, type: a.transactionType !== TransactionTypes.AMEND ? a.transactionType : ''
         }]};
     })};
 
-    amendActions.map((a, i) => {
+    const holdings = amendActions.reduce((acc, a, i) => {
         const increase = actionAmountDirection(a);
         const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
         let values;
-
-        if(a.requiresTransferOrdering){
-            values = [{
-                value: `${i}-before`,
-                label: `#${i+1} - Before Holders - ${joinAnd(a.beforeHolders, {prop: 'name'})}`,
-            }, {
-                value: `${i}-after`,
-                label: `#${i+1} - After Holders - ${names}`,
-            }];
-        }
-        else{
-            values = [{value: `${i}`, label: `#${i+1} - ${names}`}]
-        }
-        if(increase){
-            holdings.increases = [...holdings.increases, ...values]
-        }
-        else{
-            holdings.decreases = [...holdings.decreases, ...values]
-        }
-
-    })
+        values = {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i};
+        acc.push(values);
+        return acc;
+    }, [])
 
     return <div>
 

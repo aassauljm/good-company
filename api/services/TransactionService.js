@@ -126,7 +126,7 @@ export function validateInverseAmend(amend, companyState){
     if(!holding.holdersMatch({holders: amend.beforeHolders})){
         throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
             action: amend,
-            importErrorType: amend.requiresTransferOrdering ? sails.config.enums.MULTI_AMEND_TRANSFER_ORDER : sails.config.enums.AMEND_TRANSFER_ORDER,
+            importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
             companyState: companyState.toJSON()
         });
     }
@@ -377,7 +377,7 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
             return performInverseNewAllocation({
                 ...data,
                 transactionType: Transaction.types.TRANSFER_TO,
-                transactionMethod: Transaction.types.AMEND,
+                transactionMethod: Transaction.types.NEW_ALLOCATION,
                 holders: data.afterHolders,
                 beforeAmount: 0,
                 amount: amount,
@@ -606,7 +606,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
         if(!holding){
             // if fail, ignore company number
             sails.log.error('Could not find matching holding, trying with ignored companyNumber')
-            holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount}]}, {ignoreCompanyNumber: true});
+            holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount, shareClass: data.shareClass}]}, {ignoreCompanyNumber: true});
         }
         if(!holding){
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation', {

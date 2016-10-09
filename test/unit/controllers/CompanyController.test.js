@@ -719,7 +719,7 @@ describe('Company Controller', function() {
                 .then(function(res){
                     //res.body.context.action.afterAmount.should.be.equal(20);
                     //res.body.context.action.beforeAmount.should.be.equal(40);
-                    //res.body.context.importErrorType.should.be.equal('AMEND_TRANSFER_ORDER');
+                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
                     //res.body.context.relatedActions.length.should.be.equal(4);
                     done();
                 });

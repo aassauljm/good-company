@@ -21,6 +21,24 @@ import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './resolvers/summaries'
 
 
+function skipOrRestart(allowSkip, context, submit, reset){
+    function skip(){
+        return submit({
+            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+        })
+    }
+    function startOver(){
+        return reset();
+    }
+    return <div>
+        { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
+        <div className="button-row">
+        { allowSkip && <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button> }
+        <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+    </div>
+    </div>
+}
+
 const submitRestart = (...rest) => skipOrRestart(false, ...rest);
 const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
 
@@ -68,7 +86,6 @@ const PAGES = {
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
-    [ImportErrorTypes.MULTI_AMEND_TRANSFER_ORDER]: Amend,
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend
 }
 

@@ -97,11 +97,6 @@ function holdingTransferSimple(context, submit, reset){
 }
 
 
-
-function holdingTransferComplex(context, submit, reset){
-
-}
-
 export default function HoldingTransfer(context, submit, reset){
     return holdingTransferSimple(context, submit, reset);
 }

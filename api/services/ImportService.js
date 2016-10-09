@@ -22,7 +22,7 @@ export function importCompany(companyNumber, options) {
                     })
                     .then(_state => {
                         state = _state;
-                        return state.buildPrevious({transaction: null, transactionId: null}, {newRecords: true})
+                        return state.buildPrevious({transaction: null, transactionId: null}, {newRecords: true});
                     })
                     .then(function(_newRoot){
                         newRoot = _newRoot

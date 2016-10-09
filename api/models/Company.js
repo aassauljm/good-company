@@ -206,12 +206,15 @@ module.exports = {
                         return Action.bulkCreate(pendingActions);
                     })
                     .then(() => {
-                        return this.getSeedCompanyState()
+                        return this.getSeedCompanyState();
                     })
                     .then(_state => {
                         state = _state;
-                        return state.buildPrevious({transaction: null, transactionId: null,
-                            pending_historic_action_id: pendingActions[0].id, previousCompanyStateId: null})
+                        return state.buildPrevious({
+                            transaction: null,
+                            transactionId: null,
+                            pending_historic_action_id: pendingActions[0].id,
+                            previousCompanyStateId: null})
                     })
                     .then(function(_newRoot){
                         newRoot = _newRoot
