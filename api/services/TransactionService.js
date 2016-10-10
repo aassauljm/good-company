@@ -1085,6 +1085,10 @@ export function performHistoricHolderChange(data, nextState, previousState, effe
         })
 }
 
+export function performInverseSeed(data, nextState, previousState, effectiveDate){
+    return Promise.resolve(Transaction.build({type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}));
+}
+
 /**
     Seed is a special cause, it doesn't care about previousState
 */
@@ -1176,7 +1180,7 @@ export function addDocuments(state, documents){
 }
 
 
-
+/*
 export function removeActions(state, actionSet){
     let currentActions = [];
     if(!actionSet.id){
@@ -1205,6 +1209,7 @@ export function removeActions(state, actionSet){
             return state;
         })
 }
+*/
 
 export function addActions(state, actionSet, company){
     return state.getHistoricActions()
@@ -1219,6 +1224,9 @@ export function addActions(state, actionSet, company){
                     .then(prev => {
                         if(prev){
                             data.previous_id = prev.get('historic_action_id');
+                        }
+                        else{
+                            data.previous_id = state.get('pending_historic_action_id');
                         }
                         return data;
                     });
@@ -1247,6 +1255,7 @@ export function performInverseTransaction(data, company, rootState){
     }*/
 
     const PERFORM_ACTION_MAP = {
+        [Transaction.types.SEED]:  TransactionService.performInverseSeed,
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDING_TRANSFER]:  TransactionService.performInverseHoldingTransfer,
@@ -1279,11 +1288,13 @@ export function performInverseTransaction(data, company, rootState){
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then(function(_rootState){
             currentRoot = _rootState;
+            // build previous state, new records if SEED
             return currentRoot.buildPrevious({transaction: null, transactionId: null}, {newRecords: data.transactionType === Transaction.types.SEED});
         })
 
         .then(function(_prevState){
             prevState = _prevState;
+            // loop over actions,
             return Promise.reduce(data.actions, function(arr, action){
                 sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
                 let result;
@@ -1332,7 +1343,7 @@ export function performInverseTransaction(data, company, rootState){
         })
         .then(function(){
             if(data.transactionType === Transaction.types.SEED){
-                return company.setSeedCompanyState(prevState);
+                return company.setSeedCompanyState(currentRoot);
             }
         })
          .then(function(){
@@ -1400,7 +1411,7 @@ export function performInverseAll(company, state){
         });
 }
 
-export function performInverseAllPendingResolve(company, root){
+export function performInverseAllPendingResolve(company, root, endCondition){
 
     // Loop though data
     // If an exception is found, rollback, and increment permutation for
@@ -1435,7 +1446,7 @@ export function performInverseAllPendingResolve(company, root){
                         return TransactionService.performInverseTransaction(actionSet.data, company, state)
                             .then(_state => {
                                 state = _state;
-                                state.set('pending_historic_action_id', (actions[i+1] || {}).id || null);
+                                state.set('pending_historic_action_id', (actions[i+1] || {}).id ||  actionSet.previous_id);
                                 return state.save(['pending_historic_action_id'])
                             });
                     })
@@ -1464,6 +1475,16 @@ export function performInverseAllPendingResolve(company, root){
             return company.getPendingActions()
         })
         .then(historicActions => {
+            if(endCondition){
+                let finished = false;
+                historicActions = historicActions.reduce((acc, hA) => {
+                    if(!finished){
+                        acc.push(hA);
+                    }
+                    finished = finished || endCondition(hA);
+                    return acc;
+                }, []);
+            }
             return historicActions.length && loop(historicActions)
         });
 }
@@ -1476,7 +1497,7 @@ function getRelatedActions(companyStateId, documentId) {
 }
 
 
-export function performInverseAllPending(company){
+export function performInverseAllPending(company, endCondition){
     // unlike above this will commit all successful transactions, and complain when one fails
     let state, current, firstError;
 
@@ -1485,11 +1506,11 @@ export function performInverseAllPending(company){
             return sequelize.transaction(function(t){
                 state.set('historic_action_id', state.get('pending_historic_action_id'));
                 current = actionSet;
-                return TransactionService.performInverseTransaction(actionSet.data, company, state)
+                    return TransactionService.performInverseTransaction(actionSet.data, company, state)
                 })
                 .then(_state => {
                     state = _state;
-                    state.set('pending_historic_action_id', (actions[i+1] || {}).id || null);
+                    state.set('pending_historic_action_id', (actions[i+1] || {}).id || actionSet.previous_id);
                     return state.save(['pending_historic_action_id'])
                 })
             })
@@ -1503,7 +1524,7 @@ export function performInverseAllPending(company){
                     .spread((fullState, relatedActions) => {
                         firstError.context.companyState = fullState;
                         firstError.context.relatedActions = relatedActions
-                        return performInverseAllPendingResolve(company);
+                        return performInverseAllPendingResolve(company, null, endCondition);
                     })
             })
             .catch(e => {
@@ -1526,15 +1547,29 @@ export function performInverseAllPending(company){
     }
 
     return sequelize.transaction(function(t){
-            return company.getRootCompanyState()
-                .then(_state => {
-                    state = _state;
-                    return company.getPendingActions()
-                })
+        return company.getRootCompanyState()
+            .then(_state => {
+                state = _state;
+                return company.getPendingActions()
+            })
         })
         .then(historicActions => {
+            if(endCondition){
+                let finished = false;
+                historicActions = historicActions.reduce((acc, hA) => {
+                    if(!finished){
+                        acc.push(hA);
+                    }
+                    finished = finished || endCondition(hA);
+                    return acc;
+                }, []);
+            }
             return historicActions.length && perform(historicActions)
-        });
+        })
+        .catch((e) => {
+            console.log(e)
+            throw e;
+        })
 }
 
 

@@ -209,6 +209,7 @@ module.exports = {
                     })
                     .then(_state => {
                         state = _state;
+                        console.log("SEED", JSON.stringify(state, null, 4))
                         return state.buildPrevious({
                             transaction: null,
                             transactionId: null,

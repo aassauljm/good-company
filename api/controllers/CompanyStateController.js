@@ -392,7 +392,7 @@ const selfManagedTransactions = {
             * perhaps keep a reference to previous head?
             * perhaps flag companyState to show that share classes have been applied?
         */
-        let state, companyName, historic_action_id;
+        let state, companyName, historic_action_id, newRoot;
         return sequelize.transaction(function(t){
             return company.getCurrentCompanyState()
                 .then(currentState => {
@@ -408,12 +408,31 @@ const selfManagedTransactions = {
                 })
                 .then(_state => {
                     state = _state;
-                    // wipe history
                     companyName = state.get('companyName')
-                    state.set('previousCompanyStateId', null);
-                    state.set('pending_historic_action_id', historic_action_id);
+                    return state.buildPrevious({
+                        transaction: null,
+                        transactionId: null,
+                        previousCompanyStateId: null,
+                        pending_historic_action_id: historic_action_id }, {newRecords: true});
+                })
+                .then(function(_newRoot){
+                    newRoot = _newRoot
+                    return newRoot.save();
+                })
+                .then(function(){
+                    sails.log.info('History reset for companyState', state.id);
+                    return state.setPreviousCompanyState(newRoot);
+                })
+
+                .then(state => {
                     return state.save();
-                });
+                })
+            })
+            .then(state => {
+                return TransactionService.performInverseAllPending(company, (action => action.data.transactionType === Transaction.types.SEED))
+                .catch(e => {
+                    // swallow import error
+                })
             })
             .then(function() {
                 return {
