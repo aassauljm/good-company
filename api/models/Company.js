@@ -224,7 +224,11 @@ module.exports = {
                         return state.update({previousCompanyStateId: newRoot.id})
                     });
 
-            }
+            },
+
+            hasPendingJob: function() {
+                return false;
+            },
 
         },
         hooks: {

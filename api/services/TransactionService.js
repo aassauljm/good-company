@@ -1490,7 +1490,6 @@ export function performInverseAllPendingResolve(company, root, endCondition){
 }
 
 function getRelatedActions(companyStateId, documentId) {
-    console.log(companyStateId, documentId)
         return sequelize.query("select * from all_pending_actions(:id) where data->>'documentId' = :documentId",
                    { type: sequelize.QueryTypes.SELECT,
                     replacements: { id: companyStateId, documentId: documentId}});

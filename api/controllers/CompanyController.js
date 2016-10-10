@@ -63,6 +63,7 @@ module.exports = {
             })
             .then(function(company) {
                 this.company = company;
+                console.log(company)
                 return Promise.all([this.company.currentCompanyState.fullPopulateJSON(), this.company.hasPendingJob()])
             })
             .spread(function(currentCompanyState, hasPendingJob){
@@ -71,10 +72,6 @@ module.exports = {
             .catch(function(err) {
                 return res.notFound(err);
             });
-    },
-
-    hasPendingJob: function(req, res) {
-
     },
 
     getSourceData: function(req, res) {
@@ -316,9 +313,10 @@ module.exports = {
                             title: 'Bulk Transaction',
                             userId: req.user.id,
                             companyId: transaction.companyId,
-                            transactions: transaction.transactions
+                            transactions: transaction.transactions,
+                            companySearchId: `CID$${companyId}$`
                         })
-                        .searchKeys( ['userId'] )
+                        .searchKeys( ['userId', 'companySearchId'] )
                         .removeOnComplete( true )
                         .on('complete', () => {resolveJob(1);})
                         .on('failed', () => { resolveJob(0)})

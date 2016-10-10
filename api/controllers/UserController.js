@@ -5,18 +5,7 @@ var Promise = require("bluebird");
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 var moment = require('moment');
-var kue = require('kue');
-var reds   = require('reds');
-var asyncJob = Promise.promisifyAll(kue.Job);
 
-
-var search;
-
-function getSearch() {
-  if( search ) return search;
-  reds.createClient = require('kue/lib/redis').createClient;
-  return search = reds.createSearch(QueueService.importQueue.client.getKey('search'));
-}
 
 function checkNameCollision(data) {
     return User.findAll({
@@ -152,20 +141,14 @@ module.exports = {
 
     pendingJobs: function(req, res) {
         // should be using this, but it shows removed jobs
-      getSearch()
-        .query(req.user.id)
-        .end(function( err, ids ) {
-            if( err ) return res.json({ error: err.message });
-            return Promise.map(ids, (id) => asyncJob.getAsync(id).catch(e => null))
-                .then(function(results){
-                    // split on type
-                    res.json({pending: results.filter(r => r).map(r => r.toJSON()).filter(r => r.state !== 'failed')});
-                })
-                .catch(e => {
-                    res.json({pending:[]});
-                    sails.log.error(e);
-                });
-        })
+        QueueService.searchJobs(req.user.id)
+            .then(results => {
+                return res.json({pending: results.filter(r => r).map(r => r.toJSON()).filter(r => r.state !== 'failed')});
+            })
+            .catch(e => {
+                res.json({pending:[]});
+                sails.log.error(e);
+            });
     },
 
     alerts: function(req, res) {
