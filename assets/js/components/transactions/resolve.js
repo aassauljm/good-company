@@ -14,7 +14,7 @@ import Modal from '../forms/modal';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import HoldingTransfer from './resolvers/holdingTransfer';
-import Amend from './resolvers/Amend';
+import Amend from './resolvers/amend';
 import { Holding } from '../shareholdings';
 import { reduxForm } from 'redux-form';
 import Panel from '../panel';
