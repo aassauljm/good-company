@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, createResource, showModal, addNotification } from '../../actions';
+import { requestResource, createResource, addNotification } from '../../actions';
 import { pureRender, stringToDate } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -106,8 +106,6 @@ FOOTERS[AMBIGUITY] = function(){
                                                         invalidates: [`/company/${ownProps.modalData.companyId}`]
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
-        showResolve: (args) => dispatch(showModal('resolveAmbiguity', {...args,  afterClose: { // open this modal again
-                            showModal: {key: 'importHistory', data: {...ownProps.modalData, index: CONTINUE}}}}))
     }
 })
 export class ImportHistoryModal extends React.Component {
@@ -157,7 +155,8 @@ export class ImportHistoryModal extends React.Component {
     }
 
     handleResolve() {
-        this.props.showResolve({...this.props.modalData, error: this.props.importHistory.error});
+        this.props.show('resolveAmbiguity', {...this.props.modalData, error: this.props.importHistory.error, afterClose: { // open this modal again
+                            showModal: {key: 'importHistory', data: {...this.props.modalData, index: CONTINUE}}}});
     }
 
     render() {

@@ -14,7 +14,7 @@ import { push, replace } from 'react-router-redux';
 import LawBrowserLink from './lawBrowserLink';
 import { Route } from 'react-router';
 import { getWarnings } from './warnings'
-import { nextModal, previousModal, endModal, showModal, requestResource } from '../actions';
+import { nextContextualModal, previousContextualModal, endContextualModal, showContextualModal, requestResource } from '../actions';
 import { ModalSwitch }  from './modals';
 import { sortAlerts } from './alerts';
 
@@ -63,7 +63,7 @@ export class NextCompanyControls extends React.Component {
 }
 
 
-@connect(state => ({modals: state.modals || DEFAULT_OBJ}))
+@connect((state, ownProps) => ({modals: state.contextualModals[ownProps.companyId] || DEFAULT_OBJ}))
 export class GuidedSetup extends React.Component {
     static warningCounts = {
         votingShareholderWarning: 1,
@@ -83,16 +83,16 @@ export class GuidedSetup extends React.Component {
         if(!props.modals.showing){
             const warnings = getWarnings(props.companyState);
             if(warnings.votingShareholderWarning){
-                props.dispatch(showModal('votingShareholders', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualModal(props.companyId, 'votingShareholders', {companyId: props.companyId, companyState: props.companyState}));
             }
             else if(warnings.shareClassWarning){
-                props.dispatch(showModal('manageShareClasses', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualModal(props.companyId, 'manageShareClasses', {companyId: props.companyId, companyState: props.companyState}));
             }
             else if(warnings.applyShareClassWarning){
-                props.dispatch(showModal('applyShareClasses', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualModal(props.companyId, 'applyShareClasses', {companyId: props.companyId, companyState: props.companyState}));
             }
             else if(warnings.historyWarning){
-                props.dispatch(showModal('importHistory', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualModal(props.companyId, 'importHistory', {companyId: props.companyId, companyState: props.companyState}));
             }
         }
     }
@@ -115,17 +115,17 @@ export class GuidedSetup extends React.Component {
         const props = {
             index: data.index,
             modalData: {...data.data, companyId: this.props.companyId, companyState: this.props.companyState},
-            next : (...args) => {this.props.dispatch(nextModal(this.props.modals.showing, ...args))},
-            previous: () => {this.props.dispatch(previousModal(this.props.modals.showing))},
-            show: (key, extraData) => this.props.dispatch(showModal(key, {...data.data, ...extraData})),
+            next : (...args) => {this.props.dispatch(nextContextualModal(this.props.companyId, this.props.modals.showing, ...args))},
+            previous: () => {this.props.dispatch(previousContextualModal(this.props.companyId, this.props.modals.showing))},
+            show: (key, extraData) => this.props.dispatch(showContextualModal(this.props.companyId, key, {...data.data, ...extraData})),
             navigate: (url) => this.props.dispatch(push(url)),
             end: (data) => {
                 const after = ((this.props.modals[this.props.modals.showing] || {}).data || {}).afterClose;
-                this.props.dispatch(endModal(this.props.modals.showing, data));
+                this.props.dispatch(endContextualModal(this.props.companyId, this.props.modals.showing, data));
 
                 if(after){
                     if(after.showModal){
-                        this.props.dispatch(showModal(after.showModal.key, after.showModal.data));
+                        this.props.dispatch(showContextualModal(this.props.companyId, after.showModal.key, after.showModal.data));
                     }
                 }
 

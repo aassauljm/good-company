@@ -209,7 +209,6 @@ module.exports = {
                     })
                     .then(_state => {
                         state = _state;
-                        console.log("SEED", JSON.stringify(state, null, 4))
                         return state.buildPrevious({
                             transaction: null,
                             transactionId: null,
@@ -227,7 +226,9 @@ module.exports = {
             },
 
             hasPendingJob: function() {
-                return false;
+                return QueueService.searchJobs(`companyId$${this.id}$`)
+                    .then(results => !!results.length)
+                    .catch(() => false)
             },
 
         },

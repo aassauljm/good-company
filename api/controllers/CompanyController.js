@@ -314,7 +314,7 @@ module.exports = {
                             userId: req.user.id,
                             companyId: transaction.companyId,
                             transactions: transaction.transactions,
-                            companySearchId: `CID$${companyId}$`
+                            companySearchId: `companyId$${transaction.companyId}$`
                         })
                         .searchKeys( ['userId', 'companySearchId'] )
                         .removeOnComplete( true )

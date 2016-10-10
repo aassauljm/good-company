@@ -23,8 +23,8 @@ import {
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
-    SHOW_MODAL, END_MODAL,
-    NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
+    SHOW_MODAL, END_MODAL, NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
+    SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
     UPDATE_MENU,
     TOGGLE_WIDGET_SIZE
      } from './actionTypes';
@@ -352,6 +352,32 @@ export function previousModal(modal){
         type: PREVIOUS_MODAL, modal
     }
 }
+
+
+export function showContextualModal(context, modal, data){
+    return {
+        type: SHOW_CONTEXTUAL_MODAL, context, modal, data
+    }
+}
+
+export function endContextualModal(context, modal, data={}){
+    return {
+        type: END_CONTEXTUAL_MODAL, context, modal, data
+    }
+}
+
+export function nextContextualModal(context, modal, data){
+    return {
+        type: NEXT_CONTEXTUAL_MODAL, context, modal, data
+    }
+}
+
+export function previousContextualModal(context, modal, data){
+    return {
+        type: PREVIOUS_CONTEXTUAL_MODAL, context, modal, data
+    }
+}
+
 
 export function resetModals(){
     return {

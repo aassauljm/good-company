@@ -19,8 +19,8 @@ import {
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
-    SHOW_MODAL, END_MODAL,
-    NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
+    SHOW_MODAL, END_MODAL, NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
+    SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
     UPDATE_MENU, TOGGLE_WIDGET_SIZE
      } from './actionTypes';
 
@@ -183,6 +183,7 @@ function modals(state = {}, action){
             if(state.showing === 'importCompany')
                 return {...state, showing: null};
             return state;
+
         case SHOW_MODAL:
             return {...state, showing: action.modal, [action.modal]: {index: (action.data||{}).index || 0, data: action.data}};
         case END_MODAL:
@@ -200,6 +201,31 @@ function modals(state = {}, action){
     }
 }
 
+function contextualModals(state = {}, action){
+    switch(action.type){
+        case SHOW_CONTEXTUAL_MODAL:
+        case END_CONTEXTUAL_MODAL:
+        case NEXT_CONTEXTUAL_MODAL:
+        case PREVIOUS_CONTEXTUAL_MODAL:
+            return {...state, [action.context]: ((state)  => {
+                switch(action.type){
+                    case SHOW_CONTEXTUAL_MODAL:
+                        return {...state, showing: action.modal, [action.modal]: {index: (action.data||{}).index || 0, data: action.data}};
+                    case END_CONTEXTUAL_MODAL:
+                        return {...state, showing: null, [action.modal]: null };
+                    case NEXT_CONTEXTUAL_MODAL:
+                        const index = action.data && action.data.index !== undefined ? action.data.index : state[action.modal].index + 1;
+                        return {...state,  [action.modal]: {index: index, data: {...(state[action.modal] || {}).data, ...action.data}}};
+                    case PREVIOUS_CONTEXTUAL_MODAL:
+                        return {...state,  [action.modal]: {index: state[action.modal].index - 1}};
+                    default:
+                        return state;
+                }
+                })(state[action.context])};
+        default:
+            return state
+    }
+}
 
 function menus(state = {shareRegister: {view: 'document'}}, action){
     switch(action.type){
@@ -425,6 +451,7 @@ const appReducer = combineReducers({
     form: form,
     notifications,
     modals,
+    contextualModals,
     menus,
     widgets,
     renderTemplate,
