@@ -262,6 +262,7 @@ module.exports = {
                 .removeOnComplete( true )
                 .on('complete', () => {resolveJob(1);})
                 .on('failed', () => {resolveJob(0)})
+                .ttl(1000 * 60 * 5) // 5 minutes
                 .save( function(err){
                    if(err) {
                         reject(err);
@@ -354,6 +355,7 @@ module.exports = {
                         .removeOnComplete( true )
                         .on('complete', () => {resolveJob(1);})
                         .on('failed', () => {resolveJob(0)})
+                        .ttl(1000 * 60 * 5) // 5 minutes
                         .save( function(err){
                            if(err) {
                                 reject(err);

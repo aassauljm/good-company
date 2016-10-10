@@ -191,7 +191,7 @@ const PAGES = {
 
 
 @connect((state, ownProps) => {
-    return {alerts: state.resources['/alerts'] || {}, massSetup: state.modals.massSetup || {}};
+    return {alerts: state.resources['/alerts'] || {}, massSetup: state.modals.massSetup || {}, transactionBulk: state.transactionBulk};
 }, (dispatch, props) => ({
         requestData: (key) => dispatch(requestResource('/alerts', {postProcess: sortAlerts})),
         next: (data) => dispatch(nextModal('massSetup', data)),
@@ -224,7 +224,7 @@ export class MassSetup extends React.Component {
     }
 
     render() {
-        if(this.props.massSetup._status === 'pending'){
+        if(this.props.massSetup._status === 'fetching' || this.props.transactionBulk._status === 'fetching'){
             return <MassSetupLoading />;
         }
         return PAGES[this.props.massSetup.index || 0]({...this.props})

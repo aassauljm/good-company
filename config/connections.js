@@ -39,7 +39,7 @@ module.exports.connections = {
             port: 5432,
             logging: true,
             pool: {
-                max: 5,
+                max: 10,
                 min: 0,
                 idle: 10000
             }
@@ -53,10 +53,11 @@ module.exports.connections = {
         options: {
             dialect: 'postgres',
             host: 'localhost',
+            isolationLevel: "READ COMMITTED",
             port: 5432,
             logging: true,
             pool: {
-                max: 5,
+                max: 10,
                 min: 0,
                 idle: 10000
             }
@@ -73,7 +74,7 @@ module.exports.connections = {
             port: 5432,
             logging: true,
             pool: {
-                max: 5,
+                max: 10,
                 min: 0,
                 idle: 10000
             }

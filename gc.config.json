@@ -12,7 +12,7 @@
             "exec_mode"  : "cluster_mode"
         }
     }, {
-        "name": "workers",
+        "name": "import",
         "script": "cluster.js",
         "env": {
             "TZ": "Pacific/Auckland",
@@ -23,5 +23,5 @@
             "NODE_ENV": "production",
             "NUM_WORKERS": 2
         }
-    }]
+    } ]
 }

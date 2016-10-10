@@ -14,7 +14,7 @@ process.once( 'SIGTERM', function ( sig ) {
 
 app.load({
     log: {
-        level: 'info'
+        level: 'verbose'
     },
     models: {
         migrate: 'safe'
@@ -46,7 +46,7 @@ app.load({
         return;
     };
 
-    queue.process('import', function(job, done){
+    queue.process('import', 10, function(job, done){
         sails.log.info('Receiving Job: '+JSON.stringify(job.data));
         const userId = job.data.userId;
         let company;
@@ -126,8 +126,7 @@ app.load({
             });
     });
 
-
-    queue.process('history', function(job, done) {
+        queue.process('history', function(job, done) {
         let company, companyName;
         Company.findById(job.data.companyId)
         .then(function(_company){

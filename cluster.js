@@ -49,7 +49,7 @@ if (cluster.isMaster) {
 
 } else {
 
-    require('./worker');
+    require('./workers/import.js');
 
 
 }

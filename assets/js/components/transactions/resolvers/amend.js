@@ -156,6 +156,7 @@ class AmendOptions extends React.Component {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
         // curry the indices, children will populate them
+
         const reciprocate = (i) => (j) => () => setTimeout(() => {
             // See if this recipient is a in a transfer
             const type = this.props.values.actions[i].recipients[j].type; //safe?
@@ -182,13 +183,14 @@ class AmendOptions extends React.Component {
             }
             this.props.values;
         }, 0);
+
+
         return <form onSubmit={this.props.handleSubmit}>
             { actions.map((field, i) => {
                 const action = amendActions[i];
                 const increase = actionAmountDirection(action);
                 return <div  key={i}>
                         { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
-
                 <div className="row">
                     <Recipients
                     recipients={actions[i].recipients}
