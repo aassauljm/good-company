@@ -128,15 +128,15 @@ export class AlertsWidget extends React.Component {
             return false;
         }
         const importCount = this.state.pendingJobs.filter(p => p.type === 'import').length;
-        const historyCount = this.state.pendingJobs.filter(p => p.type === 'history').length;
+        const transactionCount = this.state.pendingJobs.filter(p => p.type === 'transactions').length;
         const imports = `${ importCount } company ${ importCount > 1 ? 'imports' : 'import'}`;
-        const history = `${ historyCount } history ${ historyCount > 1 ? 'imports' : 'import'}`;
+        const transaction = `${ transactionCount } ${ transactionCount > 1 ? 'transactions' : 'transaction'}`;
         return <li>
             <div className={'text-success alert-entry'}>
                 <Glyphicon glyph="export" className="big-icon"/>
                 { !!importCount && imports }
-                { !!importCount && !!historyCount && ', '}
-                { !!historyCount && history } remaining
+                { !!importCount && !!transactionCount && ', '}
+                { !!transactionCount && transaction } remaining
                 </div>
             </li>
     }

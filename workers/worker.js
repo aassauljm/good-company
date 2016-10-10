@@ -12,6 +12,7 @@ process.once( 'SIGTERM', function ( sig ) {
   });
 });
 
+
 app.load({
     log: {
         level: 'verbose'
@@ -21,7 +22,7 @@ app.load({
     },
     hooks: {
         blueprints: false,
-        controllers: false,
+
         cors: false,
         csrf: false,
         grunt: false,
@@ -126,7 +127,7 @@ app.load({
             });
     });
 
-        queue.process('history', function(job, done) {
+    queue.process('history', function(job, done) {
         let company, companyName;
         Company.findById(job.data.companyId)
         .then(function(_company){
@@ -162,6 +163,85 @@ app.load({
         .then(function(){
             return job.remove();
         });
-    })
+    });
+
+
+    function createThenApplyShareClassAllHoldings(company, companyId, companyName, userId, data){
+        console.log(data)
+        return sails.controllers.companystate.selfManagedTransactions.createThenApplyShareClassAllHoldings(data, company)
+            .then((result) => ActivityLog.create({
+                userId: userId,
+                description: result.message,
+                companyId: companyId,
+                data: {companyId: companyId}
+            }))
+            .catch(e => {
+                return ActivityLog.create({
+                    userId: userId,
+                    companyId: companyId,
+                    description: `Failed to create and apply share classes for ${companyName}`,
+                    data: {companyId: companyId}
+                })
+                .then(() => {
+                    throw e;
+                })
+            });
+    }
+
+
+    function importHistory(company, companyId, companyName, userId){
+        return TransactionService.performInverseAllPending(company)
+            .then(() => ActivityLog.create({
+                type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                userId: userId,
+                description: `Complete ${companyName} History Import`,
+                companyId: companyId,
+                data: {companyId: companyId}
+            }))
+            .catch(e => {
+                return ActivityLog.create({
+                    type: ActivityLog.types.IMPORT_HISTORY_FAIL,
+                    userId: userId,
+                    description: `Failed to complete ${companyName} History Import`,
+                    companyId: companyId,
+                    data: {companyId: companyId}
+                })
+                .then(e => {
+                    throw e;
+                })
+            });
+    }
+
+    queue.process('transactions', function(job, done) {
+        sails.log.info('Receiving Job: '+JSON.stringify(job.data));
+        let companyName, company;
+        return Company.findById(job.data.companyId)
+            .then(function(_company){
+                company  = _company;
+                return company.getCurrentCompanyState()
+            })
+            .then(_state => {
+                companyName = _state.get('companyName');
+                return Promise.reduce(job.data.transactions, function(arr, transaction){
+                    switch(transaction.transactionType){
+                        case(sails.config.enums.CREATE_APPLY_ALL_SHARE_CLASS):
+                            return createThenApplyShareClassAllHoldings(company, job.data.companyId, companyName, job.data.userId, transaction.data);
+                        case(sails.config.enums.IMPORT_HISTORY):
+                            return importHistory(company, job.data.companyId, companyName, job.data.userId);
+                    }
+                }, []);
+            })
+            .then(() => {
+                return done();
+            })
+            .catch(e => {
+                sails.log.error('Failed transactions', e.message);
+                return done(new Error(`Failed to complete ${companyName} Transactions`));
+            })
+            .then(() => {
+                return job.remove();
+            });
+
+        });
 
 });

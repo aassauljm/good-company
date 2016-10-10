@@ -103,6 +103,7 @@ module.exports = {
                         return _.pick(_.pick(s.get ? s.get() : s, 'name', ignoreCompanyNumber ? null : 'companyNumber'), _.identity);
                     }), 'name');
                 }
+
                 return _.isEqual(clean(other.holders.map(h => h.person ? h.person: h)), clean(this.dataValues.holders.map(h => h.person)), function(a, b){
                     if(a.toLowerCase){
                         return (a||'').toLowerCase() === (b||'').toLowerCase();

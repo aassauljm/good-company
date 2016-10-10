@@ -387,10 +387,7 @@ const selfManagedTransactions = {
         /* to apply, retroactively, a share class:
             * clone current state without apply previousCompanyStateId.
             * set shareClass ids on parcels
-            * reset all historical actions
-
-            * perhaps keep a reference to previous head?
-            * perhaps flag companyState to show that share classes have been applied?
+            * import historic actions, until SEED
         */
         let state, companyName, historic_action_id, newRoot;
         return sequelize.transaction(function(t){
@@ -440,6 +437,41 @@ const selfManagedTransactions = {
                 }
             });
     },
+
+    createThenApplyShareClassAllHoldings: function(data, company){
+        let companyState, shareClass;
+        return transactions.createShareClass(data, company)
+            .then(function(){
+                return company.getCurrentCompanyState()
+            })
+            .then(function(_companyState){
+                companyState = _companyState;
+                return companyState.getShareClasses({
+                        include: [{
+                            model: ShareClass,
+                            as: 'shareClasses'
+                        }]
+                    })
+            })
+            .then(function(shareClasses){
+                shareClass = shareClasses.dataValues.shareClasses[0].id;
+                return companyState.getHoldingList({include: CompanyState.includes.holdings()})
+            })
+            .then(function(holdingList){
+                const actions = holdingList.dataValues.holdings.map(function(h){
+                    return {
+                        holdingId: h.holdingId,
+                        shareClass: shareClass,
+                        transactionType: Transaction.types.APPLY_SHARE_CLASS
+                    };
+                });
+                return selfManagedTransactions.apply_share_classes({
+                    actions: actions
+                }, company);
+            })
+
+
+    }
 }
 
 

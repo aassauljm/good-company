@@ -1,0 +1,4 @@
+module.exports  = { enums: {
+    'CREATE_APPLY_ALL_SHARE_CLASS': 'CREATE_APPLY_ALL_SHARE_CLASS',
+    'IMPORT_HISTORY': 'IMPORT_HISTORY'
+}};

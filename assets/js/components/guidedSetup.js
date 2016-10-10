@@ -44,7 +44,6 @@ export class NextCompanyControls extends React.Component {
             index++;
             index = index % data.length;
         }
-        console.log(index, currentIndex, data.length)
         if(index === currentIndex){
             return false;
         }

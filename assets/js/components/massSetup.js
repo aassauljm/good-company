@@ -11,6 +11,7 @@ import { sortAlerts } from './alerts';
 import { reduxForm } from 'redux-form';
 import ButtonInput from './forms/buttonInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import { enums as BulkTransactionTypes } from '../../../config/enums/bulkTransactions';
 
 const CREATE_SHARE = 0;
 const SELECT_COMPANIES = 1;
@@ -198,8 +199,16 @@ const PAGES = {
         showModal: () => dispatch(showModal('massSetup')),
         submit: (data) => {
             return dispatch(transactionBulk({
-                companyIds: data.companies.map(c => c.companyId),
-                shareClass: data.shareClass
+                transactions: data.companies.map(c => ({
+                    companyId: c.companyId,
+                    transactions: [{
+                        data: data.shareClass,
+                        transactionType: BulkTransactionTypes.CREATE_APPLY_ALL_SHARE_CLASS
+                    }, {
+                        transactionType: BulkTransactionTypes.IMPORT_HISTORY
+                    }]
+                }))
+
             }))
         },
         done: () => {

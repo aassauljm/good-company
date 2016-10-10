@@ -123,7 +123,7 @@ export function validateInverseAmend(amend, companyState){
         throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
     }
     // If holders have changed too
-    if(!holding.holdersMatch({holders: amend.beforeHolders})){
+    if(!holding.holdersMatch({holders: amend.beforeHolders}, true)){
         throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
             action: amend,
             importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
@@ -708,12 +708,12 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
     .then((newAddress) => {
         if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
             sails.log.error(newAddress, companyState[data.field])
-            throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected')
+            throw new sails.config.exceptions.InvalidIgnorableInverseOperation('New address does not match expected')
         }
         if(['registeredCompanyAddress',
             'addressForShareRegister',
             'addressForService'].indexOf(data.field) === -1){
-            throw new sails.config.exceptions.InvalidInverseOperation('Address field not valid')
+            throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Address field not valid')
         }
     })
 }

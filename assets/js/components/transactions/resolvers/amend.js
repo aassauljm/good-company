@@ -65,6 +65,9 @@ function inverseTransfer(type){
 }
 
 function absoluteAmount(type, amount){
+    if(!type){
+        return amount;
+    }
     if([TransactionTypes.ISSUE_TO, TransactionTypes.TRANSFER_TO, TransactionTypes.CONVERSION_TO].indexOf(type) >- 1){
         return amount;
     }
@@ -244,7 +247,9 @@ const validateAmend = (values, props) => {
                 }
 
             }
-            sum += absoluteAmount(recipient.type, amount);
+            if(recipient.type){
+                sum += absoluteAmount(recipient.type, amount);
+            }
             return errors;
         });
 
@@ -288,7 +293,7 @@ const AmendOptionsConnected = reduxForm({
 export default function Amend(context, submit){
     const { actionSet, companyState, shareClassMap } = context;
     const amendActions = actionSet.data.actions.filter(a => {
-        return [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionMethod) >= 0;
+        return [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionMethod || a.transactionType) >= 0;
     });
 
 

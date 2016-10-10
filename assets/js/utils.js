@@ -344,7 +344,7 @@ export function populatePerson(person, companyState){
 
 
 export function generateShareClassMap(companyState){
-    if(companyState.shareClasses && companyState.shareClasses.shareClasses){
+    if(companyState && companyState.shareClasses && companyState.shareClasses.shareClasses){
         return companyState.shareClasses.shareClasses.reduce((acc, s) => {
             acc[s.id] = s;
             return acc;

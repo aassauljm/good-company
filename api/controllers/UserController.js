@@ -166,21 +166,6 @@ module.exports = {
                     sails.log.error(e);
                 });
         })
-
-       /* Promise.join(
-                     asyncJob.rangeByStateAsync('active', 0, 1000, 'asc'),
-                     asyncJob.rangeByStateAsync('inactive', 0, 1000, 'asc'))
-            .spread(function(active, inactive){
-                // probably don't need to send job data
-                const result = {
-                    pending: active.filter(j => j.data.userId === req.user.id)
-                        .concat(inactive.filter(j => j.data.userId === req.user.id))
-                }
-                res.json(result);
-            })
-            .catch(e => {
-                sails.log.error(e);
-            });*/
     },
 
     alerts: function(req, res) {
