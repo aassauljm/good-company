@@ -22,7 +22,7 @@ app.load({
     },
     hooks: {
         blueprints: false,
-
+        fixtures: false,
         cors: false,
         csrf: false,
         grunt: false,

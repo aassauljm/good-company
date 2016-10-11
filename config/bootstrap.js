@@ -74,6 +74,9 @@ function patchBluebird(ns) {
 }
 
 function loadDB(){
+    if(!sails.config.fixtures || !__DEV__){
+        return;
+    }
     return fs.readFileAsync('config/db/functions.sql', 'utf8')
          .then(function(sql){
             return sequelize.query(sql)
@@ -107,9 +110,6 @@ module.exports.bootstrap = function(cb) {
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
     patchBluebird(session);
-    if(sails.config.fixtures === false){
-        return cb();
-    }
     return Promise.all([loadDB(), prepTemp(), stats()])
         .then(function(){
             cb();

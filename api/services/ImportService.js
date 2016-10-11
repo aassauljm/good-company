@@ -14,7 +14,7 @@ export function importCompany(companyNumber, options) {
             .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
             .then((_processedDocs) => {
                 processedDocs = _processedDocs;
-                return sequelize.transaction(function(t){
+                return sequelize.transaction(function(){
                     return ScrapingService.populateDB(data, options.userId)
                     .then(function(_company) {
                         company = _company;
@@ -48,13 +48,16 @@ export function importCompany(companyNumber, options) {
                                 return newRoot.save()
                             })
                             .then(() => {
-                                state.getHistoricActions()
+                                return state.getHistoricActions()
                                     .then(hA => {
                                         hA.set({previous_id: pendingAction[0].id});
                                         return hA.save();
                                     })
                             })
                         })
+                    })
+                    .catch(e => {
+                        throw e;
                     })
          })
         .then(() => {
