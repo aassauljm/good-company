@@ -92,7 +92,9 @@ app.load({
                     data: {}
                 })
                 .then(function(){
-                    deleteCompany();
+                    return deleteCompany();
+                })
+                .then(function(){
                     return done(new Error('Duplicate name: '+job.data.query));
                 });
             })
@@ -105,7 +107,9 @@ app.load({
                     data: {}
                 })
                 .then(function(){
-                    deleteCompany();
+                    return deleteCompany();
+                })
+                .then(function(){
                     return done(new Error(`${e.message}: ${job.data.query}`));
                 });
             })
@@ -118,7 +122,9 @@ app.load({
                     data: {}
                 })
                 .then(function(){
-                    deleteCompany();
+                    return deleteCompany();
+                })
+                .then(function(){
                     return done(new Error('Could not find company: '+job.data.query));
                 });
             })

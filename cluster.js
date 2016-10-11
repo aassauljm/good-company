@@ -1,6 +1,7 @@
+"use strict";
 var cluster = require('cluster'),
     kue = require('kue');
-
+//require("babel-core/register");
 /**
  * app.js
  *

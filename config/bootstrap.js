@@ -20,7 +20,7 @@ require("babel-polyfill");
 
 
 var getNamespace = require('continuation-local-storage').getNamespace;
-var session = require('continuation-local-storage').createNamespace('session')
+var session = require('continuation-local-storage').createNamespace('session');
 //var patchBluebird = require('cls-bluebird');
 var Promise = require('bluebird'),
     shimmer = require('shimmer');
@@ -110,6 +110,7 @@ module.exports.bootstrap = function(cb) {
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
     patchBluebird(session);
+    //Sequelize.useCLS(namespace);
     return Promise.all([loadDB(), prepTemp(), stats()])
         .then(function(){
             cb();

@@ -3,62 +3,62 @@
 export function importCompany(companyNumber, options) {
     let data, company, state, newRoot, processedDocs, companyName, pendingAction;
 
-        return ScrapingService.fetch(companyNumber)
-            .then(ScrapingService.parseNZCompaniesOffice)
-            .tap(checkNameCollision.bind(null, options.userId))
-            .then((_data) => {
-                data = _data;
-                companyName = data.companyName;
-                return ScrapingService.getDocumentSummaries(data)
-            })
-            .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
-            .then((_processedDocs) => {
-                processedDocs = _processedDocs;
-                return sequelize.transaction(function(){
-                    return ScrapingService.populateDB(data, options.userId)
-                    .then(function(_company) {
-                        company = _company;
-                        if(options.history === false){
-                            return;
-                        }
-                        return company.getRootCompanyState()
-                            .then(_state => {
-                                state = _state;
-                                return state.buildPrevious({transaction: null, transactionId: null}, {newRecords: true});
-                            })
-                            .then(function(_newRoot){
-                                newRoot = _newRoot
-                                return newRoot.save();
-                            })
-                            .then(function(){
-                                return state.setPreviousCompanyState(newRoot);
-                            })
-                            .then(function(){
-                                return SourceData.create({data: processedDocs});
-                            })
-                            .then(function(sourceData){
-                                company.setHistoricSourceData(sourceData);
-                            })
-                            .then(() => {
-                                return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
-                            })
-                            .then(function(_pendingAction){
-                                pendingAction = _pendingAction;
-                                newRoot.set('pending_historic_action_id', pendingAction[0].id);
-                                return newRoot.save()
-                            })
-                            .then(() => {
-                                return state.getHistoricActions()
-                                    .then(hA => {
-                                        hA.set({previous_id: pendingAction[0].id});
-                                        return hA.save();
-                                    })
-                            })
+    return ScrapingService.fetch(companyNumber)
+        .then(ScrapingService.parseNZCompaniesOffice)
+        .tap(checkNameCollision.bind(null, options.userId))
+        .then((_data) => {
+            data = _data;
+            companyName = data.companyName;
+            return ScrapingService.getDocumentSummaries(data)
+        })
+        .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
+        .then((_processedDocs) => {
+            processedDocs = _processedDocs;
+            return sequelize.transaction(function(){
+                return ScrapingService.populateDB(data, options.userId)
+                .then(function(_company) {
+                    company = _company;
+                    if(options.history === false){
+                        return;
+                    }
+                    return company.getRootCompanyState()
+                        .then(_state => {
+                            state = _state;
+                            return state.buildPrevious({transaction: null, transactionId: null}, {newRecords: true});
+                        })
+                        .then(function(_newRoot){
+                            newRoot = _newRoot
+                            return newRoot.save();
+                        })
+                        .then(function(){
+                            return state.setPreviousCompanyState(newRoot);
+                        })
+                        .then(function(){
+                            return SourceData.create({data: processedDocs});
+                        })
+                        .then(function(sourceData){
+                            return company.setHistoricSourceData(sourceData);
+                        })
+                        .then(() => {
+                            return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                        })
+                        .then(function(_pendingAction){
+                            pendingAction = _pendingAction;
+                            newRoot.set('pending_historic_action_id', pendingAction[0].id);
+                            return newRoot.save()
+                        })
+                        .then(() => {
+                            return state.getHistoricActions()
+                                .then(hA => {
+                                    hA.set({previous_id: pendingAction[0].id});
+                                    return hA.save();
+                                })
                         })
                     })
-                    .catch(e => {
-                        throw e;
-                    })
+                })
+                .catch(e => {
+                    throw e;
+                })
          })
         .then(() => {
             return ActivityLog.create({
