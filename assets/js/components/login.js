@@ -50,6 +50,7 @@ class Login extends React.Component {
     componentDidMount() {
         this.nav()
     }
+
     componentDidUpdate() {
         this.nav()
     }
@@ -88,7 +89,7 @@ export class LoginWithCatalex extends React.Component {
                     <div className="text-center">
                         <a href={this.props.loginUrl}>
                             <h5>Login with CataLex</h5>
-                            <img src={'/images/logo-colour.png'} />
+                            <img style={{maxWidth: '100%'}}src={'/images/logo-colour.png'} />
                         </a>
                     </div>
                 </div>

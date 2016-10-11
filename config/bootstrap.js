@@ -70,7 +70,7 @@ function patchBluebird(ns) {
 
     // Error management configuration
     shimCLS(Promise.prototype, 'done', [0, 1]);
-
+    console.log('SHIMMED CLS')
 }
 
 function loadDB(){
@@ -110,7 +110,6 @@ module.exports.bootstrap = function(cb) {
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
     patchBluebird(session);
-    //Sequelize.useCLS(namespace);
     return Promise.all([loadDB(), prepTemp(), stats()])
         .then(function(){
             cb();
