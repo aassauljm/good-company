@@ -53,7 +53,6 @@ db.tx(function (t) {
                     })
             });
         })
-        .
         .then(function(){
             return fs.readFileAsync('config/db/functions.sql', 'utf8')
         })
