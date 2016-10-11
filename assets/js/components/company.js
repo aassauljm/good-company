@@ -162,12 +162,12 @@ export default class Company extends React.Component {
                         companyState={current}
                         companyId={this.props.params.id}
                      />
-                    <ReportingDetailsWidget
+                    { /* <ReportingDetailsWidget
                         toggle={(expanded) => this.props.toggleWidget([this.key(), 'reporting'], expanded) }
                         expanded={(this.props.widgets.reporting || {}).expanded}
                         companyState={current}
                         companyId={this.props.params.id}
-                     />
+                     /> */ }
                 </div>
                  <div className="col-md-6">
                      <ShareholdingsWidget

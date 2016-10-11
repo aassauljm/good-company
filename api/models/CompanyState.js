@@ -436,8 +436,9 @@ module.exports = {
                     })
                     .then(function(args){
                         args.directorList = args.directorList || {directors: []}
-                    args.transaction = args.transaction || {type: Transaction.types.SEED};
-                        let state = CompanyState.build(args, {include: CompanyState.includes.full()
+                        args.transaction = args.transaction || {type: Transaction.types.SEED};
+                        let state = CompanyState.build(args, {
+                            include: CompanyState.includes.full()
                                 .concat(CompanyState.includes.docList())
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.holdingList())
@@ -451,6 +452,7 @@ module.exports = {
                         });
                         (state.get('directorList').get('directors') || []).map(function(d){
                             d.get('person').isNewRecord = false;
+                            d.get('person')._changed = {};
                             d._changed = {};
                         });
                         state._populated = true;
