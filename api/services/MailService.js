@@ -54,7 +54,7 @@ module.exports = {
                                            {name: user.username, successCount, totalCount, link: sails.config.APP_URL})
     },
     sendTransactionsComplete: function(user, successCount, totalCount){
-        return MailService.sendCataLexMail('emails.goodcompanies.import-complete', user.email, 'Good Companies - Companies Transactions Complete',
+        return MailService.sendCataLexMail('emails.goodcompanies.bulk-setup', user.email, 'Good Companies - Companies Import History Complete',
                                            {name: user.username, successCount, totalCount, link: sails.config.APP_URL})
     }
 };

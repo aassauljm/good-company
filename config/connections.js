@@ -53,7 +53,7 @@ module.exports.connections = {
         options: {
             dialect: 'postgres',
             host: 'localhost',
-            isolationLevel: "READ COMMITTED",
+            benchmark: true,
             port: 5432,
             logging: true,
             pool: {

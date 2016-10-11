@@ -15,7 +15,12 @@ module.exports = {
     find: function(req, res) {
         Company.findAll({
             where: {ownerId: req.user.id, deleted: false},
-            order: actionUtil.parseSort(req),
+            order: [
+                    [{
+                        model: CompanyState,
+                        as: 'currentCompanyState'
+                    }, 'companyName', 'ASC']
+            ],
             include: [{
                 model: CompanyState,
                 as: 'currentCompanyState'
@@ -34,7 +39,7 @@ module.exports = {
         Company.findById(req.params.id)
         .then(function(_company){
             company  = _company;
-            return company.getCurrentCompanyState()
+            return company.getCurrentCompanyState();
         })
         .then(_state => {
             state = _state;
@@ -50,7 +55,7 @@ module.exports = {
             });
         })
         .then(() => {
-            res.json({message:  `${companyName} Deleted.`})
+            return res.json({message:  `${companyName} Deleted.`})
         })
     },
 

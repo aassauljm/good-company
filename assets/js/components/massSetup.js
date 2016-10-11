@@ -22,8 +22,6 @@ const SUBMIT = 3;
 class SelectCompanies extends React.Component {
     render() {
         const { handleSubmit, fields, invalid } = this.props;
-
-
         return <form onSubmit={handleSubmit}>
             { fields.companies.map((company, i) => {
                 return <Input key={i} type="checkbox"  {...this.formFieldProps(['companies', i, 'selected'])} label={company.companyName.value} />
@@ -110,6 +108,13 @@ const PAGES = {
     },
 
     [SELECT_COMPANIES]: (props) => {
+        const alerts = props.alerts.data || [];
+        alerts.sort((a, b) => (a.companyName || '').localeCompare(b.companyName));
+
+        const initialValues = {companies: alerts
+                                    .filter(a => a.warnings.shareClassWarning)
+                                    .map(c => ({companyName: c.companyName, companyId: c.id}) )}
+
         return <div>
 
             <div className="row">
@@ -139,9 +144,7 @@ const PAGES = {
                         <div className="widget-body">
                             <div className="row">
                                 <div className="col-md-6 col-md-offset-3">
-                                    <SelectCompaniesConnected initialValues={{companies: (props.alerts.data || [])
-                                        .filter(a => a.warnings.shareClassWarning)
-                                        .map(c => ({companyName: c.companyName, companyId: c.id}) )}}
+                                    <SelectCompaniesConnected initialValues={initialValues}
                                         onSubmit={(values) => props.next({index: FINALIZE, companies: values.companies.filter(c => c.selected)} )}
                                         />
                                 </div>

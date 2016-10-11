@@ -103,6 +103,7 @@ app.load({
     };
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
+
     queue.process('import', 10, function(job, done){
         sails.log.info('Receiving Job: '+JSON.stringify(job.data));
         const userId = job.data.userId;
