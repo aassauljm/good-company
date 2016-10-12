@@ -12,6 +12,8 @@ import { fieldStyle, fieldHelp } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import { push } from 'react-router-redux';
+import Loading from '../loading';
+
 
 function renderHolders(holding){
     return <ul>
@@ -32,9 +34,11 @@ function renderAmount(holding){
 
 
 export class ShareClassSelect extends React.Component {
+
     static propTypes = {
         options: PropTypes.array.isRequired,
-    };
+    }
+
     renderSelect(shareClass) {
         return <Input type="select" {...shareClass} bsStyle={fieldStyle(shareClass)} help={fieldHelp(shareClass)}
             hasFeedback >
@@ -62,13 +66,23 @@ export class ShareClassSelect extends React.Component {
     }
 }
 
+function validate(values) {
+    return Object.keys(values).reduce((acc, k) => {
+        if(!values[k]){
+            acc[k] =  ['Required']
+        }
+        return acc;
+    }, {});
+}
+
 const ShareClassSelectConnected = reduxForm({
-  form: 'shareClassSelect'
+  form: 'shareClassSelect',
+  validate
 })(ShareClassSelect);
 
 
 
-@connect(undefined)
+@connect((state) => ({transactions: state.transactions}))
 export class ApplyShareClassesModal extends React.Component {
     constructor(props) {
         super(props);
@@ -82,7 +96,6 @@ export class ApplyShareClassesModal extends React.Component {
     submit(values) {
         const holdings = [];
         Object.keys(values).map(k => {
-            //if(!values[k]) return;
             holdings.push({
                 holdingId: parseInt(k, 10),
                 shareClass: parseInt(values[k], 10) || undefined,
@@ -95,7 +108,6 @@ export class ApplyShareClassesModal extends React.Component {
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
-                const key = this.props.modalData.companyId;
             })
             .then(() => {
                 this.props.dispatch(showModal('importHistory', {companyState: this.props.modalData.companyState, companyId: this.props.modalData.companyId}));
@@ -108,8 +120,10 @@ export class ApplyShareClassesModal extends React.Component {
     }
 
     renderBody(companyState) {
+        if(this.props.transactions._status === 'fetching'){
+            return <Loading />
+        }
         const shareClasses = ((companyState.shareClasses || {}).shareClasses || []);
-
         const options = shareClasses.map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         })
@@ -118,8 +132,13 @@ export class ApplyShareClassesModal extends React.Component {
             acc[value.holdingId] = value.parcels[0].shareClass || (shareClasses[shareClasses.length-1] || {}).id;
             return acc;
         }, {})
-        return <ShareClassSelectConnected ref="form" companyState={companyState}
-            options={options} fields={fields} onSubmit={this.submit} initialValues={initialValues}/>
+        return <ShareClassSelectConnected
+            ref="form"
+            companyState={companyState}
+            options={options}
+            fields={fields}
+            onSubmit={this.submit}
+            initialValues={initialValues}/>
     }
 
     render() {

@@ -81,6 +81,11 @@ export class CompanyLoader extends React.Component {
 }
 
 
+const FAKE_COMPANY = {
+    holdingList: {holdings: []}, warnings: {}
+};
+
+
 @asyncConnect([{
     key: 'company',
     promise: ({store: {dispatch, getState}, params}) => {
@@ -88,10 +93,10 @@ export class CompanyLoader extends React.Component {
     }
 }], (state, ownProps) => {
     return {
-        data: DEFAULT_OBJ,
         companyPage: state.companyPage,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
         modals: state.modals,
+        data: DEFAULT_OBJ,
          ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 },
 (dispatch, ownProps) => ({
@@ -195,8 +200,6 @@ export default class Company extends React.Component {
                         companyState={current}
                         companyId={this.props.params.id}
                      />
-
-
                 </div>
 
                 </div>
@@ -213,7 +216,7 @@ export default class Company extends React.Component {
             </div>
         }
         return <div className="company">
-                <CompanyHeader companyId={this.key()} companyState={current || {}} />
+                <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} />
                 <div className="company-page">
                     <div className="container-fluid page-top">
                     <Notifications />
@@ -231,7 +234,7 @@ export default class Company extends React.Component {
 
                     </div>
                     <div className="container-fluid page-body">
-                        { this.renderBody(current) }
+                        { this.renderBody(current || FAKE_COMPANY) }
                     </div>
             </div>
         </div>

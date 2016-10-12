@@ -108,7 +108,7 @@ export class GuidedSetup extends React.Component {
         const warningCount = Object.keys(warnings).reduce((acc, key) => {
             return acc + (warnings[key] ? GuidedSetup.warningCounts[key] : 0);
         }, 0);
-        const warningSteps =  Object.keys(GuidedSetup.warningCounts).reduce((acc, key) => {
+        const warningSteps  =  Object.keys(GuidedSetup.warningCounts).reduce((acc, key) => {
             return acc + GuidedSetup.warningCounts[key];
         }, 0);
         const now = ((warningSteps - warningCount) / warningSteps * 100);
@@ -136,9 +136,8 @@ export class GuidedSetup extends React.Component {
             props.modalData = {...props.modalData, companyState: this.props.companyState, companyId: this.props.companyId};
         }
 
-
         return <div className="modals">
-            { this.props.modals.showing && <div>
+            <div>
                 <div className="container">
                     <div className="row">
                     <div className="col-md-12">
@@ -146,32 +145,13 @@ export class GuidedSetup extends React.Component {
                          <div className="widget-body">
                             <h5 className="text-center">Share Register Setup {warningSteps - warningCount} / {warningSteps}</h5>
                             <ProgressBar now={now} striped bsStyle="success" /></div>
+                             { warningSteps === 0 && 'Congratulations, { this.props.companyState.companyName } has succesfully been setup up.' }
                         </div>
                     </div>
                     </div>
                 </div>
-                <ModalSwitch showing={this.props.modals.showing} {...props}  />
+                { this.props.modals.showing && <ModalSwitch showing={this.props.modals.showing} {...props}  /> }
             </div>
-
-            }
-
-            { !this.props.modals.showing &&  <div className="container">
-                <div className="row">
-                <div className="col-md-12">
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                            Guided Setup
-                        </div>
-                    </div>
-                    <div className="widget-body">
-                       Congratulations, { this.props.companyState.companyName } has succesfully been setup up.
-                    </div>
-                </div>
-                </div>
-                </div>
-            </div> }
-
             <NextCompanyControls companyId={this.props.companyId} showSkip={!!this.props.modals.showing}/>
         </div>
     }

@@ -20,7 +20,6 @@ function largestHolders(shareClass, total, companyState, count = 3){
         return acc;
     }, []);
     list.sort((a, b) => b.amount - a.amount);
-
     return list.slice(0, count);
 }
 
@@ -114,7 +113,7 @@ export class ShareholdingsWidget extends React.Component {
                     <div className="col-xs-12">
                     { Object.keys(shareCountByClass).map((k, i) => {
                         return <div key={i} className="class-summary">
-                            <div><span className="number">{numberWithCommas(shareCountByClass[k].amount)}</span> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
+                            <div><strong>{numberWithCommas(shareCountByClass[k].amount)}</strong> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
                                 { largestHolders(shareCountByClass[k].shareClass, shareCountByClass[k].amount, this.props.companyState).map((h, i) => {
                                     return <div key={i} className="indent"><strong>{numberWithCommas(h.amount)} ({(h.amount/shareCountByClass[k].amount*100).toFixed(2) + '%'})</strong> Held by {renderHolders(h.holding)}</div>
                                 }) }
