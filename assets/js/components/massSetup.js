@@ -164,6 +164,12 @@ const PAGES = {
 
 
     [FINALIZE]: (props) => {
+        const alerts = props.alerts.data || [];
+        const companyMapping = alerts.reduce((acc, a) => {
+            acc[a.id] = a.companyName;
+            return acc;
+        });
+
         return <div>
 
             <div className="row">
@@ -182,7 +188,7 @@ const PAGES = {
                                 <div className="col-md-6 col-md-offset-3">
                                     <ul className="bulleted">
                                     { props.massSetup.data.companies.map((company, i) => {
-                                        return <li key={i}>{company.companyName}</li>
+                                        return <li key={i}>{companyMapping[company.companyId]}</li>
                                     })}
                                     </ul>
                                 </div>

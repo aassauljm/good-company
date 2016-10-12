@@ -25,6 +25,7 @@ export function sortAlerts(response) {
     requestJobs: (refresh) => requestResource('/pending_jobs', {refresh: refresh}),
     refreshCompanies: () => requestResource('/company', {refresh: true}),
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
+    refreshAlerts: () => requestResource('/alerts', {refresh: true, postProcess: sortAlerts}),
     navigate: (url) => push(url),
     resetModals: () => resetModals()
 })
@@ -55,6 +56,7 @@ export class AlertsWidget extends React.Component {
     refreshAll() {
         this.props.refreshCompanies();
         this.props.refreshRecentActivity();
+        this.props.refreshAlerts();
     }
 
     componentDidMount() {
