@@ -68,7 +68,6 @@ module.exports = {
             })
             .then(function(company) {
                 this.company = company;
-                console.log(company)
                 return Promise.all([this.company.currentCompanyState.fullPopulateJSON(), this.company.hasPendingJob()])
             })
             .spread(function(currentCompanyState, hasPendingJob){
@@ -125,11 +124,11 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return companyState.stats();
+                return Promise.all([companyState.stats(), this.company.hasPendingJob()])
             })
-            .then(function(stats) {
+            .spread(function(stats, hasPendingJob) {
                 var json = this.companyState.get();
-                res.json({companyState: _.merge(json, stats)});
+                res.json({companyState: _.merge(json, stats, {hasPendingJob: hasPendingJob})});
             }).catch(function(err) {
                 return res.notFound();
             });
@@ -353,7 +352,6 @@ module.exports = {
                 return MailService.sendTransactionsComplete(req.user, results.reduce((acc, x) => acc + x, 0), transactionCount);
             })
             .catch((e) => {
-                console.log(e)
                 sails.log.error("Failed to send mail");
             })
 
