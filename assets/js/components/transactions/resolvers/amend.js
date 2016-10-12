@@ -74,6 +74,19 @@ function absoluteAmount(type, amount){
     return Number.isInteger(amount) ? -amount : 0;
 }
 
+function validTransactionType(type){
+    return [
+        TransactionTypes.ISSUE_TO,
+        TransactionTypes.TRANSFER_TO,
+        TransactionTypes.CONVERSION_TO,
+        TransactionTypes.TRANSFER_FROM,
+        TransactionTypes.PURCHASE_FROM,
+        TransactionTypes.REDEMPTION_FROM,
+        TransactionTypes.ACQUISITION_FROM,
+        TransactionTypes.CONSOLIDATION_FROM
+        ].indexOf(type) >= 0 ? type : '';
+}
+
 
 @formFieldProps()
 class Recipient extends React.Component {
@@ -312,11 +325,13 @@ export default function Amend(context, submit){
                     amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);
                 }
                 if(isTransfer(r.type)){
-                    transfers.push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod, amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)});
+                    transfers.push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod || amendActions[i].transactionType,
+                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)});
                 }
                 else{
                     transactions[r.type] = transactions[r.type] || [];
-                    transactions[r.type].push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod, amount: amount});
+                    transactions[r.type].push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod || amendActions[i].transactionType,
+                        amount: amount});
                 }
                 if(amendActions[i].beforeAmount !== undefined){
                     amendActions[i].afterAmount = amendActions[i].beforeAmount;
@@ -336,7 +351,7 @@ export default function Amend(context, submit){
             });
             const reciprocal = transfers.splice(reciprocalIndex, 1)[0];
             pendingActions.push({
-                id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], type: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
+                id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
             })
         }
         submit({
@@ -373,9 +388,10 @@ export default function Amend(context, submit){
             }]};
         }
         return {recipients: [{
-            amount:  a.amount, type: a.transactionType !== TransactionTypes.AMEND ? a.transactionType : ''
+            amount:  a.amount, type: validTransactionType(a.transactionType)
         }]};
     })};
+
 
     const holdings = amendActions.reduce((acc, a, i) => {
         const increase = actionAmountDirection(a);

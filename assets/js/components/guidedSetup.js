@@ -142,17 +142,22 @@ export class GuidedSetup extends React.Component {
                     <div className="row">
                     <div className="col-md-12">
                     <div className="widget">
+                        <div className="widget-header">
+                        <div className="widget-title">
+                            Guided Setup
+                        </div>
+                        </div>
                          <div className="widget-body">
                             <h5 className="text-center">Share Register Setup {warningSteps - warningCount} / {warningSteps}</h5>
                             <ProgressBar now={now} striped bsStyle="success" /></div>
-                             { warningSteps === 0 && 'Congratulations, { this.props.companyState.companyName } has succesfully been setup up.' }
+                            { warningCount === 0 && <p>Congratulations, { this.props.companyState.companyName } has succesfully been setup up.</p> }
                         </div>
                     </div>
                     </div>
                 </div>
                 { this.props.modals.showing && <ModalSwitch showing={this.props.modals.showing} {...props}  /> }
             </div>
-            <NextCompanyControls companyId={this.props.companyId} showSkip={!!this.props.modals.showing}/>
+            <NextCompanyControls companyId={this.props.companyId} showSkip={warningCount !== 0}/>
         </div>
     }
 }
