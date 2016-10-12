@@ -49,7 +49,7 @@ module.exports = {
         entityType: {
             type: Sequelize.TEXT
         },
-        constiutionFiled: {
+        constitutionFiled: {
             type: Sequelize.BOOLEAN
         },
         arFilingMonth: {

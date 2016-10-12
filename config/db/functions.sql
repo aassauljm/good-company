@@ -307,7 +307,7 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
     AS $$
     SELECT array_to_json(array_agg(row_to_json(q)))
     FROM (
-        SELECT c.id, cs."companyName", get_warnings(cs.id) as warnings, get_deadlines(cs.id) as deadlines
+        SELECT c.id, cs."companyName", get_warnings(cs.id) as warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(cs.id) as deadlines
         FROM company c
         JOIN company_state cs ON cs.id = c."currentCompanyStateId"
         WHERE c."ownerId" = $1 AND deleted = FALSE

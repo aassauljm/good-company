@@ -70,11 +70,10 @@ function patchBluebird(ns) {
 
     // Error management configuration
     shimCLS(Promise.prototype, 'done', [0, 1]);
-    console.log('SHIMMED CLS')
 }
 
 function loadDB(){
-    if(!sails.config.fixtures || !__DEV__){
+    if(sails.config.fixtures === false || !__DEV__){
         return;
     }
     return fs.readFileAsync('config/db/functions.sql', 'utf8')
