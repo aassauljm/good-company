@@ -75,12 +75,23 @@ class ResolveAllWarnings extends React.Component {
     }
 }
 
+@pureRender
+class PendingUpdate extends React.Component {
+    render(){
+        return  <div><a  href="#" className="text-danger alert-entry">
+        <Glyphicon glyph="refresh" className="big-icon"/>
+        This company has pending updates queued.  You be unable to make changes until they are finished.</a>
+        </div>
+    }
+}
+
 export const AlertWarnings = {
     ApplyShareClasses: ApplyShareClasses,
     PopulateHistory: PopulateHistory,
     SpecifyShareClasses: SpecifyShareClasses,
     SpecifyVotingHolders: SpecifyVotingHolders,
-    ResolveAllWarnings: ResolveAllWarnings
+    ResolveAllWarnings: ResolveAllWarnings,
+    PendingUpdate: PendingUpdate
 };
 
 
@@ -166,8 +177,9 @@ export class CompanyAlertsBase extends React.Component {
         const warn = getWarnings(this.props.companyState);
         const guide = warn.shareClassWarning || warn.historyWarning || warn.applyShareClassWarning || warn.votingShareholderWarning;
         const deadlines = this.renderDeadlines(this.props.companyState.deadlines, this.props.showTypes, this.props.companyId)
-
+        const pendingUpdates = this.props.companyState.hasPendingUpdates;
         return <ul>
+                { pendingUpdates && <li><AlertWarnings.PendingUpdate companyId={this.props.companyId} /></li> }
                 { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}
                 { deadlines }
                 { this.props.showAllWarnings && this.renderImportWarnings(warn) }
@@ -189,7 +201,7 @@ export class CompanyAlertsWidget extends React.Component {
                     Notifications
                 </div>
                 <div className="widget-control">
-                <Link to={`/company/view/${this.props.companyId}/notifications`} >View All</Link>
+                    <Link to={`/company/view/${this.props.companyId}/notifications`} >View All</Link>
                 </div>
             </div>
 

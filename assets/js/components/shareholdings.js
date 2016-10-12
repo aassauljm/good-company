@@ -6,6 +6,9 @@ import PieChart  from 'react-d3-components/lib/PieChart';
 import Panel from './panel';
 import STRINGS from '../strings';
 import AutoAffix from 'react-overlays/lib/AutoAffix';
+import d3 from 'd3';
+
+const colorScale = d3.scale.category20c();
 
 function largestHolders(shareClass, total, companyState, count = 3){
     const list = companyState.holdingList.holdings.reduce((acc, h) => {
@@ -41,6 +44,8 @@ function groupHoldings(companyState) {
         data: holding
     }))};
 };
+
+
 
 @pureRender
 export class ShareholdingsWidget extends React.Component {
@@ -79,23 +84,31 @@ export class ShareholdingsWidget extends React.Component {
             <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
                 <div className="row">
                     <div className="col-sm-6 summary">
-                    <div><span className="number">{numberWithCommas(this.props.companyState.totalShares)}</span> Total Shares</div>
-                    <div><span className="number">{this.props.companyState.holdingList.holdings.length}</span> Total Allocations</div>
-                    <div><span className="number">{holderCount}</span> Total Shareholder{holderCount !== 1 && 's'}</div>
-                    <div><span className="number">{classCount}</span> Share Class{classCount !== 1 && 'es'}</div>
-                    </div>
+                            <div className="col-xs-6 col-sm-12">
+                                <div><span className="big-number number">{numberWithCommas(this.props.companyState.totalShares)}</span><span className="number-label">Total Shares</span></div>
+                            </div>
+                            <div className="col-xs-6 col-sm-12">
+                                <div><span className="med-number number">{this.props.companyState.holdingList.holdings.length}</span><span className="number-label">Total Allocations</span></div>
+                                <div><span className="med-number number">{holderCount}</span><span className="number-label">Total Shareholder{holderCount !== 1 && 's'}</span></div>
+                                <div><span className="med-number number">{classCount}</span><span className="number-label">Share Class{classCount !== 1 && 'es'}</span></div>
+                            </div>
+                        </div>
                      <div className="col-sm-6">
-                       <div className="hide-graph-labels">
+                       <div className="hide-graph-labels pie-chart responsive">
+                        <div className="pie-chart-limit">
                          { <PieChart
+                            viewBox={'0 0 100 100'}
                           data={groupHoldings(this.props.companyState)}
-                          width={120}
-                          height={120}
+                          width={100}
+                          height={100}
                           innerRadius={0.0001}
-                          outerRadius={60}
+                          outerRadius={50}
                           tooltipHtml={pieTooltip}
+                          colorScale={colorScale}
                           tooltipMode={'mouse'}
                           showInnerLabels={false}
                           showOuterLabels={false} />  }
+                          </div>
                           </div>
                     </div>
                     <div className="col-xs-12">
@@ -129,10 +142,10 @@ export class HoldingDL extends React.Component {
                 <dt>Name</dt>
                 <dd>{ this.props.holding.name }</dd>
                 <dt>Total Shares</dt>
-                <dd>{numberWithCommas(this.props.total) + ' ' + this.props.percentage}</dd>
+                <dd><strong>{numberWithCommas(this.props.total)}</strong> { this.props.percentage }</dd>
                 <dt>Parcels</dt>
                 { this.props.holding.parcels.map((p, i) =>
-                    <dd key={i} >{numberWithCommas(p.amount)} of {renderShareClass(p.shareClass, this.props.shareClassMap) } Shares<br/></dd>) }
+                    <dd key={i} ><strong>{numberWithCommas(p.amount)}</strong> of {renderShareClass(p.shareClass, this.props.shareClassMap) } Shares<br/></dd>) }
                 <dt>Shareholders</dt>
                 { this.props.holding.holders.map((holder, i) =>
                     <dd key={i} >{holder.person.name} {(holder.data||{}).votingShareholder && <strong>(Voting Shareholder)</strong>}<br/>
@@ -165,8 +178,9 @@ export class Holding extends React.Component {
                    <div className="hide-graph-labels pie-chart">
                   <PieChart
                           data={{values: [{y: sum, x: 'this'}, {y: this.props.total-sum, x: 'other'}]}}
-                          innerRadius={0.001}
+                          innerRadius={10}
                           outerRadius={30}
+                          colorScale={colorScale}
                           width={60}
                           height={60} />
             </div>
@@ -199,18 +213,43 @@ export class Shareholdings extends React.Component {
     }
     render() {
         const holdings = [...this.props.companyState.holdingList.holdings];
-        const shareClassMap = generateShareClassMap(this.props.companyState)
-        holdings.sort((a, b) => (a.name||'').localeCompare(b.name))
+        const shareClassMap = generateShareClassMap(this.props.companyState);
+
+        holdings.sort((a, b) => (a.name||'').localeCompare(b.name));
+
+        const holderCount =  Object.keys(this.props.companyState.holders).length;
+        const classCount = Object.keys(shareClassMap).length;
+
         return <div className="container">
 
-        <div className="widget">
+        <div className="widget shareholding-widget">
             <div className="widget-header">
                 <div className="widget-title">
                     Shareholdings
                 </div>
             </div>
             <div className="widget-body">
-                <div className="row">
+                <div className="row summary big-summary">
+
+                        <div className="col-sm-6">
+                            <div><span className="big-number number">{numberWithCommas(this.props.companyState.totalShares)}</span><span className="number-label">Total Shares</span></div>
+                        </div>
+
+                        <div className="col-sm-6 minor hidden-xs">
+                            <div><span className="med-number number">{this.props.companyState.holdingList.holdings.length}</span><span className="number-label">Total Allocations</span></div>
+                            <div><span className="med-number number">{holderCount}</span><span className="number-label">Total Shareholder{holderCount !== 1 && 's'}</span></div>
+                            <div><span className="med-number number">{classCount}</span><span className="number-label">Share Class{classCount !== 1 && 'es'}</span></div>
+                        </div>
+
+                        <div className="col-sm-6 visible-xs-block">
+                            <div><span className="med-number number">{this.props.companyState.holdingList.holdings.length}</span><span className="number-label">Total Allocations</span></div>
+                            <div><span className="med-number number">{holderCount}</span><span className="number-label">Total Shareholder{holderCount !== 1 && 's'}</span></div>
+                            <div><span className="med-number number">{classCount}</span><span className="number-label">Share Class{classCount !== 1 && 'es'}</span></div>
+                        </div>
+
+                </div>
+
+                    <div className="row">
                     <div className="col-md-6">
                         { holdings.map((holding, i) =>
                             <Holding key={i} holding={holding}
@@ -228,8 +267,9 @@ export class Shareholdings extends React.Component {
                               viewBox={'0 0 400 400'}
                               width={400}
                               height={400}
-                              innerRadius={0.0001}
+                              innerRadius={50}
                               outerRadius={150}
+                              colorScale={colorScale}
                               tooltipHtml={pieTooltip}
                               tooltipMode={'mouse'}
                               showInnerLabels={false}

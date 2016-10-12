@@ -168,6 +168,12 @@ export default class Company extends React.Component {
                         companyState={current}
                         companyId={this.props.params.id}
                      /> */ }
+                    <TransactionWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'transactions'], expanded) }
+                        expanded={(this.props.widgets.transactions || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
                 </div>
                  <div className="col-md-6">
                      <ShareholdingsWidget
@@ -189,12 +195,7 @@ export default class Company extends React.Component {
                         companyState={current}
                         companyId={this.props.params.id}
                      />
-                    <TransactionWidget
-                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'transactions'], expanded) }
-                        expanded={(this.props.widgets.transactions || {}).expanded}
-                        companyState={current}
-                        companyId={this.props.params.id}
-                     />
+
 
                 </div>
 

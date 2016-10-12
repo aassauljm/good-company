@@ -5,25 +5,68 @@
 .shareholding-widget{
     .number{
         font-weight: bold;
-        display:inline-block;
+        display: block;
         text-align: right;
     }
+    .big-number{
+        margin-top: -10px;
+        font-size:3.5em;
+    }
+    .med-number{
+        font-size:2.5em;
+    }
+
+    .number-label{
+        display: block;
+        text-align: right;
+        margin-top: -10px;
+        font-weight: bold;
+        color:$gray-text;
+    }
+
+    dt{
+        color:$gray-text;
+    }
+
+    .big-summary{
+        .big-number{
+            font-size:5em;
+            margin-top:30px;
+        }
+        .minor {
+            .number, .number-label{
+                text-align: left;
+            }
+        }
+        margin-bottom:30px;
+    }
+
     .hide-graph-labels{
         text-align: center;
     }
 
-    .summary .number{
-        width: 100px;
-    }
+
     .indent{
         margin-left: 30px;
     }
     .class-summary{
         margin-top: 10px;
-        &:first-of-type{
-            margin-top: 0;
+    }
+    .pie-chart-limit{
+        max-width:200px;
+        margin: 0 auto;
+    }
+
+
+    .widget-body{
+        &.expandable{
+            max-height: 265px;
+            &.expanded{
+                max-height: none;
+            }
         }
     }
+
 }
 
 .outline.shareholding{

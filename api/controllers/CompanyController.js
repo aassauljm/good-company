@@ -72,7 +72,7 @@ module.exports = {
                 return Promise.all([this.company.currentCompanyState.fullPopulateJSON(), this.company.hasPendingJob()])
             })
             .spread(function(currentCompanyState, hasPendingJob){
-                return res.json({...this.company.toJSON(), currentCompanyState: currentCompanyState, hasPendingJob: hasPendingJob});
+                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState, hasPendingJob: hasPendingJob }});
             })
             .catch(function(err) {
                 return res.notFound(err);

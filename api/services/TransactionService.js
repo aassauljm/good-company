@@ -1373,7 +1373,7 @@ export function performInverseAll(company, state){
             }
         });
     }
-
+x
     function loop(actions){
         // transaction is not bound to cls ns
         return sequelize.transaction(function(t){
