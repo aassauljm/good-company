@@ -521,7 +521,7 @@ module.exports = {
             groupShares: function() {
                 return this.getHoldingList({include: CompanyState.includes.holdings()})
                     .then(function(holdingList) {
-                        const holdings = holdingList.dataValues.holdings;
+                        const holdings = holdingList ? holdingList.dataValues.holdings : [];
                         return _.groupBy(_.flatten(holdings.map(function(s) {
                             return s.parcels;
                         })), function(p) {
@@ -546,10 +546,12 @@ module.exports = {
                     });
             },
             totalAllocatedShares: function() {
-                return Promise.resolve(this.isNewRecord || this.dataValues.holdingList.dataValues.holdings ?
+                return Promise.resolve(this.isNewRecord || this.dataValues.holdingList
+                                       && this.dataValues.holdingList.dataValues.holdings ?
                                       this.dataValues.holdingList.dataValues.holdings :
                         this.getHoldingList({include: CompanyState.includes.holdings()}))
                     .then(function(holdings) {
+                        holdings = holdings || [];
                         return _.sum(_.flatten(holdings.map(function(s) {
                             return s.parcels;
                         })), function(p) {

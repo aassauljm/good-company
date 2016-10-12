@@ -125,6 +125,8 @@ export class ResolveAmbiguityModal extends React.Component {
         context.shareClassMap = generateShareClassMap(context.companyState);
         if(!action || !PAGES[context.importErrorType]){
             return <div className="resolve">
+                { basicSummary(context, this.props.modalData.companyState)}
+                    <hr/>
                     <div>Unknown Import Error</div>
                     <div className="button-row">
                         <Button onClick={this.props.resetAction} className="btn-danger">Restart Import</Button>

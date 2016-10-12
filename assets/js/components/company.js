@@ -28,6 +28,8 @@ import { CompanyAlertsWidget } from './warnings';
 
 function analyseCompany(company){
     // create a list of holders for a c
+    company.currentCompanyState.holdingList = company.currentCompanyState.holdingList || {holdings: []};
+    company.currentCompanyState.directorList = company.currentCompanyState.directorList || {directors: []};
     company.currentCompanyState.holders = company.currentCompanyState.holdingList.holdings.reduce((acc, holding) => {
         holding.holders.reduce((acc, holder) => {
             acc[holder.person.personId] = (acc[holder.person.personId] || []).concat([holding.holdingId]);

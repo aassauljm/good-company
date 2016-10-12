@@ -110,8 +110,8 @@ export class ApplyShareClassesModal extends React.Component {
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
             })
             .then(() => {
-                this.props.dispatch(showModal('importHistory', {companyState: this.props.modalData.companyState, companyId: this.props.modalData.companyId}));
-                this.props.dispatch(push(`/company/view/${this.props.modalData.companyId}/new_transaction`));
+                //this.props.show('importHistory', {companyState: this.props.modalData.companyState, companyId: this.props.modalData.companyId});
+                //this.props.dispatch(push(`/company/view/${this.props.modalData.companyId}/new_transaction`));
             })
 
             .catch((err) => {
@@ -147,7 +147,6 @@ export class ApplyShareClassesModal extends React.Component {
                 <Modal.Title>Apply Share Classes</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-              <p>To define new share classes, click <Link to={'/company/view/'+this.props.modalData.companyId+'/share_classes/create'} onClick={() => this.props.end()}>Here</Link></p>
                 { this.renderBody(this.props.modalData.companyState) }
               </Modal.Body>
               <Modal.Footer>

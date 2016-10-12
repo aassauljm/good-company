@@ -27,6 +27,10 @@ export class NextCompanyControls extends React.Component {
         this.fetch();
     }
 
+    componentDidUpdate() {
+        this.fetch();
+    }
+
     fetch() {
         return this.props.dispatch(requestResource('/alerts', {postProcess: sortAlerts}))
     }
