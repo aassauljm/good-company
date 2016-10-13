@@ -12,7 +12,6 @@ module.exports = {
     attributes: {
         username: {
             type: Sequelize.TEXT,
-            unique: true,
             index: true,
             allowNull: false,
             validate: {

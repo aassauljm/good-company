@@ -32,10 +32,24 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
         </table>
     }
 
+    renderList(data) {
+        return <div className="company-list">
+            {
+                data.map((company => {
+                    return <div className="company-view">
+                        <h4>{ company }</h4>
+
+                    </div>
+                }))
+            }
+        </div>
+    }
+
     render() {
-        return <ComposedComponent {...this.props} renderTable={::this.renderTable} />;
+        return <ComposedComponent {...this.props} renderTable={::this.renderTable} renderList={::this.renderList}/>;
     }
 }
+
 
 
 @asyncConnect([{
@@ -59,7 +73,7 @@ export default class Companies extends React.Component {
                 <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
             </div>
             <div className="table-responsive">
-                { this.props.renderTable(data) }
+                { this.props.renderList(data) }
             </div>
         </div>
 

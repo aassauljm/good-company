@@ -325,7 +325,7 @@ export class ShareRegisterDocument extends React.Component {
                 }) }
                 <tr>
                     <td colSpan={2}><strong>Total { renderShareClass(k, shareClassMap) } Shares on Issue </strong></td>
-                    <td className="share-register-amount"><strong>{ numberWithCommas(companyState.shareCountByClass[k].amount) }</strong></td>
+                    <td className="share-register-amount"><strong>{ numberWithCommas((companyState.shareCountByClass[k] || {amount: 0}).amount) }</strong></td>
                 </tr>
             </tbody>
         </table>
