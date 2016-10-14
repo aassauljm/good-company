@@ -168,8 +168,7 @@ const PAGES = {
         const companyMapping = alerts.reduce((acc, a) => {
             acc[a.id] = a.companyName;
             return acc;
-        });
-
+        }, {});
         return <div>
 
             <div className="row">
