@@ -35,12 +35,12 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
     renderList(data) {
         return <div className="company-list">
             {
-                data.map((company => {
-                    return <div className="company-view">
-                        <h4>{ company }</h4>
+                data.map((company, i) => {
+                    return <div className="company-view" key={i}>
+                        <h4>{ company.companyName }</h4>
 
                     </div>
-                }))
+                })
             }
         </div>
     }
@@ -73,7 +73,7 @@ export default class Companies extends React.Component {
                 <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
             </div>
             <div className="table-responsive">
-                { this.props.renderList(data) }
+                { this.props.renderTable(data) }
             </div>
         </div>
 
