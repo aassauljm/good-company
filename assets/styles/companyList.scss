@@ -1,0 +1,24 @@
+.company-list-body{
+    overflow-x: auto;
+    .company-list{
+        .company-view{
+            padding:8px 15px;
+            border: 1px solid $widget-border;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            h2{
+                font-weight: bold;
+                font-size: 3.0em;
+                word-break: break-word;
+            }
+            h3{
+                font-weight: bold;
+                font-size: 1em;
+                margin-top: 10px;
+                .sub-label{
+                    color:$gray-text;
+                }
+            }
+        }
+    }
+}

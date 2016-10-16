@@ -23,7 +23,7 @@ export function sortAlerts(response) {
 }, {
     requestData: (key) => requestResource('/alerts', {postProcess: sortAlerts}),
     requestJobs: (refresh) => requestResource('/pending_jobs', {refresh: refresh}),
-    refreshCompanies: () => requestResource('/company', {refresh: true}),
+    refreshCompanies: () => requestResource('companies', {refresh: true}),
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
     refreshAlerts: () => requestResource('/alerts', {refresh: true, postProcess: sortAlerts}),
     navigate: (url) => push(url),

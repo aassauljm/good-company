@@ -469,8 +469,6 @@ const selfManagedTransactions = {
                     actions: actions
                 }, company);
             })
-
-
     }
 }
 

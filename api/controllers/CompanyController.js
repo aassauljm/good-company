@@ -486,7 +486,8 @@ module.exports = {
             }],
             order: [ [ {
                 model: CompanyState,
-                as: 'currentCompanyState'},  'companyName' ] ]
+                as: 'currentCompanyState'},  'companyName' ] ],
+            limit: 10
         })
         .then(function(matchingRecords) {
             res.json(matchingRecords.map((x) => ({

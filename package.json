@@ -96,7 +96,7 @@
     "pg-native": "^1.9.0",
     "pg-promise": "^5.2.5",
     "proxyquire": "^1.7.3",
-    "react": "15.1.0",
+    "react": "15.3.1",
     "react-addons-shallow-compare": "^15.0.0",
     "react-autosuggest": "^4.0.0",
     "react-bootstrap": "^0.30.0",

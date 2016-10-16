@@ -8,6 +8,26 @@ import { push } from 'react-router-redux'
 import { Link } from 'react-router';
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
+import { sortAlerts } from './alerts';
+import { CompanyAlertsBase } from './warnings';
+
+
+const DEFAULT_OBJ = {};
+
+
+const CompanyItem = (props) => {
+    return <div className="company-view">
+        <Link to={`/company/view/${props.company.id}`}>
+        <h2>{ props.company.companyName }</h2>
+        <h3><span className="sub-label">{ STRINGS['companyNumber'] }:</span> { props.company.companyNumber }</h3>
+        <h3><span className="sub-label">{ STRINGS['nzbn'] }:</span> { props.company.nzbn }</h3>
+        <h3><span className="sub-label">{ STRINGS['companyStatus'] }:</span> { props.company.companyStatus }</h3>
+        <h3><span className="sub-label">{ STRINGS['entityType'] }:</span> { props.company.entityType }</h3>
+        </Link>
+        <CompanyAlertsBase companyState={props.company} companyId={`${props.company.id}`} showTypes={['danger', 'warning', 'pending']} showAllWarnings={true}/>
+    </div>
+}
+
 
 const CompaniesHOC = ComposedComponent => class extends React.Component {
 
@@ -21,7 +41,8 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
         if(condensed){
             className += "table-condensed ";
         }
-        return <table className={className}>
+        return <div className="table-responsive">
+        <table className={className}>
             <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
             <tbody>
             { data.filter(d => !d.deleted).map(
@@ -30,17 +51,13 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
                 </tr>) }
             </tbody>
         </table>
+        </div>
     }
 
     renderList(data) {
-        return <div className="company-list">
+        return <div className="company-list col-md-8 col-md-offset-2">
             {
-                data.map((company, i) => {
-                    return <div className="company-view" key={i}>
-                        <h4>{ company.companyName }</h4>
-
-                    </div>
-                })
+                data.map((company, i) => <CompanyItem company={company} key={i} />)
             }
         </div>
     }
@@ -57,24 +74,43 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
         return dispatch(requestResource('companies'));
     }
 }],
-state => state.resources.companies,
+    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ, alerts: state.resources['/alerts'] || DEFAULT_OBJ}),
 {
     push: (id) => push(`/company/view/${id}`),
-    handleImport: () => push('/import')
+    handleImport: () => push('/import'),
+    fetchAlerts: () => requestResource('/alerts', { postProcess: sortAlerts}),
 })
 @CompaniesHOC
 export default class Companies extends React.Component {
 
+    componentWillMount() {
+        this.props.fetchAlerts();
+    }
+
+    componentWillUpdate() {
+        this.props.fetchAlerts();
+    }
+
     renderBody() {
-        const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
-        return <div>
+        const mappedAlerts = (this.props.alerts.data || []).reduce((acc, entry) => {
+            acc[entry.id] = entry;
+            return acc;
+        }, {});
+
+        const data = (this.props.companies.data || [])
+            .map(c => ({...c.currentCompanyState, ...c}))
+            .map(d => {
+                d.warnings = (mappedAlerts[d.id] || DEFAULT_OBJ).warnings || DEFAULT_OBJ;
+                d.deadlines = (mappedAlerts[d.id] || DEFAULT_OBJ).deadlines || DEFAULT_OBJ;
+                return d;
+            });
+
+        return <div className="company-list-body">
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
                 <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
             </div>
-            <div className="table-responsive">
-                { this.props.renderTable(data) }
-            </div>
+            { this.props.renderList(data) }
         </div>
 
     }
@@ -97,9 +133,13 @@ export default class Companies extends React.Component {
     }
 }
 
-@connect((state, ownProps) => {
-    return state.resources[`companies`] || {};
-}, {
+@asyncConnect([{
+    promise: ({store: {dispatch, getState}}) => {
+        return dispatch(requestResource('companies'));
+    }
+}],
+    state => ({companies: state.resources[`companies`]}),
+{
     requestData: () => requestResource(`companies`),
     handleImport: () => push('/import'),
     push: (id) => push(`/company/view/${id}`)
@@ -120,11 +160,10 @@ export class CompaniesWidget extends React.Component {
     };
 
     renderBody() {
-        const data = (this.props.data || []).map(c => ({...c.currentCompanyState, ...c}))
+        const data = (this.props.companies.data || []).map(c => ({...c.currentCompanyState, ...c}))
         return  <div className="widget-body">
-        <div className="table-responsive">
+
             { this.props.renderTable(data.slice(0, 6), true) }
-        </div>
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
                 <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
