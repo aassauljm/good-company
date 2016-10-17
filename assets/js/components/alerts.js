@@ -132,7 +132,7 @@ export class AlertsWidget extends React.Component {
         const importCount = this.state.pendingJobs.filter(p => p.type === 'import').length;
         const transactionCount = this.state.pendingJobs.filter(p => p.type === 'transactions').length;
         const imports = `${ importCount } company ${ importCount > 1 ? 'imports' : 'import'}`;
-        const transaction = `${ transactionCount } ${ transactionCount > 1 ? 'transactions' : 'transaction'}`;
+        const transaction = `${ transactionCount } ${ transactionCount > 1 ? 'history imports' : 'history import'}`;
         return <li>
             <div className={'text-success alert-entry'}>
                 <Glyphicon glyph="export" className="big-icon"/>

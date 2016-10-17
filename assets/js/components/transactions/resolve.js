@@ -86,7 +86,8 @@ const PAGES = {
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
-    [ImportErrorTypes.UNKNOWN_AMEND]: Amend
+    [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
+    [ImportErrorTypes.ADDRESS_DIFFERENCE]: submitSkipRestart,
 }
 
 

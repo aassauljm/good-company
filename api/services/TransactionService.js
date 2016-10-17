@@ -708,12 +708,20 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
     .then((newAddress) => {
         if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
             sails.log.error(newAddress, companyState[data.field])
-            throw new sails.config.exceptions.InvalidIgnorableInverseOperation('New address does not match expected')
+            throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected',
+                    {
+                    action: data,
+                    importErrorType: sails.config.enums.ADDRESS_DIFFERENCE
+                });
         }
         if(['registeredCompanyAddress',
             'addressForShareRegister',
             'addressForService'].indexOf(data.field) === -1){
-            throw new sails.config.exceptions.InvalidIgnorableInverseOperation('Address field not valid')
+            throw new sails.config.exceptions.InvalidInverseOperation('Address field not valid',
+                    {
+                    action: data,
+                    importErrorType: sails.config.enums.ADDRESS_DIFFERENCE
+                })
         }
     })
 }
@@ -1489,11 +1497,12 @@ export function performInverseAllPendingResolve(company, root, endCondition){
         });
 }
 
+/*
 function getRelatedActions(companyStateId, documentId) {
         return sequelize.query("select * from all_pending_actions(:id) where data->>'documentId' = :documentId",
                    { type: sequelize.QueryTypes.SELECT,
                     replacements: { id: companyStateId, documentId: documentId}});
-}
+}*/
 
 
 export function performInverseAllPending(company, endCondition){
@@ -1519,10 +1528,9 @@ export function performInverseAllPending(company, endCondition){
                 firstError.context = firstError.context || {};
                 firstError.context.actionSet = current;
 
-                return Promise.all([state.fullPopulateJSON(), getRelatedActions(state.id, current.data.documentId)])
-                    .spread((fullState, relatedActions) => {
+                return Promise.all([state.fullPopulateJSON()])
+                    .spread((fullState) => {
                         firstError.context.companyState = fullState;
-                        firstError.context.relatedActions = relatedActions
                         return performInverseAllPendingResolve(company, null, endCondition);
                     })
             })
@@ -1533,13 +1541,9 @@ export function performInverseAllPending(company, endCondition){
                     throw firstError;
                 }
                 else{
-                    return getRelatedActions(state.id, current.data.documentId)
-                        .then(relatedActions => {
-                            e.context = e.context || {};
-                            e.context.relatedActions = relatedActions;
-                            e.context.actionSet = current;
-                            throw e;
-                        });
+                    e.context = e.context || {};
+                    e.context.actionSet = current;
+                    throw e;
                 }
             })
 

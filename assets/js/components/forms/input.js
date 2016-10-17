@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import ControlLabel from 'react-bootstrap/lib/ControlLabel';
 import HelpBlock from 'react-bootstrap/lib/HelpBlock';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-
+import { splitBsProps } from 'react-bootstrap/lib/utils/bootstrapUtils';
 
 class FormGroup extends React.Component {
   render() {
@@ -198,6 +198,9 @@ class InputBase extends React.Component {
   }
 
   renderInput() {
+    // strip values
+    const {initialValue, autofill, onUpdate, valid, invalid, dirty, pristine, error, active,
+        touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName, wrapperClassName, ...elementProps} = this.props;
     if (!this.props.type) {
       return this.props.children;
     }
@@ -205,21 +208,25 @@ class InputBase extends React.Component {
     switch (this.props.type) {
     case 'select':
       return (
-        <select {...this.props} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
+        <select {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
           {this.props.children}
         </select>
       );
     case 'textarea':
-      return <textarea {...this.props} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
+      return <textarea {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
     case 'static':
       return (
-        <p {...this.props} className={classNames(this.props.className, 'form-control-static')} ref="input" key="input">
+        <p {...elementProps} className={classNames(this.props.className, 'form-control-static')} ref="input" key="input">
           {this.props.value}
         </p>
       );
     default:
       const className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
-      return <input {...this.props} className={classNames(this.props.className, className)} ref="input" key="input" />;
+      if(this.isCheckboxOrRadio()){
+            delete elementProps.value;
+            elementProps.checked = elementProps.checked || false;
+      }
+      return <input {...elementProps} className={classNames(this.props.className, className)} ref="input" key="input" />;
     }
   }
 

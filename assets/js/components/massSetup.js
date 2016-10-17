@@ -25,6 +25,7 @@ class SelectCompanies extends React.Component {
         return <form onSubmit={handleSubmit}>
             <div className="button-row">
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(true) )} >Select All</ButtonInput>
+                <ButtonInput onClick={() => fields.companies.map((c, i) => this.props.companyData[i].constitutionFiled && c.selected.onChange(true))} >Select All With Constitution</ButtonInput>
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(false) )} >Unselect All</ButtonInput>
             </div>
 
@@ -34,6 +35,7 @@ class SelectCompanies extends React.Component {
             }) }
             <div className="button-row">
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(true) )} >Select All</ButtonInput>
+                <ButtonInput onClick={() => fields.companies.map((c, i) => this.props.companyData[i].constitutionFiled && c.selected.onChange(true))}>Select All With Constitution</ButtonInput>
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(false) )} >Unselect All</ButtonInput>
                 <ButtonInput type="submit" bsStyle="primary" disabled={ invalid}>Next</ButtonInput>
             </div>

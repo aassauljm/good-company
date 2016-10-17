@@ -16,6 +16,13 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
 
 
+const DropdownToggle = (props) => {
+    return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
+        {props.children}
+      </a>
+}
+
+
 export class CompanyHeader extends React.Component {
 
     static propTypes = {
@@ -82,10 +89,10 @@ export class CompanyHeader extends React.Component {
                 </li>,
 
               <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
-                    <a href={`/company/view/${id}/new_transaction`} onClick={e => e.preventDefault()}  bsRole="toggle">
+                    <DropdownToggle href={`/company/view/${id}/new_transaction`} bsRole="toggle">
                         Update Company
-                   </a>
-                    <Dropdown.Menu>
+                   </DropdownToggle>
+                    <Dropdown.Menu bsRole="menu">
                         <MenuItem onClick={() => this.startTransaction('addAssignShares') }>Add & Assign Share Classes</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('consolidateDivide') }>Consolidate or Subdivide Shares</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('issue')}>Issue New Shares</MenuItem>
@@ -137,11 +144,10 @@ export class CompanyHeader extends React.Component {
                 <Navbar.Header>
 
                     <Navbar.Brand>
-
                         <Dropdown id="title-dropdown"  ref="dropdown">
-                            <a href="/" onClick={e => e.preventDefault()}  bsRole="toggle">
+                            <DropdownToggle href="/" bsRole="toggle">
                                 <span className="company-title"><Glyphicon glyph='menu-hamburger'/> {this.props.companyState.companyName}</span>
-                            </a>
+                            </DropdownToggle>
                             <Dropdown.Menu>
                                 <li><Link to="/">Good Company Home</Link></li>
                                 <li className="nav-item separator" />
