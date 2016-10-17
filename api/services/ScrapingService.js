@@ -13,6 +13,7 @@ const querystring = require('querystring');
 
 const DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
+    ISSUE: 'ISSUE',
     PARTICULARS: 'PARTICULARS',
     NAME_CHANGE: 'NAME_CHANGE',
     ANNUAL_RETURN: 'ANNUAL_RETURN',
@@ -496,7 +497,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 result.actions.push({
                     transactionMethod: Transaction.types.NEW_ALLOCATION,
                     transactionType: Transaction.types.ISSUE_TO,
-                    amount: parseInt(chunk[0], 10),
+                    amount: toInt(chunk[0]),
                     holders: getHolders(chunk.slice(1))
                 })
             })
@@ -546,9 +547,9 @@ const EXTRACT_DOCUMENT_MAP = {
                     };
                 }),
 
-            totalShares: parseInt($('span.h3').filter(function(){
+            totalShares: toInt($('span.h3').filter(function(){
                             return $(this).text().match(/Total Number of Shares:/);
-                        }).first().next().text(), 10),
+                        }).first().next().text()),
 
             holdings: chunkBy($('span').filter(function(){
                             return $(this).text().match(/Shareholders in Allocation/);
@@ -559,7 +560,7 @@ const EXTRACT_DOCUMENT_MAP = {
                         )
                         .map((chunk) => {
                             return {
-                            parcels: [{amount: parseInt($(chunk[0]).find('label').text().replace(' Shares', ''), 10)}],
+                            parcels: [{amount: toInt($(chunk[0]).find('label').text().replace(' Shares', ''))}],
                             holders: _.chunk(chunk, 2).map(holder => ({
                                     name: cleanString($(holder[0]).find('strong').text()),
                                     address: cleanString($(holder[1]).find('.addressLine').text())
@@ -712,6 +713,151 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         });
         return result;
     },
+
+    [DOCUMENT_TYPES.PARTICULARS]: ($) => {
+        const result = {};
+
+        let start = $('font').filter(function(){
+            return $(this).text().match("Summary of Share Parcel Changes");
+        }).parent().parent().next();
+        let remaining = start.nextAll();
+        // chunk by images
+        let chunks = chunkBy(remaining.toArray(), (el) => {
+            return $(el).find('img').length;
+        });
+
+        let type;
+        result.actions = chunks.reduce(function(acc, segment){
+            let amendAllocRegex = /^\s*Amended Share Parcel\(s\)\s*$/;
+            let newAllocRegex = /^\s*New Share Parcel\(s\)\s*$/;
+            let removedAllocRegex = /^\s*Removed Share Parcel\(s\)\s*$/;
+            let head = $(segment[0]).text();
+            if(head.match(amendAllocRegex)){
+                type = Transaction.types.AMEND;
+                return acc;
+            }
+            else if(head.match(newAllocRegex)){
+                type = Transaction.types.NEW_ALLOCATION;
+                return acc;
+            }
+            else if(head.match(removedAllocRegex)){
+                type = Transaction.types.REMOVE_ALLOCATION;
+                return acc;
+            }
+
+            const parseAmendAllocation = (segment) => {
+                // 0 === current
+                // 1 number shares
+                let index = 1;
+                const result = {beforeHolders: [], afterHolders: [],  transactionType: Transaction.types.AMEND}
+                result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                    result.afterHolders.push({
+                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                        address: cleanString($(segment[index]).find('td').eq(4).text())
+                    })
+                    index++;
+                }
+                // index is now === 'Previous'
+                index++;
+                result.beforeAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                    result.beforeHolders.push({
+                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                        address: cleanString($(segment[index]).find('td').eq(4).text())
+                    })
+                    index++;
+                }
+
+                if(JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
+                    result.unknownHoldingChange = true;
+                }
+                result.amount = Math.abs(result.beforeAmount - result.afterAmount)
+                return result;
+            }
+
+            const parseRemoveAllocation = (segment) => {
+                const result = {holders: [], afterAmount: 0, transactionType: Transaction.types.REMOVE_ALLOCATION};
+                let index = 0;
+                result.beforeAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                result.amount = result.beforeAmount;
+                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                    result.holders.push({
+                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                        address: cleanString($(segment[index]).find('td').eq(4).text())
+                    })
+                    index++;
+                }
+                return result;
+            }
+
+            const parseNewAllocation = (segment) => {
+                const result = {holders: [], beforeAmount: 0, transactionType: Transaction.types.NEW_ALLOCATION};
+                let index = 0
+                result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                result.amount = result.afterAmount;
+                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                    result.holders.push({
+                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                        address: cleanString($(segment[index]).find('td').eq(4).text())
+                    })
+                    index++;
+                }
+                return result;
+            }
+
+            if(type === Transaction.types.AMEND){
+                acc.push(parseAmendAllocation(segment));
+            }
+            else if(type === Transaction.types.NEW_ALLOCATION){
+                acc.push(parseNewAllocation(segment))
+            }
+            else if(type === Transaction.types.REMOVE_ALLOCATION){
+                acc.push(parseRemoveAllocation(segment))
+            }
+            return acc;
+        }, [])
+
+       result.totalShares = result.actions.reduce((acc, action) => {
+            switch(action.transactionType){
+                case Transaction.types.AMEND:
+                    return acc + (action.afterAmount - action.beforeAmount)
+                case Transaction.types.NEW_ALLOCATION:
+                    return acc + action.amount;
+                case Transaction.types.REMOVE_ALLOCATION:
+                    return acc - action.amount;
+                default:
+                    return acc;
+            }
+        }, 0);
+       return result;
+    },
+
+
+    [DOCUMENT_TYPES.UPDATE]: () => {
+
+    },
+
+
+    [DOCUMENT_TYPES.ISSUE]: ($) => {
+        const result = {};
+        result.transactionType = Transaction.types.ISSUE;
+        const match = (match) => {
+            return $('table td font').filter(function(){
+                return $(this).text().match(match);
+            });
+        }
+        const registeredDate = match(/Registration Date:/);
+        const regString = cleanString(registeredDate.text().replace('Registration Date:', ''));
+        result.registrationDate = moment(regString, 'DD MMM YYYY').toDate();
+        result.afterAmount = toInt(cleanString(match(/\s*Total Number of Company Shares\s*/).parent().next().text()));
+        result.amount = toInt(cleanString(match(/\s*Total Number of Shares Issued\s*/).parent().next().text()));
+        result.beforeAmount = result.afterAmount - result.amount;
+        result.increase = true;
+        result.effectiveDate = moment(cleanString(match(/\s*Date of Issue\s*/).parent().next().text()), 'DD MMM YYYY').toDate();
+        return {actions: [result], totalShares: result.increase ? -result.amount : result.amount};
+    }
+
 }
 
 const DOCUMENT_TYPE_MAP = {
@@ -749,7 +895,16 @@ const DOCUMENT_TYPE_MAP = {
 const BIZ_DOCUMENT_TYPE_MAP = {
     'Application To Incorporate A Company': {
         type: DOCUMENT_TYPES.INCORPORATION
-    }
+    },
+    'Particulars of Shareholding': {
+        type: DOCUMENT_TYPES.PARTICULARS
+    },
+    'Update Shares': {
+        type: DOCUMENT_TYPES.UPDATE
+    },
+    'Notice Of Issue Of Shares': {
+        type: DOCUMENT_TYPES.ISSUE
+    },
 };
 
 
@@ -1083,12 +1238,12 @@ const ScrapingService = {
         }
 
         result['holdings'] = {
-            total: parseInt($('div.allocations > div.row > span:nth-of-type(1)').text(), 10),
+            total: toInt($('div.allocations > div.row > span:nth-of-type(1)').text()),
             extensive: $('div.allocations > div.row > span:nth-of-type(2)').hasClass('yesLabel'),
             allocations: $('div.allocationDetail').map(function(i, alloc){
                 return {
                     name: 'Allocation ' + $(this).find('span.allocationNumber').text(),
-                    shares: parseInt($(this).find('input[name="shares"]').val(), 10),
+                    shares: toInt($(this).find('input[name="shares"]').val()),
                     holders: _.chunk($(this).find('.labelValue').get(), 2)
                         .map(function(chunk){
                             chunk = [$(chunk[0]), $(chunk[1])];

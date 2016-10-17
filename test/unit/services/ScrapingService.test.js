@@ -377,4 +377,81 @@ describe('Scraping Service', function() {
             })
     });
 
+
+    describe('Should parse biznet document with amend and remove', function() {
+        // TODO
+        it('reads file, creates amend and remove actions', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/7635100.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding'
+                    });
+                    result.actions.length.should.be.equal(2);
+                    result.actions[0].transactionType.should.be.equal(Transaction.types.AMEND);
+                    result.actions[1].transactionType.should.be.equal(Transaction.types.REMOVE_ALLOCATION);
+
+                    // TODO
+                    done();
+                })
+            });
+
+    });
+    describe('Should parse biznet document with multiple amend ', function() {
+        // TODO
+        it('reads file, creates amend and remove actions', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/6447404.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding'
+                    });
+                    result.actions.length.should.be.equal(2);
+                    result.actions[0].transactionType.should.be.equal(Transaction.types.AMEND);
+                    result.actions[0].afterHolders.length.should.be.equal(3);
+                    result.actions[0].beforeHolders.length.should.be.equal(3);
+                    result.actions[0].amount.should.be.equal(698);
+                    result.actions[1].transactionType.should.be.equal(Transaction.types.AMEND);
+
+                    // TODO
+                    done();
+                })
+            });
+
+    });
+    describe('Should parse biznet document with issue ', function() {
+        // TODO
+        it('reads file, creates amend and remove actions', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/6447425.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Notice Of Issue Of Shares'
+                    });
+                    result.actions.length.should.be.equal(1);
+                    result.actions[0].amount.should.be.equal(3250)
+
+                    // TODO
+                    done();
+                })
+            });
+    });
+    describe('Should parse biznet document with new allocation', function() {
+        // TODO
+        it('reads file, creates amend and remove actions', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/9414016.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding'
+                    });
+                    result.actions.length.should.be.equal(3);
+                    result.actions[0].holders.length.should.be.equal(2);
+                    result.actions[0].amount.should.be.equal(120000);
+
+                    // TODO
+                    done();
+                })
+            });
+    });
+
+
+
+
 });
