@@ -706,20 +706,22 @@ export const performNameChange = Promise.method(function(data, nextState, previo
 export function validateInverseAddressChange(data, companyState, effectiveDate){
     return AddressService.normalizeAddress(data.newAddress)
     .then((newAddress) => {
-        if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
+        if(!data.userBypassValidation && !AddressService.compareAddresses(newAddress, companyState[data.field])){
             sails.log.error(newAddress, companyState[data.field])
             throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected',
                     {
                     action: data,
+                    companyState: companyState.toJSON(),
                     importErrorType: sails.config.enums.ADDRESS_DIFFERENCE
                 });
         }
-        if(['registeredCompanyAddress',
+        if(!data.userBypassValidation && ['registeredCompanyAddress',
             'addressForShareRegister',
             'addressForService'].indexOf(data.field) === -1){
             throw new sails.config.exceptions.InvalidInverseOperation('Address field not valid',
                     {
                     action: data,
+                    companyState: companyState.toJSON(),
                     importErrorType: sails.config.enums.ADDRESS_DIFFERENCE
                 })
         }

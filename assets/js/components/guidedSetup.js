@@ -39,18 +39,24 @@ export class NextCompanyControls extends React.Component {
         if(this.props.alerts._status !== 'complete'){
             return false;
         }
-        const data = this.props.alerts.data;
-        const currentIndex = data.findIndex(a => {
-            return a.id.toString() === this.props.companyId;
-        }) + 1;
-        let index = (currentIndex + 1) % data.length;
-        while(index !== currentIndex && index < data.length && !Object.keys(data[index].warnings).some(k => data[index].warnings[k])){
-            index++;
-            index = index % data.length;
+        const name = this.props.companyName || '';
+        const comp = {companyName: name};
+        const data = [...this.props.alerts.data.filter(a => Object.keys(a.warnings).some(k => a.warnings[k])), comp]
+        data.sort((a, b) => {
+            return a.companyName.localeCompare(b.companyName);
+        })
+
+
+        //const index = (data.findIndex(a => a === comp) + 1) % data.length;
+        let index = (data.findIndex(a => a === comp) + 1)  % data.length;;
+        let count = 0;
+        while(data[index].companyName === name && count++ < data.length){
+            index = (index + 1) % data.length;
         }
-        if(index === currentIndex){
+        if(data[index].companyName === name){
             return false;
         }
+
         return <div className="container">
                     <div className="row">
                     <div className="col-md-12">
@@ -161,7 +167,7 @@ export class GuidedSetup extends React.Component {
                 </div>
                 { this.props.modals.showing && <ModalSwitch showing={this.props.modals.showing} {...props}  /> }
             </div>
-            <NextCompanyControls companyId={this.props.companyId} showSkip={warningCount !== 0}/>
+            <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={warningCount !== 0}/>
         </div>
     }
 }

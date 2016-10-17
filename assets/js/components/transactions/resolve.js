@@ -33,7 +33,7 @@ function skipOrRestart(allowSkip, context, submit, reset){
     return <div>
         { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
         <div className="button-row">
-        { allowSkip && <Button onClick={skip} className="btn-primary">Skip Annual Return Validation</Button> }
+        { allowSkip && <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
         <Button onClick={startOver} className="btn-danger">Restart Import</Button>
     </div>
     </div>
@@ -42,7 +42,70 @@ function skipOrRestart(allowSkip, context, submit, reset){
 const submitRestart = (...rest) => skipOrRestart(false, ...rest);
 const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
 
+
+function addressChange(context) {
+    //if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
+    ///['registeredCompanyAddress',
+     ///           'addressForShareRegister',
+      ///          'addressForService']
+
+    return <div className="row row-separated">
+                <div className="col-md-5">
+                <h5>Previous {STRINGS[context.action.field]}</h5>
+                { context.action.previousAddress }
+            </div>
+            <div className="col-md-2">
+                <div className="text-center">
+                    <Glyphicon glyph="arrow-right" className="big-arrow" />
+                    <h5>Effective as at {stringToDateTime(context.action.effectiveDate)}</h5>
+                </div>
+            </div>
+            <div className="col-md-5">
+                <h5>New {STRINGS[context.action.field]}</h5>
+                { context.action.newAddress }
+            </div>
+        </div>
+}
+
+
+function AddressDifference(context, submit, reset){
+
+    function skip(){
+        const id = context.action.id;
+        const index = context.actionSet.data.actions.findIndex(a => a.id === id);
+        const actions = [...context.actionSet.data.actions];
+        actions[index] = {...context.actionSet.data.actions[index], userBypassValidation: true}
+        const data = {...context.actionSet.data, actions: actions}
+        return submit({
+            pendingActions: [{
+                id: context.actionSet.id,
+                data: {...data},
+                previous_id: context.actionSet.previous_id}]
+        })
+    }
+
+    function startOver(){
+        return reset();
+    }
+
+    return <div>
+         { addressChange(context) }
+         <div className={"alert alert-danger"}>
+         <p>Expected: "{ context.action.newAddress }"</p>
+         <p>Found: "{ context.companyState[context.action.field] }"</p>
+         </div>
+        <div className="button-row">
+        { <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
+        <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+    </div>
+    </div>
+}
+
+
+
 const DESCRIPTIONS = {
+    [TransactionTypes.ADDRESS_CHANGE]: addressChange,
+    [TransactionTypes.HOLDING_CHANGE]: holdingChangeSummary,
     [TransactionTypes.HOLDING_CHANGE]: holdingChangeSummary,
     [TransactionTypes.ANNUAL_RETURN]: basicSummary,
     [TransactionTypes.AMEND]:  beforeAndAfterSummary,
@@ -87,7 +150,7 @@ const PAGES = {
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
-    [ImportErrorTypes.ADDRESS_DIFFERENCE]: submitSkipRestart,
+    [ImportErrorTypes.ADDRESS_DIFFERENCE]: AddressDifference,
 }
 
 
@@ -142,6 +205,9 @@ export class ResolveAmbiguityModal extends React.Component {
     }
 
     render() {
+        if(!this.props.modalData.error){
+            return false;
+        }
         return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <Modal.Header closeButton>
                 <Modal.Title>Resolve Company Import Problem</Modal.Title>
