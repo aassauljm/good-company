@@ -450,7 +450,21 @@ describe('Scraping Service', function() {
                 })
             });
     });
-
+    describe('Should parse biznet document with holder changes', function() {
+        // TODO
+        it('reads file, creates amend and remove actions', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/9865255.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding'
+                    });
+                    result.actions.length.should.be.equal(5);
+                    result.actions.map(action => action.transactionType.should.be.equal(Transaction.types.HOLDER_CHANGE))
+                    // TODO
+                    done();
+                })
+            });
+    });
 
 
 

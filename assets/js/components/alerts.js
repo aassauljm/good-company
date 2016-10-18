@@ -75,7 +75,7 @@ export class AlertsWidget extends React.Component {
     }
 
     renderAlerts() {
-        if(this.props.alerts._status === 'complete'){
+        if(this.props.alerts.data){
             const thisMonth = moment().format('MMMM');
             let warnings = [], danger = [], safe = [], firstCompanyId;
 

@@ -152,7 +152,7 @@ export class ShareClassForm extends React.Component {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div></div> }
 
-            {!this.props.noDocuments && <DropZone className="dropzone" { ...fields.documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
+            {!this.props.noDocuments && <DropZone className="dropzone" rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
                   onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
                   <div>Try dropping some files here, or click to select files to upload.</div>
             </DropZone>}

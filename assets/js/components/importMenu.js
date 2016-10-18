@@ -78,6 +78,8 @@ export class ImportMenu extends React.Component {
                         </div>
                     </div>
                     <div className="widget-body">
+                    <p>Copy and paste your company identifiers into the field below, with each identifier on a new line.</p>
+                    <p>Your companies will be imported in the background, and you will get an email when it is finished.</p>
                        <div className="row">
                          <div className="col-md-6 col-md-offset-3">
                             <BulkImportConnected onSubmit={::this.handleSubmit}/>

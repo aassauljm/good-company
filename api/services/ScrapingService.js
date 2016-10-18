@@ -749,7 +749,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                 // 0 === current
                 // 1 number shares
                 let index = 1;
-                const result = {beforeHolders: [], afterHolders: [],  transactionType: Transaction.types.AMEND}
+                let result = {beforeHolders: [], afterHolders: [],  transactionType: Transaction.types.AMEND}
                 result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
                 while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
                     result.afterHolders.push({
@@ -761,6 +761,9 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                 // index is now === 'Previous'
                 index++;
                 result.beforeAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                result.amount = Math.abs(result.beforeAmount - result.afterAmount)
+
+
                 while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
                     result.beforeHolders.push({
                         name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
@@ -768,12 +771,36 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     })
                     index++;
                 }
-
-                if(JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
-                    result.unknownHoldingChange = true;
+                const results = [];
+                if(result.amount){
+                    results.push(result);
                 }
-                result.amount = Math.abs(result.beforeAmount - result.afterAmount)
-                return result;
+                if(JSON.stringify(result.beforeHolders).toLowerCase() !== JSON.stringify(result.afterHolders).toLowerCase()){
+                    result.unknownHoldingChange = true;
+                    let difference = false;
+                        // must a holder change or holding transfer
+                        // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
+                    result.beforeHolders.map((holder, i) => {
+                        if(result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase()){
+                            results.push({
+                                transactionType: Transaction.types.HOLDER_CHANGE,
+                                beforeHolder: result.beforeHolders[i],
+                                afterHolder: result.afterHolders[i]
+                            });
+                        }
+                        else{
+                            difference = true;
+                        }
+                    });
+                    if(difference){
+                        results.push({
+                            ...result,
+                            transactionType: Transaction.types.HOLDING_TRANSFER,
+                        })
+                    }
+                }
+
+                return results;
             }
 
             const parseRemoveAllocation = (segment) => {
@@ -788,7 +815,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     })
                     index++;
                 }
-                return result;
+                return [result];
             }
 
             const parseNewAllocation = (segment) => {
@@ -803,17 +830,17 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     })
                     index++;
                 }
-                return result;
+                return [result];
             }
 
             if(type === Transaction.types.AMEND){
-                acc.push(parseAmendAllocation(segment));
+                return acc.concat(parseAmendAllocation(segment));
             }
             else if(type === Transaction.types.NEW_ALLOCATION){
-                acc.push(parseNewAllocation(segment))
+                return acc.concat(parseNewAllocation(segment));
             }
             else if(type === Transaction.types.REMOVE_ALLOCATION){
-                acc.push(parseRemoveAllocation(segment))
+                return acc.concat(parseRemoveAllocation(segment));
             }
             return acc;
         }, [])

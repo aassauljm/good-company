@@ -17,7 +17,7 @@ export class Documents extends React.Component {
 
     render() {
         const documents = this.props.documents;
-        return <div><DropZone className="dropzone" { ...documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
+        return <div><DropZone className="dropzone" rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
                   onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
                   <div>Try dropping some files here, or click to select files to upload.</div>
             </DropZone>
