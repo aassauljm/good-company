@@ -705,8 +705,9 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             }
         });
 
-        if(issuedTotal > issue.amount){
-            issueAction.toAmount = issueAction.byAmount = issueAction.amount = issueTotal;
+        // See bad total http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/1760468/2646112/entityFilingRequirement
+        if(issuedTotal > issueAction.amount){
+            issueAction.toAmount = issueAction.byAmount = issueAction.amount = issuedTotal;
         }
 
 

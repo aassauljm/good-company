@@ -1,7 +1,45 @@
 
 .notifications{
-    background-color:#fff;
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    z-index: 1;
+    max-width: 400px;
     .notification{
         margin-top: 20px;
+        cursor:pointer;
+        img{
+            width:30px;
+            width: 30px;
+            margin-right:10px;
+        }
     }
+}
+
+
+.notification-animation-enter {
+  opacity: 0.01;
+}
+
+.notification-animation-enter.notification-animation-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.notification-animation-leave {
+  opacity: 1;
+}
+
+.notification-animation-leave.notification-animation-leave-active {
+  opacity: 0.01;
+  transition: opacity 100ms ease-in;
+}
+
+.notification-animation-appear {
+  opacity: 0.01;
+}
+
+.notification-animation-appear.notification-animation-appear-active {
+  opacity: 1;
+  transition: opacity .2s ease-in;
 }

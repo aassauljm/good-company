@@ -2,10 +2,10 @@ import React from 'react';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import DropZone from 'react-dropzone';
-import { hideNotification } from '../actions'
-
-
-const NOTIFICATION_TIMEOUT = 10000;
+import { hideNotification, addNotification } from '../actions'
+import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
+import SmallLogo from 'catalex_shared/images/law-browser-icon.png'
+const NOTIFICATION_TIMEOUT = 5000;
 
 
 @pureRender
@@ -25,7 +25,7 @@ class Notification extends React.Component {
     render(){
         const type = this.props.notification.error ? 'alert-danger' : 'alert-success';
         return <div className={"alert notification " +type} role="alert" onClick={this.props.close}>
-            { this.props.notification.message }
+        <img src={SmallLogo}/><span> { this.props.notification.message }</span>
         </div>
     }
 }
@@ -35,15 +35,19 @@ class Notification extends React.Component {
 export default class Notifications extends React.Component {
     static propTypes = { list: React.PropTypes.array.isRequired };
     close(index){
-        //this.props.dispatch(hideNotification(index));
-        this.props.list.map((n, index) => this.props.dispatch(hideNotification(index)))
+        this.props.dispatch(hideNotification(index));<img src="/build/images/law-browser-sml.png" />
     }
+
     render(){
        return  <div className="notifications">
-       <div className="container">
-            {/* this.props.list.map((n, i) => <Notification key={i} notification={n} close={this.close.bind(this, i)} /> ) */}
-            { !!this.props.list.length && <Notification notification={this.props.list[this.props.list.length-1]} close={this.close.bind(this, this.props.list.length-1)} /> }
-            </div>
+       <ReactCSSTransitionGroup
+          transitionName="notification-animation"
+          transitionEnterTimeout={500}
+          transitionLeaveTimeout={100}
+          transitionAppear={true}
+            transitionAppearTimeout={300}>
+            { this.props.list.map((n, i) => <Notification key={i} notification={this.props.list[this.props.list.length - 1 - i]} close={() => this.close(i)} /> ) }
+        </ReactCSSTransitionGroup>
         </div>
     }
 }
