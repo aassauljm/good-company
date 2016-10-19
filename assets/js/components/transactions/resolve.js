@@ -18,7 +18,10 @@ import Amend from './resolvers/amend';
 import { Holding } from '../shareholdings';
 import { reduxForm } from 'redux-form';
 import Panel from '../panel';
-import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './resolvers/summaries'
+import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
+
+
+import { Shareholder } from '../shareholders';
 
 
 function skipOrRestart(allowSkip, context, submit, reset){
@@ -33,9 +36,9 @@ function skipOrRestart(allowSkip, context, submit, reset){
     return <div>
         { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
         <div className="button-row">
-        { allowSkip && <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
-        <Button onClick={startOver} className="btn-danger">Restart Import</Button>
-    </div>
+            { allowSkip && <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+        </div>
     </div>
 }
 
@@ -43,29 +46,6 @@ const submitRestart = (...rest) => skipOrRestart(false, ...rest);
 const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
 
 
-function addressChange(context) {
-    //if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
-    ///['registeredCompanyAddress',
-     ///           'addressForShareRegister',
-      ///          'addressForService']
-
-    return <div className="row row-separated">
-                <div className="col-md-5">
-                <h5>Previous {STRINGS[context.action.field]}</h5>
-                { context.action.previousAddress }
-            </div>
-            <div className="col-md-2">
-                <div className="text-center">
-                    <Glyphicon glyph="arrow-right" className="big-arrow" />
-                    <h5>Effective as at {stringToDateTime(context.action.effectiveDate)}</h5>
-                </div>
-            </div>
-            <div className="col-md-5">
-                <h5>New {STRINGS[context.action.field]}</h5>
-                { context.action.newAddress }
-            </div>
-        </div>
-}
 
 
 function AddressDifference(context, submit, reset){
@@ -81,7 +61,7 @@ function AddressDifference(context, submit, reset){
                 id: context.actionSet.id,
                 data: {...data},
                 previous_id: context.actionSet.previous_id}]
-        })
+        });
     }
 
     function startOver(){
@@ -95,17 +75,74 @@ function AddressDifference(context, submit, reset){
          <p>Found: "{ context.companyState[context.action.field] }"</p>
          </div>
         <div className="button-row">
-        { <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
-        <Button onClick={startOver} className="btn-danger">Restart Import</Button>
-    </div>
+            { <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+        </div>
     </div>
 }
 
 
 
+
+function HoldingNotFound(context, submit, reset){
+
+    function startOver(){
+        return reset();
+    }
+
+    function selectPerson(person){
+        const id = context.action.id;
+        const index = context.actionSet.data.actions.findIndex(a => a.id === id);
+        const actions = [...context.actionSet.data.actions];
+        const action = {...context.actionSet.data.actions[index]};
+        action.afterHolder = {...action.afterHolder, personId: person.personId}
+        action.beforeHolder = {...action.beforeHolder, personId: person.personId}
+        actions[index] = action;
+        const data = {...context.actionSet.data, actions: actions}
+        return submit({
+            pendingActions: [{
+                id: context.actionSet.id,
+                data: {...data},
+                previous_id: context.actionSet.previous_id}]
+        });
+    }
+
+    const holdersObj = context.companyState.holdingList.holdings.reduce((acc, holding) => {
+        holding.holders.reduce((acc, holder) => {
+            acc[holder.person.personId] = holder.person;
+            return acc
+        }, acc);
+        return acc;
+    }, {});
+
+    const holders = Object.keys(holdersObj).map(k => holdersObj[k]);
+    holders.sort((a, b) => a.name.localeCompare(b.name));
+
+    return <div>
+            { holderChange(context) }
+         <div className="col-md-12">
+             <div className={"alert alert-danger"}>
+             <p>Please select the corresponding 'Updated Shareholder' from the following:</p>
+             </div>
+        </div>
+
+         { holders.map((h, i) => {
+            return <div key={i} className="col-md-6">
+                <div className="actionable" onClick={() => selectPerson(h)}>
+                    <Shareholder shareholder={h} />
+                </div>
+            </div>
+         })}
+
+        <div className="button-row">
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+        </div>
+    </div>
+}
+
+
 const DESCRIPTIONS = {
     [TransactionTypes.ADDRESS_CHANGE]: addressChange,
-    [TransactionTypes.HOLDING_CHANGE]: holdingChangeSummary,
     [TransactionTypes.HOLDING_CHANGE]: holdingChangeSummary,
     [TransactionTypes.ANNUAL_RETURN]: basicSummary,
     [TransactionTypes.AMEND]:  beforeAndAfterSummary,
@@ -143,7 +180,7 @@ const PAGES = {
              </div>
         </div>
     },
-    [ImportErrorTypes.HOLDING_NOT_FOUND]: submitRestart,
+    [ImportErrorTypes.HOLDER_NOT_FOUND]: HoldingNotFound,
     [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: submitSkipRestart,
     [ImportErrorTypes.DIRECTOR_NOT_FOUND]: submitSkipRestart,
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,

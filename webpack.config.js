@@ -88,6 +88,6 @@ module.exports = {
             loader: DEV ? "file?name=../css/[name].[ext]" : "file?name=../css/[name].[ext]"
         }],
     },
-    postcss: [autoprefixer({browsers: ['> 0.01%', 'ie 6-10']})],
+    postcss: [autoprefixer({browsers: ['> 0.01%', 'ie 8-10']})],
     plugins: plugins
 }

@@ -509,9 +509,11 @@ const EXTRACT_DOCUMENT_MAP = {
             .nextUntil('hr')
             .map((i, d) => {
                 return cleanString($(d).text());
-            }).get(), (d) => {
+            })
+            .get(), (d) => {
                 return !d
-            }).map(d => {
+            })
+            .map(d => {
                 result.actions.push({
                     transactionType: Transaction.types.NEW_DIRECTOR,
                     name: invertName(d[0]),
@@ -659,13 +661,8 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                 return chunk.filter(c => c);
             });
 
-        result.actions.push({
-            fromAmount: 0,
-            toAmount: total,
-            byAmount: total,
-            amount: total,
-            transactionType: Transaction.types.ISSUE
-        });
+
+
 
         const getHolders = (rows) => {
             const results = [];
@@ -686,7 +683,16 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             }
             return results;
         }
+        const issueAction = {
+            fromAmount: 0,
+            toAmount: total,
+            byAmount: total,
+            amount: total,
+            transactionType: Transaction.types.ISSUE
+        };
 
+        result.actions.push(issueAction);
+        let issuedTotal = 0;
         chunks.map(chunk => {
             if(chunk.length){
                 result.actions.push({
@@ -694,9 +700,14 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     transactionType: Transaction.types.ISSUE_TO,
                     amount: toInt(chunk[0]),
                     holders: getHolders(chunk.slice(1))
-                })
+                });
+                issuedTotal += toInt(chunk[0]);
             }
-        })
+        });
+
+        if(issuedTotal > issue.amount){
+            issueAction.toAmount = issueAction.byAmount = issueAction.amount = issueTotal;
+        }
 
 
         const directorsTable =  match(/2. Directors$/g).closest('table').closest('tr').next();
@@ -781,14 +792,16 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                         // must a holder change or holding transfer
                         // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
                     result.beforeHolders.map((holder, i) => {
-                        if(result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase()){
+                        const nameSame = result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase();
+                        if(nameSame &&
+                           result.beforeHolders[i].address.toLowerCase() !== result.afterHolders[i].address.toLowerCase()){
                             results.push({
                                 transactionType: Transaction.types.HOLDER_CHANGE,
                                 beforeHolder: result.beforeHolders[i],
                                 afterHolder: result.afterHolders[i]
                             });
                         }
-                        else{
+                        else if(!nameSame){
                             difference = true;
                         }
                     });

@@ -555,7 +555,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
             sails.log.error(e);
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change', {
                 action: data,
-                importErrorType: sails.config.enums.HOLDING_NOT_FOUND,
+                importErrorType: sails.config.enums.HOLDER_NOT_FOUND,
                 companyState: companyState.toJSON()
             })
         });

@@ -7,6 +7,8 @@ import STRINGS from '../strings';
 import { asyncConnect } from 'redux-connect';
 
 
+
+
 export class Shareholder extends React.Component {
     static propTypes = {
         shareholder: PropTypes.object.isRequired,
@@ -22,19 +24,19 @@ export class Shareholder extends React.Component {
         return <div className={classes}  onClick={() => this.props.editHolder && this.props.editHolder(this.props.shareholder) }>
             <dl className="dl-horizontal" >
                 <dt>Name</dt>
-                <dd>{ this.props.shareholder.name}</dd>
+                <dd>{ this.props.shareholder.name }</dd>
                 <dt>Address</dt>
                 <dd><span className="address">{ this.props.shareholder.address}</span></dd>
-                <dt>Shareholder since</dt>
-                <dd>{ stringToDate(this.props.shareholder.firstEffectiveDate) }</dd>
+                { this.props.shareholder.firstEffectiveDate && <dt>Shareholder since</dt> }
+                { this.props.shareholder.firstEffectiveDate && <dd>{ stringToDate(this.props.shareholder.firstEffectiveDate) }</dd> }
                 { this.props.shareholder.current && <dt>Current Parcels</dt> }
                 { this.props.shareholder.current &&  this.props.shareholder.parcels.map((p, i) => {
                     const shareClass = p.shareClass || STRINGS.defaultShareClass;
                     const amount = numberWithCommas(p.amount);
                     return <dd key={i}>{`${amount} ${shareClass} shares`}</dd> ;
                 }) }
-                { !this.props.shareholder.current && <dt>Shareholder until</dt> }
-                { !this.props.shareholder.current && <dd>{ stringToDate(this.props.shareholder.lastEffectiveDate) }</dd> }
+                { this.props.shareholder.lastEffectiveDate && <dt>Shareholder until</dt> }
+                { this.props.shareholder.lastEffectiveDate && <dd>{ stringToDate(this.props.shareholder.lastEffectiveDate) }</dd> }
             </dl>
         </div>
     }

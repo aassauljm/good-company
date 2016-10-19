@@ -26,7 +26,7 @@ import Header from './header';
 import { CompanyAlertsWidget } from './warnings';
 
 
-function analyseCompany(company){
+export function analyseCompany(company){
     // create a list of holders for a c
     company.currentCompanyState.holdingList = company.currentCompanyState.holdingList || {holdings: []};
     company.currentCompanyState.directorList = company.currentCompanyState.directorList || {directors: []};

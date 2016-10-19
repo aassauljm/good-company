@@ -35,7 +35,8 @@ class Notification extends React.Component {
 export default class Notifications extends React.Component {
     static propTypes = { list: React.PropTypes.array.isRequired };
     close(index){
-        this.props.dispatch(hideNotification(index));
+        //this.props.dispatch(hideNotification(index));
+        this.props.list.map((n, index) => this.props.dispatch(hideNotification(index)))
     }
     render(){
        return  <div className="notifications">

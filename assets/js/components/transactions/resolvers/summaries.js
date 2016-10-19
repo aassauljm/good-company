@@ -44,6 +44,53 @@ export function basicSummary(context, companyState){
 }
 
 
+export function addressChange(context) {
+    /// if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
+    /// ['registeredCompanyAddress',
+    ///  'addressForShareRegister',
+    ///  'addressForService']
+    return <div className="row row-separated">
+                <div className="col-md-5">
+                <h5>Previous {STRINGS[context.action.field]}</h5>
+                { context.action.previousAddress }
+            </div>
+            <div className="col-md-2">
+                <div className="text-center">
+                    <Glyphicon glyph="arrow-right" className="big-arrow" />
+                    <h5>Effective as at {stringToDateTime(context.action.effectiveDate)}</h5>
+                </div>
+            </div>
+            <div className="col-md-5">
+                <h5>New {STRINGS[context.action.field]}</h5>
+                { context.action.newAddress }
+            </div>
+        </div>
+}
+
+
+export function holderChange(context) {
+    return <div className="row row-separated">
+                <div className="col-md-5">
+                <h5>Previous Shareholder</h5>
+                <div className="shareholding action-description">
+                { renderHolders(context.action.beforeHolder) }
+                </div>
+            </div>
+            <div className="col-md-2">
+                <div className="text-center">
+                    <Glyphicon glyph="arrow-right" className="big-arrow" />
+                    <h5>Effective as at {stringToDateTime(context.actionSet.data.effectiveDate)}</h5>
+                </div>
+            </div>
+            <div className="col-md-5">
+                <h5>Updated Shareholder</h5>
+                <div className="shareholding action-description">
+                { renderHolders(context.action.afterHolder) }
+                </div>
+            </div>
+        </div>
+}
+
 
 export function beforeAndAfterSummary(context, companyState){
     const { action, actionSet } = context;
