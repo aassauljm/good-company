@@ -21,7 +21,8 @@ import {
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL, NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
     SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
-    UPDATE_MENU, TOGGLE_WIDGET_SIZE
+    UPDATE_MENU, TOGGLE_WIDGET_SIZE,
+    LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE
      } from './actionTypes';
 
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
@@ -328,6 +329,18 @@ function resources(state = default_resources, action){
     }
 }
 
+function lawBrowser(state = {}, action){
+    switch(action.type){
+        case LAW_BROWSER_REQUEST:
+            return {...state, ...{[action.url]: {...state[action.url], _status: 'fetching'}}};
+        case LAW_BROWSER_SUCCESS:
+            return {...state, ...{[action.url]: {...{data: action.response, _status: 'complete'}}}};
+        case LAW_BROWSER_FAILURE:
+            return {...state, ...{[action.url]: {...{error: action.response, _status: 'error'}}}};
+        default:
+            return state;
+    }
+}
 
 
 function mergeErrors(state, err){
@@ -371,69 +384,6 @@ const normalizeNumber = (value) => {
     return value ? value.replace(/[^\d]/g, '') : value
 }
 
-
-export const formBase = formReducer.normalize({
-    /*parcel: {
-        amount: normalizeNumber
-    },*/
-    issue: {
-         'parcel.amount': normalizeNumber,
-
-    },
-    signup: {
-        email: (value) => {
-            return value ? value.toLowerCase(): value
-        }
-    }
-}).plugin({
-    account: (state, action) => {
-      if (action.form !== 'account'){
-        return state;
-      }
-      return processResource(state, action);
-    },
-    login: (state, action) => {
-        switch(action.type) {
-            case LOGIN_SUCCESS:
-                return {...state, password: {}};
-            case LOGIN_FAILURE:
-                return {...state, _error: 'Invalid Credentials'};
-            default:
-        }
-        if (action.form !== 'login'){
-            return state;
-        }
-        switch(action.type){
-            case CHANGE:
-            case RESET:
-                return {...state, _error: null};
-            default:
-                return state;
-        }
-    },
-    signup: (state, action) => {
-        if (action.form !== 'signup'){
-            return state;
-        }
-        state = processResource(state, action);
-        switch(action.type) {
-            case RESOURCE_SUCCESS:
-                return {...state, ...{password: {}, repeatPassword: {}}};
-            default:
-                return state;
-            }
-    },
-    setPassword: (state, action) => {
-        switch(action.type) {
-            case SET_PASSWORD_FAILURE:
-                return mergeErrors(state, action.response);
-            default:
-                return state;
-            }
-    }
-})
-
-
 export const form = formReducer;
 
 const appReducer = combineReducers({
@@ -455,6 +405,7 @@ const appReducer = combineReducers({
     menus,
     widgets,
     renderTemplate,
+    lawBrowser,
     reduxAsyncConnect: reduxAsyncConnect
 });
 

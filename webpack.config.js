@@ -2,6 +2,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var path = require("path");
+var autoprefixer = require('autoprefixer');
 
 var DEV = process.env.NODE_ENV !== 'production';
 var definePlugin = new webpack.DefinePlugin({
@@ -69,6 +70,7 @@ module.exports = {
             loader: ExtractTextPlugin.extract(
                 // activate source maps via loader query
                 'css?sourceMap!' +
+                'postcss-loader?sourceMap!' +
                 'sass?sourceMap'
             )
         }, {
@@ -86,5 +88,6 @@ module.exports = {
             loader: DEV ? "file?name=../css/[name].[ext]" : "file?name=../css/[name].[ext]"
         }],
     },
+    postcss: [autoprefixer({browsers: ['> 0.01%', 'ie 6-10']})],
     plugins: plugins
 }

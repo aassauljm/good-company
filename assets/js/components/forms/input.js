@@ -200,7 +200,8 @@ class InputBase extends React.Component {
   renderInput() {
     // strip values
     const {initialValue, autofill, onUpdate, valid, invalid, dirty, pristine, error, active,
-        touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName, wrapperClassName, groupClassName, buttonAfter, ...elementProps} = this.props;
+        touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName,
+        wrapperClassName, groupClassName, buttonAfter, ...elementProps} = this.props;
     if (!this.props.type) {
       return this.props.children;
     }

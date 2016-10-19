@@ -25,6 +25,7 @@ import {
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_MODAL, END_MODAL, NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
     SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
+    LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
     UPDATE_MENU,
     TOGGLE_WIDGET_SIZE
      } from './actionTypes';
@@ -164,6 +165,19 @@ export function deleteResource(resource, options = {}) {
             credentials: 'same-origin'
         }),
         payload: {key: resource, invalidateList: options.invalidates}
+    };
+}
+
+
+export function requestLawBrowser(url, options = {}) {
+    return {
+        types: [LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE],
+        callAPI: () => fetch(url, {
+            headers: json_headers,
+            credentials: 'same-origin'
+        }),
+        shouldCallAPI: (state) => !state.lawBrowser[url] || !state.lawBrowser[url]._status,
+        payload: {url: url},
     };
 }
 
