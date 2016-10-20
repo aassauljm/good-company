@@ -859,6 +859,19 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             return acc;
         }, [])
 
+        // there could be duplicate holder changes
+        const holder_changes = {};
+        result.actions = result.actions.filter(a => {
+            if(a.transactionType === Transaction.types.HOLDER_CHANGE){
+                if(holder_changes[a.beforeHolder.name]){
+                    return false;
+                }
+                holder_changes[a.beforeHolder.name] = true;
+            }
+            return true;
+        })
+
+
        result.totalShares = result.actions.reduce((acc, action) => {
             switch(action.transactionType){
                 case Transaction.types.AMEND:

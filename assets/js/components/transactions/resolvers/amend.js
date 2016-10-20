@@ -167,6 +167,7 @@ class AmendOptions extends React.Component {
         </div>
     }
     render() {
+        console.log(this.props)
         const { shareClassMap, fields: {actions}, amendActions, allSameDirection } = this.props;
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
@@ -384,7 +385,7 @@ export default function Amend(context, submit){
             return {recipients: [{
                 amount: a.amount,
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
-                holding: amountValues[!increase][a.amount][0].index
+                holding: amountValues[!increase][a.amount][0].index+''
             }]};
         }
         return {recipients: [{

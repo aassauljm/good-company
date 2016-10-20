@@ -173,7 +173,6 @@ export function requestLawBrowser(url, options = {}) {
     return {
         types: [LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE],
         callAPI: () => fetch(url, {
-            headers: json_headers,
             credentials: 'same-origin'
         }),
         shouldCallAPI: (state) => !state.lawBrowser[url] || !state.lawBrowser[url]._status,
