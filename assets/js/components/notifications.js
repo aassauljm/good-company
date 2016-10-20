@@ -4,8 +4,7 @@ import { connect } from 'react-redux';
 import DropZone from 'react-dropzone';
 import { hideNotification, addNotification } from '../actions'
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
-import SmallLogo from 'catalex_shared/images/law-browser-icon.png'
-const NOTIFICATION_TIMEOUT = 5000;
+const NOTIFICATION_TIMEOUT = 500000;
 
 
 @pureRender
@@ -25,7 +24,7 @@ class Notification extends React.Component {
     render(){
         const type = this.props.notification.error ? 'alert-danger' : 'alert-success';
         return <div className={"alert notification " +type} role="alert" onClick={this.props.close}>
-        <img src={SmallLogo}/><span> { this.props.notification.message }</span>
+        <div className="small-logo"/><span> { this.props.notification.message }</span>
         </div>
     }
 }

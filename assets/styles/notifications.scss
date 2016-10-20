@@ -8,10 +8,14 @@
     .notification{
         margin-top: 20px;
         cursor:pointer;
-        img{
+        .small-logo{
             width:30px;
-            width: 30px;
+            height: 30px;
             margin-right:10px;
+            background-image: url('~catalex_shared/images/law-browser-icon.png');
+            background-size: 30px 30px;
+            display: inline-block;
+            vertical-align: middle;
         }
     }
 }
