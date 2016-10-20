@@ -134,8 +134,12 @@ function HoldingNotFound(context, submit, reset){
             </div>
          })}
 
-        <div className="button-row">
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+        <div className="row">
+            <div className="col-md-12">
+            <div className="button-row">
+                <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            </div>
+            </div>
         </div>
     </div>
 }
