@@ -6,7 +6,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
 import { Link } from 'react-router';
-import TRANSFER from './schemas/transfer.json'
+import TRANSFER from './schemas/transfer.json';
+import SPECIAL_RESOLUTION from './schemas/specialResolution.json';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
@@ -16,6 +17,7 @@ import { saveAs } from 'file-saver';
 function componentType(fieldProps){
     return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
 }
+
 
 function renderList(fieldProps, componentProps){
     return <fieldset className="list">
@@ -29,7 +31,7 @@ function renderList(fieldProps, componentProps){
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
                 </div>
                 </div>
-            { renderFormSet(fieldProps.items.properties, c) }
+                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf) }
                 { i < componentProps.length - 1 && <hr/> }
             </div>;
         }) }
@@ -37,7 +39,7 @@ function renderList(fieldProps, componentProps){
                 <Button onClick={() => componentProps.addField({})} >Add Item</Button>
             </div>
         </fieldset>
-    }
+}
 
 
 
@@ -51,10 +53,10 @@ function renderField(fieldProps, componentProps){
     if(fieldProps.type === 'number'){
         return <Input type="number" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
     }
-    if(fieldProps.enum){
+    if(fieldProps.enum && fieldProps.enum.length > 1){
         return <Input type="select"  {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}>
             { fieldProps.enum.map((f, i) => {
-                return <option key={i} value={f}>{fieldProps.enumNames[i]}</option>
+                return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
             })}
         </Input>
     }
@@ -63,15 +65,26 @@ function renderField(fieldProps, componentProps){
     }
 
     if(fieldProps.type === 'object'){
-        return renderFormSet(fieldProps.properties, componentProps)
+        return <div>
+            { renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }
+        </div>
     }
 }
 
-function renderFormSet(schemaProps, fields){
+function renderFormSet(schemaProps, fields, oneOfs){
+    const getMatchingOneOf = (value, key) => {
+        return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
+    }
+    let selectKey;
     return <fieldset>
         { Object.keys(schemaProps).map((key, i) => {
+            if(schemaProps[key].enum){
+                selectKey = key;
+            }
             return <div key={i}>{renderField(schemaProps[key], fields[key])}</div>
         }) }
+
+        { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
     </fieldset>
 }
 
@@ -97,18 +110,28 @@ function getFields(schema) {
     function loop(props, path){
         Object.keys(props).map(key => {
             if(props[key].type === 'object'){
-                loop(props[key].properties, path+key+'.')
+                loop(props[key].properties, path + key + '.');
+                if(props[key].oneOf){
+                    props[key].oneOf.map(oneOf => {
+                        loop(oneOf.properties, path+key + '.');
+                    });
+                }
             }
             else if(props[key].type === 'array'){
                 if(props[key].items.type === "object"){
-                    loop(props[key].items.properties, path+key+'[].');
+                    loop(props[key].items.properties, path+key + '[].');
+                    if(props[key].items.oneOf){
+                        props[key].items.oneOf.map(oneOf => {
+                            loop(oneOf.properties, path+key + '[].');
+                        })
+                    }
                 }
                 else{
-                    fields.push(path+ key+'[]');
+                    fields.push(path + key + '[]');
                 }
             }
             else{
-                fields.push(path+ key);
+                fields.push(path + key);
             }
         });
     }
@@ -152,8 +175,24 @@ export  class TransferForm extends React.Component {
 }
 
 
+console.log(getFields(SPECIAL_RESOLUTION));
+
+@reduxForm({
+  form: 'specialResolutionTemplate',
+  fields: getFields(SPECIAL_RESOLUTION),
+  validate: getValidate(SPECIAL_RESOLUTION)
+})
+export class SpecialResolutionForm extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={SPECIAL_RESOLUTION}  {...this.props} />
+    }
+}
+
+
 const TemplateMap = {
-    'transfer': TransferForm
+    'transfer': TransferForm,
+    'special_resolution': SpecialResolutionForm
 }
 
 
@@ -191,12 +230,15 @@ export  class TemplateView extends React.Component {
                 transferors: [{}],
                 transferees: [{}]
             },
+            resolutions: [{resolutionType: 'Adopt Constitution'}]
         };
         let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)}
-        console.log(state)
         switch(this.props.params.name){
             case 'transfer':
                 return <TransferForm onSubmit={this.submit} initialValues={state || initialTransfer}/>
+            case 'special_resolution':
+                return <SpecialResolutionForm onSubmit={this.submit} initialValues={state || initialTransfer}/>
+
             default:
             return <div>Not Found</div>
         }
@@ -223,6 +265,10 @@ export default class TemplateList extends React.Component {
             <Link to={`/company/view/${id}/templates/transfer`} className="actionable select-button" >
                     <span className="glyphicon glyphicon-transfer"></span>
                     <span className="transaction-button-text">Transfer Shares</span>
+            </Link>
+            <Link to={`/company/view/${id}/templates/special_resolution`} className="actionable select-button" >
+                    <span className="glyphicon glyphicon-list"></span>
+                    <span className="transaction-button-text">Special Resolution of Shareholders</span>
             </Link>
         </div>
 

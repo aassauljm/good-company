@@ -1,0 +1,107 @@
+{
+    "definitions": {
+    },
+    "description": "",
+    "title": "Special Resolution of Shareholders",
+    "properties": {
+        "fileType": {
+            "title": "File Type",
+            "enum": [
+                "docx",
+                "odt",
+                "pdf"
+            ],
+            "enumNames": [
+                "Word Document (.docx)",
+                "OpenDocument Text (.odt)",
+                "Portable Document Format (.pdf)"
+            ]
+        },
+        "company": {
+            "type": "object",
+
+            "properties": {
+                "companyName": {
+                    "title": "Company Name",
+                    "type": "string"
+                },
+                "companyNumber": {
+                    "title": "Company Number",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "companyName", "companyNumber"
+            ]
+        },
+        "resolutions": {
+            "type": "array",
+            "title": "Resolutions",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "resolutionType": {
+                        "title": "Resolution Type",
+                        "enum": [
+                            "Adopt Constitution",
+                            "Alter Constitution",
+                            "Revoke Constitution",
+                            "Approve Major Transaction",
+                            "Approve Amalgamation",
+                            "Put Company into Liquidation",
+                            "Custom"
+                        ]
+                    }
+                },
+                "oneOf":[
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Adopt Constitution"]
+                            },
+                            "date": {
+                                "title": "Date Constitution to be Adopted",
+                                "type": "string",
+                                "x-hints" : {
+                                    "form": {
+                                      "inputComponent": "date"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["date"]
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Alter Constitution"]
+                            },
+                            "date": {
+                                "title": "Finance Condition Date",
+                                "type": "string",
+                                "x-hints" : {
+                                    "form": {
+                                      "inputComponent": "date"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["date"]
+                    }
+
+                ],
+                "x-hints": {
+                    "form": {
+                        "selector": "include"
+                    }
+                }
+            }
+
+        }
+    },
+    "required": [
+
+    ],
+    "type": "object",
+    "x-ordering": []
+}
