@@ -53,6 +53,9 @@
                         ]
                     }
                 },
+                "default": {
+                    "resolutionType": "Adopt Constitution"
+                },
                 "oneOf":[
                     {
                         "properties": {
@@ -71,13 +74,14 @@
                         },
                         "required": ["date"]
                     },
+
                     {
                         "properties": {
                             "resolutionType": {
                                 "enum": ["Alter Constitution"]
                             },
                             "date": {
-                                "title": "Finance Condition Date",
+                                "title": "Date Constituion to be Altered",
                                 "type": "string",
                                 "x-hints" : {
                                     "form": {
@@ -87,9 +91,77 @@
                             }
                         },
                         "required": ["date"]
-                    }
+                    },
 
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Revoked Constitution"]
+                            },
+                            "date": {
+                                "title": "Date Constituion to be Revoked",
+                                "type": "string",
+                                "x-hints" : {
+                                    "form": {
+                                      "inputComponent": "date"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["date"]
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Approve Major Transaction"]
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Approve Amalgamation"]
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Put Company into Liquidation"]
+                            },
+                            "liquidators": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "title": "Liquidator Name"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Custom"]
+                            },
+                            "text": {
+                                "type": "string",
+                                "title": "Description",
+                                "x-hints": {
+                                    "form": {
+                                        "inputComponent": "textarea"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["text"]
+                    }
                 ],
+
                 "required": ["resolutionType"],
                 "x-hints": {
                     "form": {
@@ -97,7 +169,9 @@
                         "addItem": "Add Resolution"
                     }
                 }
-            }
+            },
+            "default": [{"resolutionType": "Adopt Constitution"}],
+            "minItems": 1
 
         }
     },

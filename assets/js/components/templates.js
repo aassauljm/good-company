@@ -54,7 +54,7 @@ function renderList(fieldProps, componentProps){
             </div>;
         }) }
              <div className="button-row">
-                <Button onClick={() => componentProps.addField({})} >{ addItem(fieldProps.items) } </Button>
+                <Button onClick={() => componentProps.addField(fieldProps.items.default || {})} >{ addItem(fieldProps.items) } </Button>
             </div>
         </fieldset>
 }
@@ -65,6 +65,9 @@ function renderField(fieldProps, componentProps){
     if(fieldProps.type === 'string'){
         if(componentType(fieldProps) === 'date'){
             return <DateInput {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
+        }
+        if(componentType(fieldProps) === 'textarea'){
+            return <Input type="textarea" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
         }
         return <Input type="text" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
     }
@@ -117,10 +120,14 @@ function renderFormSet(schemaProps, fields, oneOfs){
 export  class RenderForm extends React.Component {
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
+        console.log(this.props)
         return <form className="generated-form" onSubmit={handleSubmit}>
             <h4>{ schema.title }</h4>
            { schema.description && <h5>{ schema.description }</h5>}
            { renderFormSet(schema.properties, fields) }
+            { this.props.error && <div className="alert alert-danger">
+                { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
+            </div> }
             <div className="button-row">
                 <Button type="submit" bsStyle="primary" >Generate</Button>
             </div>
@@ -165,9 +172,8 @@ function getFields(schema) {
 }
 
 function getValidate(schema){
-
-
     return (values) => {
+        let globalErrors = [];
         function loop(props, values, required){
             return Object.keys(props).reduce((acc, key) => {
                 if(props[key].type === 'object'){
@@ -186,6 +192,9 @@ function getValidate(schema){
                         }
                         return loop(properties, v,  required);
                     });
+                    if(props[key].minItems && (!values[key] || values[key].length < props[key].minItems)){
+                        globalErrors.push([`At least ${props[key].minItems} '${props[key].title}' required.`]);
+                    }
                 }
                 if(required.indexOf(key) >= 0 && (!values || values[key] === undefined || values[key] === null || values[key] === '')){
                     acc[key] = ['Required.']
@@ -194,9 +203,41 @@ function getValidate(schema){
             }, {})
         }
         const errors = loop(schema.properties, values, schema.required || []);
+        if(globalErrors.length){
+            errors._error = globalErrors;
+        }
         return errors;
     }
 }
+
+function getDefaultValues(schema, defaults = {}){
+    const fields = {};
+    function loop(props, fields, suppliedDefaults){
+        Object.keys(props).map(key => {
+            if(suppliedDefaults[key]){
+                fields[key] = suppliedDefaults[key];
+            }
+            else if(props[key].default){
+                fields[key] = props[key].default;
+            }
+            else if(props[key].type === 'object'){
+                let obj = {};
+                fields[key] = obj;
+                loop(props[key].properties, obj, suppliedDefaults[key] || {});
+            }
+            else if(props[key].type === 'array'){
+                if(props[key].items.type === "object"){
+                    let obj = [];
+                    fields[key] = obj;
+                    loop(props[key].items.properties, obj, suppliedDefaults[key] || {});
+                }
+            }
+        });
+        return fields;
+    }
+    return loop(schema.properties, fields, defaults);
+}
+
 
 @reduxForm({
   form: 'transferTemplate',
@@ -237,10 +278,12 @@ const TemplateMap = {
     renderTemplate: (args) => renderTemplate(args)
 })
 export  class TemplateView extends React.Component {
+
     constructor(props){
         super(props);
         this.submit = ::this.submit;
     }
+
     submit(values) {
         let filename = `${this.props.params.name}`;
         this.props.renderTemplate({formName: this.props.params.name, values: {...values, filename: filename}})
@@ -253,36 +296,28 @@ export  class TemplateView extends React.Component {
                 saveAs(blob, filename);
             })
     }
+
     renderBody() {
-        const initialTransfer = {
-            fileType: 'pdf',
-            company: {
-                companyName: this.props.companyState.companyName,
-                companyNumber: this.props.companyState.companyNumber,
-            },
-            transaction: {
-                transferors: [{}],
-                transferees: [{}]
-            },
-            resolutions: [{resolutionType: 'Adopt Constitution'}]
-        };
-        let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)}
+        let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)};
+        let values;
         switch(this.props.params.name){
             case 'transfer':
-                return <TransferForm onSubmit={this.submit} initialValues={state || initialTransfer}/>
+                values = getDefaultValues(TRANSFER, state || {company: this.props.companyState});
+                return <TransferForm onSubmit={this.submit} initialValues={values}/>
             case 'special_resolution':
-                return <SpecialResolutionForm onSubmit={this.submit} initialValues={state || initialTransfer}/>
-
+                values = getDefaultValues(SPECIAL_RESOLUTION, state || {company: this.props.companyState});
+                return <SpecialResolutionForm onSubmit={this.submit} initialValues={values}/>
             default:
-            return <div>Not Found</div>
+                return <div>Not Found</div>
         }
     }
+
     render() {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 { this.renderBody() }
             </div>
-            </div>
+        </div>
     }
 }
 
@@ -298,7 +333,7 @@ export default class TemplateList extends React.Component {
         return <div className="row">
             <Link to={`/company/view/${id}/templates/transfer`} className="actionable select-button" >
                     <span className="glyphicon glyphicon-transfer"></span>
-                    <span className="transaction-button-text">Transfer Shares</span>
+                    <span className="transaction-button-text">Share Transfer Form</span>
             </Link>
             <Link to={`/company/view/${id}/templates/special_resolution`} className="actionable select-button" >
                     <span className="glyphicon glyphicon-list"></span>

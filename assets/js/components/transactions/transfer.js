@@ -122,7 +122,7 @@ export const validate = (values, props) => {
         return errors;
     });
     if(!values.parcels.length){
-        errors._error = (errors._error || []).concat(['At least 1 parcel required.'])
+        errors._error = (errors._error || []).concat(['At least 1 parcel required.']);
     }
     return errors;
 
