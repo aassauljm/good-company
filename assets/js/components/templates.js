@@ -18,6 +18,24 @@ function componentType(fieldProps){
     return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
 }
 
+function oneOfField(fieldProps){
+    return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["selector"]
+}
+
+function addItem(fieldProps){
+    return (fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["addItem"]) || 'Add Item';
+}
+
+function oneOfMatchingSchema(fieldProps, values){
+    const field = oneOfField(fieldProps);
+    if(!field){
+        return false;
+    }
+    return fieldProps.oneOf.filter(f => {
+        return f.properties[field].enum[0] === values[field];
+    })[0];
+}
+
 
 function renderList(fieldProps, componentProps){
     return <fieldset className="list">
@@ -36,7 +54,7 @@ function renderList(fieldProps, componentProps){
             </div>;
         }) }
              <div className="button-row">
-                <Button onClick={() => componentProps.addField({})} >Add Item</Button>
+                <Button onClick={() => componentProps.addField({})} >{ addItem(fieldProps.items) } </Button>
             </div>
         </fieldset>
 }
@@ -71,20 +89,27 @@ function renderField(fieldProps, componentProps){
     }
 }
 
+
+
+
 function renderFormSet(schemaProps, fields, oneOfs){
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
     }
     let selectKey;
+    Object.keys(schemaProps).map((key, i) => {
+        if(schemaProps[key].enum){
+            selectKey = key;
+        }
+    });
     return <fieldset>
         { Object.keys(schemaProps).map((key, i) => {
-            if(schemaProps[key].enum){
-                selectKey = key;
-            }
-            return <div key={i}>{renderField(schemaProps[key], fields[key])}</div>
+            return <div key={i}>
+                { renderField(schemaProps[key], fields[key]) }
+                { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
+            </div>
         }) }
 
-        { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
     </fieldset>
 }
 
@@ -140,18 +165,29 @@ function getFields(schema) {
 }
 
 function getValidate(schema){
+
+
     return (values) => {
         function loop(props, values, required){
             return Object.keys(props).reduce((acc, key) => {
                 if(props[key].type === 'object'){
                     acc[key] = loop(props[key].properties, values[key], props[key].required || [])
                 }
-                 if(props[key].type === 'array'){
+                if(props[key].type === 'array'){
                     acc[key] = values[key].map(v => {
-                        return loop(props[key].items.properties, v, props[key].items.required || []);
+                        let required = props[key].items.required || [];
+                        const matching = oneOfMatchingSchema(props[key].items, v);
+                        let properties = props[key].items.properties
+                        if(matching && matching.required){
+                            required = required.concat(matching.required);
+                        }
+                        if(matching && matching.properties){
+                            properties = {...properties, ...matching.properties}
+                        }
+                        return loop(properties, v,  required);
                     });
                 }
-                if(required.indexOf(key) >= 0 && (!values || values[key] === undefined || values[key] === null)){
+                if(required.indexOf(key) >= 0 && (!values || values[key] === undefined || values[key] === null || values[key] === '')){
                     acc[key] = ['Required.']
                 }
                 return acc;
@@ -174,8 +210,6 @@ export  class TransferForm extends React.Component {
     }
 }
 
-
-console.log(getFields(SPECIAL_RESOLUTION));
 
 @reduxForm({
   form: 'specialResolutionTemplate',

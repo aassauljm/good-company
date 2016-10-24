@@ -90,9 +90,11 @@
                     }
 
                 ],
+                "required": ["resolutionType"],
                 "x-hints": {
                     "form": {
-                        "selector": "include"
+                        "selector": "resolutionType",
+                        "addItem": "Add Resolution"
                     }
                 }
             }
