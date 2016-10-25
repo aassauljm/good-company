@@ -1,0 +1,235 @@
+{
+    "definitions": {
+    },
+    "description": "",
+    "title": "Ordinary Resolution of Shareholders",
+    "filename": "Minute - Ordinary Resolution of Shareholders",
+    "properties": {
+        "fileType": {
+            "title": "File Type",
+            "enum": [
+                "docx",
+                "odt",
+                "pdf"
+            ],
+            "enumNames": [
+                "Word Document (.docx)",
+                "OpenDocument Text (.odt)",
+                "Portable Document Format (.pdf)"
+            ],
+            "default": "docx"
+        },
+        "company": {
+            "type": "object",
+
+            "properties": {
+                "companyName": {
+                    "title": "Company Name",
+                    "type": "string"
+                },
+                "companyNumber": {
+                    "title": "Company Number",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "companyName", "companyNumber"
+            ]
+        },
+        "chairperson": {
+            "type": "object",
+
+            "properties": {
+                "name": {
+                    "title": "Chairperson Name",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ]
+        },
+
+
+        "dateOfShareholderMeeting": {
+            "title": "Date of Shareholder Meeting",
+            "type": "string",
+            "x-hints" : {
+                "form": {
+                  "inputComponent": "date"
+                }
+            }
+        },
+
+        "dateOfMinute": {
+            "title": "Date of Minute",
+            "type": "string",
+            "x-hints" : {
+                "form": {
+                  "inputComponent": "date"
+                }
+            }
+        },
+
+        "resolutions": {
+            "type": "array",
+            "title": "Resolutions",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "resolutionType": {
+                        "title": "Resolution Type",
+                        "enum": [
+                            "Appoint Director",
+                            "Appoint Directors",
+                            "Remove Director",
+                            "Custom"
+                        ]
+                    }
+                },
+                "default": {
+                    "resolutionType": "Adopt Constitution"
+                },
+                "oneOf":[
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Appoint Director"]
+                            },
+                            "director": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "title": "Full Name",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": ["name"]
+                            },
+                            "date": {
+                                "title": "Appointment Date",
+                                "type": "string",
+                                "x-hints" : {
+                                    "form": {
+                                      "inputComponent": "date"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["director", "date"]
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Appoint Directors"]
+                            },
+
+                            "directors": {
+                                "type": "array",
+                                "title": "Directors",
+                                 "items": {
+                                    "title": "Director",
+                                    "type": "object",
+                                    "properties": {
+                                        "director": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "title": "Full Name",
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": ["name"]
+                                        }
+                                    },
+                                    "x-hints": {
+                                        "form": {
+                                            "addItem": "Add Director"
+                                        }
+                                    }
+                                },
+                                "minItems": 1,
+                                "default": [{}]
+                            },
+
+                            "date": {
+                                "title": "Appointment Date",
+                                "type": "string",
+                                "x-hints" : {
+                                    "form": {
+                                      "inputComponent": "date"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["directors", "date"]
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Remove Director"]
+                            },
+                            "director": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "title": "Full Name",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": ["name"]
+                            },
+
+                            "date": {
+                                "title": "Removal Date",
+                                "type": "string",
+                                "x-hints" : {
+                                    "form": {
+                                      "inputComponent": "date"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["director", "date"]
+                    },
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Custom"]
+                            },
+                            "text": {
+                                "type": "string",
+                                "title": "Description",
+                                "x-hints": {
+                                    "form": {
+                                        "inputComponent": "textarea"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["text"]
+                    }
+                ],
+
+                "required": ["resolutionType"],
+                "x-hints": {
+                    "form": {
+                        "selector": "resolutionType",
+                        "addItem": "Add Resolution"
+                    }
+                }
+            },
+            "default": [{"resolutionType": "Appoint Directors"}],
+            "minItems": 1
+
+        }
+    },
+    "required": [
+        "dateOfMinute",
+        "dateOfShareholderMeeting",
+        "chairperson",
+        "resolutions"
+    ],
+    "type": "object",
+    "x-ordering": []
+}
