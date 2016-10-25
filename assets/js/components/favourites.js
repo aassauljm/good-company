@@ -96,7 +96,8 @@ export default class Favourites extends React.Component {
 
     render() {
 
-        return <div className="widget favourites">
+        return <div className="container">
+        <div className="widget favourites">
             <div className="widget-header">
                 <div className="widget-title">
                     Favourites
@@ -108,6 +109,7 @@ export default class Favourites extends React.Component {
                  { this.renderTable() }
                 </div>
             </div>
+        </div>
         </div>
     }
 }

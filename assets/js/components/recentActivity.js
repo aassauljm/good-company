@@ -123,7 +123,8 @@ export default class RecentActivity extends React.Component {
 
     render() {
         const activities = this.props.data || [];
-        return <div className="widget">
+        return <div className="container">
+            <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
                     Recent Activity
@@ -143,6 +144,7 @@ export default class RecentActivity extends React.Component {
                     </tbody>
                 </table>
                 </div>
+            </div>
             </div>
         </div>
     }

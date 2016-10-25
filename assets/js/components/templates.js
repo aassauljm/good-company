@@ -8,6 +8,7 @@ import STRINGS from '../strings';
 import { Link } from 'react-router';
 import TRANSFER from './schemas/transfer.json';
 import SPECIAL_RESOLUTION from './schemas/specialResolution.json';
+import ORDINARY_RESOLUTION from './schemas/ordinaryResolution.json';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
@@ -219,15 +220,14 @@ function getDefaultValues(schema, defaults = {}){
             else if(props[key].default){
                 fields[key] = props[key].default;
             }
-            else if(props[key].type === 'object'){
-                let obj = {};
-                fields[key] = obj;
+
+            if(props[key].type === 'object'){
+                let obj = fields[key] || {};
                 loop(props[key].properties, obj, suppliedDefaults[key] || {});
             }
             else if(props[key].type === 'array'){
                 if(props[key].items.type === "object"){
-                    let obj = [];
-                    fields[key] = obj;
+                    let obj = fields[key] || [];
                     loop(props[key].items.properties, obj, suppliedDefaults[key] || {});
                 }
             }
@@ -263,17 +263,37 @@ export class SpecialResolutionForm extends React.Component {
     }
 }
 
+@reduxForm({
+  form: 'ordinaryResolutionTemplate',
+  fields: getFields(ORDINARY_RESOLUTION),
+  validate: getValidate(ORDINARY_RESOLUTION)
+})
+export class OrdinaryResolutionForm extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={ORDINARY_RESOLUTION}  {...this.props} />
+    }
+}
+
 
 const TemplateMap = {
     'transfer': {
         form: TransferForm,
         schema: TRANSFER,
-        getInitialValues: (values) => getDefaultValues(TRANSFER, values)
+        getInitialValues: (values) => getDefaultValues(TRANSFER, values),
+        icon: 'transfer'
     },
     'special_resolution': {
         form: SpecialResolutionForm,
         schema: SPECIAL_RESOLUTION,
-        getInitialValues: (values) => getDefaultValues(SPECIAL_RESOLUTION, values)
+        getInitialValues: (values) => getDefaultValues(SPECIAL_RESOLUTION, values),
+        icon: 'list'
+    },
+    'ordinary_resolution': {
+        form: OrdinaryResolutionForm,
+        schema: ORDINARY_RESOLUTION,
+        getInitialValues: (values) => getDefaultValues(ORDINARY_RESOLUTION, values),
+        icon: 'list'
     }
 }
 
@@ -309,20 +329,10 @@ export  class TemplateView extends React.Component {
         let values;
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
-            const values = template.getInitialValues(state || {company: this.props.companyState})
+            const values = template.getInitialValues(state || {company: this.props.companyState || {}})
             return <template.form onSubmit={this.submit} initialValues={values} />
         }
         return <div>Not Found</div>
-
-        /*witch(this.props.params.name){
-            case 'transfer':
-                values = getDefaultValues(TRANSFER, state || {company: this.props.companyState});
-                return <TransferForm onSubmit={this.submit} initialValues={values}/>
-            case 'special_resolution':
-                values = getDefaultValues(SPECIAL_RESOLUTION, state || {company: this.props.companyState});
-                return <SpecialResolutionForm onSubmit={this.submit} initialValues={values}/>
-            default:
-                return */
     }
 
     render() {
@@ -334,24 +344,30 @@ export  class TemplateView extends React.Component {
     }
 }
 
+const RenderTemplateList = (props) => {
+    const {id} = props;
+    return <div>
+            { Object.keys(TemplateMap).map((template, i) => {
+                return <div key={i}><Link to={id ? `/company/view/${id}/templates/${template}` : `/templates/${template}`} className="actionable select-button" >
+                    <span className={`glyphicon glyphicon-${TemplateMap[template].icon}`}></span>
+                    <span className="transaction-button-text">{TemplateMap[template].schema.title}</span>
+                </Link></div>
+            }) }
+            </div>
+}
 
 @pureRender
 export default class TemplateList extends React.Component {
     static propTypes = {
-        companyState: PropTypes.object
+        companyState: PropTypes.object,
+        companyId: PropTypes.string
     };
 
     renderBody() {
         const id = this.props.companyId;
+
         return <div className="row">
-            <Link to={`/company/view/${id}/templates/transfer`} className="actionable select-button" >
-                    <span className="glyphicon glyphicon-transfer"></span>
-                    <span className="transaction-button-text">Share Transfer Form</span>
-            </Link>
-            <Link to={`/company/view/${id}/templates/special_resolution`} className="actionable select-button" >
-                    <span className="glyphicon glyphicon-list"></span>
-                    <span className="transaction-button-text">Special Resolution of Shareholders</span>
-            </Link>
+           <RenderTemplateList id={id}/>
         </div>
 
     }
@@ -374,3 +390,32 @@ export default class TemplateList extends React.Component {
 }
 
 
+
+
+@pureRender
+export class TemplateWidget extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object,
+        companyId: PropTypes.string
+    };
+
+    render() {
+        const current = this.props.companyState;
+        const id = this.props.companyId;
+        return  <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Templates
+                    </div>
+                    <div className="widget-control">
+                     <Link to={id ? `/companies/${id}/templates` : `/templates`} >View All</Link>
+                    </div>
+                </div>
+                <div className="widget-body">
+                    <div className="icon-action-page-sml">
+                    <RenderTemplateList />
+                    </div>
+                </div>
+                </div>
+    }
+}

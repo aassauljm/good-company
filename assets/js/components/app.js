@@ -66,9 +66,9 @@ export class LoggedInApp extends React.Component {
                 </div>
             </div>
             <div className="container-fluid page-body">
-                 <div className="container">
+
                 { this.props.children }
-                </div>
+
             </div>
         </div>
     }

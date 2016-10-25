@@ -171,9 +171,7 @@ export class AlertsWidget extends React.Component {
 
 const Alerts = (props) => {
     return <div className="container">
-            <div className="row">
-                    <AlertsWidget full={true}/>
-            </div>
+                <AlertsWidget full={true}/>
         </div>
 };
 export default Alerts;

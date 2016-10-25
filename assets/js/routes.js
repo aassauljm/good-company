@@ -101,6 +101,9 @@ export default (store) => {
             </Route>
             <Route path="favourites" component={ Favourites } />
             <Route path="alerts" component={ Alerts } />
+             <Route path="templates" component={ Templates }>
+                <Router path=":name" component={ TemplateView }/>
+            </Route>
         </Route>
         <Route path="*" component={ NotFound } />
     </Route>;
