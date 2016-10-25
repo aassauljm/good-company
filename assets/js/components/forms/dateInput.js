@@ -11,10 +11,13 @@ export default class DateInput extends React.Component {
     render() {
         const format="DD/MM/YYYY";
         const readFormats = [format, "D M YYYY", "D MMM YYYY", "D/M/YYYY", "D-M-YYYY", "D MMMM YYYY"];
+        if(this.props.format){
+            readFormats.unshift(this.props.format);
+        }
          return <Input {...this.props} groupClassName='has-group'>
 
             <DateTimePicker
-            onChange={this.props.onChange}
+            onChange={(date, string) => this.props.format ? this.props.onChange(string) :  this.props.onChange}
             onSelect={this.props.onSelect}
 
             onClick={(e) => {
@@ -22,7 +25,6 @@ export default class DateInput extends React.Component {
             }}
             time={false}
             value={this.props.value ? new Date(this.props.value): null }
-           // onChange={(date, string) => this.props.onChange(string)}
             onToggle={(open) => {
                 if(!open){
                     this.props.onBlur(this.props.value)
@@ -36,7 +38,7 @@ export default class DateInput extends React.Component {
             onBlur={() => {
                 this.props.onBlur(this.props.value)
             }}
-            format={format} />
+            format={this.props.format || format} />
           </Input>
     }
 }

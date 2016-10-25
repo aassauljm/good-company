@@ -3,6 +3,7 @@
     },
     "description": "",
     "title": "Special Resolution of Shareholders",
+    "filename": "Minute - Special Resolution of Shareholders",
     "properties": {
         "fileType": {
             "title": "File Type",
@@ -15,7 +16,8 @@
                 "Word Document (.docx)",
                 "OpenDocument Text (.odt)",
                 "Portable Document Format (.pdf)"
-            ]
+            ],
+            "default": "docx"
         },
         "company": {
             "type": "object",
@@ -34,6 +36,41 @@
                 "companyName", "companyNumber"
             ]
         },
+        "chairperson": {
+            "type": "object",
+
+            "properties": {
+                "name": {
+                    "title": "Chairperson Name",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ]
+        },
+
+
+        "dateOfShareholderMeeting": {
+            "title": "Date of Shareholder Meeting",
+            "type": "string",
+            "x-hints" : {
+                "form": {
+                  "inputComponent": "date"
+                }
+            }
+        },
+
+        "dateOfMinute": {
+            "title": "Date of Minute",
+            "type": "string",
+            "x-hints" : {
+                "form": {
+                  "inputComponent": "date"
+                }
+            }
+        },
+
         "resolutions": {
             "type": "array",
             "title": "Resolutions",
@@ -96,7 +133,7 @@
                     {
                         "properties": {
                             "resolutionType": {
-                                "enum": ["Revoked Constitution"]
+                                "enum": ["Revoke Constitution"]
                             },
                             "date": {
                                 "title": "Date Constituion to be Revoked",
@@ -131,6 +168,7 @@
                             },
                             "liquidators": {
                                 "type": "array",
+                                "title": "Liquidators",
                                 "items": {
                                     "type": "object",
                                     "properties": {
@@ -138,8 +176,17 @@
                                             "type": "string",
                                             "title": "Liquidator Name"
                                         }
-                                    }
-                                }
+                                    },
+                                    "x-hints": {
+                                        "form": {
+                                            "selector": "resolutionType",
+                                            "addItem": "Add Liquidator"
+                                        }
+                                    },
+                                    "required": ["name"]
+                                },
+                                "default": [{}],
+                                "minItems": 1
                             }
                         }
                     },
@@ -176,7 +223,10 @@
         }
     },
     "required": [
-
+        "dateOfMinute",
+        "dateOfShareholderMeeting",
+        "chairperson",
+        "resolutions"
     ],
     "type": "object",
     "x-ordering": []

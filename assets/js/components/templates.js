@@ -28,7 +28,7 @@ function addItem(fieldProps){
 
 function oneOfMatchingSchema(fieldProps, values){
     const field = oneOfField(fieldProps);
-    if(!field){
+    if(!field || !fieldProps.oneOf){
         return false;
     }
     return fieldProps.oneOf.filter(f => {
@@ -64,10 +64,10 @@ function renderList(fieldProps, componentProps){
 function renderField(fieldProps, componentProps){
     if(fieldProps.type === 'string'){
         if(componentType(fieldProps) === 'date'){
-            return <DateInput {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
+            return <DateInput {...componentProps} format={"D MMMM YYYY"} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
         }
         if(componentType(fieldProps) === 'textarea'){
-            return <Input type="textarea" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
+            return <Input type="textarea" rows="5" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
         }
         return <Input type="text" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
     }
@@ -266,8 +266,16 @@ export class SpecialResolutionForm extends React.Component {
 
 
 const TemplateMap = {
-    'transfer': TransferForm,
-    'special_resolution': SpecialResolutionForm
+    'transfer': {
+        form: TransferForm,
+        schema: TRANSFER,
+        getInitialValues: (values) => getDefaultValues(TRANSFER, values)
+    },
+    'special_resolution': {
+        form: SpecialResolutionForm,
+        schema: SPECIAL_RESOLUTION,
+        getInitialValues: (values) => getDefaultValues(SPECIAL_RESOLUTION, values)
+    }
 }
 
 
@@ -285,8 +293,8 @@ export  class TemplateView extends React.Component {
     }
 
     submit(values) {
-        let filename = `${this.props.params.name}`;
-        this.props.renderTemplate({formName: this.props.params.name, values: {...values, filename: filename}})
+        let filename = TemplateMap[this.props.params.name].schema.filename;
+        this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.filename, values: {...values, filename: filename}})
             .then((response) => {
                 const disposition = response.response.headers.get('Content-Disposition')
                 filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');
@@ -300,7 +308,14 @@ export  class TemplateView extends React.Component {
     renderBody() {
         let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)};
         let values;
-        switch(this.props.params.name){
+        if(TemplateMap[this.props.params.name]){
+            const template = TemplateMap[this.props.params.name];
+            const values = template.getInitialValues(state || {company: this.props.companyState})
+            return <template.form onSubmit={this.submit} initialValues={values} />
+        }
+        return <div>Not Found</div>
+
+        /*witch(this.props.params.name){
             case 'transfer':
                 values = getDefaultValues(TRANSFER, state || {company: this.props.companyState});
                 return <TransferForm onSubmit={this.submit} initialValues={values}/>
@@ -308,8 +323,7 @@ export  class TemplateView extends React.Component {
                 values = getDefaultValues(SPECIAL_RESOLUTION, state || {company: this.props.companyState});
                 return <SpecialResolutionForm onSubmit={this.submit} initialValues={values}/>
             default:
-                return <div>Not Found</div>
-        }
+                return */
     }
 
     render() {

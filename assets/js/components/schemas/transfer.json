@@ -3,6 +3,7 @@
     },
     "description": "",
     "title": "Transfer Shares",
+    "filename": "transfer",
     "properties": {
         "fileType": {
             "title": "File Type",
@@ -15,7 +16,8 @@
                 "Word Document (.docx)",
                 "OpenDocument Text (.odt)",
                 "Portable Document Format (.pdf)"
-            ]
+            ],
+            "default": "docx"
         },
         "company": {
             "type": "object",
