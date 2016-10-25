@@ -120,7 +120,6 @@ function renderFormSet(schemaProps, fields, oneOfs){
 export  class RenderForm extends React.Component {
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
-        console.log(this.props)
         return <form className="generated-form" onSubmit={handleSubmit}>
             <h4>{ schema.title }</h4>
            { schema.description && <h5>{ schema.description }</h5>}
