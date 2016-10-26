@@ -190,7 +190,7 @@ const DecoratedCompanyFieldsForm = reduxForm({
     state => ({ // mapStateToProps
       initialValues: state.account.data // will pull state into form's initialValues
     }),
-}*/)(CompanyFieldsForm);
+})(CompanyFieldsForm);
 
 @formProxy
 export class CompanyFieldsPage extends React.Component {

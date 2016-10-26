@@ -42,16 +42,19 @@ function renderList(fieldProps, componentProps){
     return <fieldset className="list">
         { fieldProps.title && <legend>{fieldProps.title}</legend>}
         { componentProps.map((c, i) => {
-            return <div key={i}>
-                <div className="text-right">
-                 <div className="btn-group btn-group-xs list-controls">
+            return <div className="list-item" key={i}>
+                          <div className="text-right"><div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
                     { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
+                    </div></div>
+                <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf) }</div>
+                 <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block">
+                    { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
+                    <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
+                    { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
                 </div>
-                </div>
-                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf) }
-                { i < componentProps.length - 1 && <hr/> }
+                { i < componentProps.length - 1 && false && <hr/> }
             </div>;
         }) }
              <div className="button-row">
@@ -63,20 +66,28 @@ function renderList(fieldProps, componentProps){
 
 
 function renderField(fieldProps, componentProps){
+    const props = {
+        bsStyle: fieldStyle(componentProps),
+        hasFeedback: true,
+        help: fieldHelp(componentProps),
+        label: fieldProps.title,
+        labelClassName: 'col-md-3',
+        wrapperClassName: 'col-md-7'
+    };
     if(fieldProps.type === 'string'){
         if(componentType(fieldProps) === 'date'){
-            return <DateInput {...componentProps} format={"D MMMM YYYY"} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
+            return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         }
         if(componentType(fieldProps) === 'textarea'){
-            return <Input type="textarea" rows="5" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
+            return <Input type="textarea" rows="5" {...props} />
         }
-        return <Input type="text" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
+        return <Input type="text" {...componentProps} {...props} />
     }
     if(fieldProps.type === 'number'){
-        return <Input type="number" {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}/>
+        return <Input type="number" {...componentProps} {...props} />
     }
     if(fieldProps.enum && fieldProps.enum.length > 1){
-        return <Input type="select"  {...componentProps} bsStyle={fieldStyle(componentProps)} hasFeedback={true} help={fieldHelp(componentProps)} label={fieldProps.title}>
+        return <Input type="select"  {...componentProps} {...props}>
             { fieldProps.enum.map((f, i) => {
                 return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
             })}
@@ -109,7 +120,7 @@ function renderFormSet(schemaProps, fields, oneOfs){
     return <fieldset>
         { Object.keys(schemaProps).map((key, i) => {
             return <div key={i}>
-                { renderField(schemaProps[key], fields[key]) }
+            <div className="form-row">{ renderField(schemaProps[key], fields[key]) }</div>
                 { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
             </div>
         }) }
@@ -121,16 +132,18 @@ function renderFormSet(schemaProps, fields, oneOfs){
 export  class RenderForm extends React.Component {
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
-        return <form className="generated-form" onSubmit={handleSubmit}>
+
+        return <form className="generated-form form-horizontal"  onSubmit={handleSubmit}>
+            <div className="button-row form-controls">
+                <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
+                <Button type="submit" bsStyle="primary" >Generate Document <Glyphicon glyph='download'/></Button>
+            </div>
             <h4>{ schema.title }</h4>
            { schema.description && <h5>{ schema.description }</h5>}
            { renderFormSet(schema.properties, fields) }
             { this.props.error && <div className="alert alert-danger">
                 { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
             </div> }
-            <div className="button-row">
-                <Button type="submit" bsStyle="primary" >Generate</Button>
-            </div>
         </form>
     }
 
@@ -337,7 +350,7 @@ export  class TemplateView extends React.Component {
 
     render() {
         return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
+            <div className="col-md-12">
                 { this.renderBody() }
             </div>
         </div>
@@ -365,7 +378,6 @@ export default class TemplateList extends React.Component {
 
     renderBody() {
         const id = this.props.companyId;
-
         return <div className="row">
            <RenderTemplateList id={id}/>
         </div>
@@ -374,11 +386,15 @@ export default class TemplateList extends React.Component {
 
     render() {
         const current = this.props.companyState;
+        let title = 'Templates'
+        /*if(this.props.params.name && TemplateMap[this.props.params.name]){
+            title = TemplateMap[this.props.params.name].schema.title;
+        }*/
         return <div className="container icon-action-page">
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
-                        Templates
+                        { title }
                     </div>
                 </div>
                 <div className="widget-body">

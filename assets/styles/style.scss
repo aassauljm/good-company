@@ -41,12 +41,12 @@ $popover-max-width: 500px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/pagination";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/pager";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/labels";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/badges";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/jumbotron";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/thumbnails";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/badges";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/jumbotron";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/thumbnails";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/alerts";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/progress-bars";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/media";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/media";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/list-group";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/panels";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/responsive-embed";
@@ -54,10 +54,10 @@ $popover-max-width: 500px;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/close";
 
 // Components w/ JavaScript
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/modals";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/tooltip";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/popovers";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/carousel";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/modals";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/tooltip";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/popovers";
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/carousel";
 
 // Utility classes
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/utilities";
@@ -90,6 +90,7 @@ $header-image:url("~catalex_shared/images/hero-bg.jpg");
 @import "footer";
 @import "betaRibbon";
 @import "misc";
+@import "forms";
 
 html{
     min-height: 100%;
@@ -127,5 +128,9 @@ body{
     @import "companyPage";
 }
 
+.container-fluid{
+    padding-left:0;
+    padding-right:0;
+}
 
 

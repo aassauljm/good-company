@@ -1,5 +1,5 @@
 $widget-border: #ccc;
-
+$widget-verticle-padding:8px;
 .widget{
     background-color:white;
     padding:8px 15px;
@@ -31,7 +31,7 @@ $widget-border: #ccc;
     }
     .widget-body{
         clear:both;
-        padding:8px 0;
+        padding:$widget-verticle-padding 0;
         position: relative;
         h5{
             color:$deep-red;
@@ -92,7 +92,7 @@ $widget-border: #ccc;
         .outline {
 
             background-color:white;
-            padding:8px 15px;
+            padding:$widget-verticle-padding 15px;
             border: 1px solid $widget-border;
             border-radius: 3px;
             margin-bottom: 20px;

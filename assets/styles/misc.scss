@@ -24,6 +24,9 @@ p.form-control-static{
 .form-group.has-feedback.has-group .form-control-feedback{
     right:36px;
 }
+.form-horizontal .form-group.has-feedback.has-group .form-control-feedback{
+    right:50px;
+}
 
 //form fixes
 .text-center.btn-toolbar .btn{
@@ -140,10 +143,13 @@ select.form-control {
     padding: .5em;
     padding-right:1.5em;
 }
+
 select.form-control + .form-control-feedback{
     right: 8px;
 }
-
+.form-horizontal select.form-control + .form-control-feedback{
+    right: 26px;
+}
 
 .or-group{
     .form-group{
