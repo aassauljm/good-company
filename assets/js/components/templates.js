@@ -14,6 +14,7 @@ import Input from './forms/input';
 import DateInput from './forms/dateInput';
 import { renderTemplate } from '../actions';
 import { saveAs } from 'file-saver';
+import Shuffle from 'react-shuffle';
 
 function componentType(fieldProps){
     return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
@@ -37,12 +38,14 @@ function oneOfMatchingSchema(fieldProps, values){
     })[0];
 }
 
+let keyIndex=0;
 
 function renderList(fieldProps, componentProps){
     return <fieldset className="list">
         { fieldProps.title && <legend>{fieldProps.title}</legend>}
+        <Shuffle >
         { componentProps.map((c, i) => {
-            return <div className="list-item" key={i}>
+            return <div className="list-item" key={c._keyIndex.value}>
                           <div className="text-right"><div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
                     { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
@@ -54,11 +57,11 @@ function renderList(fieldProps, componentProps){
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
                 </div>
-                { i < componentProps.length - 1 && false && <hr/> }
             </div>;
         }) }
+        </Shuffle>
              <div className="button-row">
-                <Button onClick={() => componentProps.addField(fieldProps.items.default || {})} >{ addItem(fieldProps.items) } </Button>
+                <Button onClick={() => componentProps.addField({...(fieldProps.items.default||{}), _keyIndex: keyIndex++}) } >{ addItem(fieldProps.items) } </Button>
             </div>
         </fieldset>
 }
@@ -163,6 +166,7 @@ function getFields(schema) {
                 }
             }
             else if(props[key].type === 'array'){
+                fields.push(path + key + '[]._keyIndex');
                 if(props[key].items.type === "object"){
                     loop(props[key].items.properties, path+key + '[].');
                     if(props[key].items.oneOf){
@@ -241,7 +245,7 @@ function getDefaultValues(schema, defaults = {}){
             else if(props[key].type === 'array'){
                 if(props[key].items.type === "object"){
                     let obj = fields[key] || [];
-                    loop(props[key].items.properties, obj, suppliedDefaults[key] || {});
+                    loop(props[key].items.properties, obj, {...(suppliedDefaults[key] || {}), _keyIndex: keyIndex++});
                 }
             }
         });

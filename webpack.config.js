@@ -57,15 +57,25 @@ module.exports = {
     },
     devtool: DEV ? 'inline-source-map' : null,
     module: {
-        loaders: [{
+        loaders: [
+        {
             test: /\.js$/,
-            exclude: /node_modules/,
+            //exclude: /node_modules/,
+            include: [
+                path.resolve(__dirname, "assets"),
+                path.resolve(__dirname, "api"),
+                path.resolve(__dirname, "test"),
+                path.resolve(__dirname, "workers"),
+                path.resolve(__dirname, "cluster.js"),
+                path.resolve(__dirname, "node_modules/react-shuffle")
+            ],
             loader: "babel"
         }, /*, {
             test: /(\.jsx|\.js)$/,
             loader: "eslint-loader",
             exclude: /node_modules/
-        }, */{
+        }, */
+        {
             test: /\.(scss|css)$/,
             loader: ExtractTextPlugin.extract(
                 // activate source maps via loader query
