@@ -1,0 +1,37 @@
+.form-horizontal{
+    .list-controls{
+        margin-bottom: 9px;
+    }
+}
+
+.generated-form{
+    .button-row.form-controls{
+        border-bottom: 1px solid $widget-border;
+            padding-bottom: $widget-verticle-padding;
+    }
+    h4{
+        text-align: center;
+        margin: 22px;
+    }
+    fieldset{
+        legend{
+            font-size:16px;
+            text-align: center;
+        }
+        &.list{
+            .list-item{
+                position:relative;
+                .list-controls.btn-group-vertical{
+                    position:absolute;
+                    top: 0;
+                    right:$widget-verticle-padding;
+                }
+                min-height: 96px;
+                border-bottom: 1px solid $legend-border-color;
+                margin-top: $widget-verticle-padding*2;
+                margin-bottom: $widget-verticle-padding*2;
+            }
+
+        }
+    }
+}
