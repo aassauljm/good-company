@@ -82,7 +82,7 @@ function renderField(fieldProps, componentProps){
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         }
         if(componentType(fieldProps) === 'textarea'){
-            return <Input type="textarea" rows="5" {...props} />
+            return <Input type="textarea" rows="5"{...componentProps}  {...props} />
         }
         return <Input type="text" {...componentProps} {...props} />
     }
