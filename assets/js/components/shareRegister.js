@@ -468,11 +468,22 @@ export class ShareRegister extends React.Component {
                 <div className="widget">
                     <div className="widget-header">
                         <div className="widget-title">
-                            Share Register
+                            Law Browser
                         </div>
                     </div>
                     <div className="widget-body">
-                        <LawBrowserLink title="Companies Act 1993" location="s 87">As defined under s 87 of the Companies Act 1993</LawBrowserLink>
+                        <div className="link-sea">
+                        <LawBrowserLink title="Companies Act 1993" location="s 87">maintenance</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">penalties</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 84">share transfers</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 88">location of register</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 89">legal title</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 90">supervision</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 91">rectification</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 92">trusts</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 93">personal representatives</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 94">assignee of bankrupt</LawBrowserLink>
+                        </div>
                     </div>
             </div>
             </div>

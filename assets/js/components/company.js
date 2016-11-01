@@ -221,11 +221,11 @@ export default class Company extends React.Component {
                 <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} />
                 <div className="company-page">
                     <div className="container-fluid page-top">
-                    <Notifications />
+                    { <Notifications />}
                      <div className="container">
                         <div className="row">
                              <div className="col-md-12">
-                                { current && <CompanyAlertsWidget companyId={this.key()}  companyState={current} /> }
+                                { current && !this.props.children && <CompanyAlertsWidget companyId={this.key()}  companyState={current} /> }
                              </div>
                         </div>
 
