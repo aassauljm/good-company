@@ -248,10 +248,16 @@ export class MassSetup extends React.Component {
         this.fetch();
     }
 
-    render() {
+    renderBody() {
         if(this.props.massSetup._status === 'fetching' || this.props.transactionBulk._status === 'fetching'){
             return <MassSetupLoading />;
         }
         return PAGES[this.props.massSetup.index || 0]({...this.props})
+    }
+
+    render() {
+        return <div className="container">
+            { this.renderBody() }
+        </div>
     }
 }

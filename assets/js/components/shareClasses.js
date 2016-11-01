@@ -152,7 +152,7 @@ export class ShareClassForm extends React.Component {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div></div> }
 
-            <Documents documents={fields.documents} />
+            { !this.props.noDocuments && <Documents documents={fields.documents} /> }
             </fieldset>
             <div className="button-row">
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
