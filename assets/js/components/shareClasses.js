@@ -11,7 +11,7 @@ import STRINGS from '../strings'
 import { fieldStyle, fieldHelp, formFieldProps, requireFields, renderDocumentLinks, pureRender } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { createResource, updateResource, addNotification } from '../actions';
-import DropZone from 'react-dropzone';
+import { Documents } from './forms/documents';
 import StaticField from './forms/staticField';
 import { push } from 'react-router-redux';
 import FormData from 'form-data';
@@ -152,22 +152,7 @@ export class ShareClassForm extends React.Component {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div></div> }
 
-            {!this.props.noDocuments && <DropZone className="dropzone" rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
-                  onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
-                  <div>Try dropping some files here, or click to select files to upload.</div>
-            </DropZone>}
-
-
-
-           {((fields.documents|| {}).value || []).map((file, i) => {
-                return  <StaticField type="static" key={i} label="File" key={i}
-                hasFeedback groupClassName='has-group' value={file.name}
-                buttonAfter={<button className="btn btn-default" onClick={() => {
-                    const clone = fields.documents.value.slice();
-                    clone.splice(i, 1);
-                    fields.documents.onChange(clone);
-                }}><Glyphicon glyph='trash'/></button>} />
-                }) }
+            <Documents documents={fields.documents} />
             </fieldset>
             <div className="button-row">
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>

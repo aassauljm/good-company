@@ -1,7 +1,6 @@
 import React from 'react';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
-import DropZone from 'react-dropzone';
 import { hideNotification, addNotification } from '../actions'
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 const NOTIFICATION_TIMEOUT = 5000;

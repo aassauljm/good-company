@@ -11,9 +11,9 @@ import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
 import { fieldStyle, fieldHelp, objectValues, validateWithSchema, requireFields, renderDocumentLinks } from '../utils';
 import DateInput from './forms/dateInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import { Documents } from './forms/documents';
 import STRINGS from '../strings';
 import { push } from 'react-router-redux';
-import DropZone from 'react-dropzone';
 import StaticField from './forms/staticField';
 import LawBrowserLink from './lawBrowserLink';
 
@@ -120,22 +120,7 @@ class EntryForm extends React.Component {
             <DateInput {...fields.date} bsStyle={fieldStyle(fields.date)} help={fieldHelp(fields.date)} label="Date" hasFeedback />
             <Input type="textarea" rows="6" {...fields.details} bsStyle={fieldStyle(fields.details)} help={fieldHelp(fields.details)} label="Details" hasFeedback />
 
-            <DropZone className="dropzone" { ...fields.documents } rejectClassName={'reject'} activeClassName={'accept'} disablePreview={true}
-                  onDrop={ ( filesToUpload, e ) => this.handleDrop(e, filesToUpload) }>
-                  <div>Try dropping some files here, or click to select files to upload.</div>
-            </DropZone>
-
-
-           {((fields.documents|| {}).value || []).map((file, i) => {
-                return  <StaticField type="static" key={i} label="File" key={i}
-                hasFeedback groupClassName='has-group' value={file.name}
-                buttonAfter={<button className="btn btn-default" onClick={() => {
-                    const clone = fields.documents.value.slice();
-                    clone.splice(i, 1);
-                    fields.documents.onChange(clone);
-                }}><Glyphicon glyph='trash'/></button>} />
-
-                }) }
+            <Documents documents={fields.documents } />
 
             </fieldset>
             <div className="button-row">

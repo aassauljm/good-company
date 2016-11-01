@@ -7,14 +7,22 @@ import { connect } from 'react-redux';
 import { requestLawBrowser } from '../actions';
 import Loading from './loading';
 import { DragSource, DropTarget } from 'react-dnd';
-import contains from 'dom-helpers/query/contains';
-import warning from 'warning';
 import createChainedFunction from 'react-bootstrap/lib/utils/createChainedFunction';
+import { fetch } from '../utils';
+
 
 export const POPOVER_DRAGGABLE = 'POPOVER_DRAGGABLE';
 
-let popoverIndex = 1060;
+const LAW_BROWSER_URL = 'https://browser.catalex.nz';
 
+const formatLink = (props) => {
+    return `${LAW_BROWSER_URL}/open_article/query?doc_type=instrument&title=${props.title}&find=location&location=${props.location}`;
+}
+
+
+const replaceUrls = (html) => html.replace(/href="\//g, `rel="noopener noreferrer" target="_blank" href="${LAW_BROWSER_URL}/`);
+
+let popoverIndex = 1060;
 
 const otPropTypes = {
   ...Overlay.propTypes,
@@ -216,14 +224,6 @@ class Popover extends React.Component {
 Popover.defaultProps = defaultProps;
 
 
-const LAW_BROWSER_URL = 'https://browser.catalex.nz'
-
-const formatLink = (props) => {
-    return `${LAW_BROWSER_URL}/open_article/query?doc_type=instrument&title=${props.title}&find=location&location=${props.location}`;
-}
-
-
-const replaceUrls = (html) => html.replace(/href="\//g, `rel="noopener noreferrer" target="_blank" href="${LAW_BROWSER_URL}/`);
 
 
 @connect(state => state.lawBrowser,
@@ -266,12 +266,32 @@ export class LawBrowserPopover extends React.Component {
     }
 }
 
+let touchStatus = null;
 
 export default class LawBrowserLink extends React.Component {
 
     static propTypes = {
         title: PropTypes.string,
         location: PropTypes.string
+    }
+
+    static doTouch() {
+        // Do DNS lookup and SSL handshake
+        if(!touchStatus){
+            touchStatus = 'fetching';
+            fetch(`${LAW_BROWSER_URL}/touch`)
+                .then(() => {
+                    touchStatus = 'complete';
+                })
+                .catch(() => {
+                    touchStatus = 'error';
+                })
+        }
+
+    }
+
+    componentWillMount() {
+        LawBrowserLink.doTouch();
     }
 
     render() {
