@@ -473,16 +473,16 @@ export class ShareRegister extends React.Component {
                     </div>
                     <div className="widget-body">
                         <div className="link-sea">
-                        <LawBrowserLink title="Companies Act 1993" location="s 87">maintenance</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">penalties</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 84">share transfers</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 88">location of register</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 89">legal title</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 90">supervision</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 91">rectification</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 92">trusts</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 93">personal representatives</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 94">assignee of bankrupt</LawBrowserLink>
+                        <LawBrowserLink title="Companies Act 1993" location="s 87">Share Register Maintenance</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">Penalties for Non-Compliance</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 84">Share Transfer Requirements</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 88">Location of Share Register</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 89">Share Register as Legal Title</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 90">Director’s Supervision of Share Register</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 91">Rectification of Share Register</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 92">No Trusts on Share Register</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 93">Personal Representatives of Shareholders</LawBrowserLink><span className="link-break">•</span>
+                        <LawBrowserLink title="Companies Act 1993" location="s 94">Assignee of Bankrupt Shareholder</LawBrowserLink>
                         </div>
                     </div>
             </div>

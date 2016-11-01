@@ -88,12 +88,18 @@ $widget-verticle-padding:8px;
             }
         }
 
-        .link-sea a{
-            margin-right: 10px;
-            white-space: pre-wrap;
-            display: inline-block;
-            .glyphicon{
-                display:none;
+        .link-sea{
+            .link-break{
+                margin: 0 10px;
+            }
+             a{
+
+                white-space: pre-wrap;
+                display: inline-block;
+                .glyphicon{
+                    display:none;
+                }
+
             }
         }
 
