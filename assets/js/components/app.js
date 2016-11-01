@@ -9,6 +9,10 @@ import Notifications from './notifications';
 import Search from './search';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import { asyncConnect } from 'redux-connect';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragDropContext, DropTarget } from 'react-dnd';
+import { POPOVER_DRAGGABLE } from './lawBrowserLink';
+
 
 function prevent(e){
     e.preventDefault();
@@ -17,6 +21,22 @@ function prevent(e){
 
 const transition = __SERVER__ ? 0 : 200;
 
+
+
+@DropTarget(POPOVER_DRAGGABLE, {
+  drop(props, monitor, component) {
+    monitor.getItem().updatePosition(monitor.getDifferenceFromInitialOffset());
+  }
+}, (connect, monitor) => ({
+    connectDropTarget: connect.dropTarget()
+}))
+export class DragContainer extends React.Component {
+    render(){
+        return this.props.connectDropTarget(<div className="drop-container">{this.props.children}</div>);
+    }
+}
+
+
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
     const promises = [];
@@ -24,19 +44,23 @@ const transition = __SERVER__ ? 0 : 200;
     return Promise.all(promises);
   }
 }])
+@DragDropContext(HTML5Backend)
 export default class App extends React.Component {
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){
-            return <div onDrop={prevent} onDragOver={prevent}>
+            return <div onDragOver={prevent}>
+             <DragContainer>
                 { this.props.children }
+                </DragContainer>
                 { !this.props.routes.some(r => r.print) && <Footer />}
             </div>
         }
         let name = this.props.location.pathname;
         name = name.split('/')[1] || 'root'
-        return <div onDrop={prevent} onDragOver={prevent}>
+        return <div>
             <Header />
                  <Notifications/>
+                  <DragContainer>
                 <div className="app-container" >
                   <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
                     <div key={name}>
@@ -44,17 +68,17 @@ export default class App extends React.Component {
                     </div>
                     </ReactCSSTransitionGroup>
                  </div>
+                 </DragContainer>
                  <Footer />
             </div>
     }
 }
 
-
 @pureRender
 export class LoggedInApp extends React.Component {
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){
-            return <div onDrop={prevent} onDragOver={prevent}>
+            return <div>
                 { this.props.children }
                 { !this.props.routes.some(r => r.print) && <Footer />}
             </div>
@@ -65,11 +89,9 @@ export class LoggedInApp extends React.Component {
                     <Search />
                 </div>
             </div>
-            <div className="container-fluid page-body">
-
-                { this.props.children }
-
-            </div>
+                <div className="container-fluid page-body">
+                        { this.props.children }
+                </div>
         </div>
     }
 }
