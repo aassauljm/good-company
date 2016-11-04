@@ -49,7 +49,8 @@ export function prepareApp(url = '/login'){
                     .then(() => { resolve()})
             }
             return loadOnServer({...renderProps, store}).then(() => {
-                this.tree = renderIntoDocument(<Root store={store} history={history} />);
+
+                this.tree = renderIntoDocument(<Root store={store} history={history} connectDragSource={el => el} />);
                 this.dom = ReactDOM.findDOMNode(this.tree);
                 resolve();
             });

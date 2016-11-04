@@ -1,6 +1,5 @@
 import React, {PropTypes, cloneElement} from 'react';
 import ReactDOM from 'react-dom';
-import classNames from 'classnames';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Overlay from 'react-bootstrap/lib/Overlay';
 import { connect } from 'react-redux';

@@ -8,7 +8,19 @@ import { simpleStore } from '../../integration/helpers';
 import TestUtils, { Simulate } from 'react/lib/ReactTestUtils';
 import { Provider } from 'react-redux';
 import chai from 'chai';
+import { DragDropContext } from 'react-dnd';
+import TestBackend from 'react-dnd-test-backend';
 const should = chai.should();
+
+function wrapInTestContext(DecoratedComponent) {
+  return DragDropContext(TestBackend)(
+    class TestContextContainer extends React.Component {
+      render() {
+        return <DecoratedComponent {...this.props} />;
+      }
+    }
+  );
+}
 
 
 describe('Transfer form', () => {
@@ -179,16 +191,17 @@ describe('Transfer form', () => {
                 <option key={1} value={2}/>
             ];
             const shareOptions = holdingOptions;
-            form = TestUtils.renderIntoDocument(
-                <Provider store={store}>
-                    <TransferConnected
+            const TransferWrapped = wrapInTestContext(TransferConnected);
+  
+            form = TestUtils.renderIntoDocument(<Provider store={store}>
+                    <TransferWrapped
                         initialValues={{parcels: [{}], effectiveDate: new Date() }}
                         holdingOptions={holdingOptions}
                         holdingMap={holdingMap}
                         shareOptions={shareOptions}
                         onSubmit={(data) => { submitResult = data}}
-                        />
-                </Provider> );
+                        /> 
+                </Provider>);
         });
 
         context('check validation', () => {
