@@ -1,0 +1,50 @@
+
+
+
+.law-browser{
+    .link-sea{
+        text-align:center;
+        .link-break{
+            margin: 0 10px;
+        }
+        a{
+            white-space: pre-wrap;
+            display: inline-block;
+            .glyphicon{
+                display:none;
+            }
+        }
+        a + a:before{
+            margin: 0 10px;
+            content: '•';
+            color: $text-color;
+        }
+
+        a:nth-of-type(1n+4) {
+            display: none;
+        }
+    }
+
+    &.expanded .link-sea a{
+        display:inline-block;
+    }
+
+    @media (min-width:$screen-lg-min){
+        .widget-control{
+            display: none;
+        }
+        .link-sea{
+            text-align: left;
+            a + a:before{
+                content: '';
+                margin: 0;
+            }
+            a:nth-of-type(n){
+                display:list-item;
+                margin-left: 10px;
+                margin-bottom:6px;
+            }
+        }
+    }
+
+}

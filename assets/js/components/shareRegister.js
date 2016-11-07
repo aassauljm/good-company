@@ -10,6 +10,66 @@ import Input from './forms/input';
 import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
+import AutoAffix from 'react-overlays/lib/AutoAffix'
+
+
+
+
+
+class ShareRegisterLaw extends React.Component {
+    constructor(){
+        super();
+        this.state = {};
+    }
+
+    render() {
+        let sizeClass = '';
+        if(this.state.expanded){
+            sizeClass = 'expanded';
+        }
+        return <div className={"widget law-browser " + sizeClass}>
+                        <div className="widget-header">
+                            <div className="widget-title">
+                                Law Browser
+                            </div>
+                            <div className="widget-control">
+                                <span className="actionable" onClick={() => this.setState({expanded: !this.state.expanded})}>
+                                    {this.state.expanded ? 'Hide': 'View All'}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="widget-body">
+                            <div className="link-sea">
+                            <LawBrowserLink title="Companies Act 1993" location="s 87" position="left">Share Register Maintenance</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">Penalties for Non-Compliance</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 84">Share Transfer Requirements</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 88">Location of Share Register</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 89">Share Register as Legal Title</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 90">Director’s Supervision of Share Register</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 91">Rectification of Share Register</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 92">No Trusts on Share Register</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 93">Personal Representatives of Shareholders</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 94">Assignee of Bankrupt Shareholder</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 125">Ascertaining Shareholders from Share Register</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11 + s 124">Votes of Joint Shareholders</LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 189(1)(j)+(4)+(5)">Share Register at Registered Office </LawBrowserLink>
+                            <LawBrowserLink title="Companies Act 1993" location="s 215(1)(c) + 217">Public Inspection of Share Register </LawBrowserLink>
+                            </div>
+                        </div>
+                </div>
+    }
+}
+
+class AffixedShareRegisterLaw extends React.Component {
+    render() {
+        return <AutoAffix viewportOffsetTop={15} {...this.props}>
+            <div>
+                <ShareRegisterLaw />
+            </div>
+        </AutoAffix>
+    }
+}
+
 
 function transferHolders(filter, siblings){
     if(!siblings){
@@ -453,47 +513,26 @@ export class ShareRegister extends React.Component {
         if(!shareRegister){
             return <div className="loading"></div>
         }
-        return <div>{ this.props.menu.view === 'document' &&
-                        <div className="container shareregister-container">
+        if(this.props.menu.view === 'document'){
+            return (
+                <div className="container">
+                    <div className="row" ref="affixContainer">
+                        <div className="col-md-12 col-lg-3 col-lg-push-9" ref="law">
+                            <AffixedShareRegisterLaw container={() => this.refs.affixContainer}/>
+                        </div>
+                        <div className="col-md-12 col-lg-9 col-lg-pull-3">
                             <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
-                        </div> }
-                    { this.props.menu.view === 'table' && <ShareRegisterTable shareRegister={shareRegister} shareClassMap={shareClassMap} /> }
-                </div>
+                        </div>
+                    </div>
+                </div>)
+        }
+        else if(this.props.menu.view === 'table'){
+            return <ShareRegisterTable shareRegister={shareRegister} shareClassMap={shareClassMap} />
+        }
     }
 
-    renderTop() {
-        return <div className="container">
-            <div className="row">
-                <div className="col-md-12">
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                            Law Browser
-                        </div>
-                    </div>
-                    <div className="widget-body">
-                        <div className="link-sea">
-                        <LawBrowserLink title="Companies Act 1993" location="s 87">Share Register Maintenance</LawBrowserLink><span className="link-break">•</span>
-                        <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">Penalties for Non-Compliance</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 84">Share Transfer Requirements</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 88">Location of Share Register</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 89">Share Register as Legal Title</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 90">Director’s Supervision of Share Register</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 91">Rectification of Share Register</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 92">No Trusts on Share Register</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 93">Personal Representatives of Shareholders</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 94">Assignee of Bankrupt Shareholder</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 125">Ascertaining Shareholders from Share Register</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11 + s 124">Votes of Joint Shareholders</LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 189(1)(j)+(4)+(5)">Share Register at Registered Office </LawBrowserLink>
-                        <LawBrowserLink title="Companies Act 1993" location="s 215(1)(c) + 217">Public Inspection of Share Register </LawBrowserLink>
-                        </div>
-                    </div>
-            </div>
-            </div>
-
-            </div>
-        </div>
+    renderLaw() {
+        return
     }
 
     renderControls() {
@@ -514,7 +553,6 @@ export class ShareRegister extends React.Component {
 
     render() {
         return <div>
-            { this.renderTop() }
             { this.renderControls() }
             { this.renderShareRegister() }
         </div>

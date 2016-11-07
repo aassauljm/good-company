@@ -201,6 +201,7 @@ select.form-control + .form-control-feedback{
 .icon-action-page{
     .select-button {
         @extend .col-sm-6;
+        display: block;
         padding: 10px;
         font-size: 10px;
         line-height: 1.4;

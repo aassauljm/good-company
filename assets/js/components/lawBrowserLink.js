@@ -85,15 +85,15 @@ class OverlayTrigger extends React.Component {
   }
 
   show() {
-    this.setState({ show: true });
+        this.setState({ show: true });
   }
 
   hide() {
-    this.setState({ show: false, leftOffset: null, topOffset: null, dragged: false });
+        this.setState({ show: false, leftOffset: null, topOffset: null, dragged: false });
   }
 
   updatePosition(offset) {
-   this.setState({leftOffset: this.state.leftOffset + offset.x, topOffset:  this.state.topOffset + offset.y, dragged: true, zIndex: popoverIndex++})
+        this.setState({leftOffset: this.state.leftOffset + offset.x, topOffset:  this.state.topOffset + offset.y, dragged: true, zIndex: popoverIndex++})
   }
 
   makeOverlay(overlay, props) {
@@ -104,9 +104,11 @@ class OverlayTrigger extends React.Component {
         onHide={this.handleHide}
         animation={false}
         target={this}
+        shouldUpdatePosition={true}
       >
         { cloneElement(overlay, {close: this.handleHide,
             updatePosition: this.updatePosition,
+            reposition: () => this.forceUpdate(),
             draggedTop: this.state.topOffset,
             draggedLeft: this.state.leftOffset,
             dragged: this.state.dragged})}
@@ -128,7 +130,6 @@ class OverlayTrigger extends React.Component {
       onClick,
       ...props
     } = this.props;
-
     delete props.defaultOverlayShown;
     const child = React.Children.only(children);
     const childProps = child.props;
@@ -213,7 +214,7 @@ class Popover extends React.Component {
         )}
         {close && <div className="popover-close" onClick={this.props.close}>&times;</div> }
         <div className={'popover-content'}>
-          {children}
+          { React.Children.map(children, c => cloneElement(c, c.needsReposition ? {reposition: this.props.reposition} : null)) }
         </div>
       </div>
     );
@@ -233,6 +234,9 @@ export class LawBrowserContent extends React.Component {
 
     componentWillMount() {
         return this.props.fetchData(this.query())
+            .then(() => {
+                this.props.reposition();
+            })
     }
 
     query() {
@@ -257,15 +261,16 @@ export class LawBrowserContent extends React.Component {
 export class LawBrowserPopover extends React.Component {
     render() {
         return <Popover id={`${this.props.title.replace(' ', '-')}-${this.props.location.replace(' ', '-')}`} title={`${this.props.title} ${this.props.location}`} close={this.props.close} {...this.props}>
-                <LawBrowserContent {...this.props} />
-               <div className="popover-footer">
-                  <a className="btn btn-primary" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank">Open in Law Browser <Glyphicon glyph="new-window"/></a>
-            </div>
+                <LawBrowserContent {...this.props} needsReposition/>
+                   <div className="popover-footer">
+                      <a className="btn btn-primary" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank">Open in Law Browser <Glyphicon glyph="new-window"/></a>
+                </div>
               </Popover>
     }
 }
 
 let touchStatus = null;
+
 
 export default class LawBrowserLink extends React.Component {
 
@@ -294,7 +299,7 @@ export default class LawBrowserLink extends React.Component {
     }
 
     render() {
-        return <OverlayTrigger trigger="click" placement="bottom" overlay={ <LawBrowserPopover {...this.props} /> } target={() => ReactDOM.findDOMNode(this.refs.target)}>
+        return <OverlayTrigger trigger="click" placement={this.props.position || "bottom"} overlay={ <LawBrowserPopover {...this.props} /> } target={() => ReactDOM.findDOMNode(this.refs.target)}>
            <a ref="target" className="law-browser-link" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank" onClick={e => e.preventDefault()}>{ this.props.children }<Glyphicon glyph="new-window"/></a>
         </OverlayTrigger>
     }
