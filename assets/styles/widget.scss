@@ -99,6 +99,11 @@ $widget-verticle-padding:8px;
                 .glyphicon{
                     display:none;
                 }
+            }
+            a + a:before{
+                margin: 0 10px;
+                content: '•';
+                color: $text-color;
 
             }
         }

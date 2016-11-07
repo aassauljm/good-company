@@ -248,9 +248,6 @@ export class LawBrowserContent extends React.Component {
                 </div> }
             { !this.props[this.query()] || !this.props[this.query()].data && <Loading /> }
             <p/>
-            <div className="popover-footer">
-                  <a className="btn btn-primary" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank">Open in Law Browser <Glyphicon glyph="new-window"/></a>
-            </div>
             </div>
 
     }
@@ -262,6 +259,9 @@ export class LawBrowserPopover extends React.Component {
     render() {
         return <Popover id={`${this.props.title.replace(' ', '-')}-${this.props.location.replace(' ', '-')}`} title={`${this.props.title} ${this.props.location}`} close={this.props.close} {...this.props}>
                 <LawBrowserContent {...this.props} />
+               <div className="popover-footer">
+                  <a className="btn btn-primary" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank">Open in Law Browser <Glyphicon glyph="new-window"/></a>
+            </div>
               </Popover>
     }
 }

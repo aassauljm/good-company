@@ -28,11 +28,18 @@
     border-top: 1px solid #ebebeb;
     border-radius: 0 0 5px 5px;
     text-align: center;
-    margin-left: -12px;
-    margin-right: -12px;
-    margin-bottom: -8px;
 }
 
+.popover-content {
+    padding: 0;
+    background-color: #fff;
+    & >* {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        overflow-x: hidden;
+    }
+}
 .popover{
     color: #000;
 }
