@@ -8,7 +8,8 @@ import Loading from './loading';
 import { DragSource, DropTarget } from 'react-dnd';
 import createChainedFunction from 'react-bootstrap/lib/utils/createChainedFunction';
 import { fetch } from '../utils';
-
+import Position from 'dom-helpers/query/position';
+import Offset from 'dom-helpers/query/offset';
 
 export const POPOVER_DRAGGABLE = 'POPOVER_DRAGGABLE';
 
@@ -71,11 +72,34 @@ class OverlayTrigger extends React.Component {
     this._mountNode = null;
   }
 
-  handleToggle() {
+  handleToggle(eventProxy) {
     if (this.state.show) {
       this.hide();
     } else {
-      this.show();
+
+        const calcPlacement = (target) => {
+            const pos = target.getBoundingClientRect();
+            const doc = target.ownerDocument;
+            if(!doc){
+                return;
+            }
+            const win = doc.defaultView || doc.parentWindow;
+            if(!win){
+                return
+            }
+            const [elX, elY] = [pos.left + pos.width/2, pos.top + pos.height/2];
+            const [width, height] = [win.innerWidth, win.innerHeight];
+            const distances = [
+                {dist: elY, placement: 'top'},
+                {dist: height - elY, placement: 'bottom'},
+                {dist: elX, placement: 'left'},
+                {dist: width - elX, placement: 'right'},
+            ]
+            distances.sort((a, b) => b.dist - a.dist);
+            return distances[0].placement
+        }
+
+        this.show(calcPlacement(eventProxy.target));
     }
   }
 
@@ -84,8 +108,8 @@ class OverlayTrigger extends React.Component {
     this.hide();
   }
 
-  show() {
-        this.setState({ show: true });
+  show(placement) {
+        this.setState({ show: true, placement });
   }
 
   hide() {
@@ -104,9 +128,11 @@ class OverlayTrigger extends React.Component {
         onHide={this.handleHide}
         animation={false}
         target={this}
+        placement={this.state.placement}
         shouldUpdatePosition={true}
       >
-        { cloneElement(overlay, {close: this.handleHide,
+        { cloneElement(overlay, {
+            close: this.handleHide,
             updatePosition: this.updatePosition,
             reposition: () => this.forceUpdate(),
             draggedTop: this.state.topOffset,
@@ -299,7 +325,7 @@ export default class LawBrowserLink extends React.Component {
     }
 
     render() {
-        return <OverlayTrigger trigger="click" placement={this.props.position || "bottom"} overlay={ <LawBrowserPopover {...this.props} /> } target={() => ReactDOM.findDOMNode(this.refs.target)}>
+        return <OverlayTrigger trigger="click" overlay={ <LawBrowserPopover {...this.props} /> } target={() => ReactDOM.findDOMNode(this.refs.target)}>
            <a ref="target" className="law-browser-link" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank" onClick={e => e.preventDefault()}>{ this.props.children }<Glyphicon glyph="new-window"/></a>
         </OverlayTrigger>
     }
