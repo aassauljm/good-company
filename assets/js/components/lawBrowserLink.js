@@ -16,7 +16,13 @@ export const POPOVER_DRAGGABLE = 'POPOVER_DRAGGABLE';
 const LAW_BROWSER_URL = 'https://browser.catalex.nz';
 
 const formatLink = (props) => {
-    return `${LAW_BROWSER_URL}/open_article/query?doc_type=instrument&title=${props.title}&find=location&location=${props.location}`;
+    if(props.location){
+        return `${LAW_BROWSER_URL}/open_article/query?doc_type=instrument&title=${props.title}&find=location&location=${props.location}`;
+    }
+    else if(props.defintion){
+        return `${LAW_BROWSER_URL}/open_definition/${props.definition}`;
+
+    }
 }
 
 
@@ -266,7 +272,12 @@ export class LawBrowserContent extends React.Component {
     }
 
     query() {
-        return `${LAW_BROWSER_URL}/query?doc_type=instrument&title=${this.props.title}&find=location&location=${this.props.location}`;
+        if(this.props.location){
+            return `${LAW_BROWSER_URL}/query?doc_type=instrument&title=${this.props.title}&find=location&location=${this.props.location}`;
+        }
+        else if(this.props.definition){
+             return `${LAW_BROWSER_URL}/definition/${this.props.definition}`;
+        }
     }
 
     render() {
@@ -286,7 +297,9 @@ export class LawBrowserContent extends React.Component {
 
 export class LawBrowserPopover extends React.Component {
     render() {
-        return <Popover id={`${this.props.title.replace(' ', '-')}-${this.props.location.replace(' ', '-')}`} title={`${this.props.title} ${this.props.location}`} close={this.props.close} {...this.props}>
+        const id = `${this.props.title.replace(' ', '-')}-${this.props.location ? this.props.location.replace(' ', '-') : this.props.definition}`
+        const title = `${this.props.title} ${this.props.location ? this.props.location : ''}`
+        return <Popover id={id} title={title} close={this.props.close} {...this.props}>
                 <LawBrowserContent {...this.props} needsReposition/>
                    <div className="popover-footer">
                       <a className="btn btn-primary" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank">Open in Law Browser <Glyphicon glyph="new-window"/></a>

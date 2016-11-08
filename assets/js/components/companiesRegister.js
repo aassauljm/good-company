@@ -9,6 +9,17 @@ import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import STRINGS from '../strings';
+import LawBrowserContainer from './lawBrowserContainer'
+import LawBrowserLink from './lawBrowserLink';
+
+
+const companiesRegisterLawLinks = () => <div>
+        <LawBrowserLink title="Companies Act 1993" location=" s 360(1)+(4)">Registrar to keep companies register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 360A">Rectification or correction of companies register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 362">Registration of documents</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 363">Inspection of companies register</LawBrowserLink>
+    </div>
+
 
 const transition = __SERVER__ ? 0 : 200;
 
@@ -132,7 +143,7 @@ export default class CompaniesRegister extends React.Component {
 
 
     render() {
-        return <div className="container">
+        return <LawBrowserContainer lawLinks={companiesRegisterLawLinks()}>
             <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
@@ -141,12 +152,10 @@ export default class CompaniesRegister extends React.Component {
             </div>
 
             <div className="widget-body">
-                <ReactCSSTransitionGroup component="div" transitionName="widget-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
                 { this.renderBody() }
-               </ReactCSSTransitionGroup>
             </div>
         </div>
-        </div>
+        </LawBrowserContainer>
 
 
     }

@@ -7,6 +7,16 @@ import Panel from './panel';
 import STRINGS from '../strings';
 import AutoAffix from 'react-overlays/lib/AutoAffix';
 import d3 from 'd3';
+import LawBrowserLink from './lawBrowserLink';
+import LawBrowserContainer from './lawBrowserContainer'
+
+const shareholdingLawLinks = () => <div>
+        <LawBrowserLink title="Companies Act 1993" definition="28784-DLM320462/28784-DLM319977">Definition of shareholder</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87(2)(a)">Shareholders entered in share register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 97-100)">Liability of shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 104-106">Exercise of shareholder powers</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 125">Ascertaining shareholders</LawBrowserLink>
+    </div>
 
 const colorScale = d3.scale.category20c();
 
@@ -137,7 +147,8 @@ export class HoldingDL extends React.Component {
         shareClassMap: PropTypes.object.isRequired
     };
     render(){
-        return  <dl className="dl-horizontal ">
+        const className = this.props.vertical ? "dl ": "dl-horizontal "
+        return  <dl className={className}>
                 <dt>Name</dt>
                 <dd>{ this.props.holding.name }</dd>
                 <dt>Total Shares</dt>
@@ -172,7 +183,7 @@ export class Holding extends React.Component {
         return <div className={classes.join(' ')} onClick={() => this.props.select && this.props.select(this.props.holding)}>
 
                 <div className="info">
-                    <HoldingDL holding={this.props.holding} total={sum} percentage={percentage} shareClassMap={this.props.shareClassMap} />
+                    <HoldingDL holding={this.props.holding} total={sum} percentage={percentage} shareClassMap={this.props.shareClassMap} vertical={true}/>
                 </div>
                    <div className="hide-graph-labels pie-chart">
                   <PieChart
@@ -219,7 +230,7 @@ export class Shareholdings extends React.Component {
         const holderCount =  Object.keys(this.props.companyState.holders).length;
         const classCount = Object.keys(shareClassMap).length;
 
-        return <div className="container">
+        return <LawBrowserContainer lawLinks={shareholdingLawLinks()}>
 
         <div className="widget shareholding-widget">
             <div className="widget-header">
@@ -281,7 +292,7 @@ export class Shareholdings extends React.Component {
                 </div>
             </div>
         </div>
-        </div>
+        </LawBrowserContainer>
     }
 }
 

@@ -16,6 +16,22 @@ import STRINGS from '../strings';
 import { push } from 'react-router-redux';
 import StaticField from './forms/staticField';
 import LawBrowserLink from './lawBrowserLink';
+import LawBrowserContainer from './lawBrowserContainer'
+
+
+const interestRegisterLawLinks = () => <div>
+        <LawBrowserLink title="Companies Act 1993" definition="28784-DLM319933">Keeping of interests register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 139">Interests of directors in company transactions</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 107(3)+140">Disclosure of director interests</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 107(3)+141-143">Avoidance of transactions wth interested directors</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 144">Voting rights of interested directors</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 145(1)(c)+(2)+(3)">Use of company information</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 161(1)+(2)+107(1)(f)">Director remuneration and benefits</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 162(7)">Director indemnities and insurance</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 216(1)(d) + 217">Shareholder inspection of interests register</LawBrowserLink>
+    </div>
+
+
 
 export const fields = [
   'persons[]',
@@ -249,8 +265,7 @@ export class InterestsRegister extends React.Component {
 
     render() {
         const interestsRegister = (this.props.data || []);
-        return <div className="container">
-            <div className="row">
+        return <LawBrowserContainer lawLinks={interestRegisterLawLinks()}>
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -258,7 +273,6 @@ export class InterestsRegister extends React.Component {
                     </div>
                 </div>
                 <div className="widget-body">
-                            <p><LawBrowserLink title="Companies Act 1993" location="189(1)(c)">Learn more about the Interest Register</LawBrowserLink></p>
                         { !this.props.children && this.renderList(interestsRegister) }
                          { this.props.children && React.cloneElement(this.props.children, {
                                 companyId: this.key(),
@@ -267,8 +281,7 @@ export class InterestsRegister extends React.Component {
                         }) }
                 </div>
             </div>
-            </div>
-        </div>
+            </LawBrowserContainer>
     }
 }
 

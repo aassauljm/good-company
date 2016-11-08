@@ -16,9 +16,17 @@ import StaticField from './forms/staticField';
 import { push } from 'react-router-redux';
 import FormData from 'form-data';
 import LawBrowserLink from './lawBrowserLink';
-import Combobox   from 'react-widgets/lib/Combobox';
+import Combobox from 'react-widgets/lib/Combobox';
+import LawBrowserContainer from './lawBrowserContainer'
 
 
+const shareClassLawLinks = () => <div>
+        <LawBrowserLink title="Companies Act 1993" location="s 116(1) + 37">Share classes</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 36">Rights attached to shares</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87(1)">Restrictions or limitations on share transfers</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87(2)">Stating information by class on the sahre register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 117">Alteration of shareholder rights after interest group approval</LawBrowserLink>
+    </div>
 
 const defaultShareClass = '___default';
 
@@ -110,7 +118,7 @@ export class ShareClassForm extends React.Component {
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
             <legend>Create New Share Class</legend>
-            <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 37">Learn more about share classes</LawBrowserLink></div>
+            {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 37">Learn more about share classes</LawBrowserLink></div> */ }
             <Input type="text" {...fields.name} bsStyle={fieldStyle(fields.name)} help={fieldHelp(fields.name)} label="Share Class Name" className="share-class-name" hasFeedback />
 
             <div className="form-group"><label>{ STRINGS.shareClasses.votingRights.votingRights }</label></div>
@@ -118,7 +126,7 @@ export class ShareClassForm extends React.Component {
                 return <Input key={i} type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])}
                     help={fieldHelp(fields.votingRights[v])} label={STRINGS.shareClasses.votingRights[v]} hasFeedback />
             }) }
-            <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about rights attached to shares</LawBrowserLink></div>
+            {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about rights attached to shares</LawBrowserLink></div> */ }
             { fields.rights.map((n, i) => {
                 return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Describe Right" hasFeedback
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.rights.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
@@ -126,7 +134,7 @@ export class ShareClassForm extends React.Component {
             <div className="form-group"><div className="button-row"><ButtonInput onClick={() => {
                 fields.rights.addField();    // pushes empty child field onto the end of the array
             }}>Add Right</ButtonInput></div></div>
-             <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div>
+            {/*  <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div> */ }
 
              <SelectBoolean {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
                     help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestrictionQuestion} hasFeedback >
@@ -307,9 +315,7 @@ export class ShareClassesTable extends React.Component {
 
     render() {
         const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
-        return <div className="container">
-            <div className="row">
-            <div className="col-md-12">
+        return <LawBrowserContainer lawLinks={shareClassLawLinks()}>
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -326,10 +332,8 @@ export class ShareClassesTable extends React.Component {
                     }) }
                 </div>
             </div>
-            </div>
-            </div>
-        </div>
-    }
+            </LawBrowserContainer>
+        }
 }
 
 export const ShareClasses = connect(undefined, (dispatch, ownProps) => ({
