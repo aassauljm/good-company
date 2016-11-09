@@ -15,8 +15,8 @@ import { Documents } from './forms/documents';
 import StaticField from './forms/staticField';
 import { push } from 'react-router-redux';
 import FormData from 'form-data';
-import LawBrowserLink from './lawBrowserLink';
 import Combobox from 'react-widgets/lib/Combobox';
+import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
 
 
@@ -24,7 +24,7 @@ const shareClassLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location="s 116(1) + 37">Share classes</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 36">Rights attached to shares</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 87(1)">Restrictions or limitations on share transfers</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 87(2)">Stating information by class on the sahre register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87(2)">Stating information by class on the share register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 117">Alteration of shareholder rights after interest group approval</LawBrowserLink>
     </div>
 
