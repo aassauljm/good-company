@@ -267,3 +267,12 @@ export function renderShareClass(shareClass, shareClassMap = {}){
     const result = shareClassMap[shareClass] ? shareClassMap[shareClass].name : STRINGS.defaultShareClass;
     return result;
 }
+
+
+export function formatString(formatted) {
+    for (var i = 1; i < arguments.length; i++) {
+        var regexp = new RegExp('\\{'+(i-1)+'\\}', 'gi');
+        formatted = formatted.replace(regexp, arguments[i]);
+    }
+    return formatted;
+};

@@ -140,8 +140,6 @@ export default class CompaniesRegister extends React.Component {
         </div>
     }
 
-
-
     render() {
         return <LawBrowserContainer lawLinks={companiesRegisterLawLinks()}>
             <div className="widget">
@@ -156,7 +154,5 @@ export default class CompaniesRegister extends React.Component {
             </div>
         </div>
         </LawBrowserContainer>
-
-
     }
 }

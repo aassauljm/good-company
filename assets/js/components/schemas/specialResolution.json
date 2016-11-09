@@ -73,12 +73,12 @@
 
         "resolutions": {
             "type": "array",
-            "title": "Resolutions",
             "items": {
                 "type": "object",
                 "properties": {
                     "resolutionType": {
                         "title": "Resolution Type",
+                        "enumeratedTitle": "Resolution {0}",
                         "enum": [
                             "Adopt Constitution",
                             "Alter Constitution",

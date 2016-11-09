@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
-import { pureRender, numberWithCommas, stringToDate, fieldStyle, fieldHelp } from '../utils';
+import { pureRender, numberWithCommas, stringToDate, fieldStyle, fieldHelp, formatString } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
@@ -51,7 +51,7 @@ function renderList(fieldProps, componentProps){
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
                     </div></div>
-                <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf) }</div>
+                <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }</div>
                  <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block">
                     { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
@@ -68,12 +68,14 @@ function renderList(fieldProps, componentProps){
 
 
 
-function renderField(fieldProps, componentProps){
+function renderField(fieldProps, componentProps, index){
+
+    const title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
     const props = {
         bsStyle: fieldStyle(componentProps),
         hasFeedback: true,
         help: fieldHelp(componentProps),
-        label: fieldProps.title,
+        label: title,
         labelClassName: 'col-md-3',
         wrapperClassName: 'col-md-7'
     };
@@ -110,7 +112,7 @@ function renderField(fieldProps, componentProps){
 
 
 
-function renderFormSet(schemaProps, fields, oneOfs){
+function renderFormSet(schemaProps, fields, oneOfs, listIndex){
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
     }
@@ -123,7 +125,7 @@ function renderFormSet(schemaProps, fields, oneOfs){
     return <fieldset>
         { Object.keys(schemaProps).map((key, i) => {
             return <div key={i}>
-            <div className="form-row">{ renderField(schemaProps[key], fields[key]) }</div>
+            <div className="form-row">{ renderField(schemaProps[key], fields[key], listIndex) }</div>
                 { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
             </div>
         }) }
