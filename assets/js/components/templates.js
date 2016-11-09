@@ -20,6 +20,7 @@ import LawBrowserLink from './lawBrowserLink';
 
 
 function createLawLinks(list){
+    console.log(list)
     return <div>
         { list.map((item, i) => {
             return <LawBrowserLink key={i} {...item.link}>{item.text}</LawBrowserLink>
@@ -207,7 +208,16 @@ function getValidate(schema){
         function loop(props, values, required){
             return Object.keys(props).reduce((acc, key) => {
                 if(props[key].type === 'object'){
-                    acc[key] = loop(props[key].properties, values[key], props[key].required || [])
+                    const matching = oneOfMatchingSchema(props[key], values[key]);
+                    let required = props[key].required || [];
+                    let properties = props[key].properties
+                    if(matching && matching.required){
+                        required = required.concat(matching.required);
+                    }
+                    if(matching && matching.properties){
+                        properties = {...properties, ...matching.properties}
+                    }
+                    acc[key] = loop(properties, values[key], required)
                 }
                 if(props[key].type === 'array'){
                     acc[key] = values[key].map(v => {

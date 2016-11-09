@@ -36,43 +36,121 @@
                 "companyName", "companyNumber"
             ]
         },
-        "chairperson": {
-            "type": "object",
 
+        "resolutionOptions": {
+            "type": "object",
             "properties": {
-                "name": {
-                    "title": "Chairperson Name",
-                    "type": "string"
+                "resolutionType": {
+                    "title": "Resolution Type",
+                    "enum": [
+                        "Special Resolution at Shareholder Meeting",
+                        "Written Resolution in lieu of Shareholder Meeting"
+                    ]
                 }
             },
-            "required": [
-                "name"
-            ]
-        },
+            "default": {
+                "resolutionType": "Special Resolution at Shareholder Meeting"
+            },
+            "oneOf":[
+                {
+                    "properties": {
+                        "resolutionType": {
+                            "enum": ["Special Resolution at Shareholder Meeting"]
+                        },
+                        "chairperson": {
+                            "type": "object",
 
+                            "properties": {
+                                "name": {
+                                    "title": "Chairperson Name",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "name"
+                            ]
+                        },
 
-        "dateOfShareholderMeeting": {
-            "title": "Date of Shareholder Meeting",
-            "type": "string",
-            "x-hints" : {
+                        "dateOfShareholderMeeting": {
+                            "title": "Date of Shareholder Meeting",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                  "inputComponent": "date"
+                                }
+                            }
+                        },
+
+                        "dateOfMinute": {
+                            "title": "Date of Minute",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                  "inputComponent": "date"
+                                }
+                            }
+                        }
+                    },
+                    "required": [
+                        "dateOfMinute",
+                        "dateOfShareholderMeeting",
+                        "chairperson"]
+                },
+
+                {
+                    "properties": {
+                        "resolutionType": {
+                            "enum": ["Written Resolution in lieu of Shareholder Meeting"]
+                        },
+                        "dateOfMinute": {
+                            "title": "Date of Written Resolution",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                  "inputComponent": "date"
+                                }
+                            }
+                        },
+                        "shareholders": {
+                            "type": "array",
+                            "title": "Shareholders",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "Shareholder name"
+                                    }
+                                },
+                                "x-hints": {
+                                    "form": {
+                                        "addItem": "Add Shareholder"
+                                    }
+                                },
+                                "required": ["name"]
+                            },
+                            "default": [{}],
+                            "minItems": 1
+                        }
+                    },
+                    "required": ["dateOfMinute"]
+                }
+            ],
+            "required": ["resolutionType"],
+            "x-hints": {
                 "form": {
-                  "inputComponent": "date"
+                    "selector": "resolutionType"
                 }
             }
         },
 
-        "dateOfMinute": {
-            "title": "Date of Minute",
-            "type": "string",
-            "x-hints" : {
-                "form": {
-                  "inputComponent": "date"
-                }
-            }
-        },
+
+
+
 
         "resolutions": {
             "type": "array",
+            "title": "Resolutions",
             "items": {
                 "type": "object",
                 "properties": {
@@ -179,7 +257,6 @@
                                     },
                                     "x-hints": {
                                         "form": {
-                                            "selector": "resolutionType",
                                             "addItem": "Add Liquidator"
                                         }
                                     },
@@ -223,10 +300,7 @@
         }
     },
     "required": [
-        "dateOfMinute",
-        "dateOfShareholderMeeting",
-        "chairperson",
-        "resolutions"
+        "resolutions", "resolutionOptions"
     ],
     "type": "object",
     "x-ordering": [],
