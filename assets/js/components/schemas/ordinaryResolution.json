@@ -302,5 +302,13 @@
         "resolutionOptions"
     ],
     "type": "object",
-    "x-ordering": []
+    "x-ordering": [],
+    "lawBrowserLinks": [
+        {"link": {"title": "Companies Act 1993", "location": "s 105(2)"}, "text": "Ordinary resolution"},
+        {"link": {"title": "Companies Act 1993", "location": "s 96"}, "text": "Shareholders"},
+        {"link": {"title": "Companies Act 1993", "location": "s 104"}, "text": "Exercising shareholder powers"},
+        {"link": {"title": "Companies Act 1993", "location": "s 105"}, "text": "Powers exercised by ordinary resolution"},
+        {"link": {"title": "Companies Act 1993", "location": "s 120, 121, 124"}, "text": "Shareholder meetings"},
+        {"link": {"title": "Companies Act 1993", "location": "s 122"}, "text": "Written shareholder resolutions"}
+    ]
 }
