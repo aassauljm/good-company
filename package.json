@@ -114,7 +114,7 @@
     "react-redux": "^4.0.1",
     "react-router": "^2.0.0",
     "react-router-redux": "^4.0.0",
-    "react-shuffle": "github:joshgagnon/react-shuffle#c2cee8e95db5f6d82c646516f99ebd92d3a790a8",
+    "react-shuffle": "github:joshgagnon/react-shuffle#fe4b9ddf6406e1a0b8f53ec9923cd138f18126d6",
     "react-widgets": "^3.1.0",
     "redux": "^3.0.2",
     "redux-connect": "^2.4.0",

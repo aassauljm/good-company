@@ -147,7 +147,11 @@ export function validateInverseIssue(data, companyState){
             }
             if(stats.totalShares !== data.toAmount){
                 sails.log.debug(stats)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue')
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue', {
+                    action: data,
+                    importErrorType: sails.config.enums.INVERSE_INCREASE_SUM_MISMATCH,
+                    companyState: companyState.toJSON()
+                });
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
                 throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up')
@@ -166,7 +170,11 @@ export function validateInverseDecreaseShares(data, companyState){
             }
             if(stats.totalShares !== data.toAmount){
                 sails.log.debug(stats)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue')
+                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, decrease', {
+                    action: data,
+                    importErrorType: sails.config.enums.INVERSE_DECREASE_SUM_MISMATCH,
+                    companyState: companyState.toJSON()
+                });
             }
             if(data.fromAmount - data.amount !== data.toAmount ){
                 throw new sails.config.exceptions.InvalidInverseOperation('Decrease amount sums to not add up')

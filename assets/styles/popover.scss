@@ -39,6 +39,19 @@
         padding: 10px;
         overflow-x: hidden;
     }
+    .definition-result{
+        font-size: 14px;
+        .catalex-src {
+            margin-bottom: 10px;
+            font-style: italic;
+            font-size: 14px;
+            display: block;
+        }
+    }
+    .other-defs {
+        font-style: italic;
+        font-family: 'Times New Roman', serif;
+    }
 }
 .popover{
     color: #000;

@@ -19,7 +19,7 @@ const formatLink = (props) => {
     if(props.location){
         return `${LAW_BROWSER_URL}/open_article/query?doc_type=instrument&title=${props.title}&find=location&location=${props.location}`;
     }
-    else if(props.defintion){
+    else if(props.definition){
         return `${LAW_BROWSER_URL}/open_definition/${props.definition}`;
 
     }

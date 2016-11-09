@@ -1,11 +1,18 @@
 "use strict"
 import React from 'react';
-
-
+import LawBrowserContainer from '../lawBrowserContainer'
 
 
 export default class GCModal extends React.Component {
     render() {
+        if(this.props.lawLinks){
+            return <LawBrowserContainer lawLinks={this.props.lawLinks}>
+                <div className="widget">
+                    { this.props.children }
+                </div>
+            </LawBrowserContainer>
+        }
+
         return <div className="container">
             <div className="row">
             <div className="col-md-12">

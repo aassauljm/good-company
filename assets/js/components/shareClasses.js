@@ -21,8 +21,8 @@ import LawBrowserContainer from './lawBrowserContainer'
 
 
 const shareClassLawLinks = () => <div>
-        <LawBrowserLink title="Companies Act 1993" location="s 116(1) + 37">Share classes</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 36">Rights attached to shares</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" definition="28784-DLM320605/28784-DLM319594">Share classes</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 37">Issue of shares in different classes </LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 87(1)">Restrictions or limitations on share transfers</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 87(2)">Stating information by class on the share register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 117">Alteration of shareholder rights after interest group approval</LawBrowserLink>
@@ -117,7 +117,6 @@ export class ShareClassForm extends React.Component {
         const votingRights = ["1(a)", "1(b)", "1(c)"];
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
-            <legend>Create New Share Class</legend>
             {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 37">Learn more about share classes</LawBrowserLink></div> */ }
             <Input type="text" {...fields.name} bsStyle={fieldStyle(fields.name)} help={fieldHelp(fields.name)} label="Share Class Name" className="share-class-name" hasFeedback />
 
@@ -204,17 +203,12 @@ export class ShareClassEdit extends React.Component {
 
 export class ShareClassCreateModal extends React.Component {
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'} lawLinks={shareClassLawLinks()}>
               <Modal.Header closeButton>
                 <Modal.Title>Create Share Class</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-              <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                    <ShareClassFormConnected {...this.props.modalData} end={this.props.end} />
-                </div>
-            </div>
-
+                <ShareClassFormConnected {...this.props.modalData} end={this.props.end} />
           </Modal.Body>
         </Modal>
     }

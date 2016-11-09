@@ -31,7 +31,7 @@ PAGES[INTRODUCTION] = function() {
     }
     if(this.props.pendingHistory._status === 'complete'){
         return <div><p>There are total of { this.props.pendingHistory.data.length } historic documents from the Companies Office to import.</p>
-        <p>Good Company can usually understand the transactions in these documents, but may need your input to resolve any ambiguities.  </p>
+        <p>Good Companies can usually understand the transactions in these documents, but may need your input to resolve any ambiguities.  </p>
         <p>If you are unable to provide the requested details, don't worry - you can come back at any point and continue where you left off. </p>
         </div>
     }
