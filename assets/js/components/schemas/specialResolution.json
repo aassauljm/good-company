@@ -229,5 +229,13 @@
         "resolutions"
     ],
     "type": "object",
-    "x-ordering": []
+    "x-ordering": [],
+    "lawBrowserLinks": [
+        {"link": {"title": "Companies Act 1993", "definition": "28784-DLM319985"}, "text": "Special resolution"},
+        {"link": {"title": "Companies Act 1993", "location": "s 106"}, "text": "Powers exercised by special resolution"},
+        {"link": {"title": "Companies Act 1993", "location": "s 96"}, "text": "Shareholders"},
+        {"link": {"title": "Companies Act 1993", "location": "s 104"}, "text": "Exercising shareholder powers"},
+        {"link": {"title": "Companies Act 1993", "location": "s 104"}, "text": "Shareholder meetings"},
+        {"link": {"title": "Companies Act 1993", "location": "s 120, 121, 124"}, "text": "Written shareholder resolutions"}
+    ]
 }

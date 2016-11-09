@@ -15,6 +15,17 @@ import DateInput from './forms/dateInput';
 import { renderTemplate } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
+import LawBrowserContainer from './lawBrowserContainer';
+import LawBrowserLink from './lawBrowserLink';
+
+
+function createLawLinks(list){
+    return <div>
+        { list.map((item, i) => {
+            return <LawBrowserLink key={i} {...item.link}>{item.text}</LawBrowserLink>
+        })}
+    </div>
+}
 
 function componentType(fieldProps){
     return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
@@ -390,23 +401,31 @@ export default class TemplateList extends React.Component {
 
     }
 
+    renderWidget(title) {
+        return  <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    { title }
+                </div>
+            </div>
+            <div className="widget-body">
+                { this.props.children ?  React.cloneElement(this.props.children, this.props) : this.renderBody() }
+            </div>
+        </div>
+
+    }
+
     render() {
         const current = this.props.companyState;
         let title = 'Templates'
-        /*if(this.props.params.name && TemplateMap[this.props.params.name]){
-            title = TemplateMap[this.props.params.name].schema.title;
-        }*/
+        if(this.props.params.name && TemplateMap[this.props.params.name] && TemplateMap[this.props.params.name].schema.lawBrowserLinks){
+            return <LawBrowserContainer lawLinks={createLawLinks(TemplateMap[this.props.params.name].schema.lawBrowserLinks)}>
+                { this.renderWidget(title) }
+            </LawBrowserContainer>
+        }
+
         return <div className="container icon-action-page">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        { title }
-                    </div>
-                </div>
-                <div className="widget-body">
-                    { this.props.children ?  React.cloneElement(this.props.children, this.props) : this.renderBody() }
-                </div>
-                </div>
+                { this.renderWidget(title) }
             </div>
     }
 }
