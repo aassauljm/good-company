@@ -22,7 +22,8 @@ import {
     SHOW_MODAL, END_MODAL, NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
     SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
     UPDATE_MENU, TOGGLE_WIDGET_SIZE,
-    LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE
+    LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
+    WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
      } from './actionTypes';
 
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
@@ -342,6 +343,18 @@ function lawBrowser(state = {}, action){
     }
 }
 
+function workingDays(state = {}, action){
+    switch(action.type){
+        case WORKING_DAY_REQUEST:
+            return {...state, ...{[action.url]: {...state[action.url], _status: 'fetching'}}};
+        case WORKING_DAY_SUCCESS:
+            return {...state, ...{[action.url]: {...{data: action.response, _status: 'complete'}}}};
+        case WORKING_DAY_FAILURE:
+            return {...state, ...{[action.url]: {...{error: action.response, _status: 'error'}}}};
+        default:
+            return state;
+    }
+}
 
 function mergeErrors(state, err){
      return {
@@ -406,6 +419,7 @@ const appReducer = combineReducers({
     widgets,
     renderTemplate,
     lawBrowser,
+    workingDays,
     reduxAsyncConnect: reduxAsyncConnect
 });
 

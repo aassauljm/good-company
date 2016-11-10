@@ -32,6 +32,7 @@ export function callAPIMiddleware({
                 types,
                 callAPI,
                 shouldCallAPI = () => true,
+                rejectPayload = () => ({}),
                 payload = {},
                 postProcess,
             } = action;
@@ -50,7 +51,7 @@ export function callAPIMiddleware({
                 throw new Error('Expected fetch to be a function.');
             }
             if (!shouldCallAPI(getState())) {
-                return Promise.resolve({'shouldCallRejected': true});
+                return Promise.resolve({'shouldCallRejected': true, ...rejectPayload(getState())});
             }
 
             const [requestType, successType, failureType] = types;

@@ -9,7 +9,7 @@ momentLocalizer(moment);
 export default class DateInput extends React.Component {
 
     render() {
-        const format="DD/MM/YYYY";
+        const format = this.props.displayFormat || "DD/MM/YYYY";
         const readFormats = [format, "D M YYYY", "D MMM YYYY", "D/M/YYYY", "D-M-YYYY", "D MMMM YYYY"];
         if(this.props.format){
             readFormats.unshift(this.props.format);
@@ -17,7 +17,7 @@ export default class DateInput extends React.Component {
          return <Input {...this.props} groupClassName='has-group'>
 
             <DateTimePicker
-            onChange={(date, string) => this.props.format ? this.props.onChange(string) :  this.props.onChange}
+            onChange={(date, string) => this.props.format ? this.props.onChange(string) :  this.props.onChange(date)}
             onSelect={this.props.onSelect}
 
             onClick={(e) => {

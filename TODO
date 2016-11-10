@@ -3,8 +3,7 @@
 --
 
 
-TEMPLATE
-
+NOTIFICATION
 
 #TODO
 
@@ -20,7 +19,8 @@ scrape all, record errors
 
 
 
-
+CALENDARS
+#google, outlook
 
 
 #templates:
@@ -173,6 +173,9 @@ AROA import bad
 
 351 LINCOLN LIMITED
 # bad
+
+
+WHANGAREI REAL ESTATE LIMITED
 
 
 

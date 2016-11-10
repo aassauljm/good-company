@@ -27,8 +27,20 @@ import {
     SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
     LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
     UPDATE_MENU,
-    TOGGLE_WIDGET_SIZE
+    TOGGLE_WIDGET_SIZE,
+    WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
      } from './actionTypes';
+
+const serialize = function(obj) {
+  var str = [];
+  for(var p in obj)
+    if (obj.hasOwnProperty(p)) {
+      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+    }
+  return str.join("&");
+}
+
+
 
 const json_headers = {
     'Accept': 'application/json',
@@ -167,6 +179,24 @@ export function deleteResource(resource, options = {}) {
         payload: {key: resource, invalidateList: options.invalidates}
     };
 }
+
+
+const WORKING_DAY_URL = 'https://api.catalex.nz';
+
+export function requestWorkingDayOffset(query){
+    const url = `${WORKING_DAY_URL}/?${serialize(query)}`;
+    return {
+        types: [WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE],
+        callAPI: () => fetch(url, {
+            credentials: 'same-origin'
+        }),
+        shouldCallAPI: (state) => !state.workingDays[url] || !state.workingDays[url]._status,
+        rejectPayload: (state) => ({response: state.workingDays[url].data}),
+        payload: {url: url},
+    };
+
+}
+
 
 
 export function requestLawBrowser(url, options = {}) {
@@ -409,8 +439,5 @@ export function toggleWidget(path, value){
         type: TOGGLE_WIDGET_SIZE, path, value
     }
 }
-
-
-
 
 

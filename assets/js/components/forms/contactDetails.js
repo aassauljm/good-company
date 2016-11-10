@@ -103,7 +103,9 @@ export function contactDetailsFormatSubmit(values, companyState){
                 transactionType: transactionMap[item],
                 [fieldNameMap[item] || 'value']: values[item],
                 [previousFieldNameMap[item] || 'previousValue']: companyState[item],
-                field: item
+                field: item,
+                effectiveDate: values.effectiveDate,
+                noticeDate: values.noticeDate
             })
         }
     });
