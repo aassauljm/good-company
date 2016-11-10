@@ -111,6 +111,7 @@ function RegisteredAddressLawLinks(){
     </div>
 }
 
+
 @connect(undefined, {
     submit: (type, id, values) => companyTransaction(type, id, values),
     addNotification: (args) => addNotification(args)

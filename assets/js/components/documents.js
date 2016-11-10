@@ -7,7 +7,8 @@ import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router'
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
-
+import LawBrowserContainer from './lawBrowserContainer'
+import LawBrowserLink from './lawBrowserLink'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
@@ -85,7 +86,19 @@ export class DocumentsWidget extends React.Component {
 }
 
 
-
+function documentLawLinks(){
+    return <div>
+           <LawBrowserLink title="Companies Act 1993" location="s 189(1)-(3)" >Records a company must keep </LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 189(4)" >Notice to registrar of place of records</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 189(5), 373(2)(g), and 374(2)(1)" >Consequences of non-compliance</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 190" >Form of Record</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 191" >Inspection of records by directors</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 215, 217 and 218" >Inspection of records by the public</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 216, 217, and 218" >Inspection of records by shareholders</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 194" >Accounting records must be kept</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 195" >Place of accounting records</LawBrowserLink>
+    </div>
+}
 
 export class CompanyDocuments extends React.Component {
     static propTypes = {
@@ -118,8 +131,7 @@ export class CompanyDocuments extends React.Component {
     }
 
     render() {
-        return <div className="container">
-            <div className="row">
+        return <LawBrowserContainer lawLinks={documentLawLinks()}>
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -130,7 +142,6 @@ export class CompanyDocuments extends React.Component {
                     { this.renderTable() }
                 </div>
             </div>
-            </div>
-        </div>
+            </LawBrowserContainer>
     }
 }

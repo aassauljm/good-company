@@ -15,7 +15,7 @@ import { enums as TransactionTypes } from '../../../config/enums/transactions';
 
 
 const shareRegisterLawLinks = () => <div>
-        <LawBrowserLink title="Companies Act 1993" location="s 87" position="left">Share Register Maintenance</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87">Share Register Maintenance</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">Penalties for Non-Compliance</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 84">Share Transfer Requirements</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 88">Location of Share Register</LawBrowserLink>
