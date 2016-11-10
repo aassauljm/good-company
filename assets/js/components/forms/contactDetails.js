@@ -31,7 +31,7 @@ export class ContactForm extends React.Component {
         return <form className="form form-horizontal" onSubmit={handleSubmit}>
         <fieldset>
             {immutableFields.map((f, i) => {
-                return <div key={i}><Input type="static" {...this.formFieldProps(f)} /></div>
+                return <div key={i}><Input type="static" {...this.formFieldProps(f)} onClick={() => this.props.handleClickImmutable(f)}/></div>
             }) }
             { contactFields.map((f, i) => {
                 return <div className="form-group" key={i}>

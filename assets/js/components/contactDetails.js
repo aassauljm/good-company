@@ -6,9 +6,9 @@ import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { pureRender } from '../utils';
-import { companyTransaction, addNotification } from '../actions';
+import { companyTransaction, addNotification, showModal } from '../actions';
 import { ContactFormConnected, contactDetailsFormatSubmit, immutableFields, defaultCustomFields } from './forms/contactDetails';
-import { replace } from 'react-router-redux'
+import { replace, push } from 'react-router-redux'
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
 
@@ -71,7 +71,9 @@ export class ContactDetailsWidget extends React.Component {
 @connect(undefined, {
     submit: (type, id, values) => companyTransaction(type, id, values),
     addNotification: (args) => addNotification(args),
-    refresh: (location) => replace(location)
+    refresh: (location) => replace(location),
+    navigate: (url) => push(url),
+    startTransaction: (key, companyState, companyId) => showModal(key, {companyState: companyState, companyId: companyId})
 })
 export default class ContactDetails extends React.Component {
     static propTypes = {
@@ -96,6 +98,19 @@ export default class ContactDetails extends React.Component {
             })
     }
 
+    handleSelectAddressChange(key) {
+        const map = {
+            addressForService: 'changeRegisteredOffice',
+            registeredCompanyAddress: 'changeAddressForService'
+        }
+        if(!map[key]){
+            return;
+        }
+        const id = this.props.companyId;
+        this.props.navigate(`/company/view/${id}/new_transaction`);
+        this.props.startTransaction(map[key], this.props.companyState, this.props.companyId);
+    }
+
     render() {
         const data = this.props.companyState, contactFields = data.contactFields || defaultCustomFields.map(f => ({
             value: '',
@@ -113,6 +128,7 @@ export default class ContactDetails extends React.Component {
                             <ContactFormConnected
                                 initialValues={{...data, contactFields : contactFields}}
                                 onSubmit={::this.handleSubmit}
+                                handleClickImmutable={::this.handleSelectAddressChange}
                             />
                     </div>
                 </div>
