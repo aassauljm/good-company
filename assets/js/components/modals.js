@@ -23,10 +23,10 @@ import { UpdateDirectorModal  } from './transactions/updateDirector';
 import { SubdivisionModal  } from './transactions/subdivision';
 import { ResolveAmbiguityModal  } from './transactions/resolve';
 import { DeleteCompanyModal  } from './transactions/deleteCompany';
-import { ResetHistoryModal  } from './transactions/resetHistory';
+import { ChangeRegisteredOfficeModal, ChangeAddressForServiceModal  } from './transactions/changeAddress';
 import { VotingShareholdersModal  } from './transactions/selectVotingShareholders';
 import { ShareClassCreateModal, ShareClassEditModal, ShareClassManageModal } from './shareClasses';
-import { AddAssignSharesModal, ConsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal, ResetDeleteModal } from './transactions/selection';
+import { AddAssignSharesModal, ConsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal, ResetDeleteModal, UpdateAddressesModal } from './transactions/selection';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
 
@@ -76,6 +76,9 @@ export const ModalSwitch = (props) => {
 
             case 'redemption':
                 return <RedemptionModal {...props} />
+
+            case 'updateAddresses':
+                return <UpdateAddressesModal {...props} />
 
             case 'newPerson':
                 return <NewPersonModal {...props} />
@@ -130,6 +133,12 @@ export const ModalSwitch = (props) => {
 
             case 'manageShareClasses':
                 return <ShareClassManageModal {...props} />
+
+            case 'changeRegisteredOffice':
+                return <ChangeRegisteredOfficeModal {...props} />
+
+            case 'changeAddressForService':
+                return <ChangeAddressForServiceModal {...props} />
 
             default:
                 return false;

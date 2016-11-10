@@ -99,6 +99,7 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.startTransaction('repurchaseRedeem') }>Repurchase or Redeem Shares</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('transfer') }>Transfer Shares</MenuItem>
                         <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/contact`) }>Update Contact</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('updateAddresses')  }>Update Addresses</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('selectDirector') }>Update Directors</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('updateHoldingHolder') }>Update Shareholders</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('resetDelete') }>Reset or Delete Company</MenuItem>
@@ -124,8 +125,8 @@ export class CompanyHeader extends React.Component {
     renderRightActions() {
         const glyph = this.isFavourite() ? 'star' : 'star-empty';
         return [<li key={0} className="nav-item">
-        <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}><Glyphicon glyph={glyph}/> <span className="visible-lg-inline">Favourite</span></a>
-            </li>]
+            <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}><Glyphicon glyph={glyph}/> <span className="visible-lg-inline">Favourite</span></a>
+        </li>]
     }
 
     toggleFavourite() {

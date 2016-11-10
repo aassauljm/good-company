@@ -10,7 +10,7 @@ import { Link } from 'react-router';
 import { companyTransaction, addNotification, showModal } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-
+import { contactLawLinks } from '../contactDetails';
 
 
 @connect(undefined)
@@ -47,7 +47,7 @@ export class SelectionBase extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
               <Modal.Header closeButton>
                 <Modal.Title>{ this.props.title }</Modal.Title>
               </Modal.Header>
@@ -158,4 +158,22 @@ export class ResetDeleteModal extends React.Component {
     }
 }
 
+
+export class UpdateAddressesModal extends React.Component {
+
+    render() {
+        return <SelectionBase {...this.props} title="Change Addresses" lawLinks={contactLawLinks()}>
+            <div className="actionable select-button"  onClick={() => this.props.show('changeRegisteredOffice')} >
+                <span className="glyphicon glyphicon-home"></span>
+                <span className="transaction-button-text">Change Registered Office</span>
+
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('changeAddressForService')} >
+                <span className="glyphicon glyphicon-home"></span>
+                <span className="transaction-button-text">Change Address for Service</span>
+            </div>
+
+        </SelectionBase>
+    }
+}
 

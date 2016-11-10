@@ -86,6 +86,12 @@ export class NewTransaction extends React.Component {
                             <span className="glyphicon glyphicon-envelope"></span>
                             <span className="transaction-button-text">Update Contact</span>
                     </div>
+
+                    <div className="actionable select-button" onClick={() => this.startTransaction('updateAddresses') } >
+                            <span className="glyphicon glyphicon-home"></span>
+                            <span className="transaction-button-text">Update Addresses</span>
+                    </div>
+
                     <div className="actionable select-button" onClick={() => this.startTransaction('selectDirector')  } >
                             <span className="glyphicon glyphicon-user"></span>
                             <span className="transaction-button-text">Update Directors</span>

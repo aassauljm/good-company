@@ -13,7 +13,7 @@ import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
 
 
-function contactLawLinks(){
+export function contactLawLinks(){
     return <div>
     <LawBrowserLink title="Companies Act 1993" location="s 186">Requirement to have registered office</LawBrowserLink>
     <LawBrowserLink title="Companies Act 1993" location="s 187">Change of registered office by board</LawBrowserLink>
