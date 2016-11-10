@@ -7,8 +7,23 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { pureRender } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
-import { ContactFormConnected, contactDetailsFormatSubmit, standardFields, defaultCustomFields } from './forms/contactDetails';
+import { ContactFormConnected, contactDetailsFormatSubmit, immutableFields, defaultCustomFields } from './forms/contactDetails';
 import { replace } from 'react-router-redux'
+import LawBrowserContainer from './lawBrowserContainer'
+import LawBrowserLink from './lawBrowserLink'
+
+
+function contactLawLinks(){
+    return <div>
+    <LawBrowserLink title="Companies Act 1993" location="s 186">Requirement to have registered office</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 187">Change of registered office by board</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 188">Requirement tocange registered office</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 189">Records kept at registered Offie</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 192">Requirement to have address for Sservice</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 193">Change of address for service by board </LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 193A">Rectification or correction of address for service</LawBrowserLink>
+    </div>
+}
 
 export class ContactDetailsWidget extends React.Component {
     static propTypes = {
@@ -30,7 +45,7 @@ export class ContactDetailsWidget extends React.Component {
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body" >
             <dl>
-                { standardFields.map((f, i) =>  <div key={i}><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
+                { immutableFields.map((f, i) =>  <div key={i}><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
                 { contactFields.map((f, i) => f.value && f.label && <div key={i}><dt>{ f.label }</dt><dd>{ f.value}</dd></div>) }
                 </dl>
             </div>
@@ -87,22 +102,21 @@ export default class ContactDetails extends React.Component {
             label: f
         }));
 
-        return <div className="container">
-            <div className="row">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Contact
+        return <LawBrowserContainer lawLinks={contactLawLinks()}>
+                <div className="widget">
+                    <div className="widget-header">
+                        <div className="widget-title">
+                            Contact
+                        </div>
+                    </div>
+                    <div className="widget-body">
+                            <ContactFormConnected
+                                initialValues={{...data, contactFields : contactFields}}
+                                onSubmit={::this.handleSubmit}
+                            />
                     </div>
                 </div>
-                <div className="widget-body">
-                        <ContactFormConnected
-                            initialValues={{...data, contactFields : contactFields}}
-                            onSubmit={::this.handleSubmit}
-                        />
-                </div>
-            </div>
-            </div>
-        </div>
+            </LawBrowserContainer>
+
     }
 }

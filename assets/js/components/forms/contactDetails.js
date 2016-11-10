@@ -2,15 +2,15 @@ import React, {PropTypes} from 'react';
 import { Documents } from './documents';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { formFieldProps, requireFields } from '../../utils';
-import Input from './input';
+import Input, { getValidInputProps } from './input';
 import { reduxForm } from 'redux-form';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 
-export const standardFields = ['registeredCompanyAddress', 'addressForService'];
+export const immutableFields = ['registeredCompanyAddress', 'addressForService'];
 export const defaultCustomFields = ['Address for Inspection of Records', 'Head Office', 'Branch Offices', 'Website URL', 'Email', 'Phone', 'Fax', 'Lawyers', 'Accountants', 'Bank'];
 
 const fields = [
-    ...standardFields,
+...immutableFields,
     'contactFields[].label',
     'contactFields[].value',
     'documents'
@@ -30,17 +30,17 @@ export class ContactForm extends React.Component {
         const { handleSubmit, resetForm } = this.props;
         return <form className="form form-horizontal" onSubmit={handleSubmit}>
         <fieldset>
-            {standardFields.map((f, i) => {
-                return <div key={i}><Input type="text" {...this.formFieldProps(f)} /></div>
+            {immutableFields.map((f, i) => {
+                return <div key={i}><Input type="static" {...this.formFieldProps(f)} /></div>
             }) }
             { contactFields.map((f, i) => {
                 return <div className="form-group" key={i}>
                         <div className={labelClassName}>
-                            <input type="text" className='form-control text-right' {...f.label} placeholder='Label'/>
+                            <input type="text" className='form-control text-right' {...getValidInputProps(f.label)} placeholder='Label'/>
                         </div>
                         <div className={wrapperClassName}>
                             <div className="input-group">
-                            <input className='form-control' type="text" {...f.value}  />
+                            <input className='form-control' type="text" {...getValidInputProps(f.value)}  />
                             <span className="input-group-btn">
                                 { i > 0  && <button type="button" className="btn btn-default" onClick={() => contactFields.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                                 { i < contactFields.length - 1  && <button type="button" className="btn btn-default"onClick={() => contactFields.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }

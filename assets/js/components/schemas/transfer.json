@@ -134,5 +134,14 @@
 
     ],
     "type": "object",
-    "x-ordering": []
+    "x-ordering": [],
+    "lawBrowserLinks":[
+        {"link": {"title": "Companies Act 1993", "location": "s 39"}, "text": "Transferability of shares"},
+        {"link": {"title": "Companies Act 1993", "location": "s 84(1)"}, "text": "Transfer by entry in share register"},
+        {"link": {"title": "Companies Act 1993", "location": "s 84(2) + (3)"}, "text": "Share transfer forms"},
+        {"link": {"title": "Companies Act 1993", "location": "s 84(4) + (5)"}, "text": "Refusal or delay of share transfer"},
+        {"link": {"title": "Companies Act 1993", "location": "s 84(6) 373(1)(20) and 374(1)"}, "text": "Consequences of non-compliance"},
+        {"link": {"title": "Companies Act 1993", "location": "s 85"}, "text": "Transfer under an approved system"},
+        {"link": {"title": "Companies Act 1993", "location": "s 86"}, "text": "Transfer by Operation of Law"}
+    ]
 }

@@ -199,9 +199,8 @@ class InputBase extends React.Component {
 
   renderInput() {
     // strip values
-    const {initialValue, autofill, onUpdate, valid, invalid, dirty, pristine, error, active,
-        touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName,
-        wrapperClassName, groupClassName, buttonAfter, ...elementProps} = this.props;
+    const elementProps = getValidInputProps(this.props)
+
     if (!this.props.type) {
       return this.props.children;
     }
@@ -290,5 +289,12 @@ InputBase.defaultProps = {
   hasFeedback: false,
   multiple: false
 };
+
+export function getValidInputProps(props){
+    const {initialValue, autofill, onUpdate, valid, invalid, dirty, pristine, error, active,
+        touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName,
+        wrapperClassName, groupClassName, buttonAfter, ...elementProps} = props;
+    return elementProps;
+}
 
 export default InputBase;
