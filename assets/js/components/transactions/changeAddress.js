@@ -100,6 +100,17 @@ function AddressForServiceLawLinks(){
     </div>
 }
 
+
+function RegisteredAddressLawLinks(){
+    return <div>
+        <LawBrowserLink title="Companies Act 1993" location="s 186">Requirement to have New Zealand registered office</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 187">Change of registered office by board</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 188">Requirement to change registered office</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 360B">Rectification or correction of companies register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 387(1)(c)">Service of documents in legal proceedings</LawBrowserLink>
+    </div>
+}
+
 @connect(undefined, {
     submit: (type, id, values) => companyTransaction(type, id, values),
     addNotification: (args) => addNotification(args)
@@ -140,7 +151,7 @@ export class ChangeAddress extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={AddressForServiceLawLinks()}>
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
               <Modal.Header closeButton>
                 <Modal.Title>{this.props.title}</Modal.Title>
               </Modal.Header>
@@ -156,11 +167,11 @@ export class ChangeAddress extends React.Component {
 }
 
 export const ChangeAddressForServiceModal = (props) => {
-    return <ChangeAddress {...props} fieldName={'addressForService'} title={'Change Address for Service'} />
+    return <ChangeAddress {...props} fieldName={'addressForService'} title={'Change Address for Service'} lawLinks={AddressForServiceLawLinks()}/>
 };
 
 export const ChangeRegisteredOfficeModal = (props) => {
-    return <ChangeAddress {...props} fieldName={'registeredCompanyAddress'} title={'Change Registered Office'} />
+    return <ChangeAddress {...props} fieldName={'registeredCompanyAddress'} title={'Change Registered Office'} lawLinks={RegisteredAddressLawLinks()}/>
 };
 
 

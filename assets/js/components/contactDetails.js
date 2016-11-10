@@ -100,8 +100,8 @@ export default class ContactDetails extends React.Component {
 
     handleSelectAddressChange(key) {
         const map = {
-            addressForService: 'changeRegisteredOffice',
-            registeredCompanyAddress: 'changeAddressForService'
+            addressForService: 'changeAddressForService',
+            registeredCompanyAddress: 'changeRegisteredOffice'
         }
         if(!map[key]){
             return;
