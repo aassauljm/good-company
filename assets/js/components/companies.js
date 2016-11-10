@@ -9,7 +9,7 @@ import { Link } from 'react-router';
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
 import { sortAlerts } from './alerts';
-import { CompanyAlertsBase } from './warnings';
+import { CompanyAlertsBase } from './companyAlerts';
 
 
 const DEFAULT_OBJ = {};

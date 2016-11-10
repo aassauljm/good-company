@@ -6,7 +6,7 @@ import { asyncConnect } from 'redux-connect';
 import { requestResource, resetModals } from '../actions';
 import { stringToDateTime } from '../utils';
 import { Link } from 'react-router';
-import { AlertWarnings } from './warnings';
+import { AlertWarnings } from './companyAlerts';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment';
 

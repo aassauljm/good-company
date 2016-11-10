@@ -23,7 +23,7 @@ import NotFound from './notFound';
 import Notifications from './notifications';
 import { push } from 'react-router-redux'
 import Header from './header';
-import { CompanyAlertsWidget } from './warnings';
+import { CompanyAlertsWidget } from './companyAlerts';
 
 
 export function analyseCompany(company){

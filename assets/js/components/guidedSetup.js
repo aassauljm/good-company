@@ -13,7 +13,7 @@ import { Link } from 'react-router';
 import { push, replace } from 'react-router-redux';
 import LawBrowserLink from './lawBrowserLink';
 import { Route } from 'react-router';
-import { getWarnings } from './warnings'
+import { getWarnings } from './companyAlerts'
 import { nextContextualModal, previousContextualModal, endContextualModal, showContextualModal, requestResource } from '../actions';
 import { ModalSwitch }  from './modals';
 import { sortAlerts } from './alerts';

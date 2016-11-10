@@ -32,7 +32,7 @@ import { CompanyTransactions } from './components/transactions';
 import { TransactionView } from './components/transaction';
 import { MassSetup } from './components/massSetup';
 import { GuidedSetup } from './components/guidedSetup';
-import { CompanyAlerts } from './components/warnings';
+import { CompanyAlerts } from './components/companyAlerts';
 import Alerts from './components/alerts';
 
 
