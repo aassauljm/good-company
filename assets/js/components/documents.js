@@ -109,12 +109,12 @@ const documentTypeImages = (type) => {
     return map[type] || '/images/document-placeholder.png'
 }
 
-function RenderFile(node){
+function RenderFile(node, push){
     return (
       <span className={classnames('document', {})} onClick={() => {}} >
         {/*<img src={documentTypeImages(node.type)} />*/}
         {node.filename}
-        { node.type !== 'Directory' && <Link activeClassName="active" className="nav-link" to={"/document/view/"+node.id}>View</Link> }
+        { node.type !== 'Directory' && <span onClick={() => push("/document/view/"+node.id)} className="view">View</span> }
       </span>
     )
 }
@@ -170,9 +170,9 @@ export class CompanyDocuments extends React.Component {
          const loop = data => {
           return data.map((item) => {
             if (item.children && item.children.length) {
-              return <TreeNode key={item.id} title={RenderFile(item)}>{loop(item.children)}</TreeNode>;
+              return <TreeNode key={item.id} title={RenderFile(item)}>{loop(item.children, this.props.push)}</TreeNode>;
             }
-            return <TreeNode key={item.id} title={RenderFile(item)} />;
+            return <TreeNode key={item.id} title={RenderFile(item, this.props.push)} />;
           });
         };
         return  <div>

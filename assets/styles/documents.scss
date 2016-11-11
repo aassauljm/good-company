@@ -185,11 +185,11 @@
 
 
 
-    .rc-tree li a{
+    .rc-tree li .view{
         display: none;
     }
 
-    .rc-tree li .rc-tree-node-selected  a{
+    .rc-tree li .rc-tree-node-selected  .view{
         display: inline;
         margin-left:10px;
         font-style: italic;

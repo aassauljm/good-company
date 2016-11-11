@@ -142,6 +142,7 @@ export default class Company extends React.Component {
             return React.cloneElement(this.props.children, {
                         companyState: current,
                         companyId: this.key(),
+                        push: this.props.push,
                         showModal: (key, data) => this.props.showModal(key, data)
                 });
         }
