@@ -65,6 +65,7 @@ $popover-max-width: 500px;
 
 
 
+
 @import "~catalex_shared/sass/catalex-vars";
 @import "~catalex_shared/sass/catalex-legislation";
 
@@ -85,6 +86,7 @@ $header-image:url("~catalex_shared/images/hero-bg.jpg");
 @import "shareRegister";
 @import "notifications";
 @import "resolve";
+@import "documents";
 
 @import "header";
 @import "footer";

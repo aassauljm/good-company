@@ -98,6 +98,9 @@ export function contactDetailsFormatSubmit(values, companyState){
         'registeredCompanyAddress': 'previousAddress'
     };
     Object.keys(values).map(item => {
+        if(['effectiveDate', 'noticeDate', 'documents'].indexOf(item) >= 0){
+            return;
+        }
         if(JSON.stringify(values[item]) !== JSON.stringify(companyState[item])){
             actions.push({
                 transactionType: transactionMap[item],

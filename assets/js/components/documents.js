@@ -9,6 +9,8 @@ import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
+import Tree, { TreeNode } from 'rc-tree';
+import classnames from 'classnames';
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
@@ -91,13 +93,47 @@ function documentLawLinks(){
            <LawBrowserLink title="Companies Act 1993" location="s 189(1)-(3)" >Records a company must keep </LawBrowserLink>
            <LawBrowserLink title="Companies Act 1993" location="s 189(4)" >Notice to registrar of place of records</LawBrowserLink>
            <LawBrowserLink title="Companies Act 1993" location="s 189(5), 373(2)(g), and 374(2)(1)" >Consequences of non-compliance</LawBrowserLink>
-           <LawBrowserLink title="Companies Act 1993" location="s 190" >Form of Record</LawBrowserLink>
+           <LawBrowserLink title="Companies Act 1993" location="s 190" >Form of Records</LawBrowserLink>
            <LawBrowserLink title="Companies Act 1993" location="s 191" >Inspection of records by directors</LawBrowserLink>
            <LawBrowserLink title="Companies Act 1993" location="s 215, 217 and 218" >Inspection of records by the public</LawBrowserLink>
            <LawBrowserLink title="Companies Act 1993" location="s 216, 217, and 218" >Inspection of records by shareholders</LawBrowserLink>
            <LawBrowserLink title="Companies Act 1993" location="s 194" >Accounting records must be kept</LawBrowserLink>
            <LawBrowserLink title="Companies Act 1993" location="s 195" >Place of accounting records</LawBrowserLink>
     </div>
+}
+
+const documentTypeImages = (type) => {
+    const map = {
+        'Companies Office': '/images/companies-office-logo.png'
+    };
+    return map[type] || '/images/document-placeholder.png'
+}
+
+function RenderFile(node){
+    return (
+      <span className={classnames('document', {})} onClick={() => {}} >
+        {/*<img src={documentTypeImages(node.type)} />*/}
+        {node.filename}
+        { node.type !== 'Directory' && <Link activeClassName="active" className="nav-link" to={"/document/view/"+node.id}>View</Link> }
+      </span>
+    )
+}
+
+function listToTree(documents){
+    const roots = [];
+    const map = documents.reduce((acc, d) => {
+        acc[d.id] = {...d, children: []};
+        return acc;
+    }, {});
+    documents.map(d => {
+        if(!d.directoryId){
+            roots.push(map[d.id]);
+        }
+        else{
+            map[d.directoryId].children.push(d);
+        }
+    });
+    return  roots;
 }
 
 export class CompanyDocuments extends React.Component {
@@ -130,6 +166,25 @@ export class CompanyDocuments extends React.Component {
         </table>
     }
 
+    renderTree() {
+         const loop = data => {
+          return data.map((item) => {
+            if (item.children && item.children.length) {
+              return <TreeNode key={item.id} title={RenderFile(item)}>{loop(item.children)}</TreeNode>;
+            }
+            return <TreeNode key={item.id} title={RenderFile(item)} />;
+          });
+        };
+        return  <div>
+            <Tree
+            classNames={''}
+            draggable
+            renderNode={RenderFile}>
+                {loop(listToTree(this.props.companyState.docList.documents))}
+            </Tree>
+            </div>
+    }
+
     render() {
         return <LawBrowserContainer lawLinks={documentLawLinks()}>
             <div className="widget">
@@ -138,10 +193,12 @@ export class CompanyDocuments extends React.Component {
                         File Cabinet
                     </div>
                 </div>
-                <div className="widget-body">
-                    { this.renderTable() }
+                <div className="widget-body documents">
+                    { this.renderTree() }
                 </div>
             </div>
             </LawBrowserContainer>
     }
 }
+
+

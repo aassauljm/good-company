@@ -9,6 +9,8 @@ var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 var fs = Promise.promisifyAll(require("fs"));
 const uuid = require('node-uuid')
+const moment = require('moment');
+
 
 function validateHoldings(newHoldings){
     if (!newHoldings || !newHoldings.length) {
@@ -475,7 +477,7 @@ const selfManagedTransactions = {
 
 
 function createTransaction(req, res, type){
-    let company, args = actionUtil.parseValues(req);
+    let company, args = actionUtil.parseValues(req), directory;
     delete args.id;
     delete args.type;
     delete args.createdById;
@@ -488,14 +490,37 @@ function createTransaction(req, res, type){
                     return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
                 })
                 .then(function() {
+                    /* if uploadedFiles, find or create a transactions directory, add it to list */
+                    if(uploadedFiles && uploadedFiles.length){
+                        return company.getCurrentCompanyState()
+                            .then(companyState => {
+                                return companyState.findOrCreateTransactionDirectory()
+                                    .then(transactionDirectory => {
+                                        return Document.create({
+                                            filename: `Transaction ${moment().format('DD/MM/YYYY')}`,
+                                            createdById: req.user.id,
+                                            ownerId: req.user.id,
+                                            type: 'Directory',
+                                            directoryId: transactionDirectory.id
+                                        })
+                                })
+                                .then(d => {
+                                    directory = d;
+                                })
+                            })
+                    }
+                })
+                .then(() => {
                     return Promise.map(uploadedFiles || [], f => {
                         return fs.readFileAsync(f.fd)
                             .then(readFile => {
+                                console.log("READ FILE")
                                 return Document.create({
                                     filename: f.filename,
                                     createdById: req.user.id,
                                     ownerId: req.user.id,
                                     type: f.type,
+                                    directoryId: directory.id,
                                     documentData: {
                                         data: readFile,
                                     }
@@ -506,7 +531,9 @@ function createTransaction(req, res, type){
                 .then((files) => {
                     args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
                     args.documents = files;
-
+                    if(directory){
+                        args.documents.push(directory);
+                    }
                 })
                 .then((results) => {
                     return transactions[type] ? transactions[type](args, company) : null;

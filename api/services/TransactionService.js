@@ -1119,6 +1119,8 @@ export function performSeed(args, company, effectiveDate, userId){
     if(args.unallocatedParcels){
         data.unallocatedParcels = args.unallocatedParcels
     }*/
+
+
     return company.getCurrentCompanyState()
         .then(function(companyState){
             var fields = companyState ? companyState.nonAssociativeFields() : {};
@@ -1191,7 +1193,7 @@ export function addDocuments(state, documents){
             return dl.save()
         })
         .then(function(dl){
-            state.set('doc_list_id', dl.dataValues.id)
+            state.set('doc_list_id', dl.dataValues.id);
             state.dataValues.docList = dl;
             return state;
         })

@@ -430,19 +430,42 @@ module.exports = {
             createDedup: function(args, userId){
                 sails.log.verbose('Deduplication persons')
                 return CompanyState.findOrCreatePersons(args, userId)
-                    .then(function(args){
+                    .then(function(_args){
+                        args = _args;
                         const shareClasses = _.flatten(_.map(args.holdings, 'parcels'));
-                        return args;
+                        return Promise.all([Document.create({
+                            type: 'Directory',
+                            filename: 'Companies Office Documents',
+                            ownerId: userId,
+                            createdById: userId
+                        }), Document.create({
+                                type: 'Directory',
+                                filename: 'Transactions',
+                                ownerId: userId,
+                                createdById: userId
+                            })])
                     })
-                    .then(function(args){
+
+                    .spread(function(documentDirectory, transactionDirectory){
                         args.directorList = args.directorList || {directors: []}
                         args.transaction = args.transaction || {type: Transaction.types.SEED};
+                        if(!args.docList){
+                            args.docList = {documents: []}
+                        }
                         let state = CompanyState.build(args, {
                             include: CompanyState.includes.full()
                                 .concat(CompanyState.includes.docList())
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.holdingList())
                             });
+
+
+                        state.get('docList').get('documents').map(d => {
+                            d.dataValues.directoryId = documentDirectory.dataValues.id;
+                        })
+
+                        state.get('docList').get('documents').push(documentDirectory);
+                        state.get('docList').get('documents').push(transactionDirectory);
 
                         (state.get('holdingList').get('holdings') || []).map(function(h){
                             h.get('holders').map(function(h){
@@ -1058,6 +1081,52 @@ module.exports = {
                 return this.fullPopulate()
                 .then(() => this.stats())
                 .then((stats) => ({...this.toJSON(), ...stats}))
+            },
+
+
+            findOrCreateTransactionDirectory: function(userId){
+                let directory, docList;
+                return this.getDocList({
+                            include: [{
+                                model: Document,
+                                as: 'documents'
+                            }]})
+                    .then(dl => {
+                        if(!dl){
+                            dl = DocumentList.build({documents: []})
+                            return dl.save()
+                                .then(dl => {
+                                    docList = dl;
+                                    this.set('doc_list_id', dl.dataValues.id);
+                                    this.dataValues.docList = dl;
+                                    return this.save();
+                                })
+                                .then(() => {
+                                    return docList;
+                                })
+                        }
+                        return dl;
+                    })
+                    .then(dl => {
+                        directory = _.find(dl.dataValues.documents, d => {
+                            return d.filename === 'Transactions' && d.type === 'Directory' && !d.directoryId
+                        });
+                        if(!directory){
+                            return Document.create({
+                                type: 'Directory',
+                                filename: 'Transactions',
+                                ownerId: userId,
+                                createdById: userId
+                            })
+                            .then(dir => {
+                                directory = dir;
+                                return dl.addDocument(directory);
+                            })
+                        }
+                    })
+                    .then(() => {
+                        return directory;
+                    })
             }
         },
         hooks: {

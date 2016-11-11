@@ -1164,7 +1164,7 @@ const ScrapingService = {
                 ownerId: user_id,
                 createdById: user_id
             };
-        })};
+        }) };
         return result;
     },
 

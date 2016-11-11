@@ -129,8 +129,8 @@ export class ChangeAddress extends React.Component {
 
 
     handleSubmit(values) {
-        values = {[this.props.fieldName]: values.newAddress, effectiveDate: values.effectiveDate, noticeDate: values.noticeDate}
-        const transactions = contactDetailsFormatSubmit(values, this.props.modalData.companyState);
+        const requiredValues = {[this.props.fieldName]: values.newAddress, effectiveDate: values.effectiveDate, noticeDate: values.noticeDate}
+        const transactions = contactDetailsFormatSubmit(requiredValues, this.props.modalData.companyState);
         if(!transactions[0].actions.length){
             return;
         }

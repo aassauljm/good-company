@@ -50,7 +50,7 @@ module.exports = {
                 name: 'previewId'
             }
         });
-        Document.belongsTo(DocumentDirectory, {
+        Document.belongsTo(Document, {
             as: 'documentDirectory',
             foreignKey: {
                 name: 'directoryId'
