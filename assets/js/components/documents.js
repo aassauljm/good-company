@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, deleteResource } from '../actions';
+import { requestResource, deleteResource, companyTransaction, addNotification } from '../actions';
 import { pureRender, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -11,6 +11,9 @@ import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
 import Tree, { TreeNode } from 'rc-tree';
 import classnames from 'classnames';
+import { Documents as DocumentsForm } from './forms/documents';
+import FormData from 'form-data';
+import { enums as TransactionTypes } from '../../../config/enums/transactions';
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
@@ -132,12 +135,16 @@ function listToTree(documents){
             roots.push(map[d.id]);
         }
         else{
-            map[d.directoryId].children.push(d);
+            map[d.directoryId].children.push(map[d.id]);
         }
     });
     return  roots;
 }
 
+@connect(undefined, {
+    companyTransaction: (...args) => companyTransaction(...args),
+    addNotification: (args) => addNotification(args)
+})
 export class CompanyDocuments extends React.Component {
     static propTypes = {
         companyState: PropTypes.object
@@ -168,6 +175,23 @@ export class CompanyDocuments extends React.Component {
         </table>
     }
 
+    upload(files) {
+        const transactions = [{
+            actions: [{transactionType: TransactionTypes.UPLOAD_DOCUMENT}],
+            transactionType: TransactionTypes.UPLOAD_DOCUMENT,
+            effectiveDate: new Date()
+        }];
+        this.props.companyTransaction(
+                                    'compound',
+                                    this.props.companyId,
+                                    {transactions: transactions, documents: files, directoryId: null} )
+
+            .then(() => {
+                this.props.addNotification({message: 'File uploaded'});
+            })
+
+    }
+
     renderTree() {
          const loop = data => {
           return data.map((item) => {
@@ -177,14 +201,18 @@ export class CompanyDocuments extends React.Component {
             return <TreeNode key={item.id} title={RenderFile(item, this.props.push)} />;
           });
         };
-        return  <div>
-            <Tree
-            classNames={''}
-            draggable
-            renderNode={RenderFile}>
-                {loop(listToTree(this.props.companyState.docList.documents))}
-            </Tree>
+        if(this.props.companyState.docList){
+            return  <div>
+                <Tree
+                classNames={''}
+
+                renderNode={RenderFile}>
+                    {loop(listToTree(this.props.companyState.docList.documents))}
+                </Tree>
+
+                <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
             </div>
+        }
     }
 
     render() {

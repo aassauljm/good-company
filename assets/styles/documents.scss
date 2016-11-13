@@ -118,6 +118,8 @@
     }
     .rc-tree li span.rc-tree-switcher.rc-tree-switcher-noop {
       cursor: auto;
+      width: 12px;
+      display: inline-block;
     }
 
     .rc-tree-child-tree {

@@ -477,7 +477,7 @@ const selfManagedTransactions = {
 
 
 function createTransaction(req, res, type){
-    let company, args = actionUtil.parseValues(req), directory;
+    let company, args = actionUtil.parseValues(req), directory, directoryId;
     delete args.id;
     delete args.type;
     delete args.createdById;
@@ -490,10 +490,12 @@ function createTransaction(req, res, type){
                     return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
                 })
                 .then(function() {
+                    args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
                     /* if uploadedFiles, find or create a transactions directory, add it to list */
-                    if(uploadedFiles && uploadedFiles.length){
+                    if(uploadedFiles && uploadedFiles.length && args.directoryId === undefined){
                         return company.getCurrentCompanyState()
                             .then(companyState => {
+
                                 return companyState.findOrCreateTransactionDirectory()
                                     .then(transactionDirectory => {
                                         return Document.create({
@@ -503,24 +505,27 @@ function createTransaction(req, res, type){
                                             type: 'Directory',
                                             directoryId: transactionDirectory.id
                                         })
-                                })
-                                .then(d => {
-                                    directory = d;
+                                        .then(d => {
+                                            directory = d;
+                                            directoryId = d.id;
+                                        })
                                 })
                             })
+                    }
+                    else{
+                        directoryId = args.directoryId;
                     }
                 })
                 .then(() => {
                     return Promise.map(uploadedFiles || [], f => {
                         return fs.readFileAsync(f.fd)
                             .then(readFile => {
-                                console.log("READ FILE")
                                 return Document.create({
                                     filename: f.filename,
                                     createdById: req.user.id,
                                     ownerId: req.user.id,
                                     type: f.type,
-                                    directoryId: directory.id,
+                                    directoryId: directoryId,
                                     documentData: {
                                         data: readFile,
                                     }
@@ -529,7 +534,6 @@ function createTransaction(req, res, type){
                     })
                 })
                 .then((files) => {
-                    args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
                     args.documents = files;
                     if(directory){
                         args.documents.push(directory);

@@ -445,7 +445,6 @@ module.exports = {
                                 createdById: userId
                             })])
                     })
-
                     .spread(function(documentDirectory, transactionDirectory){
                         args.directorList = args.directorList || {directors: []}
                         args.transaction = args.transaction || {type: Transaction.types.SEED};

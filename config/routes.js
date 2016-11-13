@@ -242,7 +242,7 @@ module.exports.routes = {
         model: 'company'
     },
 
-     'GET /api/company/:id/pending_history': {
+    'GET /api/company/:id/pending_history': {
         controller: 'CompanyController',
         action: 'getPendingHistoricActions',
         model: 'company'

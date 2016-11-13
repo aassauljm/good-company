@@ -7,7 +7,12 @@ import { DropTarget } from 'react-dnd';
 
 const fileTarget = {
     drop(props, monitor) {
-        props.documents.onChange([...props.documents.value, ...monitor.getItem().files]);
+        if(props.documents.value){
+            props.documents.onChange([...props.documents.value, ...monitor.getItem().files]);
+        }
+        else{
+            props.documents.onChange(monitor.getItem().files);
+        }
     }
 };
 

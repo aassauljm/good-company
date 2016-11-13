@@ -531,12 +531,12 @@ module.exports = {
 
     getHistoricHolders: function(req, res) {
         Company.findById(req.params.id)
-        .then(company => company.getHistoricHolders())
-       .then(function(matchingRecords) {
-            res.ok(matchingRecords);
-        }).catch(function(err) {
-            return res.notFound(err);
-        })
-    },
+            .then(company => company.getHistoricHolders())
+            .then(function(matchingRecords) {
+                res.ok(matchingRecords);
+            }).catch(function(err) {
+                return res.notFound(err);
+            })
+    }
 
 };

@@ -29,6 +29,9 @@ export default class Document extends React.Component {
     render() {
         const data = this.props.data || {};
         return <div className="container">
+            <div className="col-md-12">
+                 <div className="button-row">{ !data.sourceUrl && <Link target="_blank" className="btn btn-primary" to={`/api/document/get_document/${this.key()}`}>Download</Link> }</div>
+            </div>
             <div className="col-md-9">
                 <img className="image-loading" src={"/api/document/get_document_preview/"+ this.key()} />
             </div>
@@ -46,7 +49,6 @@ export default class Document extends React.Component {
                   <dd>{stringToDate(data.createdAt)}</dd>
                   { data.sourceUrl && <dt>Original URL</dt> }
                   { data.sourceUrl && <dd><Link target="_blank" to={data.sourceUrl}>Companies Office</Link> </dd> }
-                  { !data.sourceUrl && <Link target="_blank" className="btn btn-primary" to={`/api/document/get_document/${this.key()}`}>Download</Link> }
                 </dl>
             </div>
         </div>
