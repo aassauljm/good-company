@@ -65,9 +65,20 @@ $popover-max-width: 500px;
 
 
 
+@import "~font-awesome/scss/variables";
+$fa-font-path: '~font-awesome/fonts';
+@import "~font-awesome/scss/mixins";
+@import "~font-awesome/scss/path";
+@import "~font-awesome/scss/core";
+@import "~font-awesome/scss/icons";
+
 
 @import "~catalex_shared/sass/catalex-vars";
 @import "~catalex_shared/sass/catalex-legislation";
+
+
+
+
 
 $header-image:url("~catalex_shared/images/hero-bg.jpg");
 

@@ -5,6 +5,8 @@ var path = require("path");
 var autoprefixer = require('autoprefixer');
 
 var DEV = process.env.NODE_ENV !== 'production';
+
+
 var definePlugin = new webpack.DefinePlugin({
     __DEV__: DEV,
     __SERVER__: false,
@@ -96,7 +98,8 @@ module.exports = {
         }, {
             test: /\.(svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
             loader: DEV ? "file?name=../css/[name].[ext]" : "file?name=../css/[name].[ext]"
-        }],
+        }
+        ],
     },
     postcss: [autoprefixer({browsers: ['> 0.01%', 'ie 8-10']})],
     plugins: plugins

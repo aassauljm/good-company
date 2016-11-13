@@ -12,11 +12,11 @@
       padding: 5px;
     }
     .rc-tree li {
-      padding: 0;
       margin: 0;
       list-style: none;
       white-space: nowrap;
       outline: 0;
+        padding: 4px;
     }
     .rc-tree li .draggable {
       color: #333;
@@ -30,42 +30,46 @@
       -webkit-user-drag: element;
     }
     .rc-tree li.drag-over > .draggable {
-      background-color: #316ac5;
+      background-color: $light-red;
       color: white;
-      border: 1px #316ac5 solid;
+      border: 1px  $deep-red solid;
       opacity: 0.8;
     }
     .rc-tree li.drag-over-gap-top > .draggable {
-      border-top: 2px blue solid;
+      border-top: 2px $deep-red solid;
     }
     .rc-tree li.drag-over-gap-bottom > .draggable {
-      border-bottom: 2px blue solid;
+      border-bottom: 2px $deep-red solid;
     }
-    .rc-tree li.filter-node > .rc-tree-node-content-wrapper {
-      color: #a60000!important;
-      font-weight: bold!important;
-    border: 1px white solid;
-    }
+
     .rc-tree li ul {
       margin: 0;
       padding: 0 0 0 18px;
     }
     .rc-tree li ul.rc-tree-line {
-      background: url("https://t.alipayobjects.com/images/T13BtfXl0mXXXXXXXX.gif") 0 0 repeat-y;
+
     }
     .rc-tree li .rc-tree-node-content-wrapper {
       display: inline-block;
-      padding: 4px;
       margin: 0;
       cursor: pointer;
       text-decoration: none;
       vertical-align: top;
+      margin-left: 4px;
+      padding-right:8px;
+        border: 1px white solid;
     }
-    .rc-tree li span.rc-tree-switcher,
-    .rc-tree li span.rc-tree-checkbox,
-    .rc-tree li span.rc-tree-iconEle {
+    .rc-tree li .rc-tree-node-content-wrapper.rc-tree-node-selected {
+      background-color: #ffe6b0;
+      border: 1px #ffb951 solid;
+      opacity: 0.8;
+    }
+
+
+    .rc-tree li span .icon{
       line-height: 16px;
-      margin-right: 8px;
+      margin-right: 4px;
+      margin-left: 4px;
       width: 16px;
       height: 16px;
       display: inline-block;
@@ -73,88 +77,49 @@
       border: 0 none;
       cursor: pointer;
       outline: none;
-      background-color: transparent;
-      background-repeat: no-repeat;
-      background-attachment: scroll;
-      background-image: url("https://t.alipayobjects.com/images/T1.ANfXhXtXXXXXXXX.png");
+      font-family: FontAwesome;
+
+      &.folder:before{
+        content: $fa-var-folder-o;
+      }
+      &.file:before{
+        content: $fa-var-file-text;
+      }
+      &.pdf:before{
+        content: $fa-var-file-pdf-o;
+      }
+
     }
+
+
+    .rc-tree li span.rc-tree-switcher{
+        line-height:19px;
+        font-family: FontAwesome;
+        cursor:pointer;
+            vertical-align: middle;
+    }
+    .rc-tree-noline_close{
+        &:before {
+
+            content: $fa-var-plus-square-o;
+        }
+    }
+    .rc-tree-noline_open{
+        &:before {
+            content:  $fa-var-minus-square-o;
+        }
+    }
+
+
     .rc-tree li span.rc-tree-icon_loading {
       margin-right: 2px;
       vertical-align: top;
-      background: url(https://t.alipayobjects.com/images/rmsweb/T1YxhiXgJbXXXXXXXX.gif) no-repeat scroll 0 0 transparent;
+
     }
     .rc-tree li span.rc-tree-switcher.rc-tree-switcher-noop {
       cursor: auto;
     }
-    .rc-tree li span.rc-tree-switcher.rc-tree-roots_open {
-      background-position: -93px -56px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-roots_close {
-      background-position: -75px -56px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-center_open {
-      background-position: -92px -18px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-center_close {
-      background-position: -74px -18px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-bottom_open {
-      background-position: -92px -36px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-bottom_close {
-      background-position: -74px -36px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-noline_open {
-      background-position: -92px -72px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-noline_close {
-      background-position: -74px -72px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-center_docu {
-      background-position: -56px -18px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-bottom_docu {
-      background-position: -56px -36px;
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-noline_docu {
-      background: none;
-    }
-    .rc-tree li span.rc-tree-checkbox {
-      width: 13px;
-      height: 13px;
-      margin: 0 3px;
-      background-position: 0 0;
-    }
-    .rc-tree li span.rc-tree-checkbox-checked {
-      background-position: -14px 0;
-    }
-    .rc-tree li span.rc-tree-checkbox-indeterminate {
-      background-position: -14px -28px;
-    }
-    .rc-tree li span.rc-tree-checkbox-disabled {
-      background-position: 0 -56px;
-    }
-    .rc-tree li span.rc-tree-checkbox.rc-tree-checkbox-checked.rc-tree-checkbox-disabled {
-      background-position: -14px -56px;
-    }
-    .rc-tree li span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled {
-      position: relative;
-      background: #ccc;
-      border-radius: 3px;
-    }
-    .rc-tree li span.rc-tree-checkbox.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled::after {
-      content: ' ';
-      -webkit-transform: scale(1);
-      transform: scale(1);
-      position: absolute;
-      left: 3px;
-      top: 5px;
-      width: 5px;
-      height: 0;
-      border: 2px solid #fff;
-      border-top: 0;
-      border-left: 0;
-    }
+
     .rc-tree-child-tree {
       display: none;
     }
@@ -167,21 +132,7 @@
       color: #ccc;
       cursor: not-allowed;
     }
-    .rc-tree-node-selected {
-      background-color: #ffe6b0;
-      border: 1px #ffb951 solid;
-      opacity: 0.8;
-    }
-    .rc-tree-icon__open {
-      margin-right: 2px;
-      background-position: -110px -16px;
-      vertical-align: top;
-    }
-    .rc-tree-icon__close {
-      margin-right: 2px;
-      background-position: -110px 0;
-      vertical-align: top;
-    }
+
 
 
 

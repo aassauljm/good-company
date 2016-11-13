@@ -76,7 +76,7 @@ export class DocumentsWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    File Cabinet
+                    <span className="fa fa-files-o"/> File Cabinet
                 </div>
                 <div className="widget-control">
                  <Link to={`/company/view/${this.key()}/documents`} >View All</Link>
@@ -102,17 +102,19 @@ function documentLawLinks(){
     </div>
 }
 
-const documentTypeImages = (type) => {
+const documentTypeClasses = (type, filename) => {
     const map = {
-        'Companies Office': '/images/companies-office-logo.png'
+        'Directory': 'folder',
+        'Companies Office': 'file',
+        'application/pdf': 'pdf'
     };
-    return map[type] || '/images/document-placeholder.png'
+    return map[type] || 'file';
 }
 
 function RenderFile(node, push){
     return (
       <span className={classnames('document', {})} onClick={() => {}} >
-        {/*<img src={documentTypeImages(node.type)} />*/}
+        <span className={'icon ' + documentTypeClasses(node.type)} />
         {node.filename}
         { node.type !== 'Directory' && <span onClick={() => push("/document/view/"+node.id)} className="view">View</span> }
       </span>
@@ -190,7 +192,7 @@ export class CompanyDocuments extends React.Component {
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
-                        File Cabinet
+                        <span className="fa fa-files-o"/> File Cabinet
                     </div>
                 </div>
                 <div className="widget-body documents">
