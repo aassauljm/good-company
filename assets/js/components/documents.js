@@ -22,7 +22,7 @@ export default class Documents extends React.Component {
 
     submitDelete(id, e) {
         e.preventDefault();
-        this.props.dispatch(deleteResource('/document/'+id));
+        this.props.dispatch(deleteResource('/document/' + id));
          // then reload
     }
 

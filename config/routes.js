@@ -100,23 +100,23 @@ module.exports.routes = {
     'POST /api/document/upload_document': {
         controller: 'DocumentController',
         action: 'uploadDocument',
-        modelIdentity: 'document'
+        model: 'document'
     },
 
     'GET /api/document/get_document/:id': {
         controller: 'DocumentController',
         action: 'getDocument',
-        modelIdentity: 'document'
+        model: 'document'
     },
 
     'GET /api/document/get_document_preview/:id': {
         controller: 'DocumentController',
         action: 'getDocumentPreview',
-        modelIdentity: 'document'
+        model: 'document'
     },
     'GET /api/document': {
         controller: 'DocumentController',
-        modelIdentity: 'document',
+        model: 'document',
         action: 'find'
     },
 
@@ -248,13 +248,13 @@ module.exports.routes = {
         model: 'company'
     },
 
-     'POST /api/company/:id/import_pending_history': {
+    'POST /api/company/:id/import_pending_history': {
         controller: 'CompanyController',
         action: 'importPendingHistory',
         model: 'company'
     },
 
-     'PUT /api/company/:id/update_pending_history': {
+    'PUT /api/company/:id/update_pending_history': {
         controller: 'CompanyController',
         action: 'updatePendingHistory',
         model: 'company'
