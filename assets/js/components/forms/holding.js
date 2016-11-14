@@ -40,7 +40,7 @@ export class HoldingWithRemove extends React.Component {
 
     render() {
         const hasNew = this.props.fields.newHolding && this.props.fields.newHolding.value;
-        return  <div className=" col-xs-12"><Panel remove={() => this.props.remove()} title="Recipient">
+        return  <div className=" col-xs-12"><Panel remove={() => this.props.remove()} title={this.props.title || "Recipient"}>
             <div className="holding">
                 <div className=" col-xs-12">
 

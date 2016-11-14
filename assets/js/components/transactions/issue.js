@@ -15,6 +15,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
 import { HoldingWithRemove, newHoldingFormatAction } from '../forms/holding';
 import { Documents } from '../forms/documents';
+import LawBrowserLink from '../lawBrowserLink';
 
 
 const CREATE_NEW_SHARE_CLASS = 'create-new';
@@ -157,10 +158,10 @@ export class Issue extends React.Component {
             }}>Add Parcel</ButtonInput></div>
              </fieldset>
             <fieldset>
-
+            <legend>Shares will be issued to </legend>
              { this.props.fields.holdings.map((p, i) => {
                 return <div className="row " key={i}>
-                    <HoldingWithRemove fields={p}
+                    <HoldingWithRemove fields={p} title={'Issue Reciepient'}
                     remove={() => {
                         this.props.fields.holdings.removeField(i)
                     }}
@@ -171,7 +172,7 @@ export class Issue extends React.Component {
             }) }
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.holdings.addField({parcels: [{}]});    // pushes empty child field onto the end of the array
-            }}>Add Holding</ButtonInput></div>
+            }}>Add Shareholding</ButtonInput></div>
             <Documents documents={this.props.fields.documents}/>
             { this.renderRemaining() }
 
@@ -250,6 +251,17 @@ const IssueConnected = reduxForm({
 
 function IssueLawLinks() {
     return <div>
+            <LawBrowserLink title="Companies Act 1993" location="s 41" >Issue of shares on registration and amalgamation</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 42" >Issue of shares by the board </LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 43" >Notice of share issue</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 44" >Shareholder approval for share issue</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 45" >Pre-emptive rights</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="ss 46, 46A, 47, and 48" >Consideration for share issue</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 50" >Consent to share issue</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 51" >Time of issue of shares</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 87(2)(c)" >Share issues entered in share register</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 107(2)" >Entitled persons agreement to issue shares</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 117(1) and (3)" >Alteration of shareholder rights by share issue</LawBrowserLink>
     </div>
 }
 
