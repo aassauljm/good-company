@@ -14,6 +14,7 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
 import { HoldingWithRemove, newHoldingFormatAction } from '../forms/holding';
+import WorkingDays from '../forms/workingDays';
 import { Documents } from '../forms/documents';
 import LawBrowserLink from '../lawBrowserLink';
 
@@ -22,14 +23,58 @@ const CREATE_NEW_SHARE_CLASS = 'create-new';
 
 const fields = [
     'effectiveDate',
+    "minNotice",
     'parcels[].amount',
     'parcels[].shareClass',
     'holdings[].newHolding',
     'holdings[].holding',
     'holdings[].parcels[].amount',
     'holdings[].parcels[].shareClass',
+    'approvalDocuments[].documentType',
+    'approvalDocuments[].date',
     'documents'
 ];
+
+
+
+const APPROVAL_DOCUMENT_TYPES = [
+    "Amalgamation Proposal",
+    "Application for Registration",
+    "Board Resolution",
+    "Shareholder Resolution",
+    "Conversion of Financial Product",
+    "Court Order",
+    "Entitled Persons",
+    "Agreement/Concurrence"];
+
+
+const approvalOptions = (() => {
+    return APPROVAL_DOCUMENT_TYPES.map((a, i) => <option key={i} value="a">{a}</option>);
+})();
+
+
+@formFieldProps()
+export class ApprovalDocument extends React.Component {
+    render() {
+        return <div className="input-group-with-remove col-xs-12">
+                    <div>
+                        <Input type="select" {...this.formFieldProps('documentType')} placeholder={'Amount'} label={null}>
+                            { this.props.approvalOptions }
+                        </Input>
+                    </div>
+                    <div >
+                        <DateInput  className="shareClass"  {...this.formFieldProps('date')}  label={null}/>
+                    </div>
+                    <div>
+                        <button className="btn btn-default remove-parcel" onClick={(e) => {
+                            e.preventDefault();
+                            this.props.remove()
+                        }}><Glyphicon glyph='trash'/></button>
+                    </div>
+            </div>
+        }
+}
+
 
 const validate = (data, props) => {
     const remainder = {};
@@ -138,6 +183,7 @@ export class Issue extends React.Component {
         return <form className="form" >
         <fieldset>
             <DateInput {...this.formFieldProps('effectiveDate')} />
+            <WorkingDays field={this.props.fields.minNotice} source={this.props.fields.effectiveDate.value} days={10} label="Notice must be given to the Registrar by"/>
              { this.props.fields.parcels.map((p, i) => {
                 const onChange = p.shareClass.onChange;
                 p.shareClass.onChange = (event) => {
@@ -172,7 +218,20 @@ export class Issue extends React.Component {
             }) }
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.holdings.addField({parcels: [{}]});    // pushes empty child field onto the end of the array
-            }}>Add Shareholding</ButtonInput></div>
+            }}>Add Shareholders</ButtonInput></div>
+
+
+            { this.props.fields.approvalDocuments.map((p, i) => {
+                return <div className="row " key={i}>
+                    <ApprovalDocument fields={p} remove={() =>
+                        this.props.fields.approvalDocuments.removeField(i)} approvalOptions={this.props.approvalOptions} />
+                </div>
+            }) }
+
+            <div className="button-row"><ButtonInput onClick={() => {
+                this.props.fields.approvalDocuments.addField();
+            }}>Add Approval Document</ButtonInput></div>
+
             <Documents documents={this.props.fields.documents}/>
             { this.renderRemaining() }
 
@@ -213,7 +272,9 @@ export function issueFormatSubmit(values, companyState){
                 beforeAmount: (amounts[h.holding] || {})[p.shareClass] || 0,
                 afterAmount: ((amounts[h.holding] || {})[p.shareClass] || 0) + amount,
                 transactionType: 'ISSUE_TO',
-                transactionMethod: 'AMEND'
+                transactionMethod: 'AMEND',
+                approvalDocuments: values.approvalDocuments,
+                minNotice: values.minNotice
             });
             if(h.newHolding){
                 newHoldings.push({
@@ -322,6 +383,7 @@ export class IssueModal extends React.Component {
         return  <IssueConnected ref="form"
                     initialValues={{parcels: [{}], holdings: [{parcels: [{}]}], effectiveDate: new Date() }}
                     holdingOptions={holdingOptions}
+                    approvalOptions={approvalOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
                     showNewHolding={(index) => this.props.dispatch(showModal('newHolding', {

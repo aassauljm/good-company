@@ -80,53 +80,46 @@ function renderAndSavePreview(doc){
 
 
 module.exports = {
-    updateDocumentRequest: function(res, req) {
-        DocumentController.uploadDocument(req, res)
-            .then((newInstance) =>  res.created({id: newInstance.id }));
-    },
 
     uploadDocument: function(req, res) {
-        return new Promise((resolve, reject) => {
-            req.file('document').upload({
-                // don't allow the total upload size to exceed ~20MB
-                maxBytes: 20000000
-            }, function whenDone(err, uploadedFiles) {
-                if (err) {
-                    return res.negotiate(err);
-                }
+        req.file('document').upload({
+            // don't allow the total upload size to exceed ~20MB
+            maxBytes: 20000000
+        }, function whenDone(err, uploadedFiles) {
+            if (err) {
+                return res.negotiate(err);
+            }
 
-                // If no files were uploaded, respond with an error.
-                if (uploadedFiles.length === 0) {
-                    return res.badRequest('No file was uploaded');
-                }
+            // If no files were uploaded, respond with an error.
+            if (uploadedFiles.length === 0) {
+                return res.badRequest('No file was uploaded');
+            }
 
-                var type = uploadedFiles[0].filename.split('.').pop();
-                readBinary(uploadedFiles[0].fd)
-                    .then(function(file){
-                        sails.log.debug('Uploaded, saving to db');
-                        return Document.create({
-                            filename: uploadedFiles[0].filename,
-                            createdById: req.user.id,
-                            ownerId: req.user.id,
-                            type: type,
-                            documentData: {
-                                 data: file,
-                            }
-                        }, {include: [
-                            {model: DocumentData, as: 'documentData'}]});
-                    })
-                    .then(() => {
-                        sails.log.debug('Saved to db');
-                        return ActivityLog.create({
-                            type: ActivityLog.types.UPLOAD_DOCUMENT,
-                            userId: req.user.id,
-                            description: `${companyName} Uploaded`,
-                            data: {}
-                        });
-                    })
-                    .then(resolve)
-                    .catch(reject)
-            });
+            var type = uploadedFiles[0].filename.split('.').pop();
+            readBinary(uploadedFiles[0].fd)
+                .then(function(file){
+                    sails.log.debug('Uploaded, saving to db');
+                    return Document.create({
+                        filename: uploadedFiles[0].filename,
+                        createdById: req.user.id,
+                        ownerId: req.user.id,
+                        type: type,
+                        documentData: {
+                             data: file,
+                        }
+                    }, {include: [
+                        {model: DocumentData, as: 'documentData'}]});
+                })
+                .then((newInstance) => {
+                    res.created({id: newInstance.id });
+                    sails.log.debug('Saved to db');
+                    return ActivityLog.create({
+                        type: ActivityLog.types.UPLOAD_DOCUMENT,
+                        userId: req.user.id,
+                        description: `Document Uploaded`,
+                        data: {}
+                    });
+                })
         });
     },
     getDocument: function(req, res){
