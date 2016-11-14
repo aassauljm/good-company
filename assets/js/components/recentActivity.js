@@ -85,7 +85,7 @@ export class RecentCompanyActivityWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Recent Activity
+                    <span className="fa fa-clock-o"/> Recent Activity
                 </div>
                 <div className="widget-control">
                 { /* <Link to={`/company/view/${this.key()}/recent_activity`}>View All</Link> */ }

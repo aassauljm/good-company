@@ -85,7 +85,7 @@ export class CompaniesRegisterWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Companies Register
+                    <span className="fa fa-bank" /> Companies Register
                 </div>
                 <div className="widget-control">
                  { <Link to={`/company/view/${this.key()}/source_data`} >View All</Link>  }

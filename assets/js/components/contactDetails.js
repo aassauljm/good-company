@@ -56,7 +56,7 @@ export class ContactDetailsWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Contact
+                    <span className="fa fa-envelope-o"/> Contact
                 </div>
                 <div className="widget-control">
                  <Link to={`/company/view/${this.key()}/contact`} >View All</Link>

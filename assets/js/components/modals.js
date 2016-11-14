@@ -153,6 +153,7 @@ export class Modals extends React.Component {
         const props = {
             index: data.index,
             modalData: data.data,
+            currentData: {companyId: this.props.companyId, companyState: this.props.companyState},
             next : (...args) => {this.props.dispatch(nextModal(this.props.showing, ...args))},
             previous: () => {this.props.dispatch(previousModal(this.props.showing))},
             show: (key, extraData) => this.props.dispatch(showModal(key, {...data.data, ...extraData})),

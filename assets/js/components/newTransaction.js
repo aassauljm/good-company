@@ -28,8 +28,8 @@ export class NewTransaction extends React.Component {
 
 
     componentWillMount() {
-    // leaving for now
         return;
+    // leaving for now
         this.props.router.setRouteLeaveHook(
             this.props.route,
             ::this.routerWillLeave
@@ -116,7 +116,7 @@ export class NewTransaction extends React.Component {
 
     render() {
         return <div className="new-transaction icon-action-page">
-               { this.props.modals.showing &&  <Modals {...this.props.modals} /> }
+               { this.props.modals.showing &&  <Modals {...this.props} {...this.props.modals} /> }
                { !this.props.modals.showing && this.renderBody() }
             </div>
     }

@@ -129,7 +129,7 @@ export class TransactionWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Transactions
+                    <span className="fa fa-balance-scale"/> Transactions
                 </div>
                 <div className="widget-control">
                 <Link to={`/company/view/${this.props.companyId}/transactions`} >View All</Link>

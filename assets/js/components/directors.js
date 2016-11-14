@@ -69,7 +69,7 @@ export class DirectorsWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Directors
+                <span className="fa fa-address-card-o"/> Directors
                 </div>
                 <div className="widget-control">
                  <Link to={`/company/view/${this.key()}/directors`} >View All</Link>

@@ -17,7 +17,7 @@ import { HoldingWithRemove, newHoldingFormatAction } from '../forms/holding';
 import { Documents } from '../forms/documents';
 
 
-
+const CREATE_NEW_SHARE_CLASS = 'create-new';
 
 const fields = [
     'effectiveDate',
@@ -134,10 +134,19 @@ export class Issue extends React.Component {
 
     render() {
         return <form className="form" >
-            <DateInput {...this.formFieldProps('effectiveDate')} />
         <fieldset>
-            <legend>Issue Parcels</legend>
+            <legend>Issue Details</legend>
+            <DateInput {...this.formFieldProps('effectiveDate')} />
              { this.props.fields.parcels.map((p, i) => {
+                const onChange = p.shareClass.onChange;
+                p.shareClass.onChange = (event) => {
+                    if(event.target.value=== CREATE_NEW_SHARE_CLASS){
+                        this.props.showNewShareClass(i);
+                    }
+                    else{
+                        onChange(event);
+                    }
+                }
                 return <div className="row " key={i}>
                     <ParcelWithRemove fields={p} remove={() =>
                         this.props.fields.parcels.removeField(i)} shareOptions={this.props.shareOptions}/>
@@ -148,7 +157,7 @@ export class Issue extends React.Component {
             }}>Add Parcel</ButtonInput></div>
              </fieldset>
             <fieldset>
-            <legend>Recipients</legend>
+
              { this.props.fields.holdings.map((p, i) => {
                 return <div className="row " key={i}>
                     <HoldingWithRemove fields={p}
@@ -239,6 +248,11 @@ const IssueConnected = reduxForm({
   destroyOnUnmount: false
 })(Issue);
 
+function IssueLawLinks() {
+    return <div>
+    </div>
+}
+
 
 @connect(undefined)
 export class IssueModal extends React.Component {
@@ -286,15 +300,14 @@ export class IssueModal extends React.Component {
                 });
         const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
-        })
+        });
+        shareOptions.push(<option key={'new'} value={CREATE_NEW_SHARE_CLASS}>Create new share class</option>)
         const holdingMap = companyState.holdingList.holdings.reduce((acc, val) => {
             acc[`${val.holdingId}`] = val.parcels.map(p => ({ amount: p.amount, shareClass: p.shareClass || undefined }));
             return acc;
         }, {});
         const shareClassMap = generateShareClassMap(companyState);
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <IssueConnected ref="form"
+        return  <IssueConnected ref="form"
                     initialValues={{parcels: [{}], holdings: [{parcels: [{}]}], effectiveDate: new Date() }}
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
@@ -307,19 +320,25 @@ export class IssueModal extends React.Component {
                             showModal: {key: 'issue', data: {...this.props.modalData}}
                         }
                     }))}
+                    showNewShareClass={(index) => this.props.dispatch(showModal('createShareClass', {
+                        ...this.props.modalData,
+                        formName: 'issue',
+                        field: `holdings[${index}].newHolding`,
+                        afterClose: { // open this modal again
+                            showModal: {key: 'issue', data: {...this.props.modalData}}
+                        }
+                    }))}
                     shareClassMap={shareClassMap}
                     onSubmit={this.submit}/>
-                </div>
-            </div>
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={IssueLawLinks()}>
               <Modal.Header closeButton>
-                <Modal.Title>Issue Shares</Modal.Title>
+                <Modal.Title>Issue New Shares</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
+                { this.renderBody(this.props.currentData.companyState) }
               </Modal.Body>
               <Modal.Footer>
                 <Button onClick={this.handleClose} >Close</Button>

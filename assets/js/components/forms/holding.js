@@ -13,33 +13,30 @@ import Panel from '../panel';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import StaticField from './staticField';
 
+const CREATE_NEW_SHAREHOLDING = 'create-new';
+const CREATE_NEW_PERSON = 'create-new';
+
 
 @formFieldProps()
 export class HoldingWithRemove extends React.Component {
 
     renderHoldingSelect() {
-        return <Input type="select" {...this.formFieldProps('holding')} >
+        const onChange = this.props.fields.holding.onChange;
+        const interceptChange =  (event) => {
+            if(event.target.value === CREATE_NEW_SHAREHOLDING){
+                this.props.showNewHolding()
+            }
+            else{
+                onChange(event);
+            }
+        }
+        return <Input type="select" {...this.formFieldProps('holding')} onChange={interceptChange}>
                         <option></option>
                         { this.props.holdingOptions }
+                        { this.props.showNewHolding && <option value={CREATE_NEW_SHAREHOLDING}>Create new Shareholding</option>}
                     </Input>
     }
 
-    renderNewHolding() {
-        return <div className="button-row"><ButtonInput onClick={this.props.showNewHolding}>Create New Holding</ButtonInput></div>
-    }
-
-    renderHolding() {
-        if(this.props.fields.newHolding){
-            return <div className="or-group">
-                { this.renderHoldingSelect() }
-            <span className="or-divider">- or -</span>
-                { this.renderNewHolding() }
-            </div>
-        }
-        else{
-            return this.renderHoldingSelect();
-        }
-    }
 
     render() {
         const hasNew = this.props.fields.newHolding && this.props.fields.newHolding.value;
@@ -47,7 +44,7 @@ export class HoldingWithRemove extends React.Component {
             <div className="holding">
                 <div className=" col-xs-12">
 
-                    { !hasNew && this.renderHolding(hasNew) }
+                    { !hasNew && this.renderHoldingSelect()  }
 
                     { hasNew  &&
                         <StaticField type="static"  value={newHoldingString(this.props.fields.newHolding.value)}
@@ -107,21 +104,34 @@ export class HoldingNoParcels extends React.Component {
             <DateInput {...this.formFieldProps([ 'effectiveDate'])} />
             <Input type='text' {...this.formFieldProps([ 'holdingName'])} />
             { this.props.fields.persons.map((p, i) =>{
+
+                const onChange = p.onChange;
+                const interceptChange =  (event) => {
+                    if(event.target.value === CREATE_NEW_PERSON){
+                        this.props.showModal('newPerson', i);
+                    }
+                    else{
+                        onChange(event);
+                    }
+                }
+
+
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
                         {  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'votingShareholder'])} label={'Voting Shareholder'} >
                         </Input> }
 
-                        { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])} label={'Current Shareholder'} >
+                        { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])}  onChange={interceptChange} label={'Current Shareholder'} >
                             <option></option>
                             { this.props.personOptions }
+                            { !p.newPerson.value && !p.personId.value && <option value={CREATE_NEW_PERSON}>Create new Person</option>}
                         </Input> }
 
-                        { !p.newPerson.value && !p.personId.value &&
+                       {/*} { !p.newPerson.value && !p.personId.value &&
                         <div className="button-row"><ButtonInput className="new-person" onClick={() => {
                             this.props.showModal('newPerson', i);
-                        }}>Create New Person</ButtonInput></div> }
+                        }}>Create New Person</ButtonInput></div> } */ }
 
                     { p.newPerson.value &&
                         <Input type="static" label={'New Shareholder'} value={p.newPerson.value.name}

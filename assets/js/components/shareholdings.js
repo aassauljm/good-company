@@ -83,7 +83,7 @@ export class ShareholdingsWidget extends React.Component {
         return <div className="widget shareholding-widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Shareholdings
+                    <span className="fa fa-group"/> Shareholdings
                 </div>
                 <div className="widget-control">
                 <Link to={`/company/view/${this.props.companyId}/shareholdings`}>View All</Link>

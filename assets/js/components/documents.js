@@ -68,7 +68,7 @@ export class DocumentsWidget extends React.Component {
                 <thead><tr><th>Name</th><th>Date</th></tr></thead>
                 <tbody>
                 { (docList.documents || []).map((d, i) => {
-                    return <tr key={i}><td><Link activeClassName="active" className="nav-link" to={"/document/view/"+d.id}>{ d.filename }</Link></td><td>{stringToDate(d.date)}</td></tr>
+                    return <tr key={i}><td><Link activeClassName="active" className="nav-link" to={"/document/view/"+d.id}>{ d.filename }</Link></td><td>{stringToDate(d.date || d.createdAt)}</td></tr>
                 }) }
                 </tbody>
                 </table>

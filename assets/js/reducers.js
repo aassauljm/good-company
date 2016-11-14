@@ -286,6 +286,7 @@ const default_resources = {users: {}, roles: {}, documents: {}, companies: {}}
 
 function resources(state = default_resources, action){
     switch(action.type){
+        // wipe resources
         case LOGIN_SUCCESS:
         case TRANSACTION_SUCCESS:
             return default_resources;
