@@ -104,6 +104,7 @@ const validate = (data, props) => {
 
 @formFieldProps()
 export class Issue extends React.Component {
+
     static propTypes = {
         holdingOptions: PropTypes.array.isRequired,
         shareOptions: PropTypes.array.isRequired,
@@ -136,7 +137,6 @@ export class Issue extends React.Component {
     render() {
         return <form className="form" >
         <fieldset>
-            <legend>Issue Details</legend>
             <DateInput {...this.formFieldProps('effectiveDate')} />
              { this.props.fields.parcels.map((p, i) => {
                 const onChange = p.shareClass.onChange;
@@ -150,7 +150,7 @@ export class Issue extends React.Component {
                 }
                 return <div className="row " key={i}>
                     <ParcelWithRemove fields={p} remove={() =>
-                        this.props.fields.parcels.removeField(i)} shareOptions={this.props.shareOptions}/>
+                        this.props.fields.parcels.removeField(i)} shareOptions={this.props.shareOptions} />
                 </div>
             }) }
             <div className="button-row"><ButtonInput onClick={() => {
@@ -161,7 +161,7 @@ export class Issue extends React.Component {
             <legend>Shares will be issued to </legend>
              { this.props.fields.holdings.map((p, i) => {
                 return <div className="row " key={i}>
-                    <HoldingWithRemove fields={p} title={'Issue Reciepient'}
+                    <HoldingWithRemove fields={p} title={'Shareholders'}
                     remove={() => {
                         this.props.fields.holdings.removeField(i)
                     }}
