@@ -56,7 +56,7 @@ function transactionMessages(transactions, companyName){
     const updateDirector = _.filter(transactions, t => t.transactionType === Transaction.types.UPDATE_DIRECTOR);
 
     if(issue.length){
-        const sum = calcSum(issue, Transaction.types.ISSUE_UNALLOCATED);
+        const sum = calcSum(issue, Transaction.types.ISSUE);
         const plural = sum !== 1 ? 'shares' : 'share';
         results.push({message: `${sum} ${plural} issued for ${companyName}`})
     }
@@ -151,7 +151,7 @@ var transactions = {
                     amount: classes[c],
                     shareClass: cInt,
                     effectiveDate: new Date(),
-                    transactionType: Transaction.types.ISSUE_UNALLOCATED
+                    transactionType: Transaction.types.ISSUE
                 });
                 ((args.holdingList || {}).holdings || []).map((h) => {
                     h.parcels.filter(p => p.shareClass === cInt).map(p => {

@@ -60,7 +60,6 @@ module.exports = {
                                 match.actions.map(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.ISSUE:
-                                        case Transaction.types.ISSUE_UNALLOCATED:
                                             a.transactionType = Transaction.types.ISSUE_TO;
                                             break;
                                         case Transaction.types.CONVERSION:

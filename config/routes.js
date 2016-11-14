@@ -53,10 +53,44 @@ module.exports.routes = {
         action: 'userInfo'
     },
 
+    'GET /api/user': {
+        controller: 'UserController',
+        model: 'user',
+        action: 'find'
+    },
+
+    'GET /api/user/:id': {
+        controller: 'UserController',
+        model: 'user',
+        action: 'findOne'
+    },
+
     'GET /api/recent_activity': {
         controller: 'UserController',
         model: 'user',
         action: 'recentActivity'
+    },
+
+    'POST /api/company': {
+        controller: 'CompanyController',
+        action: 'create'
+    },
+
+    'GET /api/company': {
+        controller: 'CompanyController',
+        model: 'company',
+        action: 'find'
+    },
+
+    'GET /api/company/:id': {
+        controller: 'CompanyController',
+        model: 'company',
+        action: 'findOne'
+    },
+
+    'POST /api/favourites/:companyId': {
+        controller: 'FavouriteController',
+        action: 'addFavourite'
     },
 
     'GET /api/favourites': {
@@ -114,10 +148,23 @@ module.exports.routes = {
         action: 'getDocumentPreview',
         model: 'document'
     },
+
     'GET /api/document': {
         controller: 'DocumentController',
         model: 'document',
         action: 'find'
+    },
+
+    'GET /api/document/:id': {
+        controller: 'DocumentController',
+        model: 'document',
+        action: 'findOne'
+    },
+
+    'PUT /api/document/:id': {
+        controller: 'DocumentController',
+        model: 'document',
+        action: 'update'
     },
 
     'POST /api/company/import/validate': {
@@ -282,5 +329,12 @@ module.exports.routes = {
         controller: 'UserController',
         model: 'user',
         action: 'alerts'
-    }
+    },
+
+
+    'GET /api/model': {controller: 'ModelController', model: 'model', action: 'find'},
+    'POST /api/model': {controller: 'ModelController', model: 'model', action: 'create'},
+    'GET /api/model/:id': {controller: 'ModelController', model: 'model', action: 'findOne'},
+    'PUT /api/model/:id': {controller: 'ModelController', model: 'model', action: 'update'},
+    'DELETE /api/model/:id': {controller: 'ModelController', model: 'model', action: 'destroy'}
 };

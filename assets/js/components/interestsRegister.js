@@ -122,7 +122,7 @@ class EntryForm extends React.Component {
                 hasFeedback groupClassName='has-group'
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
                     <option></option>
-                    { (this.props.companyState.directorList.directors || []).map((d, i) => {
+                    { ((this.props.companyState.directorList || {}).directors || []).map((d, i) => {
                         return <option key={i} value={d.person.id}>{d.person.name}</option>
                     })}
                 </Input>
@@ -274,7 +274,7 @@ export class InterestsRegister extends React.Component {
                 </div>
                 <div className="widget-body">
                         { !this.props.children && this.renderList(interestsRegister) }
-                         { this.props.children && React.cloneElement(this.props.children, {
+                         { this.props.companyState && this.props.children && React.cloneElement(this.props.children, {
                                 companyId: this.key(),
                                 companyState: this.props.companyState,
                                 interestsRegister: interestsRegister

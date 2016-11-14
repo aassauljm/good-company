@@ -34,7 +34,7 @@ describe('DocumentController', function() {
                 done();
             });
     });
-    it('should get document', function(done) {
+    it('should get raw document', function(done) {
         req
             .get('/api/document/get_document/'+document_id)
             .expect(200)
@@ -63,8 +63,7 @@ describe('DocumentController', function() {
             .get('/logout')
             .expect(302)
             .then(function(){
-                return req
-                .get('/api/document/get_document/'+document_id)
+                return req.get('/api/document/get_document/'+document_id)
             })
             .then(function(res){
                 res.status.should.be.eql(403);
@@ -79,13 +78,13 @@ describe('DocumentController', function() {
             .send({'identifier': 'documentstealer@email.com', 'password': 'testtest'})
             .expect(302)
             .then(function(){
-                return req
-                .get('/api/document/'+document_id)
+                return req.get('/api/document/'+document_id)
             })
             .then(function(res){
                 res.status.should.be.eql(403);
                 done();
-            });
+            })
+            .catch(done)
         });
 
     it('should login with other account and fail to get raw document', function(done) {

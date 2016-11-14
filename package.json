@@ -9,9 +9,9 @@
   "scripts": {
     "build-dev": "webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p ",
-    "run": "sails lift",
+    "run": "BLUEBIRD_WARNINGS=0 sails lift",
     "test-coverage": "istanbul cover _mocha -- --recursive test --compilers js:babel-core/register --timeout 45000",
-    "test": "NODE_ENV=test  _mocha --recursive test --compilers js:babel-core/register --timeout 45000"
+    "test": "BLUEBIRD_WARNINGS=0 NODE_ENV=test  _mocha --recursive test --compilers js:babel-core/register --timeout 45000"
   },
   "repository": {
     "type": "git",
