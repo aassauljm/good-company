@@ -37,7 +37,7 @@ export default class Documents extends React.Component {
         {this.props.data ? this.props.data.map(
             (row, i) => <tr key={i}>
                 { fields.map(f => <td key={f}>{row[f]}</td>) }
-                <td><Link activeClassName="active" className="nav-link" to={"/document/view/"+row.id} >View</Link></td>
+                <td><Link activeClassName="active" className="nav-link" to={`/document/view/${d.id}`} >View</Link></td>
                 { /*<td><a href="#" type='button' value='Delete' onClick={this.submitDelete.bind(this, row.id)}  >Delete</a></td> */}
             </tr>)
 
@@ -68,7 +68,7 @@ export class DocumentsWidget extends React.Component {
                 <thead><tr><th>Name</th><th>Date</th></tr></thead>
                 <tbody>
                 { (docList.documents || []).map((d, i) => {
-                    return <tr key={i}><td><Link activeClassName="active" className="nav-link" to={"/document/view/"+d.id}>{ d.filename }</Link></td><td>{stringToDate(d.date || d.createdAt)}</td></tr>
+                    return <tr key={i}><td><Link activeClassName="active" className="nav-link" to={`/companies/view/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td><td>{stringToDate(d.date || d.createdAt)}</td></tr>
                 }) }
                 </tbody>
                 </table>
@@ -114,12 +114,13 @@ const documentTypeClasses = (type, filename) => {
     return map[type] || 'file';
 }
 
-function RenderFile(node, push){
+function RenderFile(node, push, companyId){
+    const link = companyId ? `/company/view/${companyId}/documents/view/${node.id}` : `/documents/view/${node.id}`;
     return (
       <span className={classnames('document', {})} onClick={() => {}} >
         <span className={'icon ' + documentTypeClasses(node.type)} />
         {node.filename}
-        { node.type !== 'Directory' && <span onClick={() => push("/document/view/"+node.id)} className="view">View</span> }
+        { node.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
       </span>
     )
 }
@@ -147,7 +148,8 @@ function listToTree(documents){
 })
 export class CompanyDocuments extends React.Component {
     static propTypes = {
-        companyState: PropTypes.object
+        companyState: PropTypes.object,
+        companyId: PropTypes.string
     };
 
     renderField(key, value) {
@@ -169,7 +171,7 @@ export class CompanyDocuments extends React.Component {
         { docList.documents.map(
             (row, i) => <tr key={i}>
                 { fields.map(f => <td key={f}>{this.renderField(f, row[f])}</td>) }
-                <td><Link activeClassName="active" className="nav-link" to={"/document/view/"+row.id} >View</Link></td>
+                <td><Link activeClassName="active" className="nav-link" to={`/companies/view/${this.props.companyId}/document/view/${row.id}`}>View</Link></td>
             </tr>)}
         </tbody>
         </table>
@@ -196,16 +198,15 @@ export class CompanyDocuments extends React.Component {
          const loop = data => {
           return data.map((item) => {
             if (item.children && item.children.length) {
-              return <TreeNode key={item.id} title={RenderFile(item)}>{loop(item.children, this.props.push)}</TreeNode>;
+              return <TreeNode key={item.id} title={RenderFile(item, null, this.props.companyId)}>{loop(item.children, this.props.push)}</TreeNode>;
             }
-            return <TreeNode key={item.id} title={RenderFile(item, this.props.push)} />;
+            return <TreeNode key={item.id} title={RenderFile(item, this.props.push, this.props.companyId)} />;
           });
         };
         if(this.props.companyState.docList){
             return  <div>
                 <Tree
                 classNames={''}
-
                 renderNode={RenderFile}>
                     {loop(listToTree(this.props.companyState.docList.documents))}
                 </Tree>

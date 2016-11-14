@@ -15,7 +15,7 @@ function binaryParser(res, callback) {
 
 describe('DocumentController', function() {
 
-    var req, document_id, client_id;
+    var req, documentId, client_id;
     it('should login successfully', function(done) {
         req = request.agent(sails.hooks.http.app);
         req
@@ -30,13 +30,13 @@ describe('DocumentController', function() {
             .attach('document', 'test/fixtures/pdf-sample.pdf')
             .expect(201)
             .then(function(res){
-                document_id = res.body.id;
+                documentId = res.body.id;
                 done();
             });
     });
     it('should get raw document', function(done) {
         req
-            .get('/api/document/get_document/'+document_id)
+            .get('/api/document/get_document/'+documentId)
             .expect(200)
             .expect('Content-Type', 'application/pdf')
             .expect('Content-Disposition', 'attachment; filename="pdf-sample.pdf"')
@@ -51,7 +51,7 @@ describe('DocumentController', function() {
     });
     it('should get document preview', function(done) {
         req
-            .get('/api/document/get_document_preview/'+document_id)
+            .get('/api/document/get_document_preview/'+documentId)
             .expect(200)
             .expect('Content-Type', 'image/png')
             .then(function(){
@@ -63,7 +63,7 @@ describe('DocumentController', function() {
             .get('/logout')
             .expect(302)
             .then(function(){
-                return req.get('/api/document/get_document/'+document_id)
+                return req.get('/api/document/get_document/'+documentId)
             })
             .then(function(res){
                 res.status.should.be.eql(403);
@@ -78,7 +78,7 @@ describe('DocumentController', function() {
             .send({'identifier': 'documentstealer@email.com', 'password': 'testtest'})
             .expect(302)
             .then(function(){
-                return req.get('/api/document/'+document_id)
+                return req.get('/api/document/'+documentId)
             })
             .then(function(res){
                 res.status.should.be.eql(403);
@@ -88,7 +88,7 @@ describe('DocumentController', function() {
         });
 
     it('should login with other account and fail to get raw document', function(done) {
-        req.get('/api/document/get_document/'+document_id)
+        req.get('/api/document/get_document/'+documentId)
             .then(function(res){
                 res.status.should.be.eql(403);
                 done();
@@ -101,12 +101,25 @@ describe('DocumentController', function() {
             .send({'identifier': 'documentuploader@email.com', 'password': 'testtest'})
             .expect(302)
             .then(function(){
-                return req.get('/api/document/get_document/'+document_id)
+                return req.get('/api/document/get_document/'+documentId)
                      .expect(200)
             }).then(function(){
                 done();
             })
     });
 
+    it('updates document name', function(done) {
+        const newName = 'different_name.ext';
+        req.put('/api/document/'+documentId)
+            .send({'filename': newName})
+            .expect(200)
+            .then(function(){
+                return req.get('/api/document/'+documentId)
+                     .expect(200)
+            }).then(function(res){
+                res.body.filename.should.be.equal(newName);
+                done();
+            })
+    });
 
 });

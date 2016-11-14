@@ -62,7 +62,7 @@ export default (store) => {
             <Route path="users" component={ Users }  />
             <Route path="roles" component={ Roles }  />
             <Route path="documents" component={ Documents }  />
-            <Route path="document/view/:id" component={ Document }  />
+            <Route path="documents/view/:documentId" component={ Document }  />
             <Route path="companies" component={ Companies }  />
             <Route path="mass_setup" component={ MassSetup }  />
             <Route path="company/view/:id" component={ Company } childrenOnly={true}>
@@ -74,6 +74,7 @@ export default (store) => {
                 <Route path="shareregister" component={ ShareRegister } />
                 <Route path="shareholders" component={ Shareholders } />
                 <Route path="documents" component={ CompanyDocuments } />
+                <Route path="documents/view/:documentId" component={ Document }  />
                 <Route path="templates" component={ Templates }>
                     <Router path=":name" component={ TemplateView }/>
                 </Route>

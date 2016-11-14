@@ -412,7 +412,7 @@ const appReducer = combineReducers({
     login,
     userInfo,
     resources,
-    form: form,
+    form,
     notifications,
     modals,
     contextualModals,
@@ -421,7 +421,7 @@ const appReducer = combineReducers({
     renderTemplate,
     lawBrowser,
     workingDays,
-    reduxAsyncConnect: reduxAsyncConnect
+    reduxAsyncConnect
 });
 
 
