@@ -86,7 +86,9 @@ export default {
         APPLY_SHARE_CLASSES: 'Apply Share Classes',
         CREATE_SHARE_CLASS: 'Create Share Class',
         COMPOUND_REMOVALS: 'Removals',
-        HOLDING_TRANSFER: 'Transfer'
+        HOLDING_TRANSFER: 'Transfer',
+        UPLOAD_DOCUMENT: 'Upload Document',
+        UPDATED_DOCUMENT: 'Updated Document'
     },
     amendTypes: {
         ISSUE_TO: 'Issue',

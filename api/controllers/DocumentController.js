@@ -116,6 +116,7 @@ module.exports = {
                             {model: DocumentData, as: 'documentData'}]});
                     })
                     .then(() => {
+                        sails.log.debug('Saved to db');
                         return ActivityLog.create({
                             type: ActivityLog.types.UPLOAD_DOCUMENT,
                             userId: req.user.id,
@@ -123,11 +124,8 @@ module.exports = {
                             data: {}
                         });
                     })
-                    .then(function(newInstance){
-                        sails.log.debug('Saved to db');
-
-                    })
-
+                    .then(resolve)
+                    .catch(reject)
             });
         });
     },
