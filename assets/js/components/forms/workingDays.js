@@ -6,6 +6,35 @@ import { requestWorkingDayOffset } from '../../actions';
 import STRINGS from '../../strings';
 import Input from '../forms/input';
 import moment from 'moment';
+import { saveAs } from 'file-saver';
+
+
+function createICS(data){
+    const {title, description, location, url} = data;
+    const dtstamp = moment().utc().format('YYYYMMDDTHHmmss') + 'Z';
+    const dtstart = moment(data.date).hour(data.hour).utc().format('YYYYMMDDTHHmmss') + 'Z';
+    const result = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Good Companies//gc.catalex.nz//Catalex Ltd
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTAMP:${dtstamp}
+DTSTART;TZID="Auckland, Wellington":${dtstart}
+SUMMARY:${title}
+DESCRIPTION:${description || ''}
+LOCATION:${location || ''}
+URL:${url || ''}
+ORGANIZER:MAILTO:mail@catalex.nz
+SEQUENCE:0
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:REMINDER
+TRIGGER;RELATED=START:-PT24H00M00S
+END:VALARM
+END:VEVENT
+END:VCALENDAR`
+    return result;
+}
 
 
 @connect(undefined, {
@@ -41,7 +70,23 @@ export default class WorkingDayNotice extends React.Component {
         }
     }
 
+    export() {
+        const data = {date: this.props.field.value, hour: 11, ...this.props.export()};
+        const text = createICS(data)
+        const file = new Blob([text], {type: 'text/plain'});
+        saveAs(file, `${data.title}.ics`);
+    }
+
     render() {
-        return <Input type="static" value={this.props.field.value ? moment(this.props.field.value).format("DD/MM/YYYY") : ''} label={this.props.label} />
+        const props = {
+            value: this.props.field.value ? moment(this.props.field.value).format("DD/MM/YYYY") : '',
+            label: this.props.label
+        }
+
+        if(this.props.export){
+            props.buttonAfter = (<Button onClick={() => this.export()}><span className="rw-i rw-i-calendar"/> Export Event</Button>)
+        }
+        return <Input type="static" {...props} />
+
     }
 }

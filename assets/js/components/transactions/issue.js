@@ -183,7 +183,12 @@ export class Issue extends React.Component {
         return <form className="form" >
         <fieldset>
             <DateInput {...this.formFieldProps('effectiveDate')} />
-            <WorkingDays field={this.props.fields.minNotice} source={this.props.fields.effectiveDate.value} days={10} label="Notice must be given to the Registrar by"/>
+            <WorkingDays field={this.props.fields.minNotice} source={this.props.fields.effectiveDate.value} days={10} label="Notice must be given to the Registrar by" export={() => {
+                return {
+                    url: `${window.location.protocol}//${window.location.host}/company/view/${this.props.companyId}`,
+                    title: `Notice of Share Issue Due - ${this.props.companyName}`,
+                }
+            }}/>
              { this.props.fields.parcels.map((p, i) => {
                 const onChange = p.shareClass.onChange;
                 p.shareClass.onChange = (event) => {
@@ -402,6 +407,8 @@ export class IssueModal extends React.Component {
                             showModal: {key: 'issue', data: {...this.props.modalData}}
                         }
                     }))}
+                    companyName={companyState.companyName}
+                    companyId={this.props.currentData.companyId}
                     shareClassMap={shareClassMap}
                     onSubmit={this.submit}/>
     }
