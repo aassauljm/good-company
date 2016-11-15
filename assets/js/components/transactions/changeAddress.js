@@ -13,7 +13,7 @@ import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
 import moment from 'moment';
 import { contactDetailsFormatSubmit } from '../forms/contactDetails';
-import WorkingDays from '../forms/workingDays';
+import WorkingDayNotice from '../forms/workingDays';
 import { Documents } from '../forms/documents';
 
 

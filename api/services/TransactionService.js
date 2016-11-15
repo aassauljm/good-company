@@ -952,11 +952,12 @@ export function performRemoveAllocation(data, nextState, companyState, effective
     .then(function(holdingList){
         nextState.dataValues.holdingList = holdingList;
         nextState.dataValues.h_list_id = null;
-        const holding = nextState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId});
-        if(!holding){
+        const holdings = nextState.getMatchingHoldings({holders: data.holders, holdingId: data.holdingId});
+        if(!holdings.length){
             throw new sails.config.exceptions.InvalidOperation('Could not find holding')
         }
-        if(holding.hasNonEmptyParcels()){
+        const holding = _.filter(holdings, h => !h.hasNonEmptyParcels());
+        if(!holding || holding.hasNonEmptyParcels()){
             throw new sails.config.exceptions.InvalidOperation('Holding has non empty parcels')
         }
         holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);

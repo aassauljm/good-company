@@ -119,7 +119,7 @@ export class HoldingNoParcels extends React.Component {
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
-                        {  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'votingShareholder'])} label={'Voting Shareholder'} >
+                        { this.props.fields.persons.length > 1 &&  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'votingShareholder'])} label={'Voting Shareholder'} >
                         </Input> }
 
                         { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])}  onChange={interceptChange} label={'Current Shareholder'} >
@@ -264,6 +264,7 @@ export function updateHoldingSubmit(values, oldHolding){
                 transactionType: TransactionTypes.REMOVE_ALLOCATION,
                 effectiveDate: values.effectiveDate,
                 holders: beforeHolders,
+                holdingId: oldHolding.holdingId,
             }]
         }]
     }

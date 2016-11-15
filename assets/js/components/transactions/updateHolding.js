@@ -66,12 +66,13 @@ export class UpdateHoldingModal extends React.Component {
     }
 
     submit(values) {
-        values.votingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.modalData.companyState);
+        if(values.persons.length > 1){
+            values.votingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.modalData.companyState);
+        }
         let previous = this.props.modalData.holding.holders.filter(h => (h.data || {}).votingShareholder);
         if(previous.length){
             values.previousVotingShareholder = populatePerson(previous[0].person, this.props.modalData.companyState)
         }
-        values.previousVotingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.modalData.companyState);
         values.persons = reformatPersons(values, this.props.modalData.companyState);
         const transactions = updateHoldingSubmit(values, this.props.modalData.holding)
         if(transactions.length){
