@@ -23,6 +23,7 @@ import LawBrowserContainer from './lawBrowserContainer'
 const shareClassLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM320605/28784-DLM319594">Share classes</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 37">Issue of shares in different classes </LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 36">Rights attached to shares</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 87(1)">Restrictions or limitations on share transfers</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 87(2)">Stating information by class on the share register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 117">Alteration of shareholder rights after interest group approval</LawBrowserLink>

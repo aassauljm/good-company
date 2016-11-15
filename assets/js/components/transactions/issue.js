@@ -44,12 +44,11 @@ const APPROVAL_DOCUMENT_TYPES = [
     "Shareholder Resolution",
     "Conversion of Financial Product",
     "Court Order",
-    "Entitled Persons",
-    "Agreement/Concurrence"];
+    "Entitled Persons Agreement/Concurrence"];
 
 
 const approvalOptions = (() => {
-    return APPROVAL_DOCUMENT_TYPES.map((a, i) => <option key={i} value="a">{a}</option>);
+    return APPROVAL_DOCUMENT_TYPES.map((a, i) => <option key={i} value={a}>{a}</option>);
 })();
 
 

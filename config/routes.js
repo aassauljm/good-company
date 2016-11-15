@@ -81,11 +81,19 @@ module.exports.routes = {
         model: 'company',
         action: 'find'
     },
-
-    'GET /api/company/:id': {
+    'DELETE /api/company/:id': {
         controller: 'CompanyController',
         model: 'company',
-        action: 'findOne'
+        action: 'destroy'
+    },
+
+    'GET /api/company/lookup': {
+        controller: 'CompanyController',
+        action: 'lookup'
+    },
+    'GET /api/company/lookup_own': {
+        controller: 'CompanyController',
+        action: 'lookupOwn'
     },
 
     'POST /api/favourites/:companyId': {
@@ -229,14 +237,7 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'transactionBulk'
     },
-    'GET /api/company/lookup': {
-        controller: 'CompanyController',
-        action: 'lookup'
-    },
-    'GET /api/company/lookup_own': {
-        controller: 'CompanyController',
-        action: 'lookupOwn'
-    },
+
     'GET /api/address/lookup/:query': {
         controller: 'AddressController',
         action: 'lookup'

@@ -16,10 +16,13 @@
  * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.policies.html
  */
 
+var simpleAuth = [
+    'passport',
+    'sessionAuth'
+];
+
 
 module.exports.policies = {
-
-
     LandingController: {
         'landing': ['passport']
     },
@@ -43,19 +46,10 @@ module.exports.policies = {
         ]
     },
     UserController: {
-        'setPassword': ['passport', 'sessionAuth'],
+        'setPassword': simpleAuth,
         'signup': true,
         'validateUser': true,
-        'pendingJobs': [
-            'passport',
-            'sessionAuth',
-            //'ModelPolicy',
-            //'AuditPolicy',
-            //'OwnerPolicy',
-            //'PermissionPolicy',
-            //'RolePolicy',
-            //'CriteriaPolicy'
-        ]
+        'pendingJobs': simpleAuth
     },
     ModelController:{
         'create': false,
@@ -73,19 +67,15 @@ module.exports.policies = {
         'getDocumentPreview': ['passport','sessionAuth', 'OwnerPolicy'],*/
     },
     CompanyController: {
-        'populate': false
+        'populate': false,
+        'lookup': simpleAuth,
+        'lookupOwn': simpleAuth
     },
     FavouriteController: {
-        removeFavourite: [
-            'passport',
-            'sessionAuth'
-        ]
+        removeFavourite: simpleAuth
     },
     RenderController: {
-        renderTemplate: [
-            'passport',
-            'sessionAuth'
-        ]
+        renderTemplate: simpleAuth
     }
 
     /***************************************************************************

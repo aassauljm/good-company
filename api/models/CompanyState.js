@@ -390,6 +390,21 @@ module.exports = {
                 // TODO, start with list of people from db, will be short, and find them in js
                 obj = _.cloneDeep(obj);
 
+                // if people have the same name in company, then damn it, give them same address
+                if(obj.directorList && obj.directorList.directors && obj.directorList.directors.length){
+                    const names = {};
+                    (obj.holdingList.holdings || []).map(holding => {
+                        (holding.holders || []).map(h => {
+                            names[h.person.name] = [...(names[h.person.name] || []), h.person];
+                        })
+                    });
+                    (obj.directorList.directors).map(d => {
+                        (names[d.person.name] || []).map(p => {
+                            p.address = d.person.address;
+                        })
+                    });
+                }
+
                 return Promise.each(obj.holdingList.holdings || [], function(holding){
                     return Promise.map(holding.holders || [], function(holder){
                         return AddressService.normalizeAddress(holder.person.address)

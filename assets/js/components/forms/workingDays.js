@@ -20,17 +20,18 @@ METHOD:PUBLISH
 BEGIN:VEVENT
 DTSTAMP:${dtstamp}
 DTSTART;TZID="Auckland, Wellington":${dtstart}
+DTEND;TZID="Auckland, Wellington":${dtstart}
 SUMMARY:${title}
 DESCRIPTION:${description || ''}
 LOCATION:${location || ''}
 URL:${url || ''}
 ORGANIZER:MAILTO:mail@catalex.nz
-SEQUENCE:0
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:REMINDER
 TRIGGER;RELATED=START:-PT24H00M00S
 END:VALARM
+TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR`
     return result;
