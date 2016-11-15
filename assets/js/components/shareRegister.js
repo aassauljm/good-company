@@ -476,7 +476,17 @@ export class ShareRegister extends React.Component {
         }
         if(this.props.menu.view === 'document'){
             return <LawBrowserContainer lawLinks={shareRegisterLawLinks()} >
-                            <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
+                      <div className="widget">
+                        <div className="widget-header">
+                            <div className="widget-title">
+                                Share Register
+                            </div>
+                        </div>
+                        <div className="widget-body">
+                            { this.renderControls() }
+                                <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
+                        </div>
+                    </div>
                     </LawBrowserContainer>
         }
         else if(this.props.menu.view === 'table'){
@@ -484,29 +494,23 @@ export class ShareRegister extends React.Component {
         }
     }
 
-    renderLaw() {
-        return
-    }
 
     renderControls() {
-        return <div className="container">
-            <div className="col-md-4 col-md-offset-4">
-            <div className="button-row">
-                <Input type="select"
+        return  <div className="button-row">
+                {/* <Input type="select"
                 value={this.props.menu.view}
                 onChange={(e) => this.props.dispatch(updateMenu('shareRegister', {view: e.target.value}))}>
                 <option value="document">Document View</option>
                 <option value="table">Table View</option>
-                </Input>
+                </Input> */}
                 <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/shareregister`} target='_blank'>Download</Link>
             </div>
-            </div>
-        </div>
+
     }
 
     render() {
         return <div>
-            { this.renderControls() }
+
             { this.renderShareRegister() }
         </div>
     }
