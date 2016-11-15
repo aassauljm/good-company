@@ -155,7 +155,7 @@ export class AlertsWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Notifications
+                    <span className="fa fa-exclamation-circle"/> Notifications
                 </div>
                 { !this.props.full && <div className="widget-control">
                     <Link to="/alerts" >View All</Link>

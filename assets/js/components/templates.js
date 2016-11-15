@@ -456,7 +456,7 @@ export class TemplateWidget extends React.Component {
         return  <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
-                        Templates
+                        <span className="fa fa-file-text-o"/>  Templates
                     </div>
                     <div className="widget-control">
                      <Link to={id ? `/companies/${id}/templates` : `/templates`} >View All</Link>

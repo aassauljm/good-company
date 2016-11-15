@@ -175,7 +175,7 @@ export class CompaniesWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Companies
+                    <span className="fa fa-institution"/> Companies
                 </div>
                 <div className="widget-control">
                  <Link to={`/companies`} >View All</Link>

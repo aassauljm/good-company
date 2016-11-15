@@ -32,7 +32,7 @@ export class FavouritesWidget extends React.Component {
         return <div className="widget favourites">
             <div className="widget-header">
                 <div className="widget-title">
-                    Favourites
+                    <span className="fa fa-star-o"/> Favourites
                 </div>
                 <div className="widget-control">
                 <Link to="/favourites" >View All</Link>

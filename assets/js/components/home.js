@@ -11,6 +11,8 @@ import { AlertsWidget } from './alerts';
 import { FavouritesWidget } from './favourites';
 import { CompaniesWidget } from './companies';
 import { TemplateWidget } from './templates';
+import { CalendarWidget } from './calendar';
+import { WorkInProgressWidget } from './workInProgress';
 
 
 
@@ -20,14 +22,16 @@ export default class Home extends React.Component {
         return <div className="container">
                 <div className="row">
                     <div className="col-md-6">
-                        <RecentActivityWidget />
+                        <CalendarWidget />
                         <CompaniesWidget />
                         <TemplateWidget />
+                        <WorkInProgressWidget />
 
                     </div>
                     <div className="col-md-6">
                         <AlertsWidget />
                         <FavouritesWidget />
+                        <RecentActivityWidget />
                     </div>
                 </div>
             </div>

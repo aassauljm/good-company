@@ -72,7 +72,7 @@ module.exports.policies = {
         'lookupOwn': simpleAuth
     },
     FavouriteController: {
-        removeFavourite: simpleAuth
+        '*': simpleAuth
     },
     RenderController: {
         renderTemplate: simpleAuth

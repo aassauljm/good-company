@@ -19,6 +19,7 @@ import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
 import { TransactionWidget } from './transactions';
+import { PendingTransactionsWidget } from './pendingTransactions';
 import NotFound from './notFound';
 import Notifications from './notifications';
 import { push } from 'react-router-redux'
@@ -176,6 +177,13 @@ export default class Company extends React.Component {
                         companyState={current}
                         companyId={this.props.params.id}
                      /> */ }
+                    <PendingTransactionsWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'pendingTransactions'], expanded) }
+                        expanded={(this.props.widgets.pendingTransactions || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+
                     <TransactionWidget
                         toggle={(expanded) => this.props.toggleWidget([this.key(), 'transactions'], expanded) }
                         expanded={(this.props.widgets.transactions || {}).expanded}

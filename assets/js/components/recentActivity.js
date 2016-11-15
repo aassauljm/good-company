@@ -38,7 +38,7 @@ export class RecentActivityWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Recent Activity
+                    <span className="fa fa-clock-o"/> Recent Activity
                 </div>
                 <div className="widget-control">
                 <Link to="/recent_activity" >View All</Link>
@@ -127,7 +127,7 @@ export default class RecentActivity extends React.Component {
             <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    Recent Activity
+                     Recent Activity
                 </div>
             </div>
 
