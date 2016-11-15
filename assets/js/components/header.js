@@ -97,6 +97,9 @@ export class Header extends React.Component {
         return  this.props.loggedIn ? <li className="nav-item"><a className="nav-link" href="/logout">Log out</a></li> : null;
     }
 
+    isLoggedIn() {
+        return this.props.loggedIn && this.props.userInfo && this.props.userInfo.username;
+    }
 
     render() {
         return  <Navbar>
@@ -107,6 +110,7 @@ export class Header extends React.Component {
 
              <NavbarCollapse>
 
+
                 <ul className="nav navbar-nav navbar-right">
                 { this.showAccount() }
                 { this.showLogout() }
@@ -114,6 +118,10 @@ export class Header extends React.Component {
                 { this.showSignUp() }
                 </ul>
 
+                { this.isLoggedIn() &&
+                    <ul className="nav navbar-nav navbar-right clear-right">
+                    <li className="nav-item"><em>Last login: {this.props.userInfo.lastLogin}</em></li>
+                </ul>}
 
          </NavbarCollapse>
   </Navbar>

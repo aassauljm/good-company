@@ -238,7 +238,8 @@ export default class Company extends React.Component {
                              </div>
                         </div>
 
-                    { this.props.children &&  <ul className="pager">
+                    { false && this.props.children &&  <ul className="pager">
+                            <li ><Link activeClassName="active" className="nav-link" to={"/"} >← Home</Link></li>
                             <li ><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >← Company Page</Link></li>
                             </ul> }
                     </div>

@@ -33,6 +33,7 @@ import { TransactionView } from './components/transaction';
 import { MassSetup } from './components/massSetup';
 import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
+import Calendar from './components/calendar';
 import Alerts from './components/alerts';
 
 
@@ -59,6 +60,7 @@ export default (store) => {
         <Route onEnter={requireLogin} component={ LoggedInApp }>
             <IndexRoute component={ Home }  />
             <Route path="recent_activity" component={ RecentActivity }  />
+            <Route path="calendar" component={ Calendar }  />
             <Route path="users" component={ Users }  />
             <Route path="roles" component={ Roles }  />
             <Route path="documents" component={ Documents }  />

@@ -1,8 +1,15 @@
 .page-top {
     background-color: #fff;
     border-bottom: 1px solid $border-light;
-    padding-top:2em;
-    padding-bottom:2em;
+    padding-top:1em;
+    padding-bottom:1em;
+    & > *{
+        padding-top: 1em;
+        padding-bottom: 1em;
+    }
+    .widget{
+        margin-bottom: 0;
+    }
 }
 
 .page-body{

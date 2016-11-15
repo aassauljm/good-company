@@ -147,20 +147,24 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex){
 
 
 export  class RenderForm extends React.Component {
+    controls() {
+        return <div className="button-row form-controls">
+                <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
+                <Button type="submit" bsStyle="primary" >Generate Document <Glyphicon glyph='download'/></Button>
+            </div>
+    }
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
 
         return <form className="generated-form form-horizontal"  onSubmit={handleSubmit}>
-            <div className="button-row form-controls">
-                <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
-                <Button type="submit" bsStyle="primary" >Generate Document <Glyphicon glyph='download'/></Button>
-            </div>
+            { this.controls() }
             <h4>{ schema.title }</h4>
            { schema.description && <h5>{ schema.description }</h5>}
            { renderFormSet(schema.properties, fields) }
             { this.props.error && <div className="alert alert-danger">
                 { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
             </div> }
+             { this.controls() }
         </form>
     }
 

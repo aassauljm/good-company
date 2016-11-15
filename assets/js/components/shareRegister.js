@@ -26,7 +26,7 @@ const shareRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location="s 93">Personal Representatives of Shareholders</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 94">Assignee of Bankrupt Shareholder</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 125">Ascertaining Shareholders from Share Register</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11 + s 124">Votes of Joint Shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11">Votes of Joint Shareholders</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 189(1)(j)+(4)+(5)">Share Register at Registered Office </LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 215(1)(c) + 217">Public Inspection of Share Register </LawBrowserLink>
     </div>
