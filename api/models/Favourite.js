@@ -10,7 +10,7 @@ module.exports = {
     },
     associations: function() {
         Favourite.belongsTo(User, {
-            as: 'user',
+            as: 'owner',
             foreignKey: {
                 name: 'userId'
             }

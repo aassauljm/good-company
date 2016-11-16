@@ -21,6 +21,14 @@ var simpleAuth = [
     'sessionAuth'
 ];
 
+var noCriteria = [
+    'passport',
+    'sessionAuth',
+    'ModelPolicy',
+    'AuditPolicy',
+    'OwnerPolicy',
+    'PermissionPolicy'
+]
 
 module.exports.policies = {
     LandingController: {
@@ -34,7 +42,6 @@ module.exports.policies = {
         'AuditPolicy',
         'OwnerPolicy',
         'PermissionPolicy',
-        'RolePolicy',
         'CriteriaPolicy'
     ],
     AuthController: {
@@ -76,6 +83,9 @@ module.exports.policies = {
     },
     RenderController: {
         renderTemplate: simpleAuth
+    },
+    EventController: {
+        'find': noCriteria
     }
 
     /***************************************************************************

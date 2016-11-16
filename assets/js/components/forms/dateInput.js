@@ -23,7 +23,7 @@ export default class DateInput extends React.Component {
             onClick={(e) => {
                 e.preventDefault();
             }}
-            time={false}
+            time={!!this.props.time}
             value={this.props.value ? new Date(this.props.value): null }
             onToggle={(open) => {
                 if(!open){

@@ -127,15 +127,32 @@ var registered = {
         },
         {
             action: 'read',
-            relation: 'owner'
+            relation: 'user'
         },
         {
             action: 'update',
-            relation: 'owner'
+            relation: 'user'
         },
         {
             action: 'delete',
-            relation: 'owner'
+            relation: 'user'
+        }
+    ],
+    'Event': [
+        {
+            action: 'create'
+        },
+        {
+            action: 'read',
+            relation: 'user'
+        },
+        {
+            action: 'update',
+            relation: 'user'
+        },
+        {
+            action: 'delete',
+            relation: 'user'
         }
     ],
     'CompanyState': [

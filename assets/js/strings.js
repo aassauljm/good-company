@@ -155,5 +155,14 @@ export default {
             "1(b)": "The right to an equal share in dividends authorised by the board",
             "1(c)": "The right to an equal share in the distribution of the surplus assets of the company",
         }
+    },
+    calendar: {
+        create: "Create Event",
+        calendar: "Calendar",
+        "companyId": "Company",
+        date: "Date",
+        title: "Title",
+        description: "Description",
+        location: "Location"
     }
 }

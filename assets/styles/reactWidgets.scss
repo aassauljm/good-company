@@ -126,7 +126,7 @@ $rw-version:          "4.1.0";
   margin-top: 1px;
   z-index: $zindex-popover;
   // offset for drop shadow on rw-popup
-  left:  -10px - $input-border-width;
+ // left:  -10px - $input-border-width;
   right: -10px - $input-border-width;
 
   &.rw-dropup {
@@ -134,10 +134,23 @@ $rw-version:          "4.1.0";
     bottom: 100%;
   }
 
-  &.rw-calendar-popup {
-    right: auto;
+
+
     width: 18em; //15em; ?
-  }
+
+    ul.rw-list{
+        max-height: 200px;
+        height: auto;
+        li.rw-list-option{
+            padding-left:1em;
+            cursor:pointer;
+            &:hover{
+                background-color:$gray;
+                color:#fff;
+            }
+        }
+    }
+
 }
 
 

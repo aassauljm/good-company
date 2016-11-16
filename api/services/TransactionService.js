@@ -956,7 +956,7 @@ export function performRemoveAllocation(data, nextState, companyState, effective
         if(!holdings.length){
             throw new sails.config.exceptions.InvalidOperation('Could not find holding')
         }
-        const holding = _.filter(holdings, h => !h.hasNonEmptyParcels());
+        const holding = _.filter(holdings, h => !h.hasNonEmptyParcels())[0];
         if(!holding || holding.hasNonEmptyParcels()){
             throw new sails.config.exceptions.InvalidOperation('Holding has non empty parcels')
         }

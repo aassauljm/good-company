@@ -151,6 +151,14 @@ select.form-control + .form-control-feedback{
     right: 26px;
 }
 
+.form-horizontal .form-group.has-feedback.has-group{
+    .rw-datetimepicker.rw-has-both.rw-widget +  .form-control-feedback{
+        right: 90px;
+    }
+}
+
+
+// delete this now?
 .or-group{
     .form-group{
         margin-bottom:0;

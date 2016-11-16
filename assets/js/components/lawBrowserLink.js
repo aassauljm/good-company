@@ -10,6 +10,8 @@ import createChainedFunction from 'react-bootstrap/lib/utils/createChainedFuncti
 import { fetch } from '../utils';
 import Position from 'dom-helpers/query/position';
 import Offset from 'dom-helpers/query/offset';
+import contains from 'dom-helpers/query/contains';
+
 
 export const POPOVER_DRAGGABLE = 'POPOVER_DRAGGABLE';
 
@@ -48,13 +50,18 @@ const otDefaultProps = {
   defaultOverlayShown: false,
 };
 
-class OverlayTrigger extends React.Component {
+
+
+export class OverlayTrigger extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.handleToggle = this.handleToggle.bind(this);
-    this.handleHide = this.handleHide.bind(this);
-    this.updatePosition = this.updatePosition.bind(this);
+    this.handleToggle = ::this.handleToggle
+    this.handleHide = ::this.handleHide
+    this.handleShow = ::this.handleShow
+    this.updatePosition = ::this.updatePosition
+    this.handleMouseOver = ::this.handleMouseOver;
+    this.handleMouseOut = ::this.handleMouseOut;
     this._mountNode = null;
 
     this.state = {
@@ -78,48 +85,75 @@ class OverlayTrigger extends React.Component {
     this._mountNode = null;
   }
 
+  handleMouseOver(e) {
+    this.handleMouseOverOut(this.handleShow, e)
+  }
+
+  handleMouseOut(e) {
+    this.handleMouseOverOut(this.handleHide, e)
+  }
+
+  handleMouseOverOut(handler, e) {
+        const target = e.currentTarget;
+        const related = e.relatedTarget || e.nativeEvent.toElement;
+        //console.log(target, related, contains(target, related))
+        if (!related || related !== target && !contains(target, related)) {
+            handler(e);
+        }
+  };
+
   handleToggle(eventProxy) {
     if (this.state.show) {
       this.hide();
     } else {
-
-        const calcPlacement = (target) => {
-            const pos = target.getBoundingClientRect();
-            const doc = target.ownerDocument;
-            if(!doc){
-                return;
-            }
-            const win = doc.defaultView || doc.parentWindow;
-            if(!win){
-                return
-            }
-            const [elX, elY] = [pos.left + pos.width/2, pos.top + pos.height/2];
-            const [width, height] = [win.innerWidth, win.innerHeight];
-            const distances = [
-                {dist: elY, placement: 'top'},
-                {dist: height - elY, placement: 'bottom'},
-                {dist: elX, placement: 'left'},
-                {dist: width - elX, placement: 'right'},
-            ]
-            distances.sort((a, b) => b.dist - a.dist);
-            return distances[0].placement
-        }
-
-        this.show(calcPlacement(eventProxy.target));
+        this.positionShow(eventProxy);
     }
   }
 
+  positionShow(eventProxy) {
+     const calcPlacement = (target) => {
+        const pos = target.getBoundingClientRect();
+        const doc = target.ownerDocument;
+        if(!doc){
+            return;
+        }
+        const win = doc.defaultView || doc.parentWindow;
+        if(!win){
+            return
+        }
+        const [elX, elY] = [pos.left + pos.width/2, pos.top + pos.height/2]
+        const [width, height] = [win.innerWidth, win.innerHeight];
+        const distances = [
+            {dist: elY, placement: 'top'},
+            {dist: height - elY, placement: 'bottom'},
+            {dist: elX, placement: 'left'},
+            {dist: width - elX, placement: 'right'}
+        ]
+        distances.sort((a, b) => b.dist - a.dist);
+        return distances[0].placement
+    }
+    this.show(calcPlacement(eventProxy.target));
+  }
 
   handleHide() {
     this.hide();
   }
 
+  handleShow(eventProxy) {
+    if(eventProxy){
+        this.positionShow(eventProxy);
+    }
+    else{
+        this.show();
+    }
+  }
+
   show(placement) {
-        this.setState({ show: true, placement });
+    this.setState({ show: true, placement });
   }
 
   hide() {
-        this.setState({ show: false, leftOffset: null, topOffset: null, dragged: false });
+    this.setState({ show: false, leftOffset: null, topOffset: null, dragged: false });
   }
 
   updatePosition(offset) {
@@ -127,6 +161,18 @@ class OverlayTrigger extends React.Component {
   }
 
   makeOverlay(overlay, props) {
+    let overlayProps = {
+    }
+    if(!this.props.hover){
+         overlayProps = {
+            close: this.handleHide,
+            updatePosition: this.updatePosition,
+            reposition: () => this.forceUpdate(),
+            draggedTop: this.state.topOffset,
+            draggedLeft: this.state.leftOffset,
+            dragged: this.state.dragged
+        }
+    }
     return (
       <Overlay
         {...props}
@@ -137,13 +183,7 @@ class OverlayTrigger extends React.Component {
         placement={this.state.placement}
         shouldUpdatePosition={true}
       >
-        { cloneElement(overlay, {
-            close: this.handleHide,
-            updatePosition: this.updatePosition,
-            reposition: () => this.forceUpdate(),
-            draggedTop: this.state.topOffset,
-            draggedLeft: this.state.leftOffset,
-            dragged: this.state.dragged})}
+        { cloneElement(overlay, overlayProps)}
       </Overlay>
     );
   }
@@ -160,6 +200,8 @@ class OverlayTrigger extends React.Component {
       overlay,
       children,
       onClick,
+      onMouseOut,
+      onMouseOver,
       ...props
     } = this.props;
     delete props.defaultOverlayShown;
@@ -172,6 +214,11 @@ class OverlayTrigger extends React.Component {
     triggerProps.onClick = createChainedFunction(
         triggerProps.onClick, this.handleToggle
     );
+
+    if(this.props.hover){
+        triggerProps.onMouseOver = createChainedFunction(childProps.onMouseOver, onMouseOver, this.handleMouseOver);
+        triggerProps.onMouseOut = createChainedFunction(childProps.onMouseOut, onMouseOut, this.handleMouseOut);
+    }
     this._overlay = this.makeOverlay(overlay, props);
     return cloneElement(child, triggerProps);
   }

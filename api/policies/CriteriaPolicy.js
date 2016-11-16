@@ -46,7 +46,9 @@ module.exports = function(req, res, next) {
         if (permission.relation == 'owner') {
           criteria.where.ownerId = req.user.id;
         }
-
+        if (permission.relation == 'user') {
+          criteria.where.userId = req.user.id;
+        }
         return criteria;
       });
     })
@@ -93,9 +95,10 @@ function responsePolicy(criteria, _data, options) {
   sails.log.info('responsePolicy');
   var req = this.req;
   var res = this.res;
-  var user = req.owner;
+  var user = req.owner || req.user;
   var method = PermissionService.getMethod(req);
   var isResponseArray = _.isArray(_data);
+
 
   var data = isResponseArray ? _data : [_data];
   sails.log.silly('data length', data.length);
