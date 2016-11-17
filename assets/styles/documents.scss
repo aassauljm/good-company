@@ -13,13 +13,18 @@
             padding: 2px;
             cursor: pointer;
             display: inline-block;
+
+            & > * {
+                line-height: 30px;
+            }
             &.selected{
                 background-color: lighten($brand-warning, 20%);
                 border: 1px solid $brand-warning;
-                opacity: .8;
             }
             .icon{
                 margin:0 4px;
+                font-size: 20px;
+                vertical-align:middle;
             }
             .view{
                 font-style: italic;
@@ -28,6 +33,9 @@
             }
             &.selected .view{
                 display: inline;
+            }
+            .filename{
+
             }
         }
         .children{

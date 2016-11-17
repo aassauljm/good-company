@@ -124,7 +124,7 @@ function RenderFile(props){
           </span>
           <span className={classnames('file', {selected: props.selected})} onClick={props.select}>
             <span className={'icon ' + documentTypeClasses(item.type)} />
-            { item.filename }
+            <span className="filename">{ item.filename }</span>
             { item.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
             </span>
           { props.showingSubTree && props.children && <div className="children"> { props.children} </div> }

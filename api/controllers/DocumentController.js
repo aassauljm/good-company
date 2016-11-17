@@ -157,12 +157,5 @@ module.exports = {
                 sails.log.error(err)
                return res.negotiate(err);
             })
-    },
-
-    echo: function(req, res) {
-        const args = actionUtil.parseValues(req)
-        res.attachment(args.filename)
-        res.write(args.file);
-        res.end();
     }
 };
