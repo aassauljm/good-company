@@ -26,7 +26,8 @@ import { DeleteCompanyModal  } from './transactions/deleteCompany';
 import { ChangeRegisteredOfficeModal, ChangeAddressForServiceModal  } from './transactions/changeAddress';
 import { VotingShareholdersModal  } from './transactions/selectVotingShareholders';
 import { ShareClassCreateModal, ShareClassEditModal, ShareClassManageModal } from './shareClasses';
-import { AddAssignSharesModal, ConsolidateDivideModal, RepurchaseRedeemModal, UpdateHoldingHolderModal, ResetDeleteModal, UpdateAddressesModal } from './transactions/selection';
+import { AddAssignSharesModal, ConsolidateDivideModal, RepurchaseRedeemModal,
+    UpdateHoldingHolderModal, ResetDeleteModal, UpdateAddressesModal } from './transactions/selection';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
 

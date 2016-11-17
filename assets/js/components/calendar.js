@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource, createResource, resetModals, addNotification } from '../actions';
+import { requestResource, createResource, updateResource, deleteResource, resetModals, addNotification, updateMenu } from '../actions';
 import { Link } from 'react-router';
 import { AlertWarnings } from './companyAlerts';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -19,12 +19,16 @@ import STRINGS from '../strings';
 import { formFieldProps, requireFields, stringToDateTime } from '../utils';
 import { OverlayTrigger } from './lawBrowserLink';
 import Tooltip from 'react-bootstrap/lib/Tooltip';
+import exportICS from './ics'
+import Loading from './loading';
 
+const DEFAULT_OBJ = {};
 
 const eventMap = (events) => {
     const eventMap = events.reduce((acc, event) => {
         const str = moment(event.date).format('YYYY-MM-DD');
-        acc[str] = [...(acc[str] || []), event];
+        acc[str] = acc[str] || []
+        acc[str].push(event);
         return acc;
     }, {})
     return {eventList: events, eventMap: eventMap}
@@ -37,39 +41,143 @@ class Day extends React.Component {
         const str = moment(this.props.date).format('YYYY-MM-DD');
         let title = [moment(this.props.date).format("D MMMM YYYY")];
         let classes = [];
-        if(this.props.events && this.props.events.data && this.props.events.data.eventMap[str]){
-            classes = ['event-day'];
-
-            title = [...title, ...(this.props.events.data.eventMap[str].map(e => (e.data||{}).title))];
+        let events = false;
+        if(this.props.today === str){
+            classes.push('today')
         }
-
-       /* if(this.props.holidays[str]){
-            title = [...title, ...new Set(Object.keys(this.props.holidays[str]).map(key => STRINGS_FULL[key]))]
-            classes = Object.keys(this.props.holidays[str]);
-        }*/
+        if(this.props.events && this.props.events.data && this.props.events.data.eventMap[str]){
+            classes.push('event-day');
+            title = [...title, ...(this.props.events.data.eventMap[str].map(e => (e.data||{}).title))];
+            events = true;
+        }
+        if(this.props.selected === str){
+            classes.push('selected')
+        }
         const tooltip = <Tooltip id="tooltip">{ title.map((t, i) => <div key={i}>{t}</div>)}</Tooltip>;
-        return  <OverlayTrigger placement="top" overlay={tooltip} hover={true}>
-                <div title={title} className={'day ' + classes.join(' ')}>
-                   { this.props.label} </div>
-        </OverlayTrigger>
+        const day = <div  className={'day ' + classes.join(' ')}>{ this.props.label} </div>;
+        if(events){
+            return  <OverlayTrigger placement="top" overlay={tooltip} hover={true}>
+                    { day }
+            </OverlayTrigger>
+        }
+        return day;
     }
 }
 
-const DayWithEvents = connect(state => ({events: state.resources['/events']}))(Day);
+
+const DayWithData = (props) => (moreProps) => <Day {...props} {...moreProps}/>
+
+
+const EventSummary = (props) => {
+    const {event: {data={}, date, companyId, id}} = props;
+    const {title, description, location, reminder} = data || {};
+    const company = companyId && props.companies.data && props.companies.data.filter(c => c.id === props.event.companyId)[0];
+    let fullTitle = title;
+    if(company){
+        fullTitle = `${title} - ${company.currentCompanyState.companyName}`;
+    }
+    const time = moment(date).format("hh:mm:ss a");
+    return <div className="summary">
+        <div className="title">{ title }</div>
+        { company && <div className="company">{company.currentCompanyState.companyName}</div> }
+        <p  className="time">{ time }</p>
+        { description &&<p>{ description }</p> }
+        { location &&<p>{ location }</p> }
+
+        <div className="controls">
+        <Link to={`/calendar/edit/${id}`}>edit</Link>
+        <a href="#" onClick={() => props.deleteEvent(id)}>delete</a>
+        <a href="#" onClick={() => exportICS({title: fullTitle, date: new Date(date), description, reminder})}>export</a>
+        </div>
+    </div>
+}
 
 
 
-@connect(state => ({events: state.resources['/events']}), {
+const EventSummaries = (props) => {
+
+    return <div>
+        <h2>{ moment(props.date).format("D MMMM YYYY")}</h2>
+            { props.eventList.map((event, i) => <EventSummary key={i} {...props} event={event} /> ) }
+            { !props.eventList.length && <em>{ STRINGS.calendar.noEvents }</em>}
+        </div>
+}
+
+
+
+@connect(state => ({
+    events: state.resources['/events'],
+    companies: state.resources[`companies`],
+    menu: state.menus['calendar'] || {date: new Date(), selected: moment().format('YYYY-MM-DD')}
+    }), {
     push: (location) => push(location),
-    requestEvents: (args) => requestResource('/events', {postProcess:eventMap})
+    requestEvents: (args) => requestResource('/events', {postProcess:eventMap}),
+    deleteEvent: (id) => deleteResource(`/event/${id}`),
+    requestCompanies: () => requestResource('companies'),
+    addNotification: (args) => addNotification(args),
+    updateMenu: (date) => updateMenu('calendar', {date: date, selected: moment(date).format('YYYY-MM-DD')})
 })
 export default class CalendarFull extends React.Component {
-    componentDidMount() {
+    constructor() {
+        super();
+        this.selectDay = ::this.selectDay;
+        this.deleteEvent = ::this.deleteEvent;
+    }
+
+    selectDay(value) {
+        this.props.updateMenu(value)
+    }
+
+    fetch(){
         this.props.requestEvents();
+        this.props.requestCompanies();
+    }
+
+    componentDidMount() {
+        this.fetch();
     }
 
     componentDidUpdate() {
-        this.props.requestEvents();
+        this.fetch();
+    }
+
+    deleteEvent(id){
+        this.props.deleteEvent(id)
+            .then(() => this.props.addNotification({message: STRINGS.calendar.eventDeleted}))
+            .catch((response) => this.props.addNotification({message: response.message, error: true}))
+    }
+
+
+    showSelected() {
+        const selected = this.props.menu.selected;
+        let eventList = [];
+        if(this.props.events && this.props.events.data && this.props.events.data.eventMap[selected]){
+            eventList = this.props.events.data.eventMap[selected]
+        }
+        return <EventSummaries deleteEvent={this.deleteEvent} eventList={eventList} companies={this.props.companies} {...this.props.menu} />
+    }
+
+    showFullView() {
+        return <div className="row">
+            <div className="col-md-6">
+                <div className="calendar-big">
+                <Calendar
+                    onChange={this.selectDay}
+                    dayComponent={DayWithData({
+                        events: this.props.events,
+                        companies: this.props.companies,
+                        selected: this.props.menu.selected,
+                        today: moment().format('YYYY-MM-DD'),
+                    })}  />
+                    </div>
+                <div className="button-row">
+                        <Link to={{ pathname: "/calendar/create" , query: { date: this.props.menu.selected || ''} }} className="btn btn-info">Create Event</Link>
+                    </div>
+            </div>
+            <div className="col-md-6">
+                { this.props.menu.selected && this.showSelected() }
+            </div>
+        </div>
     }
 
     render() {
@@ -84,22 +192,20 @@ export default class CalendarFull extends React.Component {
                     </div>
                 </div>
 
-                <div className="widget-body">
+                <div className="widget-body calendar-full">
                     { this.props.children && React.cloneElement(this.props.children, {
-                            close: () => this.props.push('/'+this.props.route.path)
+                            close: () => this.props.push('/'+this.props.route.path),
+                            events: this.props.events,
+                            companies: this.props.companies
                     })}
-                    { !this.props.children &&  <div><Calendar dayComponent={DayWithEvents}  />
-                    <div className="button-row">
-                        <Link to ="/calendar/create" className="btn btn-info">Create Event</Link>
-                    </div>
-                    </div> }
+                    { !this.props.children && this.showFullView() }
                 </div>
             </div>
         </LawContainer>
     }
 }
 
-
+const PERIODS = ['-PT10M', '-PT30M', '-PT1H', '-P1D', '-P1W', '-P2W', '-P30D']
 
 const labelClassName = 'col-sm-2';
 const wrapperClassName = 'col-sm-8';
@@ -117,19 +223,31 @@ class EventForm extends React.Component {
             <Input type="text" {...this.formFieldProps('title', STRINGS.calendar) } />
             <Input type="textarea" rows="3" {...this.formFieldProps('description', STRINGS.calendar) } />
             <Input type="text" {...this.formFieldProps('location', STRINGS.calendar) } />
+            <Input type="select" {...this.formFieldProps('reminder', STRINGS.calendar) }>
+                <option>None</option>
+                { PERIODS.map((p, i) => <option key={i} value={p}>{STRINGS.calendar.durations[p]}</option>) }
+            </Input>
         </form>
     }
 }
 
 const EventFormConnected = reduxForm({
-    fields: ['date', 'companyId', 'title', 'description', 'location'],
+    fields: ['date', 'companyId', 'title', 'description', 'location', 'reminder'],
     form: 'newEvent',
     validate: requireFields('date', 'title')
 })(EventForm)
 
 
-@connect(state => ({companies: state.resources[`companies`]}), {
-    requestCompanies: () => requestResource(`companies`),
+function companyOptions(companies) {
+    return [
+        <option key={-1}></option>,
+        ...(((companies || {}).data || []).map((c, i) =>
+            <option value={c.id} key={i}>{c.currentCompanyState.companyName}</option>
+    ))];
+}
+
+
+@connect(undefined, {
     addNotification: (args) => addNotification(args),
     createEvent: (args) => createResource('/event', args)
 })
@@ -151,25 +269,11 @@ export  class CreateEvent extends React.Component {
             })
     }
 
-    componentDidMount() {
-        this.props.requestCompanies();
-    }
-
-    componentDidUpdate() {
-        this.props.requestCompanies();
-    }
-
-    companyOptions() {
-        return [
-            <option key={-1}></option>,
-            ...(((this.props.companies || {}).data || []).map((c, i) =>
-                <option value={c.id} key={i}>{c.currentCompanyState.companyName}</option>
-        ))];
-    }
-
     render() {
+        const {location: {query: {date}}} = this.props;
+        const dateValue = date ? moment(date, 'YYYY-MM-DD').toDate() : new Date();
         return <div>
-            <EventFormConnected companyOptions={this.companyOptions()} onSubmit={this.handleSubmit} ref='form'/>
+            <EventFormConnected initialValues={{date: dateValue}} companyOptions={companyOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
                 <div className="button-row">
                 <Button onClick={this.props.close}>Cancel</Button>
                 <Button bsStyle="primary" onClick={() => this.refs.form.submit()}>{ STRINGS.calendar.create}</Button>
@@ -178,19 +282,79 @@ export  class CreateEvent extends React.Component {
     }
 }
 
+@connect(undefined, {
+    addNotification: (args) => addNotification(args),
+    updateEvent: (id, args) => updateResource(`/event/${id}`, args)
+})
+export  class EditEventUnpopulated extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleSubmit = ::this.handleSubmit;
+    }
 
-@connect(state => ({events: state.resources['/events']}), {
+    handleSubmit(values) {
+        const {companyId, date, ...data} = values;
+        return this.props.updateEvent(this.props.event.id, {companyId, date, data})
+            .then(() => {
+                this.props.addNotification({message: 'Event Updated'});;
+                this.props.close();
+            })
+            .catch((err) => {
+                this.props.addNotification({message: err.message, error: true});
+            })
+    }
+    render() {
+
+        return <div>
+            <EventFormConnected initialValues={this.props.event} companyOptions={companyOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
+                <div className="button-row">
+                <Button onClick={this.props.close}>Cancel</Button>
+                <Button bsStyle="primary" onClick={() => this.refs.form.submit()}>{ STRINGS.calendar.update}</Button>
+            </div>
+        </div>
+    }
+}
+
+
+export const EditEvent = (props) => {
+    if(!props.events || !props.events.data){
+        return <Loading />
+    }
+    const eventId = props.params.eventId|0;
+    const event = props.events.data.eventList.filter(e => e.id === eventId)[0];
+    return <EditEventUnpopulated {...props} event={{...event, date: new Date(event.date), ...event.data}} />
+}
+
+@connect(state => ({events: state.resources['/events'], companies: state.resources[`companies`],}), {
     push: (location) => push(location),
-    requestEvents: (args) => requestResource('/events', {postProcess:eventMap})
+    requestEvents: (args) => requestResource('/events', {postProcess:eventMap}),
+    requestCompanies: () => requestResource('companies'),
+    updateMenu: (date) => updateMenu('calendar', {date: date, selected: moment(date).format('YYYY-MM-DD')})
 })
 export class CalendarWidget extends React.Component {
-    componentDidMount() {
+    constructor() {
+        super();
+        this.selectDay = ::this.selectDay;
+    }
+
+    selectDay(value) {
+        this.props.updateMenu(value);
+        this.props.push("/calendar");
+    }
+
+    fetch(){
         this.props.requestEvents();
+        this.props.requestCompanies();
+    }
+
+    componentDidMount() {
+        this.fetch();
     }
 
     componentDidUpdate() {
-        this.props.requestEvents();
+        this.fetch();
     }
+
 
     render() {
         return <div className="widget">
@@ -205,7 +369,13 @@ export class CalendarWidget extends React.Component {
             </div>
 
             <div className="widget-body">
-                <Calendar dayComponent={DayWithEvents} />
+                <Calendar
+                    onChange={this.selectDay}
+                    dayComponent={DayWithData({
+                        events: this.props.events,
+                        companies: this.props.companies,
+                        today: moment().format('YYYY-MM-DD'),
+                    })}  />
                 <div className="button-row">
                     <Link to ="/calendar/create" className="btn btn-info">Create Event</Link>
                 </div>

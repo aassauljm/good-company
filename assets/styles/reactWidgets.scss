@@ -195,6 +195,9 @@ $rw-version:          "4.1.0";
 
     }
   }
+  &:focus, &:active, & > :active{
+    outline:none;
+  }
 }
 
 

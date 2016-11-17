@@ -33,7 +33,7 @@ import { TransactionView } from './components/transaction';
 import { MassSetup } from './components/massSetup';
 import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
-import Calendar, { CreateEvent } from './components/calendar';
+import Calendar, { CreateEvent, EditEvent } from './components/calendar';
 import Alerts from './components/alerts';
 
 
@@ -62,6 +62,7 @@ export default (store) => {
             <Route path="recent_activity" component={ RecentActivity }  />
             <Route path="calendar" component={ Calendar }>
                 <Route path="create" component={ CreateEvent }/>
+                <Route path="edit/:eventId" component={ EditEvent }/>
             </Route>
             <Route path="users" component={ Users }  />
             <Route path="roles" component={ Roles }  />

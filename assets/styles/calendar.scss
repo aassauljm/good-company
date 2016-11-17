@@ -1,8 +1,67 @@
 
 
 .rw-calendar{
+    .day{
+        padding: 0px;
+        font-size: 1.3em;
+    }
     .event-day{
         background-color: $deep-red;
         color:white;
     }
+    .selected{
+         background-color: $brand-info;
+        color:white;
+    }
+    .today{
+        background-color: $brand-warning;
+        color:white;
+    }
+}
+
+
+.calendar-full {
+    .calendar-big{
+        td .day{
+            font-size: 2em;
+        }
+    }
+
+    .summary{
+        border-top: 1px solid $widget-border;
+        padding: 10px;
+        position:relative;
+
+        .title{
+            @extend h3;
+            margin-top: 4px;
+            margin-bottom: 4px;
+
+        }
+        .company{
+                font-size: 1.3em;
+        }
+        .time{
+            font-style:italic;
+        }
+        p{
+            margin:0;
+            padding:0;
+        }
+        .controls{
+            position: absolute;
+            right:4px;
+            top: 0;
+            a{
+                padding:2px 4px;
+                font-style: italic;
+                color: $link-color;
+                &:hover{
+                    text-decoration:underline;
+                }
+            }
+        }
+
+    }
+
 }

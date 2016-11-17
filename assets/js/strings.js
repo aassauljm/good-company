@@ -158,11 +158,25 @@ export default {
     },
     calendar: {
         create: "Create Event",
+        update: "Update Event",
         calendar: "Calendar",
-        "companyId": "Company",
+        companyId: "Company",
         date: "Date",
         title: "Title",
         description: "Description",
-        location: "Location"
+        location: "Location",
+        time: "Time",
+        reminder: "Reminder",
+        eventDeleted: 'Event Deleted',
+        noEvents: "No scheduled events on this day",
+        durations: {
+            '-PT10M': '10 minutes',
+            '-PT30M': '30 minutes',
+            '-PT1H': '1 hour',
+            '-P1D': '1 day',
+            '-P1W': '1 week',
+            '-P2W': '2 weeks',
+            '-P30D': '30 days'
+        }
     }
 }
