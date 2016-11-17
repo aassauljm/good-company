@@ -1,0 +1,12 @@
+.tooltip {
+    .tooltip-title{
+        border-bottom: 1px solid white;
+    }
+
+    .tooltip-entry{
+        margin-bottom: 8px;
+            &:last-child{
+                margin-bottom: 0;
+            }
+    }
+}

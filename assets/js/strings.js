@@ -178,5 +178,8 @@ export default {
             '-P2W': '2 weeks',
             '-P30D': '30 days'
         }
+    },
+    deadlines: {
+        annualReturn: "Annual Return",
     }
 }

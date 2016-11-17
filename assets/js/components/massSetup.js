@@ -7,7 +7,7 @@ import { requestResource, resetModals, nextModal, showModal, transactionBulk, ad
 import { formFieldProps } from '../utils';
 import { Link } from 'react-router';
 import Input from './forms/input';
-import { sortAlerts } from './alerts';
+import { requestAlerts } from './alerts';
 import { reduxForm } from 'redux-form';
 import ButtonInput from './forms/buttonInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -115,7 +115,7 @@ const PAGES = {
     },
 
     [SELECT_COMPANIES]: (props) => {
-        const alerts = props.alerts.data || [];
+        const alerts = (props.alerts.data || {}).alertList || [];
         alerts.sort((a, b) => (a.companyName || '').localeCompare(b.companyName));
 
         const filteredCompanies = alerts
@@ -166,7 +166,7 @@ const PAGES = {
 
 
     [FINALIZE]: (props) => {
-        const alerts = props.alerts.data || [];
+        const alerts = (props.alerts.data || {}).alertList || [];
         const companyMapping = alerts.reduce((acc, a) => {
             acc[a.id] = a.companyName;
             return acc;
@@ -210,7 +210,7 @@ const PAGES = {
 @connect((state, ownProps) => {
     return {alerts: state.resources['/alerts'] || {}, massSetup: state.modals.massSetup || {}, transactionBulk: state.transactionBulk};
 }, (dispatch, props) => ({
-        requestData: (key) => dispatch(requestResource('/alerts', {postProcess: sortAlerts})),
+        requestData: (key) => dispatch(requestAlerts()),
         next: (data) => dispatch(nextModal('massSetup', data)),
         showModal: () => dispatch(showModal('massSetup')),
         submit: (data) => {

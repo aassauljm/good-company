@@ -15,13 +15,32 @@ export function sortAlerts(response) {
     data.sort((a, b) => {
         return ((a.deadlines || {}).overdue ? 1 : -1) - ((b.deadlines || {}).overdue ? 1 : -1)
     });
-    return data;
+    const companyMap = (data || []).reduce((acc, entry) => {
+        acc[entry.id] = entry;
+        return acc;
+    }, {});
+    const dateMap = (data || []).reduce((acc, entry) => {
+        if(entry.deadlines){
+            Object.keys(entry.deadlines).map(k => {
+                const deadline = entry.deadlines[k];
+                if(deadline){
+                    const due = moment(deadline.dueDate).format('YYYY-MM-DD');
+                    acc[due] = acc[due] || [];
+                    acc[due].push({id: entry.id, companyName: entry.companyName, deadlines: {[k]: deadline}})
+                }
+            })
+        }
+        return acc;
+    }, {});
+    return {alertList: data, companyMap, dateMap}
 }
+
+export const requestAlerts = () => requestResource('/alerts', {postProcess: sortAlerts});
 
 @connect((state, ownProps) => {
     return {alerts: state.resources['/alerts'] || {}, pendingJobs:  state.resources['/pending_jobs'] || {}};
 }, {
-    requestData: (key) => requestResource('/alerts', {postProcess: sortAlerts}),
+    requestData: requestAlerts,
     requestJobs: (refresh) => requestResource('/pending_jobs', {refresh: refresh}),
     refreshCompanies: () => requestResource('companies', {refresh: true}),
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
@@ -79,11 +98,11 @@ export class AlertsWidget extends React.Component {
             const thisMonth = moment().format('MMMM');
             let warnings = [], danger = [], safe = [], firstCompanyId;
 
-            const shareClassWarningCount = this.props.alerts.data.reduce((acc, a) => {
+            const shareClassWarningCount = this.props.alerts.data.alertList.reduce((acc, a) => {
                 return acc + (a.warnings.shareClassWarning ? 1 : 0);
             }, 0);
 
-            this.props.alerts.data.map(a => {
+            this.props.alerts.data.alertList.map(a => {
                 if(Object.keys(a.warnings).some(k => a.warnings[k]) && !firstCompanyId){
                     firstCompanyId = a.id;
                 }
@@ -99,7 +118,7 @@ export class AlertsWidget extends React.Component {
 
 
 
-            this.props.alerts.data.map((a, i) => {
+            this.props.alerts.data.alertList.map((a, i) => {
                 if(Object.keys(a.warnings).some(warning => a.warnings[warning])){
                     warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetModals={this.props.resetModals} companyName={a.companyName}/></li>)
                 }

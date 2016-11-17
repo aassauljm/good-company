@@ -16,7 +16,7 @@ import { Route } from 'react-router';
 import { getWarnings } from './companyAlerts'
 import { nextContextualModal, previousContextualModal, endContextualModal, showContextualModal, requestResource } from '../actions';
 import { ModalSwitch }  from './modals';
-import { sortAlerts } from './alerts';
+import { requestAlerts } from './alerts';
 
 const DEFAULT_OBJ = {};
 
@@ -32,7 +32,7 @@ export class NextCompanyControls extends React.Component {
     }
 
     fetch() {
-        return this.props.dispatch(requestResource('/alerts', {postProcess: sortAlerts}))
+        return this.props.dispatch(requestAlerts())
     }
 
     render() {
@@ -41,7 +41,7 @@ export class NextCompanyControls extends React.Component {
         }
         const name = this.props.companyName || '';
         const comp = {companyName: name};
-        const data = [...this.props.alerts.data.filter(a => Object.keys(a.warnings).some(k => a.warnings[k])), comp]
+        const data = [...this.props.alerts.data.alertList.filter(a => Object.keys(a.warnings).some(k => a.warnings[k])), comp]
         data.sort((a, b) => {
             return a.companyName.localeCompare(b.companyName);
         })

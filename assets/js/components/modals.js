@@ -2,7 +2,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { nextModal, previousModal, endCreateCompany, endImportCompany, endModal, showModal } from '../actions';
-import FormReducer from '../hoc/formReducer';
 import { IssueModal } from './transactions/issue';
 import { AcquisitionModal } from './transactions/acquisition';
 import { RedemptionModal } from './transactions/redemption';

@@ -8,7 +8,7 @@ import { push } from 'react-router-redux'
 import { Link } from 'react-router';
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
-import { sortAlerts } from './alerts';
+import { requestAlerts } from './alerts';
 import { CompanyAlertsBase } from './companyAlerts';
 
 
@@ -78,7 +78,7 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
 {
     push: (id) => push(`/company/view/${id}`),
     handleImport: () => push('/import'),
-    fetchAlerts: () => requestResource('/alerts', { postProcess: sortAlerts}),
+    fetchAlerts: requestAlerts,
 })
 @CompaniesHOC
 export default class Companies extends React.Component {
@@ -92,10 +92,7 @@ export default class Companies extends React.Component {
     }
 
     renderBody() {
-        const mappedAlerts = (this.props.alerts.data || []).reduce((acc, entry) => {
-            acc[entry.id] = entry;
-            return acc;
-        }, {});
+        const mappedAlerts = (this.props.alerts.data || []).companyMap;
 
         const data = (this.props.companies.data || [])
             .map(c => ({...c.currentCompanyState, ...c}))

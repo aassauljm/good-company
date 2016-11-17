@@ -6,7 +6,7 @@
         font-size: 1.3em;
     }
     .event-day{
-        background-color: $deep-red;
+        background-color: $brand-success;
         color:white;
     }
     .selected{
@@ -17,13 +17,17 @@
         background-color: $brand-warning;
         color:white;
     }
+    .deadline-day{
+        background-color: $deep-red;
+        color:white;
+    }
 }
 
 
 .calendar-full {
     .calendar-big{
         td .day{
-            font-size: 2em;
+            font-size: 1.7em;
         }
     }
 
