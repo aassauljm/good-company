@@ -44,7 +44,7 @@ export default class Notifications extends React.Component {
           transitionLeaveTimeout={100}
           transitionAppear={true}
             transitionAppearTimeout={300}>
-            { this.props.list.map((n, i) => <Notification key={i} notification={this.props.list[this.props.list.length - 1 - i]} close={() => this.close(i)} /> ) }
+            { this.props.list.map((n, i) => <Notification key={i} notification={this.props.list[this.props.list.length - 1 - i]} close={() => this.close(this.props.list.length - 1 - i)} /> ) }
         </ReactCSSTransitionGroup>
         </div>
     }

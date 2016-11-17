@@ -21,6 +21,10 @@
                 background-color: lighten($brand-warning, 20%);
                 border: 1px solid $brand-warning;
             }
+            &.can-drop{
+                background-color: lighten($brand-success, 20%);
+                border: 1px solid $brand-success;
+            }
             .icon{
                 margin:0 4px;
                 font-size: 20px;
@@ -40,6 +44,10 @@
         }
         .children{
             margin-left: 20px;
+            display:none;
+        }
+        .children.showing{
+            display:block;
         }
     }
 }

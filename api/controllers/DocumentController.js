@@ -11,6 +11,10 @@ var tmp = Promise.promisifyAll(require("temp"));
 var PDFImage = require("pdf-image").PDFImage;
 var webshot = require('webshot');
 var toArray = require('stream-to-array')
+const actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
+
+
+
 
 
 function readBinary(fd){
@@ -157,5 +161,19 @@ module.exports = {
                 sails.log.error(err)
                return res.negotiate(err);
             })
+    },
+    update: function(req, res) {
+        var pk = actionUtil.requirePk(req);
+        var values = actionUtil.parseValues(req);
+        Document.update(values, { where: { id: pk }})
+            .then(function(records) {
+                res.ok({'message': 'Document Updated'})
+            })
+            .catch(function(err){
+                sails.log.error(err)
+               return res.negotiate(err);
+            })
+
+
     }
 };

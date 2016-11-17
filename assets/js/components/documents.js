@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, deleteResource, companyTransaction, addNotification } from '../actions';
+import { requestResource, deleteResource, updateResource, companyTransaction, addNotification } from '../actions';
 import { pureRender, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -13,6 +13,8 @@ import classnames from 'classnames';
 import { Documents as DocumentsForm } from './forms/documents';
 import FormData from 'form-data';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
+import { DragSource, DropTarget } from 'react-dnd';
+import Loading from './loading';
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
@@ -108,35 +110,84 @@ const documentTypeClasses = (type, filename) => {
     const map = {
         'Directory': 'fa fa-folder-o',
         'Companies Office': 'fa fa-file-text',
-        'application/pdf': 'fa fa-file-pdf-o'
+        'image/png': 'fa fa-file-image-o',
+        'image/jpeg': 'fa fa-file-image-o',
+        'application/pdf': 'fa fa-file-pdf-o',
+        'application/msword': 'fa fa-file-word-o',
+        'application/gzip': 'fa-file-archive-o',
+        'application/zip': 'fa-file-archive-o'
     };
     return map[type] || 'fa fa-file-text';
 }
 
 
-function RenderFile(props){
-    const { item, link, push } = props;
-    return (
-      <div className="file-sub-tree">
-          <span className="expand-control">
-            { item.type === 'Directory' && props.children && props.showingSubTree && <span className="fa fa-minus-square-o" onClick={props.hideSubTree} /> }
-            { item.type === 'Directory' && props.children && !props.showingSubTree && <span className="fa fa-plus-square-o" onClick={props.showSubTree} /> }
-          </span>
-          <span className={classnames('file', {selected: props.selected})} onClick={props.select}>
-            <span className={'icon ' + documentTypeClasses(item.type)} />
-            <span className="filename">{ item.filename }</span>
-            { item.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
-            </span>
-          { props.showingSubTree && props.children && <div className="children"> { props.children} </div> }
-        </div>
-    )
+const fileSource = {
+  beginDrag(props) {
+    return {
+      id: props.item.id
+    };
+  }
+};
+
+const fileTarget = {
+    /*hover(props, monitor, component) {
+        const dragIndex = monitor.getItem().id;
+        const item = props.item;
+        const hoverIndex = item.id;
+        // over self
+        if (dragIndex === hoverIndex) {
+            return;
+        }
+    },*/
+    drop(props, monitor) {
+        !monitor.didDrop() && props.move(monitor.getItem().id, props.item.id)
+    }
+
+
+}
+
+const GC_FILE = 'GC_FILE';
+
+@DropTarget((props) => props.accepts, fileTarget, (connect, monitor) => ({
+  connectDropTarget: connect.dropTarget(),
+  isOver: monitor.isOver(),
+  canDrop: monitor.canDrop()
+}))
+@DragSource(GC_FILE, fileSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging()
+}))
+class RenderFile extends React.Component {
+
+    render() {
+        const props = this.props;
+        const { item, link, push } = props;
+        const { isDragging, connectDragSource, connectDropTarget, isOver, canDrop } = props;
+        const showingSubTree = props.showingSubTree || isOver;
+        return (
+          connectDropTarget(<div className="file-sub-tree">
+              <span className="expand-control">
+                { item.type === 'Directory' && props.children && showingSubTree && <span className="fa fa-minus-square-o" onClick={props.hideSubTree} /> }
+                { item.type === 'Directory' && props.children && !showingSubTree && <span className="fa fa-plus-square-o" onClick={props.showSubTree} /> }
+              </span>
+              { connectDragSource(<span className={classnames('file', {selected: props.selected, 'can-drop': canDrop && isOver})} onMouseDown={() => !props.selected && props.select()}>
+                <span className={'icon ' + documentTypeClasses(item.type)} />
+                <span className="filename">{ item.filename }</span>
+                { item.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
+                </span>)}
+              { props.children &&
+                    <div className={classnames("children", {"showing": showingSubTree})}> { props.children} </div>
+            }
+            </div>)
+        )
+    }
 }
 
 class FileTree extends React.Component {
 
     constructor(){
         super();
-        this.state = {};
+        this.state = {root: true};
     }
 
     select(id) {
@@ -160,11 +211,13 @@ class FileTree extends React.Component {
                     item: item,
                     link: link,
                     push: this.props.push,
+                    accepts: item.type === 'Directory' ? [GC_FILE] : [],
                     select: () => this.select(item.id),
                     selected: this.state.selected === item.id,
                     showingSubTree: this.state[item.id],
                     showSubTree: () => this.showSubTree(item.id),
-                    hideSubTree: () => this.hideSubTree(item.id)
+                    hideSubTree: () => this.hideSubTree(item.id),
+                    move: this.props.move
                 }
                 if (item.children && item.children.length) {
                   return <RenderFile  {...props}>
@@ -197,18 +250,30 @@ function listToTree(documents){
             map[d.directoryId].children.push(map[d.id]);
         }
     });
-    return  roots;
+    return [{
+            id: 'root',
+            type: 'Directory',
+            filename: 'Files',
+            children: roots
+        }]
 }
 
 @connect(undefined, {
     companyTransaction: (...args) => companyTransaction(...args),
-    addNotification: (args) => addNotification(args)
+    addNotification: (args) => addNotification(args),
+    updateResource: (...args) => updateResource(...args)
 })
 export class CompanyDocuments extends React.Component {
+
     static propTypes = {
         companyState: PropTypes.object,
         companyId: PropTypes.string
     };
+
+    constructor() {
+        super();
+        this.move = ::this.move;
+    }
 
     renderField(key, value) {
         switch(key){
@@ -245,21 +310,24 @@ export class CompanyDocuments extends React.Component {
                                     'compound',
                                     this.props.companyId,
                                     {transactions: transactions, documents: files, directoryId: null} )
-
             .then(() => {
                 this.props.addNotification({message: 'File uploaded'});
             })
 
     }
 
-    renderTree() {
-        if(this.props.companyState.docList){
-            return  <div>
-                <FileTree files={listToTree(this.props.companyState.docList.documents)} push={this.props.push}/>
+    move(documentId, directoryId) {
+        this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId === 'root' ? null : directoryId})
+            .then(() => this.props.addNotification({message: 'File moved'}))
+    }
 
-                <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
-            </div>
-        }
+    renderTree() {
+        const files = (this.props.companyState.docList && this.props.companyState.docList.documents) || []
+        return  <div>
+            <FileTree files={listToTree(files)} push={this.props.push} move={this.move} />
+            { !files.length && <Loading/> }
+            <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
+        </div>
     }
 
     render() {
