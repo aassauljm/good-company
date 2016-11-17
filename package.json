@@ -102,7 +102,6 @@
     "pg-promise": "^5.2.5",
     "postcss-loader": "^1.0.0",
     "proxyquire": "^1.7.3",
-    "rc-tree": "^1.4.0",
     "react": "15.3.2",
     "react-addons-shallow-compare": "^15.0.0",
     "react-autosuggest": "^4.0.0",

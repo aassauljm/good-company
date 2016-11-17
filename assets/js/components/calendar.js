@@ -42,6 +42,7 @@ const eventMap = (events) => {
 
 class Day extends React.Component {
     render() {
+        const MAX_ENTRIES = 5;
         const str = moment(this.props.date).format('YYYY-MM-DD');
         const dateString = moment(this.props.date).format("D MMMM YYYY");
         let title = [];
@@ -72,12 +73,16 @@ class Day extends React.Component {
         if(this.props.selected === str){
             classes.push('selected')
         }
-        const tooltip = <Tooltip id="tooltip">
-            <div className="tooltip-title">{ dateString }</div>
-            <div>{ title.map((t, i) => <div key={i} className="tooltip-entry">{t}</div>)}</div>
-        </Tooltip>;
         const day = <div  className={'day ' + classes.join(' ')}>{ this.props.label} </div>;
         if(events){
+            if(title.length > MAX_ENTRIES){
+                title = titles.slice(0, MAX_ENTRIES);
+                title.push('...')
+            }
+            const tooltip = <Tooltip id="tooltip">
+                <div className="tooltip-title">{ dateString }</div>
+                <div>{ title.map((t, i) => <div key={i} className="tooltip-entry">{t}</div>)}</div>
+            </Tooltip>;
             return  <OverlayTrigger placement="top" overlay={tooltip} hover={true}>
                     { day }
             </OverlayTrigger>
@@ -101,7 +106,7 @@ const EventSummary = (props) => {
     const time = moment(date).format("hh:mm:ss a");
     return <div className="summary">
         <div className="title">{ title }</div>
-        { company && <div className="company">{company.currentCompanyState.companyName}</div> }
+        { company && <div className="company"><Link to={`/company/view/${company.id}`}>{company.currentCompanyState.companyName}</Link></div> }
         <p  className="time">{ time }</p>
         { description &&<p>{ description }</p> }
         { location &&<p>{ location }</p> }
@@ -115,6 +120,7 @@ const EventSummary = (props) => {
 }
 
 const AlertSummary = (props) => {
+    debugger
     const title = `${STRINGS.deadlines[props.alert.deadlineType]} due`
     const fullTitle = `${title} for ${props.alert.companyName}`;
     const reminder = '-P1D';
@@ -127,7 +133,7 @@ const AlertSummary = (props) => {
     }
     return <div className="summary">
         <div className="title">{ title }</div>
-        <div className="company">{props.alert.companyName}</div>
+        <div className="company"><Link to={`/company/view/${props.alert.id}`}>{props.alert.companyName}</Link></div>
         <p  className="time">{ time }</p>
          { description &&<p>{ description }</p> }
         <div className="controls">

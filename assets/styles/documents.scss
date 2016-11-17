@@ -1,151 +1,37 @@
-.documents{
-    .document{
-        img{
-            width:32px;
-            height:32px;
+.file-tree{
+    .file-sub-tree{
+        .expand-control{
+            width: 20px;
+            display: inline-block;
+            text-align: center;
+            * {
+                cursor: pointer;
+            }
+        }
+        .file{
+            border: 1px solid white;
+            padding: 2px;
+            cursor: pointer;
+            display: inline-block;
+            &.selected{
+                background-color: lighten($brand-warning, 20%);
+                border: 1px solid $brand-warning;
+                opacity: .8;
+            }
+            .icon{
+                margin:0 4px;
+            }
+            .view{
+                font-style: italic;
+                padding-left:12px;
+                display:none;
+            }
+            &.selected .view{
+                display: inline;
+            }
+        }
+        .children{
+            margin-left: 20px;
         }
     }
-
-
-    .rc-tree {
-      margin: 0;
-      padding: 5px;
-    }
-    .rc-tree li {
-      margin: 0;
-      list-style: none;
-      white-space: nowrap;
-      outline: 0;
-        padding: 4px;
-    }
-    .rc-tree li .draggable {
-      color: #333;
-      -moz-user-select: none;
-      -khtml-user-select: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-      /* Required to make elements draggable in old WebKit */
-      -khtml-user-drag: element;
-      -webkit-user-drag: element;
-    }
-    .rc-tree li.drag-over > .draggable {
-      background-color: $light-red;
-      color: white;
-      border: 1px  $deep-red solid;
-      opacity: 0.8;
-    }
-    .rc-tree li.drag-over-gap-top > .draggable {
-      border-top: 2px $deep-red solid;
-    }
-    .rc-tree li.drag-over-gap-bottom > .draggable {
-      border-bottom: 2px $deep-red solid;
-    }
-
-    .rc-tree li ul {
-      margin: 0;
-      padding: 0 0 0 18px;
-    }
-    .rc-tree li ul.rc-tree-line {
-
-    }
-    .rc-tree li .rc-tree-node-content-wrapper {
-      display: inline-block;
-      margin: 0;
-      cursor: pointer;
-      text-decoration: none;
-      vertical-align: top;
-      margin-left: 4px;
-      padding-right:8px;
-        border: 1px white solid;
-    }
-    .rc-tree li .rc-tree-node-content-wrapper.rc-tree-node-selected {
-      background-color: #ffe6b0;
-      border: 1px #ffb951 solid;
-      opacity: 0.8;
-    }
-
-
-    .rc-tree li span .icon{
-      line-height: 16px;
-      margin-right: 4px;
-      margin-left: 4px;
-      width: 16px;
-      height: 16px;
-      display: inline-block;
-      vertical-align: middle;
-      border: 0 none;
-      cursor: pointer;
-      outline: none;
-      font-family: FontAwesome;
-
-      &.folder:before{
-        content: $fa-var-folder-o;
-      }
-      &.file:before{
-        content: $fa-var-file-text;
-      }
-      &.pdf:before{
-        content: $fa-var-file-pdf-o;
-      }
-
-    }
-
-
-    .rc-tree li span.rc-tree-switcher{
-        line-height:19px;
-        font-family: FontAwesome;
-        cursor:pointer;
-            vertical-align: middle;
-    }
-    .rc-tree-noline_close{
-        &:before {
-
-            content: $fa-var-plus-square-o;
-        }
-    }
-    .rc-tree-noline_open{
-        &:before {
-            content:  $fa-var-minus-square-o;
-        }
-    }
-
-
-    .rc-tree li span.rc-tree-icon_loading {
-      margin-right: 2px;
-      vertical-align: top;
-
-    }
-    .rc-tree li span.rc-tree-switcher.rc-tree-switcher-noop {
-      cursor: auto;
-      width: 12px;
-      display: inline-block;
-    }
-
-    .rc-tree-child-tree {
-      display: none;
-    }
-    .rc-tree-child-tree-open {
-      display: block;
-    }
-    .rc-tree-treenode-disabled > span,
-    .rc-tree-treenode-disabled > a,
-    .rc-tree-treenode-disabled > a span {
-      color: #ccc;
-      cursor: not-allowed;
-    }
-
-
-
-
-    .rc-tree li .view{
-        display: none;
-    }
-
-    .rc-tree li .rc-tree-node-selected  .view{
-        display: inline;
-        margin-left:10px;
-        font-style: italic;
-    }
-
 }

@@ -9,7 +9,6 @@ import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
-import Tree, { TreeNode } from 'rc-tree';
 import classnames from 'classnames';
 import { Documents as DocumentsForm } from './forms/documents';
 import FormData from 'form-data';
@@ -107,23 +106,82 @@ function documentLawLinks(){
 
 const documentTypeClasses = (type, filename) => {
     const map = {
-        'Directory': 'folder',
-        'Companies Office': 'file',
-        'application/pdf': 'pdf'
+        'Directory': 'fa fa-folder-o',
+        'Companies Office': 'fa fa-file-text',
+        'application/pdf': 'fa fa-file-pdf-o'
     };
-    return map[type] || 'file';
+    return map[type] || 'fa fa-file-text';
 }
 
-function RenderFile(node, push, companyId){
-    const link = companyId ? `/company/view/${companyId}/documents/view/${node.id}` : `/documents/view/${node.id}`;
+
+function RenderFile(props){
+    const { item, link, push } = props;
     return (
-      <span className={classnames('document', {})} onClick={() => {}} >
-        <span className={'icon ' + documentTypeClasses(node.type)} />
-        {node.filename}
-        { node.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
-      </span>
+      <div className="file-sub-tree">
+          <span className="expand-control">
+            { item.type === 'Directory' && props.children && props.showingSubTree && <span className="fa fa-minus-square-o" onClick={props.hideSubTree} /> }
+            { item.type === 'Directory' && props.children && !props.showingSubTree && <span className="fa fa-plus-square-o" onClick={props.showSubTree} /> }
+          </span>
+          <span className={classnames('file', {selected: props.selected})} onClick={props.select}>
+            <span className={'icon ' + documentTypeClasses(item.type)} />
+            { item.filename }
+            { item.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
+            </span>
+          { props.showingSubTree && props.children && <div className="children"> { props.children} </div> }
+        </div>
     )
 }
+
+class FileTree extends React.Component {
+
+    constructor(){
+        super();
+        this.state = {};
+    }
+
+    select(id) {
+        this.setState({selected: id});
+    }
+
+    showSubTree(id) {
+        this.setState({[id]: true});
+    }
+
+    hideSubTree(id) {
+        this.setState({[id]: false});
+    }
+
+    render() {
+        const loop = data => {
+            return data.map((item) => {
+                const link = item.companyId ? `/company/view/${item.companyId}/documents/view/${item.id}` : `/documents/view/${item.id}`;
+                const props = {
+                    key: item.id,
+                    item: item,
+                    link: link,
+                    push: this.props.push,
+                    select: () => this.select(item.id),
+                    selected: this.state.selected === item.id,
+                    showingSubTree: this.state[item.id],
+                    showSubTree: () => this.showSubTree(item.id),
+                    hideSubTree: () => this.hideSubTree(item.id)
+                }
+                if (item.children && item.children.length) {
+                  return <RenderFile  {...props}>
+                       { loop( item.children) }
+                    </RenderFile>
+                }
+                return <RenderFile {...props} />;
+            });
+
+        };
+        return <div className="file-tree">
+                { loop(this.props.files) }
+            </div>
+    }
+}
+
+
 
 function listToTree(documents){
     const roots = [];
@@ -195,21 +253,9 @@ export class CompanyDocuments extends React.Component {
     }
 
     renderTree() {
-         const loop = data => {
-          return data.map((item) => {
-            if (item.children && item.children.length) {
-              return <TreeNode key={item.id} title={RenderFile(item, null, this.props.companyId)}>{loop(item.children, this.props.push)}</TreeNode>;
-            }
-            return <TreeNode key={item.id} title={RenderFile(item, this.props.push, this.props.companyId)} />;
-          });
-        };
         if(this.props.companyState.docList){
             return  <div>
-                <Tree
-                classNames={''}
-                renderNode={RenderFile}>
-                    {loop(listToTree(this.props.companyState.docList.documents))}
-                </Tree>
+                <FileTree files={listToTree(this.props.companyState.docList.documents)} push={this.props.push}/>
 
                 <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
             </div>
