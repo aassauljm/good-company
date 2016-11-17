@@ -76,7 +76,7 @@ class Day extends React.Component {
         const day = <div  className={'day ' + classes.join(' ')}>{ this.props.label} </div>;
         if(events){
             if(title.length > MAX_ENTRIES){
-                title = titles.slice(0, MAX_ENTRIES);
+                title = title.slice(0, MAX_ENTRIES);
                 title.push('...')
             }
             const tooltip = <Tooltip id="tooltip">
