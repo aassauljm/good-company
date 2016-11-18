@@ -4,6 +4,7 @@ import { requestResource, softDeleteResource, updateResource, companyTransaction
 import { pureRender, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
+import Button from 'react-bootstrap/lib/Button';
 import Input from './forms/input';
 import { Link } from 'react-router'
 import STRINGS from '../strings'
@@ -107,7 +108,7 @@ function documentLawLinks(){
     </div>
 }
 
-const documentTypeClasses = (type, filename) => {
+const documentTypeClasses = (doc, showingSubTree) => {
     const map = {
         'Directory': 'fa fa-folder-o',
         'Companies Office': 'fa fa-file-text',
@@ -118,7 +119,21 @@ const documentTypeClasses = (type, filename) => {
         'application/gzip': 'fa-file-archive-o',
         'application/zip': 'fa-file-archive-o'
     };
-    return map[type] || 'fa fa-file-text';
+
+    if(doc.type === 'Directory'){
+        if(doc.userUploaded){
+            if(showingSubTree){
+                return 'fa fa-folder-open-o'
+            }
+            return 'fa fa-folder-o'
+        }
+        if(showingSubTree){
+            return 'fa fa-folder-open'
+        }
+        return 'fa fa-folder';
+    }
+
+    return map[doc.type] || 'fa fa-file-text';
 }
 
 
@@ -216,7 +231,7 @@ class RenderFile extends React.Component {
         }
 
         const fileSpan = <span className={classnames('file', {selected: props.selected, 'can-drop': canDrop && isOver})} onMouseDown={() => !props.selected && props.select()}>
-                <span className={'icon ' + documentTypeClasses(item.type)} />
+                <span className={'icon ' + documentTypeClasses(item, showingSubTree)} />
                 { !this.props.renaming && <span className="filename">{ item.filename }</span> }
                 { !this.props.renaming && defaultView() }
                 { this.props.renaming && <Input type="text" defaultValue={ item.filename } ref="input"/> }
@@ -249,6 +264,8 @@ class FileTree extends React.Component {
 
     constructor(){
         super();
+        this.expandAll = ::this.expandAll;
+        this.collapseAll = ::this.collapseAll;
         this.state = {root: true};
     }
 
@@ -282,8 +299,22 @@ class FileTree extends React.Component {
         this.setState({[id]: false});
     }
 
+    expandAll() {
+        this.setState(this.props.flatFiles.reduce((acc, f) => {
+            acc[f.id] = true;
+            return acc;
+        }, {}))
+    }
+
+    collapseAll() {
+        this.setState(this.props.flatFiles.reduce((acc, f) => {
+            acc[f.id] = false;
+            return acc;
+        }, {}))
+    }
+
     render() {
-        console.log(this.state.creatingFolder)
+
         const loop = (data, path) => {
             return data.map((item) => {
                 const link = item.companyId ? `/company/view/${item.companyId}/documents/view/${item.id}` : `/documents/view/${item.id}`;
@@ -329,9 +360,14 @@ class FileTree extends React.Component {
             });
 
         };
-        return <div className="file-tree">
+        return <div>
+            <div className="button-row">
+                <Button onClick={this.expandAll}>Expand All</Button><Button onClick={this.collapseAll}>Collapse All</Button>
+            </div>
+            <div className="file-tree">
                 { loop(this.props.files, []) }
             </div>
+        </div>
     }
 }
 
@@ -458,6 +494,7 @@ export class CompanyDocuments extends React.Component {
         return  <div>
             <FileTree
                 files={listToTree(files)}
+                flatFiles={files}
                 push={this.props.push}
                 move={this.move}
                 deleteFile={this.deleteFile}

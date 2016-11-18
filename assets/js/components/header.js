@@ -104,7 +104,7 @@ export class Header extends React.Component {
     render() {
         return  <Navbar>
                 <NavbarHeader>
-                <Link to="/" className="navbar-brand"><span>Good Company</span></Link>
+                <Link to="/" className="navbar-brand"><span>Good Companies</span></Link>
                     <NavbarToggle />
                 </NavbarHeader>
 
