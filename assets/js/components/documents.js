@@ -135,6 +135,9 @@ const fileTarget = {
     drop(props, monitor) {
         const newDirectoryId = props.item.id === 'root' ? null : props.item.id;
         const dragItem = monitor.getItem()
+        if(newDirectoryId === dragItem.id){
+            return;
+        }
         if(dragItem.directoryId === newDirectoryId){
             return;
         };
@@ -161,7 +164,7 @@ const GC_FILE = 'GC_FILE';
 class RenderFile extends React.Component {
     render() {
         const props = this.props;
-        const { item, link, push, renameFile, deleteFile, startRename, endRename } = props;
+        const { item, link, push, renameFile, deleteFile, startRename, endRename, createDirectory, startCreateFolder, endCreateFolder } = props;
         const { isDragging, connectDragSource, connectDropTarget, isOver, canDrop } = props;
         const showingSubTree = props.showingSubTree || isOver;
 
@@ -175,7 +178,7 @@ class RenderFile extends React.Component {
                     { item.userUploaded && <span onClick={() => deleteFile(item.id)} className="view">Delete</span> }</span>
         }
 
-        const SubmitRename = () => {
+        const submitRename = () => {
             const value = this.refs.input.getValue();
             if(value){
                 renameFile(item.id, value);
@@ -183,12 +186,41 @@ class RenderFile extends React.Component {
             }
         }
 
+        const submitCreateFolder = () => {
+            const value = this.refs.input.getValue();
+            if(value){
+                createDirectory(item.id === 'root' ? null : item.id, value);
+                endCreateFolder();
+            }
+        }
+
+        const showNew = () => {
+            return <div className="file-sub-tree"><span className="expand-control"></span>
+                    <span className="file" onClick={ startCreateFolder}>
+                        <span className="icon fa fa-plus-circle"></span>
+                        <span className="filename"><em>Create New Folder</em></span>
+                    </span>
+                </div>
+        }
+
+        const showNewForm = () => {
+            // is.props.createDirectory(item.id === 'root' ? null : item.id, 'New Folder')
+            return <div className="file-sub-tree"><span className="expand-control"></span>
+                    <span className="file selected" >
+                        <span className="icon fa fa-plus-circle"></span>
+                        <Input type="text" defaultValue={ 'New Folder' } ref="input"/>
+                        <span onClick={submitCreateFolder} className="view">Create Folder</span>
+                        <span onClick={endCreateFolder} className="view">Cancel</span>
+                    </span>
+                </div>
+        }
+
         const fileSpan = <span className={classnames('file', {selected: props.selected, 'can-drop': canDrop && isOver})} onMouseDown={() => !props.selected && props.select()}>
                 <span className={'icon ' + documentTypeClasses(item.type)} />
                 { !this.props.renaming && <span className="filename">{ item.filename }</span> }
                 { !this.props.renaming && defaultView() }
                 { this.props.renaming && <Input type="text" defaultValue={ item.filename } ref="input"/> }
-                { this.props.renaming && <span onClick={() => SubmitRename()} className="view">Save</span> }
+                { this.props.renaming && <span onClick={() => submitRename()} className="view">Save</span> }
                 { this.props.renaming && <span onClick={() => endRename()} className="view">Cancel</span> }
                 </span>
 
@@ -201,12 +233,8 @@ class RenderFile extends React.Component {
                 { item.id !== "root" && !this.props.renaming ? connectDragSource(fileSpan) : fileSpan }
                 { item.type === 'Directory' &&
                     <div className={classnames("children", {"showing": showingSubTree})}>
-                    <div className="file-sub-tree"><span className="expand-control"></span>
-                        <span className="file" onClick={() => this.props.createDirectory(item.id === 'root' ? null : item.id, 'New Folder')}>
-                            <span className="icon fa fa-plus-circle"></span>
-                            <span className="filename"><em>Create New Folder</em></span>
-                        </span>
-                    </div>
+                    { !this.props.creatingFolder && showNew() }
+                    { this.props.creatingFolder && showNewForm() }
                     { props.children }
 
                     </div>
@@ -236,6 +264,16 @@ class FileTree extends React.Component {
         this.setState({renaming: false});
     }
 
+    startCreateFolder(id) {
+        this.setState({creatingFolder: id});
+    }
+
+    endCreateFolder() {
+
+        this.setState({creatingFolder: false});
+    }
+
+
     showSubTree(id) {
         this.setState({[id]: true});
     }
@@ -245,6 +283,7 @@ class FileTree extends React.Component {
     }
 
     render() {
+        console.log(this.state.creatingFolder)
         const loop = (data, path) => {
             return data.map((item) => {
                 const link = item.companyId ? `/company/view/${item.companyId}/documents/view/${item.id}` : `/documents/view/${item.id}`;
@@ -256,8 +295,8 @@ class FileTree extends React.Component {
                     accepts: item.type === 'Directory' ? [GC_FILE] : [],
                     fileTypes:  GC_FILE,
                     select: () => this.select(item.id),
-                    selected: this.state.selected === item.id,
-                    renaming: this.state.selected === item.id && this.state.renaming === item.id,
+                    selected: !this.state.creatingFolder && this.state.selected === item.id,
+                    renaming: !this.state.creatingFolder && this.state.selected === item.id && this.state.renaming === item.id,
                     showingSubTree: this.state[item.id],
                     showSubTree: () => this.showSubTree(item.id),
                     hideSubTree: () => this.hideSubTree(item.id),
@@ -266,6 +305,9 @@ class FileTree extends React.Component {
                     endRename: () => this.endRename(),
                     renameFile: this.props.renameFile,
                     deleteFile: this.props.deleteFile,
+                    creatingFolder: this.state.creatingFolder === item.id,
+                    startCreateFolder: () => this.startCreateFolder(item.id),
+                    endCreateFolder: () => this.endCreateFolder(),
                     createDirectory: this.props.createDirectory,
                     path: path
                 }
