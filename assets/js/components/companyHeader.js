@@ -150,7 +150,7 @@ export class CompanyHeader extends React.Component {
                                 <span className="company-title"><Glyphicon glyph='menu-hamburger'/> {this.props.companyState.companyName}</span>
                             </DropdownToggle>
                             <Dropdown.Menu>
-                                <li><Link to="/">Good Company Home</Link></li>
+                                <li><Link to="/">Good Companies Home</Link></li>
                                 <li className="nav-item separator" />
                                 { this.renderActions() }
                                 { this.renderFavourites() }

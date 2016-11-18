@@ -61,7 +61,7 @@ export class NextCompanyControls extends React.Component {
                     <div className="row">
                     <div className="col-md-12">
                          <div className="button-row">
-                            <Link className="btn btn-info" to={`/company/view/${data[index].id}/guided_setup`}>{ this.props.showSkip && 'Skip and '}Setup {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
+                            <Link className="btn btn-info" to={`/company/view/${data[index].id}/guided_setup`}>{ this.props.showSkip && 'Skip and '}Set up {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
                         </div>
                     </div>
                 </div>
@@ -160,7 +160,7 @@ export class GuidedSetup extends React.Component {
                          <div className="widget-body">
                             <h5 className="text-center">Share Register Setup {warningSteps - warningCount} / {warningSteps}</h5>
                             <ProgressBar now={now} striped bsStyle="success" /></div>
-                            { warningCount === 0 && <p>Congratulations, { this.props.companyState.companyName } has succesfully been setup up.</p> }
+                            { warningCount === 0 && <p>Congratulations, { this.props.companyState.companyName } has succesfully been set up.</p> }
                         </div>
                     </div>
                     </div>
