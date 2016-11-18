@@ -90,7 +90,8 @@ function notifications(state = {list: []}, action){
             return {...state, list: [...state.list, action.data]};
         case HIDE_NOTIFICATION:
             const list = state.list.slice();
-            list.splice(action.index, 1);
+            const index = list.findIndex(n => n.notificationId === action.notificationId);
+            list.splice(index, 1);
             return {...state, list: list};
         default:
             return state;

@@ -63,8 +63,9 @@ export function changeCompanyTab(tabIndex){
     return {type: COMPANY_TAB_CHANGE, tabIndex};
 }
 
+let notificationId = 0;
 export function addNotification(data){
-    return {type: ADD_NOTIFICATION, data};
+    return {type: ADD_NOTIFICATION, data: {...data, notificationId: notificationId++}};
 }
 
 export function hideNotification(data){
@@ -153,6 +154,26 @@ export function updateResource(resource, data, options = {stringify: true}) {
         options = {...options, stringify: true}
     }
 
+    return {
+        types: [RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE],
+        callAPI: () => fetch('/api' + (urls[resource] || resource), {
+            method: 'PUT',
+            headers: (options.stringify && data) ? json_headers : {
+                ...accept_json_headers
+            },
+            body: (options.stringify && data) ? JSON.stringify(data) : data,
+            credentials: 'same-origin'
+        }),
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates}
+
+    };
+}
+
+export function softDeleteResource(resource, options = {stringify: true}) {
+    const data = {deleted: true};
+    if(options && options.stringify === undefined){
+        options = {...options, stringify: true}
+    }
     return {
         types: [RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE],
         callAPI: () => fetch('/api' + (urls[resource] || resource), {

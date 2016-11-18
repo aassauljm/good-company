@@ -3,6 +3,7 @@ import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { hideNotification, addNotification } from '../actions'
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
+
 const NOTIFICATION_TIMEOUT = 5000;
 
 
@@ -31,20 +32,31 @@ class Notification extends React.Component {
 
 @connect(state => state.notifications)
 export default class Notifications extends React.Component {
-    static propTypes = { list: React.PropTypes.array.isRequired };
+
+    static propTypes = {
+        list: React.PropTypes.array.isRequired
+    };
+
     close(index){
-        this.props.dispatch(hideNotification(index));<img src="/build/images/law-browser-sml.png" />
+        this.props.dispatch(hideNotification());
     }
 
     render(){
        return  <div className="notifications">
        <ReactCSSTransitionGroup
-          transitionName="notification-animation"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={100}
-          transitionAppear={true}
+            transitionName="notification-animation"
+            transitionEnterTimeout={500}
+            transitionLeaveTimeout={100}
+            transitionAppear={true}
             transitionAppearTimeout={300}>
-            { this.props.list.map((n, i) => <Notification key={i} notification={this.props.list[this.props.list.length - 1 - i]} close={() => this.close(this.props.list.length - 1 - i)} /> ) }
+            { this.props.list.map((n, i) => {
+                const index = this.props.list.length - 1 - i;
+                return <Notification
+                key={this.props.list[index].notificationId}
+                notification={this.props.list[index]}
+                close={() => this.close(this.props.list[index].transactionId)}
+                /> })
+            }
         </ReactCSSTransitionGroup>
         </div>
     }

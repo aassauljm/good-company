@@ -492,10 +492,9 @@ function createTransaction(req, res, type){
                 .then(function() {
                     args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
                     /* if uploadedFiles, find or create a transactions directory, add it to list */
-                    if(uploadedFiles && uploadedFiles.length && args.directoryId === undefined){
+                    if(uploadedFiles && uploadedFiles.length && args.directoryId === undefined && !args.newDirectory){
                         return company.getCurrentCompanyState()
                             .then(companyState => {
-
                                 return companyState.findOrCreateTransactionDirectory()
                                     .then(transactionDirectory => {
                                         return Document.create({
@@ -503,7 +502,8 @@ function createTransaction(req, res, type){
                                             createdById: req.user.id,
                                             ownerId: req.user.id,
                                             type: 'Directory',
-                                            directoryId: transactionDirectory.id
+                                            directoryId: transactionDirectory.id,
+                                            userUploaded: true
                                         })
                                         .then(d => {
                                             directory = d;
@@ -512,8 +512,22 @@ function createTransaction(req, res, type){
                                 })
                             })
                     }
-                    else{
+                    else if(args.directoryId){
                         directoryId = args.directoryId;
+                    }
+                    if(args.newDirectory){
+                        return Document.create({
+                            filename: args.newDirectory,
+                            createdById: req.user.id,
+                            ownerId: req.user.id,
+                            type: 'Directory',
+                            directoryId: args.directoryId,
+                            userUploaded: true
+                        })
+                        .then(doc => {
+                            directory = doc;
+                            directoryId = doc.id;
+                        })
                     }
                 })
                 .then(() => {
@@ -526,6 +540,7 @@ function createTransaction(req, res, type){
                                     ownerId: req.user.id,
                                     type: f.type,
                                     directoryId: directoryId,
+                                    userUploaded: true,
                                     documentData: {
                                         data: readFile,
                                     }
@@ -539,7 +554,7 @@ function createTransaction(req, res, type){
                         args.documents.push(directory);
                     }
                 })
-                .then((results) => {
+                .then(() => {
                     return transactions[type] ? transactions[type](args, company) : null;
                 })
             })

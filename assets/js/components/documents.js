@@ -1,9 +1,10 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, deleteResource, updateResource, companyTransaction, addNotification } from '../actions';
+import { requestResource, softDeleteResource, updateResource, companyTransaction, addNotification } from '../actions';
 import { pureRender, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
+import Input from './forms/input';
 import { Link } from 'react-router'
 import STRINGS from '../strings'
 import { asyncConnect } from 'redux-connect';
@@ -124,23 +125,23 @@ const documentTypeClasses = (type, filename) => {
 const fileSource = {
   beginDrag(props) {
     return {
-      id: props.item.id
+      id: props.item.id,
+      directoryId: props.item.directoryId
     };
   }
 };
 
 const fileTarget = {
-    /*hover(props, monitor, component) {
-        const dragIndex = monitor.getItem().id;
-        const item = props.item;
-        const hoverIndex = item.id;
-        // over self
-        if (dragIndex === hoverIndex) {
+    drop(props, monitor) {
+        const newDirectoryId = props.item.id === 'root' ? null : props.item.id;
+        const dragItem = monitor.getItem()
+        if(dragItem.directoryId === newDirectoryId){
+            return;
+        };
+        if(props.path.indexOf(dragItem.id) > -1){
             return;
         }
-    },*/
-    drop(props, monitor) {
-        !monitor.didDrop() && props.move(monitor.getItem().id, props.item.id)
+        !monitor.didDrop() && props.move(dragItem.id, newDirectoryId)
     }
 
 
@@ -158,30 +159,63 @@ const GC_FILE = 'GC_FILE';
   isDragging: monitor.isDragging()
 }))
 class RenderFile extends React.Component {
-
     render() {
         const props = this.props;
-        const { item, link, push } = props;
+        const { item, link, push, renameFile, deleteFile, startRename, endRename } = props;
         const { isDragging, connectDragSource, connectDropTarget, isOver, canDrop } = props;
         const showingSubTree = props.showingSubTree || isOver;
+
+        if(item.deleted){
+            return false;
+        }
+
+        const defaultView = () => {
+            return  <span>{ item.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
+                    { item.userUploaded && <span onClick={() => startRename(item.id)} className="view">Rename</span> }
+                    { item.userUploaded && <span onClick={() => deleteFile(item.id)} className="view">Delete</span> }</span>
+        }
+
+        const SubmitRename = () => {
+            const value = this.refs.input.getValue();
+            if(value){
+                renameFile(item.id, value);
+                endRename();
+            }
+        }
+
+        const fileSpan = <span className={classnames('file', {selected: props.selected, 'can-drop': canDrop && isOver})} onMouseDown={() => !props.selected && props.select()}>
+                <span className={'icon ' + documentTypeClasses(item.type)} />
+                { !this.props.renaming && <span className="filename">{ item.filename }</span> }
+                { !this.props.renaming && defaultView() }
+                { this.props.renaming && <Input type="text" defaultValue={ item.filename } ref="input"/> }
+                { this.props.renaming && <span onClick={() => SubmitRename()} className="view">Save</span> }
+                { this.props.renaming && <span onClick={() => endRename()} className="view">Cancel</span> }
+                </span>
+
         return (
           connectDropTarget(<div className="file-sub-tree">
               <span className="expand-control">
-                { item.type === 'Directory' && props.children && showingSubTree && <span className="fa fa-minus-square-o" onClick={props.hideSubTree} /> }
-                { item.type === 'Directory' && props.children && !showingSubTree && <span className="fa fa-plus-square-o" onClick={props.showSubTree} /> }
+                { item.type === 'Directory'  && showingSubTree && <span className="fa fa-minus-square-o" onClick={props.hideSubTree} /> }
+                { item.type === 'Directory'  && !showingSubTree && <span className="fa fa-plus-square-o" onClick={props.showSubTree} /> }
               </span>
-              { connectDragSource(<span className={classnames('file', {selected: props.selected, 'can-drop': canDrop && isOver})} onMouseDown={() => !props.selected && props.select()}>
-                <span className={'icon ' + documentTypeClasses(item.type)} />
-                <span className="filename">{ item.filename }</span>
-                { item.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
-                </span>)}
-              { props.children &&
-                    <div className={classnames("children", {"showing": showingSubTree})}> { props.children} </div>
-            }
+                { item.id !== "root" && !this.props.renaming ? connectDragSource(fileSpan) : fileSpan }
+                { item.type === 'Directory' &&
+                    <div className={classnames("children", {"showing": showingSubTree})}>
+                    <div className="file-sub-tree"><span className="expand-control"></span>
+                        <span className="file" onClick={() => this.props.createDirectory(item.id === 'root' ? null : item.id, 'New Folder')}>
+                            <span className="icon fa fa-plus-circle"></span>
+                            <span className="filename"><em>Create New Folder</em></span>
+                        </span>
+                    </div>
+                    { props.children }
+
+                    </div>
+                }
             </div>)
         )
     }
 }
+
 
 class FileTree extends React.Component {
 
@@ -194,6 +228,14 @@ class FileTree extends React.Component {
         this.setState({selected: id});
     }
 
+    startRename(id) {
+        this.setState({renaming: id});
+    }
+
+    endRename(id) {
+        this.setState({renaming: false});
+    }
+
     showSubTree(id) {
         this.setState({[id]: true});
     }
@@ -203,7 +245,7 @@ class FileTree extends React.Component {
     }
 
     render() {
-        const loop = data => {
+        const loop = (data, path) => {
             return data.map((item) => {
                 const link = item.companyId ? `/company/view/${item.companyId}/documents/view/${item.id}` : `/documents/view/${item.id}`;
                 const props = {
@@ -212,16 +254,33 @@ class FileTree extends React.Component {
                     link: link,
                     push: this.props.push,
                     accepts: item.type === 'Directory' ? [GC_FILE] : [],
+                    fileTypes:  GC_FILE,
                     select: () => this.select(item.id),
                     selected: this.state.selected === item.id,
+                    renaming: this.state.selected === item.id && this.state.renaming === item.id,
                     showingSubTree: this.state[item.id],
                     showSubTree: () => this.showSubTree(item.id),
                     hideSubTree: () => this.hideSubTree(item.id),
-                    move: this.props.move
+                    move: this.props.move,
+                    startRename: () => this.startRename(item.id),
+                    endRename: () => this.endRename(),
+                    renameFile: this.props.renameFile,
+                    deleteFile: this.props.deleteFile,
+                    createDirectory: this.props.createDirectory,
+                    path: path
                 }
                 if (item.children && item.children.length) {
-                  return <RenderFile  {...props}>
-                       { loop( item.children) }
+                    const newPath = [...path, item.id];
+
+                    item.children.sort((a, b) => {
+                        if(a.filename === b.filename){
+                            return a.id - b.id;
+                        }
+                        return (a.filename||'').localeCompare(b.filename||'');
+                    })
+
+                    return <RenderFile  {...props}>
+                       { loop( item.children, newPath) }
                     </RenderFile>
                 }
                 return <RenderFile {...props} />;
@@ -229,7 +288,7 @@ class FileTree extends React.Component {
 
         };
         return <div className="file-tree">
-                { loop(this.props.files) }
+                { loop(this.props.files, []) }
             </div>
     }
 }
@@ -261,7 +320,8 @@ function listToTree(documents){
 @connect(undefined, {
     companyTransaction: (...args) => companyTransaction(...args),
     addNotification: (args) => addNotification(args),
-    updateResource: (...args) => updateResource(...args)
+    updateResource: (...args) => updateResource(...args),
+    softDeleteResource: (...args) => softDeleteResource(...args),
 })
 export class CompanyDocuments extends React.Component {
 
@@ -273,6 +333,9 @@ export class CompanyDocuments extends React.Component {
     constructor() {
         super();
         this.move = ::this.move;
+        this.renameFile = ::this.renameFile;
+        this.deleteFile = ::this.deleteFile;
+        this.createDirectory = ::this.createDirectory
     }
 
     renderField(key, value) {
@@ -317,14 +380,48 @@ export class CompanyDocuments extends React.Component {
     }
 
     move(documentId, directoryId) {
-        this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId === 'root' ? null : directoryId})
+        this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId})
             .then(() => this.props.addNotification({message: 'File moved'}))
+    }
+
+    deleteFile(documentId) {
+        this.props.softDeleteResource(`/document/${documentId}`)
+            .then(() => this.props.addNotification({message: 'File deleted'}))
+    }
+
+    renameFile(documentId, filename) {
+        this.props.updateResource(`/document/${documentId}`, {filename: filename})
+            .then(() => this.props.addNotification({message: 'File renamed'}))
+    }
+
+    createDirectory(directoryId, name) {
+        const transactions = [{
+            actions: [{transactionType: TransactionTypes.CREATE_DIRECTORY}],
+            transactionType: TransactionTypes.CREATE_DIRECTORY,
+            effectiveDate: new Date(),
+            directoryId: directoryId,
+            newDirectoryId: name
+        }];
+        this.props.companyTransaction(
+                                    'compound',
+                                    this.props.companyId,
+                                    {transactions: transactions, directoryId: directoryId, newDirectory: name} )
+            .then(() => {
+                this.props.addNotification({message: 'Directory Created'});
+            })
     }
 
     renderTree() {
         const files = (this.props.companyState.docList && this.props.companyState.docList.documents) || []
         return  <div>
-            <FileTree files={listToTree(files)} push={this.props.push} move={this.move} />
+            <FileTree
+                files={listToTree(files)}
+                push={this.props.push}
+                move={this.move}
+                deleteFile={this.deleteFile}
+                renameFile={this.renameFile}
+                createDirectory={this.createDirectory}
+                />
             { !files.length && <Loading/> }
             <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
         </div>

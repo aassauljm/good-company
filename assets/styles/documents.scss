@@ -32,14 +32,14 @@
             }
             .view{
                 font-style: italic;
-                padding-left:12px;
+                padding: 0 6px;
                 display:none;
             }
             &.selected .view{
                 display: inline;
             }
             .filename{
-
+                padding-right:12px;
             }
         }
         .children{
@@ -48,6 +48,13 @@
         }
         .children.showing{
             display:block;
+        }
+
+
+        .form-group{
+            display: inline-block;
+            margin-bottom: 0;
+            padding-right:12px;
         }
     }
 }

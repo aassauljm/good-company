@@ -88,7 +88,8 @@ export default {
         COMPOUND_REMOVALS: 'Removals',
         HOLDING_TRANSFER: 'Transfer',
         UPLOAD_DOCUMENT: 'Upload Document',
-        UPDATED_DOCUMENT: 'Updated Document'
+        UPDATE_DOCUMENT: 'Update Document',
+        CREATE_DIRECTORY: 'Create Directory',
     },
     amendTypes: {
         ISSUE_TO: 'Issue',

@@ -23,6 +23,12 @@ module.exports = {
         },
         date: {
             type: Sequelize.DATE
+        },
+        userUploaded: {
+            type: Sequelize.BOOLEAN
+        },
+        deleted: {
+            type: Sequelize.BOOLEAN
         }
     },
     associations: function() {
