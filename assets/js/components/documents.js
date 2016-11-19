@@ -259,6 +259,25 @@ class RenderFile extends React.Component {
     }
 }
 
+function filterTree(value, tree) {
+    if(!value){
+        return tree;
+    }
+    function filter(value, tree){
+        return (tree || []).map(node => {
+            const children = filter(value, node.children);
+            const newNode = {...node, children};
+            let found = !!children.length;
+            if(node.filename.toLocaleLowerCase().indexOf(value) > -1){
+                found = true;
+            }
+            return found && newNode;
+        }).filter(f => f)
+    }
+    const newTree = filter(value, tree);
+    return newTree;
+}
+
 
 class FileTree extends React.Component {
 
@@ -266,6 +285,7 @@ class FileTree extends React.Component {
         super();
         this.expandAll = ::this.expandAll;
         this.collapseAll = ::this.collapseAll;
+        this.onSearchChange = ::this.onSearchChange;
         this.state = {root: true};
     }
 
@@ -286,7 +306,6 @@ class FileTree extends React.Component {
     }
 
     endCreateFolder() {
-
         this.setState({creatingFolder: false});
     }
 
@@ -313,6 +332,11 @@ class FileTree extends React.Component {
         }, {}))
     }
 
+    onSearchChange(event) {
+        const value = event.target.value;
+        this.setState({filter: value});
+    }
+
     render() {
 
         const loop = (data, path) => {
@@ -328,7 +352,7 @@ class FileTree extends React.Component {
                     select: () => this.select(item.id),
                     selected: !this.state.creatingFolder && this.state.selected === item.id,
                     renaming: !this.state.creatingFolder && this.state.selected === item.id && this.state.renaming === item.id,
-                    showingSubTree: this.state[item.id],
+                    showingSubTree: this.state[item.id] || !!this.state.filter,
                     showSubTree: () => this.showSubTree(item.id),
                     hideSubTree: () => this.hideSubTree(item.id),
                     move: this.props.move,
@@ -356,16 +380,23 @@ class FileTree extends React.Component {
                        { loop( item.children, newPath) }
                     </RenderFile>
                 }
+
                 return <RenderFile {...props} />;
             });
-
         };
+
+        const files = filterTree(this.state.filter, this.props.files);
+
         return <div>
-            <div className="button-row">
-                <Button onClick={this.expandAll}>Expand All</Button><Button onClick={this.collapseAll}>Collapse All</Button>
-            </div>
+            <form className="form-inline">
+                <Input type="text" label="Search" onChange={this.onSearchChange}/>
+                <div className="btn-group">
+                <Button onClick={this.expandAll}>Expand All</Button>
+                <Button onClick={this.collapseAll}>Collapse All</Button>
+                </div>
+            </form>
             <div className="file-tree">
-                { loop(this.props.files, []) }
+                { loop(files, []) }
             </div>
         </div>
     }
@@ -408,12 +439,19 @@ export class CompanyDocuments extends React.Component {
         companyId: PropTypes.string
     };
 
-    constructor() {
+    constructor(props) {
         super();
         this.move = ::this.move;
         this.renameFile = ::this.renameFile;
         this.deleteFile = ::this.deleteFile;
         this.createDirectory = ::this.createDirectory
+        this.state = {companyState: props.companyState};
+    }
+
+    componentWillReceiveProps(newProps) {
+        if(newProps.companyState && newProps.companyState.docList){
+            this.setState({companyState: newProps.companyState});
+        }
     }
 
     renderField(key, value) {
@@ -424,21 +462,6 @@ export class CompanyDocuments extends React.Component {
             default:
                 return value;
         }
-    }
-
-    renderTable() {
-        const docList = this.props.companyState.docList;
-        let fields = ['id', 'filename', 'type', 'date', 'createdAt'];
-        return <table className="table table-hover table-striped">
-        <thead><tr>{ fields.map(f => <th key={f}>{STRINGS.companyDocuments[f]}</th>) }<th></th></tr></thead>
-        <tbody>
-        { docList.documents.map(
-            (row, i) => <tr key={i}>
-                { fields.map(f => <td key={f}>{this.renderField(f, row[f])}</td>) }
-                <td><Link activeClassName="active" className="nav-link" to={`/companies/view/${this.props.companyId}/document/view/${row.id}`}>View</Link></td>
-            </tr>)}
-        </tbody>
-        </table>
     }
 
     upload(files) {
@@ -490,7 +513,7 @@ export class CompanyDocuments extends React.Component {
     }
 
     renderTree() {
-        const files = (this.props.companyState.docList && this.props.companyState.docList.documents) || []
+        const files = (this.state.companyState.docList && this.state.companyState.docList.documents) || []
         return  <div>
             <FileTree
                 files={listToTree(files)}

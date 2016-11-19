@@ -4,6 +4,15 @@
     }
 }
 
+.form-inline{
+     & > * {
+        margin: 0 4px;
+     }
+     label{
+        margin-right: 4px;
+     }
+}
+
 .generated-form{
     .button-row.form-controls{
         border-bottom: 1px solid $widget-border;
