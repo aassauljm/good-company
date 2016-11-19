@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, updateMenu } from '../actions';
-import { pureRender, numberWithCommas, stringToDate, generateShareClassMap, renderShareClass, joinAnd } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, generateShareClassMap, renderShareClass, joinAnd } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
@@ -53,17 +53,17 @@ function transferRecipients(siblings){
 
 // all the same
 function renderChange(action, shareClassMap){
-    const date = stringToDate(action.effectiveDate);
+    const date = stringDateToFormattedString(action.effectiveDate);
     return `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderTransferTo(action, shareClassMap){
-    const date = stringToDate(action.effectiveDate);
+    const date = stringDateToFormattedString(action.effectiveDate);
     return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderTransferFrom(action, shareClassMap){
-    const date = stringToDate(action.effectiveDate);
+    const date = stringDateToFormattedString(action.effectiveDate);
     return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
 }
 
@@ -219,7 +219,7 @@ function transactionRows(row, shareClassMap){
             total += r.data.amount;
         }
         return <tr key={i}>
-            <td className="date">{ stringToDate(r.effectiveDate) }</td>
+            <td className="date">{ stringDateToFormattedString(r.effectiveDate) }</td>
             <td className="description">{ renderActionFull(r, shareClassMap) } </td>
             {/* <td className="total">{ numberWithCommas(_total) }</td> */ }
             </tr>
@@ -416,7 +416,7 @@ export class ShareRegisterDocument extends React.Component {
                 </tr>
                 </tbody>
             </table>
-            <div>Extract Generated on { stringToDate() }</div>
+            <div>Extract Generated on { stringDateToFormattedString() }</div>
             { this.renderCurrentShareholdings(shareClasses) }
             { this.renderShareClasses(shareClasses) }
             { this.renderHistory(shareClasses) }

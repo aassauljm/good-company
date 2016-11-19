@@ -1,7 +1,7 @@
 "use strict";
 import React from 'react';
 import {requestResource, updateResource, updateMenu} from '../actions';
-import { pureRender, objectValues, stringToDate, requireFields, formFieldProps } from '../utils';
+import { pureRender, objectValues, stringDateToFormattedString, requireFields, formFieldProps } from '../utils';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
@@ -82,7 +82,7 @@ export default class Document extends React.Component {
               { data.date && <dt>Date</dt> }
               { data.date && <dd>{ new Date(data.date).toDateString() }</dd> }
               <dt>Date Imported</dt>
-              <dd>{stringToDate(data.createdAt)}</dd>
+              <dd>{stringDateToFormattedString(data.createdAt)}</dd>
               { data.sourceUrl && <dt>Original URL</dt> }
               { data.sourceUrl && <dd><Link target="_blank" to={data.sourceUrl}>Companies Office</Link> </dd> }
             </dl>

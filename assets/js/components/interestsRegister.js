@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, createResource, addNotification } from '../actions';
-import { pureRender, numberWithCommas, stringToDate } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import { reduxForm, addArrayValue } from 'redux-form';
 import { Link } from 'react-router';
@@ -173,7 +173,7 @@ export class InterestsRegisterCreate extends React.Component {
 function renderField(key, data) {
     switch(key){
         case 'date':
-            return stringToDate(data);
+            return stringDateToFormattedString(data);
         case 'documents':
             return renderDocumentLinks(data || [])
         case 'persons':

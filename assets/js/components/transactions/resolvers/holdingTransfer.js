@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 //import { requestResource, updateResource, showTransactionView, addNotification } from '../../actions';
-//import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../utils';
+//import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../utils';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';
 import { Link } from 'react-router'

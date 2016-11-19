@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, softDeleteResource, updateResource, companyTransaction, addNotification } from '../actions';
-import { pureRender, stringToDate } from '../utils';
+import { pureRender, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import Button from 'react-bootstrap/lib/Button';
@@ -54,6 +54,33 @@ export default class Documents extends React.Component {
 }
 
 
+const documentTypeClasses = (doc, showingSubTree) => {
+    const map = {
+        'Directory': 'fa fa-folder-o',
+        'Companies Office': 'fa fa-file-text',
+        'image/png': 'fa fa-file-image-o',
+        'image/jpeg': 'fa fa-file-image-o',
+        'application/pdf': 'fa fa-file-pdf-o',
+        'application/msword': 'fa fa-file-word-o',
+        'application/gzip': 'fa-file-archive-o',
+        'application/zip': 'fa-file-archive-o'
+    };
+
+    if(doc.type === 'Directory'){
+        if(doc.userUploaded){
+            if(showingSubTree){
+                return 'fa fa-folder-open-o'
+            }
+            return 'fa fa-folder-o'
+        }
+        if(showingSubTree){
+            return 'fa fa-folder-open'
+        }
+        return 'fa fa-folder';
+    }
+
+    return map[doc.type] || 'fa fa-file-text';
+}
 
 
 @pureRender
@@ -68,13 +95,17 @@ export class DocumentsWidget extends React.Component {
         }
 
         const docList = this.props.companyState.docList || [];
-        const documents = [...(docList.documents || [])].map(d => ({...d, createdAt: moment(d.createdAt) }))
+        const documents = [...(docList.documents || [])].map(d => ({...d, date: new Date(d.date || d.createdAt) })).filter(d => d.type !== 'Directory');
+        documents.sort((a, b) => b.date - a.date);
+
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+                <div className="text-center"><em>Latest Documents:</em></div>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
-                <thead><tr><th>Name</th><th>Date</th></tr></thead>
                 <tbody>
-                { documents.map((d, i) => {
-                    return <tr key={i}><td><Link activeClassName="active" className="nav-link" to={`/companies/view/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td><td>{stringToDate(d.date || d.createdAt)}</td></tr>
+                { documents.slice(0, 15).map((d, i) => {
+                    return <tr key={i}><td><span className={documentTypeClasses(d)}/> </td>
+                    <td><Link activeClassName="active" className="nav-link" to={`/company/view/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td>
+                    <td>{stringDateToFormattedString(d.date)}</td></tr>
                 }) }
                 </tbody>
                 </table>
@@ -111,33 +142,6 @@ function documentLawLinks(){
     </div>
 }
 
-const documentTypeClasses = (doc, showingSubTree) => {
-    const map = {
-        'Directory': 'fa fa-folder-o',
-        'Companies Office': 'fa fa-file-text',
-        'image/png': 'fa fa-file-image-o',
-        'image/jpeg': 'fa fa-file-image-o',
-        'application/pdf': 'fa fa-file-pdf-o',
-        'application/msword': 'fa fa-file-word-o',
-        'application/gzip': 'fa-file-archive-o',
-        'application/zip': 'fa-file-archive-o'
-    };
-
-    if(doc.type === 'Directory'){
-        if(doc.userUploaded){
-            if(showingSubTree){
-                return 'fa fa-folder-open-o'
-            }
-            return 'fa fa-folder-o'
-        }
-        if(showingSubTree){
-            return 'fa fa-folder-open'
-        }
-        return 'fa fa-folder';
-    }
-
-    return map[doc.type] || 'fa fa-file-text';
-}
 
 
 const fileSource = {
@@ -482,7 +486,7 @@ export class CompanyDocuments extends React.Component {
         switch(key){
             case 'date':
             case 'createdAt':
-                return stringToDate(value);
+                return stringDateToFormattedString(value);
             default:
                 return value;
         }

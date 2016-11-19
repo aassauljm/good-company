@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { pureRender, stringToDate, stringToDateTime, renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../../utils';
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';

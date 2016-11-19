@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
 import { requestResource } from '../actions';
-import { stringToDateTime } from '../utils';
+import { stringDateToFormattedStringTime } from '../utils';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
 

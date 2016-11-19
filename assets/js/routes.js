@@ -80,7 +80,7 @@ export default (store) => {
                 <Route path="shareregister" component={ ShareRegister } />
                 <Route path="shareholders" component={ Shareholders } />
                 <Route path="documents" component={ CompanyDocuments } />
-                <Route path="documents/view/:documentId" component={ Document }  />
+                <Route path="document/view/:documentId" component={ Document }  />
                 <Route path="templates" component={ Templates }>
                     <Router path=":name" component={ TemplateView }/>
                 </Route>

@@ -5,7 +5,7 @@ import STRINGS from '../strings'
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import { pureRender, stringToDate } from '../utils';
+import { pureRender, stringDateToFormattedString } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
 import { replace } from 'react-router-redux'
 
@@ -23,7 +23,7 @@ function renderDirector(director, holders){
             <dt>Address</dt>
             <dd><span className="address">{ director.person.address } </span></dd>
             <dt>Appointment Date</dt>
-            <dd>{ stringToDate(director.appointment) }</dd>
+            <dd>{ stringDateToFormattedString(director.appointment) }</dd>
             { director.consentUrl && <dt>Consent Url</dt> }
             { director.consentUrl && <dd><Link to={director.consentUrl } className="external-link" target="_blank">Companies Office</Link></dd> }
             { holders && <dt>Current Shareholder</dt> }

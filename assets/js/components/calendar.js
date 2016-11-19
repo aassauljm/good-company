@@ -16,7 +16,7 @@ import Input from './forms/input';
 import { reduxForm } from 'redux-form';
 import WorkingDayNotice from './forms/workingDays';
 import STRINGS from '../strings';
-import { formFieldProps, requireFields, stringToDateTime } from '../utils';
+import { formFieldProps, requireFields, stringDateToFormattedStringTime } from '../utils';
 import { OverlayTrigger } from './lawBrowserLink';
 import Tooltip from 'react-bootstrap/lib/Tooltip';
 import exportICS from './ics'

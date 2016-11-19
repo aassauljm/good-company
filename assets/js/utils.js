@@ -149,7 +149,7 @@ export function numberWithCommas(x) {
     return parts.join(".");
 }
 
-export function stringToDate(date){
+export function stringDateToFormattedString(date){
     return moment(date).format('D MMM YYYY')
     //use moment
     //const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -158,7 +158,7 @@ export function stringToDate(date){
 }
 
 
-export function stringToDateTime(date){
+export function stringDateToFormattedStringTime(date){
     return moment(date).format('h:mma D MMM YYYY')
 }
 

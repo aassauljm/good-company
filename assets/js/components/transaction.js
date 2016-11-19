@@ -3,7 +3,7 @@ import React, {PropTypes} from 'react';
 import Button from 'react-bootstrap/lib/Button';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { numberWithCommas, stringToDate, generateShareClassMap, renderShareClass } from '../utils';
+import { numberWithCommas, stringDateToFormattedString, generateShareClassMap, renderShareClass } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
@@ -23,7 +23,7 @@ const TEMPLATABLE = {
                 transaction: {
                     amount: transferee.data.amount,
                     shareClass: renderShareClass(transferee.data.shareClass, shareClassMap),
-                    effectiveDateString: stringToDate(data.effectiveDate),
+                    effectiveDateString: stringDateToFormattedString(data.effectiveDate),
                     transferees: (transferee.data.holders || transferee.data.afterHolders)
                         .map(h => ({companyNumber: h.companyNumber || '', name: h.name, address: h.address})),
                     transferors: (transferor.data.holders || transferor.data.afterHolders)

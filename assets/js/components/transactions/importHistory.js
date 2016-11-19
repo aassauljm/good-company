@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, createResource, addNotification } from '../../actions';
-import { pureRender, stringToDate } from '../../utils';
+import { pureRender, stringDateToFormattedString } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import { Link } from 'react-router'

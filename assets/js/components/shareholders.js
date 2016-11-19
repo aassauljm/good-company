@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, showTransactionView } from '../actions';
-import { pureRender, numberWithCommas, stringToDate } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
 import { asyncConnect } from 'redux-connect';
@@ -28,7 +28,7 @@ export class Shareholder extends React.Component {
                 <dt>Address</dt>
                 <dd><span className="address">{ this.props.shareholder.address}</span></dd>
                 { this.props.shareholder.firstEffectiveDate && <dt>Shareholder since</dt> }
-                { this.props.shareholder.firstEffectiveDate && <dd>{ stringToDate(this.props.shareholder.firstEffectiveDate) }</dd> }
+                { this.props.shareholder.firstEffectiveDate && <dd>{ stringDateToFormattedString(this.props.shareholder.firstEffectiveDate) }</dd> }
                 { this.props.shareholder.current && <dt>Current Parcels</dt> }
                 { this.props.shareholder.current &&  this.props.shareholder.parcels.map((p, i) => {
                     const shareClass = p.shareClass || STRINGS.defaultShareClass;
@@ -36,7 +36,7 @@ export class Shareholder extends React.Component {
                     return <dd key={i}>{`${amount} ${shareClass} shares`}</dd> ;
                 }) }
                 { this.props.shareholder.lastEffectiveDate && <dt>Shareholder until</dt> }
-                { this.props.shareholder.lastEffectiveDate && <dd>{ stringToDate(this.props.shareholder.lastEffectiveDate) }</dd> }
+                { this.props.shareholder.lastEffectiveDate && <dd>{ stringDateToFormattedString(this.props.shareholder.lastEffectiveDate) }</dd> }
             </dl>
         </div>
     }

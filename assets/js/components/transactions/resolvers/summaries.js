@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { pureRender, stringToDate, stringToDateTime,  renderShareClass, joinAnd, numberWithCommas } from '../../../utils';
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime,  renderShareClass, joinAnd, numberWithCommas } from '../../../utils';
 import STRINGS from '../../../strings'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router'
@@ -22,7 +22,7 @@ export function sourceInfo(companyState, actionSet){
         </div>
             <div className="row">
             <div className="col-md-6 summary-label">Registration Date & Time</div>
-            <div className="col-md-6">{stringToDateTime(actionSet.data.date)}</div>
+            <div className="col-md-6">{stringDateToFormattedStringTime(actionSet.data.date)}</div>
         </div>
         <div className="row">
             <div className="col-md-6 summary-label">Source Document</div>
@@ -57,7 +57,7 @@ export function addressChange(context) {
             <div className="col-md-2">
                 <div className="text-center">
                     <Glyphicon glyph="arrow-right" className="big-arrow" />
-                    <h5>Effective as at {stringToDateTime(context.action.effectiveDate)}</h5>
+                    <h5>Effective as at {stringDateToFormattedStringTime(context.action.effectiveDate)}</h5>
                 </div>
             </div>
             <div className="col-md-5">
@@ -79,7 +79,7 @@ export function holderChange(context) {
             <div className="col-md-2">
                 <div className="text-center">
                     <Glyphicon glyph="arrow-right" className="big-arrow" />
-                    <h5>Effective as at {stringToDateTime(context.actionSet.data.effectiveDate)}</h5>
+                    <h5>Effective as at {stringDateToFormattedStringTime(context.actionSet.data.effectiveDate)}</h5>
                 </div>
             </div>
             <div className="col-md-5">

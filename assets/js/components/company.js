@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, changeCompanyTab, showTransactionView, toggleWidget, resetTransactionViews } from '../actions';
-import { pureRender, numberWithCommas, stringToDate } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import CompanyHeader from  './companyHeader';

@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import {  showTransactionView, resetTransactionViews } from '../actions';
-import { pureRender, numberWithCommas, stringToDate } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router';

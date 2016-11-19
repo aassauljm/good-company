@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
-import { pureRender, numberWithCommas, stringToDate, fieldStyle, fieldHelp, formatString } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';

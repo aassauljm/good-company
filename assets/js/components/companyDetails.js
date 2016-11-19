@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { showTransactionView } from '../actions';
-import { pureRender, numberWithCommas, stringToDate } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
@@ -48,7 +48,7 @@ export class DetailsPanel extends React.Component {
             <div className="col-xs-6">
                     <div><strong>Name</strong> {current.companyName}</div>
                     <div><strong>NZ Business Number</strong> {current.nzbn ||  'Unknown'}</div>
-                    <div><strong>Incorporation Date</strong> {stringToDate(current.incorporationDate)}</div>
+                    <div><strong>Incorporation Date</strong> {stringDateToFormattedString(current.incorporationDate)}</div>
                     </div>
             <div className="col-xs-6">
                     <div><strong>AR Filing Month</strong> {current.arFilingMonth ||  'Unknown'}</div>
@@ -79,7 +79,7 @@ export class Director extends React.Component {
                 <dt >Address</dt>
                 <dd ><span className="address">{ this.props.director.person.address}</span></dd>
                 <dt >Appointment</dt>
-                <dd >{ stringToDate(this.props.director.appointment) }</dd>
+                <dd >{ stringDateToFormattedString(this.props.director.appointment) }</dd>
             </dl>
         </div>
     }
@@ -137,7 +137,7 @@ export class CompanyDetails extends React.Component {
                     <dd >{current.nzbn ||  'Unknown'}</dd>
 
                     <dt >Incorporation Date</dt>
-                    <dd >{stringToDate(current.incorporationDate)}</dd>
+                    <dd >{stringDateToFormattedString(current.incorporationDate)}</dd>
 
                     <dt >Total Shares</dt>
                     <dd >{numberWithCommas(current.totalShares)}</dd>

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
 import { requestResource } from '../actions';
-import { stringToDate } from '../utils'
+import { stringDateToFormattedString } from '../utils'
 import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';

@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, changeCompanyTab, toggleWidget } from '../actions';
-import { pureRender, numberWithCommas, stringToDate } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router';
@@ -46,7 +46,7 @@ export class CompanyTransactions extends React.Component {
             const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
             rows.push(<tr key={i} onClick={() => this.show(t.transaction.transactionId)}>
                 <td rowSpan={rowSpan}>{ t.transaction.transactionId }</td>
-                <td rowSpan={rowSpan}>{ stringToDate(t.transaction.effectiveDate) }</td>
+                <td rowSpan={rowSpan}>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
                 <td rowSpan={rowSpan}>{ STRINGS.transactionTypes[t.transaction.type] }</td>
                 { !t.transaction.subTransactions && <td></td> }
             </tr>);
@@ -118,7 +118,7 @@ export class TransactionWidget extends React.Component {
                 <thead><tr><th>Type</th><th>Date</th></tr></thead>
                 <tbody>
                 { (transactions).map((d, i) => {
-                    return <tr key={i}><td>{STRINGS.transactionTypes[d.type]}</td><td>{stringToDate(d.effectiveDate)}</td></tr>
+                    return <tr key={i}><td>{STRINGS.transactionTypes[d.type]}</td><td>{stringDateToFormattedString(d.effectiveDate)}</td></tr>
                 }) }
                 </tbody>
                 </table>

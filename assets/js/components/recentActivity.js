@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
 import { requestResource } from '../actions';
-import { stringToDateTime } from '../utils'
+import { stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 
 
@@ -48,7 +48,7 @@ export class RecentActivityWidget extends React.Component {
             <div className="widget-body">
                 <ul>
                 { activities.map((a, i) => <li key={i} className="actionable" onClick={() => this.handleClick(a)}>
-                        <span className="date">{stringToDateTime(a.createdAt)}</span> {a.description}
+                        <span className="date">{stringDateToFormattedStringTime(a.createdAt)}</span> {a.description}
                 </li>)}
                  { !activities.length && <li>No Recent Activity </li>}
                 </ul>
@@ -95,7 +95,7 @@ export class RecentCompanyActivityWidget extends React.Component {
             <div className="widget-body">
                 <ul>
                 { activities.map((a, i) => <li key={i}>
-                    <span className="date">{stringToDateTime(a.createdAt)}</span> {a.description}
+                    <span className="date">{stringDateToFormattedStringTime(a.createdAt)}</span> {a.description}
                 </li>)}
                 { !activities.length && <li>No Recent Activity </li>}
                 </ul>
@@ -138,7 +138,7 @@ export default class RecentActivity extends React.Component {
                     <tbody>
                     {activities.map(
                         (row, i) => <tr key={i} className="actionable" onClick={() => this.handleClick(row)}>
-                        <td>{stringToDateTime(row.createdAt)}</td>
+                        <td>{stringDateToFormattedStringTime(row.createdAt)}</td>
                         <td>{row.description}</td>
                         </tr>) }
                     </tbody>
