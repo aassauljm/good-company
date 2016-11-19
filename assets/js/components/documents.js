@@ -17,6 +17,8 @@ import FormData from 'form-data';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { DragSource, DropTarget } from 'react-dnd';
 import Loading from './loading';
+import { NativeTypes } from 'react-dnd-html5-backend';
+
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
@@ -150,6 +152,10 @@ const fileTarget = {
     drop(props, monitor) {
         const newDirectoryId = props.item.id === 'root' ? null : props.item.id;
         const dragItem = monitor.getItem()
+        if(!dragItem.id && dragItem.files){
+            !monitor.didDrop() && props.upload(dragItem.files, newDirectoryId);
+            return;
+        }
         if(newDirectoryId === dragItem.id){
             return;
         }
@@ -223,7 +229,7 @@ class RenderFile extends React.Component {
             return <div className="file-sub-tree"><span className="expand-control"></span>
                     <span className="file selected" >
                         <span className="icon fa fa-plus-circle"></span>
-                        <Input type="text" defaultValue={ 'New Folder' } ref="input"/>
+                        <Input type="text" placeholder={ 'New Folder' } ref="input"/>
                         <span onClick={submitCreateFolder} className="view">Create Folder</span>
                         <span onClick={endCreateFolder} className="view">Cancel</span>
                     </span>
@@ -286,15 +292,16 @@ class FileTree extends React.Component {
         this.expandAll = ::this.expandAll;
         this.collapseAll = ::this.collapseAll;
         this.onSearchChange = ::this.onSearchChange;
+        this.upload = ::this.upload;
         this.state = {root: true};
     }
 
     select(id) {
-        this.setState({selected: id});
+        this.setState({selected: id, renaming: false, creatingFolder: false});
     }
 
     startRename(id) {
-        this.setState({renaming: id});
+        this.setState({renaming: id, selected: false});
     }
 
     endRename(id) {
@@ -302,7 +309,7 @@ class FileTree extends React.Component {
     }
 
     startCreateFolder(id) {
-        this.setState({creatingFolder: id});
+        this.setState({creatingFolder: id, selected: false});
     }
 
     endCreateFolder() {
@@ -337,8 +344,19 @@ class FileTree extends React.Component {
         this.setState({filter: value});
     }
 
-    render() {
+    upload(files, directoryId) {
+        if(!directoryId){
+            const target = this.state.selected && this.props.flatFiles.find(f => f.id === this.state.selected);
+            if(target){
+                directoryId = target.type === 'Directory' ? target.id : target.directoryId;
+                directoryId = directoryId === 'root' ? null : directoryId;
+            }
+        }
+        directoryId && this.showSubTree(directoryId)
+        this.props.upload(files, directoryId)
+    }
 
+    render() {
         const loop = (data, path) => {
             return data.map((item) => {
                 const link = item.companyId ? `/company/view/${item.companyId}/documents/view/${item.id}` : `/documents/view/${item.id}`;
@@ -347,7 +365,7 @@ class FileTree extends React.Component {
                     item: item,
                     link: link,
                     push: this.props.push,
-                    accepts: item.type === 'Directory' ? [GC_FILE] : [],
+                    accepts: item.type === 'Directory' ? [GC_FILE, NativeTypes.FILE] : [],
                     fileTypes:  GC_FILE,
                     select: () => this.select(item.id),
                     selected: !this.state.creatingFolder && this.state.selected === item.id,
@@ -364,6 +382,7 @@ class FileTree extends React.Component {
                     startCreateFolder: () => this.startCreateFolder(item.id),
                     endCreateFolder: () => this.endCreateFolder(),
                     createDirectory: this.props.createDirectory,
+                    upload: this.upload,
                     path: path
                 }
                 if (item.children && item.children.length) {
@@ -388,16 +407,19 @@ class FileTree extends React.Component {
         const files = filterTree(this.state.filter, this.props.files);
 
         return <div>
-            <form className="form-inline">
+            <div className="button-row">
+                <form className="form-inline">
                 <Input type="text" label="Search" onChange={this.onSearchChange}/>
                 <div className="btn-group">
                 <Button onClick={this.expandAll}>Expand All</Button>
                 <Button onClick={this.collapseAll}>Collapse All</Button>
                 </div>
             </form>
+            </div>
             <div className="file-tree">
                 { loop(files, []) }
             </div>
+             <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
         </div>
     }
 }
@@ -444,7 +466,8 @@ export class CompanyDocuments extends React.Component {
         this.move = ::this.move;
         this.renameFile = ::this.renameFile;
         this.deleteFile = ::this.deleteFile;
-        this.createDirectory = ::this.createDirectory
+        this.createDirectory = ::this.createDirectory;
+        this.upload = ::this.upload;
         this.state = {companyState: props.companyState};
     }
 
@@ -464,7 +487,7 @@ export class CompanyDocuments extends React.Component {
         }
     }
 
-    upload(files) {
+    upload(files, directoryId=null) {
         const transactions = [{
             actions: [{transactionType: TransactionTypes.UPLOAD_DOCUMENT}],
             transactionType: TransactionTypes.UPLOAD_DOCUMENT,
@@ -473,7 +496,7 @@ export class CompanyDocuments extends React.Component {
         this.props.companyTransaction(
                                     'compound',
                                     this.props.companyId,
-                                    {transactions: transactions, documents: files, directoryId: null} )
+                                    {transactions: transactions, documents: files, directoryId: directoryId})
             .then(() => {
                 this.props.addNotification({message: 'File uploaded'});
             })
@@ -523,9 +546,9 @@ export class CompanyDocuments extends React.Component {
                 deleteFile={this.deleteFile}
                 renameFile={this.renameFile}
                 createDirectory={this.createDirectory}
+                upload={this.upload}
                 />
             { !files.length && <Loading/> }
-            <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
         </div>
     }
 
