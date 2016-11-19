@@ -35,6 +35,7 @@ import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
 import Calendar, { CreateEvent, EditEvent } from './components/calendar';
 import Alerts from './components/alerts';
+import AnnualReturn from './components/annualReturn';
 
 
 
@@ -107,6 +108,7 @@ export default (store) => {
             </Route>
             <Route path="favourites" component={ Favourites } />
             <Route path="alerts" component={ Alerts } />
+            <Route path="annual_returns" component={ AnnualReturn } />
              <Route path="templates" component={ Templates }>
                 <Router path=":name" component={ TemplateView }/>
             </Route>

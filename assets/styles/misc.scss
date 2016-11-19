@@ -301,3 +301,10 @@ a.law-browser-link {
         margin-left: 4px;
     }
 }
+    .external-link{
+        font-style: italic;
+        color: $link-color;
+        &:hover{
+            text-decoration: underline;
+        }
+    }

@@ -125,13 +125,13 @@ export class AlertsWidget extends React.Component {
                 if(a.deadlines.annualReturn){
                     if(a.deadlines.annualReturn.overdue){
                         const dueDiff = moment(a.deadlines.annualReturn.dueDate).from(moment());
-                        danger.push(<li key={i+'.1'}><div><Link to={`/company/view/${a.id}`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue ({dueDiff}).</Link></div></li>);
+                        danger.push(<li key={i+'.1'}><div><Link to={`/annual_returns`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue ({dueDiff}).</Link></div></li>);
                     }
                     if(!a.deadlines.annualReturn.filedThisYear && thisMonth === a.deadlines.annualReturn.arFilingMonth){
-                        warnings.push(<li key={i+'.2'}><div><Link to={`/company/view/${a.id}`} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
+                        warnings.push(<li key={i+'.2'}><div><Link to={`/annual_returns`} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
                     }
                     if(a.deadlines.annualReturn.filedThisYear){
-                        safe.push(<li key={i+'.3'}><div><Link to={`/company/view/${a.id}`} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return for { a.companyName } already filed this year.</Link></div></li>);
+                        safe.push(<li key={i+'.3'}><div><Link to={`/annual_returns`} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return for { a.companyName } already filed this year.</Link></div></li>);
                     }
                 }
 

@@ -62,7 +62,7 @@
     "bcrypt": "^0.8.5",
     "bluebird": "2.9.34",
     "bootstrap-sass": "^3.3.5",
-    "catalex_shared": "github:joshgagnon/catalex_shared#55a26a2",
+    "catalex_shared": "github:joshgagnon/catalex_shared#1a8777e",
     "cheerio": "0.19.0",
     "classnames": "^2.2.5",
     "coffee-script": "^1.10.0",
