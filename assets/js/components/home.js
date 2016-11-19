@@ -12,7 +12,6 @@ import { FavouritesWidget } from './favourites';
 import { CompaniesWidget } from './companies';
 import { TemplateWidget } from './templates';
 import { CalendarWidget } from './calendar';
-import { WorkInProgressWidget } from './workInProgress';
 
 
 
@@ -25,8 +24,6 @@ export default class Home extends React.Component {
                         <CalendarWidget />
                         <CompaniesWidget />
                         <TemplateWidget />
-                        <WorkInProgressWidget />
-
                     </div>
                     <div className="col-md-6">
                         <AlertsWidget />

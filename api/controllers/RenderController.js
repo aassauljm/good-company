@@ -1,10 +1,8 @@
 "use strict";
 
 import pdf from 'html-pdf';
-//import proxy from 'express-http-proxy';
 import fetch from "isomorphic-fetch";
-//import concat from 'concat-stream';
-
+const actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 function binaryParser(res, callback) {
     res.setEncoding('binary');

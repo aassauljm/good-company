@@ -120,7 +120,6 @@ const EventSummary = (props) => {
 }
 
 const AlertSummary = (props) => {
-    debugger
     const title = `${STRINGS.deadlines[props.alert.deadlineType]} due`
     const fullTitle = `${title} for ${props.alert.companyName}`;
     const reminder = '-P1D';

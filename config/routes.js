@@ -272,6 +272,11 @@ module.exports.routes = {
         action: 'renderTemplate',
     },
 
+    'GET /echo_file': {
+        controller: 'RenderController',
+        'action': 'echo'
+    },
+
     'GET /api/company/:id/recent_activity': {
         controller: 'CompanyController',
         action: 'recentActivity',
@@ -331,6 +336,8 @@ module.exports.routes = {
         model: 'user',
         action: 'alerts'
     },
+
+
 
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},

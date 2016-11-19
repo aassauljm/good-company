@@ -83,7 +83,8 @@ module.exports.policies = {
         '*': simpleAuth
     },
     RenderController: {
-        renderTemplate: simpleAuth
+        renderTemplate: simpleAuth,
+        echo: simpleAuth
     },
     EventController: {
         'find': noCriteria
