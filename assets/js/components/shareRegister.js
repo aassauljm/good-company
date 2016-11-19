@@ -15,20 +15,20 @@ import { enums as TransactionTypes } from '../../../config/enums/transactions';
 
 
 const shareRegisterLawLinks = () => <div>
-        <LawBrowserLink title="Companies Act 1993" location="s 87">Share Register Maintenance</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">Penalties for Non-Compliance</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 84">Share Transfer Requirements</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 88">Location of Share Register</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 89">Share Register as Legal Title</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 90">Director’s Supervision of Share Register</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 91">Rectification of Share Register</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 92">No Trusts on Share Register</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 93">Personal Representatives of Shareholders</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 94">Assignee of Bankrupt Shareholder</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 125">Ascertaining Shareholders from Share Register</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11">Votes of Joint Shareholders</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 189(1)(j)+(4)+(5)">Share Register at Registered Office </LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 215(1)(c) + 217">Public Inspection of Share Register </LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87">Share register maintenance</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location=" 373(2)(b)+374(2)(9)">Penalties for non-compliance</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 84">Share transfer requirements</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 88">Location of share register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 89">Share register as legal title</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 90">Director’s supervision of share register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 91">Rectification of share register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 92">No Trusts on share register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 93">Personal representatives of shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 94">Assignee of bankrupt shareholder</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 125">Ascertaining shareholders from share register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11">Votes of joint shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 189(1)(j)+(4)+(5)">Share register at registered office </LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 215(1)(c) + 217">Public inspection of share register </LawBrowserLink>
     </div>
 
 

@@ -72,7 +72,7 @@ class DocumentBase extends React.Component {
         };
 
         return <div>{ connectDropTarget(<div className="dropzone" onClick={() => this.open()}>
-                  <div>Try dropping some files here, or click to select files to upload.</div>
+                  <div>Drop files here to upload or click to browse your device</div>
                   <input {...inputAttributes} />
             </div>) }
            {((documents|| {}).value || []).map((file, i) => {
