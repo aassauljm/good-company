@@ -7,7 +7,7 @@ import Input from '../../forms/input';
 import STRINGS from '../../../strings'
 import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import Modal from '../../forms/modal';
+import TransactionView from '../../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../../config/enums/importErrors';
 import { enums as TransactionTypes } from '../../../../../config/enums/transactions';
 import { Holding } from '../../shareholdings';

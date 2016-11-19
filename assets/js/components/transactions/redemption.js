@@ -1,13 +1,13 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { DecreaseModal, createFormatSubmit } from './decreaseShares';
+import { DecreaseTransactionView, createFormatSubmit } from './decreaseShares';
 
 const formatSubmit = createFormatSubmit({baseTransaction: 'REDEMPTION', fromTransaction: 'REDEMPTION_FROM'})
 
-export class RedemptionModal extends React.Component {
+export class RedemptionTransactionView extends React.Component {
 
     render() {
-        return <DecreaseModal
+        return <DecreaseTransactionView
             title="Redemption of Shares"
             formName="redemption"
             successMessage="Shares Redeemed"

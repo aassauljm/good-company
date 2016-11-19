@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
@@ -95,12 +95,12 @@ export class ChangeAddress extends React.Component {
 
     handleSubmit(values) {
         const requiredValues = {[this.props.fieldName]: values.newAddress, effectiveDate: values.effectiveDate, noticeDate: values.noticeDate}
-        const transactions = contactDetailsFormatSubmit(requiredValues, this.props.modalData.companyState);
+        const transactions = contactDetailsFormatSubmit(requiredValues, this.props.transactionViewData.companyState);
         if(!transactions[0].actions.length){
             return;
         }
         this.props.submit('compound',
-                          this.props.modalData.companyId,
+                          this.props.transactionViewData.companyId,
                           {transactions: transactions,
                             documents: values.documents})
             .then(() => {
@@ -113,30 +113,30 @@ export class ChangeAddress extends React.Component {
     }
 
     renderBody() {
-       return <AddressForServiceFormConnected ref="form" currentAddress={this.props.modalData.companyState.addressForService} onSubmit={this.handleSubmit}/>
+       return <AddressForServiceFormConnected ref="form" currentAddress={this.props.transactionViewData.companyState.addressForService} onSubmit={this.handleSubmit}/>
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
-              <Modal.Header closeButton>
-                <Modal.Title>{this.props.title}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>{this.props.title}</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
                 <Button bsStyle="primary" onClick={() => this.refs.form.submit()}>Submit</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }
 
-export const ChangeAddressForServiceModal = (props) => {
+export const ChangeAddressForServiceTransactionView = (props) => {
     return <ChangeAddress {...props} fieldName={'addressForService'} title={'Change Address for Service'} lawLinks={AddressForServiceLawLinks()}/>
 };
 
-export const ChangeRegisteredOfficeModal = (props) => {
+export const ChangeRegisteredOfficeTransactionView = (props) => {
     return <ChangeAddress {...props} fieldName={'registeredCompanyAddress'} title={'Change Registered Office'} lawLinks={RegisteredAddressLawLinks()}/>
 };
 

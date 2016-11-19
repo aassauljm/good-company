@@ -212,7 +212,7 @@ export class Shareholdings extends React.Component {
     }
 
     editHolding(holding) {
-        this.props.showModal('updateHolding', {
+        this.props.showTransactionView('updateHolding', {
             companyId: this.props.companyId,
             companyState: this.props.companyState,
             holding: holding,

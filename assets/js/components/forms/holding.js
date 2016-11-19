@@ -108,7 +108,7 @@ export class HoldingNoParcels extends React.Component {
                 const onChange = p.onChange;
                 const interceptChange =  (event) => {
                     if(event.target.value === CREATE_NEW_PERSON){
-                        this.props.showModal('newPerson', i);
+                        this.props.showTransactionView('newPerson', i);
                     }
                     else{
                         onChange(event);
@@ -130,7 +130,7 @@ export class HoldingNoParcels extends React.Component {
 
                        {/*} { !p.newPerson.value && !p.personId.value &&
                         <div className="button-row"><ButtonInput className="new-person" onClick={() => {
-                            this.props.showModal('newPerson', i);
+                            this.props.showTransactionView('newPerson', i);
                         }}>Create New Person</ButtonInput></div> } */ }
 
                     { p.newPerson.value &&

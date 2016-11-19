@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -51,7 +51,7 @@ export class Subdivide extends React.Component {
 
 
 @connect(undefined)
-export class SubdivisionModal extends React.Component {
+export class SubdivisionTransactionView extends React.Component {
     constructor(props) {
         super(props);
          this.submit = ::this.submit;
@@ -74,12 +74,12 @@ export class SubdivisionModal extends React.Component {
             });
         });
         this.props.dispatch(companyTransaction('compound',
-                                this.props.modalData.companyId,
+                                this.props.transactionViewData.companyId,
                                 {actions: holdings}))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share subdivided.'}));
-                const key = this.props.modalData.companyId;
+                const key = this.props.transactionViewData.companyId;
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -110,18 +110,18 @@ export class SubdivisionModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Subdivide Shares</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Subdivide Shares</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                THIS FUNCTIONALITY IS UNDER DEVELOPMENT
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.props.end} >Close</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }

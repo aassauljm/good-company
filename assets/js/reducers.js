@@ -172,7 +172,7 @@ function companyPage(state = {tabIndex: 0}, action){
     }
 }
 
-function modals(state = {}, action){
+function transactionViews(state = {}, action){
     switch(action.type){
         case START_CREATE_COMPANY:
             return {...state, showing: 'createCompany', createCompany: {index: 0}};
@@ -188,14 +188,14 @@ function modals(state = {}, action){
             return state;
 
         case SHOW_MODAL:
-            return {...state, showing: action.modal, [action.modal]: {index: (action.data||{}).index || 0, data: action.data}};
+            return {...state, showing: action.transactionView, [action.transactionView]: {index: (action.data||{}).index || 0, data: action.data}};
         case END_MODAL:
-            return {...state, showing: null, [action.modal]: null };
+            return {...state, showing: null, [action.transactionView]: null };
         case NEXT_MODAL:
-            const index = action.data && action.data.index !== undefined ? action.data.index : state[action.modal].index + 1;
-            return {...state,  [action.modal]: {index: index, data: {...(state[action.modal] || {}).data, ...action.data}}};
+            const index = action.data && action.data.index !== undefined ? action.data.index : state[action.transactionView].index + 1;
+            return {...state,  [action.transactionView]: {index: index, data: {...(state[action.transactionView] || {}).data, ...action.data}}};
         case PREVIOUS_MODAL:
-            return {...state,  [action.modal]: {index: state[action.modal].index - 1}};
+            return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
         case RESET_MODALS:
             return {} ;
 
@@ -204,7 +204,7 @@ function modals(state = {}, action){
     }
 }
 
-function contextualModals(state = {}, action){
+function contextualTransactionViews(state = {}, action){
     switch(action.type){
         case SHOW_CONTEXTUAL_MODAL:
         case END_CONTEXTUAL_MODAL:
@@ -213,14 +213,14 @@ function contextualModals(state = {}, action){
             return {...state, [action.context]: ((state)  => {
                 switch(action.type){
                     case SHOW_CONTEXTUAL_MODAL:
-                        return {...state, showing: action.modal, [action.modal]: {index: (action.data||{}).index || 0, data: action.data}};
+                        return {...state, showing: action.transactionView, [action.transactionView]: {index: (action.data||{}).index || 0, data: action.data}};
                     case END_CONTEXTUAL_MODAL:
-                        return {...state, showing: null, [action.modal]: null };
+                        return {...state, showing: null, [action.transactionView]: null };
                     case NEXT_CONTEXTUAL_MODAL:
-                        const index = action.data && action.data.index !== undefined ? action.data.index : state[action.modal].index + 1;
-                        return {...state,  [action.modal]: {index: index, data: {...(state[action.modal] || {}).data, ...action.data}}};
+                        const index = action.data && action.data.index !== undefined ? action.data.index : state[action.transactionView].index + 1;
+                        return {...state,  [action.transactionView]: {index: index, data: {...(state[action.transactionView] || {}).data, ...action.data}}};
                     case PREVIOUS_CONTEXTUAL_MODAL:
-                        return {...state,  [action.modal]: {index: state[action.modal].index - 1}};
+                        return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
                     default:
                         return state;
                 }
@@ -415,8 +415,8 @@ const appReducer = combineReducers({
     resources,
     form,
     notifications,
-    modals,
-    contextualModals,
+    transactionViews,
+    contextualTransactionViews,
     menus,
     widgets,
     renderTemplate,

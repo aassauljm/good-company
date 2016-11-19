@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { requestResource, changeCompanyTab, showModal, toggleWidget, resetModals } from '../actions';
+import { requestResource, changeCompanyTab, showTransactionView, toggleWidget, resetTransactionViews } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -98,13 +98,13 @@ const FAKE_COMPANY = {
     return {
         companyPage: state.companyPage,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
-        modals: state.modals,
+        transactionViews: state.transactionViews,
         data: DEFAULT_OBJ,
          ...state.resources['/company/'+ownProps.params.id +'/get_info']};
 },
 (dispatch, ownProps) => ({
     requestData: (id) => dispatch(requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany})),
-    showModal: (key, data) => dispatch(showModal(key, data)) && dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)),
+    showTransactionView: (key, data) => dispatch(showTransactionView(key, data)) && dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)),
     toggleWidget: (path, args) => dispatch(toggleWidget(path, args)),
     push: (url) => dispatch(push(url))
 }))
@@ -144,7 +144,7 @@ export default class Company extends React.Component {
                         companyState: current,
                         companyId: this.key(),
                         push: this.props.push,
-                        showModal: (key, data) => this.props.showModal(key, data)
+                        showTransactionView: (key, data) => this.props.showTransactionView(key, data)
                 });
         }
         else{

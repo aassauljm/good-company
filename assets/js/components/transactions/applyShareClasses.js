@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -10,7 +10,7 @@ import { numberWithCommas } from '../../utils'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { fieldStyle, fieldHelp } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import { push } from 'react-router-redux';
 import Loading from '../loading';
 
@@ -83,7 +83,7 @@ const ShareClassSelectConnected = reduxForm({
 
 
 @connect((state) => ({transactions: state.transactions}))
-export class ApplyShareClassesModal extends React.Component {
+export class ApplyShareClassesTransactionView extends React.Component {
     constructor(props) {
         super(props);
          this.submit = ::this.submit;
@@ -103,15 +103,15 @@ export class ApplyShareClassesModal extends React.Component {
             });
         });
         this.props.dispatch(companyTransaction('apply_share_classes',
-                                this.props.modalData.companyId,
+                                this.props.transactionViewData.companyId,
                                 {actions: holdings}))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
             })
             .then(() => {
-                //this.props.show('importHistory', {companyState: this.props.modalData.companyState, companyId: this.props.modalData.companyId});
-                //this.props.dispatch(push(`/company/view/${this.props.modalData.companyId}/new_transaction`));
+                //this.props.show('importHistory', {companyState: this.props.transactionViewData.companyState, companyId: this.props.transactionViewData.companyId});
+                //this.props.dispatch(push(`/company/view/${this.props.transactionViewData.companyId}/new_transaction`));
             })
 
             .catch((err) => {
@@ -142,18 +142,18 @@ export class ApplyShareClassesModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Apply Share Classes</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Apply Share Classes</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={() => this.props.show('manageShareClasses')} bsStyle="success">Manage Share Classes</Button>
                 <Button onClick={this.props.end} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary" className="submit">{ 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }

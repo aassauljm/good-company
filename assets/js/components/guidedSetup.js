@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from './forms/modal';
+import TransactionView from './forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -14,8 +14,8 @@ import { push, replace } from 'react-router-redux';
 import LawBrowserLink from './lawBrowserLink';
 import { Route } from 'react-router';
 import { getWarnings } from './companyAlerts'
-import { nextContextualModal, previousContextualModal, endContextualModal, showContextualModal, requestResource } from '../actions';
-import { ModalSwitch }  from './modals';
+import { nextContextualTransactionView, previousContextualTransactionView, endContextualTransactionView, showContextualTransactionView, requestResource } from '../actions';
+import { TransactionViewSwitch }  from './transactionViews';
 import { requestAlerts } from './alerts';
 
 const DEFAULT_OBJ = {};
@@ -73,7 +73,7 @@ export class NextCompanyControls extends React.Component {
 }
 
 
-@connect((state, ownProps) => ({modals: state.contextualModals[ownProps.companyId] || DEFAULT_OBJ}))
+@connect((state, ownProps) => ({transactionViews: state.contextualTransactionViews[ownProps.companyId] || DEFAULT_OBJ}))
 export class GuidedSetup extends React.Component {
     static warningCounts = {
         votingShareholderWarning: 1,
@@ -90,19 +90,19 @@ export class GuidedSetup extends React.Component {
     }
 
     checkOpenNext(props) {
-        if(!props.modals.showing){
+        if(!props.transactionViews.showing){
             const warnings = getWarnings(props.companyState);
             if(warnings.votingShareholderWarning){
-                props.dispatch(showContextualModal(props.companyId, 'votingShareholders', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualTransactionView(props.companyId, 'votingShareholders', {companyId: props.companyId, companyState: props.companyState}));
             }
             else if(warnings.shareClassWarning){
-                props.dispatch(showContextualModal(props.companyId, 'manageShareClasses', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualTransactionView(props.companyId, 'manageShareClasses', {companyId: props.companyId, companyState: props.companyState}));
             }
             else if(warnings.applyShareClassWarning){
-                props.dispatch(showContextualModal(props.companyId, 'applyShareClasses', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualTransactionView(props.companyId, 'applyShareClasses', {companyId: props.companyId, companyState: props.companyState}));
             }
             else if(warnings.historyWarning){
-                props.dispatch(showContextualModal(props.companyId, 'importHistory', {companyId: props.companyId, companyState: props.companyState}));
+                props.dispatch(showContextualTransactionView(props.companyId, 'importHistory', {companyId: props.companyId, companyState: props.companyState}));
             }
         }
     }
@@ -113,7 +113,7 @@ export class GuidedSetup extends React.Component {
 
 
     render() {
-        const data = this.props.modals[this.props.modals.showing] || {};
+        const data = this.props.transactionViews[this.props.transactionViews.showing] || {};
         const warnings = getWarnings(this.props.companyState);
         const warningCount = Object.keys(warnings).reduce((acc, key) => {
             return acc + (warnings[key] ? GuidedSetup.warningCounts[key] : 0);
@@ -124,29 +124,29 @@ export class GuidedSetup extends React.Component {
         const now = ((warningSteps - warningCount) / warningSteps * 100);
         const props = {
             index: data.index,
-            modalData: {...data.data, companyId: this.props.companyId, companyState: this.props.companyState},
-            next : (...args) => {this.props.dispatch(nextContextualModal(this.props.companyId, this.props.modals.showing, ...args))},
-            previous: () => {this.props.dispatch(previousContextualModal(this.props.companyId, this.props.modals.showing))},
-            show: (key, extraData) => this.props.dispatch(showContextualModal(this.props.companyId, key, {...data.data, ...extraData})),
+            transactionViewData: {...data.data, companyId: this.props.companyId, companyState: this.props.companyState},
+            next : (...args) => {this.props.dispatch(nextContextualTransactionView(this.props.companyId, this.props.transactionViews.showing, ...args))},
+            previous: () => {this.props.dispatch(previousContextualTransactionView(this.props.companyId, this.props.transactionViews.showing))},
+            show: (key, extraData) => this.props.dispatch(showContextualTransactionView(this.props.companyId, key, {...data.data, ...extraData})),
             navigate: (url) => this.props.dispatch(push(url)),
             end: (data) => {
-                const after = ((this.props.modals[this.props.modals.showing] || {}).data || {}).afterClose;
-                this.props.dispatch(endContextualModal(this.props.companyId, this.props.modals.showing, data));
+                const after = ((this.props.transactionViews[this.props.transactionViews.showing] || {}).data || {}).afterClose;
+                this.props.dispatch(endContextualTransactionView(this.props.companyId, this.props.transactionViews.showing, data));
 
                 if(after){
-                    if(after.showModal){
-                        this.props.dispatch(showContextualModal(this.props.companyId, after.showModal.key, after.showModal.data));
+                    if(after.showTransactionView){
+                        this.props.dispatch(showContextualTransactionView(this.props.companyId, after.showTransactionView.key, after.showTransactionView.data));
                     }
                 }
 
             }
         }
 
-        if(props.modalData.loadCompanyState){
-            props.modalData = {...props.modalData, companyState: this.props.companyState, companyId: this.props.companyId};
+        if(props.transactionViewData.loadCompanyState){
+            props.transactionViewData = {...props.transactionViewData, companyState: this.props.companyState, companyId: this.props.companyId};
         }
 
-        return <div className="modals">
+        return <div className="transactionViews">
             <div>
                 <div className="container">
                     <div className="row">
@@ -168,7 +168,7 @@ export class GuidedSetup extends React.Component {
                     </div>
                     </div>
                 </div>
-                { this.props.modals.showing && <ModalSwitch showing={this.props.modals.showing} {...props}  /> }
+                { this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
             </div>
             <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={warningCount !== 0}/>
         </div>

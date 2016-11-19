@@ -5,7 +5,7 @@ import { lookupCompany, lookupOwnCompany } from '../actions';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { push } from 'react-router-redux'
-import { showModal } from '../actions';
+import { showTransactionView } from '../actions';
 import { RecentActivityWidget } from './recentActivity';
 import { AlertsWidget } from './alerts';
 import { FavouritesWidget } from './favourites';

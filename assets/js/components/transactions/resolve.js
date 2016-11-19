@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, updateResource, showModal, addNotification } from '../../actions';
+import { requestResource, updateResource, showTransactionView, addNotification } from '../../actions';
 import { pureRender, stringToDate, stringToDateTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -10,7 +10,7 @@ import STRINGS from '../../strings'
 import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux'
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import HoldingTransfer from './resolvers/holdingTransfer';
@@ -203,34 +203,34 @@ const PAGES = {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
         updateAction: (args) => {
-            return dispatch(updateResource(`/company/${ownProps.modalData.companyId}/update_pending_history`, args, {
-                invalidates: [`/company/${ownProps.modalData.companyId}/import_pending_history`]
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
+                invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
             }))
             .then(() => {
                 ownProps.end();
             })
         },
         resetAction: (args) => {
-            return dispatch(updateResource(`/company/${ownProps.modalData.companyId}/reset_pending_history`, {}, {}))
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
             .then(() => {
                 ownProps.end();
             })
         }
     }
 })
-export class ResolveAmbiguityModal extends React.Component {
+export class ResolveAmbiguityTransactionView extends React.Component {
 
     constructor(props){
         super(props);
     }
 
     renderBody() {
-        const context = {message: this.props.modalData.error.message, ...this.props.modalData.error.context};
+        const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
         const action = context.action;
         context.shareClassMap = generateShareClassMap(context.companyState);
         if(!action || !PAGES[context.importErrorType]){
             return <div className="resolve">
-                { basicSummary(context, this.props.modalData.companyState)}
+                { basicSummary(context, this.props.transactionViewData.companyState)}
                     <hr/>
                     <div>Unknown Import Error</div>
                     <div className="button-row">
@@ -239,28 +239,28 @@ export class ResolveAmbiguityModal extends React.Component {
                 </div>
         }
         return <div className="resolve">
-            { basicSummary(context, this.props.modalData.companyState)}
+            { basicSummary(context, this.props.transactionViewData.companyState)}
             <hr/>
             { PAGES[context.importErrorType](context, this.props.updateAction, this.props.resetAction)}
         </div>
     }
 
     render() {
-        if(!this.props.modalData.error){
+        if(!this.props.transactionViewData.error){
             return false;
         }
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Resolve Company Import Problem</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Resolve Company Import Problem</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
             <div className="button-row">
             <Button onClick={this.props.end} >Cancel</Button>
             </div>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }

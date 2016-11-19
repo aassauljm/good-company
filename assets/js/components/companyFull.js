@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import TransactionView from 'react-bootstrap/lib/TransactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import {addListEntry, removeListEntry, validateCompany, createResource, addNotification, companyTransaction} from '../actions';
@@ -215,8 +215,8 @@ function validateCompanyFieldsAsync(data, dispatch){
 
 
 
-@connect(state => ({formData: (state.form.companyFull || {}).createCompanyModal}))
-export default class CreateCompanyModal extends React.Component {
+@connect(state => ({formData: (state.form.companyFull || {}).createCompanyTransactionView}))
+export default class CreateCompanyTransactionView extends React.Component {
 
     pages = [
         function(){
@@ -268,23 +268,23 @@ export default class CreateCompanyModal extends React.Component {
         }
     };
     componentWillUnmount() {
-        this.refs.modal._onHide();
+        this.refs.transactionView._onHide();
     }
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Create a new Company</Modal.Title>
-              </Modal.Header>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Create a new Company</TransactionView.Title>
+              </TransactionView.Header>
 
-              <Modal.Body>
+              <TransactionView.Body>
                 { this.pages[this.props.index].call(this) }
-              </Modal.Body>
+              </TransactionView.Body>
 
-              <Modal.Footer>
+              <TransactionView.Footer>
                 <Button onClick={this.props.end} >Close</Button>
                 { this.props.index > 0 && <Button onClick={this.props.previous} bsStyle="primary">Previous</Button> }
                  <Button onClick={::this.handleNext} bsStyle="primary">{ this.props.index < this.pages.length -1 ? 'Next' : 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }

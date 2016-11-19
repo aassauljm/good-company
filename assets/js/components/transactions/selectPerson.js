@@ -1,17 +1,17 @@
 "use strict";
 import React from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { personList } from '../../utils';
-import { showModal, requestResource } from '../../actions';
+import { showTransactionView, requestResource } from '../../actions';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 
 @connect(undefined, (dispatch, ownProps) => ({
-    selectPerson: (person) => dispatch(showModal('updatePerson', {...ownProps.modalData, person}))
+    selectPerson: (person) => dispatch(showTransactionView('updatePerson', {...ownProps.transactionViewData, person}))
 }))
-export class SelectPersonModal extends React.Component {
+export class SelectPersonTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.handleClose = ::this.handleClose;
@@ -22,7 +22,7 @@ export class SelectPersonModal extends React.Component {
     }
 
     renderBody() {
-        const persons = personList(this.props.modalData.companyState)
+        const persons = personList(this.props.transactionViewData.companyState)
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
             { persons.map((p, i) => {
@@ -40,17 +40,17 @@ export class SelectPersonModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Select Shareholder</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Select Shareholder</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 {this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }
 
@@ -58,14 +58,14 @@ export class SelectPersonModal extends React.Component {
 
 @connect((state, ownProps) => {
     return {
-        historicHolders: state.resources['/company/'+ownProps.modalData.companyId +'/historic_holders']
+        historicHolders: state.resources['/company/'+ownProps.transactionViewData.companyId +'/historic_holders']
     }
 }, (dispatch, ownProps) => ({
-    requestData: () => dispatch(requestResource(`/company/${ownProps.modalData.companyId}/historic_holders`)),
-    selectPerson: (person) => dispatch(showModal('updateHistoricPerson', {...ownProps.modalData, person}))
+    requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/historic_holders`)),
+    selectPerson: (person) => dispatch(showTransactionView('updateHistoricPerson', {...ownProps.transactionViewData, person}))
     })
 )
-export class SelectHistoricPersonModal extends React.Component {
+export class SelectHistoricPersonTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.handleClose = ::this.handleClose;
@@ -110,17 +110,17 @@ export class SelectHistoricPersonModal extends React.Component {
 
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Select Historic Shareholder</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Select Historic Shareholder</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 {this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }

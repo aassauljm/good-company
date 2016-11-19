@@ -1,11 +1,11 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { showModal } from '../actions';
+import { showTransactionView } from '../actions';
 import { pureRender, numberWithCommas } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
 import LawBrowserLink from './lawBrowserLink'
-import Modals from './modals';
+import TransactionViews from './transactionViews';
 import { withRouter } from 'react-router'
 import { push } from 'react-router-redux'
 
@@ -14,10 +14,10 @@ import { push } from 'react-router-redux'
 
 const DEFAULT_OBJ = {};
 
-@connect(state => ({modals: state.modals || DEFAULT_OBJ}),
+@connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ}),
 {
     navigate: (url) => push(url),
-    startTransaction: (key, companyState, companyId) => showModal(key, {companyState: companyState, companyId: companyId})
+    startTransaction: (key, companyState, companyId) => showTransactionView(key, {companyState: companyState, companyId: companyId})
 })
 @withRouter
 export class NewTransaction extends React.Component {
@@ -37,7 +37,7 @@ export class NewTransaction extends React.Component {
     }
 
     routerWillLeave(location) {
-        const transactionUp = this.props.modals.showing;
+        const transactionUp = this.props.transactionViews.showing;
         const skip = (location.state || {}).skipDirtyLeave;
         if(transactionUp && !skip){
             return 'You have unsaved information in a new transaction, are you sure you want to leave?'
@@ -116,8 +116,8 @@ export class NewTransaction extends React.Component {
 
     render() {
         return <div className="new-transaction icon-action-page">
-               { this.props.modals.showing &&  <Modals {...this.props} {...this.props.modals} /> }
-               { !this.props.modals.showing && this.renderBody() }
+               { this.props.transactionViews.showing &&  <TransactionViews {...this.props} {...this.props.transactionViews} /> }
+               { !this.props.transactionViews.showing && this.renderBody() }
             </div>
     }
 }

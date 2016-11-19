@@ -68,11 +68,12 @@ export class DocumentsWidget extends React.Component {
         }
 
         const docList = this.props.companyState.docList || [];
+        const documents = [...(docList.documents || [])].map(d => ({...d, createdAt: moment(d.createdAt) }))
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <thead><tr><th>Name</th><th>Date</th></tr></thead>
                 <tbody>
-                { (docList.documents || []).map((d, i) => {
+                { documents.map((d, i) => {
                     return <tr key={i}><td><Link activeClassName="active" className="nav-link" to={`/companies/view/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td><td>{stringToDate(d.date || d.createdAt)}</td></tr>
                 }) }
                 </tbody>

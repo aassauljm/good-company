@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
@@ -8,7 +8,7 @@ import { reduxForm } from 'redux-form';
 import Input from '../forms/input';
 import { formFieldProps, requireFields, joinAnd, personList } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { DirectorConnected, NewDirectorConnected, directorSubmit } from '../forms/person';
@@ -18,7 +18,7 @@ import { personOptionsFromState } from '../../utils';
 
 
 @connect(undefined)
-export class UpdateDirectorModal extends React.Component {
+export class UpdateDirectorTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -37,7 +37,7 @@ export class UpdateDirectorModal extends React.Component {
     renderBody() {
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
-                { this.props.modalData.director ? this.updateDirector() : this.newDirector() }
+                { this.props.transactionViewData.director ? this.updateDirector() : this.newDirector() }
                 </div>
             </div>
     }
@@ -45,24 +45,24 @@ export class UpdateDirectorModal extends React.Component {
     updateDirector() {
         return <DirectorConnected
             ref="form"
-            initialValues={{...this.props.modalData.director,
-                appointment: new Date(this.props.modalData.director.appointment) }}
+            initialValues={{...this.props.transactionViewData.director,
+                appointment: new Date(this.props.transactionViewData.director.appointment) }}
             onSubmit={this.submit}/>
     }
 
     newDirector() {
-        const personOptions = personOptionsFromState(this.props.modalData.companyState);
+        const personOptions = personOptionsFromState(this.props.transactionViewData.companyState);
         return <NewDirectorConnected
             ref="form"
-            initialValues={{...this.props.modalData.director,
+            initialValues={{...this.props.transactionViewData.director,
                 appointment: new Date() }}
                 personOptions={personOptions}
-                newPerson={() => this.props.dispatch(showModal('newPerson', {
-                    ...this.props.modalData,
+                newPerson={() => this.props.dispatch(showTransactionView('newPerson', {
+                    ...this.props.transactionViewData,
                     formName: 'director',
                     field: `newPerson`,
-                    afterClose: { // open this modal again
-                        showModal: {key: 'manageDirectors', data: {...this.props.modalData, index: this.props.index}}
+                    afterClose: { // open this transactionView again
+                        showTransactionView: {key: 'manageDirectors', data: {...this.props.transactionViewData, index: this.props.index}}
                     }
                 }))}
 
@@ -70,16 +70,16 @@ export class UpdateDirectorModal extends React.Component {
     }
 
     submit(values) {
-        const transactions = directorSubmit(values, this.props.modalData.director, this.props.modalData.companyState)
+        const transactions = directorSubmit(values, this.props.transactionViewData.director, this.props.transactionViewData.companyState)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
-                                    this.props.modalData.companyId,
+                                    this.props.transactionViewData.companyId,
                                     {transactions: transactions, documents: values.documents} ))
                 .then(() => {
                     this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Directorship Updated.'}));
-                    const key = this.props.modalData.companyId;
+                    const key = this.props.transactionViewData.companyId;
                 })
                 .catch((err) => {
                     this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -92,19 +92,19 @@ export class UpdateDirectorModal extends React.Component {
 
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Manage Directors</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Manage Directors</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-                { this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Update</Button> }
-                { !this.props.modalData.director && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
-              </Modal.Footer>
-            </Modal>
+                { this.props.transactionViewData.director && <Button onClick={this.handleNext} bsStyle="primary">Update</Button> }
+                { !this.props.transactionViewData.director && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }

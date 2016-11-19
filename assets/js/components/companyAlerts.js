@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import {  showModal, resetModals } from '../actions';
+import {  showTransactionView, resetTransactionViews } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -68,7 +68,7 @@ class SpecifyVotingHolders extends React.Component {
 class ResolveAllWarnings extends React.Component {
     render(){
         return  <div>
-        <Link to={`/company/view/${this.props.companyId}/guided_setup`} onClick={this.props.resetModals} className="text-success alert-entry">
+        <Link to={`/company/view/${this.props.companyId}/guided_setup`} onClick={this.props.resetTransactionViews} className="text-success alert-entry">
         <Glyphicon glyph="forward" className="big-icon"/>
         Click here to setup your share register{this.props.companyName && ` for ${this.props.companyName}`}.</Link>
         </div>
@@ -169,17 +169,17 @@ function hasAlerts(companyState, showTypes){
     return {
         startHistoryImport: () => {
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
-            dispatch(showModal('importHistory', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+            dispatch(showTransactionView('importHistory', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
         },
         startApplyShareClasses: () => {
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
-            dispatch(showModal('applyShareClasses', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+            dispatch(showTransactionView('applyShareClasses', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
         },
         startVotingHolders: () => {
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
-            dispatch(showModal('votingShareholders', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+            dispatch(showTransactionView('votingShareholders', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
         },
-        resetModals: () => dispatch(resetModals())
+        resetTransactionViews: () => dispatch(resetTransactionViews())
     }
 })
 export class CompanyAlertsBase extends React.Component {
@@ -203,7 +203,7 @@ export class CompanyAlertsBase extends React.Component {
         const pendingUpdates = this.props.companyState.hasPendingUpdates;
         return <ul>
                 { pendingUpdates && <li><AlertWarnings.PendingUpdate companyId={this.props.companyId} /></li> }
-                { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetModals={this.props.resetModals}/></li>}
+                { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetTransactionViews={this.props.resetTransactionViews}/></li>}
                 { deadlines }
                 { this.props.showAllWarnings && this.renderImportWarnings(warn) }
                 { !guide && !deadlines.length && !this.props.showAllWarnings && <li>No current Notifications</li>}

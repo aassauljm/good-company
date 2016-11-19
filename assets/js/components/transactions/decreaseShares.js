@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
@@ -9,7 +9,7 @@ import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
 import { formFieldProps, requireFields, joinAnd, renderShareClass, generateShareClassMap } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
@@ -232,7 +232,7 @@ const DecreaseConnected = reduxForm({
 
 
 @connect(undefined)
-export class DecreaseModal extends React.Component {
+export class DecreaseTransactionView extends React.Component {
     static propTypes = {
         title: PropTypes.string.isRequired,
         formName: PropTypes.string.isRequired,
@@ -243,7 +243,7 @@ export class DecreaseModal extends React.Component {
             overVerb: PropTypes.string.isRequired,
             parcelHeading: PropTypes.string.isRequired,
         }).isRequired,
-        modalData: PropTypes.shape({
+        transactionViewData: PropTypes.shape({
             companyState: PropTypes.object.isRequired,
             companyId: PropTypes.string.isRequired,
         })
@@ -266,17 +266,17 @@ export class DecreaseModal extends React.Component {
     }
 
     submit(values) {
-        const transactions =  this.props.formatSubmit(values, this.props.modalData.companyState)
+        const transactions =  this.props.formatSubmit(values, this.props.transactionViewData.companyState)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
-                                    this.props.modalData.companyId,
+                                    this.props.transactionViewData.companyId,
                                     {transactions: transactions, documents: values.documents} ))
 
             .then(() => {
                 this.handleClose({reload: true});
                 this.props.dispatch(addNotification({message: this.props.successMessage}));
-                const key = this.props.modalData.companyId;
+                const key = this.props.transactionViewData.companyId;
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -315,18 +315,18 @@ export class DecreaseModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>{ this.props.title }</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>{ this.props.title }</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose} >Close</Button>
                  <Button onClick={this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }

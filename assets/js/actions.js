@@ -393,57 +393,57 @@ export function endImportCompany(formKey){
     }
 }
 
-export function showModal(modal, data){
+export function showTransactionView(transactionView, data){
     return {
-        type: SHOW_MODAL, modal, data
+        type: SHOW_MODAL, transactionView, data
     }
 }
 
-export function endModal(modal, data={}){
+export function endTransactionView(transactionView, data={}){
     return {
-        type: END_MODAL, modal, data
+        type: END_MODAL, transactionView, data
     }
 }
 
-export function nextModal(modal, data){
+export function nextTransactionView(transactionView, data){
     return {
-        type: NEXT_MODAL, modal, data
+        type: NEXT_MODAL, transactionView, data
     }
 }
 
-export function previousModal(modal){
+export function previousTransactionView(transactionView){
     return {
-        type: PREVIOUS_MODAL, modal
-    }
-}
-
-
-export function showContextualModal(context, modal, data){
-    return {
-        type: SHOW_CONTEXTUAL_MODAL, context, modal, data
-    }
-}
-
-export function endContextualModal(context, modal, data={}){
-    return {
-        type: END_CONTEXTUAL_MODAL, context, modal, data
-    }
-}
-
-export function nextContextualModal(context, modal, data){
-    return {
-        type: NEXT_CONTEXTUAL_MODAL, context, modal, data
-    }
-}
-
-export function previousContextualModal(context, modal, data){
-    return {
-        type: PREVIOUS_CONTEXTUAL_MODAL, context, modal, data
+        type: PREVIOUS_MODAL, transactionView
     }
 }
 
 
-export function resetModals(){
+export function showContextualTransactionView(context, transactionView, data){
+    return {
+        type: SHOW_CONTEXTUAL_MODAL, context, transactionView, data
+    }
+}
+
+export function endContextualTransactionView(context, transactionView, data={}){
+    return {
+        type: END_CONTEXTUAL_MODAL, context, transactionView, data
+    }
+}
+
+export function nextContextualTransactionView(context, transactionView, data){
+    return {
+        type: NEXT_CONTEXTUAL_MODAL, context, transactionView, data
+    }
+}
+
+export function previousContextualTransactionView(context, transactionView, data){
+    return {
+        type: PREVIOUS_CONTEXTUAL_MODAL, context, transactionView, data
+    }
+}
+
+
+export function resetTransactionViews(){
     return {
         type: RESET_MODALS
     }

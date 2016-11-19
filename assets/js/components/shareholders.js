@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { requestResource, showModal } from '../actions';
+import { requestResource, showTransactionView } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
@@ -67,7 +67,7 @@ export class Shareholders extends React.Component {
             return <div className="loading"></div>
         }
         const editHolder = (person) => {
-            this.props.dispatch(showModal('updatePerson', {
+            this.props.dispatch(showTransactionView('updatePerson', {
                 companyState: this.props.companyState,
                 companyId: this.props.companyId,
                 person: person,

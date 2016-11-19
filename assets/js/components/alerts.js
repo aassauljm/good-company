@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource, resetModals } from '../actions';
+import { requestResource, resetTransactionViews } from '../actions';
 import { stringToDateTime } from '../utils';
 import { Link } from 'react-router';
 import { AlertWarnings } from './companyAlerts';
@@ -46,7 +46,7 @@ export const requestAlerts = () => requestResource('/alerts', {postProcess: sort
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
     refreshAlerts: () => requestResource('/alerts', {refresh: true, postProcess: sortAlerts}),
     navigate: (url) => push(url),
-    resetModals: () => resetModals()
+    resetTransactionViews: () => resetTransactionViews()
 })
 export class AlertsWidget extends React.Component {
     static POLL_INTERVAL = 10000;
@@ -109,18 +109,18 @@ export class AlertsWidget extends React.Component {
             }, 0);
 
             if(shareClassWarningCount > 1){
-                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={this.props.resetModals} ><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk set up your companies.</Link></div></li>);
+                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={this.props.resetTransactionViews} ><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk set up your companies.</Link></div></li>);
             }
 
             if(firstCompanyId){
-                danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={this.props.resetModals} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
+                danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={this.props.resetTransactionViews} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
             }
 
 
 
             this.props.alerts.data.alertList.map((a, i) => {
                 if(Object.keys(a.warnings).some(warning => a.warnings[warning])){
-                    warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetModals={this.props.resetModals} companyName={a.companyName}/></li>)
+                    warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetTransactionViews={this.props.resetTransactionViews} companyName={a.companyName}/></li>)
                 }
                 if(a.deadlines.annualReturn){
                     if(a.deadlines.annualReturn.overdue){

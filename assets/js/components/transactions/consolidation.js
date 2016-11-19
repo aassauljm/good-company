@@ -1,13 +1,13 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { DecreaseModal, createFormatSubmit } from './decreaseShares';
+import { DecreaseTransactionView, createFormatSubmit } from './decreaseShares';
 
 const formatSubmit = createFormatSubmit({baseTransaction: 'CONSOLIDATION', fromTransaction: 'CONSOLIDATION_FROM'})
 
-export class ConsolidationModal extends React.Component {
+export class ConsolidationTransactionView extends React.Component {
 
     render() {
-        return <DecreaseModal
+        return <DecreaseTransactionView
             title="Consolidation of Shares"
             formName="consolidate"
             successMessage="Shares Consolidated"

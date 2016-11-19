@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { pureRender } from '../utils';
-import { companyTransaction, addNotification, showModal } from '../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../actions';
 import { ContactFormConnected, contactDetailsFormatSubmit, immutableFields, defaultCustomFields } from './forms/contactDetails';
 import { replace, push } from 'react-router-redux'
 import LawBrowserContainer from './lawBrowserContainer'
@@ -73,7 +73,7 @@ export class ContactDetailsWidget extends React.Component {
     addNotification: (args) => addNotification(args),
     refresh: (location) => replace(location),
     navigate: (url) => push(url),
-    startTransaction: (key, companyState, companyId) => showModal(key, {companyState: companyState, companyId: companyId})
+    startTransaction: (key, companyState, companyId) => showTransactionView(key, {companyState: companyState, companyId: companyId})
 })
 export default class ContactDetails extends React.Component {
     static propTypes = {

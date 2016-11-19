@@ -1,13 +1,13 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import Input from '../forms/input';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { contactLawLinks } from '../contactDetails';
@@ -39,7 +39,7 @@ export class SelectionBase extends React.Component {
     }
 
     show(key) {
-        this.props.showModal(key, {companyState: this.props.companyState, companyId: this.props.companyId, afterClose: {location: this.props.location.pathname}});
+        this.props.showTransactionView(key, {companyState: this.props.companyState, companyId: this.props.companyId, afterClose: {location: this.props.location.pathname}});
     }
 
     submit(values) {
@@ -47,27 +47,27 @@ export class SelectionBase extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
-              <Modal.Header closeButton>
-                <Modal.Title>{ this.props.title }</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>{ this.props.title }</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }
 
-export class AddAssignSharesModal extends React.Component {
+export class AddAssignSharesTransactionView extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Add and Assign Shares">
             <div className="actionable select-button"  onClick={() => {
-                    this.props.navigate({pathname: `/company/view/${this.props.modalData.companyId}/share_classes`, state: {skipDirtyLeave: true}});
+                    this.props.navigate({pathname: `/company/view/${this.props.transactionViewData.companyId}/share_classes`, state: {skipDirtyLeave: true}});
                     this.props.end();
                 }} >
                 <span className="glyphicon glyphicon-envelope"></span>
@@ -85,7 +85,7 @@ export class AddAssignSharesModal extends React.Component {
 
 
 
-export class ConsolidateDivideModal extends React.Component {
+export class ConsolidateDivideTransactionView extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Consolidate or Divide Shares">
@@ -101,7 +101,7 @@ export class ConsolidateDivideModal extends React.Component {
     }
 }
 
-export class RepurchaseRedeemModal extends React.Component {
+export class RepurchaseRedeemTransactionView extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Repurchase or Redeem Shares">
@@ -118,7 +118,7 @@ export class RepurchaseRedeemModal extends React.Component {
     }
 }
 
-export class UpdateHoldingHolderModal extends React.Component {
+export class UpdateHoldingHolderTransactionView extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update Shareholdings and Shareholders">
@@ -140,7 +140,7 @@ export class UpdateHoldingHolderModal extends React.Component {
 }
 
 
-export class ResetDeleteModal extends React.Component {
+export class ResetDeleteTransactionView extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update Shareholdings and Shareholders">
@@ -159,7 +159,7 @@ export class ResetDeleteModal extends React.Component {
 }
 
 
-export class UpdateAddressesModal extends React.Component {
+export class UpdateAddressesTransactionView extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Change Addresses" lawLinks={contactLawLinks()}>

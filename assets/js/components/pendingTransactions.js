@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource, resetModals } from '../actions';
+import { requestResource, resetTransactionViews } from '../actions';
 import { stringToDateTime } from '../utils';
 import { Link } from 'react-router';
 import { AlertWarnings } from './companyAlerts';

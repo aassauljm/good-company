@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
@@ -11,14 +11,14 @@ import PersonName from '../forms/personName';
 import { HoldingNoParcelsConnected, reformatPersons } from '../forms/holding';
 import { formFieldProps, requireFields, joinAnd, personOptionsFromState } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from '../forms/staticField';
 
 
 @connect(undefined)
-export class NewHoldingModal extends React.Component {
+export class NewHoldingTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -35,9 +35,9 @@ export class NewHoldingModal extends React.Component {
     }
 
     submit(values) {
-        if(this.props.modalData.afterClose){
-            const persons = reformatPersons(values, this.props.modalData.companyState);
-            this.props.dispatch(change(this.props.modalData.formName, this.props.modalData.field, {...values, persons: persons}));
+        if(this.props.transactionViewData.afterClose){
+            const persons = reformatPersons(values, this.props.transactionViewData.companyState);
+            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, {...values, persons: persons}));
             this.handleClose();
             return;
         }
@@ -53,12 +53,12 @@ export class NewHoldingModal extends React.Component {
                     form='newHolding'
                     initialValues={{persons: [{}]}}
                     personOptions={personOptions}
-                    showModal={(key, index) => this.props.dispatch(showModal(key, {
-                        ...this.props.modalData,
+                    showTransactionView={(key, index) => this.props.dispatch(showTransactionView(key, {
+                        ...this.props.transactionViewData,
                         formName: 'newHolding',
                         field: `persons[${index}].newPerson`,
-                        afterClose: { // open this modal again
-                            showModal: {key: 'newHolding', data: {...this.props.modalData}}
+                        afterClose: { // open this transactionView again
+                            showTransactionView: {key: 'newHolding', data: {...this.props.transactionViewData}}
                         }
                     }))}
                     onSubmit={this.submit}/>
@@ -68,18 +68,18 @@ export class NewHoldingModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" animation={!this.props.modalData.afterClose} onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>New Holding</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>New Holding</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary">Create</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }

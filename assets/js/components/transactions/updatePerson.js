@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -10,7 +10,7 @@ import { UpdatePersonConnected, updatePersonSubmit, updateHistoricPersonSubmit }
 
 
 @connect(undefined)
-class UpdatePersonModalBase extends React.Component {
+class UpdatePersonTransactionViewBase extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -32,23 +32,23 @@ class UpdatePersonModalBase extends React.Component {
             <div className="col-md-6 col-md-offset-3">
                 <UpdatePersonConnected
                     ref="form"
-                    initialValues={{effectiveDate: new Date(), ...this.props.modalData.person}}
+                    initialValues={{effectiveDate: new Date(), ...this.props.transactionViewData.person}}
                     onSubmit={this.submit}/>
                 </div>
             </div>
     }
 
     submit(values) {
-        const transactions = this.props.submitFormat(values, this.props.modalData.person)
+        const transactions = this.props.submitFormat(values, this.props.transactionViewData.person)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
-                                    this.props.modalData.companyId,
+                                    this.props.transactionViewData.companyId,
                                     {transactions: transactions} ))
                 .then(() => {
                     this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Person Updated'}));
-                    const key = this.props.modalData.companyId;
+                    const key = this.props.transactionViewData.companyId;
                 })
                 .catch((err) => {
                     this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -60,28 +60,28 @@ class UpdatePersonModalBase extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>{this.props.title}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>{this.props.title}</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody(this) }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
                 <Button onClick={this.handleNext} bsStyle="primary">Update</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 
 }
 
-export function UpdatePersonModal(props) {
-    return <UpdatePersonModalBase {...props} submitFormat={updatePersonSubmit} title="Update Shareholder"/>
+export function UpdatePersonTransactionView(props) {
+    return <UpdatePersonTransactionViewBase {...props} submitFormat={updatePersonSubmit} title="Update Shareholder"/>
 }
 
-export function UpdateHistoricPersonModal(props) {
-    return <UpdatePersonModalBase {...props} submitFormat={updateHistoricPersonSubmit} title="Update Historic Shareholder"/>
+export function UpdateHistoricPersonTransactionView(props) {
+    return <UpdatePersonTransactionViewBase {...props} submitFormat={updateHistoricPersonSubmit} title="Update Historic Shareholder"/>
 }
 

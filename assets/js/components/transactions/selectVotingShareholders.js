@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -9,7 +9,7 @@ import STRINGS from '../../strings'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { fieldStyle, fieldHelp, populatePerson, numberWithCommas } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import { push } from 'react-router-redux';
 import LawBrowserLink from '../lawBrowserLink';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
@@ -67,7 +67,7 @@ function populateHolders(holdingId, companyState){
 
 
 @connect(undefined)
-export class VotingShareholdersModal extends React.Component {
+export class VotingShareholdersTransactionView extends React.Component {
     constructor(props) {
         super(props);
          this.submit = ::this.submit;
@@ -82,19 +82,19 @@ export class VotingShareholdersModal extends React.Component {
         const actions = [];
         Object.keys(values).map(k => {
             const holdingId = parseInt(k, 10);
-            const person = populatePerson({personId: values[k]}, this.props.modalData.companyState);
-            const holding = this.props.modalData.companyState.holdingList.holdings.filter(h => {
+            const person = populatePerson({personId: values[k]}, this.props.transactionViewData.companyState);
+            const holding = this.props.transactionViewData.companyState.holdingList.holdings.filter(h => {
                 return h.holdingId === holdingId;
               })[0];
             const currentVoter = holding.holders.filter(h => (h.data || {}).votingShareholder);
             let previousPerson = null;
             if(currentVoter.length){
-                previousPerson =  populatePerson({personId: currentVoter[0].person.personId}, this.props.modalData.companyState);
+                previousPerson =  populatePerson({personId: currentVoter[0].person.personId}, this.props.transactionViewData.companyState);
             }
             actions.push({
                 holdingId: holdingId,
-                beforeHolders: populateHolders(holdingId, this.props.modalData.companyState),
-                afterHolders: populateHolders(holdingId, this.props.modalData.companyState),
+                beforeHolders: populateHolders(holdingId, this.props.transactionViewData.companyState),
+                afterHolders: populateHolders(holdingId, this.props.transactionViewData.companyState),
                 afterVotingShareholder: person,
                 beforeVotingShareholder: previousPerson,
                 transactionType: TransactionTypes.HOLDING_CHANGE,
@@ -109,12 +109,12 @@ export class VotingShareholdersModal extends React.Component {
         }];
 
         this.props.dispatch(companyTransaction('compound',
-                                this.props.modalData.companyId,
+                                this.props.transactionViewData.companyId,
                                 {transactions: transactions}))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Voting Shareholders applied'}));
-                const key = this.props.modalData.companyId;
+                const key = this.props.transactionViewData.companyId;
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -134,18 +134,18 @@ export class VotingShareholdersModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Select Voting Shareholders</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Select Voting Shareholders</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
               <p><LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11">Learn more about Voting Shareholders</LawBrowserLink></p>
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.props.end} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary" className="submit">Apply</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }

@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
@@ -9,7 +9,7 @@ import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
 import { formFieldProps, requireFields, joinAnd, renderShareClass, generateShareClassMap } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ParcelWithRemove } from '../forms/parcel';
@@ -332,7 +332,7 @@ function IssueLawLinks() {
 
 
 @connect(undefined)
-export class IssueModal extends React.Component {
+export class IssueTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -350,17 +350,17 @@ export class IssueModal extends React.Component {
     }
 
     submit(values) {
-        const transactions = issueFormatSubmit(values, this.props.modalData.companyState)
+        const transactions = issueFormatSubmit(values, this.props.transactionViewData.companyState)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
-                                    this.props.modalData.companyId,
+                                    this.props.transactionViewData.companyId,
                                     {transactions: transactions, documents: values.documents} ))
 
             .then(() => {
                 this.handleClose({reload: true});
                 this.props.dispatch(addNotification({message: 'Shares Issued'}));
-                const key = this.props.modalData.companyId;
+                const key = this.props.transactionViewData.companyId;
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -390,20 +390,20 @@ export class IssueModal extends React.Component {
                     approvalOptions={approvalOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
-                    showNewHolding={(index) => this.props.dispatch(showModal('newHolding', {
-                        ...this.props.modalData,
+                    showNewHolding={(index) => this.props.dispatch(showTransactionView('newHolding', {
+                        ...this.props.transactionViewData,
                         formName: 'issue',
                         field: `holdings[${index}].newHolding`,
-                        afterClose: { // open this modal again
-                            showModal: {key: 'issue', data: {...this.props.modalData}}
+                        afterClose: { // open this transactionView again
+                            showTransactionView: {key: 'issue', data: {...this.props.transactionViewData}}
                         }
                     }))}
-                    showNewShareClass={(index) => this.props.dispatch(showModal('createShareClass', {
-                        ...this.props.modalData,
+                    showNewShareClass={(index) => this.props.dispatch(showTransactionView('createShareClass', {
+                        ...this.props.transactionViewData,
                         formName: 'issue',
                         field: `holdings[${index}].newHolding`,
-                        afterClose: { // open this modal again
-                            showModal: {key: 'issue', data: {...this.props.modalData}}
+                        afterClose: { // open this transactionView again
+                            showTransactionView: {key: 'issue', data: {...this.props.transactionViewData}}
                         }
                     }))}
                     companyName={companyState.companyName}
@@ -413,18 +413,18 @@ export class IssueModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={IssueLawLinks()}>
-              <Modal.Header closeButton>
-                <Modal.Title>Issue New Shares</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={IssueLawLinks()}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Issue New Shares</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody(this.props.currentData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose} >Close</Button>
                  <Button onClick={this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }

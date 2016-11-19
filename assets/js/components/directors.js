@@ -88,7 +88,7 @@ export default class Directors extends React.Component {
     };
 
     editDirector(director) {
-        this.props.showModal('updateDirector', {
+        this.props.showTransactionView('updateDirector', {
             companyId: this.props.companyId,
             companyState: this.props.companyState,
             director: director,

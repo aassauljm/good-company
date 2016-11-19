@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -95,7 +95,7 @@ export function companyDetailsFormatSubmit(values, companyState){
 
 
 @connect(undefined)
-export class CompanyDetailsModal extends React.Component {
+export class CompanyDetailsTransactionView extends React.Component {
 
     constructor(props) {
         super(props);
@@ -107,16 +107,16 @@ export class CompanyDetailsModal extends React.Component {
     }
 
     submit(values) {
-        const transaction = companyDetailsFormatSubmit(values, this.props.modalData.companyState);
+        const transaction = companyDetailsFormatSubmit(values, this.props.transactionViewData.companyState);
         if(transaction.actions.length){
              this.props.dispatch(companyTransaction(
                                 'compound',
-                                this.props.modalData.companyId,
+                                this.props.transactionViewData.companyId,
                                 {transactions: [transaction], documents: values.documents} ))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Updated Company Details'}));
-                const key = this.props.modalData.companyId;
+                const key = this.props.transactionViewData.companyId;
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -139,18 +139,18 @@ export class CompanyDetailsModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Update Company Details</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Update Company Details</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.props.end} >Close</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }

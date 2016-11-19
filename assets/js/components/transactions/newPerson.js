@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
@@ -10,7 +10,7 @@ import { NewPersonConnected } from '../forms/person';
 
 
 @connect(undefined)
-export class NewPersonModal extends React.Component {
+export class NewPersonTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -21,8 +21,8 @@ export class NewPersonModal extends React.Component {
     }
 
     submit(values) {
-        if(this.props.modalData.afterClose){
-            this.props.dispatch(change(this.props.modalData.formName, this.props.modalData.field, values));
+        if(this.props.transactionViewData.afterClose){
+            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, values));
             this.props.end();
             return;
         }
@@ -42,18 +42,18 @@ export class NewPersonModal extends React.Component {
 
     render() {
         // TODO, connect this to the form data, check valid and submitting, disable submit button
-        return  <Modal ref="modal" show={true} bsSize="large" animation={!this.props.modalData.afterClose} onHide={this.props.end} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Create New Person</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.props.end} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Create New Person</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.props.end} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary">Create</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }
 

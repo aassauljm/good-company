@@ -1,12 +1,12 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
 import { reduxForm, change, destroy } from 'redux-form';
 import { personOptionsFromState, populatePerson } from '../../utils';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons, updateHoldingSubmit } from '../forms/holding';
@@ -16,10 +16,10 @@ import { enums as TransactionTypes } from '../../../../config/enums/transactions
 
 
 @connect(undefined)
-export class UpdateHoldingModal extends React.Component {
+export class UpdateHoldingTransactionView extends React.Component {
 
     static propTypes = {
-        modalData: PropTypes.shape({
+        transactionViewData: PropTypes.shape({
             holding: PropTypes.object.isRequired
         }).isRequired
     }
@@ -42,22 +42,22 @@ export class UpdateHoldingModal extends React.Component {
     }
 
     renderBody(){
-        const personOptions = personOptionsFromState(this.props.modalData.companyState);
+        const personOptions = personOptionsFromState(this.props.transactionViewData.companyState);
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <HoldingNoParcelsConnected
                     ref="form"
                     initialValues={{effectiveDate: new Date(),
-                        persons: this.props.modalData.holding.holders.map(p => ({...p.person, personId: p.person.personId + '', votingShareholder: (p.data || {}).votingShareholder})),
-                        holdingName: this.props.modalData.holding.name}}
+                        persons: this.props.transactionViewData.holding.holders.map(p => ({...p.person, personId: p.person.personId + '', votingShareholder: (p.data || {}).votingShareholder})),
+                        holdingName: this.props.transactionViewData.holding.name}}
                     personOptions={personOptions}
-                    holding={this.props.modalData.holding}
-                    showModal={(key, index) => this.props.dispatch(showModal(key, {
-                        ...this.props.modalData,
+                    holding={this.props.transactionViewData.holding}
+                    showTransactionView={(key, index) => this.props.dispatch(showTransactionView(key, {
+                        ...this.props.transactionViewData,
                         formName: 'holding',
                         field: `persons[${index}].newPerson`,
-                        afterClose: { // open this modal again
-                            showModal: {key: 'updateHolding', data: {...this.props.modalData, index: this.props.index}}
+                        afterClose: { // open this transactionView again
+                            showTransactionView: {key: 'updateHolding', data: {...this.props.transactionViewData, index: this.props.index}}
                         }
                     }))}
                     onSubmit={this.submit}/>
@@ -67,23 +67,23 @@ export class UpdateHoldingModal extends React.Component {
 
     submit(values) {
         if(values.persons.length > 1){
-            values.votingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.modalData.companyState);
+            values.votingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.transactionViewData.companyState);
         }
-        let previous = this.props.modalData.holding.holders.filter(h => (h.data || {}).votingShareholder);
+        let previous = this.props.transactionViewData.holding.holders.filter(h => (h.data || {}).votingShareholder);
         if(previous.length){
-            values.previousVotingShareholder = populatePerson(previous[0].person, this.props.modalData.companyState)
+            values.previousVotingShareholder = populatePerson(previous[0].person, this.props.transactionViewData.companyState)
         }
-        values.persons = reformatPersons(values, this.props.modalData.companyState);
-        const transactions = updateHoldingSubmit(values, this.props.modalData.holding)
+        values.persons = reformatPersons(values, this.props.transactionViewData.companyState);
+        const transactions = updateHoldingSubmit(values, this.props.transactionViewData.holding)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                 'compound',
-                                this.props.modalData.companyId,
+                                this.props.transactionViewData.companyId,
                                 {transactions: transactions, documents: values.documents} ))
                 .then(() => {
                     this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Shareholding Updated'}));
-                    const key = this.props.modalData.companyId;
+                    const key = this.props.transactionViewData.companyId;
                 })
                 .catch((err) => {
                     this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -96,17 +96,17 @@ export class UpdateHoldingModal extends React.Component {
 
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Update Shareholding</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Update Shareholding</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
                 <Button onClick={this.handleNext} bsStyle="primary">Update</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }

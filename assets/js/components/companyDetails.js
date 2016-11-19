@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { showModal } from '../actions';
+import { showTransactionView } from '../actions';
 import { pureRender, numberWithCommas, stringToDate } from '../utils';
 import ButtonInput from './forms/buttonInput';
 import { Link } from 'react-router';
@@ -110,7 +110,7 @@ class Directors extends React.Component {
 export class CompanyDetails extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
-        showModal: PropTypes.func
+        showTransactionView: PropTypes.func
     };
 
     constructor(props) {
@@ -119,7 +119,7 @@ export class CompanyDetails extends React.Component {
     }
 
     editDirector(director) {
-        this.props.showModal('updateDirector', {
+        this.props.showTransactionView('updateDirector', {
             companyId: this.props.companyId,
             companyState: this.props.companyState,
             director: director,

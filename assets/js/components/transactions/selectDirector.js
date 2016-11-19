@@ -1,17 +1,17 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { formFieldProps, requireFields, joinAnd, personList } from '../../utils';
-import { showModal } from '../../actions';
+import { showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import { Director } from '../companyDetails';
 
 @connect(undefined)
-export class SelectDirectorModal extends React.Component {
+export class SelectDirectorTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.handleClose = ::this.handleClose;
@@ -22,31 +22,31 @@ export class SelectDirectorModal extends React.Component {
     }
 
     renderBody() {
-        const directors = this.props.modalData.companyState.directorList.directors;
+        const directors = this.props.transactionViewData.companyState.directorList.directors;
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 { directors.map((p, i) => {
-                    return <Director key={i} director={p} editDirector={() => this.props.dispatch(showModal('updateDirector', {...this.props.modalData, director: p}))}/>
+                    return <Director key={i} director={p} editDirector={() => this.props.dispatch(showTransactionView('updateDirector', {...this.props.transactionViewData, director: p}))}/>
                     }) }
             <div className="button-row"><ButtonInput onClick={(e) => {
-                    this.props.dispatch(showModal('updateDirector', {...this.props.modalData, director: null}))
+                    this.props.dispatch(showTransactionView('updateDirector', {...this.props.transactionViewData, director: null}))
                 }}>Add Director</ButtonInput></div>
             </div>
             </div>
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Select Director</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Select Director</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }

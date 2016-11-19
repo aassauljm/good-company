@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react'
 import { pureRender }  from '../utils';
 import { Link, IndexLink } from 'react-router';
-import { requestResource, createResource, deleteResource, addNotification, showModal, resetModals } from '../actions';
+import { requestResource, createResource, deleteResource, addNotification, showTransactionView, resetTransactionViews } from '../actions';
 import Navbar from 'react-bootstrap/lib/Navbar'
 import Collapse from 'react-bootstrap/lib/Collapse'
 import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
@@ -189,11 +189,11 @@ const CompanyHeaderConnected = connect(state => {
 }, {
     requestData: (key) => requestResource('/favourites'),
     navigate: (url) => push(url),
-    resetData: () => resetModals(),
+    resetData: () => resetTransactionViews(),
     addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),
     removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']}),
     addNotification: (args) => addNotification(args),
-    startTransaction: (key, companyState, companyId) => showModal(key, {companyState: companyState, companyId: companyId})
+    startTransaction: (key, companyState, companyId) => showTransactionView(key, {companyState: companyState, companyId: companyId})
 })(CompanyHeader);
 
 export default CompanyHeaderConnected;

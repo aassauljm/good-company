@@ -8,7 +8,7 @@ import { Link } from 'react-router'
 import STRINGS from '../../strings'
 import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
 
 
@@ -53,11 +53,11 @@ PAGES[LOADING] = function() {
 
 PAGES[AMBIGUITY] = function(){
     if(this.props.importHistory._status === 'error'){
-        const companyName = this.props.modalData.companyState.companyName;
+        const companyName = this.props.transactionViewData.companyState.companyName;
         const context = this.props.importHistory.error.context || {};
 
         const documentId =  context.actionSet && context.actionSet.data.documentId;
-        const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.modalData.companyState, documentId);
+        const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.transactionViewData.companyState, documentId);
        return <div>
         <p className="text-danger">We need your help understand a document from the Companies Office.</p>
         <p className="text-danger">Reason: {this.props.importHistory.error.message || 'Processing Error'}</p>
@@ -94,21 +94,21 @@ FOOTERS[AMBIGUITY] = function(){
 
 @connect((state, ownProps) => {
     return {
-        pendingHistory: state.resources[`/company/${ownProps.modalData.companyId}/pending_history`] || {},
-        importHistory: state.resources[`/company/${ownProps.modalData.companyId}/import_pending_history`] || {},
-        companyState: state.resources[`/company/${ownProps.modalData.companyId}`] || {},
+        pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {},
+        importHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history`] || {},
+        companyState: state.resources[`/company/${ownProps.transactionViewData.companyId}`] || {},
     };
 }, (dispatch, ownProps) => {
     return {
-        requestData: () => dispatch(requestResource(`/company/${ownProps.modalData.companyId}/pending_history`)),
-        performImport: () => dispatch(createResource(`/company/${ownProps.modalData.companyId}/import_pending_history`,
+        requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
+        performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history`,
                                                      {}, {
-                                                        invalidates: [`/company/${ownProps.modalData.companyId}`]
+                                                        invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
     }
 })
-export class ImportHistoryModal extends React.Component {
+export class ImportHistoryTransactionView extends React.Component {
 
     constructor(props){
         super(props);
@@ -148,28 +148,28 @@ export class ImportHistoryModal extends React.Component {
         this.props.next({index: LOADING});
         this.props.performImport()
             .catch(e => {
-                //const companyName = this.props.modalData.companyState.companyName;
+                //const companyName = this.props.transactionViewData.companyState.companyName;
                 //this.props.next({index: AMBIGUITY, data: e})
                 this.handleResolve();
             });
     }
 
     handleResolve() {
-        this.props.show('resolveAmbiguity', {...this.props.modalData, error: this.props.importHistory.error, afterClose: { // open this modal again
-                            showModal: {key: 'importHistory', data: {...this.props.modalData, index: CONTINUE}}}});
+        this.props.show('resolveAmbiguity', {...this.props.transactionViewData, error: this.props.importHistory.error, afterClose: { // open this transactionView again
+                            showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}}});
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Import Company History</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Import Company History</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
                 { this.renderBody() }
-              </Modal.Body>
-              <Modal.Footer>
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 { this.renderFooter() }
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 }

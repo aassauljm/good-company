@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource, createResource, updateResource, deleteResource, resetModals, addNotification, updateMenu } from '../actions';
+import { requestResource, createResource, updateResource, deleteResource, resetTransactionViews, addNotification, updateMenu } from '../actions';
 import { Link } from 'react-router';
 import { AlertWarnings } from './companyAlerts';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';

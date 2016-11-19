@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import Modal from '../forms/modal';
+import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
@@ -9,7 +9,7 @@ import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
 import { formFieldProps, requireFields, joinAnd, newHoldingString } from '../../utils';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification, showModal } from '../../actions';
+import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from '../forms/staticField';
@@ -55,7 +55,7 @@ export class Transfer extends React.Component {
                 </Input>
                 <span className="or-divider">- or -</span>
                 <div className="button-row"><ButtonInput className="new-holding" onClick={() => {
-                    this.props.showModal('newHolding');
+                    this.props.showTransactionView('newHolding');
                 }}>Create New Holding</ButtonInput></div></div> }
 
             { this.props.fields.newHolding.value  &&
@@ -210,7 +210,7 @@ export const TransferConnected = reduxForm({
 
 
 @connect(undefined)
-export class TransferModal extends React.Component {
+export class TransferTransactionView extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -228,17 +228,17 @@ export class TransferModal extends React.Component {
     }
 
     submit(values) {
-        const transactions = transferFormatSubmit(values, this.props.modalData.companyState)
+        const transactions = transferFormatSubmit(values, this.props.transactionViewData.companyState)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
-                                    this.props.modalData.companyId,
+                                    this.props.transactionViewData.companyId,
                                     {transactions: transactions, documents: values.documents} ))
 
             .then(() => {
                 this.handleClose({reload: true});
                 this.props.dispatch(addNotification({message: 'Shares Transfered'}));
-                const key = this.props.modalData.companyId;
+                const key = this.props.transactionViewData.companyId;
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
@@ -265,12 +265,12 @@ export class TransferModal extends React.Component {
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
-                    showModal={(key) => this.props.dispatch(showModal(key, {
-                        ...this.props.modalData,
+                    showTransactionView={(key) => this.props.dispatch(showTransactionView(key, {
+                        ...this.props.transactionViewData,
                         formName: 'transfer',
                         field: 'newHolding',
-                        afterClose: { // open this modal again
-                            showModal: {key: 'transfer', data: {...this.props.modalData}}
+                        afterClose: { // open this transactionView again
+                            showTransactionView: {key: 'transfer', data: {...this.props.transactionViewData}}
                         }
                     }))}
                     onSubmit={this.submit}/>
@@ -279,18 +279,18 @@ export class TransferModal extends React.Component {
     }
 
     render() {
-        return  <Modal ref="modal" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
-              <Modal.Header closeButton>
-                <Modal.Title>Transfer Shares</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                { this.renderBody(this.props.modalData.companyState) }
-              </Modal.Body>
-              <Modal.Footer>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>Transfer Shares</TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+                { this.renderBody(this.props.transactionViewData.companyState) }
+              </TransactionView.Body>
+              <TransactionView.Footer>
                 <Button onClick={this.handleClose} >Close</Button>
                  <Button onClick={this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
-              </Modal.Footer>
-            </Modal>
+              </TransactionView.Footer>
+            </TransactionView>
     }
 
 }
