@@ -549,7 +549,7 @@ export class CompanyDocuments extends React.Component {
         return this.props.companyTransaction(
                                     'compound',
                                     this.props.companyId,
-                                    {transactions: transactions, documents: files, directoryId: directoryId})
+                                    {transactions: transactions, documents: files, directoryId: directoryId}, {skipConfirmation: true})
             .then((result) => {
                 this.props.addNotification({message: 'File uploaded'});
                 return result;

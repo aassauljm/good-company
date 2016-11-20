@@ -355,13 +355,19 @@ export function transactionBulk(data) {
     };
 }
 
-export function companyTransaction(transactionType, companyId, data) {
+export function companyTransaction(transactionType, companyId, data, options={}) {
     const body = new FormData();
     body.append('json', JSON.stringify({...data, documents: null}));
     (data.documents ||[]).map(d => {
         // documents[] ?????
         body.append('documents', d, d.name);
     });
+    const confirmation = !options.skipConfirmation && {
+        title: 'Confirm Transaction',
+        description: 'Please confirm the submission of this transaction',
+        resolveMessage: 'Confirm',
+        resolveBsStyle: 'primary'
+    };
     return {
         types: [TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE],
         callAPI: () => fetch('/api/transaction/'+transactionType+'/' +companyId, {
@@ -370,6 +376,7 @@ export function companyTransaction(transactionType, companyId, data) {
             body: body,
             credentials: 'same-origin'
         }),
+        confirmation: confirmation,
         shouldCallAPI: (state) => state.transactions._status !== 'fetching',
         payload: {companyId: companyId}
     };
