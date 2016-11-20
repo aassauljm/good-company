@@ -2,7 +2,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
 import thunkMiddleware from 'redux-thunk';
-import { callAPIMiddleware } from './middleware';
+import { callAPIMiddleware, confirmationMiddleware } from './middleware';
 import {  routerMiddleware} from 'react-router-redux';
 
 
@@ -14,6 +14,7 @@ export default function configureStore(history, initialState=data) {
     middleware = applyMiddleware(
           thunkMiddleware,
           routerMiddleware(history),
+          confirmationMiddleware,
           callAPIMiddleware)
 
     const createStoreWithMiddleware = compose(

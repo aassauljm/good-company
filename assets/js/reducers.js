@@ -91,7 +91,9 @@ function notifications(state = {list: []}, action){
         case HIDE_NOTIFICATION:
             const list = state.list.slice();
             const index = list.findIndex(n => n.notificationId === action.notificationId);
-            list.splice(index, 1);
+            if(index > -1){
+                list.splice(index, 1);
+            }
             return {...state, list: list};
         default:
             return state;
@@ -368,7 +370,7 @@ function mergeErrors(state, err){
         }
 }
 
-function processResource(state, action){
+function processResource(state, action) {
     switch(action.type) {
         case RESOURCE_SUCCESS:
             return {
@@ -393,6 +395,11 @@ function processResource(state, action){
       }
 }
 
+
+function modals(state = {}, action) {
+
+    return state;
+}
 
 
 const normalizeNumber = (value) => {
@@ -422,6 +429,7 @@ const appReducer = combineReducers({
     renderTemplate,
     lawBrowser,
     workingDays,
+    modals,
     reduxAsyncConnect
 });
 

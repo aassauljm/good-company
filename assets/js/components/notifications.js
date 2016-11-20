@@ -13,17 +13,17 @@ class Notification extends React.Component {
 
     componentDidMount() {
         this._timeout = setTimeout(() => {
-            this.props.close();
+            this.props.close(this.props.notification.notificationId);
         }, NOTIFICATION_TIMEOUT);
     }
 
     componentWillUnmount() {
-        clearTimeout(this._timeout);
+        clearTimeout(this._timeout)
     }
 
     render(){
         const type = this.props.notification.error ? 'alert-danger' : 'alert-success';
-        return <div className={"alert notification " +type} role="alert" onClick={this.props.close}>
+        return <div className={"alert notification " +type} role="alert" onClick={() => this.props.close(this.props.notification.notificationId)}>
         <div className="small-logo"/><span> { this.props.notification.message }</span>
         </div>
     }
@@ -37,11 +37,17 @@ export default class Notifications extends React.Component {
         list: React.PropTypes.array.isRequired
     };
 
-    close(index){
-        this.props.dispatch(hideNotification());
+    constructor(props) {
+        super();
+        this.close = ::this.close;
     }
 
-    render(){
+    close(index) {
+        console.log('REMOVEING', index)
+        this.props.dispatch(hideNotification(index));
+    }
+
+    render() {
        return  <div className="notifications">
        <ReactCSSTransitionGroup
             transitionName="notification-animation"
@@ -54,8 +60,8 @@ export default class Notifications extends React.Component {
                 return <Notification
                 key={this.props.list[index].notificationId}
                 notification={this.props.list[index]}
-                close={() => this.close(this.props.list[index].transactionId)}
-                /> })
+                close={this.close}
+              /> })
             }
         </ReactCSSTransitionGroup>
         </div>

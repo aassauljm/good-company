@@ -3,7 +3,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
-import { callAPIMiddleware } from './middleware';
+import { callAPIMiddleware, confirmationMiddleware } from './middleware';
 import { devTools, persistState } from 'redux-devtools';
 import DevTools from './components/devTools';
 import { routerMiddleware} from 'react-router-redux';
@@ -17,8 +17,9 @@ export default function configureStore(history, initialState=data) {
     const loggerMiddleware = createLogger();
     middleware = applyMiddleware(
           thunkMiddleware,
-          loggerMiddleware,
+          //loggerMiddleware,
           routerMiddleware(history),
+          confirmationMiddleware,
           callAPIMiddleware)
 
     const createStoreWithMiddleware = compose(

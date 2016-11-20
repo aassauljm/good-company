@@ -68,8 +68,8 @@ export function addNotification(data){
     return {type: ADD_NOTIFICATION, data: {...data, notificationId: notificationId++}};
 }
 
-export function hideNotification(data){
-    return {type: HIDE_NOTIFICATION, data};
+export function hideNotification(notificationId){
+    return {type: HIDE_NOTIFICATION, notificationId};
 }
 
 export function requestLogin(credentials) {

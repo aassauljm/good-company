@@ -16,9 +16,9 @@ import { Documents as DocumentsForm } from './forms/documents';
 import FormData from 'form-data';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { DragSource, DropTarget } from 'react-dnd';
-import Loading from './loading';
+import Loading, { LoadingOverlay } from './loading';
 import { NativeTypes } from 'react-dnd-html5-backend';
-
+import firstBy from 'thenby';
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
@@ -158,8 +158,12 @@ const fileTarget = {
         const newDirectoryId = props.item.id === 'root' ? null : props.item.id;
         const dragItem = monitor.getItem()
         if(!dragItem.id && dragItem.files){
-            !monitor.didDrop() && props.upload(dragItem.files, newDirectoryId);
-            return;
+            if(!monitor.didDrop()) {
+                props.showSubTree(newDirectoryId);
+                props.path.map(id =>  props.showSubTree(id))
+                props.upload(dragItem.files, newDirectoryId);
+                return;
+            }
         }
         if(newDirectoryId === dragItem.id){
             return;
@@ -170,7 +174,15 @@ const fileTarget = {
         if(props.path.indexOf(dragItem.id) > -1){
             return;
         }
-        !monitor.didDrop() && props.move(dragItem.id, newDirectoryId)
+        if(!monitor.didDrop()){
+            props.showSubTree(newDirectoryId);
+            props.path.map(id =>  props.showSubTree(id))
+            props.move(dragItem.id, newDirectoryId);
+            // always show parents on drop, so we can select result when upload finished
+        }
+    },
+    canDrop(props, monitor) {
+        return props.item.id === "root" || props.item.userUploaded;
     }
 
 
@@ -192,7 +204,7 @@ class RenderFile extends React.Component {
         const props = this.props;
         const { item, link, push, renameFile, deleteFile, startRename, endRename, createDirectory, startCreateFolder, endCreateFolder } = props;
         const { isDragging, connectDragSource, connectDropTarget, isOver, canDrop } = props;
-        const showingSubTree = props.showingSubTree || isOver;
+        const showingSubTree =  props.showingSubTree || (canDrop && isOver);
 
         if(item.deleted){
             return false;
@@ -250,23 +262,22 @@ class RenderFile extends React.Component {
                 { this.props.renaming && <span onClick={() => endRename()} className="view">Cancel</span> }
                 </span>
 
-        return (
-          connectDropTarget(<div className="file-sub-tree">
+        const canCreateDirectory = item.id === "root" || item.userUploaded;
+        const renderedFile = (<div className="file-sub-tree">
               <span className="expand-control">
-                { item.type === 'Directory'  && showingSubTree && <span className="fa fa-minus-square-o" onClick={props.hideSubTree} /> }
-                { item.type === 'Directory'  && !showingSubTree && <span className="fa fa-plus-square-o" onClick={props.showSubTree} /> }
+                { item.type === 'Directory'  && showingSubTree && <span className="fa fa-minus-square-o" onClick={() => props.hideSubTree()} /> }
+                { item.type === 'Directory'  && !showingSubTree && <span className="fa fa-plus-square-o" onClick={() => props.showSubTree()} /> }
               </span>
-                { item.id !== "root" && !this.props.renaming ? connectDragSource(fileSpan) : fileSpan }
+                { item.id !== "root" && item.userUploaded && !this.props.renaming ? connectDragSource(fileSpan) : fileSpan }
                 { item.type === 'Directory' &&
                     <div className={classnames("children", {"showing": showingSubTree})}>
-                    { !this.props.creatingFolder && showNew() }
-                    { this.props.creatingFolder && showNewForm() }
+                    { canCreateDirectory && !this.props.creatingFolder && showNew() }
+                    { canCreateDirectory && this.props.creatingFolder && showNewForm() }
                     { props.children }
-
                     </div>
                 }
             </div>)
-        )
+        return connectDropTarget(renderedFile);
     }
 }
 
@@ -298,6 +309,9 @@ class FileTree extends React.Component {
         this.collapseAll = ::this.collapseAll;
         this.onSearchChange = ::this.onSearchChange;
         this.upload = ::this.upload;
+        this.move = ::this.move;
+        this.renameFile = ::this.renameFile;
+        this.deleteFile = :: this.deleteFile;
         this.state = {root: true};
     }
 
@@ -306,7 +320,7 @@ class FileTree extends React.Component {
     }
 
     startRename(id) {
-        this.setState({renaming: id, selected: false});
+        this.setState({renaming: id, selected: false})
     }
 
     endRename(id) {
@@ -320,7 +334,6 @@ class FileTree extends React.Component {
     endCreateFolder() {
         this.setState({creatingFolder: false});
     }
-
 
     showSubTree(id) {
         this.setState({[id]: true});
@@ -349,6 +362,27 @@ class FileTree extends React.Component {
         this.setState({filter: value});
     }
 
+    move(...args){
+        this.setState({'loading': 'Moving File'})
+        this.props.move(...args)
+            .then(() => this.setState({'loading': false}))
+            .catch(() => this.setState({'loading': false}))
+    }
+
+    renameFile(...args){
+        this.setState({'loading': 'Renaming File'})
+        this.props.renamingFile(...args)
+            .then(() => this.setState({'loading': false}))
+            .catch(() => this.setState({'loading': false}))
+    }
+
+    deleteFile(...args){
+        this.setState({'loading': 'Deleting File'})
+        this.props.deleteFile(...args)
+            .then(() => this.setState({'loading': false}))
+            .catch(() => this.setState({'loading': false}))
+    }
+
     upload(files, directoryId) {
         if(!directoryId){
             const target = this.state.selected && this.props.flatFiles.find(f => f.id === this.state.selected);
@@ -358,7 +392,15 @@ class FileTree extends React.Component {
             }
         }
         directoryId && this.showSubTree(directoryId)
+        this.setState({'loading': 'Uploading File'})
         this.props.upload(files, directoryId)
+            .then((r) => {
+                this.setState({'loading': false});
+                if(r.response.documentIds && r.response.documentIds[0]){
+                    this.setState({selected: r.response.documentIds[0]});
+                }
+            })
+            .catch(() => this.setState({'loading': false}))
     }
 
     render() {
@@ -376,13 +418,13 @@ class FileTree extends React.Component {
                     selected: !this.state.creatingFolder && this.state.selected === item.id,
                     renaming: !this.state.creatingFolder && this.state.selected === item.id && this.state.renaming === item.id,
                     showingSubTree: this.state[item.id] || !!this.state.filter,
-                    showSubTree: () => this.showSubTree(item.id),
-                    hideSubTree: () => this.hideSubTree(item.id),
-                    move: this.props.move,
+                    showSubTree: (id) => this.showSubTree(id || item.id),
+                    hideSubTree: (id) => this.hideSubTree(id || item.id),
+                    move: this.move,
                     startRename: () => this.startRename(item.id),
                     endRename: () => this.endRename(),
-                    renameFile: this.props.renameFile,
-                    deleteFile: this.props.deleteFile,
+                    renameFile: this.renameFile,
+                    deleteFile: this.deleteFile,
                     creatingFolder: this.state.creatingFolder === item.id,
                     startCreateFolder: () => this.startCreateFolder(item.id),
                     endCreateFolder: () => this.endCreateFolder(),
@@ -393,12 +435,9 @@ class FileTree extends React.Component {
                 if (item.children && item.children.length) {
                     const newPath = [...path, item.id];
 
-                    item.children.sort((a, b) => {
-                        if(a.filename === b.filename){
-                            return a.id - b.id;
-                        }
-                        return (a.filename||'').localeCompare(b.filename||'');
-                    })
+                    item.children.sort(firstBy(doc => {
+                        return doc.userUploaded ? 1 : 0
+                    }).thenBy('filename').thenBy('id'))
 
                     return <RenderFile  {...props}>
                        { loop( item.children, newPath) }
@@ -410,7 +449,6 @@ class FileTree extends React.Component {
         };
 
         const files = filterTree(this.state.filter, this.props.files);
-
         return <div>
             <div className="button-row">
                 <form className="form-inline">
@@ -425,6 +463,7 @@ class FileTree extends React.Component {
                 { loop(files, []) }
             </div>
              <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
+             { (this.state.loading) && <LoadingOverlay message={this.state.loading}/> }
         </div>
     }
 }
@@ -498,28 +537,29 @@ export class CompanyDocuments extends React.Component {
             transactionType: TransactionTypes.UPLOAD_DOCUMENT,
             effectiveDate: new Date()
         }];
-        this.props.companyTransaction(
+        return this.props.companyTransaction(
                                     'compound',
                                     this.props.companyId,
                                     {transactions: transactions, documents: files, directoryId: directoryId})
-            .then(() => {
+            .then((result) => {
                 this.props.addNotification({message: 'File uploaded'});
+                return result;
             })
 
     }
 
     move(documentId, directoryId) {
-        this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId})
+        return this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId})
             .then(() => this.props.addNotification({message: 'File moved'}))
     }
 
     deleteFile(documentId) {
-        this.props.softDeleteResource(`/document/${documentId}`)
+        return this.props.softDeleteResource(`/document/${documentId}`)
             .then(() => this.props.addNotification({message: 'File deleted'}))
     }
 
     renameFile(documentId, filename) {
-        this.props.updateResource(`/document/${documentId}`, {filename: filename})
+        return this.props.updateResource(`/document/${documentId}`, {filename: filename})
             .then(() => this.props.addNotification({message: 'File renamed'}))
     }
 

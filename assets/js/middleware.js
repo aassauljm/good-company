@@ -22,6 +22,19 @@ function parse(response) {
     return response;
 }
 
+export function confirmationMiddleware({
+    dispatch, getState
+}) {
+    return next => {
+        return action => {
+
+            return next(action);
+
+        }
+    }
+}
+
+
 export function callAPIMiddleware({
     dispatch, getState
 }) {
