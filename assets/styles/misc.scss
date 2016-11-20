@@ -308,6 +308,16 @@ a.law-browser-link {
         text-decoration: underline;
     }
 }
+
+ .vanity-link{
+    color: $link-color;
+    cursor: pointer;
+    &:hover{
+        text-decoration: underline;
+    }
+}
+
+
 .nav-link{
     &:hover{
         text-decoration: underline;

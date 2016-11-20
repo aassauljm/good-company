@@ -385,7 +385,7 @@ class FileTree extends React.Component {
     }
 
     createDirectory(...args){
-        tthis.props.showLoading({'message': 'Creating Folder'})
+        this.props.showLoading({'message': 'Creating Folder'})
         this.props.createDirectory(...args)
             .then(() => this.props.endLoading({}))
             .catch(() => this.props.endLoading({}))
