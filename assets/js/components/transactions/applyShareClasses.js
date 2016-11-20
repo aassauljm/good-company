@@ -104,7 +104,7 @@ export class ApplyShareClassesTransactionView extends React.Component {
         });
         this.props.dispatch(companyTransaction('apply_share_classes',
                                 this.props.transactionViewData.companyId,
-                                {actions: holdings}))
+                                {actions: holdings}, {skipConfirmation: true}))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
