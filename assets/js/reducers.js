@@ -21,7 +21,8 @@ import {
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
     SHOW_TRANSACTION_VIEW, END_TRANSACTION_VIEW, NEXT_TRANSACTION_VIEW, PREVIOUS_TRANSACTION_VIEW, RESET_TRANSACTION_VIEWS,
     SHOW_CONTEXTUAL_TRANSACTION_VIEW, END_CONTEXTUAL_TRANSACTION_VIEW, NEXT_CONTEXTUAL_TRANSACTION_VIEW, PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW,
-    SHOW_MODAL, END_MODAL,
+    SHOW_CONFIRMATION, END_CONFIRMATION,
+    SHOW_LOADING, END_LOADING,
     UPDATE_MENU, TOGGLE_WIDGET_SIZE,
     LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
@@ -399,10 +400,15 @@ function processResource(state, action) {
 
 function modals(state = {}, action) {
     switch(action.type){
-        case SHOW_MODAL:
-            return {...state, ...action.data, showing: true}
-        case END_MODAL:
-            return {...state, ...action.data, showing: false}
+        case SHOW_CONFIRMATION:
+            return {...state, confirmation: {...action.data, showing: true}}
+        case END_CONFIRMATION:
+            return {...state, confirmation: {...action.data, showing: false}}
+        case SHOW_LOADING:
+            return {...state, loading: {...action.data, showing: true}}
+        case END_LOADING:
+            return {...state, loading: {...action.data, showing: false}}
+
         default:
           return state;
     }

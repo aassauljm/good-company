@@ -27,7 +27,8 @@ import {
     SHOW_CONTEXTUAL_TRANSACTION_VIEW, END_CONTEXTUAL_TRANSACTION_VIEW, NEXT_CONTEXTUAL_TRANSACTION_VIEW, PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW,
     LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
     UPDATE_MENU,
-    SHOW_MODAL, END_MODAL,
+    SHOW_CONFIRMATION, END_CONFIRMATION,
+    SHOW_LOADING, END_LOADING,
     TOGGLE_WIDGET_SIZE,
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
      } from './actionTypes';
@@ -185,7 +186,12 @@ export function softDeleteResource(resource, options = {stringify: true}) {
             body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
-        requiresConfirmation: true,
+        confirmation: {
+            title: 'Confirm Deletion',
+            description: 'Please confirm the deletion of this item',
+            resolveMessage: 'Confirm Deletion',
+            resolveBsStyle: 'danger'
+        },
         payload: {key: resource, form: options.form, invalidateList: options.invalidates}
 
     };
@@ -464,14 +470,26 @@ export function toggleWidget(path, value){
 }
 
 
-export function showModal(data){
+export function showConfirmation(data){
     return {
-        type: SHOW_MODAL, data
+        type: SHOW_CONFIRMATION, data
     }
 }
 
-export function endModal(data){
+export function endConfirmation(data){
     return {
-        type: END_MODAL, data
+        type: END_CONFIRMATION, data
+    }
+}
+
+export function showLoading(data){
+    return {
+        type: SHOW_LOADING, data
+    }
+}
+
+export function endLoading(data){
+    return {
+        type: END_LOADING, data
     }
 }

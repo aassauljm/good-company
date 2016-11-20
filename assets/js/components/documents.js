@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, softDeleteResource, updateResource, companyTransaction, addNotification } from '../actions';
+import { requestResource, softDeleteResource, updateResource, companyTransaction, addNotification, showLoading, endLoading } from '../actions';
 import { pureRender, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -16,7 +16,7 @@ import { Documents as DocumentsForm } from './forms/documents';
 import FormData from 'form-data';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { DragSource, DropTarget } from 'react-dnd';
-import Loading, { LoadingOverlay } from './loading';
+import Loading from './loading';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import firstBy from 'thenby';
 
@@ -364,31 +364,31 @@ class FileTree extends React.Component {
     }
 
     move(...args){
-        this.setState({'loading': 'Moving File'})
+        this.props.showLoading({'message': 'Moving File'})
         this.props.move(...args)
-            .then(() => this.setState({'loading': false}))
-            .catch(() => this.setState({'loading': false}))
+            .then(() => this.props.endLoading({}))
+            .catch(() => this.props.endLoading({}))
     }
 
     renameFile(...args){
-        this.setState({'loading': 'Renaming File'})
+        this.props.showLoading({'loading': 'Renaming File'})
         this.props.renameFile(...args)
-            .then(() => this.setState({'loading': false}))
-            .catch(() => this.setState({'loading': false}))
+            .then(() => this.props.endLoading({}))
+            .catch(() => this.props.endLoading({}))
     }
 
     deleteFile(...args){
-        this.setState({'loading': 'Deleting File'})
+        this.props.showLoading({'message': 'Deleting File'})
         this.props.deleteFile(...args)
-            .then(() => this.setState({'loading': false}))
-            .catch(() => this.setState({'loading': false}))
+            .then(() => this.props.endLoading({}))
+            .catch(() => this.props.endLoading({}))
     }
 
     createDirectory(...args){
-        this.setState({'loading': 'Creating Folder'})
+        tthis.props.showLoading({'message': 'Creating Folder'})
         this.props.createDirectory(...args)
-            .then(() => this.setState({'loading': false}))
-            .catch(() => this.setState({'loading': false}))
+            .then(() => this.props.endLoading({}))
+            .catch(() => this.props.endLoading({}))
     }
 
     upload(files, directoryId) {
@@ -400,15 +400,15 @@ class FileTree extends React.Component {
             }
         }
         directoryId && this.showSubTree(directoryId)
-        this.setState({'loading': 'Uploading File'})
+        this.props.showLoading({'message': files.length > 1 ? 'Uploading Files' : 'Uploading File'})
         this.props.upload(files, directoryId)
             .then((r) => {
-                this.setState({'loading': false});
+                this.props.endLoading({});
                 if(r.response.documentIds && r.response.documentIds[0]){
                     this.setState({selected: r.response.documentIds[0]});
                 }
             })
-            .catch(() => this.setState({'loading': false}))
+            .catch(() => this.props.endLoading({}))
     }
 
     render() {
@@ -471,7 +471,6 @@ class FileTree extends React.Component {
                 { loop(files, []) }
             </div>
              <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
-             { (this.state.loading) && <LoadingOverlay message={this.state.loading}/> }
         </div>
     }
 }
@@ -505,6 +504,8 @@ function listToTree(documents){
     addNotification: (args) => addNotification(args),
     updateResource: (...args) => updateResource(...args),
     softDeleteResource: (...args) => softDeleteResource(...args),
+    showLoading: (...args) => showLoading(...args),
+    endLoading: (...args) => endLoading(...args),
 })
 export class CompanyDocuments extends React.Component {
 
@@ -600,6 +601,8 @@ export class CompanyDocuments extends React.Component {
                 renameFile={this.renameFile}
                 createDirectory={this.createDirectory}
                 upload={this.upload}
+                showLoading={this.props.showLoading}
+                endLoading={this.props.endLoading}
                 />
             { !files.length && <Loading/> }
         </div>

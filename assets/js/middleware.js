@@ -1,6 +1,6 @@
 "use strict";
 import Promise from 'bluebird';
-import { logout, showModal } from './actions';
+import { logout, showConfirmation } from './actions';
 import { push } from 'react-router-redux'
 
 function checkStatus(response) {
@@ -23,25 +23,38 @@ function parse(response) {
 }
 
 
-let resolutionId = 0, resolutionMap=[];
+let resolutionId = 0, resolutionMap={};
 
 export function confirmationMiddleware({
     dispatch, getState
 }) {
     return next => {
         return action => {
-            if(action.resolutionId !== undefined){
-                const deferred = resolutionMap[action.resolutionId];
+            if(action._confirmation){
+                const deferred = resolutionMap[action._confirmation.resolutionId];
+                if(!deferred){
+                    return
+                }
+                delete resolutionMap[action._confirmation.resolutionId];
+                if(action._confirmation.resolve){
+                    return next(action)
+                        .then(deferred.resolve)
+                        .catch(deferred.reject)
+                }
+                else{
+                    return deferred.reject();
+                }
+
             }
-            if(action.requiresConfirmation){
+            if(action.confirmation){
                 const id = resolutionId++;
-                dispatch(showModal({
-                    modalType: 'confirmation',
-                    resolveAction: {...action, requiresConfirmation: false, _confirmation: {resolutionID: id, resolve: true}},
-                    rejectAction: {...action, requiresConfirmation: false, _confirmation: {resolutionID: id, reject: true}},
+                dispatch(showConfirmation({
+                    ...action.confirmation,
+                    resolveAction: {...action, requiresConfirmation: false, _confirmation: {resolutionId: id, resolve: true}},
+                    rejectAction: {requiresConfirmation: false, _confirmation: {resolutionId: id, resolve: false}},
                 }));
                 return new Promise((resolve, reject) => {
-                    resolutionMap[resolutionId] = {resolve, reject};
+                    resolutionMap[id] = {resolve, reject};
                 });
             }
             else{
