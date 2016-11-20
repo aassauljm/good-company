@@ -398,8 +398,14 @@ function processResource(state, action) {
 
 
 function modals(state = {}, action) {
-
-    return state;
+    switch(action.type){
+        case SHOW_MODAL:
+            return {...state, ...action.data, showing: true}
+        case END_MODAL:
+            return {...state, ...action.data, showing: false}
+        default:
+          return state;
+    }
 }
 
 

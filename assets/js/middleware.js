@@ -1,6 +1,6 @@
 "use strict";
 import Promise from 'bluebird';
-import { logout } from './actions';
+import { logout, showModal } from './actions';
 import { push } from 'react-router-redux'
 
 function checkStatus(response) {
@@ -22,13 +22,31 @@ function parse(response) {
     return response;
 }
 
+
+let resolutionId = 0, resolutionMap=[];
+
 export function confirmationMiddleware({
     dispatch, getState
 }) {
     return next => {
         return action => {
-
-            return next(action);
+            if(action.resolutionId !== undefined){
+                const deferred = resolutionMap[action.resolutionId];
+            }
+            if(action.requiresConfirmation){
+                const id = resolutionId++;
+                dispatch(showModal({
+                    modalType: 'confirmation',
+                    resolveAction: {...action, requiresConfirmation: false, _confirmation: {resolutionID: id, resolve: true}},
+                    rejectAction: {...action, requiresConfirmation: false, _confirmation: {resolutionID: id, reject: true}},
+                }));
+                return new Promise((resolve, reject) => {
+                    resolutionMap[resolutionId] = {resolve, reject};
+                });
+            }
+            else{
+                return next(action);
+            }
 
         }
     }

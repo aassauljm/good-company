@@ -6,6 +6,7 @@ import { pureRender } from '../utils';
 import { requestUserInfo } from '../actions';
 import { createResource } from '../actions'
 import Notifications from './notifications';
+import Modals from './modals';
 import Search from './search';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import { asyncConnect } from 'redux-connect';
@@ -50,6 +51,7 @@ export default class App extends React.Component {
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDragOver={prevent}>
              <DragContainer>
+                    <Modals />
                 { this.props.children }
                 </DragContainer>
                 { !this.props.routes.some(r => r.print) && <Footer />}
@@ -59,7 +61,8 @@ export default class App extends React.Component {
         name = name.split('/')[1] || 'root'
         return <div>
             <Header />
-                 <Notifications/>
+                 <Notifications />
+                 <Modals />
                   <DragContainer>
                 <div className="app-container" >
                   <ReactCSSTransitionGroup component="div" transitionName="page-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>

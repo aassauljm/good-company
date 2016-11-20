@@ -394,7 +394,7 @@ class FileTree extends React.Component {
     upload(files, directoryId) {
         if(!directoryId){
             const target = this.state.selected && this.props.flatFiles.find(f => f.id === this.state.selected);
-            if(target){
+            if(target && target.userUploaded){
                 directoryId = target.type === 'Directory' ? target.id : target.directoryId;
                 directoryId = directoryId === 'root' ? null : directoryId;
             }

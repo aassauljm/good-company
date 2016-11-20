@@ -231,9 +231,6 @@ var transactions = {
             .then(() => {
                 return transactionMessages(args.transactions, state.companyName);
             })
-            .then(messages => {
-                return {messages: messages, documentIds: (args.documents || []).map(d => d.id)}
-            });
     },
 
     createRegisterEntry: function (data, company){
@@ -564,9 +561,12 @@ function createTransaction(req, res, type){
             .then((results) => {
                 return selfManagedTransactions[type] ? selfManagedTransactions[type](args, company) : results;
             })
-            .then((results) => {
-                return createActivityLog(req.user, company, results.messages)
-                    .then(() => results)
+            .then((messages) => {
+                return createActivityLog(req.user, company, messages)
+                    .then(() => ({
+                        message: messages,
+                        documentIds:  (args.documents || []).map(d => d.id)
+                    }))
             })
             .then((result) => {
                 res.json(result);
