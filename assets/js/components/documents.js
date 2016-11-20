@@ -312,6 +312,7 @@ class FileTree extends React.Component {
         this.move = ::this.move;
         this.renameFile = ::this.renameFile;
         this.deleteFile = :: this.deleteFile;
+        this.createDirectory = :: this.createDirectory;
         this.state = {root: true};
     }
 
@@ -320,7 +321,7 @@ class FileTree extends React.Component {
     }
 
     startRename(id) {
-        this.setState({renaming: id, selected: false})
+        this.setState({renaming: id, selected: id})
     }
 
     endRename(id) {
@@ -371,7 +372,7 @@ class FileTree extends React.Component {
 
     renameFile(...args){
         this.setState({'loading': 'Renaming File'})
-        this.props.renamingFile(...args)
+        this.props.renameFile(...args)
             .then(() => this.setState({'loading': false}))
             .catch(() => this.setState({'loading': false}))
     }
@@ -379,6 +380,13 @@ class FileTree extends React.Component {
     deleteFile(...args){
         this.setState({'loading': 'Deleting File'})
         this.props.deleteFile(...args)
+            .then(() => this.setState({'loading': false}))
+            .catch(() => this.setState({'loading': false}))
+    }
+
+    createDirectory(...args){
+        this.setState({'loading': 'Creating Folder'})
+        this.props.createDirectory(...args)
             .then(() => this.setState({'loading': false}))
             .catch(() => this.setState({'loading': false}))
     }
@@ -428,7 +436,7 @@ class FileTree extends React.Component {
                     creatingFolder: this.state.creatingFolder === item.id,
                     startCreateFolder: () => this.startCreateFolder(item.id),
                     endCreateFolder: () => this.endCreateFolder(),
-                    createDirectory: this.props.createDirectory,
+                    createDirectory: this.createDirectory,
                     upload: this.upload,
                     path: path
                 }
@@ -571,7 +579,7 @@ export class CompanyDocuments extends React.Component {
             directoryId: directoryId,
             newDirectoryId: name
         }];
-        this.props.companyTransaction(
+        return this.props.companyTransaction(
                                     'compound',
                                     this.props.companyId,
                                     {transactions: transactions, directoryId: directoryId, newDirectory: name} )

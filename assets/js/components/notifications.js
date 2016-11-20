@@ -43,7 +43,6 @@ export default class Notifications extends React.Component {
     }
 
     close(index) {
-        console.log('REMOVEING', index)
         this.props.dispatch(hideNotification(index));
     }
 

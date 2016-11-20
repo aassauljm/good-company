@@ -19,8 +19,9 @@ import {
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
-    SHOW_MODAL, END_MODAL, NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
-    SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
+    SHOW_TRANSACTION_VIEW, END_TRANSACTION_VIEW, NEXT_TRANSACTION_VIEW, PREVIOUS_TRANSACTION_VIEW, RESET_TRANSACTION_VIEWS,
+    SHOW_CONTEXTUAL_TRANSACTION_VIEW, END_CONTEXTUAL_TRANSACTION_VIEW, NEXT_CONTEXTUAL_TRANSACTION_VIEW, PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW,
+    SHOW_MODAL, END_MODAL,
     UPDATE_MENU, TOGGLE_WIDGET_SIZE,
     LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
@@ -189,16 +190,16 @@ function transactionViews(state = {}, action){
                 return {...state, showing: null};
             return state;
 
-        case SHOW_MODAL:
+        case SHOW_TRANSACTION_VIEW:
             return {...state, showing: action.transactionView, [action.transactionView]: {index: (action.data||{}).index || 0, data: action.data}};
-        case END_MODAL:
+        case END_TRANSACTION_VIEW:
             return {...state, showing: null, [action.transactionView]: null };
-        case NEXT_MODAL:
+        case NEXT_TRANSACTION_VIEW:
             const index = action.data && action.data.index !== undefined ? action.data.index : state[action.transactionView].index + 1;
             return {...state,  [action.transactionView]: {index: index, data: {...(state[action.transactionView] || {}).data, ...action.data}}};
-        case PREVIOUS_MODAL:
+        case PREVIOUS_TRANSACTION_VIEW:
             return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
-        case RESET_MODALS:
+        case RESET_TRANSACTION_VIEWS:
             return {} ;
 
         default:
@@ -208,20 +209,20 @@ function transactionViews(state = {}, action){
 
 function contextualTransactionViews(state = {}, action){
     switch(action.type){
-        case SHOW_CONTEXTUAL_MODAL:
-        case END_CONTEXTUAL_MODAL:
-        case NEXT_CONTEXTUAL_MODAL:
-        case PREVIOUS_CONTEXTUAL_MODAL:
+        case SHOW_CONTEXTUAL_TRANSACTION_VIEW:
+        case END_CONTEXTUAL_TRANSACTION_VIEW:
+        case NEXT_CONTEXTUAL_TRANSACTION_VIEW:
+        case PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW:
             return {...state, [action.context]: ((state)  => {
                 switch(action.type){
-                    case SHOW_CONTEXTUAL_MODAL:
+                    case SHOW_CONTEXTUAL_TRANSACTION_VIEW:
                         return {...state, showing: action.transactionView, [action.transactionView]: {index: (action.data||{}).index || 0, data: action.data}};
-                    case END_CONTEXTUAL_MODAL:
+                    case END_CONTEXTUAL_TRANSACTION_VIEW:
                         return {...state, showing: null, [action.transactionView]: null };
-                    case NEXT_CONTEXTUAL_MODAL:
+                    case NEXT_CONTEXTUAL_TRANSACTION_VIEW:
                         const index = action.data && action.data.index !== undefined ? action.data.index : state[action.transactionView].index + 1;
                         return {...state,  [action.transactionView]: {index: index, data: {...(state[action.transactionView] || {}).data, ...action.data}}};
-                    case PREVIOUS_CONTEXTUAL_MODAL:
+                    case PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW:
                         return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
                     default:
                         return state;

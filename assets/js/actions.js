@@ -23,8 +23,8 @@ import {
     COMPANY_TAB_CHANGE,
     START_CREATE_COMPANY, END_CREATE_COMPANY,
     START_IMPORT_COMPANY, END_IMPORT_COMPANY,
-    SHOW_MODAL, END_MODAL, NEXT_MODAL, PREVIOUS_MODAL, RESET_MODALS,
-    SHOW_CONTEXTUAL_MODAL, END_CONTEXTUAL_MODAL, NEXT_CONTEXTUAL_MODAL, PREVIOUS_CONTEXTUAL_MODAL,
+    SHOW_TRANSACTION_VIEW, END_TRANSACTION_VIEW, NEXT_TRANSACTION_VIEW, PREVIOUS_TRANSACTION_VIEW, RESET_TRANSACTION_VIEWS,
+    SHOW_CONTEXTUAL_TRANSACTION_VIEW, END_CONTEXTUAL_TRANSACTION_VIEW, NEXT_CONTEXTUAL_TRANSACTION_VIEW, PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW,
     LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
     UPDATE_MENU,
     TOGGLE_WIDGET_SIZE,
@@ -395,57 +395,57 @@ export function endImportCompany(formKey){
 
 export function showTransactionView(transactionView, data){
     return {
-        type: SHOW_MODAL, transactionView, data
+        type: SHOW_TRANSACTION_VIEW, transactionView, data
     }
 }
 
 export function endTransactionView(transactionView, data={}){
     return {
-        type: END_MODAL, transactionView, data
+        type: END_TRANSACTION_VIEW, transactionView, data
     }
 }
 
 export function nextTransactionView(transactionView, data){
     return {
-        type: NEXT_MODAL, transactionView, data
+        type: NEXT_TRANSACTION_VIEW, transactionView, data
     }
 }
 
 export function previousTransactionView(transactionView){
     return {
-        type: PREVIOUS_MODAL, transactionView
+        type: PREVIOUS_TRANSACTION_VIEW, transactionView
     }
 }
 
 
 export function showContextualTransactionView(context, transactionView, data){
     return {
-        type: SHOW_CONTEXTUAL_MODAL, context, transactionView, data
+        type: SHOW_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
     }
 }
 
 export function endContextualTransactionView(context, transactionView, data={}){
     return {
-        type: END_CONTEXTUAL_MODAL, context, transactionView, data
+        type: END_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
     }
 }
 
 export function nextContextualTransactionView(context, transactionView, data){
     return {
-        type: NEXT_CONTEXTUAL_MODAL, context, transactionView, data
+        type: NEXT_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
     }
 }
 
 export function previousContextualTransactionView(context, transactionView, data){
     return {
-        type: PREVIOUS_CONTEXTUAL_MODAL, context, transactionView, data
+        type: PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
     }
 }
 
 
 export function resetTransactionViews(){
     return {
-        type: RESET_MODALS
+        type: RESET_TRANSACTION_VIEWS
     }
 }
 
