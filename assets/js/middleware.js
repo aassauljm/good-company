@@ -3,6 +3,11 @@ import Promise from 'bluebird';
 import { logout, showConfirmation } from './actions';
 import { push } from 'react-router-redux'
 
+Promise.config({
+    cancellation: true
+});
+
+
 function checkStatus(response) {
   if (response.status >= 200 && response.status <= 304) {
     return response
@@ -39,10 +44,13 @@ export function confirmationMiddleware({
                 if(action._confirmation.resolve){
                     return next(action)
                         .then(deferred.resolve)
-                        .catch(deferred.reject)
+                        .catch(deferred.reject);
+                }
+                else if(action._confirmation.reject){
+                    return deferred.reject();
                 }
                 else{
-                    return deferred.reject();
+                    return deferred.cancel();
                 }
 
             }
@@ -51,11 +59,15 @@ export function confirmationMiddleware({
                 dispatch(showConfirmation({
                     ...action.confirmation,
                     resolveAction: {...action, requiresConfirmation: false, _confirmation: {resolutionId: id, resolve: true}},
-                    rejectAction: {requiresConfirmation: false, _confirmation: {resolutionId: id, resolve: false}},
+                    rejectAction: {requiresConfirmation: false, _confirmation: {resolutionId: id, reject: true}},
+                    cancelAction: {_confirmation: {resolutionId: id, cancel: true}}
                 }));
-                return new Promise((resolve, reject) => {
-                    resolutionMap[id] = {resolve, reject};
+                const p = new Promise((resolve, reject) => {
+                    resolutionMap[id] = {...resolutionMap[id], resolve, reject};
                 });
+
+                resolutionMap[id] = {...resolutionMap[id], cancel: p.cancel.bind(p)};
+                return p
             }
             else{
                 return next(action);

@@ -13,6 +13,9 @@ import { asyncConnect } from 'redux-connect';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext, DropTarget } from 'react-dnd';
 import { POPOVER_DRAGGABLE } from './lawBrowserLink';
+import Promise from 'bluebird';
+
+
 
 
 function prevent(e){

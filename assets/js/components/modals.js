@@ -20,12 +20,12 @@ export class Confirmation extends React.Component {
     }
 
     reject() {
-        this.props.dispatch(this.props.rejectAction);
+        this.props.dispatch(this.props.cancelAction);
         this.props.dispatch(endConfirmation());
     }
 
     render() {
-        const {title, description, rejectMessage, resolveMessage} = this.props;
+        const {title, description, cancelMessage, resolveMessage} = this.props;
         return <Modal show={true} onHide={this.reject}>
             <Modal.Header closeButton>
             <Modal.Title>{ title || 'Confirm' }</Modal.Title>
@@ -34,7 +34,7 @@ export class Confirmation extends React.Component {
             { description || 'Please confirm the action' }
          </Modal.Body>
           <Modal.Footer>
-            <Button bsStyle={this.props.rejectBsStyle} onClick={this.reject}>{ rejectMessage || 'Cancel' }</Button>
+            <Button bsStyle={this.props.cancelBsStyle} onClick={this.reject}>{ cancelMessage || 'Cancel' }</Button>
             <Button bsStyle={this.props.resolveBsStyle} onClick={this.resolve}>{ resolveMessage || 'Confirm' }</Button>
           </Modal.Footer>
         </Modal>
