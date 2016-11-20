@@ -147,7 +147,7 @@ export function createResource(resource, data, options = {stringify: true}) {
             body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
-        payload: {key: resource, form: options.form, invalidateList: options.invalidates}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
     };
 }
 
@@ -166,7 +166,7 @@ export function updateResource(resource, data, options = {stringify: true}) {
             body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
-        payload: {key: resource, form: options.form, invalidateList: options.invalidates}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
 
     };
 }
@@ -192,7 +192,7 @@ export function softDeleteResource(resource, options = {stringify: true}) {
             resolveMessage: 'Confirm Deletion',
             resolveBsStyle: 'danger'
         },
-        payload: {key: resource, form: options.form, invalidateList: options.invalidates}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
 
     };
 }
@@ -205,7 +205,7 @@ export function deleteResource(resource, options = {}) {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        payload: {key: resource, invalidateList: options.invalidates}
+        payload: {key: resource, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
     };
 }
 
@@ -378,7 +378,7 @@ export function companyTransaction(transactionType, companyId, data, options={})
         }),
         confirmation: confirmation,
         shouldCallAPI: (state) => state.transactions._status !== 'fetching',
-        payload: {companyId: companyId}
+        payload: {companyId: companyId, loadingMessage: options.loadingMessage}
     };
 }
 

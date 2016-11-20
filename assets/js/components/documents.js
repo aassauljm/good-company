@@ -364,31 +364,19 @@ class FileTree extends React.Component {
     }
 
     move(...args){
-        this.props.showLoading({'message': 'Moving File'})
         this.props.move(...args)
-            .then(() => this.props.endLoading({}))
-            .catch(() => this.props.endLoading({}))
     }
 
     renameFile(...args){
-        this.props.showLoading({'loading': 'Renaming File'})
         this.props.renameFile(...args)
-            .then(() => this.props.endLoading({}))
-            .catch(() => this.props.endLoading({}))
     }
 
     deleteFile(...args){
-        this.props.showLoading({'message': 'Deleting File'})
         this.props.deleteFile(...args)
-            .then(() => this.props.endLoading({}))
-            .catch(() => this.props.endLoading({}))
     }
 
     createDirectory(...args){
-        this.props.showLoading({'message': 'Creating Folder'})
         this.props.createDirectory(...args)
-            .then(() => this.props.endLoading({}))
-            .catch(() => this.props.endLoading({}))
     }
 
     upload(files, directoryId) {
@@ -400,15 +388,12 @@ class FileTree extends React.Component {
             }
         }
         directoryId && this.showSubTree(directoryId)
-        this.props.showLoading({'message': files.length > 1 ? 'Uploading Files' : 'Uploading File'})
         this.props.upload(files, directoryId)
             .then((r) => {
-                this.props.endLoading({});
                 if(r.response.documentIds && r.response.documentIds[0]){
                     this.setState({selected: r.response.documentIds[0]});
                 }
             })
-            .catch(() => this.props.endLoading({}))
     }
 
     render() {
@@ -504,8 +489,6 @@ function listToTree(documents){
     addNotification: (args) => addNotification(args),
     updateResource: (...args) => updateResource(...args),
     softDeleteResource: (...args) => softDeleteResource(...args),
-    showLoading: (...args) => showLoading(...args),
-    endLoading: (...args) => endLoading(...args),
 })
 export class CompanyDocuments extends React.Component {
 
@@ -549,7 +532,7 @@ export class CompanyDocuments extends React.Component {
         return this.props.companyTransaction(
                                     'compound',
                                     this.props.companyId,
-                                    {transactions: transactions, documents: files, directoryId: directoryId}, {skipConfirmation: true})
+                                    {transactions: transactions, documents: files, directoryId: directoryId}, {skipConfirmation: true, 'loadingMessage': 'Uploading'})
             .then((result) => {
                 this.props.addNotification({message: 'File uploaded'});
                 return result;
@@ -558,17 +541,17 @@ export class CompanyDocuments extends React.Component {
     }
 
     move(documentId, directoryId) {
-        return this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId})
+        return this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId}, {loadingMessage: 'Deleting File'})
             .then(() => this.props.addNotification({message: 'File moved'}))
     }
 
     deleteFile(documentId) {
-        return this.props.softDeleteResource(`/document/${documentId}`)
+        return this.props.softDeleteResource(`/document/${documentId}`, {loadingMessage: 'Deleting File'})
             .then(() => this.props.addNotification({message: 'File deleted'}))
     }
 
     renameFile(documentId, filename) {
-        return this.props.updateResource(`/document/${documentId}`, {filename: filename})
+        return this.props.updateResource(`/document/${documentId}`, {filename: filename}, {loadingMessage: 'Renaming File'})
             .then(() => this.props.addNotification({message: 'File renamed'}))
     }
 
@@ -583,7 +566,8 @@ export class CompanyDocuments extends React.Component {
         return this.props.companyTransaction(
                                     'compound',
                                     this.props.companyId,
-                                    {transactions: transactions, directoryId: directoryId, newDirectory: name} )
+                                    {transactions: transactions, directoryId: directoryId, newDirectory: name},
+                                    {skipConfirmation: true, 'loadingMessage': 'Creating Folder'} )
             .then(() => {
                 this.props.addNotification({message: 'Directory Created'});
             })
@@ -601,8 +585,6 @@ export class CompanyDocuments extends React.Component {
                 renameFile={this.renameFile}
                 createDirectory={this.createDirectory}
                 upload={this.upload}
-                showLoading={this.props.showLoading}
-                endLoading={this.props.endLoading}
                 />
             { !files.length && <Loading/> }
         </div>

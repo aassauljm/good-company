@@ -409,6 +409,29 @@ function modals(state = {}, action) {
         case END_LOADING:
             return {...state, loading: {...action.data, showing: false}}
 
+        case RESOURCE_REQUEST:
+        case RESOURCE_CREATE_REQUEST:
+        case RESOURCE_UPDATE_REQUEST:
+        case RESOURCE_DELETE_REQUEST:
+        case TRANSACTION_REQUEST:
+            if(action.loadingMessage){
+                return {...state, loading: {message: action.loadingMessage, showing: true}};
+            }
+            return state;
+        case RESOURCE_FAILURE:
+        case RESOURCE_CREATE_FAILURE:
+        case RESOURCE_UPDATE_FAILURE:
+        case RESOURCE_DELETE_FAILURE:
+        case TRANSACTION_FAILURE:
+        case RESOURCE_SUCCESS:
+        case RESOURCE_CREATE_SUCCESS:
+        case RESOURCE_UPDATE_SUCCESS:
+        case RESOURCE_DELETE_SUCCESS:
+        case TRANSACTION_SUCCESS:
+            if(action.loadingMessage){
+                return {...state, loading: {message: action.loadingMessage, showing: false}};
+            }
+            return state;
         default:
           return state;
     }
