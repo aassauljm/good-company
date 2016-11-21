@@ -188,8 +188,9 @@ var transactions = {
         let name;
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
+            const date = new Date();
             return currentCompanyState.buildNext(_.merge({}, args, {
-                transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: args.effectiveDate || new Date() }
+                transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: args.effectiveDate || date }
             }))
         })
         .then(function(nextCompanyState){
@@ -209,10 +210,11 @@ var transactions = {
 
     compound: function(args, company){
         // TODO, validate different pairings
-        let state, date = args.transactions[0].effectiveDate || new Date();
+        let state, date = args.transactions[0].effectiveDate;
+        date = date || args.transactions[0].actions[0].effectiveDate || new Date();
         args.transactions.map(t => {
             t.effectiveDate = t.effectiveDate || date;
-        })
+        });
         // TODO directorUpdate and holderchange should generate in same set
         if(args.documents){
             args.transactions.map(t => t.documents = args.documents);
@@ -390,6 +392,7 @@ var transactions = {
 }
 
 const selfManagedTransactions = {
+    // ew snake case, gross
      apply_share_classes: function (data, company){
         /* to apply, retroactively, a share class:
             * clone current state without apply previousCompanyStateId.

@@ -12,32 +12,16 @@ var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 
 module.exports = {
+
     find: function(req, res) {
-        Company.findAll({
-            where: {
-                ownerId: req.user.id,
-                deleted: false,
-                currentCompanyStateId: {
-                  $ne: null
-                }
-            },
-            order: [
-                    [{
-                        model: CompanyState,
-                        as: 'currentCompanyState'
-                    }, 'companyName', 'ASC']
-            ],
-            include: [{
-                model: CompanyState,
-                as: 'currentCompanyState'
-            }]
-        }).then(function(matchingRecords) {
-            sails.log.error('found '+matchingRecords.length+ 'companies')
-            res.ok(matchingRecords.map(x => x.toJSON()));
-        }).catch(function(err) {
-            return res.notFound(err);
-        });
+        return Company.getNowCompanies(req.user.id)
+            .then(result =>{
+                return res.ok(result);
+            }).catch(function(err) {
+                return res.notFound(err);
+            });
     },
+
 
     destroy: function(req, res) {
         const args = actionUtil.parseValues(req);
@@ -45,7 +29,7 @@ module.exports = {
         Company.findById(req.params.id)
         .then(function(_company){
             company  = _company;
-            return company.getCurrentCompanyState();
+            return company.getNowCompanyState();
         })
         .then(_state => {
             state = _state;
@@ -74,13 +58,12 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob()])
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id)])
             })
-            .spread(function(currentCompanyState, hasPendingJob) {
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions) {
                 var json = this.companyState.get();
-                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob: hasPendingJob}, });
+                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions}, });
             }).catch(function(err) {
-                console.log(err)
                 return res.notFound();
             });
     },
@@ -370,7 +353,7 @@ module.exports = {
         Company.findById(req.params.id)
         .then(function(_company){
             company  = _company;
-            return company.getCurrentCompanyState()
+            return company.getNowCompanyState()
         })
         .then(_state => {
             companyName = _state.get('companyName');
@@ -398,7 +381,7 @@ module.exports = {
         Company.findById(req.params.id)
         .then(function(_company){
             company  = _company;
-            return company.getCurrentCompanyState()
+            return company.getNowCompanyState()
         })
         .then(_state => {
             state = _state;

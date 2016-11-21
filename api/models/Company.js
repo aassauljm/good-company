@@ -71,6 +71,12 @@ module.exports = {
         freezeTableName: false,
         tableName: 'company',
         classMethods: {
+            getNowCompanies: function(userId) {
+                return sequelize.query("select user_companies_now(:id)",
+                       { type: sequelize.QueryTypes.SELECT,
+                        replacements: { id: userId}})
+                    .map(r => r.user_companies_now)
+            }
         },
         instanceMethods: {
             getPreviousCompanyState: function(generation){
@@ -103,8 +109,6 @@ module.exports = {
                         });
                 });
             },
-
-
 
             getRootCompanyState: function(){
                 return sequelize.query("select root_company_state(:id)",
@@ -241,6 +245,13 @@ module.exports = {
                         return state.update({previousCompanyStateId: newRoot.id})
                     });
 
+            },
+
+           getTransactionsAfter: function(startId){
+                return sequelize.query("select future_transaction_range(:startId, :endId)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { startId: startId, endId: this.currentCompanyStateId}})
+                    .then(results => results.map(r => r.future_transaction_range))
             },
 
             hasPendingJob: function() {

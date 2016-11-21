@@ -92,7 +92,7 @@ export default class Companies extends React.Component {
     }
 
     renderBody() {
-        const mappedAlerts = (this.props.alerts.data || []).companyMap;
+        const mappedAlerts = (this.props.alerts.data || []).companyMap || {};
 
         const data = (this.props.companies.data || [])
             .map(c => ({...c.currentCompanyState, ...c}))
@@ -107,14 +107,14 @@ export default class Companies extends React.Component {
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
                 <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
             </div>
-            { this.props.renderList(data) }
+            { this.props.renderTable(data) }
         </div>
 
     }
 
     render() {
         return <div className="container">
-            <div className="row">
+
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -124,7 +124,6 @@ export default class Companies extends React.Component {
                 <div className="widget-body">
                     { this.renderBody() }
                 </div>
-            </div>
             </div>
         </div>
     }

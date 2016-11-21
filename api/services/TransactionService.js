@@ -1583,7 +1583,6 @@ export function performInverseAllPending(company, endCondition){
             return historicActions.length && perform(historicActions)
         })
         .catch((e) => {
-            console.log(e)
             throw e;
         })
 }
@@ -1629,7 +1628,6 @@ export function performTransaction(data, company, companyState){
     if(!data.id){
         data.id = uuid.v4();
     }
-
     let nextState, current, transactions;
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
@@ -1647,7 +1645,7 @@ export function performTransaction(data, company, companyState){
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, nextState, current, data.effectiveDate || new Date, company.get("ownerId"));
+                    }, nextState, current, data.effectiveDate || new Date(), company.get("ownerId"));
                 }
                 if(result){
                     return result.then(function(r){

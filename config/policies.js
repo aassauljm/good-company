@@ -18,7 +18,8 @@
 
 var simpleAuth = [
     'passport',
-    'sessionAuth'
+    'sessionAuth',
+    'AuditPolicy'
 ];
 
 var noCriteria = [
@@ -77,7 +78,8 @@ module.exports.policies = {
     CompanyController: {
         'populate': false,
         'lookup': simpleAuth,
-        'lookupOwn': simpleAuth
+        'lookupOwn': simpleAuth,
+        'find': simpleAuth
     },
     FavouriteController: {
         '*': simpleAuth

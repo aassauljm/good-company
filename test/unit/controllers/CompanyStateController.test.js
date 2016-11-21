@@ -19,6 +19,7 @@ describe('CompanyStateController', function() {
                 .get('/api/company')
                 .expect(200)
                 .then(function(res){
+                    console.log(res.body)
                     companyId = _.find(res.body, function(c){
                         return c.currentCompanyState.companyName === 'Transaction Ltd'
                     }).id;
@@ -163,7 +164,9 @@ describe('CompanyStateController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/3')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
+                    console.log(res.body.companyState)
+                    console.log(firstSummary.currentCompanyState)
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
                 });
         });
@@ -203,14 +206,14 @@ describe('CompanyStateController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/4')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
                 });
         });
         it('should get and compare first issue version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(secondSummary.currentCompanyState, 'updatedAt'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(secondSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
                 });
         });

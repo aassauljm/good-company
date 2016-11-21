@@ -44,9 +44,9 @@ class AddressForm extends React.Component {
 
 const validateFields = requireFields('effectiveDate', 'newAddress', 'noticeDate', 'minNotice');
 
-const AddressForServiceFormConnected = reduxForm({
+const AddressFormConnected = reduxForm({
     fields,
-    form: 'addressForService',
+    form: 'addressChange',
     validate: (values) => {
         const errors = validateFields(values);
         if(values.minNotice && values.effectiveDate && values.effectiveDate < values.minNotice){
@@ -113,7 +113,7 @@ export class ChangeAddress extends React.Component {
     }
 
     renderBody() {
-       return <AddressForServiceFormConnected ref="form" currentAddress={this.props.transactionViewData.companyState.addressForService} onSubmit={this.handleSubmit}/>
+       return <AddressFormConnected ref="form" currentAddress={this.props.transactionViewData.companyState[this.props.fieldName]} onSubmit={this.handleSubmit}/>
     }
 
     render() {

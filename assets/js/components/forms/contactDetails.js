@@ -114,7 +114,7 @@ export function contactDetailsFormatSubmit(values, companyState){
     });
     return [{
         actions: actions,
-        effectiveDate: new Date(),
+        effectiveDate: (actions[0] || {}).effectiveDate,
         transactionType: TransactionTypes.DETAILS
     }]
 }
