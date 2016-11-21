@@ -3,8 +3,11 @@
     },
     "description": "",
     "title": "Transfer Shares",
-    "filename": "transfer",
     "properties": {
+        "filename": {
+            "title": "Filename",
+            "type": "string"
+        },
         "fileType": {
             "title": "File Type",
             "enum": [

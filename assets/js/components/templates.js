@@ -9,18 +9,25 @@ import { Link } from 'react-router';
 import TRANSFER from './schemas/transfer.json';
 import SPECIAL_RESOLUTION from './schemas/specialResolution.json';
 import ORDINARY_RESOLUTION from './schemas/ordinaryResolution.json';
+import SCHEMA_DEFINITIONS from './schemas/definitions.json';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
 import { renderTemplate } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
+import { resolveReferences } from './jsonSchema';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 
 
+
+// const result = resolveReferences(TRANSFER)
+
+// console.log(result)
+
+
 function createLawLinks(list){
-    console.log(list)
     return <div>
         { list.map((item, i) => {
             return <LawBrowserLink key={i} {...item.link}>{item.text}</LawBrowserLink>
@@ -145,8 +152,7 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex){
     </fieldset>
 }
 
-
-export  class RenderForm extends React.Component {
+export class RenderForm extends React.Component {
     controls() {
         return <div className="button-row form-controls">
                 <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
@@ -356,7 +362,7 @@ export  class TemplateView extends React.Component {
     }
 
     submit(values) {
-        let filename = TemplateMap[this.props.params.name].schema.filename;
+        let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
         this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.filename, values: {...values, filename: filename}})
             .then((response) => {
                 const disposition = response.response.headers.get('Content-Disposition')
