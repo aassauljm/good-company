@@ -88,6 +88,24 @@ module.exports = {
                         });
                 });
             },
+
+            getNowCompanyState: function(){
+                return sequelize.query("select company_now(:id)",
+                       { type: sequelize.QueryTypes.SELECT,
+                        replacements: { id: this.id}})
+                .then(function(id){
+                    if(!id.length){
+                        throw new sails.config.exceptions.CompanyStateNotFound();
+                    }
+                    return CompanyState.findById(id[0].company_now)
+                        .then(function(companyState){
+                            return companyState.fullPopulate();
+                        });
+                });
+            },
+
+
+
             getRootCompanyState: function(){
                 return sequelize.query("select root_company_state(:id)",
                                { type: sequelize.QueryTypes.SELECT,

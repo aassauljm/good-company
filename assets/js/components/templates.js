@@ -20,7 +20,6 @@ import LawBrowserLink from './lawBrowserLink';
 
 
 function createLawLinks(list){
-    console.log(list)
     return <div>
         { list.map((item, i) => {
             return <LawBrowserLink key={i} {...item.link}>{item.text}</LawBrowserLink>
@@ -355,7 +354,7 @@ export  class TemplateView extends React.Component {
         this.submit = ::this.submit;
     }
 
-    submit(values) {
+    submit(values) {``
         let filename = TemplateMap[this.props.params.name].schema.filename;
         this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.filename, values: {...values, filename: filename}})
             .then((response) => {

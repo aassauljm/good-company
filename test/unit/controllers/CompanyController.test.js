@@ -189,6 +189,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/history/2')
                 .expect(200)
                 .then(function(res){
+
                     res.body.companyState.companyName.should.be.equal('TESTED ON CHILDREN LIMITED');
                     res.body.companyState.directorList.directors.length.should.be.equal(2);
                     done();
@@ -227,6 +228,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
+                    console.log(res.body.currentCompanyState.id);
                     initialState = res.body;
                     res.body.currentCompanyState.totalShares.should.be.equal(124000);
                     classes = _.reduce(res.body.currentCompanyState.shareClasses.shareClasses, (acc, item, key) => {
@@ -282,7 +284,7 @@ describe('Company Controller', function() {
             .expect(200)
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
-
+                console.log(res.body.currentCompanyState.id);
                 const oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
                 const oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'LYSAGHT TRUSTEES LIMITED'})).person;
                 const newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');

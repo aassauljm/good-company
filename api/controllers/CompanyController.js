@@ -66,21 +66,22 @@ module.exports = {
     },
 
     getInfo: function(req, res) {
-        Company.findById(req.params.id, {
-                include: [{
-                    model: CompanyState,
-                    as: 'currentCompanyState'
-                }]
-            })
+
+        Company.findById(req.params.id)
             .then(function(company) {
                 this.company = company;
-                return Promise.all([this.company.currentCompanyState.fullPopulateJSON(), this.company.hasPendingJob()])
+                return company.getNowCompanyState()
             })
-            .spread(function(currentCompanyState, hasPendingJob){
-                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState, hasPendingJob: hasPendingJob }});
+            .then(function(companyState) {
+                this.companyState = companyState;
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob()])
             })
-            .catch(function(err) {
-                return res.notFound(err);
+            .spread(function(currentCompanyState, hasPendingJob) {
+                var json = this.companyState.get();
+                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob: hasPendingJob}, });
+            }).catch(function(err) {
+                console.log(err)
+                return res.notFound();
             });
     },
 

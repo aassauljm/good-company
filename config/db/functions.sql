@@ -105,6 +105,31 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
+-- get the companState for right now
+CREATE OR REPLACE FUNCTION company_state_now(companyStateId integer)
+    RETURNS integer
+    AS $$
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId", generation) as (
+        SELECT t.id, t."previousCompanyStateId", t."transactionId", 0 as generation FROM company_state as t where t.id = $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", t."transactionId", generation + 1
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+    SELECT id FROM
+        (SELECT pvs.id, generation, "effectiveDate" FROM prev_company_states pvs
+         LEFT OUTER JOIN transaction t on t.id = pvs."transactionId"
+         ORDER BY generation ASC) q
+    WHERE q."effectiveDate" < now() LIMIT 1
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION company_now(company integer)
+    RETURNS integer
+    AS $$
+    SELECT company_state_now("currentCompanyStateId") id FROM company where company.id = $1
+
+$$ LANGUAGE SQL;
+
 
 -- Summary of all transactions in json, used for client tables
 CREATE OR REPLACE FUNCTION company_state_history_json(companyStateId integer)
@@ -309,7 +334,7 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
     FROM (
         SELECT c.id, cs."companyName", get_warnings(cs.id) as warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(cs.id) as deadlines
         FROM company c
-        JOIN company_state cs ON cs.id = c."currentCompanyStateId"
+        JOIN company_state cs ON cs.id = c."currentCompanyStateId" -- hmmmm
         WHERE c."ownerId" = $1 AND deleted = FALSE
     ) q;
 $$ LANGUAGE SQL;
