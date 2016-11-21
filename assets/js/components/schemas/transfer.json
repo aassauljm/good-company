@@ -1,7 +1,7 @@
 {
-    "formName": "transfer",
     "description": "",
     "title": "Transfer Shares",
+    "formName": "Transfer",
     "properties": {
         "filename": { "$ref": "#/definitions/filename" },
         "fileType": { "$ref": "#/definitions/fileType" },
@@ -106,9 +106,7 @@
                 },
                 "consideration": {
                     "title": "Consideration",
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 1000000000
+                    "type": "string"
                 }
             },
             "required": [
