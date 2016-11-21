@@ -16,6 +16,7 @@ import StaticField from '../forms/staticField';
 import { ParcelWithRemove } from '../forms/parcel';
 import { newHoldingFormatAction } from '../forms/holding';
 import { Documents } from '../forms/documents';
+import LawBrowserLink from '../lawBrowserLink'
 
 const fields = [
     'effectiveDate',
@@ -258,9 +259,7 @@ export class TransferTransactionView extends React.Component {
         });
         const holdingMap = createHoldingMap(companyState);
 
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <TransferConnected ref="form"
+        return <TransferConnected ref="form"
                     initialValues={{parcels: [{}], effectiveDate: new Date() }}
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
@@ -274,12 +273,10 @@ export class TransferTransactionView extends React.Component {
                         }
                     }))}
                     onSubmit={this.submit}/>
-                </div>
-            </div>
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={transferSharesLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Transfer Shares</TransactionView.Title>
               </TransactionView.Header>
@@ -292,5 +289,19 @@ export class TransferTransactionView extends React.Component {
               </TransactionView.Footer>
             </TransactionView>
     }
+}
 
+
+function transferSharesLawLinks(){
+    return (
+        <div>
+            <LawBrowserLink title="Companies Act 1993" location="s 39">Transferability of shares</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 84(1)">Transfer by entry in share register</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 84(2) + (3)">Share transfer forms</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 84(4) + (5)">Refusal or delay of share transfer</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 84(6) 373(1)(20) and 374(1)">Consequences of non-compliance</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 85">Transfer under an approved system</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 86">Transfer by Operation of Law</LawBrowserLink>
+        </div>
+    );
 }
