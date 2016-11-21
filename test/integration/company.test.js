@@ -10,10 +10,10 @@ import {
   Simulate
 } from 'react-addons-test-utils';
 import { prepareApp, waitFor } from './helpers';
-import { LoginForm } from ".../../../../assets/js/components/login.js";
-import { Modals } from ".../../../../assets/js/components/transactionViews.js";
-import { ShareClasses } from ".../../../../assets/js/components/shareClasses.js";
-import Search from '.../../../../assets/js/components/search.js';
+import { LoginForm } from "../../assets/js/components/login.js";
+import { Modals } from "../../assets/js/components/transactionViews.js";
+import { ShareClasses } from "../../assets/js/components/shareClasses.js";
+import Search from '../../assets/js/components/search.js';
 import chai from 'chai';
 const should = chai.should();
 
