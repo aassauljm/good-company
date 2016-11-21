@@ -1,24 +1,10 @@
 {
-    "definitions": {
-    },
     "description": "",
     "title": "Ordinary Resolution of Shareholders",
-    "filename": "Minute - Ordinary Resolution of Shareholders",
+    "formName": "Minute - Ordinary Resolution of Shareholders",
     "properties": {
-        "fileType": {
-            "title": "File Type",
-            "enum": [
-                "docx",
-                "odt",
-                "pdf"
-            ],
-            "enumNames": [
-                "Word Document (.docx)",
-                "OpenDocument Text (.odt)",
-                "Portable Document Format (.pdf)"
-            ],
-            "default": "docx"
-        },
+        "filename": { "$ref": "#/definitions/filename" },
+        "fileType": { "$ref": "#/definitions/fileType" },
         "company": {
             "type": "object",
 

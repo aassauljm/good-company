@@ -37,7 +37,7 @@ module.exports = {
     serverRender: false,
     renderServiceUrl: 'http://localhost:5668/render', //'https://convert.catalex.nz'
     GOOD_COMPANIES_LOGIN_URL: 'http://localhost:5667/auth/catalex/login',
-    //USERS_LOGIN_URL: 'http://localhost:8000/good-companies-login',
+    // USERS_LOGIN_URL: 'http://localhost:8000/good-companies-login',
     // ACCOUNT_URL: 'http://localhost:8000',
     // OAUTH_ACCESS_TOKEN_URL: 'http://localhost:8000/oauth/access_token',
     // USER_RESOURCE_URL: 'http://localhost:8000/api/user',

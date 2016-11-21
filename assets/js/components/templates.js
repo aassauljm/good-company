@@ -6,26 +6,15 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
 import { Link } from 'react-router';
-import TRANSFER from './schemas/transfer.json';
-import SPECIAL_RESOLUTION from './schemas/specialResolution.json';
-import ORDINARY_RESOLUTION from './schemas/ordinaryResolution.json';
-import SCHEMA_DEFINITIONS from './schemas/definitions.json';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
 import { renderTemplate } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
-import { mergeSchemas, resolveReferences } from './jsonSchema';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
-
-
-const test = mergeSchemas(SPECIAL_RESOLUTION, SCHEMA_DEFINITIONS);
-console.log(test);
-// const result = resolveReferences(TRANSFER)
-
-// console.log(result)
+import templateSchemas from './schemas/templateSchemas';
 
 
 function createLawLinks(list){
@@ -291,38 +280,38 @@ function getDefaultValues(schema, defaults = {}){
 
 @reduxForm({
   form: 'transferTemplate',
-  fields: getFields(TRANSFER),
-  validate: getValidate(TRANSFER)
+  fields: getFields(templateSchemas.transfer),
+  validate: getValidate(templateSchemas.transfer)
 })
 export  class TransferForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={TRANSFER}  {...this.props} />
+        return <RenderForm schema={templateSchemas.transfer}  {...this.props} />
     }
 }
 
 
 @reduxForm({
   form: 'specialResolutionTemplate',
-  fields: getFields(SPECIAL_RESOLUTION),
-  validate: getValidate(SPECIAL_RESOLUTION)
+  fields: getFields(templateSchemas.specialResolution),
+  validate: getValidate(templateSchemas.specialResolution)
 })
 export class SpecialResolutionForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={SPECIAL_RESOLUTION}  {...this.props} />
+        return <RenderForm schema={templateSchemas.specialResolution}  {...this.props} />
     }
 }
 
 @reduxForm({
   form: 'ordinaryResolutionTemplate',
-  fields: getFields(ORDINARY_RESOLUTION),
-  validate: getValidate(ORDINARY_RESOLUTION)
+  fields: getFields(templateSchemas.ordinaryResolution),
+  validate: getValidate(templateSchemas.ordinaryResolution)
 })
 export class OrdinaryResolutionForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={ORDINARY_RESOLUTION}  {...this.props} />
+        return <RenderForm schema={templateSchemas.ordinaryResolution}  {...this.props} />
     }
 }
 
@@ -330,20 +319,20 @@ export class OrdinaryResolutionForm extends React.Component {
 const TemplateMap = {
     'transfer': {
         form: TransferForm,
-        schema: TRANSFER,
-        getInitialValues: (values) => getDefaultValues(TRANSFER, values),
+        schema: templateSchemas.transfer,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.transfer, values),
         icon: 'transfer'
     },
     'special_resolution': {
         form: SpecialResolutionForm,
-        schema: SPECIAL_RESOLUTION,
-        getInitialValues: (values) => getDefaultValues(SPECIAL_RESOLUTION, values),
+        schema: templateSchemas.specialResolution,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.specialResolution, values),
         icon: 'list'
     },
     'ordinary_resolution': {
         form: OrdinaryResolutionForm,
-        schema: ORDINARY_RESOLUTION,
-        getInitialValues: (values) => getDefaultValues(ORDINARY_RESOLUTION, values),
+        schema: templateSchemas.ordinaryResolution,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
         icon: 'list'
     }
 }
@@ -363,8 +352,9 @@ export  class TemplateView extends React.Component {
     }
 
     submit(values) {
+        console.log(this.props.params.name);
         let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
-        this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.filename, values: {...values, filename: filename}})
+        this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.formName, values: {...values, filename: filename}})
             .then((response) => {
                 const disposition = response.response.headers.get('Content-Disposition')
                 filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');
