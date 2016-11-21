@@ -3,7 +3,8 @@ var merge = require('deepmerge')
 // Merge two schemas.
 // Primary schema takes precedence where there a duplicate keys
 export const mergeSchemas = (primarySchema, secondarySchema) => {
-
+    // Using deepmerge; the second parameter takes precedence
+    return merge(secondarySchema, primarySchema);
 }
 
 export const resolveReferences = (rootSchema, definitions) => {

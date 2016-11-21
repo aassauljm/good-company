@@ -1,4 +1,5 @@
 import chai from 'chai';
+import { mergeSchemas } from '../../../assets/js/components/jsonSchema';
 import { resolveReferences } from '../../../assets/js/components/jsonSchema';
 
 const should = chai.should();
@@ -119,6 +120,54 @@ const jsonWithMultipleResolvedReferences = {
 };
 
 describe('JSON Schema', function() {
+    describe('Merge schemas', function() {
+        it('Should merge two schemas', function(done) {
+            mergeSchemas({"one": 1}, {"two": 2}).should.be.deep.equal({"one": 1, "two": 2});
+            done();
+        });
+
+        describe('Merge two schemas with duplicate keys', function() {
+            it('Should merge two schemas', function(done) {
+                mergeSchemas({
+                    "definitions": {
+                        "test": "I'll still be here"
+                    }
+                }, {
+                    "test": "I should not be removed",
+                    "definitions": "I should be removed"
+                }).should.be.deep.equal({
+                    "definitions": {
+                        "test": "I'll still be here"
+                    },
+                    "test": "I should not be removed",
+                });
+
+                done();
+            });
+
+            it('Should merge two objects if duplicate keys are both for objects', function(done) {
+                mergeSchemas({
+                    "definitions": {
+                        "test": "I'll still be here"
+                    }
+                }, {
+                    "test": "I should not be removed",
+                    "definitions": {
+                        "test_two": "I should also still be here"
+                    }
+                }).should.be.deep.equal({
+                    "definitions": {
+                        "test": "I'll still be here",
+                        "test_two": "I should also still be here"
+                    },
+                    "test": "I should not be removed",
+                });
+
+                done();
+            });
+        });
+    });
+
     describe('Process references', function() {
         describe('Objects without references', function() {
             it('Should not change schema without references', function(done) {
