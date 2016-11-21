@@ -1,6 +1,5 @@
 import chai from 'chai';
-import { mergeSchemas } from '../../../assets/js/components/jsonSchema';
-import { resolveReferences } from '../../../assets/js/components/jsonSchema';
+import { mergeSchemas, resolveReferences } from '../../../assets/js/components/jsonSchema';
 
 const should = chai.should();
 
@@ -120,14 +119,14 @@ const jsonWithMultipleResolvedReferences = {
 };
 
 describe('JSON Schema', function() {
-    describe('Merge schemas', function() {
-        it('Should merge two schemas', function(done) {
+    describe('mergeSchemas schemas', function() {
+        it('Should mergeSchemas two schemas', function(done) {
             mergeSchemas({"one": 1}, {"two": 2}).should.be.deep.equal({"one": 1, "two": 2});
             done();
         });
 
-        describe('Merge two schemas with duplicate keys', function() {
-            it('Should merge two schemas', function(done) {
+        describe('mergeSchemas two schemas with duplicate keys', function() {
+            it('Should mergeSchemas two schemas', function(done) {
                 mergeSchemas({
                     "definitions": {
                         "test": "I'll still be here"
@@ -145,7 +144,7 @@ describe('JSON Schema', function() {
                 done();
             });
 
-            it('Should merge two objects if duplicate keys are both for objects', function(done) {
+            it('Should mergeSchemas two objects if duplicate keys are both for objects', function(done) {
                 mergeSchemas({
                     "definitions": {
                         "test": "I'll still be here"
@@ -168,44 +167,65 @@ describe('JSON Schema', function() {
         });
     });
 
-    describe('Process references', function() {
+    describe('Resolve references in root schema', function() {
         describe('Objects without references', function() {
             it('Should not change schema without references', function(done) {
-                resolveReferences(jsonWithoutReferences, definitions).should.be.deep.equal(jsonWithoutReferences);
+                const mergedWithReferences = mergeSchemas(jsonWithoutReferences, definitions);
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithoutReferences, definitions)
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
             });
         });
 
         describe('Objects with a single reference', function() {
             it('Should replace string references', function(done) {
-                resolveReferences(jsonWithStringReference, definitions).should.be.deep.equal(jsonWithResolvedStringReferences);
+                const mergedWithReferences = mergeSchemas(jsonWithStringReference, definitions);
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedStringReferences, definitions)
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
             });
 
             it('Should replace number references', function(done) {
-                resolveReferences(jsonWithNumberReference, definitions).should.be.deep.equal(jsonWithResolvedNumberReference);
+                const mergedWithReferences = mergeSchemas(jsonWithNumberReference, definitions);
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedNumberReference, definitions)
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
             });
 
             it('Should replace array references', function(done) {
-                resolveReferences(jsonWithArrayReference, definitions).should.be.deep.equal(jsonWithResolvedArrayReference);
+                const mergedWithReferences = mergeSchemas(jsonWithArrayReference, definitions);
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedArrayReference, definitions)
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
             });
 
             it('Should replace references in array', function(done) {
-                resolveReferences(jsonArrayWithReference, definitions).should.be.deep.equal(jsonArrayWithResolvedReference);
+                const mergedWithReferences = mergeSchemas(jsonArrayWithReference, definitions);
+                const mergedWithResolvedReferences = mergeSchemas(jsonArrayWithResolvedReference, definitions)
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
             });
 
             it('Should replace object references', function(done) {
-                resolveReferences(jsonWithObjectReference, definitions).should.be.deep.equal(jsonWithResolvedObjectReference);
+                const mergedWithReferences = mergeSchemas(jsonWithObjectReference, definitions);
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedObjectReference, definitions)
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
             });
         });
 
         describe('Objects with multiple references', function() {
             it('Should replace all references', function(done) {
-                resolveReferences(jsonWithMultipleReferences, definitions).should.be.deep.equal(jsonWithMultipleResolvedReferences);
+                const mergedWithReferences = mergeSchemas(jsonWithMultipleReferences, definitions);
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithMultipleResolvedReferences, definitions)
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
             });
         });

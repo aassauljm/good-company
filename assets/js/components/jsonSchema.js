@@ -7,22 +7,35 @@ export const mergeSchemas = (primarySchema, secondarySchema) => {
     return merge(secondarySchema, primarySchema);
 }
 
-export const resolveReferences = (rootSchema, definitions) => {
+export const resolveReferences = (rootSchema) => {
+    const deepFind = (schema, keys) => {
+        if (keys.length == 0) {
+            throw new Exception('At least one key must be passed for deepFind()')
+        }
+
+        if (keys.length == 1) {
+            return schema[keys[0]]
+        }
+
+        return deepFind(schema[keys[0]], keys.splice(1));
+    }
+
     const resolveChildReferences = (item) => {
         // If this item is has a ref property: replace it with the reference it is pointing to
         if (item['$ref']) {
-            let definitionKeys = item['$ref'].split('/');
+            const definitionKeys = item['$ref'].split('/');
 
+            // # = root schema
             if (definitionKeys[0] == '#') {
-                definitionKeys = definitionKeys.splice(1, 2);
+                return deepFind(rootSchema, definitionKeys.splice(1));
+            } else {
+                throw new Exception("Non-absolute references are not currently supported");
             }
-
-            return definitions[definitionKeys[0]][definitionKeys[1]];
         }
 
         // If this item is an array: loop it's values and recurse on them
         if (Array.isArray(item)) {
-            item.map((innerItem) => {
+            item.map((innerItem, i) => {
                 innerItem = resolveChildReferences(innerItem);
             });
         }
@@ -40,5 +53,5 @@ export const resolveReferences = (rootSchema, definitions) => {
         return item;
     }
 
-    return resolveChildReferences(rootSchema);
+    return resolveChildReferences(rootSchema, []);
 }

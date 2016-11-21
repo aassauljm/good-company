@@ -1,20 +1,22 @@
 {
-    "filename": {
-        "title": "Filename",
-        "type": "string"
-    },
-    "fileType": {
-        "title": "File Type",
-        "enum": [
-            "docx",
-            "odt",
-            "pdf"
-        ],
-        "enumNames": [
-            "Word Document (.docx)",
-            "OpenDocument Text (.odt)",
-            "Portable Document Format (.pdf)"
-        ],
-        "default": "docx"
+    "definitions": {
+        "filename": {
+            "title": "Filename",
+            "type": "string"
+        },
+        "fileType": {
+            "title": "File Type",
+            "enum": [
+                "docx",
+                "odt",
+                "pdf"
+            ],
+            "enumNames": [
+                "Word Document (.docx)",
+                "OpenDocument Text (.odt)",
+                "Portable Document Format (.pdf)"
+            ],
+            "default": "docx"
+        }
     }
 }

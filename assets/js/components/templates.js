@@ -16,12 +16,13 @@ import DateInput from './forms/dateInput';
 import { renderTemplate } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
-import { resolveReferences } from './jsonSchema';
+import { mergeSchemas, resolveReferences } from './jsonSchema';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 
 
-
+const test = mergeSchemas(SPECIAL_RESOLUTION, SCHEMA_DEFINITIONS);
+console.log(test);
 // const result = resolveReferences(TRANSFER)
 
 // console.log(result)
