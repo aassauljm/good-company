@@ -52,7 +52,6 @@ export function confirmationMiddleware({
                 else{
                     return deferred.cancel();
                 }
-
             }
             if(action.confirmation){
                 const id = resolutionId++;

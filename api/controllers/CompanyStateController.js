@@ -116,6 +116,7 @@ function createActivityLog(user, company, messages){
     if(!Array.isArray(messages)){
         messages = [messages];
     }
+    messages = messages.filter(m => m);
     return ActivityLog.bulkCreate(messages.map(m => {
         return {
             userId: user.id,
@@ -177,7 +178,7 @@ var transactions = {
         if(!sets.length){
             throw new sails.config.exceptions.ValidationException('Parcels are required')
         }
-        return TransactionService.performAll(sets, company)
+        return TransactionService.performAllInsertByEffectiveDate(sets, company)
         .then(() => {
             return {message: `Shares issued`}
         })
@@ -186,6 +187,7 @@ var transactions = {
 
     details: function(args, company){
         let name;
+        /// MNO!!!!! find now and replay
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
             const date = new Date();
@@ -219,23 +221,16 @@ var transactions = {
         if(args.documents){
             args.transactions.map(t => t.documents = args.documents);
         }
-        return TransactionService.performAll(args.transactions, company)
-            .then(_state => {
+        console.log('er', JSON.stringify(args.transactions, null, 4))
+        return TransactionService.performAllInsertByEffectiveDate(args.transactions, company)
+            .then((_state) => {
                 state = _state;
-                // e.g. remove empty allocation
-                return TransactionService.createImplicitTransactions(state, args.transactions || [], date)
-            })
-            .then(transactions => {
-                if(transactions.length){
-                    return TransactionService.performAll(transactions, company, state);
-                }
-            })
-            .then(() => {
                 if(args.documents){
                     return Promise.all(args.documents.map(d => d.update({date: date})));
                 }
             })
             .then(() => {
+                 console.log(JSON.stringify(args.transactions, null, 4))
                 return transactionMessages(args.transactions, state.companyName);
             })
     },

@@ -106,7 +106,7 @@ $$ LANGUAGE SQL;
 
 
 -- get the companyState for right now
-CREATE OR REPLACE FUNCTION company_state_now(companyStateId integer)
+CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp with time zone)
     RETURNS integer
     AS $$
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId", generation) as (
@@ -120,7 +120,14 @@ CREATE OR REPLACE FUNCTION company_state_now(companyStateId integer)
         (SELECT pvs.id, generation, "effectiveDate" FROM prev_company_states pvs
          LEFT OUTER JOIN transaction t on t.id = pvs."transactionId"
          ORDER BY generation ASC) q
-    WHERE q."effectiveDate" < now() OR q."effectiveDate" is NULL LIMIT 1
+    WHERE q."effectiveDate" < $2 OR q."effectiveDate" is NULL LIMIT 1
+$$ LANGUAGE SQL;
+
+-- get the companyState for right now
+CREATE OR REPLACE FUNCTION company_state_now(companyStateId integer)
+    RETURNS integer
+    AS $$
+    select company_state_at($1, now())
 $$ LANGUAGE SQL;
 
 
@@ -130,6 +137,11 @@ CREATE OR REPLACE FUNCTION company_now(company integer)
     SELECT company_state_now("currentCompanyStateId") id FROM company where company.id = $1
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION company_at(company integer, timestamp with time zone)
+    RETURNS integer
+    AS $$
+    SELECT company_state_at("currentCompanyStateId", $2) id FROM company where company.id = $1
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     RETURNS SETOF json
@@ -171,11 +183,19 @@ CREATE OR REPLACE FUNCTION future_transaction_range(startId integer, endId integ
     selected_generation AS (
         SELECT generation from prev_company_states where id = $1
     )
-    SELECT row_to_json(t.*) from transaction t
+    SELECT row_to_json(q.*)
+
+    FROM (
+    SELECT t.id, type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
+        (select array_to_json(array_agg(row_to_json(d))) from (
+        select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
+        from transaction tt where t.id = tt."parentTransactionId"
+        ) as d) as "subTransactions"
+    FROM transaction t
     JOIN
         (SELECT * FROM prev_company_states WHERE generation >= 0 and generation < (SELECT generation from selected_generation)) q
     ON t.id = q."transactionId"
-    order by generation desc
+    order by generation desc ) as q
 $$ LANGUAGE SQL;
 
 
@@ -194,7 +214,7 @@ WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId"
 SELECT row_to_json(q) from (
             SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
         (select array_to_json(array_agg(row_to_json(d))) from (
-        select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
+        select type, data,  format_iso_date(tt."effectiveDate") as "effectiveDate"
         from transaction tt where t.id = tt."parentTransactionId"
         ) as d) as "subTransactions",
         (SELECT array_to_json(array_agg(row_to_json(d.*))) from t_d_j j left outer join document d on j.document_id = d.id where t.id = j.transaction_id) as "documents"

@@ -695,6 +695,9 @@ export function validateNameChange(data, companyState,  effectiveDate){
     if(data.previousCompanyName === data.newCompanyName){
         throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ')
     }
+    if(!data.newCompanyName){
+        throw new sails.config.exceptions.InvalidInverseOperation('No new company name supplied')
+    }
 }
 
 
@@ -1707,9 +1710,50 @@ export function performAll(data, company, state){
     })
 }
 
+export function transactionsToActions(transactions){
+    return transactions.map(t => {
+        const {id, subTransactions, ...info} = t;
+        return {...info, ...info.data, actions: t.subTransactions.map(s => {
+            const {id, ...info} = s;
+            return {...info}
+        })}
+    })
+}
+
+
+export function performAllInsertByEffectiveDate(data, company){
+    const date = data[0].effectiveDate;
+    let state, futureTransactions;
+
+    return company.getDatedCompanyState(date)
+        .then(_state => {
+            state = _state;
+            return company.getTransactionsAfter(state.id)
+        })
+        .then(_transactions => {
+            futureTransactions = _transactions;
+            return performAll(data, company, state)
+
+        })
+        .then((state) => {
+            const implicit = createImplicitTransactions(state, data, date);
+            if(implicit.length){
+                return performAll(implicit, company, state)
+            }
+            return state;
+        })
+        .then(state => {
+            if(futureTransactions.length){
+                return performAll(transactionsToActions(futureTransactions), company, state)
+            }
+            return state;
+        })
+
+}
 
 export function createImplicitTransactions(state, transactions, effectiveDate){
 
+    // remove empty allocations
     function removeEmpty(){
         const actions = state.dataValues.holdingList.dataValues.holdings.reduce((acc, holding) => {
             if(!holding.hasNonEmptyParcels()){

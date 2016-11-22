@@ -110,6 +110,21 @@ module.exports = {
                 });
             },
 
+            getDatedCompanyState: function(date){
+                return sequelize.query("select company_at(:id, :date)",
+                       { type: sequelize.QueryTypes.SELECT,
+                        replacements: { id: this.id, date: date}})
+                .then(function(id){
+                    if(!id.length){
+                        throw new sails.config.exceptions.CompanyStateNotFound();
+                    }
+                    return CompanyState.findById(id[0].company_at)
+                        .then(function(companyState){
+                            return companyState.fullPopulate();
+                        });
+                });
+            },
+
             getRootCompanyState: function(){
                 return sequelize.query("select root_company_state(:id)",
                                { type: sequelize.QueryTypes.SELECT,
