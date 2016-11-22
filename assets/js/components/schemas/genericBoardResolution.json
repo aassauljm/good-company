@@ -1,0 +1,124 @@
+{
+    "description": "",
+    "title": "Board Resolution - Generic",
+    "formName": "Board Resolution - Generic",
+    "properties": {
+        "filename": { "$ref": "#/definitions/filename" },
+        "fileType": { "$ref": "#/definitions/fileType" },
+        "company": { "$ref": "#/definitions/company" },
+        "resolutionOptions": {
+            "type": "object",
+            "properties": {
+                "dateOfResolution": {
+                    "title": "Date of Resolution",
+                    "type": "string",
+                    "x-hints" : {
+                        "form": {
+                            "inputComponent": "date"
+                        }
+                    }
+                },
+                "resolutionType": {
+                    "title": "Resolution Type",
+                    "enum": [
+                        "Board Resolution at Board Meeting",
+                        "Written Board Resolution in lieu of Board Meeting"
+                    ]
+                }
+            },
+            "default": {
+                "resolutionType": "Board Resolution at Board Meeting"
+            },
+            "oneOf":[
+                {
+                    "properties": {
+                        "resolutionType": {
+                            "enum": ["Board Resolution at Board Meeting"]
+                        },
+                        "dateOfBoardMeeting": {
+                            "title": "Date of Board Meeting",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                    "inputComponent": "date"
+                                }
+                            }
+                        },
+                        "chairperson": { "$ref": "#/definitions/director" }
+                    },
+                    "required": ["dateOfBoardMeeting", "chairperson"]
+                },
+                {
+                    "properties": {
+                        "resolutionType": {
+                            "enum": ["Written Board Resolution in lieu of Board Meeting"]
+                        },
+                        "directors": {
+                            "type": "array",
+                            "title": "Directors",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "Director Name"
+                                    }
+                                }
+                            },
+                            "minItems": 1
+                        }
+                    }
+                }
+            ],
+            "required": ["dateOfResolution", "resolutionType"],
+            "x-hints": {
+                "form": {
+                    "selector": "resolutionType"
+                }
+            }
+        },
+        "resolutions": {
+            "type": "array",
+            "title": "Resolutions",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "title": "Description",
+                        "x-hints": {
+                            "form": {
+                                "inputComponent": "textarea"
+                            }
+                        }
+                    }
+                }
+            },
+            "minItems": 1
+        },
+        "comments": {
+            "type": "array",
+            "title": "Comments (optional)",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "title": "Description",
+                        "x-hints": {
+                            "form": {
+                                "inputComponent": "textarea"
+                            }
+                        }
+                    }
+                }
+            },
+            "minItems": 0
+        }
+    },
+    "required": [
+        "resolutionOptions"
+    ],
+    "type": "object",
+    "x-ordering": []
+}

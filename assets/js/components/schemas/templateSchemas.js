@@ -4,7 +4,8 @@ import definitionsSchema from './definitions.json';
 let templateSchemas = {
     transfer: require('./transfer.json'),
     specialResolution: require('./specialResolution.json'),
-    ordinaryResolution: require('./ordinaryResolution.json')
+    ordinaryResolution: require('./ordinaryResolution.json'),
+    genericBoardResolution: require('./genericBoardResolution.json')
 }
 
 Object.keys(templateSchemas).map((key) => {

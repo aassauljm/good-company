@@ -16,7 +16,6 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 
-
 function createLawLinks(list){
     return <div>
         { list.map((item, i) => {
@@ -60,7 +59,7 @@ function renderList(fieldProps, componentProps){
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
                     </div></div>
-                <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }</div>
+                 <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }</div>
                  <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block">
                     { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
@@ -78,7 +77,6 @@ function renderList(fieldProps, componentProps){
 
 
 function renderField(fieldProps, componentProps, index){
-
     const title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
     const props = {
         bsStyle: fieldStyle(componentProps),
@@ -133,12 +131,9 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex){
     });
     return <fieldset>
         { Object.keys(schemaProps).map((key, i) => {
-            return <div key={i}>
-            <div className="form-row">{ renderField(schemaProps[key], fields[key], listIndex) }</div>
-                { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
-            </div>
+            return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
         }) }
-
+        { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
     </fieldset>
 }
 
@@ -315,6 +310,18 @@ export class OrdinaryResolutionForm extends React.Component {
     }
 }
 
+@reduxForm({
+  form: 'genericBoardResolution',
+  fields: getFields(templateSchemas.genericBoardResolution),
+  validate: getValidate(templateSchemas.genericBoardResolution)
+})
+export class GenericBoardResolutionForm extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={templateSchemas.genericBoardResolution}  {...this.props} />
+    }
+}
+
 
 const TemplateMap = {
     'transfer': {
@@ -334,6 +341,12 @@ const TemplateMap = {
         schema: templateSchemas.ordinaryResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
         icon: 'list'
+    },
+    'generic_board_resolution': {
+        form: GenericBoardResolutionForm,
+        schema: templateSchemas.genericBoardResolution,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.genericBoardResolution, values),
+        icon: 'list'
     }
 }
 
@@ -352,7 +365,6 @@ export  class TemplateView extends React.Component {
     }
 
     submit(values) {
-        console.log(this.props.params.name);
         let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
         this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.formName, values: {...values, filename: filename}})
             .then((response) => {

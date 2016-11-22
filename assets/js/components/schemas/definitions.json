@@ -17,6 +17,35 @@
                 "Portable Document Format (.pdf)"
             ],
             "default": "docx"
+        },
+        "director": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Name of Director Who Chaired Meeting",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ]
+        },
+        "company": {
+            "type": "object",
+
+            "properties": {
+                "companyName": {
+                    "title": "Company Name",
+                    "type": "string"
+                },
+                "companyNumber": {
+                    "title": "Company Number",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "companyName", "companyNumber"
+            ]
         }
     }
 }
