@@ -8,6 +8,7 @@ import Input from '../forms/input';
 import moment from 'moment';
 import exportICS from '../ics';
 
+const END_OF_WORKING_DAY_HOUR = 17;
 
 @connect(undefined, {
     requestWorkingDayOffset: (options) => requestWorkingDayOffset(options)
@@ -26,7 +27,7 @@ export default class WorkingDayNotice extends React.Component {
             })
                 .then(result => {
                     if(result && result.response){
-                        this.props.field.onChange(moment(result.response.result, 'YYYY-MM-DD').toDate())
+                        this.props.field.onChange(moment(result.response.result, 'YYYY-MM-DD').hour(END_OF_WORKING_DAY_HOUR).toDate())
                     }
                 })
         }
@@ -44,7 +45,7 @@ export default class WorkingDayNotice extends React.Component {
 
     export() {
         const data = {date: this.props.field.value, hour: 11, ...this.props.export()};
-        exportICS(data);
+        exportICS({...data, title: `${data.title}.ics`});
     }
 
     render() {

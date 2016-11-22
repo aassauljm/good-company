@@ -69,7 +69,13 @@ class Day extends React.Component {
                 if(d.transaction){
                     classes.push('transaction-day ');
                     const transactionType = d.transaction.subTransactions[0].type;
-                    title.push(`${STRINGS.transactionTypes[transactionType]} scheduled for ${d.companyName}`)
+                    const transactionLabel = STRINGS.transactionTypes[transactionType];
+                    if(d.noticeDate){
+                        title.push(`Notice of ${transactionLabel} for ${d.companyName} due to registrar`)
+                    }
+                    else{
+                        title.push(`${transactionLabel} scheduled for ${d.companyName}`)
+                    }
                 }
             })
             //title = [...title, ...(this.props.events.data.eventMap[str].map(e => (e.data||{}).title))];
@@ -139,7 +145,7 @@ const DeadlineAlert = (props) => {
     }
     return <div className="summary">
         <div className="title">{ title }</div>
-        <div className="company"><Link to={`/company/view/${props.alert.id}`}>{props.alert.companyName}</Link></div>
+        <div className="company"><Link to={`/company/view/${props.alert.companyId}`}>{props.alert.companyName}</Link></div>
         <p  className="time">{ time }</p>
          { description &&<p>{ description }</p> }
         <div className="controls">
@@ -149,7 +155,14 @@ const DeadlineAlert = (props) => {
 }
 
 const TransactionAlert = (props) => {
-    const title = `${STRINGS.transactionTypes[props.alert.transaction.subTransactions[0].type]} scheduled`
+    let title;
+    if(props.alert.noticeDate){
+        title = `${STRINGS.transactionTypes[props.alert.transaction.subTransactions[0].type]} notice due to registrar`
+    }
+    else{
+        title = `${STRINGS.transactionTypes[props.alert.transaction.subTransactions[0].type]} scheduled`
+    }
+
     const fullTitle = `${title} for ${props.alert.companyName}`;
     const reminder = '-P1D';
     let description = '';
@@ -263,7 +276,7 @@ export default class CalendarFull extends React.Component {
                     });
                 }
                 if(company.transaction){
-                    acc.push({transaction: company.transaction, companyName: company.companyName, companyId: company.id})
+                    acc.push({...company, companyId: company.id})
                 }
                 return acc;
             }, []);

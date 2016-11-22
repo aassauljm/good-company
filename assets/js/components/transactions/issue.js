@@ -23,7 +23,7 @@ const CREATE_NEW_SHARE_CLASS = 'create-new';
 
 const fields = [
     'effectiveDate',
-    "minNotice",
+    "noticeDate",
     'parcels[].amount',
     'parcels[].shareClass',
     'holdings[].newHolding',
@@ -182,7 +182,7 @@ export class Issue extends React.Component {
         return <form className="form" >
         <fieldset>
             <DateInput {...this.formFieldProps('effectiveDate')} />
-            <WorkingDays field={this.props.fields.minNotice} source={this.props.fields.effectiveDate.value} days={10} label="Notice must be given to the Registrar by" export={() => {
+            <WorkingDays field={this.props.fields.noticeDate} source={this.props.fields.effectiveDate.value} days={10} label="Notice must be given to the Registrar by" export={() => {
                 return {
                     url: `${window.location.protocol}//${window.location.host}/company/view/${this.props.companyId}`,
                     title: `Notice of Share Issue Due - ${this.props.companyName}`,
@@ -278,7 +278,7 @@ export function issueFormatSubmit(values, companyState){
                 transactionType: 'ISSUE_TO',
                 transactionMethod: 'AMEND',
                 approvalDocuments: values.approvalDocuments,
-                minNotice: values.minNotice
+                noticeDate: values.noticeDate
             });
             if(h.newHolding){
                 newHoldings.push({

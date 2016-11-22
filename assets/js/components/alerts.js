@@ -34,6 +34,12 @@ export function sortAlerts(response) {
             const due = moment(transaction.effectiveDate).format('YYYY-MM-DD');
             acc[due] = acc[due] || [];
             acc[due].push({id: entry.id, companyName: entry.companyName, transaction: transaction})
+
+            if(transaction.subTransactions[0].data.noticeDate){
+                const noticeDue = moment(transaction.subTransactions[0].data.noticeDate).format('YYYY-MM-DD');
+                acc[noticeDue] = acc[noticeDue] || [];
+                acc[noticeDue].push({id: entry.id, companyName: entry.companyName, noticeDate: true, transaction: transaction})
+            }
         })
 
         return acc;

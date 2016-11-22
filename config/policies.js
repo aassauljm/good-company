@@ -86,7 +86,7 @@ module.exports.policies = {
     },
     RenderController: {
         renderTemplate: simpleAuth,
-        echo: simpleAuth
+        echo: ['passport','sessionAuth']
     },
     EventController: {
         'find': noCriteria

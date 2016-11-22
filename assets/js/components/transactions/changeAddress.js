@@ -22,7 +22,7 @@ const fields = [
     'effectiveDate',
     'newAddress',
     'noticeDate',
-    'minNotice',
+    'noticeDate',
     'documents'
 ]
 
@@ -35,21 +35,21 @@ class AddressForm extends React.Component {
                 <Input type="static" value={this.props.currentAddress} label="Current Address" />
                 <Input type="text" {...this.formFieldProps('newAddress')} label="New Address" />
                 <DateInput {...this.formFieldProps('noticeDate')} label="Date of Notice to Registrar" />
-                <WorkingDayNotice field={this.props.fields.minNotice} source={this.props.fields.noticeDate.value} days={5} label="Earliest Change Date"/>
+                <WorkingDayNotice field={this.props.fields.noticeDate} source={this.props.fields.noticeDate.value} days={5} label="Earliest Change Date"/>
                 <DateInput {...this.formFieldProps('effectiveDate')} />
                 <Documents documents={this.props.fields.documents}/>
         </form>
     }
 }
 
-const validateFields = requireFields('effectiveDate', 'newAddress', 'noticeDate', 'minNotice');
+const validateFields = requireFields('effectiveDate', 'newAddress', 'noticeDate', 'noticeDate');
 
 const AddressFormConnected = reduxForm({
     fields,
     form: 'addressChange',
     validate: (values) => {
         const errors = validateFields(values);
-        if(values.minNotice && values.effectiveDate && values.effectiveDate < values.minNotice){
+        if(values.noticeDate && values.effectiveDate && values.effectiveDate < values.noticeDate){
             errors.effectiveDate = ['Must be at least 5 working days after date of notice']
         }
         return errors;
