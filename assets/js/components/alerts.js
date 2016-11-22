@@ -30,6 +30,12 @@ export function sortAlerts(response) {
                 }
             })
         }
+        (entry.futureTransactions || []).map(transaction => {
+            const due = moment(transaction.effectiveDate).format('YYYY-MM-DD');
+            acc[due] = acc[due] || [];
+            acc[due].push({id: entry.id, companyName: entry.companyName, transaction: transaction})
+        })
+
         return acc;
     }, {});
     return {alertList: data, companyMap, dateMap}

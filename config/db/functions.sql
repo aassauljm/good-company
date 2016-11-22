@@ -195,6 +195,7 @@ CREATE OR REPLACE FUNCTION future_transaction_range(startId integer, endId integ
     JOIN
         (SELECT * FROM prev_company_states WHERE generation >= 0 and generation < (SELECT generation from selected_generation)) q
     ON t.id = q."transactionId"
+    WHERE $1 != $2
     order by generation desc ) as q
 $$ LANGUAGE SQL;
 
@@ -414,12 +415,15 @@ CREATE OR REPLACE FUNCTION get_deadlines(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
+
 CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
     RETURNS JSON
     AS $$
     SELECT array_to_json(array_agg(row_to_json(q)))
     FROM (
-        SELECT c.id, cs."companyName", cs.warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(cs.id) as deadlines
+        SELECT c.id, cs."companyName", cs.warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(cs.id) as deadlines,
+        ( SELECT array_to_json(array_agg(qq)) FROM future_transaction_range(company_now, "currentCompanyStateId") qq)
+            AS "futureTransactions"
 
         FROM (
         SELECT *, company_now(c.id) FROM company c
@@ -429,6 +433,8 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
     ) q;
 $$ LANGUAGE SQL;
 
+
+select * from all_company_notifications(15)
 
 
 -- A brief(er) summary of transactions, part of standard companyState info

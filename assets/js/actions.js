@@ -378,7 +378,7 @@ export function companyTransaction(transactionType, companyId, data, options={})
         }),
         confirmation: confirmation,
         shouldCallAPI: (state) => state.transactions._status !== 'fetching',
-        payload: {companyId: companyId, loadingMessage: options.loadingMessage}
+        payload: {companyId: companyId, loadingMessage: options.loadingMessage || 'Submitting Transaction'}
     };
 }
 
