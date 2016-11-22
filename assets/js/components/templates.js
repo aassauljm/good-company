@@ -15,6 +15,9 @@ import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
+let Combobox = require('react-widgets/lib/Combobox')
+
+const LOOKUP_COMPANY = 'LOOKUP_COMPANY';
 
 function createLawLinks(list){
     return <div>
@@ -74,8 +77,6 @@ function renderList(fieldProps, componentProps){
         </fieldset>
 }
 
-
-
 function renderField(fieldProps, componentProps, index){
     const title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
     const props = {
@@ -86,7 +87,12 @@ function renderField(fieldProps, componentProps, index){
         labelClassName: 'col-md-3',
         wrapperClassName: 'col-md-7'
     };
-    if(fieldProps.type === 'string'){
+    /*if (fieldProps.lookupSource && fieldProps.lookupSource == LOOKUP_COMPANY) {
+        return (
+            <Combobox data={[1, 2, 3, 4]} />
+        );
+    }
+    else */if(fieldProps.type === 'string'){
         if(componentType(fieldProps) === 'date'){
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         }
@@ -95,21 +101,20 @@ function renderField(fieldProps, componentProps, index){
         }
         return <Input type="text" {...componentProps} {...props} />
     }
-    if(fieldProps.type === 'number'){
+    else if(fieldProps.type === 'number'){
         return <Input type="number" {...componentProps} {...props} />
     }
-    if(fieldProps.enum && fieldProps.enum.length > 1){
+    else if(fieldProps.enum && fieldProps.enum.length > 1){
         return <Input type="select"  {...componentProps} {...props}>
             { fieldProps.enum.map((f, i) => {
                 return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
             })}
         </Input>
     }
-    if(fieldProps.type === 'array'){
+    else if(fieldProps.type === 'array'){
         return renderList(fieldProps, componentProps);
     }
-
-    if(fieldProps.type === 'object'){
+    else if(fieldProps.type === 'object'){
         return <div>
             { renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }
         </div>
@@ -322,6 +327,18 @@ export class GenericBoardResolutionForm extends React.Component {
     }
 }
 
+@reduxForm({
+  form: 'entitledPersonsAgreement',
+  fields: getFields(templateSchemas.entitledPersonsAgreement),
+  validate: getValidate(templateSchemas.entitledPersonsAgreement)
+})
+export class EntitledPersonsAgreementForm extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={templateSchemas.entitledPersonsAgreement}  {...this.props} />
+    }
+}
+
 
 const TemplateMap = {
     'transfer': {
@@ -346,6 +363,12 @@ const TemplateMap = {
         form: GenericBoardResolutionForm,
         schema: templateSchemas.genericBoardResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.genericBoardResolution, values),
+        icon: 'list'
+    },
+    'entitled_persons_agreement': {
+        form: EntitledPersonsAgreementForm,
+        schema: templateSchemas.entitledPersonsAgreement,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.entitledPersonsAgreement, values),
         icon: 'list'
     }
 }

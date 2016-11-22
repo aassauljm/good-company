@@ -1,0 +1,113 @@
+{
+    "description": "",
+    "title": "Entitled Persons' Agreement",
+    "formName": "Entitled Persons' Agreement",
+    "properties": {
+        "filename": { "$ref": "#/definitions/filename" },
+        "fileType": { "$ref": "#/definitions/fileType" },
+        "company": { "$ref": "#/definitions/company" },
+        "agreementOptions": {
+            "type": "object",
+            "properties": {
+                "dateOfAgreement": {
+                    "title": "Date of Agreement/Concurrence",
+                    "type": "string",
+                    "x-hints" : {
+                        "form": {
+                            "inputComponent": "date"
+                        }
+                    }
+                },
+                "agreementType": {
+                    "title": "Agreement/Concurrence Type",
+                    "enum": [
+                        "General Exercise of Power",
+                        "Particular Exercise of Power"
+                    ]
+                },
+                "entitledParties": {
+                    "type": "array",
+                    "title": "Parties",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "title": "Entitled Person's Name"
+                            }
+                        }
+                    },
+                    "minItems": 1
+                }
+            },
+            "default": {
+                "resolutionType": "General Exercise of Power"
+            },
+            "oneOf":[
+                {
+                    "properties": {
+                        "agreementType": {
+                            "enum": ["General Exercise of Power"]
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "agreementType": {
+                            "enum": ["Particular Exercise of Power"]
+                        },
+                        "powersBeingExercised": {
+                            "type": "array",
+                            "title": "Powers Being Exercised",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "power": {
+                                        "enum": [
+                                            "Dividends",
+                                            "Discount Schemes",
+                                            "Share Acquisitions",
+                                            "Share Redemptions",
+                                            "Financial Assistance",
+                                            "Director Remuneration and Benefits",
+                                            "Share Issues",
+                                            "Interested Directors"
+                                        ]
+                                    },
+                                    "details": {
+                                        "type": "string",
+                                        "title": "Details",
+                                        "x-hints": {
+                                            "form": {
+                                                "inputComponent": "textarea"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "required": ["dateOfAgreement", "agreementType"],
+            "x-hints": {
+                "form": {
+                    "selector": "agreementType"
+                }
+            }
+        }
+    },
+    "required": [
+        "resolutionOptions"
+    ],
+    "type": "object",
+    "x-ordering": [],
+    "lawBrowserLinks": [
+        {"link": {"title": "Companies Act 1993", "location": "s 2(1)"}, "text": "Definition of entitled persons"},
+        {"link": {"title": "Companies Act 1993", "location": "s 107(1), (2) and (3)"}, "text": "Approval of actions by unanimous assent"},
+        {"link": {"title": "Companies Act 1993", "location": "s 107(4)"}, "text": "Agreement must be in writing"},
+        {"link": {"title": "Companies Act 1993", "location": "s 107(5)(a)"}, "text": "Particular exercise of power"},
+        {"link": {"title": "Companies Act 1993", "location": "s 107(5)(b), (6), (7), (8)"}, "text": "Exercises of power generally"},
+        {"link": {"title": "Companies Act 1993", "location": "s 108"}, "text": "Company to satisfy solvency test for certain actions"}
+    ]
+}
