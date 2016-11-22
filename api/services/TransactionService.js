@@ -1698,12 +1698,20 @@ export function performTransaction(data, company, companyState){
 }
 
 
-export function performAll(data, company, state){
+export function performAll(data, company, state, isReplay){
     return Promise.each(data, function(doc){
         return TransactionService.performTransaction(doc, company, state)
             .then(_state => {
                 state = _state;
-            });
+            })
+            .catch(e => {
+                if(isReplay){
+                    throw sails.config.exceptions.FutureTransactionException('There is a conflict with a scheduled transaction', {
+                        actionSet: doc
+                    })
+                }
+                throw e;
+            })
     })
     .then(() => {
         return state;
@@ -1712,10 +1720,10 @@ export function performAll(data, company, state){
 
 export function transactionsToActions(transactions){
     return transactions.map(t => {
-        const {id, subTransactions, ...info} = t;
-        return {...info, ...info.data, actions: t.subTransactions.map(s => {
-            const {id, ...info} = s;
-            return {...info}
+        const {id, subTransactions, data, ...info} = t;
+        return {...info, ...data, id: null, originalTransactionId: id, actions: t.subTransactions.map(s => {
+            const {id,  parentTransactionId, data, ...info} = s;
+            return {...info, ...data, id: null};
         })}
     })
 }
@@ -1744,15 +1752,13 @@ export function performAllInsertByEffectiveDate(data, company){
         })
         .then(state => {
             if(futureTransactions.length){
-                return performAll(transactionsToActions(futureTransactions), company, state)
+                return performAll(transactionsToActions(futureTransactions), company, this.state, true)
             }
             return state;
         })
-
 }
 
 export function createImplicitTransactions(state, transactions, effectiveDate){
-
     // remove empty allocations
     function removeEmpty(){
         const actions = state.dataValues.holdingList.dataValues.holdings.reduce((acc, holding) => {

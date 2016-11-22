@@ -188,7 +188,7 @@ CREATE OR REPLACE FUNCTION future_transaction_range(startId integer, endId integ
     FROM (
     SELECT t.id, type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
         (select array_to_json(array_agg(row_to_json(d))) from (
-        select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
+        select t.id, type, data, format_iso_date(tt."effectiveDate") as "effectiveDate"
         from transaction tt where t.id = tt."parentTransactionId"
         ) as d) as "subTransactions"
     FROM transaction t

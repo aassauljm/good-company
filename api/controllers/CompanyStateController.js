@@ -221,7 +221,6 @@ var transactions = {
         if(args.documents){
             args.transactions.map(t => t.documents = args.documents);
         }
-        console.log('er', JSON.stringify(args.transactions, null, 4))
         return TransactionService.performAllInsertByEffectiveDate(args.transactions, company)
             .then((_state) => {
                 state = _state;
@@ -230,7 +229,6 @@ var transactions = {
                 }
             })
             .then(() => {
-                 console.log(JSON.stringify(args.transactions, null, 4))
                 return transactionMessages(args.transactions, state.companyName);
             })
     },

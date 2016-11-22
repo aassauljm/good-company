@@ -3,6 +3,7 @@ var _ = require('lodash');
 
 module.exports.exceptions = _.defaults({
     ValidationException: errorFactory('ValidationException', [ 'message', 'context' ]),
+    FutureTransactionException: errorFactory('FutureTransactionException', [ 'message', 'context' ]),
     BadImmutableOperation: errorFactory('BadImmutableOperation', [ 'message', 'context' ]),
     ForbiddenException: errorFactory('ForbiddenException', [ 'message', 'context' ]),
     UserNotFoundException: errorFactory('UserNotFoundException', [ 'message', 'context' ]),

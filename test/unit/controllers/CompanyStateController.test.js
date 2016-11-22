@@ -476,12 +476,13 @@ describe('Future Transactions', function(){
             ]})
             .expect(500)
             .then(function(res) {
+                res.body.message.should.be.equal('There is a conflict with a scheduled transaction');
                 done();
             })
         });
 
     it('Does an issue in the future, but will not conflict', function(done) {
-        const date = moment().add('7');
+        const date = moment().add('7', 'day').toDate();
         req.post('/api/transaction/compound/'+companyId)
                 .send({
                     "transactions": [
