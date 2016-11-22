@@ -316,14 +316,14 @@ export class OrdinaryResolutionForm extends React.Component {
 }
 
 @reduxForm({
-  form: 'genericBoardResolution',
-  fields: getFields(templateSchemas.genericBoardResolution),
-  validate: getValidate(templateSchemas.genericBoardResolution)
+  form: 'boardResolution',
+  fields: getFields(templateSchemas.boardResolution),
+  validate: getValidate(templateSchemas.boardResolution)
 })
-export class GenericBoardResolutionForm extends React.Component {
+export class BoardResolutionForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.genericBoardResolution}  {...this.props} />
+        return <RenderForm schema={templateSchemas.boardResolution}  {...this.props} />
     }
 }
 
@@ -359,10 +359,10 @@ const TemplateMap = {
         getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
         icon: 'list'
     },
-    'generic_board_resolution': {
-        form: GenericBoardResolutionForm,
-        schema: templateSchemas.genericBoardResolution,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.genericBoardResolution, values),
+    'board_resolution': {
+        form: BoardResolutionForm,
+        schema: templateSchemas.boardResolution,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.boardResolution, values),
         icon: 'list'
     },
     'entitled_persons_agreement': {

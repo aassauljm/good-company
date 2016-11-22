@@ -5,7 +5,7 @@ let templateSchemas = {
     transfer: require('./transfer.json'),
     specialResolution: require('./specialResolution.json'),
     ordinaryResolution: require('./ordinaryResolution.json'),
-    genericBoardResolution: require('./genericBoardResolution.json'),
+    boardResolution: require('./boardResolution.json'),
     entitledPersonsAgreement: require('./entitledPersonsAgreement.json')
 }
 

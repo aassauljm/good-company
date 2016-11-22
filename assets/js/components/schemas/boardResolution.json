@@ -1,7 +1,7 @@
 {
     "description": "",
-    "title": "Board Resolution - Generic",
-    "formName": "Board Resolution - Generic",
+    "title": "Board Resolution",
+    "formName": "Board Resolution",
     "properties": {
         "filename": { "$ref": "#/definitions/filename" },
         "fileType": { "$ref": "#/definitions/fileType" },
