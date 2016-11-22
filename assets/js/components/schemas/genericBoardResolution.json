@@ -120,5 +120,14 @@
         "resolutionOptions"
     ],
     "type": "object",
-    "x-ordering": []
+    "x-ordering": [],
+    "lawBrowserLinks": [
+        {"link": {"title": "Companies Act 1993", "location": "s 127"}, "text": "Meaning of board and board of directors"},
+        {"link": {"title": "Companies Act 1993", "location": "s 128"}, "text": "Board to manage company"},
+        {"link": {"title": "Companies Act 1993", "location": "s 130"}, "text": "Delegation of powers"},
+        {"link": {"title": "Companies Act 1993", "location": "s 160"}, "text": "Proceedings of the board"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 3 cl 5"}, "text": "Voting at board meeting"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 3 cl 6"}, "text": "Minutes of board meetings"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 3 cl 7"}, "text": "Written Resolution in lieu of board meeting"}
+    ]
 }
