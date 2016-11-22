@@ -434,8 +434,6 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
 $$ LANGUAGE SQL;
 
 
-select * from all_company_notifications(15)
-
 
 -- A brief(er) summary of transactions, part of standard companyState info
 CREATE OR REPLACE FUNCTION transaction_summary(companyStateId integer)
