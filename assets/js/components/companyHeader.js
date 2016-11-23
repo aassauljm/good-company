@@ -69,12 +69,16 @@ export class CompanyHeader extends React.Component {
                 <li key={0} className="nav-item">
                     <IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
-                <li key={1} className="nav-item">
-                    <Link to={`/company/view/${id}/shareregister`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Share Register</Link>
-                </li>,
-                <li key={2} className="nav-item">
-                    <Link to={`/company/view/${id}/interests_register`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Interests Register</Link>
-                </li>,
+
+                <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li">
+                    <DropdownToggle href={`/company/view/${id}/registers`} bsRole="toggle">
+                        Registers
+                   </DropdownToggle>
+                    <Dropdown.Menu bsRole="menu">
+                        <MenuItem href="/shareregister">Share Register</MenuItem>
+                        <MenuItem  href="/interests_register">Interests Register</MenuItem>
+                        </Dropdown.Menu>
+                </Dropdown>,
 
               <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
                     <DropdownToggle href={`/company/view/${id}/new_transaction`} bsRole="toggle">

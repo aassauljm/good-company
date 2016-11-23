@@ -428,6 +428,7 @@ function modals(state = {}, action) {
         case RESOURCE_UPDATE_SUCCESS:
         case RESOURCE_DELETE_SUCCESS:
         case TRANSACTION_SUCCESS:
+        case TRANSACTION_FAILURE:
             if(action.loadingMessage){
                 return {...state, loading: {message: action.loadingMessage, showing: false}};
             }
