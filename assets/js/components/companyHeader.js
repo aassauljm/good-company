@@ -69,19 +69,27 @@ export class CompanyHeader extends React.Component {
                 <li key={0} className="nav-item">
                     <IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
-                <li key={1} className="nav-item">
-                    <Link to={`/company/view/${id}/shareregister`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Share Register</Link>
-                </li>,
-                <li key={2} className="nav-item">
-                    <Link to={`/company/view/${id}/interests_register`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Interests Register</Link>
-                </li>,
+
+                <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li">
+                    <DropdownToggle href={`/company/view/${id}/registers`} bsRole="toggle">
+                        Registers
+                   </DropdownToggle>
+                    <Dropdown.Menu bsRole="menu">
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
+                        <MenuItem  onClick={() => this.props.navigate(`/company/view/${id}/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
+                        </Dropdown.Menu>
+                </Dropdown>,
 
               <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
                     <DropdownToggle href={`/company/view/${id}/new_transaction`} bsRole="toggle">
-                        Update Company
+                        Update
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem onClick={() => this.startTransaction('addAssignShares') }>Add & Assign Share Classes</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
+                        {/*<MenuItem onClick={() => this.startTransaction('addAssignShares') }>Add & Assign Share Classes</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('consolidateDivide') }>Consolidate or Subdivide Shares</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('issue')}>Issue New Shares</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('repurchaseRedeem') }>Repurchase or Redeem Shares</MenuItem>
@@ -90,7 +98,7 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.startTransaction('updateAddresses')  }>Update Addresses</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('selectDirector') }>Update Directors</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('updateHoldingHolder') }>Update Shareholders</MenuItem>
-                        <MenuItem onClick={() => this.startTransaction('resetDelete') }>Reset or Delete Company</MenuItem>
+                        <MenuItem onClick={() => this.startTransaction('resetDelete') }>Reset or Delete Company</MenuItem> */ }
                         </Dropdown.Menu>
                 </Dropdown>,
              <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>,

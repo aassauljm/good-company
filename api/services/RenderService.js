@@ -13,7 +13,7 @@ import { setFetch } from "../../assets/js/utils";
 import fetch from 'isomorphic-fetch';
 import { syncHistoryWithStore } from 'react-router-redux'
 import Promise from 'bluebird';
-
+import shittyLodash from 'react-widgets/lib/util/_.js';
 
 export function serverRender(url, cookie, state={}){
     const memoryHistory = createMemoryHistory(url);
@@ -23,8 +23,8 @@ export function serverRender(url, cookie, state={}){
         url = 'http://localhost:'+sails.config.port+url;
         return fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
     });
-
     return new Promise((resolve, reject) => {
+        shittyLodash.resetUniqueId();
         match({history, routes: routes(store), location: url}, (error, redirectLocation, renderProps) => {
             if (error) {
                 reject({code: 500, message: error.message});

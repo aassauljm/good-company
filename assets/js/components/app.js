@@ -1,6 +1,5 @@
 import React from 'react';
 import Header from './header';
-import Footer from './footer';
 import Login from './login';
 import { pureRender } from '../utils';
 import { requestUserInfo } from '../actions';
@@ -57,7 +56,6 @@ export default class App extends React.Component {
                     <Modals />
                 { this.props.children }
                 </DragContainer>
-                { !this.props.routes.some(r => r.print) && <Footer />}
             </div>
         }
         let name = this.props.location.pathname;
@@ -85,7 +83,6 @@ export class LoggedInApp extends React.Component {
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div>
                 { this.props.children }
-                { !this.props.routes.some(r => r.print) && <Footer />}
             </div>
         }
         return  <div>

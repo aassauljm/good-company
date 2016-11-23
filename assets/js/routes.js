@@ -29,6 +29,7 @@ import  { LoginWithCatalex } from './components/login';
 import ImportCompany from './components/importCompany';
 import ImportMenu from './components/importMenu';
 import { CompanyTransactions } from './components/transactions';
+import { UpdatePeople, UpdateContact, UpdateShares, UpdateResetDelete } from './components/transactions/selection';
 import { TransactionView } from './components/transaction';
 import { MassSetup } from './components/massSetup';
 import { GuidedSetup } from './components/guidedSetup';
@@ -96,9 +97,15 @@ export default (store) => {
                     <Route path="create" component={ InterestsRegisterCreate } />
                     <Route path="view/:entryId" component={ InterestsRegisterView } />
                 </Route>
-                <Route path="new_transaction" component={ NewTransaction } />
+                <Route path="new_transaction" component={ NewTransaction } >
+                    <Route path="contact" component={ UpdateContact } />
+                    <Route path="people" component={ UpdatePeople } />
+                    <Route path="shares" component={ UpdateShares } />
+                    <Route path="reset_delete" component={ UpdateResetDelete } />
+                </Route>
                 <Route path="guided_setup" component={ GuidedSetup } />
                 <Route path="notifications" component={ CompanyAlerts } />
+              <Route path="*" component={ NotFound } />
             </Route>
             <Route path="company/view/:id/history/:generation" component={ Company }  />
             <Route path="import" component={ ImportMenu } />

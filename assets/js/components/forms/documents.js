@@ -29,7 +29,7 @@ class DocumentBase extends React.Component {
 
     onDrop(e) {
         const droppedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-        this.props.documents.onChange([...this.props.documents.value, ...droppedFiles]);
+        this.props.documents.onChange([...(this.props.documents.value || []), ...droppedFiles]);
     }
 
     onFileDialogCancel() {

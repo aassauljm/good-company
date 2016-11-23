@@ -3,6 +3,8 @@ var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var path = require("path");
 var autoprefixer = require('autoprefixer');
+var WebpackNotifierPlugin = require('webpack-notifier');
+
 
 var DEV = process.env.NODE_ENV !== 'production';
 
@@ -41,8 +43,13 @@ if(!DEV){
             JSON.stringify({hash: stats.hash}));
         });
   })
-}
 
+}
+else{
+    plugins.push(new WebpackNotifierPlugin({
+            title: 'Good Companies'
+    }))
+}
 
 module.exports = {
     cache: true,

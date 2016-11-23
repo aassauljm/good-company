@@ -114,7 +114,6 @@ export function callAPIMiddleware({
             dispatch(Object.assign({}, payload, {
                 type: requestType
             }));
-            console.log(postProcess)
             return callAPI()
                 .then(checkStatus)
                 .then(parse)

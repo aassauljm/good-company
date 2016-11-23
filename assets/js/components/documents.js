@@ -390,7 +390,7 @@ class FileTree extends React.Component {
         directoryId && this.showSubTree(directoryId)
         this.props.upload(files, directoryId)
             .then((r) => {
-                if(r.response.documentIds && r.response.documentIds[0]){
+                if(r && r.response.documentIds && r.response.documentIds[0]){
                     this.setState({selected: r.response.documentIds[0]});
                 }
             })
