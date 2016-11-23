@@ -72,7 +72,9 @@ function renderList(fieldProps, componentProps){
         }) }
         </Shuffle>
              <div className="button-row">
-                <Button onClick={() => componentProps.addField({...(fieldProps.items.default||{}), _keyIndex: keyIndex++}) } >{ addItem(fieldProps.items) } </Button>
+                <Button onClick={() => {
+                    componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: keyIndex++});
+                    } } >{ addItem(fieldProps.items) } </Button>
             </div>
         </fieldset>
 }
@@ -250,7 +252,10 @@ function getValidate(schema){
     }
 }
 
-function getDefaultValues(schema, defaults = {}){
+function getDefaultValues(schema, defaults){
+    if(!defaults){
+        defaults = {};
+    }
     const fields = {};
     function loop(props, fields, suppliedDefaults){
         Object.keys(props).map(key => {
@@ -264,12 +269,27 @@ function getDefaultValues(schema, defaults = {}){
             if(props[key].type === 'object'){
                 let obj = fields[key] || {};
                 loop(props[key].properties, obj, suppliedDefaults[key] || {});
+                fields[key] = obj;
             }
             else if(props[key].type === 'array'){
                 if(props[key].items.type === "object"){
                     let obj = fields[key] || [];
+
                     loop(props[key].items.properties, obj, {...(suppliedDefaults[key] || {}), _keyIndex: keyIndex++});
+                    if(props[key].items.oneOf){
+                        obj.map(o => props[key].items.oneOf.map(oneOf => {
+                            loop(oneOf.properties, o, suppliedDefaults[key] || {});
+                        }))
+                    }
+                    fields[key] = obj;
                 }
+            }
+            if(props[key].oneOf){
+                let obj = fields[key] || {};
+                props[key].oneOf.map(o => {
+                    loop(o.properties, obj, suppliedDefaults[key] || {});
+                })
+                fields[key]  = obj;
             }
         });
         return fields;
@@ -314,6 +334,9 @@ export class OrdinaryResolutionForm extends React.Component {
         return <RenderForm schema={templateSchemas.ordinaryResolution}  {...this.props} />
     }
 }
+
+console.log(getDefaultValues(templateSchemas.ordinaryResolution, {}))
+
 
 @reduxForm({
   form: 'boardResolution',

@@ -85,7 +85,7 @@ nav.navbar{
             background-color:none;
     }
 
-    .navbar-header{
+
         .navbar-brand{
             line-height: $navbar-height * 0.66;
             padding-top:0;
@@ -166,7 +166,6 @@ nav.navbar{
                 }
             }
 
-        }
         }
     }
     @media (min-width:$screen-sm-min){
