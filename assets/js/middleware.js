@@ -1,7 +1,7 @@
 "use strict";
 import Promise from 'bluebird';
 import { logout, showConfirmation } from './actions';
-import { push } from 'react-router-redux'
+import { push } from 'react-router-redux';
 
 Promise.config({
     cancellation: true

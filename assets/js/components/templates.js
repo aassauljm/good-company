@@ -6,9 +6,6 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
 import { Link } from 'react-router';
-import TRANSFER from './schemas/transfer.json';
-import SPECIAL_RESOLUTION from './schemas/specialResolution.json';
-import ORDINARY_RESOLUTION from './schemas/ordinaryResolution.json';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
@@ -17,7 +14,10 @@ import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
+import templateSchemas from './schemas/templateSchemas';
+let Combobox = require('react-widgets/lib/Combobox')
 
+const LOOKUP_COMPANY = 'LOOKUP_COMPANY';
 
 function createLawLinks(list){
     return <div>
@@ -62,7 +62,7 @@ function renderList(fieldProps, componentProps){
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
                     </div></div>
-                <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }</div>
+                 <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }</div>
                  <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block">
                     { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                     <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
@@ -77,10 +77,7 @@ function renderList(fieldProps, componentProps){
         </fieldset>
 }
 
-
-
 function renderField(fieldProps, componentProps, index){
-
     const title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
     const props = {
         bsStyle: fieldStyle(componentProps),
@@ -90,7 +87,12 @@ function renderField(fieldProps, componentProps, index){
         labelClassName: 'col-md-3',
         wrapperClassName: 'col-md-7'
     };
-    if(fieldProps.type === 'string'){
+    /*if (fieldProps.lookupSource && fieldProps.lookupSource == LOOKUP_COMPANY) {
+        return (
+            <Combobox data={[1, 2, 3, 4]} />
+        );
+    }
+    else */if(fieldProps.type === 'string'){
         if(componentType(fieldProps) === 'date'){
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         }
@@ -99,21 +101,20 @@ function renderField(fieldProps, componentProps, index){
         }
         return <Input type="text" {...componentProps} {...props} />
     }
-    if(fieldProps.type === 'number'){
+    else if(fieldProps.type === 'number'){
         return <Input type="number" {...componentProps} {...props} />
     }
-    if(fieldProps.enum && fieldProps.enum.length > 1){
+    else if(fieldProps.enum && fieldProps.enum.length > 1){
         return <Input type="select"  {...componentProps} {...props}>
             { fieldProps.enum.map((f, i) => {
                 return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
             })}
         </Input>
     }
-    if(fieldProps.type === 'array'){
+    else if(fieldProps.type === 'array'){
         return renderList(fieldProps, componentProps);
     }
-
-    if(fieldProps.type === 'object'){
+    else if(fieldProps.type === 'object'){
         return <div>
             { renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }
         </div>
@@ -135,17 +136,13 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex){
     });
     return <fieldset>
         { Object.keys(schemaProps).map((key, i) => {
-            return <div key={i}>
-            <div className="form-row">{ renderField(schemaProps[key], fields[key], listIndex) }</div>
-                { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
-            </div>
+            return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
         }) }
-
+        { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
     </fieldset>
 }
 
-
-export  class RenderForm extends React.Component {
+export class RenderForm extends React.Component {
     controls() {
         return <div className="button-row form-controls">
                 <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
@@ -283,38 +280,62 @@ function getDefaultValues(schema, defaults = {}){
 
 @reduxForm({
   form: 'transferTemplate',
-  fields: getFields(TRANSFER),
-  validate: getValidate(TRANSFER)
+  fields: getFields(templateSchemas.transfer),
+  validate: getValidate(templateSchemas.transfer)
 })
 export  class TransferForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={TRANSFER}  {...this.props} />
+        return <RenderForm schema={templateSchemas.transfer}  {...this.props} />
     }
 }
 
 
 @reduxForm({
   form: 'specialResolutionTemplate',
-  fields: getFields(SPECIAL_RESOLUTION),
-  validate: getValidate(SPECIAL_RESOLUTION)
+  fields: getFields(templateSchemas.specialResolution),
+  validate: getValidate(templateSchemas.specialResolution)
 })
 export class SpecialResolutionForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={SPECIAL_RESOLUTION}  {...this.props} />
+        return <RenderForm schema={templateSchemas.specialResolution}  {...this.props} />
     }
 }
 
 @reduxForm({
   form: 'ordinaryResolutionTemplate',
-  fields: getFields(ORDINARY_RESOLUTION),
-  validate: getValidate(ORDINARY_RESOLUTION)
+  fields: getFields(templateSchemas.ordinaryResolution),
+  validate: getValidate(templateSchemas.ordinaryResolution)
 })
 export class OrdinaryResolutionForm extends React.Component {
     render() {
         const { fields } = this.props;
-        return <RenderForm schema={ORDINARY_RESOLUTION}  {...this.props} />
+        return <RenderForm schema={templateSchemas.ordinaryResolution}  {...this.props} />
+    }
+}
+
+@reduxForm({
+  form: 'boardResolution',
+  fields: getFields(templateSchemas.boardResolution),
+  validate: getValidate(templateSchemas.boardResolution)
+})
+export class BoardResolutionForm extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={templateSchemas.boardResolution}  {...this.props} />
+    }
+}
+
+@reduxForm({
+  form: 'entitledPersonsAgreement',
+  fields: getFields(templateSchemas.entitledPersonsAgreement),
+  validate: getValidate(templateSchemas.entitledPersonsAgreement)
+})
+export class EntitledPersonsAgreementForm extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={templateSchemas.entitledPersonsAgreement}  {...this.props} />
     }
 }
 
@@ -322,20 +343,32 @@ export class OrdinaryResolutionForm extends React.Component {
 const TemplateMap = {
     'transfer': {
         form: TransferForm,
-        schema: TRANSFER,
-        getInitialValues: (values) => getDefaultValues(TRANSFER, values),
+        schema: templateSchemas.transfer,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.transfer, values),
         icon: 'transfer'
     },
     'special_resolution': {
         form: SpecialResolutionForm,
-        schema: SPECIAL_RESOLUTION,
-        getInitialValues: (values) => getDefaultValues(SPECIAL_RESOLUTION, values),
+        schema: templateSchemas.specialResolution,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.specialResolution, values),
         icon: 'list'
     },
     'ordinary_resolution': {
         form: OrdinaryResolutionForm,
-        schema: ORDINARY_RESOLUTION,
-        getInitialValues: (values) => getDefaultValues(ORDINARY_RESOLUTION, values),
+        schema: templateSchemas.ordinaryResolution,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
+        icon: 'list'
+    },
+    'board_resolution': {
+        form: BoardResolutionForm,
+        schema: templateSchemas.boardResolution,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.boardResolution, values),
+        icon: 'list'
+    },
+    'entitled_persons_agreement': {
+        form: EntitledPersonsAgreementForm,
+        schema: templateSchemas.entitledPersonsAgreement,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.entitledPersonsAgreement, values),
         icon: 'list'
     }
 }
@@ -354,9 +387,10 @@ export  class TemplateView extends React.Component {
         this.submit = ::this.submit;
     }
 
-    submit(values) {``
-        let filename = TemplateMap[this.props.params.name].schema.filename;
-        this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.filename, values: {...values, filename: filename}})
+
+    submit(values) {
+        let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
+        this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.formName, values: {...values, filename: filename}})
             .then((response) => {
                 const disposition = response.response.headers.get('Content-Disposition')
                 filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');

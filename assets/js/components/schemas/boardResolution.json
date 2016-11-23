@@ -1,0 +1,142 @@
+{
+    "description": "",
+    "title": "Board Resolution",
+    "formName": "Board Resolution",
+    "properties": {
+        "filename": { "$ref": "#/definitions/filename" },
+        "fileType": { "$ref": "#/definitions/fileType" },
+        "company": { "$ref": "#/definitions/company" },
+        "resolutionOptions": {
+            "type": "object",
+            "properties": {
+                "resolutionType": {
+                    "title": "Resolution Type",
+                    "enum": [
+                        "Resolution at Board Meeting",
+                        "Written Resolution in lieu of Board Meeting"
+                    ]
+                }
+            },
+            "default": {
+                "resolutionType": "Resolution at Board Meeting"
+            },
+            "oneOf":[
+                {
+                    "properties": {
+                        "resolutionType": {
+                            "enum": ["Resolution at Board Meeting"]
+                        },
+                        "dateOfMinute": {
+                            "title": "Date of Minute",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                    "inputComponent": "date"
+                                }
+                            }
+                        },
+                        "dateOfBoardMeeting": {
+                            "title": "Date of Board Meeting",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                    "inputComponent": "date"
+                                }
+                            }
+                        },
+                        "chairperson": { "$ref": "#/definitions/director" }
+                    },
+                    "required": ["dateOfBoardMeeting", "chairperson"]
+                },
+                {
+                    "properties": {
+                        "resolutionType": {
+                            "enum": ["Written Resolution in lieu of Board Meeting"]
+                        },
+                        "dateOfResolution": {
+                            "title": "Date of Resolution",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                    "inputComponent": "date"
+                                }
+                            }
+                        },
+                        "directors": {
+                            "type": "array",
+                            "title": "Directors",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "Director Name"
+                                    }
+                                }
+                            },
+                            "minItems": 1
+                        }
+                    }
+                }
+            ],
+            "required": ["dateOfResolution", "resolutionType"],
+            "x-hints": {
+                "form": {
+                    "selector": "resolutionType"
+                }
+            }
+        },
+        "resolutions": {
+            "type": "array",
+            "title": "Resolutions",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "title": "Description",
+                        "x-hints": {
+                            "form": {
+                                "inputComponent": "textarea"
+                            }
+                        }
+                    }
+                }
+            },
+            "minItems": 1
+        },
+        "notes": {
+            "type": "array",
+            "title": "Notes",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "title": "Description",
+                        "x-hints": {
+                            "form": {
+                                "inputComponent": "textarea"
+                            }
+                        }
+                    }
+                }
+            },
+            "minItems": 0
+        }
+    },
+    "required": [
+        "resolutionOptions"
+    ],
+    "type": "object",
+    "x-ordering": [],
+    "lawBrowserLinks": [
+        {"link": {"title": "Companies Act 1993", "location": "s 127"}, "text": "Meaning of board and board of directors"},
+        {"link": {"title": "Companies Act 1993", "location": "s 128"}, "text": "Board to manage company"},
+        {"link": {"title": "Companies Act 1993", "location": "s 130"}, "text": "Delegation of powers"},
+        {"link": {"title": "Companies Act 1993", "location": "s 160"}, "text": "Proceedings of the board"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 3 cl 5"}, "text": "Voting at board meeting"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 3 cl 6"}, "text": "Minutes of board meetings"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 3 cl 7"}, "text": "Written Resolution in lieu of board meeting"}
+    ]
+}

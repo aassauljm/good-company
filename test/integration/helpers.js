@@ -2,13 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { renderIntoDocument } from 'react-addons-test-utils';
 import configureStore from "../../assets/js/store.prod";
-import routes from ".../../../../assets/js/routes";
-import Root from ".../../../../assets/js/root";
+import routes from "../../assets/js/routes";
+import Root from "../../assets/js/root";
 import Promise from "bluebird";
 import { createMemoryHistory, match } from 'react-router'
 import { loadOnServer } from 'redux-connect';
 import { createStore, applyMiddleware, compose } from 'redux';
-import appReducer from '.../../../../assets/js/reducers';
+import appReducer from '../../assets/js/reducers';
 import thunkMiddleware from 'redux-thunk';
 
 
