@@ -10,7 +10,7 @@ module.exports = function(renderProps) {
     if(sails.config.serverRender){
         const req = this.req,
             res = this.res;
-        const state = {login: {loggedIn: req.isAuthenticated(), ...urls}, userInfo: req.user ? {...req.user.toJSON(), _status: 'complete'} : {}};
+        const state = {login: {loggedIn: req.isAuthenticated(), ...urls}};
         RenderService.serverRender(req.url, req.get('cookie'), state)
             .then(result => {
                 res.status(200);
