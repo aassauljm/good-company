@@ -41,7 +41,7 @@ export class NextCompanyControls extends React.Component {
         }
         const name = this.props.companyName || '';
         const comp = {companyName: name};
-        const data = [...this.props.alerts.data.alertList.filter(a => Object.keys(a.warnings).some(k => a.warnings[k])), comp]
+        const data = [...this.props.alerts.data.alertList.filter(a => Object.keys(a.warnings || {}).some(k => a.warnings[k])), comp]
         data.sort((a, b) => {
             return a.companyName.localeCompare(b.companyName);
         })
@@ -92,6 +92,7 @@ export class GuidedSetup extends React.Component {
     checkOpenNext(props) {
         if(!props.transactionViews.showing){
             const warnings = getWarnings(props.companyState);
+            console.log(warnings);
             if(warnings.votingShareholderWarning){
                 props.dispatch(showContextualTransactionView(props.companyId, 'votingShareholders', {companyId: props.companyId, companyState: props.companyState}));
             }

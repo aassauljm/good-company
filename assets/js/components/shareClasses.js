@@ -163,6 +163,7 @@ export class ShareClassForm extends React.Component {
             { !this.props.noDocuments && <Documents documents={fields.documents} /> }
             </fieldset>
             <div className="button-row">
+                { this.props.end &&  <ButtonInput onClick={this.props.end}>Cancel</ButtonInput> }
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
                 <ButtonInput type="submit" bsStyle="primary" className="submit-new" disabled={submitting || invalid}>{ this.props.edit ? 'Update': 'Create'}</ButtonInput>
             </div>
