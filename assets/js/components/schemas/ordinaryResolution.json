@@ -281,7 +281,8 @@
             "default": [{"resolutionType": "Custom"}],
             "minItems": 1
 
-        }
+        },
+        "notes": { "$ref": "#/definitions/notes" }
     },
     "required": [
         "resolutions",

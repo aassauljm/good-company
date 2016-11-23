@@ -105,25 +105,7 @@
             },
             "minItems": 1
         },
-        "notes": {
-            "type": "array",
-            "title": "Notes",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "text": {
-                        "type": "string",
-                        "title": "Description",
-                        "x-hints": {
-                            "form": {
-                                "inputComponent": "textarea"
-                            }
-                        }
-                    }
-                }
-            },
-            "minItems": 0
-        }
+        "notes": { "$ref": "#/definitions/notes" }
     },
     "required": [
         "resolutionOptions"
