@@ -75,8 +75,8 @@ export class CompanyHeader extends React.Component {
                         Registers
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem href="/shareregister">Share Register</MenuItem>
-                        <MenuItem  href="/interests_register">Interests Register</MenuItem>
+                        <MenuItem onClick={(e) => e.preventDefault() || this.props.navigate(`/company/view/${id}/shareregister`)} href={`/company/view/${id}/shareregister`}>Share Register</MenuItem>
+                        <MenuItem  onClick={(e) => e.preventDefault() || this.props.navigate(`/company/view/${id}/interests_register`)}  href={`/company/view/${id}/interests_register`}>Interests Register</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown>,
 

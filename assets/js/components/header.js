@@ -140,7 +140,7 @@ export class Header extends React.Component {
                         { this.status() }
                        </ul>
                 </NavbarCollapse>
-                </div> }
+                </div>
           </Navbar>
       }
       return <Navbar>

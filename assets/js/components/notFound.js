@@ -8,6 +8,8 @@ export default class NotFound extends React.Component {
         descriptor: PropTypes.string
     };
     render() {
-        return <div className="container"><h4 className="text-center">{this.props.descriptor || ''} Not Found</h4></div>
+        return <div className="container">
+            <h4 className="text-center">{this.props.descriptor || ''} Not Found</h4>
+        </div>
     }
 }
