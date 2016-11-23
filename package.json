@@ -45,7 +45,7 @@
     "style-loader": "^0.12.4",
     "supertest": "^1.0.1",
     "supertest-as-promised": "^2.0.2",
-    "webpack-dev-server": "^1.11.0"
+    "webpack-notifier": "^1.4.1"
   },
   "dependencies": {
     "autoprefixer": "^6.5.1",
@@ -144,7 +144,6 @@
     "validator": "^4.3.0",
     "waterline-criteria": "^0.11.2",
     "webpack": "^1.12.2",
-    "webpack-notifier": "^1.4.1",
     "webshot": "^0.18.0",
     "winston": "^2.2.0"
   }

@@ -27,6 +27,7 @@ import { VotingShareholdersTransactionView  } from './transactions/selectVotingS
 import { ShareClassCreateTransactionView, ShareClassEditTransactionView, ShareClassManageTransactionView } from './shareClasses';
 import { AddAssignSharesTransactionView, ConsolidateDivideTransactionView, RepurchaseRedeemTransactionView,
     UpdateHoldingHolderTransactionView, ResetDeleteTransactionView, UpdateAddressesTransactionView } from './transactions/selection';
+import { ContactDetailsTransactionView } from './contactDetails';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
 
@@ -140,6 +141,9 @@ export const TransactionViewSwitch = (props) => {
             case 'changeAddressForService':
                 return <ChangeAddressForServiceTransactionView {...props} />
 
+            case 'contactDetails':
+                return <ContactDetailsTransactionView {...props} />
+
             default:
                 return false;
         }
@@ -180,7 +184,7 @@ export class TransactionViews extends React.Component {
         if(!this.props.showing){
             return false;
         }
-        return <div className="transactionViews">{ this.renderTransactionView(this.props.showing) }</div>
+        return <div className="transaction-views">{ this.renderTransactionView(this.props.showing) }</div>
 
     }
 }

@@ -34,7 +34,7 @@ STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
 import {reducer as formReducer} from 'redux-form';
 import validator from 'validator'
 import { relationNameToModel } from './schemas';
-import { routerReducer } from 'react-router-redux'
+import { routerReducer, LOCATION_CHANGE } from 'react-router-redux'
 import { reducer as reduxAsyncConnect } from 'redux-connect'
 
 const initialState = {
@@ -202,6 +202,10 @@ function transactionViews(state = {}, action){
             return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
         case RESET_TRANSACTION_VIEWS:
             return {} ;
+
+        case LOCATION_CHANGE:
+            return {...state, showing: false}
+
 
         default:
             return state;

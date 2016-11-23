@@ -54,9 +54,9 @@ export class SelectionBase extends React.Component {
               <TransactionView.Body>
                 { this.renderBody() }
               </TransactionView.Body>
-              <TransactionView.Footer>
+              { this.props.end && <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-              </TransactionView.Footer>
+              </TransactionView.Footer> }
             </TransactionView>
     }
 
@@ -172,7 +172,6 @@ export class UpdateAddressesTransactionView extends React.Component {
                 <span className="glyphicon glyphicon-home"></span>
                 <span className="transaction-button-text">Change Address for Service</span>
             </div>
-
         </SelectionBase>
     }
 }
@@ -183,7 +182,18 @@ export class UpdatePeople extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update People" >
-
+            <div className="actionable select-button" onClick={() => this.props.show('selectPerson')} >
+                <span className="glyphicon glyphicon-user"></span>
+                <span className="transaction-button-text">Shareholders</span>
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('selectHistoricPerson')} >
+                <span className="glyphicon glyphicon-hourglass"></span>
+                <span className="transaction-button-text">Historic Shareholder</span>
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('selectDirector')  } >
+                    <span className="glyphicon glyphicon-user"></span>
+                    <span className="transaction-button-text">Directors</span>
+            </div>
         </SelectionBase>
     }
 }
@@ -194,6 +204,19 @@ export class UpdateContact extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update Contact" lawLinks={contactLawLinks()}>
+            <div className="actionable select-button"  onClick={() => this.props.show('changeRegisteredOffice')} >
+                <span className="glyphicon glyphicon-home"></span>
+                <span className="transaction-button-text">Registered Office</span>
+
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('changeAddressForService')} >
+                <span className="glyphicon glyphicon-home"></span>
+                <span className="transaction-button-text">Address for Service</span>
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('contactDetails')} >
+                <span className="glyphicon glyphicon-envelope"></span>
+                <span className="transaction-button-text">Other Contact Details</span>
+            </div>
 
         </SelectionBase>
     }
@@ -205,7 +228,23 @@ export class UpdateShares extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update Shares" >
+            <div className="actionable select-button" onClick={() => this.props.show('transfer') } >
+                <span className="glyphicon glyphicon-transfer"></span>
+                <span className="transaction-button-text">Transfer Shares</span>
+            </div>
 
+            <div className="actionable select-button" onClick={() => this.props.show('issue') } >
+                    <span className="glyphicon glyphicon-share"></span>
+                    <span className="transaction-button-text">Issue New Shares</span>
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('consolidateDivide') } >
+                    <span className="glyphicon glyphicon-duplicate"></span>
+                    <span className="transaction-button-text">Consolidate or Subdivide Shares</span>
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.showTransactionView('repurchaseRedeem') } >
+                    <span className="glyphicon glyphicon-usd"></span>
+                    <span className="transaction-button-text">Repurchase or Redeem Shares</span>
+            </div>
         </SelectionBase>
     }
 }

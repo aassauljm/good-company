@@ -323,7 +323,7 @@ export class DecreaseTransactionView extends React.Component {
                 { this.renderBody(this.props.transactionViewData.companyState) }
               </TransactionView.Body>
               <TransactionView.Footer>
-                <Button onClick={this.handleClose} >Close</Button>
+                <Button onClick={this.handleClose} >Cancel</Button>
                  <Button onClick={this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
               </TransactionView.Footer>
             </TransactionView>

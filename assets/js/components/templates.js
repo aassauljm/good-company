@@ -363,7 +363,7 @@ export class NoticeOfMeeting extends React.Component {
 }
 
 
-const TemplateMap = {
+export const TemplateMap = {
     'transfer': {
         form: TransferForm,
         title: 'Transfer Shares',

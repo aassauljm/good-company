@@ -363,14 +363,14 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION apply_warnings()
 RETURNS trigger AS $$
 BEGIN
-   NEW.warnings := (SELECT get_warnings(NEW.id));
+     UPDATE company_state set warnings = get_warnings(NEW.id) where id = NEW.id;
   RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 
-
 DROP TRIGGER IF EXISTS company_state_warnings_trigger ON company_state;
-CREATE TRIGGER company_state_warnings_trigger BEFORE INSERT ON company_state
+CREATE TRIGGER company_state_warnings_trigger AFTER INSERT OR UPDATE ON company_state
 FOR EACH ROW
+WHEN (pg_trigger_depth() = 0)
 EXECUTE PROCEDURE apply_warnings();
 
 
