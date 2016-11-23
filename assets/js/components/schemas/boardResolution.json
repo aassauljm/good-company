@@ -9,31 +9,31 @@
         "resolutionOptions": {
             "type": "object",
             "properties": {
-                "dateOfResolution": {
-                    "title": "Date of Resolution",
-                    "type": "string",
-                    "x-hints" : {
-                        "form": {
-                            "inputComponent": "date"
-                        }
-                    }
-                },
                 "resolutionType": {
                     "title": "Resolution Type",
                     "enum": [
-                        "Board Resolution at Board Meeting",
-                        "Written Board Resolution in lieu of Board Meeting"
+                        "Resolution at Board Meeting",
+                        "Written Resolution in lieu of Board Meeting"
                     ]
                 }
             },
             "default": {
-                "resolutionType": "Board Resolution at Board Meeting"
+                "resolutionType": "Resolution at Board Meeting"
             },
             "oneOf":[
                 {
                     "properties": {
                         "resolutionType": {
-                            "enum": ["Board Resolution at Board Meeting"]
+                            "enum": ["Resolution at Board Meeting"]
+                        },
+                        "dateOfMinute": {
+                            "title": "Date of Minute",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                    "inputComponent": "date"
+                                }
+                            }
                         },
                         "dateOfBoardMeeting": {
                             "title": "Date of Board Meeting",
@@ -51,7 +51,16 @@
                 {
                     "properties": {
                         "resolutionType": {
-                            "enum": ["Written Board Resolution in lieu of Board Meeting"]
+                            "enum": ["Written Resolution in lieu of Board Meeting"]
+                        },
+                        "dateOfResolution": {
+                            "title": "Date of Resolution",
+                            "type": "string",
+                            "x-hints" : {
+                                "form": {
+                                    "inputComponent": "date"
+                                }
+                            }
                         },
                         "directors": {
                             "type": "array",
@@ -96,9 +105,9 @@
             },
             "minItems": 1
         },
-        "comments": {
+        "notes": {
             "type": "array",
-            "title": "Comments (optional)",
+            "title": "Notes",
             "items": {
                 "type": "object",
                 "properties": {
