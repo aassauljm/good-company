@@ -15,12 +15,12 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { numberWithCommas } from '../utils';
 import { FavouritesHOC, AlertsHOC  } from '../hoc/resources';
 
+
 const DropdownToggle = (props) => {
     return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
         {props.children}
       </a>
 }
-
 
 
 export const AccountControls = (props) => {
@@ -32,20 +32,15 @@ export const AccountControls = (props) => {
                         {props.userInfo.username}
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem href={props.login.userUrl}>Account</MenuItem>
+                        <MenuItem href={`${props.login.userUrl}/user/profile`}>Account</MenuItem>
                         <li  className="separator" />
                         <MenuItem href='https://browser.catalex.nz'>Law Browser</MenuItem>
                         <MenuItem href='https://workingdays.catalex.nz'>Working Days</MenuItem>
                         <MenuItem href='https://concat.catalex.nz'>ConCat</MenuItem>
-
+                        <li  className="separator" />
+                        <MenuItem href='/logout'>Log out</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>
-
-            <li className="nav-item">
-                <a href={props.login.userUrl} className="nav-link">
-                </a>
-            </li>
-            <li className="nav-item"><a className="nav-link" href="/logout">Log out</a></li>
         </ul>
         <ul key={1} className="nav navbar-nav navbar-right clear-right">
                     <li className="nav-item"><em>Last login: {props.userInfo.lastLogin}</em></li>
@@ -53,7 +48,6 @@ export const AccountControls = (props) => {
     }
     return false;
 }
-
 
 
 
@@ -102,51 +96,57 @@ export class Header extends React.Component {
     }
 
     render() {
-        return  <Navbar>
-            <div className="navbar-top">
-                <Navbar.Header>
+        if(this.props.login.loggedIn){
+            return  <Navbar>
+                <div className="navbar-top">
+                   <Navbar.Header>
 
                         <Navbar.Brand>
-                        <Dropdown id="title-dropdown"  ref="dropdown">
-                            <DropdownToggle href="/" bsRole="toggle">
-                                        <span className="company-title">
-                                        <Glyphicon glyph='menu-hamburger'/>
-                                         <span className="logo" /><span className="text-logo">Good Companies</span>
-                                    </span>
+                            <Dropdown id="title-dropdown"  ref="dropdown">
+                                <DropdownToggle href="/" bsRole="toggle">
+                                            <span className="company-title">
+                                            <Glyphicon glyph='menu-hamburger'/>
+                                             <span className="logo" /><span className="text-logo">Good Companies</span>
+                                        </span>
 
-                            </DropdownToggle>
-                            <Dropdown.Menu>
-                                <li><Link to="/">Good Companies Home</Link></li>
+                                </DropdownToggle>
+                                <Dropdown.Menu>
+                                    <li><Link to="/">Good Companies Home</Link></li>
 
-                                 { this.renderNavLinks() }
-                                { this.renderFavourites() }
-                                 <li className="separator" />
-                               <li >
-                                    <a href={this.props.login.userUrl}>{this.props.userInfo.username}
-                                    </a>
-                                </li>
-                                <li><a href="/logout">Log out</a></li>
+                                     { this.renderNavLinks() }
+                                    { this.renderFavourites() }
+                                     <li className="separator" />
+                                    <li>
+                                        <a href={this.props.login.userUrl}>{this.props.userInfo.username}
+                                        </a>
+                                    </li>
+                                    <li><a href="/logout">Log out</a></li>
 
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Navbar.Brand>
-                </Navbar.Header>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Navbar.Brand>
+                    </Navbar.Header>
+                    <NavbarCollapse>
+                        <AccountControls {...this.props}/>
+                    </NavbarCollapse>
+
+                </div>
+                <div className="navbar-bottom">
                 <NavbarCollapse>
-                    <AccountControls {...this.props}/>
+                     <ul className="nav navbar-nav">
+                         { this.renderNavLinks() }
+                       </ul>
+                       <ul className="nav navbar-nav pull-right">
+                        { this.status() }
+                       </ul>
                 </NavbarCollapse>
+                </div> }
+          </Navbar>
+      }
+      return <Navbar>
 
-            </div>
-            <div className="navbar-bottom">
-            <NavbarCollapse>
-                 <ul className="nav navbar-nav">
-                     { this.renderNavLinks() }
-                   </ul>
-                   <ul className="nav navbar-nav pull-right">
-                    { this.status() }
-                   </ul>
-            </NavbarCollapse>
-            </div>
-      </Navbar>
+            <div className="text-center"><span className="logo"/></div></Navbar>
+
 
     }
 }

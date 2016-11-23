@@ -144,6 +144,7 @@
     "validator": "^4.3.0",
     "waterline-criteria": "^0.11.2",
     "webpack": "^1.12.2",
+    "webpack-notifier": "^1.4.1",
     "webshot": "^0.18.0",
     "winston": "^2.2.0"
   }

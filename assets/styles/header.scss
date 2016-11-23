@@ -21,23 +21,26 @@ nav.navbar{
             color:$white;
 
             font-weight: bold;
-            .logo{
-
-                display:inline-block;
-                width: 251px;
-                height: 32px;
-                margin-top: 13px;
-                padding: 0;
-                background-image :url("~catalex_shared/images/good-companies-inline-32x.png");
-                position: absolute;
-                bottom: 0;
-                left: 45px;
-            }
-            span.text-logo{
-                display:none;
-            }
         }
 
+        .logo{
+
+            display:inline-block;
+            width: 251px;
+            height: 32px;
+            margin-top: 13px;
+            padding: 0;
+            background-image :url("~catalex_shared/images/good-companies-inline-32x.png");
+            position: absolute;
+            bottom: 0;
+            left: 45px;
+        }
+        span.text-logo{
+            display:none;
+        }
+        .text-center .logo{
+            position:static;
+        }
          .navbar-right {
             margin-right: 0;
             min-height:1px;
@@ -80,7 +83,7 @@ nav.navbar{
             border: none;
             float: none;
             background-color:none;
-        }
+    }
 
 
         .navbar-brand{
@@ -108,7 +111,7 @@ nav.navbar{
             }
         }
         .navbar-right{
-            margin-right:0;
+            margin-right: -15px;;
         }
 
         .open.dropdown{

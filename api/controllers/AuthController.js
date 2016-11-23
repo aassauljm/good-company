@@ -11,22 +11,25 @@ const passport = require('passport');
 _.merge(exports, _super);
 _.merge(exports, {
 
-    // Extend with custom logic here by adding additional fields, methods, etc.
+
     logout: function(req, res) {
         req.logout();
         delete req.user;
         delete req.session.passport;
         // TESTING FOUND A PROBLEM WITH THIS NOT BEING SET
         req.session.authenticated = false;
-        if(sails.config.USER_LOGOUT_URL){
-            res.redirect(sails.config.USER_LOGOUT_URL)
-        }
 
-        else if (!req.isSocket) {
-            res.redirect(req.query.next || '/');
-        } else {
-            res.ok();
-        }
+        req.session.destroy(() => {
+            if(sails.config.USER_LOGOUT_URL){
+                res.redirect(sails.config.USER_LOGOUT_URL)
+            }
+
+            else if (!req.isSocket) {
+                res.redirect(req.query.next || '/');
+            } else {
+                res.ok();
+            }
+        });
     },
     callback: function(req, res) {
         var action = req.param('action');
