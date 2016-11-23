@@ -8,6 +8,8 @@ import { stringDateToFormattedStringTime } from '../utils';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
 
+
+
 @connect((state, ownProps) => {
     return state.resources['/favourites'] || {};
 }, {

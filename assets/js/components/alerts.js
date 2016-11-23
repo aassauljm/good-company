@@ -9,45 +9,11 @@ import { Link } from 'react-router';
 import { AlertWarnings } from './companyAlerts';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment';
+import { sortAlerts } from '../utils';
 
-export function sortAlerts(response) {
-    const data = (response || [])
-    data.sort((a, b) => {
-        return ((a.deadlines || {}).overdue ? 1 : -1) - ((b.deadlines || {}).overdue ? 1 : -1)
-    });
-    const companyMap = (data || []).reduce((acc, entry) => {
-        acc[entry.id] = entry;
-        return acc;
-    }, {});
-    const dateMap = (data || []).reduce((acc, entry) => {
-        if(entry.deadlines){
-            Object.keys(entry.deadlines).map(k => {
-                const deadline = entry.deadlines[k];
-                if(deadline){
-                    const due = moment(deadline.dueDate).format('YYYY-MM-DD');
-                    acc[due] = acc[due] || [];
-                    acc[due].push({id: entry.id, companyName: entry.companyName, deadlines: {[k]: deadline}})
-                }
-            })
-        }
-        (entry.futureTransactions || []).map(transaction => {
-            const due = moment(transaction.effectiveDate).format('YYYY-MM-DD');
-            acc[due] = acc[due] || [];
-            acc[due].push({id: entry.id, companyName: entry.companyName, transaction: transaction})
-
-            if(transaction.subTransactions[0].data.noticeDate){
-                const noticeDue = moment(transaction.subTransactions[0].data.noticeDate).format('YYYY-MM-DD');
-                acc[noticeDue] = acc[noticeDue] || [];
-                acc[noticeDue].push({id: entry.id, companyName: entry.companyName, noticeDate: true, transaction: transaction})
-            }
-        })
-
-        return acc;
-    }, {});
-    return {alertList: data, companyMap, dateMap}
-}
 
 export const requestAlerts = () => requestResource('/alerts', {postProcess: sortAlerts});
+
 
 @connect((state, ownProps) => {
     return {alerts: state.resources['/alerts'] || {}, pendingJobs:  state.resources['/pending_jobs'] || {}};

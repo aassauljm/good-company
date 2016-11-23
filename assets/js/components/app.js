@@ -75,7 +75,6 @@ export default class App extends React.Component {
                     </ReactCSSTransitionGroup>
                  </div>
                  </DragContainer>
-                 <Footer />
             </div>
     }
 }
