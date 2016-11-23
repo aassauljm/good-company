@@ -177,3 +177,38 @@ export class UpdateAddressesTransactionView extends React.Component {
     }
 }
 
+
+
+export class UpdatePeople extends React.Component {
+
+    render() {
+        return <SelectionBase {...this.props} title="Update People" >
+
+        </SelectionBase>
+    }
+}
+
+
+
+export class UpdateContact extends React.Component {
+
+    render() {
+        return <SelectionBase {...this.props} title="Update Contact" lawLinks={contactLawLinks()}>
+
+        </SelectionBase>
+    }
+}
+
+
+
+export class UpdateShares extends React.Component {
+
+    render() {
+        return <SelectionBase {...this.props} title="Update Shares" >
+
+        </SelectionBase>
+    }
+}
+
+
+export const UpdateResetDelete = ResetDeleteTransactionView;

@@ -115,6 +115,10 @@ export class NewTransaction extends React.Component {
     }
 
     render() {
+        if(this.props.children){
+            const { children, ...props } = this.props;peslec
+            return React.cloneElement(this.props.children, {...props})
+        }
         return <div className="new-transaction icon-action-page">
                { this.props.transactionViews.showing &&  <TransactionViews {...this.props} {...this.props.transactionViews} /> }
                { !this.props.transactionViews.showing && this.renderBody() }
