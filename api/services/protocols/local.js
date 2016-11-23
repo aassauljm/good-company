@@ -148,7 +148,7 @@ exports.login = function(req, identifier, password, next) {
             return passport.validatePassword(password)
         })
         .then(function() {
-            LoginHistory.create({userId: user.id, requestId: req.requestId})
+            return LoginHistory.create({userId: user.id, requestId: req.requestId})
                 .then(() => next(null, user, passport));
         })
         .catch(sails.config.exceptions.BadCredentialsException, function() {

@@ -25,7 +25,8 @@ var session = require('continuation-local-storage').createNamespace('session');
 var Promise = require('bluebird'),
     shimmer = require('shimmer');
 var fs = Promise.promisifyAll(require('fs'));
-
+var shittyLodash = require('react-widgets/lib/util/_.js');
+var _ = require('lodash');
 // functionName: The Promise function that should be shimmed
 // fnArgs: The arguments index that should be CLS enabled (typically all callbacks). Offset from last if negative
 
@@ -102,6 +103,18 @@ function stats(){
          })
 }
 
+function patchReactWidget(){
+    var idCounter = 0;
+    shittyLodash.uniqueId = function(prefix) {
+      var id = ++idCounter;
+      return '' + ((prefix == null ? '' : prefix)  + id);
+    }
+    shittyLodash.resetUniqueId = function() {
+        idCounter = 0;
+    }
+}
+
+
 module.exports.bootstrap = function(cb) {
     sails.services.passport.loadStrategies();
     // It's very important to trigger this callback method when you are finished
@@ -109,7 +122,7 @@ module.exports.bootstrap = function(cb) {
     var namespace = getNamespace('sails-sequelize-postgresql');
     patchBluebird(namespace);
     patchBluebird(session);
-    return Promise.all([loadDB(), prepTemp(), stats()])
+    return Promise.all([loadDB(), prepTemp(), stats(), patchReactWidget()])
         .then(function(){
             cb();
         })

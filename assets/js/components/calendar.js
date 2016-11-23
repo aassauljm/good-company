@@ -23,7 +23,6 @@ import exportICS from './ics'
 import Loading from './loading';
 import { requestAlerts } from './alerts';
 
-
 const DEFAULT_OBJ = {};
 const DEFAULT_DEADLINE_HOUR = 11;
 

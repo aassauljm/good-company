@@ -59,16 +59,18 @@ _.merge(exports, {
                     sails.log.warn(err);
                     return negotiateError(err);
                 }
-
-                req.session.authenticated = true;
-                // Upon successful login, optionally redirect the user if there is a
-                // `next` query param
-                if (req.query.next) {
-                    var url = sails.services.authservice.buildCallbackNextUrl(req);
-                    res.status(302).set('Location', url);
-                }
-                sails.log.info('user', user.toJSON(), 'authenticated successfully');
-                return res.redirect('/')
+                return LoginHistory.create({userId: user.id, requestId: req.requestId})
+                .then(() => {
+                    req.session.authenticated = true;
+                    // Upon successful login, optionally redirect the user if there is a
+                    // `next` query param
+                    if (req.query.next) {
+                        var url = sails.services.authservice.buildCallbackNextUrl(req);
+                        res.status(302).set('Location', url);
+                    }
+                    sails.log.info('user', user.toJSON(), 'authenticated successfully');
+                    return res.redirect('/')
+                })
             });
         });
     },
