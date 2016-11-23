@@ -156,7 +156,9 @@ export class PendingTransactionsWidget extends React.Component {
         }
 
         const transactions = (this.props.companyState.futureTransactions || []).filter(t => t);
-
+        if(!transactions.length){
+            return <span>No Upcoming Transactions</span>
+        }
         return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <thead><tr><th>Type</th><th>Date</th></tr></thead>

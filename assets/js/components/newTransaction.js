@@ -26,6 +26,10 @@ export class NewTransaction extends React.Component {
         companyId: PropTypes.string,
     };
 
+    constructor() {
+        super();
+        this.startTransaction = ::this.startTransaction;
+    }
 
     componentWillMount() {
         return;
@@ -46,7 +50,7 @@ export class NewTransaction extends React.Component {
 
     startTransaction(key) {
         const id = this.props.companyId;
-        this.props.navigate(`/company/view/${id}/new_transaction`);
+        //this.props.navigate(`/company/view/${id}/new_transaction`);
         this.props.startTransaction(key, this.props.companyState, this.props.companyId)
     }
 
@@ -82,7 +86,7 @@ export class NewTransaction extends React.Component {
                             <span className="glyphicon glyphicon-transfer"></span>
                             <span className="transaction-button-text">Transfer Shares</span>
                     </div>
-                    <div className="actionable select-button" onClick={() => this.props.navigate({pathname: `/company/view/${id}/contact`, state: {skipDirtyLeave: true}}) } >
+                    <div className="actionable select-button" onClick={() => this.startTransaction('contactDetails') } >
                             <span className="glyphicon glyphicon-envelope"></span>
                             <span className="transaction-button-text">Update Contact</span>
                     </div>
@@ -116,8 +120,11 @@ export class NewTransaction extends React.Component {
 
     render() {
         if(this.props.children){
-            const { children, ...props } = this.props;peslec
-            return React.cloneElement(this.props.children, {...props})
+            const { children, ...props } = this.props;
+            return <div className="new-transaction icon-action-page">
+                 { !this.props.transactionViews.showing && React.cloneElement(this.props.children, {...props, ...this.props.transactionViews, show: this.startTransaction} ) }
+                 { this.props.transactionViews.showing &&  <TransactionViews {...this.props} {...this.props.transactionViews}  /> }
+                </div>
         }
         return <div className="new-transaction icon-action-page">
                { this.props.transactionViews.showing &&  <TransactionViews {...this.props} {...this.props.transactionViews} /> }

@@ -147,7 +147,7 @@ export class CompanyDetailsTransactionView extends React.Component {
                 { this.renderBody(this.props.transactionViewData.companyState) }
               </TransactionView.Body>
               <TransactionView.Footer>
-                <Button onClick={this.props.end} >Close</Button>
+                <Button onClick={this.props.end} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
               </TransactionView.Footer>
             </TransactionView>

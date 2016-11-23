@@ -60,12 +60,12 @@ export class ContactForm extends React.Component {
                 >Add Field</button>
             </div>
             <Documents documents={this.props.fields.documents}/>
-            <div className="button-row">
+            { this.props.controls && <div className="button-row">
                 <button type="button" className="btn btn-default"
                     onClick={resetForm}>Reset</button>
                 <button type="submit" className="btn btn-primary"
                     >Save Changes</button>
-            </div>
+            </div> }
         </fieldset>
         </form>
     }
