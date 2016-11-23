@@ -41,13 +41,36 @@
                 }
             },
             "default": {
-                "resolutionType": "General Exercise of Power"
+                "agreementType": "General Exercise of Power"
             },
             "oneOf":[
                 {
                     "properties": {
                         "agreementType": {
                             "enum": ["General Exercise of Power"]
+                        },
+                        "powersBeingExercised": {
+                            "type": "array",
+                            "title": "Powers Being Exercised",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "power": {
+                                        "title": "Power",
+                                        "enum": [
+                                            "Dividends",
+                                            "Discount Schemes",
+                                            "Share Acquisitions",
+                                            "Share Redemptions",
+                                            "Financial Assistance",
+                                            "Director Remuneration and Benefits",
+                                            "Share Issues",
+                                            "Interested Directors"
+                                        ]
+                                    }
+                                }
+                            },
+                            "minItems": 1
                         }
                     }
                 },
@@ -63,6 +86,7 @@
                                 "type": "object",
                                 "properties": {
                                     "power": {
+                                        "title": "Power",
                                         "enum": [
                                             "Dividends",
                                             "Discount Schemes",
@@ -84,7 +108,8 @@
                                         }
                                     }
                                 }
-                            }
+                            },
+                            "minItems": 1
                         }
                     }
                 }
@@ -103,7 +128,7 @@
     "type": "object",
     "x-ordering": [],
     "lawBrowserLinks": [
-        {"link": {"title": "Companies Act 1993", "location": "s 2(1)"}, "text": "Definition of entitled persons"},
+        {"link": {"title": "Companies Act 1993", "definition": "28784-DLM319913"}, "text": "Definition of entitled persons"},
         {"link": {"title": "Companies Act 1993", "location": "s 107(1), (2) and (3)"}, "text": "Approval of actions by unanimous assent"},
         {"link": {"title": "Companies Act 1993", "location": "s 107(4)"}, "text": "Agreement must be in writing"},
         {"link": {"title": "Companies Act 1993", "location": "s 107(5)(a)"}, "text": "Particular exercise of power"},

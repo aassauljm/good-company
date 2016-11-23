@@ -339,6 +339,18 @@ export class EntitledPersonsAgreementForm extends React.Component {
     }
 }
 
+@reduxForm({
+  form: 'directorsCertificate',
+  fields: getFields(templateSchemas.directorsCertificate),
+  validate: getValidate(templateSchemas.directorsCertificate)
+})
+export class DirectorsCertificate extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={templateSchemas.directorsCertificate}  {...this.props} />
+    }
+}
+
 
 const TemplateMap = {
     'transfer': {
@@ -369,6 +381,12 @@ const TemplateMap = {
         form: EntitledPersonsAgreementForm,
         schema: templateSchemas.entitledPersonsAgreement,
         getInitialValues: (values) => getDefaultValues(templateSchemas.entitledPersonsAgreement, values),
+        icon: 'list'
+    },
+    'directors_certificate': {
+        form: DirectorsCertificate,
+        schema: templateSchemas.directorsCertificate,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.directorsCertificate, values),
         icon: 'list'
     }
 }
