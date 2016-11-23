@@ -116,6 +116,7 @@ function createActivityLog(user, company, messages){
     if(!Array.isArray(messages)){
         messages = [messages];
     }
+    messages = messages.filter(m => m);
     return ActivityLog.bulkCreate(messages.map(m => {
         return {
             userId: user.id,
@@ -147,10 +148,11 @@ var transactions = {
                 // ugly, think of better way to have empty key turned into undefined
                 const cInt =  c !== 'undefined' ? parseInt(c, 10) : undefined;
                 const actions = [];
+                const date = args.effectiveDate || new Date();
                 actions.push({
                     amount: classes[c],
                     shareClass: cInt,
-                    effectiveDate: new Date(),
+                    effectiveDate: date,
                     transactionType: Transaction.types.ISSUE
                 });
                 ((args.holdingList || {}).holdings || []).map((h) => {
@@ -161,13 +163,14 @@ var transactions = {
                             holders: h.holders,
                             shareClass: cInt,
                             amount: p.amount,
+                            effectiveDate: date,
                             beforeAmount: p.beforeAmount,
                             afterAmount: p.afterAmount
                         })
                     })
                 })
                 sets.push({
-                    effectiveDate: new Date(),
+                    effectiveDate: date,
                     actions: actions
                 });
             });
@@ -175,7 +178,7 @@ var transactions = {
         if(!sets.length){
             throw new sails.config.exceptions.ValidationException('Parcels are required')
         }
-        return TransactionService.performAll(sets, company)
+        return TransactionService.performAllInsertByEffectiveDate(sets, company)
         .then(() => {
             return {message: `Shares issued`}
         })
@@ -184,10 +187,12 @@ var transactions = {
 
     details: function(args, company){
         let name;
+        /// MNO!!!!! find now and replay
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
+            const date = new Date();
             return currentCompanyState.buildNext(_.merge({}, args, {
-                transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: new Date() }
+                transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: args.effectiveDate || date }
             }))
         })
         .then(function(nextCompanyState){
@@ -207,23 +212,18 @@ var transactions = {
 
     compound: function(args, company){
         // TODO, validate different pairings
-        let state, date = args.transactions[0].effectiveDate || new Date();
+        let state, date = args.transactions[0].effectiveDate;
+        date = date || args.transactions[0].actions[0].effectiveDate || new Date();
+        args.transactions.map(t => {
+            t.effectiveDate = t.effectiveDate || date;
+        });
         // TODO directorUpdate and holderchange should generate in same set
         if(args.documents){
             args.transactions.map(t => t.documents = args.documents);
         }
-        return TransactionService.performAll(args.transactions || [], company)
-            .then(_state => {
+        return TransactionService.performAllInsertByEffectiveDate(args.transactions, company)
+            .then((_state) => {
                 state = _state;
-                // e.g. remove empty allocation
-                return TransactionService.createImplicitTransactions(state, args.transactions || [], date)
-            })
-            .then(transactions => {
-                if(transactions.length){
-                    return TransactionService.performAll(transactions, company, state);
-                }
-            })
-            .then(() => {
                 if(args.documents){
                     return Promise.all(args.documents.map(d => d.update({date: date})));
                 }
@@ -385,6 +385,7 @@ var transactions = {
 }
 
 const selfManagedTransactions = {
+    // ew snake case, gross
      apply_share_classes: function (data, company){
         /* to apply, retroactively, a share class:
             * clone current state without apply previousCompanyStateId.

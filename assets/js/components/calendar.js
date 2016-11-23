@@ -58,13 +58,25 @@ class Day extends React.Component {
         }
 
         if(this.props.alerts && this.props.alerts.data && this.props.alerts.data.dateMap[str]){
-            const companyDeadlines = this.props.alerts.data.dateMap[str];
-            classes.push('deadline-day');
-            companyDeadlines.map(d => {
-                Object.keys(d.deadlines).map(k => {
-
-                    title.push(`${STRINGS.deadlines[k]} due for ${d.companyName}${ d.deadlines[k].overdue ? ' (Overdue)' :''}`)
-                })
+            const companyEvents = this.props.alerts.data.dateMap[str];
+            companyEvents.map(d => {
+                if(d.deadlines){
+                    classes.push('deadline-day ');
+                    Object.keys(d.deadlines).map(k => {
+                        title.push(`${STRINGS.deadlines[k]} due for ${d.companyName}${ d.deadlines[k].overdue ? ' (Overdue)' :''}`)
+                    })
+                }
+                if(d.transaction){
+                    classes.push('transaction-day ');
+                    const transactionType = d.transaction.subTransactions[0].type;
+                    const transactionLabel = STRINGS.transactionTypes[transactionType];
+                    if(d.noticeDate){
+                        title.push(`Notice of ${transactionLabel} for ${d.companyName} due to registrar`)
+                    }
+                    else{
+                        title.push(`${transactionLabel} scheduled for ${d.companyName}`)
+                    }
+                }
             })
             //title = [...title, ...(this.props.events.data.eventMap[str].map(e => (e.data||{}).title))];
             events = true;
@@ -119,7 +131,8 @@ const EventSummary = (props) => {
     </div>
 }
 
-const AlertSummary = (props) => {
+const DeadlineAlert = (props) => {
+
     const title = `${STRINGS.deadlines[props.alert.deadlineType]} due`
     const fullTitle = `${title} for ${props.alert.companyName}`;
     const reminder = '-P1D';
@@ -132,13 +145,49 @@ const AlertSummary = (props) => {
     }
     return <div className="summary">
         <div className="title">{ title }</div>
-        <div className="company"><Link to={`/company/view/${props.alert.id}`}>{props.alert.companyName}</Link></div>
+        <div className="company"><Link to={`/company/view/${props.alert.companyId}`}>{props.alert.companyName}</Link></div>
         <p  className="time">{ time }</p>
          { description &&<p>{ description }</p> }
         <div className="controls">
             { !props.alert.deadline.overdue &&  <a href="#" onClick={() => exportICS({title: fullTitle, date: dateMoment.toDate(), description, reminder})}>export</a> }
         </div>
     </div>
+}
+
+const TransactionAlert = (props) => {
+    let title;
+    if(props.alert.noticeDate){
+        title = `${STRINGS.transactionTypes[props.alert.transaction.subTransactions[0].type]} notice due to registrar`
+    }
+    else{
+        title = `${STRINGS.transactionTypes[props.alert.transaction.subTransactions[0].type]} scheduled`
+    }
+
+    const fullTitle = `${title} for ${props.alert.companyName}`;
+    const reminder = '-P1D';
+    let description = '';
+    const dateMoment = moment(props.alert.transaction.effectiveDate);
+    const time = dateMoment.format("hh:mm:ss a");
+
+    return <div className="summary">
+        <div className="title">{ title }</div>
+        <div className="company"><Link to={`/company/view/${props.alert.id}`}>{props.alert.companyName}</Link></div>
+        <p  className="time">{ time }</p>
+         { description &&<p>{ description }</p> }
+        <div className="controls">
+            { <a href="#" onClick={() => exportICS({title: fullTitle, date: dateMoment.toDate(), description, reminder})}>export</a> }
+        </div>
+    </div>
+}
+
+
+const AlertSummary = (props) => {
+    if(props.alert.deadline){
+        return DeadlineAlert(props)
+    }
+    if(props.alert.transaction){
+        return TransactionAlert(props)
+    }
 }
 
 
@@ -221,9 +270,14 @@ export default class CalendarFull extends React.Component {
         }
         if(this.props.alerts && this.props.alerts.data && this.props.alerts.data.dateMap[selected]){
             alertList = this.props.alerts.data.dateMap[selected].reduce((acc, company) => {
-                Object.keys(company.deadlines).map(k => {
-                    acc.push({deadlineType: k, deadline: company.deadlines[k], companyName: company.companyName, companyId: company.id})
-                });
+                if(company.deadlines){
+                    Object.keys(company.deadlines).map(k => {
+                        acc.push({deadlineType: k, deadline: company.deadlines[k], companyName: company.companyName, companyId: company.id})
+                    });
+                }
+                if(company.transaction){
+                    acc.push({...company, companyId: company.id})
+                }
                 return acc;
             }, []);
         }

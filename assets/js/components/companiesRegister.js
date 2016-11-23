@@ -29,6 +29,7 @@ const fields = [
 'nzbn',
 'incorporationDate',
 'arFilingMonth',
+'fraReportingMonth',
 'entityType',
 'companyStatus'];
 
@@ -73,6 +74,7 @@ export class CompaniesRegisterWidget extends React.Component {
                     <div><strong>AR Filing Month</strong> {data.arFilingMonth ||  'Unknown'}</div>
                     <div><strong>Entity Type</strong> {data.entityType ||  'Unknown' }</div>
                     <div><strong>Status</strong> {data.companyStatus ||  'Unknown' }</div>
+                    { data.fraReportingMonth && <div><strong>{ STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
             <div className="col-xs-12 text-center">
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>

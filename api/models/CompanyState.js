@@ -75,6 +75,9 @@ module.exports = {
         },
         "reportingFields": {
             "type": Sequelize.JSON
+        },
+        "warnings": {
+            "type": Sequelize.JSONB
         }
     },
     associations: function(n) {
@@ -502,12 +505,6 @@ module.exports = {
                 return sequelize.query('select transaction_summary(:id)',
                                        { type: sequelize.QueryTypes.SELECT,
                                             replacements: { id: this.id}});
-            },
-            getWarnings: function(){
-                return sequelize.query('select get_warnings(:id)',
-                                       { type: sequelize.QueryTypes.SELECT,
-                                            replacements: { id: this.id}})
-                    .then(results => results[0].get_warnings)
             },
             getDeadlines: function(){
                 return sequelize.query('select get_deadlines(:id)',
@@ -959,13 +956,11 @@ module.exports = {
                                     this.totalUnallocatedShares(),
                                     this.groupTotals(),
                                     this.getTransactionSummary(),
-                                    this.getWarnings(),
                                     this.getDeadlines(),
                         function(total,
                                  totalUnallocated,
                                 countByClass,
                                 transactionSummary,
-                                warnings,
                                 deadlines
                                 ){
                         stats.totalUnallocatedShares = totalUnallocated;
@@ -973,7 +968,6 @@ module.exports = {
                         stats.shareCountByClass = countByClass;
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
                         stats.transactions = transactionSummary[0].transaction_summary;
-                        stats.warnings = warnings;
                         stats.deadlines = deadlines;
                         return stats
                     });
@@ -1092,7 +1086,7 @@ module.exports = {
             },
 
             fullPopulateJSON: function(){
-                return this.fullPopulate()
+                return this.populateIfNeeded()
                 .then(() => this.stats())
                 .then((stats) => ({...this.toJSON(), ...stats}))
             },
@@ -1154,8 +1148,12 @@ module.exports = {
                         companyState.addressForShareRegister = addressForShareRegister;
                         companyState.addressForService = addressForService;
                     })
-
-            }
+            },
+            /*afterCreate: function(companyState,  options){
+                return sequelize.query("select update_warnings(:id, :generation)",
+                           { type: sequelize.QueryTypes.SELECT,
+                            replacements: { id: this.currentCompanyStateId}})
+            }*/
 
         }
     }

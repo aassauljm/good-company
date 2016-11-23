@@ -110,7 +110,7 @@ export class VotingShareholdersTransactionView extends React.Component {
 
         this.props.dispatch(companyTransaction('compound',
                                 this.props.transactionViewData.companyId,
-                                {transactions: transactions}))
+                                {transactions: transactions}, {skipConfirmation: true}))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Voting Shareholders applied'}));

@@ -1,7 +1,7 @@
 var request = require("supertest-as-promised");
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
-
+var moment = require("moment")
 
 describe('CompanyStateController', function() {
 
@@ -159,11 +159,12 @@ describe('CompanyStateController', function() {
             done();
         });
     });
+
     describe('Get Previous Version', function(){
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/3')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
                 });
         });
@@ -203,14 +204,14 @@ describe('CompanyStateController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/4')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
                 });
         });
         it('should get and compare first issue version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt').should.be.deep.eql(_.omitDeep(secondSummary.currentCompanyState, 'updatedAt'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(secondSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
                 });
         });
@@ -351,5 +352,178 @@ describe('CompanyStateController', function() {
                 });
         });
     });
-
 });
+
+
+
+describe('Future Transactions', function(){
+    let companyId, req;
+
+    it('should login successfully', function(done) {
+        req = request.agent(sails.hooks.http.app);
+        req
+            .post('/auth/local')
+            .send({'identifier': 'transactor@email.com', 'password': 'testtest'})
+            .expect(302, done)
+    });
+    it('should get company id', function(done) {
+        req
+            .get('/api/company')
+            .expect(200)
+            .then(function(res){
+                companyId = _.find(res.body, function(c){
+                    return c.currentCompanyState.companyName === 'Futures Ltd'
+                }).id;
+                companyId.should.be.a('number')
+                done();
+            })
+    });
+    it('Seeds', function(done) {
+        req.post('/api/transaction/seed/'+companyId)
+            .send({holdingList: {holdings: [{
+                holders: [{person: {name: 'Gary'}}, {person: {name: 'Busey'}}],
+                parcels: [{amount: 1111, shareClass: 1},
+                    {amount: 1, shareClass: 2},
+                    {amount: 10, shareClass: 4}]
+            }]}})
+            .expect(200, done)
+    });
+    it('Updates name', function(done) {
+        req.post('/api/transaction/compound/'+companyId)
+            .send({transactions: [
+                {
+                    effectiveDate: new Date(),
+                    actions: [{
+                        transactionType: 'NAME_CHANGE',
+                        previousCompanyName: 'Futures Ltd',
+                        newCompanyName: 'Futures Limited'
+                    }]
+                }
+            ]})
+            .expect(200, done)
+        });
+
+    it('Gets new company state', function(done) {
+       req.get('/api/company/'+companyId+'/get_info')
+            .expect(200)
+            .then(function(res){
+                res.body.currentCompanyState.companyName.should.be.equal('Futures Limited');
+                done();
+            });
+    });
+
+    it('Updates name in the future', function(done) {
+        req.post('/api/transaction/compound/'+companyId)
+            .send({transactions: [
+                {
+                    effectiveDate: moment().add('10', 'day').toDate(),
+                    actions: [{
+                        transactionType: 'NAME_CHANGE',
+                        previousCompanyName: 'Futures Limited',
+                        newCompanyName: 'Futures Unlimited'
+                    }]
+                }
+            ]})
+            .expect(200, done)
+        });
+
+    it('Checks that compamy name has not updated now', function(done) {
+       req.get('/api/company/'+companyId+'/get_info')
+            .expect(200)
+            .then(function(res){
+                res.body.currentCompanyState.companyName.should.be.equal('Futures Limited');
+                res.body.currentCompanyState.futureTransactions.length.should.be.equal(1);
+                done();
+            });
+    });
+
+    it('Updates name in the future again', function(done) {
+        req.post('/api/transaction/compound/'+companyId)
+            .send({transactions: [
+                {
+                    effectiveDate: moment().add('11', 'day').toDate(),
+                    actions: [{
+                        transactionType: 'NAME_CHANGE',
+                        previousCompanyName: 'Futures Unlimited',
+                        newCompanyName: 'Futures Explosionfest'
+                    }]
+                }
+            ]})
+            .expect(200, done)
+        });
+
+    it('Checks that compamy name has not updated now, but has 2 futureTransactions', function(done) {
+       req.get('/api/company/'+companyId+'/get_info')
+            .expect(200)
+            .then(function(res){
+                res.body.currentCompanyState.companyName.should.be.equal('Futures Limited');
+                res.body.currentCompanyState.futureTransactions.length.should.be.equal(2);
+                done();
+            });
+    });
+
+    it('Updates name in the future, but before other transactions', function(done) {
+        req.post('/api/transaction/compound/'+companyId)
+            .send({transactions: [
+                {
+                    effectiveDate: moment().add('9', 'day').toDate(),
+                    actions: [{
+                        transactionType: 'NAME_CHANGE',
+                        previousCompanyName: 'Futures Limited',
+                        newCompanyName: 'Futures Relimited'
+                    }]
+                }
+            ]})
+            .expect(500)
+            .then(function(res) {
+                res.body.message.should.be.equal('There is a conflict with a scheduled transaction');
+                done();
+            })
+        });
+
+    it('Does an issue in the future, but will not conflict', function(done) {
+        const date = moment().add('7', 'day').toDate();
+        req.post('/api/transaction/compound/'+companyId)
+                .send({
+                    "transactions": [
+                        {
+                            "actions": [
+                                {
+                                    "amount": 1,
+                                    "effectiveDate": date,
+                                    "shareClass": null,
+                                    "transactionType": "ISSUE"
+                                },
+                                {
+                                    "afterAmount": 1,
+                                    "amount": 1,
+                                    "effectiveDate": date,
+                                    "approvalDocuments": [],
+                                    "beforeAmount": 0,
+                                    holders: [{name: 'Gary'}, {name: 'Busey'}],
+                                    "minNotice": null,
+                                    "shareClass": null,
+                                    "transactionMethod": "AMEND",
+                                    "transactionType": "ISSUE_TO"
+                                }
+                            ],
+                            "effectiveDate": date,
+                            "transactionType": "ISSUE"
+                        }
+
+                    ]
+            })
+            .expect(200, done)
+        });
+    it('Checks that shares not updated now', function(done) {
+       req.get('/api/company/'+companyId+'/get_info')
+            .expect(200)
+            .then(function(res){
+                res.body.currentCompanyState.companyName.should.be.equal('Futures Limited');
+                res.body.currentCompanyState.totalShares.should.be.equal(1122)
+                res.body.currentCompanyState.futureTransactions.length.should.be.equal(3);
+                done();
+            });
+    });
+});
+

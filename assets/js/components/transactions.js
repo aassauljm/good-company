@@ -113,7 +113,7 @@ export class TransactionWidget extends React.Component {
         }
 
         const transactions = (this.props.companyState.transactions || []).filter(t => t);
-        return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <thead><tr><th>Type</th><th>Date</th></tr></thead>
                 <tbody>
@@ -129,7 +129,7 @@ export class TransactionWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    <span className="fa fa-balance-scale"/> Transactions
+                    <span className="fa fa-balance-scale"/> Completed Transactions
                 </div>
                 <div className="widget-control">
                 <Link to={`/company/view/${this.props.companyId}/transactions`} >View All</Link>
@@ -140,3 +140,47 @@ export class TransactionWidget extends React.Component {
         </div>
     }
 }
+
+
+
+
+export class PendingTransactionsWidget extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object.isRequired,
+        companyId: PropTypes.string.isRequired,
+    };
+    renderBody() {
+        let bodyClass = "widget-body expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+
+        const transactions = (this.props.companyState.futureTransactions || []).filter(t => t);
+
+        return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+                <table className="table table-condensed" style={{marginBottom: 0}}>
+                <thead><tr><th>Type</th><th>Date</th></tr></thead>
+                <tbody>
+                { (transactions).map((d, i) => {
+                    return <tr key={i}><td>{STRINGS.transactionTypes[d.type]}</td><td>{stringDateToFormattedString(d.effectiveDate)}</td></tr>
+                }) }
+                </tbody>
+                </table>
+        </div>
+    }
+
+    render(){
+        return <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                <span className="fa fa-hourglass-end"/> Upcoming Transactions
+                </div>
+            </div>
+
+            <div className="widget-body">
+                { this.renderBody() }
+            </div>
+        </div>
+    }
+}
+

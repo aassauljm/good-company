@@ -105,6 +105,101 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
+-- get the companyState for right now
+CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp with time zone)
+    RETURNS integer
+    AS $$
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId", generation) as (
+        SELECT t.id, t."previousCompanyStateId", t."transactionId", 0 as generation FROM company_state as t where t.id = $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", t."transactionId", generation + 1
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+    SELECT id FROM
+        (SELECT pvs.id, generation, "effectiveDate" FROM prev_company_states pvs
+         LEFT OUTER JOIN transaction t on t.id = pvs."transactionId"
+         ORDER BY generation ASC) q
+    WHERE q."effectiveDate" < $2 OR q."effectiveDate" is NULL LIMIT 1
+$$ LANGUAGE SQL;
+
+-- get the companyState for right now
+CREATE OR REPLACE FUNCTION company_state_now(companyStateId integer)
+    RETURNS integer
+    AS $$
+    select company_state_at($1, now())
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION company_now(company integer)
+    RETURNS integer
+    AS $$
+    SELECT company_state_now("currentCompanyStateId") id FROM company where company.id = $1
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION company_at(company integer, timestamp with time zone)
+    RETURNS integer
+    AS $$
+    SELECT company_state_at("currentCompanyStateId", $2) id FROM company where company.id = $1
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
+    RETURNS SETOF json
+    AS $$
+    WITH basic_company_state as (
+        SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
+    )
+    SELECT row_to_json(q) FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState" FROM (
+        SELECT *, company_now(c.id) FROM company c
+        WHERE c."ownerId" = $1 and c.deleted != true
+        ) q
+        JOIN basic_company_state cs on cs.id = q.company_now
+        ORDER BY cs."companyName"
+    ) q
+$$ LANGUAGE SQL;
+
+
+--CREATE OR REPLACE FUNCTION future_transactions(companyId integer)
+--    RETURNS SETOF json
+--    AS $$
+--    SELECT row_to_json(t.*) from transaction t
+--    JOIN
+--    (SELECT future_transactions_from_company_state("currentCompanyStateId") id FROM company
+--    WHERE company.id = $1) q on q.id = t.id
+--$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION future_transaction_range(startId integer, endId integer)
+    RETURNS SETOF json
+    AS $$
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId", generation) as (
+        SELECT t.id, t."previousCompanyStateId", t."transactionId", 0 as generation FROM company_state as t where t.id = $2
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", t."transactionId", generation + 1
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    ),
+    selected_generation AS (
+        SELECT generation from prev_company_states where id = $1
+    )
+    SELECT row_to_json(q.*)
+
+    FROM (
+    SELECT t.id, type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
+        (select array_to_json(array_agg(row_to_json(d))) from (
+        select t.id, type, data, format_iso_date(tt."effectiveDate") as "effectiveDate"
+        from transaction tt where t.id = tt."parentTransactionId"
+        ) as d) as "subTransactions"
+    FROM transaction t
+    JOIN
+        (SELECT * FROM prev_company_states WHERE generation >= 0 and generation < (SELECT generation from selected_generation)) q
+    ON t.id = q."transactionId"
+    WHERE $1 != $2
+    order by generation desc ) as q
+$$ LANGUAGE SQL;
+
+
 
 -- Summary of all transactions in json, used for client tables
 CREATE OR REPLACE FUNCTION company_state_history_json(companyStateId integer)
@@ -120,7 +215,7 @@ WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId"
 SELECT row_to_json(q) from (
             SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
         (select array_to_json(array_agg(row_to_json(d))) from (
-        select *,  format_iso_date(tt."effectiveDate") as "effectiveDate"
+        select type, data,  format_iso_date(tt."effectiveDate") as "effectiveDate"
         from transaction tt where t.id = tt."parentTransactionId"
         ) as d) as "subTransactions",
         (SELECT array_to_json(array_agg(row_to_json(d.*))) from t_d_j j left outer join document d on j.document_id = d.id where t.id = j.transaction_id) as "documents"
@@ -128,6 +223,9 @@ SELECT row_to_json(q) from (
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY t."effectiveDate" DESC) as q;
 $$ LANGUAGE SQL;
+
+
+
 
 
 -- Like company_state_history_json but filters on transaction type, ie ISSUE
@@ -250,6 +348,7 @@ CREATE OR REPLACE FUNCTION has_no_applied_share_classes(companyStateId integer)
         ) q
 $$ LANGUAGE SQL;
 
+
 CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
     RETURNS JSON
     AS $$
@@ -260,6 +359,19 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
         'applyShareClassWarning', has_no_applied_share_classes($1)
         )
 $$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION apply_warnings()
+RETURNS trigger AS $$
+BEGIN
+   NEW.warnings := (SELECT get_warnings(NEW.id));
+  RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
+
+
+DROP TRIGGER IF EXISTS company_state_warnings_trigger ON company_state;
+CREATE TRIGGER company_state_warnings_trigger BEFORE INSERT ON company_state
+FOR EACH ROW
+EXECUTE PROCEDURE apply_warnings();
 
 
 CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default 'Pacific/Auckland')
@@ -287,6 +399,7 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default '
             LEFT OUTER JOIN document d on d.id = dlj.document_id
 
             WHERE cs.id = $1 and type = 'Companies Office' and (filename = 'File Annual Return' or filename = 'Online Annual Return' or filename = 'Annual Return Filed')
+
             ORDER BY d.date DESC LIMIT 1
         ) qq
     ) q
@@ -302,15 +415,21 @@ CREATE OR REPLACE FUNCTION get_deadlines(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
+
 CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
     RETURNS JSON
     AS $$
     SELECT array_to_json(array_agg(row_to_json(q)))
     FROM (
-        SELECT c.id, cs."companyName", get_warnings(cs.id) as warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(cs.id) as deadlines
-        FROM company c
-        JOIN company_state cs ON cs.id = c."currentCompanyStateId"
-        WHERE c."ownerId" = $1 AND deleted = FALSE
+        SELECT c.id, cs."companyName", cs.warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(cs.id) as deadlines,
+        ( SELECT array_to_json(array_agg(qq)) FROM future_transaction_range(company_now, "currentCompanyStateId") qq)
+            AS "futureTransactions"
+
+        FROM (
+        SELECT *, company_now(c.id) FROM company c
+        WHERE c."ownerId" = $1 and c.deleted != true
+        ) c
+        JOIN company_state cs on cs.id = c.company_now
     ) q;
 $$ LANGUAGE SQL;
 

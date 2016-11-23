@@ -695,6 +695,9 @@ export function validateNameChange(data, companyState,  effectiveDate){
     if(data.previousCompanyName === data.newCompanyName){
         throw new sails.config.exceptions.InvalidInverseOperation('Company names do not differ')
     }
+    if(!data.newCompanyName){
+        throw new sails.config.exceptions.InvalidInverseOperation('No new company name supplied')
+    }
 }
 
 
@@ -1583,7 +1586,6 @@ export function performInverseAllPending(company, endCondition){
             return historicActions.length && perform(historicActions)
         })
         .catch((e) => {
-            console.log(e)
             throw e;
         })
 }
@@ -1629,7 +1631,6 @@ export function performTransaction(data, company, companyState){
     if(!data.id){
         data.id = uuid.v4();
     }
-
     let nextState, current, transactions;
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
@@ -1647,7 +1648,7 @@ export function performTransaction(data, company, companyState){
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, nextState, current, data.effectiveDate || new Date, company.get("ownerId"));
+                    }, nextState, current, data.effectiveDate || new Date(), company.get("ownerId"));
                 }
                 if(result){
                     return result.then(function(r){
@@ -1697,21 +1698,68 @@ export function performTransaction(data, company, companyState){
 }
 
 
-export function performAll(data, company, state){
+export function performAll(data, company, state, isReplay){
     return Promise.each(data, function(doc){
         return TransactionService.performTransaction(doc, company, state)
             .then(_state => {
                 state = _state;
-            });
+            })
+            .catch(e => {
+                if(isReplay){
+                    throw sails.config.exceptions.FutureTransactionException('There is a conflict with a scheduled transaction', {
+                        actionSet: doc
+                    })
+                }
+                throw e;
+            })
     })
     .then(() => {
         return state;
     })
 }
 
+export function transactionsToActions(transactions){
+    return transactions.map(t => {
+        const {id, subTransactions, data, ...info} = t;
+        return {...info, ...data, id: null, originalTransactionId: id, actions: t.subTransactions.map(s => {
+            const {id,  parentTransactionId, data, ...info} = s;
+            return {...info, ...data, id: null};
+        })}
+    })
+}
+
+
+export function performAllInsertByEffectiveDate(data, company){
+    const date = data[0].effectiveDate;
+    let state, futureTransactions;
+
+    return company.getDatedCompanyState(date)
+        .then(_state => {
+            state = _state;
+            return company.getTransactionsAfter(state.id)
+        })
+        .then(_transactions => {
+            futureTransactions = _transactions;
+            return performAll(data, company, state)
+
+        })
+        .then((state) => {
+            const implicit = createImplicitTransactions(state, data, date);
+            if(implicit.length){
+                return performAll(implicit, company, state)
+            }
+            return state;
+        })
+        .then(state => {
+            if(futureTransactions.length){
+                return performAll(transactionsToActions(futureTransactions), company, this.state, true)
+            }
+            return state;
+        })
+}
 
 export function createImplicitTransactions(state, transactions, effectiveDate){
-
+    // remove empty allocations
     function removeEmpty(){
         const actions = state.dataValues.holdingList.dataValues.holdings.reduce((acc, holding) => {
             if(!holding.hasNonEmptyParcels()){

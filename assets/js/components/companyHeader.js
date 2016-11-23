@@ -14,7 +14,7 @@ import { requestUserInfo } from '../actions';
 import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
-
+import { AccountControls } from './header'
 
 const DropdownToggle = (props) => {
     return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
@@ -54,19 +54,6 @@ export class CompanyHeader extends React.Component {
         this.fetch();
     };
 
-    showAccount() {
-        if(this.props.userInfo && this.props.userInfo.username){
-            return <li className="nav-item">
-                <a href={this.props.userUrl} className="nav-link">{this.props.userInfo.username}
-                </a>
-            </li>;
-        }
-    }
-
-    showLogout() {
-        return  <li className="nav-item"><a className="nav-link" href="/logout">Log out</a></li>
-    }
-
     renderFavourites() {
         const items = (this.props.favourites.data || []);
         if(items.length){
@@ -76,9 +63,10 @@ export class CompanyHeader extends React.Component {
        }
     }
 
-    renderActions() {
+    renderNavLinks() {
         const id = this.props.companyId;
-        return [<li key={0} className="nav-item">
+        return [ <li key={-1} className="nav-item separator" />,
+                <li key={0} className="nav-item">
                     <IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
                 <li key={1} className="nav-item">
@@ -151,25 +139,28 @@ export class CompanyHeader extends React.Component {
                             </DropdownToggle>
                             <Dropdown.Menu>
                                 <li><Link to="/">Good Companies Home</Link></li>
-                                <li className="nav-item separator" />
-                                { this.renderActions() }
+
+                                { this.renderNavLinks() }
                                 { this.renderFavourites() }
+                                 <li className="separator" />
+                               <li >
+                                    <a href={this.props.login.userUrl} >{this.props.userInfo.username}
+                                    </a>
+                                </li>
+                                <li><a href="/logout">Log out</a></li>
                             </Dropdown.Menu>
                         </Dropdown>
                     </Navbar.Brand>
                 </Navbar.Header>
                 <NavbarCollapse>
-                    <ul className="nav navbar-nav navbar-right">
-                        { this.showAccount() }
-                        { this.showLogout() }
-                    </ul>
+                   <AccountControls {...this.props} />
                 </NavbarCollapse>
 
             </div>
             <div className="navbar-bottom">
             <NavbarCollapse>
                  <ul className="nav navbar-nav">
-                    { this.renderActions() }
+                    { this.renderNavLinks() }
                    </ul>
                    <ul className="nav navbar-nav pull-right">
                         { this.renderRightActions() }
@@ -185,7 +176,8 @@ export class CompanyHeader extends React.Component {
 
 
 const CompanyHeaderConnected = connect(state => {
-    return { userInfo: state.userInfo, routing: state.routing, favourites: state.resources['/favourites'] || {} }
+     // adding routes so links update active status
+    return { login: state.login, userInfo: state.userInfo, routing: state.routing, favourites: state.resources['/favourites'] || {} }
 }, {
     requestData: (key) => requestResource('/favourites'),
     navigate: (url) => push(url),

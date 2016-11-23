@@ -405,6 +405,7 @@ export  class TemplateView extends React.Component {
         this.submit = ::this.submit;
     }
 
+
     submit(values) {
         let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
         this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.formName, values: {...values, filename: filename}})

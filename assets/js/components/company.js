@@ -18,8 +18,7 @@ import { ContactDetailsWidget } from './contactDetails';
 import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
-import { TransactionWidget } from './transactions';
-import { PendingTransactionsWidget } from './pendingTransactions';
+import { TransactionWidget, PendingTransactionsWidget } from './transactions';
 import NotFound from './notFound';
 import Notifications from './notifications';
 import { push } from 'react-router-redux'

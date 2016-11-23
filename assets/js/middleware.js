@@ -52,7 +52,6 @@ export function confirmationMiddleware({
                 else{
                     return deferred.cancel();
                 }
-
             }
             if(action.confirmation){
                 const id = resolutionId++;
@@ -115,6 +114,7 @@ export function callAPIMiddleware({
             dispatch(Object.assign({}, payload, {
                 type: requestType
             }));
+            console.log(postProcess)
             return callAPI()
                 .then(checkStatus)
                 .then(parse)

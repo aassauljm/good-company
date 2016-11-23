@@ -19,4 +19,11 @@
         "seedCompanyStateId": 3,
         "ownerId": 16
     }
+},{
+    "model": "company",
+    "data": {
+        "id": 4,
+        "seedCompanyStateId":4,
+        "ownerId": 16
+    }
 }]

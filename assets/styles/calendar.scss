@@ -9,16 +9,20 @@
         background-color: $brand-success;
         color:white;
     }
-    .selected{
-         background-color: $brand-info;
+    .transaction-day{
+        background-color: $brand-warning;
         color:white;
     }
     .today{
-        background-color: $brand-warning;
+        background-color: $gray-dark;
         color:white;
     }
     .deadline-day{
         background-color: $deep-red;
+        color:white;
+    }
+    .selected{
+         background-color: $brand-info;
         color:white;
     }
 }
