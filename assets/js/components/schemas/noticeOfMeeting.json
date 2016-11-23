@@ -1,0 +1,257 @@
+{
+    "description": "",
+    "title": "Notice of Meeting",
+    "formName": "Notice of Meeting",
+    "properties": {
+        "filename": { "$ref": "#/definitions/filename" },
+        "fileType": { "$ref": "#/definitions/fileType" },
+        "company": { "$ref": "#/definitions/company" },
+        "noticeOptions": {
+            "type": "object",
+            "properties": {
+                "dateOfNotice": {
+                    "title": "Date of Notice",
+                    "type": "string",
+                    "x-hints": {
+                        "form": {
+                            "inputComponent": "date"
+                        }
+                    }
+                },
+                "meetingDateTime": {
+                    "title": "Date and Time of Meeting",
+                    "type": "string",
+                    "x-hints": {
+                        "form": {
+                            "inputComponent": "dateTime"
+                        }
+                    }
+                },
+                "locationOfMeeting": {
+                    "title": "Location of Meeting",
+                    "type": "string"
+                },
+                "personGivingNotice": {
+                    "title": "Person Giving Notice",
+                    "type": "string"
+                },
+                "meetingType": {
+                    "title": "Meeting Type",
+                    "enum": [
+                        "Board Meeting",
+                        "Annual Meeting of Shareholders",
+                        "Special Meeting of Shareholders"
+                    ]
+                }
+            },
+            "default": {"meetingType": "Board Meeting"},
+            "x-hints": {
+                "form": {
+                    "selector": "meetingType"
+                }
+            },
+            "oneOf": [
+                {
+                    "properties": {
+                        "meetingType": {
+                            "enum": ["Board Meeting"]
+                        },
+                        "meetingOptions": {
+                            "type": "object",
+                            "properties": {
+                                "recipients": {
+                                    "type": "array",
+                                    "title": "Recipients",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "type": "string",
+                                                "title": "Name",
+                                                "x-hints": {
+                                                    "form": {
+                                                        "inputComponent": "textarea"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "minItems": 1
+                                },
+                                "matters": {
+                                    "type": "array",
+                                    "title": "Matters for Board Meeting",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "type": "string",
+                                                "title": "Description",
+                                                "x-hints": {
+                                                    "form": {
+                                                        "inputComponent": "textarea"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "minItems": 1
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "meetingType": {
+                            "enum": ["Annual Meeting of Shareholders"]
+                        },
+                        "meetingOptions": {
+                            "type": "object",
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "title": "Items of Business",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "type": "string",
+                                                "title": "Description",
+                                                "x-hints": {
+                                                    "form": {
+                                                        "inputComponent": "textarea"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "minItems": 1
+                                },
+                                "specialResolutions": {
+                                    "type": "array",
+                                    "title": "Special Resolutions",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "type": "string",
+                                                "title": "Description",
+                                                "x-hints": {
+                                                    "form": {
+                                                        "inputComponent": "textarea"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "minItems": 1
+                                },
+                                "boardFixedDateForAscertainingShareholders": {
+                                    "title": "Has the board fixed a date for ascertaining shareholders?",
+                                    "enum": ["Yes", "No"]
+                                }
+                            },
+                            "default": {"boardFixedDateForAscertainingShareholders": "Yes"},
+                            "x-hints": {
+                                "form": {
+                                    "selector": "boardFixedDateForAscertainingShareholders"
+                                }
+                            },
+                            "oneOf":[
+                                {
+                                    "properties": {
+                                        "boardFixedDateForAscertainingShareholders": {
+                                            "enum": ["Yes"]
+                                        },
+                                        "dateShareholdersAscertained": {
+                                            "title": "Shareholders Ascertained on",
+                                            "type": "string",
+                                            "x-hints": {
+                                                "form": {
+                                                    "inputComponent": "date"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "properties": {
+                                        "boardFixedDateForAscertainingShareholders": {
+                                            "enum": ["No"]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "meetingType": {
+                            "enum": ["Special Meeting of Shareholders"]
+                        },
+                        "meetingOptions": {
+                            "type": "object",
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "title": "Items of Business",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "type": "string",
+                                                "title": "Description",
+                                                "x-hints": {
+                                                    "form": {
+                                                        "inputComponent": "textarea"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "minItems": 1
+                                },
+                                "specialResolutions": {
+                                    "type": "array",
+                                    "title": "Special Resolutions",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "text": {
+                                                "type": "string",
+                                                "title": "Description",
+                                                "x-hints": {
+                                                    "form": {
+                                                        "inputComponent": "textarea"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "minItems": 1
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "notes": { "$ref": "#/definitions/notes" }
+    },
+    "required": ["company", "noticeOptions"],
+    "type": "object",
+    "x-ordering": [],
+    "lawBrowserLinks": [
+        {"link": {"title": "Companies Act 1993", "location": "s 104"}, "text": "Exercise of shareholder powers"},
+        {"link": {"title": "Companies Act 1993", "location": "s 120"}, "text": "Annual meeting of shareholders"},
+        {"link": {"title": "Companies Act 1993", "location": "s 121"}, "text": "Special meetings of shareholders"},
+        {"link": {"title": "Companies Act 1993", "location": "s 124"}, "text": "Proceedings at meetings of shareholders"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 1, cl 2"}, "text": "Notice of shareholder meeting"},
+        {"link": {"title": "Companies Act 1993", "location": "s 125(3) and (4)"}, "text": "Shareholders entitled to receive notice of meeting"},
+        {"link": {"title": "Companies Act 1993", "location": "s 160"}, "text": "Proceedings of the board"},
+        {"link": {"title": "Companies Act 1993", "location": "sch 3, cl 2"}, "text": "Notice of board meeting"}
+    ]
+
+}

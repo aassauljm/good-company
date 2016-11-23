@@ -95,10 +95,9 @@ function renderField(fieldProps, componentProps, index){
         );
     }
     else */if(fieldProps.type === 'string'){
-        if(componentType(fieldProps) === 'date'){
-            return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
-        }
-        if(componentType(fieldProps) === 'textarea'){
+        if(componentType(fieldProps) === 'date' || componentType(fieldProps) == 'dateTime'){
+            return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} time={componentType(fieldProps) == 'dateTime'}/>
+        } else if(componentType(fieldProps) === 'textarea'){
             return <Input type="textarea" rows="5"{...componentProps}  {...props} />
         }
         return <Input type="text" {...componentProps} {...props} />
@@ -160,7 +159,7 @@ export class RenderForm extends React.Component {
            { schema.description && <h5>{ schema.description }</h5>}
            { renderFormSet(schema.properties, fields) }
             { this.props.error && <div className="alert alert-danger">
-                { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
+                { this.props.error.map((e, i) => <div key={i}> { e } </div>) }
             </div> }
              { this.controls() }
         </form>
@@ -374,42 +373,67 @@ export class DirectorsCertificate extends React.Component {
     }
 }
 
+@reduxForm({
+  form: 'noticeOfMeeting',
+  fields: getFields(templateSchemas.noticeOfMeeting),
+  validate: getValidate(templateSchemas.noticeOfMeeting)
+})
+export class NoticeOfMeeting extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={templateSchemas.noticeOfMeeting}  {...this.props} />
+    }
+}
+
 
 export const TemplateMap = {
     'transfer': {
         form: TransferForm,
+        title: 'Transfer Shares',
         schema: templateSchemas.transfer,
         getInitialValues: (values) => getDefaultValues(templateSchemas.transfer, values),
         icon: 'transfer'
     },
     'special_resolution': {
         form: SpecialResolutionForm,
+        title: 'Special Resolution of Shareholders',
         schema: templateSchemas.specialResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.specialResolution, values),
         icon: 'list'
     },
     'ordinary_resolution': {
         form: OrdinaryResolutionForm,
+        title: 'Ordinary Resolution of Shareholders',
         schema: templateSchemas.ordinaryResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
         icon: 'list'
     },
     'board_resolution': {
         form: BoardResolutionForm,
+        title: 'Board Resolution',
         schema: templateSchemas.boardResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.boardResolution, values),
         icon: 'list'
     },
     'entitled_persons_agreement': {
         form: EntitledPersonsAgreementForm,
+        title: 'Entitled Persons\' Agreement',
         schema: templateSchemas.entitledPersonsAgreement,
         getInitialValues: (values) => getDefaultValues(templateSchemas.entitledPersonsAgreement, values),
         icon: 'list'
     },
     'directors_certificate': {
         form: DirectorsCertificate,
+        title: 'Director\'s Certificate',
         schema: templateSchemas.directorsCertificate,
         getInitialValues: (values) => getDefaultValues(templateSchemas.directorsCertificate, values),
+        icon: 'list'
+    },
+    'notice_of_meeting': {
+        form: NoticeOfMeeting,
+        title: 'Notice of Meeting',
+        schema: templateSchemas.noticeOfMeeting,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.noticeOfMeeting, values),
         icon: 'list'
     }
 }
@@ -468,7 +492,7 @@ const RenderTemplateList = (props) => {
             { Object.keys(TemplateMap).map((template, i) => {
                 return <div key={i}><Link to={id ? `/company/view/${id}/templates/${template}` : `/templates/${template}`} className="actionable select-button" >
                     <span className={`glyphicon glyphicon-${TemplateMap[template].icon}`}></span>
-                    <span className="transaction-button-text">{TemplateMap[template].schema.title}</span>
+                    <span className="transaction-button-text">{TemplateMap[template].title}</span>
                 </Link></div>
             }) }
             </div>

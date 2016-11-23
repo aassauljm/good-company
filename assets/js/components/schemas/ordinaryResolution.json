@@ -139,15 +139,15 @@
                         "title": "Resolution Type",
                         "enumeratedTitle": "Resolution {0}",
                         "enum": [
+                            "Custom",
                             "Appoint Director",
                             "Appoint Directors",
-                            "Remove Director",
-                            "Custom"
+                            "Remove Director"
                         ]
                     }
                 },
                 "default": {
-                    "resolutionType": "Adopt Constitution"
+                    "resolutionType": "Custom"
                 },
                 "oneOf":[
                     {
@@ -278,10 +278,11 @@
                     }
                 }
             },
-            "default": [{"resolutionType": "Appoint Directors"}],
+            "default": [{"resolutionType": "Custom"}],
             "minItems": 1
 
-        }
+        },
+        "notes": { "$ref": "#/definitions/notes" }
     },
     "required": [
         "resolutions",

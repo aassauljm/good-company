@@ -129,11 +129,6 @@
                 }
             }
         },
-
-
-
-
-
         "resolutions": {
             "type": "array",
             "title": "Resolutions",
@@ -144,20 +139,37 @@
                         "title": "Resolution Type",
                         "enumeratedTitle": "Resolution {0}",
                         "enum": [
+                            "Custom",
                             "Adopt Constitution",
                             "Alter Constitution",
                             "Revoke Constitution",
                             "Approve Major Transaction",
                             "Approve Amalgamation",
-                            "Put Company into Liquidation",
-                            "Custom"
+                            "Put Company into Liquidation"
                         ]
                     }
                 },
                 "default": {
-                    "resolutionType": "Adopt Constitution"
+                    "resolutionType": "Custom"
                 },
                 "oneOf":[
+                    {
+                        "properties": {
+                            "resolutionType": {
+                                "enum": ["Custom"]
+                            },
+                            "text": {
+                                "type": "string",
+                                "title": "Description",
+                                "x-hints": {
+                                    "form": {
+                                        "inputComponent": "textarea"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["text"]
+                    },
                     {
                         "properties": {
                             "resolutionType": {
@@ -175,7 +187,6 @@
                         },
                         "required": ["date"]
                     },
-
                     {
                         "properties": {
                             "resolutionType": {
@@ -193,7 +204,6 @@
                         },
                         "required": ["date"]
                     },
-
                     {
                         "properties": {
                             "resolutionType": {
@@ -252,23 +262,6 @@
                                 "minItems": 1
                             }
                         }
-                    },
-                    {
-                        "properties": {
-                            "resolutionType": {
-                                "enum": ["Custom"]
-                            },
-                            "text": {
-                                "type": "string",
-                                "title": "Description",
-                                "x-hints": {
-                                    "form": {
-                                        "inputComponent": "textarea"
-                                    }
-                                }
-                            }
-                        },
-                        "required": ["text"]
                     }
                 ],
 
@@ -280,10 +273,11 @@
                     }
                 }
             },
-            "default": [{"resolutionType": "Adopt Constitution"}],
+            "default": [{"resolutionType": "Custom"}],
             "minItems": 1
 
-        }
+        },
+        "notes": { "$ref": "#/definitions/notes" }
     },
     "required": [
         "resolutions", "resolutionOptions"
