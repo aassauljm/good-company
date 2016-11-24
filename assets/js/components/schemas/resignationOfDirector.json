@@ -7,7 +7,8 @@
         "fileType": { "$ref": "#/definitions/fileType" },
         "company": { "$ref": "#/definitions/company" },
         "addressForService": {
-
+            "title": "Address for Service",
+            "type": "string"
         },
         "resignationOptions": {
             "type": "object",
@@ -18,10 +19,6 @@
                     "x-hints": {
                         "form": { "inputComponent": "date" }
                     }
-                },
-                "addressForService": {
-                    "title": "Address for Service",
-                    "type": "string"
                 },
                 "resigningDirector": {
                     "type": "object",
@@ -42,7 +39,7 @@
                     "enum": ["Effective Immediately", "Effective in Future"]
                 }
             },
-            "required": ["dateOfResignation", "resigningDirector", "effective"],
+            "required": ["dateOfResignation", "resigningDirector", "companyHasConstitution", "effective"],
             "default": {
                 "effective": "Effective Immediately"
             },
@@ -68,14 +65,15 @@
                             "x-hints": {
                                 "form": { "inputComponent": "date" }
                             }
-                        }
+                        },
+                        "required": ["effectiveDate"]
                     }
                 }
             ]
         },
         "notes": { "$ref": "#/definitions/notes" }
     },
-    "required": ["fileType", "company", "resolutionOptions"],
+    "required": ["fileType", "company", "addressForService", "resolutionOptions"],
     "type": "object",
     "x-ordering": [],
     "lawBrowserLinks": [
