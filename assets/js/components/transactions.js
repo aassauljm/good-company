@@ -11,6 +11,18 @@ import STRINGS from '../strings';
 import { push } from 'react-router-redux'
 
 
+function subTransactionCounts(subTransactions){
+    if(subTransactions.length){
+        return [];
+    }
+    const counts = {};
+    subTransactions.reduce((acc, sub) => {
+        const str = STRINGS.transactionTypes[sub.type];
+        acc[]
+        return acc;
+    })
+}
+
 
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/transactions']}
@@ -40,12 +52,12 @@ export class CompanyTransactions extends React.Component {
         this.props.dispatch(push(`/company/view/${this.props.companyId}/transactions/${transactionId}`));
     }
 
-    rows(transactions) {
+    rowsRowSpan(transactions) {
         const rows = [];
         transactions.map((t, i) => {
             const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
-            rows.push(<tr key={i} onClick={() => this.show(t.transaction.transactionId)}>
-                <td rowSpan={rowSpan}>{ t.transaction.transactionId }</td>
+            rows.push(<tr key={i} onClick={() => this.show(t.transaction.id)}>
+                <td rowSpan={rowSpan}>{ t.transaction.id }</td>
                 <td rowSpan={rowSpan}>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
                 <td rowSpan={rowSpan}>{ STRINGS.transactionTypes[t.transaction.type] }</td>
                 { !t.transaction.subTransactions && <td></td> }
@@ -58,6 +70,22 @@ export class CompanyTransactions extends React.Component {
         return rows;
     }
 
+    rows(transactions) {
+        const rows = [];
+        transactions.map((t, i) => {
+            rows.push(<tr key={i} onClick={() => this.show(t.transaction.id)}>
+                <td>{ t.transaction.id }</td>
+                <td>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
+                <td>{ STRINGS.transactionTypes[t.transaction.type] }</td>
+                <td> { (t.transaction.subTransactions || []).map((t, j) =>
+                        <div className="sub-transaction">{STRINGS.transactionTypes[t.type]}</div>
+                    ) } </td>
+            </tr>);
+
+
+        });
+        return rows;
+    }
     renderTable() {
         const transactions = (this.props.data || {}).transactions;
         if(!transactions){

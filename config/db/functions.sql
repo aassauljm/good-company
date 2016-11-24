@@ -213,9 +213,9 @@ WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId"
     WHERE t.id = tt."previousCompanyStateId"
 )
 SELECT row_to_json(q) from (
-            SELECT "transactionId", type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
+            SELECT t.id, type, format_iso_date(t."effectiveDate") as "effectiveDate", t.data,
         (select array_to_json(array_agg(row_to_json(d))) from (
-        select type, data,  format_iso_date(tt."effectiveDate") as "effectiveDate"
+        select t.id, type, data,  format_iso_date(tt."effectiveDate") as "effectiveDate"
         from transaction tt where t.id = tt."parentTransactionId"
         ) as d) as "subTransactions",
         (SELECT array_to_json(array_agg(row_to_json(d.*))) from t_d_j j left outer join document d on j.document_id = d.id where t.id = j.transaction_id) as "documents"
