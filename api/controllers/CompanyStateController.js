@@ -319,14 +319,17 @@ var transactions = {
         })
         .then(function(r){
             shareClasses = r;
-            const attributes = {name: data.name, properties: _.omit(data, 'name')}
-            return ShareClass.create(attributes, {include: [{model: Document, as: 'documents', include: [
-                                            {model: DocumentData, as: 'documentData'}
-                                        ]}]})
+            const attributes = {name: data.name, properties: _.omit(data, 'name', 'documents')}
+            return ShareClass.create(attributes, {include: [{model: Document, as: 'documents'}]})
         })
         .then(function(shareClass){
             shareClass.validate();
             return shareClasses.addShareClass(shareClass)
+        })
+        .then(function(){
+            if(data.documents){
+                return TransactionService.addDocuments(companyState, data.documents)
+            }
         })
         .then(function(){
             companyState.set('s_classes_id', shareClasses.id);
