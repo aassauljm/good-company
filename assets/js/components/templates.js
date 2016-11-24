@@ -95,9 +95,11 @@ function renderField(fieldProps, componentProps, index){
         );
     }
     else */if(fieldProps.type === 'string'){
-        if(componentType(fieldProps) === 'date' || componentType(fieldProps) == 'dateTime'){
-            return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} time={componentType(fieldProps) == 'dateTime'}/>
-        } else if(componentType(fieldProps) === 'textarea'){
+        if (componentType(fieldProps) === 'date') {
+            return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
+        } else if (componentType(fieldProps) == 'time') {
+            return <DateInput {...componentProps} format={"h:mm a"} displayFormat={"h:mm a"} {...props} calendar={false} time={true} />
+        } else if(componentType(fieldProps) === 'textarea') {
             return <Input type="textarea" rows="5"{...componentProps}  {...props} />
         }
         return <Input type="text" {...componentProps} {...props} />

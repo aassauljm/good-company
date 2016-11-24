@@ -19,13 +19,24 @@
                     }
                 },
                 "meetingDateTime": {
-                    "title": "Date and Time of Meeting",
-                    "type": "string",
-                    "x-hints": {
-                        "form": {
-                            "inputComponent": "dateTime"
+                    "type": "object",
+                    "properties": {
+                        "date": {
+                            "title": "Date of Meeting",
+                            "type": "string",
+                            "x-hints": {
+                                "form": {"inputComponent": "date"}
+                            }
+                        },
+                        "time": {
+                            "title": "Time of Meeting",
+                            "type": "string",
+                            "x-hints": {
+                                "form": {"inputComponent": "time"}
+                            }
                         }
-                    }
+                    },
+                    "required": ["date", "time"]
                 },
                 "locationOfMeeting": {
                     "title": "Location of Meeting",
@@ -44,6 +55,7 @@
                     ]
                 }
             },
+            "required": ["dateOfNotice", "meetingDateTime", "locationOfMeeting", "personGivingNotice", "meetingType"],
             "default": {"meetingType": "Board Meeting"},
             "x-hints": {
                 "form": {
