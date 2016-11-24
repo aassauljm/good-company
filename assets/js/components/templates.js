@@ -334,9 +334,6 @@ export class OrdinaryResolutionForm extends React.Component {
     }
 }
 
-console.log(getDefaultValues(templateSchemas.ordinaryResolution, {}))
-
-
 @reduxForm({
   form: 'boardResolution',
   fields: getFields(templateSchemas.boardResolution),
