@@ -18,7 +18,6 @@ function subTransactionCounts(subTransactions){
     const counts = {};
     subTransactions.reduce((acc, sub) => {
         const str = STRINGS.transactionTypes[sub.type];
-        acc[]
         return acc;
     })
 }
