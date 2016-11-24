@@ -20,6 +20,12 @@
             "default": {
                 "resolutionType": "Resolution at Board Meeting"
             },
+            "required": ["dateOfResolution", "resolutionType"],
+            "x-hints": {
+                "form": {
+                    "selector": "resolutionType"
+                }
+            },
             "oneOf":[
                 {
                     "properties": {
@@ -46,7 +52,7 @@
                         },
                         "chairperson": { "$ref": "#/definitions/director" }
                     },
-                    "required": ["dateOfBoardMeeting", "chairperson"]
+                    "required": ["dateOfMinute", "dateOfBoardMeeting", "chairperson"]
                 },
                 {
                     "properties": {
@@ -76,15 +82,10 @@
                             },
                             "minItems": 1
                         }
-                    }
+                    },
+                    "required": ["dateOfResolution", "directors"]
                 }
-            ],
-            "required": ["dateOfResolution", "resolutionType"],
-            "x-hints": {
-                "form": {
-                    "selector": "resolutionType"
-                }
-            }
+            ]
         },
         "resolutions": {
             "type": "array",
@@ -107,9 +108,7 @@
         },
         "notes": { "$ref": "#/definitions/notes" }
     },
-    "required": [
-        "resolutionOptions"
-    ],
+    "required": ["resolutionOptions", "resolutions"],
     "type": "object",
     "x-ordering": [],
     "lawBrowserLinks": [
