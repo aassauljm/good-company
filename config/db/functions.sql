@@ -350,9 +350,9 @@ $$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
-    RETURNS JSON
+    RETURNS JSONB
     AS $$
-    SELECT json_build_object(
+    SELECT jsonb_build_object(
         'pendingHistory', has_pending_historic_actions($1),
         'missingVotingShareholders', has_missing_voting_shareholders($1),
         'shareClassWarning', has_no_share_classes($1),
