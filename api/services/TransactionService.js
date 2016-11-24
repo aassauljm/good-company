@@ -609,12 +609,12 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
     .then(function(holdingList){
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
-        let holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount, shareClass: data.shareClass}]});
+        let holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId, parcels: [{amount: data.amount, shareClass: data.shareClass}]});
 
         if(!holding){
             // if fail, ignore company number
             sails.log.error('Could not find matching holding, trying with ignored companyNumber')
-            holding = companyState.getMatchingHolding({holders: data.holders, parcels: [{amount: data.amount, shareClass: data.shareClass}]}, {ignoreCompanyNumber: true});
+            holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId, parcels: [{amount: data.amount, shareClass: data.shareClass}]}, {ignoreCompanyNumber: true});
         }
         if(!holding){
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation', {
@@ -1512,13 +1512,6 @@ export function performInverseAllPendingResolve(company, root, endCondition){
             return historicActions.length && loop(historicActions)
         });
 }
-
-/*
-function getRelatedActions(companyStateId, documentId) {
-        return sequelize.query("select * from all_pending_actions(:id) where data->>'documentId' = :documentId",
-                   { type: sequelize.QueryTypes.SELECT,
-                    replacements: { id: companyStateId, documentId: documentId}});
-}*/
 
 
 export function performInverseAllPending(company, endCondition){

@@ -92,6 +92,7 @@ export function holderChange(context) {
 }
 
 
+
 export function beforeAndAfterSummary(context, companyState){
     const { action, actionSet } = context;
     const increase = actionAmountDirection(action);
@@ -126,6 +127,7 @@ export function beforeAndAfterSummary(context, companyState){
 
 export function holdingChangeSummary(context, companyState, showType){
     const { action, actionSet } = context;
+
     return <div>
             { showType && <div className="row">
                 <div className="col-md-12">
