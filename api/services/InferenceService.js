@@ -145,7 +145,8 @@ module.exports = {
                         if(removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0){
                             a.transactionType = Transaction.types.REMOVE_ALLOCATION;
                             a.transactionMethod = null;
-                            a.amount = 0
+                            a.amount = 0;
+                            a.beforeAmount = 0;
                             return a;
                         }
                         else{

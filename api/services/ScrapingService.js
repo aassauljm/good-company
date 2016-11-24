@@ -34,7 +34,7 @@ function checkStatus(response) {
 }
 
 const toInt = function (value) {
-    value = value.replace(',', '');
+    value = value.replace(/,/g, '');
     if(/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
         return Number(value);
     return NaN;
@@ -834,7 +834,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
 
             const parseNewAllocation = (segment) => {
                 const result = {holders: [], beforeAmount: 0, transactionType: Transaction.types.NEW_ALLOCATION};
-                let index = 0
+                let index = 0;
                 result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
                 result.amount = result.afterAmount;
                 while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){

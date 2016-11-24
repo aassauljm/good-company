@@ -228,7 +228,6 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    console.log(res.body.currentCompanyState.id);
                     initialState = res.body;
                     res.body.currentCompanyState.totalShares.should.be.equal(124000);
                     classes = _.reduce(res.body.currentCompanyState.shareClasses.shareClasses, (acc, item, key) => {
@@ -284,7 +283,6 @@ describe('Company Controller', function() {
             .expect(200)
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
-                console.log(res.body.currentCompanyState.id);
                 const oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
                 const oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'LYSAGHT TRUSTEES LIMITED'})).person;
                 const newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
@@ -369,6 +367,14 @@ describe('Company Controller', function() {
                     done();
                 });
         });
+        it('checks pending history', function(done){
+            req.get(`/api/company/${companyId}/pending_history`)
+                .then(response => {
+                    let doc = response.body.filter(a => a.data && a.data.documentId === "4510995" && a.data.transactionType !== 'COMPOUND_REMOVALS')[0];
+                    doc.data.actions[1].amount.should.be.equal(4000000);
+                    done();
+                })
+        });
 
     });
 
@@ -378,7 +384,7 @@ describe('Company Controller', function() {
             req = request.agent(sails.hooks.http.app);
             login(req).then(done);
         });
-        it('Does a stubbed import (99 ALBERT STREET LIMITED)', function(done){
+        it('Does a stubbed import (BOLLORE)', function(done){
             req.post('/api/company/import/companiesoffice/614119')
                 .expect(200)
                 .then(function(res){
