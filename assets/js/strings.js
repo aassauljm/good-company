@@ -49,7 +49,8 @@ export default {
         'nzbn': 'NZBN'
     },
     transactionTypes: {
-        SEED: 'Seed from Companies Office',
+        _: 'Transaction Type',
+        SEED: 'Import from Companies Office',
         INCORPORATION: 'Incorporation',
         ISSUE: 'Issue',
         ISSUE_UNALLOCATED: 'Issue',

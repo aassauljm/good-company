@@ -7,6 +7,8 @@ import { numberWithCommas, stringDateToFormattedString, generateShareClassMap, r
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
+import { companiesOfficeDocumentUrl, holderChange } from './transactions/resolvers/summaries';
+
 
 const TEMPLATABLE = {
     [TransactionTypes.TRANSFER]: {
@@ -35,8 +37,31 @@ const TEMPLATABLE = {
     }
 }
 
+const BaseTransaction = (props) => {
+    return <div className="transaction-summary">
+        <CommonInfo {...props} />
+        { props.children }
+    </div>
+}
 const CommonInfo = (props) => {
+    return <div className="basic">
+    <div className="transaction-row">
+        <div className="transaction-label">{ STRINGS.transactionTypes._ }</div>
+        <div className="transaction-value">{ STRINGS.transactionTypes[props.type] }</div>
+    </div>
+    <div  className="transaction-row">
+        <div className="transaction-label">{ STRINGS.effectiveDate }</div>
+        <div className="transaction-value">{ stringDateToFormattedString(props.effectiveDate) }</div>
+    </div>
 
+    { props.data && props.data.documentId && <div  className="transaction-row">
+        <div className="transaction-label">Source Document</div>
+        <div className="transaction-value">
+            <Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeDocumentUrl(props.companyState, props.data.documentId)}>{ props.data.label} <Glyphicon glyph="new-window"/></Link>
+        </div>
+        </div> }
+
+    </div>
 }
 
 
@@ -45,11 +70,50 @@ export const TransactionRenderMap = {
 
     },
 
-    APPLY_SHARE_CLASSES: () => {
+    APPLY_SHARE_CLASSES: (props) => {
+        return <BaseTransaction {...props}>
+           { (props.subTransactions || []).map((t, i) => {
+                const Comp = TransactionRenderMap[t.type];
+                if(Comp){
+                    return <Comp key={i} {...t} />
+                }
+            }).filter(f => f) }
+        </BaseTransaction>
 
+    },
+    APPLY_SHARE_CLASS: (props) => {
+        return <div><div className="transaction-row">
+            <div className="transaction-label">Share Class Applied</div>
+            <div className="transaction-value">HoldingID #{ props.data.holdingId }</div>
+            </div>
+        </div>
+
+    },
+
+    CREATE_SHARE_CLASS: (props) => {
+        return <BaseTransaction {...props}>
+        </BaseTransaction>
+    },
+
+    SEED: (props) => {
+        return <BaseTransaction {...props}>
+        </BaseTransaction>
+    },
+
+    COMPOUND: (props) => {
+
+        return <BaseTransaction {...props}>
+           { (props.subTransactions || []).map((t, i) => {
+                const Comp = TransactionRenderMap[t.type];
+                if(Comp){
+                    return <Comp key={i} {...t} parentTransaction={props} />
+                }
+            }).filter(f => f) }
+        </BaseTransaction>
+    },
+    HOLDER_CHANGE: (props) => {
+        return holderChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}})
     }
-
-
 }
 /*
 
@@ -132,15 +196,19 @@ export class TransactionViewBody extends React.Component {
     renderTransaction(transaction) {
         const template = TEMPLATABLE[transaction.type];
         return <div>
-        { template &&
+            { template &&
             <div className="button-row">
                 <Link to={{pathname: `/company/view/${this.props.companyId}/templates/${template.url}`,
                     query: {json: JSON.stringify(template.format(transaction, this.props.companyState))}}}
                     className="btn btn-primary">Transfer Share Form</Link>
             </div> }
+
             { transaction.documents && transaction.documents.map((d, i) => {
                 return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
             }) }
+
+            { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState}) }
+
             <pre>{JSON.stringify(transaction, null, 4)}</pre>
         </div>
     };

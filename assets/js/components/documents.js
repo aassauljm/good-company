@@ -102,7 +102,7 @@ export class DocumentsWidget extends React.Component {
                 <div className="text-center"><em>Latest Documents:</em></div>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <tbody>
-                { documents.slice(0, 15).map((d, i) => {
+                { documents.filter(d => !d.deleted).slice(0, 15).map((d, i) => {
                     return <tr key={i}><td><span className={documentTypeClasses(d)}/> </td>
                     <td><Link activeClassName="active" className="nav-link" to={`/company/view/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td>
                     <td>{stringDateToFormattedString(d.date)}</td></tr>

@@ -12,14 +12,18 @@ import { push } from 'react-router-redux'
 
 
 function subTransactionCounts(subTransactions){
-    if(subTransactions.length){
+    if(!subTransactions || !subTransactions.length){
         return [];
     }
-    const counts = {};
-    subTransactions.reduce((acc, sub) => {
+    const counts = subTransactions.reduce((acc, sub) => {
         const str = STRINGS.transactionTypes[sub.type];
+        acc[str] = acc[str] || 0;
+        acc[str]++;
         return acc;
-    })
+    }, {});
+    return Object.keys(counts).map((c, i) => {
+        return <div key={i}>{ `${c} ×${counts[c]}` } </div>;
+    });
 }
 
 
@@ -76,9 +80,7 @@ export class CompanyTransactions extends React.Component {
                 <td>{ t.transaction.id }</td>
                 <td>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
                 <td>{ STRINGS.transactionTypes[t.transaction.type] }</td>
-                <td> { (t.transaction.subTransactions || []).map((t, j) =>
-                        <div className="sub-transaction">{STRINGS.transactionTypes[t.type]}</div>
-                    ) } </td>
+                <td>{ subTransactionCounts(t.transaction.subTransactions) } </td>
             </tr>);
 
 

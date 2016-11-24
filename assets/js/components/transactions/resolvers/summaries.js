@@ -79,7 +79,7 @@ export function holderChange(context) {
             <div className="col-md-2">
                 <div className="text-center">
                     <Glyphicon glyph="arrow-right" className="big-arrow" />
-                    <h5>Effective as at {stringDateToFormattedStringTime(context.actionSet.data.effectiveDate)}</h5>
+                    <h5>Effective as at {stringDateToFormattedStringTime(context.action.effectiveDate)}</h5>
                 </div>
             </div>
             <div className="col-md-5">

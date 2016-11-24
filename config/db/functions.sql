@@ -273,7 +273,7 @@ WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId"
     WHERE t.id = tt."previousCompanyStateId"
 )
     SELECT t.*
-    from prev_company_states pt
+    FROM prev_company_states pt
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY t."effectiveDate" DESC limit $2;
 $$ LANGUAGE SQL;
@@ -360,18 +360,37 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
         )
 $$ LANGUAGE SQL;
 
+
 CREATE OR REPLACE FUNCTION apply_warnings()
 RETURNS trigger AS $$
 BEGIN
-     UPDATE company_state set warnings = get_warnings(NEW.id) where id = NEW.id;
+    UPDATE company_state set warnings = get_warnings(NEW.id) where id = NEW.id;
+
+    -- TODO, save result of pendingHistory and propagate
+     WITH RECURSIVE future_company_states(id, "previousCompanyStateId",  generation) as (
+        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  NEW.id
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM company_state t, future_company_states tt
+        WHERE tt.id = t."previousCompanyStateId")
+
+     UPDATE company_state cs set warnings = get_warnings(cs.id)
+     FROM (SELECT id from future_company_states) subquery
+
+
+    WHERE not has_pending_historic_actions(NEW.id) and subquery.id = cs.id and cs.id != NEW.id;
   RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 
+
+
 DROP TRIGGER IF EXISTS company_state_warnings_trigger ON company_state;
 CREATE TRIGGER company_state_warnings_trigger AFTER INSERT OR UPDATE ON company_state
-FOR EACH ROW
-WHEN (pg_trigger_depth() = 0)
-EXECUTE PROCEDURE apply_warnings();
+    FOR EACH ROW
+    WHEN (pg_trigger_depth() = 0)
+    EXECUTE PROCEDURE apply_warnings();
+
+
 
 
 CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default 'Pacific/Auckland')

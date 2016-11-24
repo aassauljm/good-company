@@ -1,0 +1,16 @@
+.transaction-summary{
+    @extend .resolve;
+
+    .basic{
+        @extend .summary;
+    }
+
+    .transaction-label{
+        @extend dt;
+    }
+    .transaction-value{
+        @extend dd;
+    }
+}
+
+
