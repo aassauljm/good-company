@@ -32,11 +32,11 @@ export const AccountControls = (props) => {
                         {props.userInfo.username}
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem href={`${props.login.userUrl}/user/profile`}>Account</MenuItem>
+                        <MenuItem rel="noopener noreferrer" target="_blank" href={`${props.login.userUrl}/user/profile`}>Account</MenuItem>
                         <li  className="separator" />
-                        <MenuItem href='https://browser.catalex.nz'>Law Browser</MenuItem>
-                        <MenuItem href='https://workingdays.catalex.nz'>Working Days</MenuItem>
-                        <MenuItem href='https://concat.catalex.nz'>ConCat</MenuItem>
+                        <MenuItem rel="noopener noreferrer" target="_blank" href='https://browser.catalex.nz'>Law Browser</MenuItem>
+                        <MenuItem rel="noopener noreferrer" target="_blank" href='https://workingdays.catalex.nz'>Working Days</MenuItem>
+                        <MenuItem rel="noopener noreferrer" target="_blank" href='https://concat.catalex.nz'>ConCat</MenuItem>
                         <li  className="separator" />
                         <MenuItem href='/logout'>Log out</MenuItem>
                     </Dropdown.Menu>
