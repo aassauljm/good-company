@@ -22,12 +22,16 @@ export const resolveReferences = (rootSchema) => {
 
     const resolveChildReferences = (item) => {
         // If this item is has a ref property: replace it with the reference it is pointing to
-        if (item['$ref']) {
+        if (item instanceof Object && item['$ref']) {
             const definitionKeys = item['$ref'].split('/');
 
             // # = root schema
             if (definitionKeys[0] == '#') {
-                return deepFind(rootSchema, definitionKeys.splice(1));
+                // Find the replacement value for the reference
+                const refReplacement = deepFind(rootSchema, definitionKeys.splice(1));
+
+                // Resolve the references of the reference replacement value and return it
+                return resolveChildReferences(refReplacement);
             } else {
                 throw new Exception("Non-absolute references are not currently supported");
             }

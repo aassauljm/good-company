@@ -118,15 +118,25 @@ const jsonWithMultipleResolvedReferences = {
     "arrayReference": ["one", "two", "three"]
 };
 
+const nestedReferences = {"definitions": {
+    "string": "someRandomText",
+    "array": ["one", "two", "three"],
+    "straightRef": { "$ref": "#/definitions/string" },
+    "objectWithRef": {
+        "something": 21,
+        "childRef": { "$ref": "#/definitions/array" }
+    },
+}};
+
 describe('JSON Schema', function() {
-    describe('mergeSchemas schemas', function() {
-        it('Should mergeSchemas two schemas', function(done) {
+    describe('Merge schemas', function() {
+        it('Should merge two schemas', function(done) {
             mergeSchemas({"one": 1}, {"two": 2}).should.be.deep.equal({"one": 1, "two": 2});
             done();
         });
 
-        describe('mergeSchemas two schemas with duplicate keys', function() {
-            it('Should mergeSchemas two schemas', function(done) {
+        describe('Merge two schemas with duplicate keys', function() {
+            it('Should merge two schemas', function(done) {
                 mergeSchemas({
                     "definitions": {
                         "test": "I'll still be here"
@@ -144,7 +154,7 @@ describe('JSON Schema', function() {
                 done();
             });
 
-            it('Should mergeSchemas two objects if duplicate keys are both for objects', function(done) {
+            it('Should merge two objects if duplicate keys are both for objects', function(done) {
                 mergeSchemas({
                     "definitions": {
                         "test": "I'll still be here"
@@ -171,7 +181,7 @@ describe('JSON Schema', function() {
         describe('Objects without references', function() {
             it('Should not change schema without references', function(done) {
                 const mergedWithReferences = mergeSchemas(jsonWithoutReferences, definitions);
-                const mergedWithResolvedReferences = mergeSchemas(jsonWithoutReferences, definitions)
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithoutReferences, definitions);
 
                 resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
@@ -181,7 +191,7 @@ describe('JSON Schema', function() {
         describe('Objects with a single reference', function() {
             it('Should replace string references', function(done) {
                 const mergedWithReferences = mergeSchemas(jsonWithStringReference, definitions);
-                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedStringReferences, definitions)
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedStringReferences, definitions);
 
                 resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
@@ -189,7 +199,7 @@ describe('JSON Schema', function() {
 
             it('Should replace number references', function(done) {
                 const mergedWithReferences = mergeSchemas(jsonWithNumberReference, definitions);
-                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedNumberReference, definitions)
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedNumberReference, definitions);
 
                 resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
@@ -197,7 +207,7 @@ describe('JSON Schema', function() {
 
             it('Should replace array references', function(done) {
                 const mergedWithReferences = mergeSchemas(jsonWithArrayReference, definitions);
-                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedArrayReference, definitions)
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedArrayReference, definitions);
 
                 resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
@@ -205,7 +215,7 @@ describe('JSON Schema', function() {
 
             it('Should replace references in array', function(done) {
                 const mergedWithReferences = mergeSchemas(jsonArrayWithReference, definitions);
-                const mergedWithResolvedReferences = mergeSchemas(jsonArrayWithResolvedReference, definitions)
+                const mergedWithResolvedReferences = mergeSchemas(jsonArrayWithResolvedReference, definitions);
 
                 resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
@@ -213,7 +223,7 @@ describe('JSON Schema', function() {
 
             it('Should replace object references', function(done) {
                 const mergedWithReferences = mergeSchemas(jsonWithObjectReference, definitions);
-                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedObjectReference, definitions)
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithResolvedObjectReference, definitions);
 
                 resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
@@ -223,7 +233,25 @@ describe('JSON Schema', function() {
         describe('Objects with multiple references', function() {
             it('Should replace all references', function(done) {
                 const mergedWithReferences = mergeSchemas(jsonWithMultipleReferences, definitions);
-                const mergedWithResolvedReferences = mergeSchemas(jsonWithMultipleResolvedReferences, definitions)
+                const mergedWithResolvedReferences = mergeSchemas(jsonWithMultipleResolvedReferences, definitions);
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
+                done();
+            });
+        });
+
+        describe('Resolve references of references', function() {
+            it('Should resolve reference of reference', function(done) {
+                const mergedWithReferences = mergeSchemas({"testing": {"$ref": "#/definitions/straightRef"}}, nestedReferences);
+                const mergedWithResolvedReferences = mergeSchemas({"testing": "someRandomText"}, nestedReferences);
+
+                resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
+                done();
+            });
+
+            it('Should resolve reference of object with reference', function(done) {
+                const mergedWithReferences = mergeSchemas({"testing": {"$ref": "#/definitions/objectWithRef"}}, nestedReferences);
+                const mergedWithResolvedReferences = mergeSchemas({"testing": {"something": 21, "childRef": ["one", "two", "three"]}}, nestedReferences);
 
                 resolveReferences(mergedWithReferences).should.be.deep.equal(mergedWithResolvedReferences);
                 done();
