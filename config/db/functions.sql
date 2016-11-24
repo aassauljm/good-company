@@ -378,7 +378,7 @@ BEGIN
      FROM (SELECT id from future_company_states) subquery
 
 
-    WHERE not has_pending_historic_actions(NEW.id) and subquery.id = cs.id and cs.id != NEW.id;
+    WHERE subquery.id = cs.id and cs.id != NEW.id;
   RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 

@@ -142,8 +142,8 @@ export class ShareholdingsWidget extends React.Component {
 export class HoldingDL extends React.Component {
     static propTypes = {
         holding: PropTypes.object.isRequired,
-        total: PropTypes.number.isRequired,
-        percentage: PropTypes.string.isRequired,
+        total: PropTypes.number,
+        percentage: PropTypes.string,
         shareClassMap: PropTypes.object.isRequired
     };
     render(){
@@ -152,7 +152,7 @@ export class HoldingDL extends React.Component {
                 <dt>Name</dt>
                 <dd>{ this.props.holding.name }</dd>
                 <dt>Total Shares</dt>
-                <dd><strong>{numberWithCommas(this.props.total)}</strong> { this.props.percentage }</dd>
+                <dd><strong>{numberWithCommas(this.props.total)}</strong> { this.props.percentage && this.props.percentage }</dd>
                 <dt>Parcels</dt>
                 { this.props.holding.parcels.map((p, i) =>
                     <dd key={i} ><strong>{numberWithCommas(p.amount)}</strong> of {renderShareClass(p.shareClass, this.props.shareClassMap) } Shares<br/></dd>) }
@@ -169,13 +169,14 @@ export class HoldingDL extends React.Component {
 export class Holding extends React.Component {
     static propTypes = {
         holding: PropTypes.object.isRequired,
-        total: PropTypes.number.isRequired,
+        total: PropTypes.number,
         select: PropTypes.func,
         shareClassMap: PropTypes.object.isRequired
     };
     render(){
-        const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0),
-            percentage = (sum/this.props.total*100).toFixed(2) + '%';
+        const total = this.props.total || 0;
+        const sum = this.props.holding.parcels.reduce((acc, p) => acc + p.amount, 0);
+        const percentage = total ? (sum/this.props.total*100).toFixed(2) + '%' : null;
         const classes = ["outline", "shareholding"]
         if(this.props.select){
             classes.push('actionable');
@@ -186,13 +187,13 @@ export class Holding extends React.Component {
                     <HoldingDL holding={this.props.holding} total={sum} percentage={percentage} shareClassMap={this.props.shareClassMap} vertical={true}/>
                 </div>
                    <div className="hide-graph-labels pie-chart">
-                  <PieChart
+                  { !!total && <PieChart
                           data={{values: [{y: sum, x: 'this'}, {y: this.props.total-sum, x: 'other'}]}}
                           innerRadius={10}
                           outerRadius={30}
                           colorScale={colorScale}
                           width={60}
-                          height={60} />
+                          height={60} /> }
             </div>
         </div>
     }
