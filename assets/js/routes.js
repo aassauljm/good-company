@@ -105,6 +105,7 @@ export default (store) => {
                 </Route>
                 <Route path="guided_setup" component={ GuidedSetup } />
                 <Route path="notifications" component={ CompanyAlerts } />
+                <Route path="annual_returns" component={ AnnualReturn } />
               <Route path="*" component={ NotFound } />
             </Route>
             <Route path="company/view/:id/history/:generation" component={ Company }  />

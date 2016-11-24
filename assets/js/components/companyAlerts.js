@@ -128,15 +128,16 @@ export function renderDeadlines(deadlines, showTypes, companyId) {
     if(!deadlines.annualReturn){
         return [];
     }
+    const url = `/company/view/${companyId}/annual_returns`;
     if(showTypes.indexOf('danger') > -1 && deadlines.annualReturn.overdue){
         const dueDiff = moment(deadlines.annualReturn.dueDate).from(moment());
-        results.push(<li key={i++}><div><Link to={`/annual_returns`} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return is overdue ({dueDiff}).</Link></div></li>);
+        results.push(<li key={i++}><div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return is overdue ({dueDiff}).</Link></div></li>);
     }
     if(showTypes.indexOf('warning') > -1  && !deadlines.annualReturn.filedThisYear && thisMonth === deadlines.annualReturn.arFilingMonth){
-        results.push(<li key={i++}><div><Link to={`/annual_returns`} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return is due this month.</Link></div></li>);
+        results.push(<li key={i++}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return is due this month.</Link></div></li>);
     }
     if(showTypes.indexOf('safe') > -1  && deadlines.annualReturn.filedThisYear){
-        results.push(<li key={i++}><div><Link to={`/annual_returns`} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return already filed this year.</Link></div></li>);
+        results.push(<li key={i++}><div><Link to={url} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return already filed this year.</Link></div></li>);
     }
     return results;
 }
