@@ -384,6 +384,18 @@ export class NoticeOfMeeting extends React.Component {
     }
 }
 
+@reduxForm({
+  form: 'resignationOfDirector',
+  fields: getFields(templateSchemas.resignationOfDirector),
+  validate: getValidate(templateSchemas.resignationOfDirector)
+})
+export class ResignationOfDirector extends React.Component {
+    render() {
+        const { fields } = this.props;
+        return <RenderForm schema={templateSchemas.resignationOfDirector}  {...this.props} />
+    }
+}
+
 
 export const TemplateMap = {
     'transfer': {
@@ -434,6 +446,13 @@ export const TemplateMap = {
         schema: templateSchemas.noticeOfMeeting,
         getInitialValues: (values) => getDefaultValues(templateSchemas.noticeOfMeeting, values),
         icon: 'calendar'
+    },
+    'resignation_of_director': {
+        form: ResignationOfDirector,
+        title: 'Resignation of Director',
+        schema: templateSchemas.resignationOfDirector,
+        getInitialValues: (values) => getDefaultValues(templateSchemas.resignationOfDirector, values),
+        icon: 'remove'
     }
 }
 
