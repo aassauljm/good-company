@@ -125,6 +125,7 @@ export function callAPIMiddleware({
                 .catch(error => {
                     if(error.response && error.response.status === 403){
                         dispatch(logout());
+                        // out redirect or something
                         dispatch(push('/login'))
                         return;
                     }
