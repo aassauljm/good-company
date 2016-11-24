@@ -9,6 +9,54 @@
         "resolutionOptions": {
             "type": "object",
             "properties": {
+                "chairperson": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "title": "Chairperson Name",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["name"]
+                },
+                "dateOfShareholderMeeting": {
+                    "title": "Date of Shareholder Meeting",
+                    "type": "string",
+                    "x-hints" : {
+                        "form": { "inputComponent": "date" }
+                    }
+                },
+                "dateOfMinute": {
+                    "title": "Date of Minute",
+                    "type": "string",
+                    "x-hints" : {
+                        "form": { "inputComponent": "date" }
+                    }
+                },
+                "dateOfWrittenResolution": {
+                    "title": "Date of Written Resolution",
+                    "type": "string",
+                    "x-hints" : {
+                        "form": { "inputComponent": "date" }
+                    }
+                },
+                "shareholders": { "$ref": "#/definitions/shareholders" },
+                "isLargeCompany": {
+                    "title": "Is the Company Large?",
+                    "enum": ["Yes", "No"]
+                },
+                "isPublicEntity": {
+                    "title": "Is the Company a Public Entity?",
+                    "enum": ["Yes", "No"]
+                },
+                "isRequiredToRegisterFinancialStatements": {
+                    "title": "Is the Company Required to Register Financial Statements?",
+                    "enum": ["Yes", "No"]
+                },
+                "moreThanTenShareholders": {
+                    "title": "Does the Company Have More Than Ten Shareholders?",
+                    "enum": ["Yes", "No"]
+                },
                 "resolutionType": {
                     "title": "Resolution Type",
                     "enum": [

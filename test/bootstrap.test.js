@@ -102,6 +102,7 @@ function lift(cb){
             connection: 'pg_test',
             migrate: 'drop'
         },
+        fixtures: false,
         hooks:{
             orm: false,
             blueprints: false,
@@ -133,6 +134,7 @@ before(function(done) {
                  'test/fixtures/companyState.json',
                  'test/fixtures/company.json',
                  ], sails.models)
+                .then(addMigrations)
                 .then(function(){
                     fs.readFileAsync('config/db/functions.sql', 'utf8')
                     .then(function(sql){
@@ -141,7 +143,6 @@ before(function(done) {
                     .then(function(){
                         return sequelize.query('SELECT reset_sequences();')
                     })
-                    .then(addMigrations)
                     .then(function(){
                         stubs();
                         done();

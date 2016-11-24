@@ -73,6 +73,25 @@
                 }
             },
             "minItems": 0
+        },
+        "shareholders": {
+            "type": "array",
+            "title": "Shareholders",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Shareholder Name"
+                    }
+                },
+                "x-hints": {
+                    "form": { "addItem": "Add Shareholder" }
+                },
+                "required": ["name"]
+            },
+            "default": [{}],
+            "minItems": 1
         }
     }
 }

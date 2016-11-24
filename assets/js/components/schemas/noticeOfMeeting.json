@@ -65,14 +65,9 @@
                                     "items": {
                                         "type": "object",
                                         "properties": {
-                                            "text": {
-                                                "type": "string",
+                                            "name": {
                                                 "title": "Name",
-                                                "x-hints": {
-                                                    "form": {
-                                                        "inputComponent": "textarea"
-                                                    }
-                                                }
+                                                "type": "string"
                                             }
                                         }
                                     },
@@ -231,8 +226,43 @@
                                         }
                                     },
                                     "minItems": 1
+                                },
+                                "boardFixedDateForAscertainingShareholders": {
+                                    "title": "Has the board fixed a date for ascertaining shareholders?",
+                                    "enum": ["Yes", "No"]
                                 }
-                            }
+                            },
+                            "default": {"boardFixedDateForAscertainingShareholders": "Yes"},
+                            "x-hints": {
+                                "form": {
+                                    "selector": "boardFixedDateForAscertainingShareholders"
+                                }
+                            },
+                            "oneOf":[
+                                {
+                                    "properties": {
+                                        "boardFixedDateForAscertainingShareholders": {
+                                            "enum": ["Yes"]
+                                        },
+                                        "dateShareholdersAscertained": {
+                                            "title": "Shareholders Ascertained on",
+                                            "type": "string",
+                                            "x-hints": {
+                                                "form": {
+                                                    "inputComponent": "date"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "properties": {
+                                        "boardFixedDateForAscertainingShareholders": {
+                                            "enum": ["No"]
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }

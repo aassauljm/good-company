@@ -15,7 +15,7 @@ import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
-let Combobox = require('react-widgets/lib/Combobox')
+let Combobox = require('react-widgets/lib/Combobox');
 
 const LOOKUP_COMPANY = 'LOOKUP_COMPANY';
 
@@ -396,42 +396,42 @@ export const TemplateMap = {
         title: 'Special Resolution of Shareholders',
         schema: templateSchemas.specialResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.specialResolution, values),
-        icon: 'list'
+        icon: 'th'
     },
     'ordinary_resolution': {
         form: OrdinaryResolutionForm,
         title: 'Ordinary Resolution of Shareholders',
         schema: templateSchemas.ordinaryResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
-        icon: 'list'
+        icon: 'th-list'
     },
     'board_resolution': {
         form: BoardResolutionForm,
         title: 'Board Resolution',
         schema: templateSchemas.boardResolution,
         getInitialValues: (values) => getDefaultValues(templateSchemas.boardResolution, values),
-        icon: 'list'
+        icon: 'th-large'
     },
     'entitled_persons_agreement': {
         form: EntitledPersonsAgreementForm,
         title: 'Entitled Persons\' Agreement',
         schema: templateSchemas.entitledPersonsAgreement,
         getInitialValues: (values) => getDefaultValues(templateSchemas.entitledPersonsAgreement, values),
-        icon: 'list'
+        icon: 'user'
     },
     'directors_certificate': {
         form: DirectorsCertificate,
         title: 'Director\'s Certificate',
         schema: templateSchemas.directorsCertificate,
         getInitialValues: (values) => getDefaultValues(templateSchemas.directorsCertificate, values),
-        icon: 'list'
+        icon: 'certificate'
     },
     'notice_of_meeting': {
         form: NoticeOfMeeting,
         title: 'Notice of Meeting',
         schema: templateSchemas.noticeOfMeeting,
         getInitialValues: (values) => getDefaultValues(templateSchemas.noticeOfMeeting, values),
-        icon: 'list'
+        icon: 'calendar'
     }
 }
 
