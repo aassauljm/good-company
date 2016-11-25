@@ -68,7 +68,8 @@
                                             "Interested Directors"
                                         ]
                                     }
-                                }
+                                },
+                                "required": ["power"]
                             },
                             "minItems": 1
                         }
@@ -107,7 +108,8 @@
                                             }
                                         }
                                     }
-                                }
+                                },
+                                "required": ["power", "details"]
                             },
                             "minItems": 1
                         }
