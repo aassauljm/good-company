@@ -41,14 +41,6 @@
                 "companyNumber": {
                     "title": "Company Number",
                     "type": "string"
-                },
-                "numberOfShareholders": {
-                    "title": "Number of Shareholders",
-                    "type": "number"
-                },
-                "isLargeCompany": {
-                    "title": "Is Large Company",
-                    "type": "boolean"
                 }
             },
             "required": [

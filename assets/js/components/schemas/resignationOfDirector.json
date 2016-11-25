@@ -1,0 +1,87 @@
+{
+    "description": "",
+    "title": "Resignation of Director",
+    "formName": "Resignation of Director",
+    "properties": {
+        "filename": { "$ref": "#/definitions/filename" },
+        "fileType": { "$ref": "#/definitions/fileType" },
+        "company": { "$ref": "#/definitions/company" },
+        "addressForService": {
+            "title": "Address for Service",
+            "type": "string"
+        },
+        "resignationOptions": {
+            "type": "object",
+            "properties": {
+                "dateOfResignation": {
+                    "title": "Date of Resignation",
+                    "type": "string",
+                    "x-hints": {
+                        "form": { "inputComponent": "date" }
+                    }
+                },
+                "resigningDirector": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "title": "Name of Resigning Director",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["name"]
+                },
+                "companyHasConstitution": {
+                    "title": "Company has Constitution",
+                    "enum": ["Company has Constitution", "Company does not have Constitution"]
+                },
+                "effective": {
+                    "title": "Effective",
+                    "enum": ["Effective Immediately", "Effective in Future"]
+                }
+            },
+            "required": ["dateOfResignation", "resigningDirector", "companyHasConstitution", "effective"],
+            "default": {
+                "effective": "Effective Immediately"
+            },
+            "x-hints": {
+                "form": {"selector": "effective"}
+            },
+            "oneOf":[
+                {
+                    "properties": {
+                        "effective": {
+                            "enum": ["Effective Immediately"]
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "effective": {
+                            "enum": ["Effective in Future"]
+                        },
+                        "effectiveDate": {
+                            "title": "Effective Date",
+                            "type": "string",
+                            "x-hints": {
+                                "form": { "inputComponent": "date" }
+                            }
+                        },
+                        "required": ["effectiveDate"]
+                    }
+                }
+            ]
+        },
+        "notes": { "$ref": "#/definitions/notes" }
+    },
+    "required": ["fileType", "company", "addressForService", "resolutionOptions"],
+    "type": "object",
+    "x-ordering": [],
+    "lawBrowserLinks": [
+        {"link": {"title": "Companies Act 1993", "location": "s 126"}, "text": "Meaning of director"},
+        {"link": {"title": "Companies Act 1993", "location": "s 156"}, "text": "Removal of directors"},
+        {"link": {"title": "Companies Act 1993", "location": "s 157(1)"}, "text": "Vacation in office of director"},
+        {"link": {"title": "Companies Act 1993", "location": "s 157(2)"}, "text": "Resignation of director"},
+        {"link": {"title": "Companies Act 1993", "location": "s 157(3)"}, "text": "Liability of former directors"},
+        {"link": {"title": "Companies Act 1993", "location": "s 159"}, "text": "Notice of change of directors"}
+    ]
+}
