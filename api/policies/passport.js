@@ -1,4 +1,3 @@
-var passport = require('passport');
 
 /**
  * Passport Middleware
@@ -28,17 +27,10 @@ var methods = ['login', 'logIn', 'logout', 'logOut', 'isAuthenticated', 'isUnaut
 
 module.exports = function (req, res, next) {
   var passport = sails.services.passport;
-
   // Initialize Passport
   passport.initialize()(req, res, function () {
     // Use the built-in sessions
     passport.session()(req, res, function () {
-      // Make the request's passport methods available for socket
-      if (req.isSocket) {
-        _.each(methods, function (method) {
-          req[method] = http.IncomingMessage.prototype[method].bind(req);
-        });
-      }
       // Make the user available throughout the frontend (for views)
       res.locals.user = req.user;
 

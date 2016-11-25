@@ -345,24 +345,14 @@ export default function Amend(context, submit){
                 if(isTransfer(r.type)){
                     const result = {...amendActions[i], transactionType: r.type, transactionMethod: method,
                         amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)};
-                   // if(method === TransactionTypes.NEW_ALLOCATION){
-                        transfers.push(result);
-                   // }
-                    //else{
-                   //     transfer.unshift(result);
-                   // }
+                    transfers.push(result);
 
                 }
                 else{
                     transactions[r.type] = transactions[r.type] || [];
                     const result = {...amendActions[i], transactionType: r.type, transactionMethod: method,
                         amount: amount};
-                   //if(method === TransactionTypes.NEW_ALLOCATION){
-                        transactions[r.type].push(result);
-                    //}
-                    //else{
-                       // transactions[r.type].unshift(result);
-                    //}
+                    transactions[r.type].push(result);
                 }
                 if(amendActions[i].beforeAmount !== undefined){
                     amendActions[i].afterAmount = amendActions[i].beforeAmount;

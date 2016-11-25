@@ -122,13 +122,6 @@ module.exports.routes = {
         action: 'recentActivityFull'
     },
 
-    'PUT /api/set_password': {
-        controller: 'UserController',
-        modelIdentity: 'user',
-        action: 'setPassword',
-        blacklist: ['oldPassword']
-    },
-
     'POST /api/user/signup': {
         controller: 'UserController',
         action: 'signup'
