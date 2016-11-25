@@ -343,9 +343,19 @@ export class LawBrowserContent extends React.Component {
 
 
 export class LawBrowserPopover extends React.Component {
+    query() {
+        if(this.props.location){
+            return `${LAW_BROWSER_URL}/query?doc_type=instrument&title=${this.props.title}&find=location&location=${this.props.location}`;
+        }
+        else if(this.props.definition){
+             return `${LAW_BROWSER_URL}/definition/${this.props.definition}`;
+        }
+    }
+
+
     render() {
         const id = `${this.props.title.replace(' ', '-')}-${this.props.location ? this.props.location.replace(' ', '-') : this.props.definition}`
-        const title = `${this.props.title} ${this.props.location ? this.props.location : ''}`
+        const title = `${this.props.title}`
         return <Popover id={id} title={title} close={this.props.close} {...this.props}>
                 <LawBrowserContent {...this.props} needsReposition/>
                    <div className="popover-footer">
