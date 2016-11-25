@@ -228,6 +228,20 @@ export class UpdateShares extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update Shares" >
+
+            <div className="actionable select-button"  onClick={() => {
+                    this.props.navigate({pathname: `/company/view/${this.props.transactionViewData.companyId}/share_classes`, state: {skipDirtyLeave: true}});
+                    this.props.end();
+                }} >
+                <span className="glyphicon glyphicon-envelope"></span>
+                <span className="transaction-button-text">Manage Share Classes</span>
+            </div>
+
+            <div className="actionable select-button" onClick={() => this.props.show('applyShareClasses')} >
+                    <span className="glyphicon glyphicon-list-alt"></span>
+                    <span className="transaction-button-text">Apply Share Classes</span>
+            </div>
+
             <div className="actionable select-button" onClick={() => this.props.show('transfer') } >
                 <span className="glyphicon glyphicon-transfer"></span>
                 <span className="transaction-button-text">Transfer Shares</span>
@@ -237,14 +251,26 @@ export class UpdateShares extends React.Component {
                     <span className="glyphicon glyphicon-share"></span>
                     <span className="transaction-button-text">Issue New Shares</span>
             </div>
-            <div className="actionable select-button" onClick={() => this.props.show('consolidateDivide') } >
-                    <span className="glyphicon glyphicon-duplicate"></span>
-                    <span className="transaction-button-text">Consolidate or Subdivide Shares</span>
+            <div className="actionable select-button"  onClick={() => this.props.show('consolidation')} >
+                <span className="glyphicon glyphicon-envelope"></span>
+                <span className="transaction-button-text">Consolidation of Shares</span>
             </div>
-            <div className="actionable select-button" onClick={() => this.props.show('repurchaseRedeem') } >
-                    <span className="glyphicon glyphicon-usd"></span>
-                    <span className="transaction-button-text">Repurchase or Redeem Shares</span>
+            <div className="actionable select-button" onClick={() => this.props.show('subdivision')} >
+                <span className="glyphicon glyphicon-resize-full"></span>
+                <span className="transaction-button-text">Subdivision of Shares</span>
             </div>
+            <div className="actionable select-button"  onClick={() => this.props.show('purchase')} >
+                <span className="glyphicon glyphicon-usd"></span>
+                <span className="transaction-button-text">Repurchase of Shares</span>
+
+            </div>
+            <div className="actionable select-button" onClick={() => this.props.show('redemption')} >
+                <span className="glyphicon glyphicon-import"></span>
+                <span className="transaction-button-text">Redemption of Shares</span>
+            </div>
+
+
+
         </SelectionBase>
     }
 }

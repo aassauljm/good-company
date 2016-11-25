@@ -13,7 +13,7 @@ import { updateResource, addNotification } from '../../actions';
 }, (dispatch, ownProps) => {
     return {
         resetAction: (args) => {
-            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {loadingMessage: 'Resetting History'}))
             .then(() => {
                 ownProps.end();
                 dispatch(addNotification({message: 'Company History Reset'}));

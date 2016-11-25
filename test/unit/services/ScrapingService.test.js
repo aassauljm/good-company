@@ -466,6 +466,38 @@ describe('Scraping Service', function() {
             });
     });
 
+    describe.skip('Should parse incorporation document with broken markup', function() {
+        it('reads file, creates incorporation', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/21713680.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'New Company Incorporation'
+                    });
+                    result.actions.length.should.be.equal(4);
+                    // this is getting the holders wrong, should be 1 not 2
+                    done();
+                })
+            });
+    });
+
+    describe('Should parse biznet share parcel changes', function() {
+        it('reads file, creates transfers', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/5021017.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding',
+                    });
+                    console.log(JSON.stringify(result, null, 4));
+                    result.actions.length.should.be.equal(4);
+                    const final = InferenceService.segmentAndSortActions([result]);
+                    console.log(JSON.stringify(final, null, 4));
+                    // this is getting the holders wrong, should be 1 not 2
+                    done();
+                })
+            });
+    });
+
+
 
 
 });

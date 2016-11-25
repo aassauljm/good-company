@@ -317,22 +317,52 @@ export default function Amend(context, submit){
         const pendingActions = [{id: context.actionSet.id, data: otherActions, previous_id: context.actionSet.previous_id}];
         const transactions = {};
         const transfers = [];
+        const newAllocations = [];
         values.actions.map((action, i) => {
             action.recipients.map((r, j) => {
                 const amount = parseInt(r.amount, 10);
                 // TODO, this ordering might result in problems
+
                 if(amendActions[i].beforeAmount !== undefined){
                     const increase = actionAmountDirection(amendActions[i])
                     amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);
                 }
+                let method = TransactionTypes.AMEND;
+                if(!amendActions[i].beforeHolders){
+                    amendActions[i].beforeHolders = amendActions[i].afterHolders = amendActions[i].holders;
+                }
+                if(amendActions[i].beforeAmount === 0){
+                    method = TransactionTypes.NEW_ALLOCATION;
+                    newAllocations.push({
+                        ...amendActions[i],
+                        beforeHolders: null,
+                        afterHolders: null,
+                        method: TransactionTypes.NEW_ALLOCATION,
+                        type: TransactionTypes.NEW_ALLOCATION,
+                    })
+                }
+
                 if(isTransfer(r.type)){
-                    transfers.push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod || amendActions[i].transactionType,
-                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)});
+                    const result = {...amendActions[i], transactionType: r.type, transactionMethod: method,
+                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)};
+                   // if(method === TransactionTypes.NEW_ALLOCATION){
+                        transfers.push(result);
+                   // }
+                    //else{
+                   //     transfer.unshift(result);
+                   // }
+
                 }
                 else{
                     transactions[r.type] = transactions[r.type] || [];
-                    transactions[r.type].push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod || amendActions[i].transactionType,
-                        amount: amount});
+                    const result = {...amendActions[i], transactionType: r.type, transactionMethod: method,
+                        amount: amount};
+                   //if(method === TransactionTypes.NEW_ALLOCATION){
+                        transactions[r.type].push(result);
+                    //}
+                    //else{
+                       // transactions[r.type].unshift(result);
+                    //}
                 }
                 if(amendActions[i].beforeAmount !== undefined){
                     amendActions[i].afterAmount = amendActions[i].beforeAmount;
@@ -351,14 +381,17 @@ export default function Amend(context, submit){
                 return t.amount === transfer.amount && t.shareClass === transfer.shareClass && t.recipientIndex === transfer.index;
             });
             const reciprocal = transfers.splice(reciprocalIndex, 1)[0];
+
             pendingActions.push({
                 id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
             })
         }
         submit({
-            pendingActions: pendingActions
+            pendingActions: newAllocations.concat(pendingActions)
         })
     }
+
+
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
         return acc + actionAmountDirection(action) ? 1 : 0
     }, 0);

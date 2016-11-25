@@ -6,7 +6,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router'
 
 export function actionAmountDirection(action){
-    return action.afterAmount > action.beforeAmount || !action.beforeHolders;
+    return action.afterAmount >= action.beforeAmount || !action.beforeHolders;
 }
 
 export function companiesOfficeDocumentUrl(companyState, documentId){
