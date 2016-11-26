@@ -9,7 +9,7 @@ import { splitBsProps } from 'react-bootstrap/lib/utils/bootstrapUtils';
 import DropdownList from 'react-widgets/lib/DropdownList';
 
 
-const DROPLIST_THRESHOLD = 6;
+const DROPLIST_THRESHOLD = 20;
 
 
 class FormGroup extends React.Component {
@@ -214,7 +214,11 @@ class InputBase extends React.Component {
     case 'select':
         const children = React.Children.toArray(this.props.children);
         if(children.length > DROPLIST_THRESHOLD && !this.props.forceSelect){
-            debugger
+            return <DropdownList {...elementProps} valueField='value' textField='text'
+                data={ children.filter(c => c.props.value).map(c => ({value: c.props.value, text: Array.isArray(c.props.children) ? c.props.children.join('') : c.props.children }))}
+                caseSensitive={false}
+                filter={'contains'}
+                {...elementProps} />
         }
         else{
             return (
