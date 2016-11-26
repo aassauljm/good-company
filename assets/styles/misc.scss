@@ -4,10 +4,11 @@
 }
 
 p.form-control-static{
-    overflow: hidden;
+
     white-space: normal;
     text-align: left;
     text-overflow: clip;
+        height: auto;
 }
 
 

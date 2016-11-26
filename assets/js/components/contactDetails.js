@@ -187,8 +187,7 @@ export class ContactDetailsTransactionView extends React.Component {
             return;
         }
         const id = this.props.companyId;
-        this.props.navigate(`/company/view/${id}/new_transaction`);
-        this.props.startTransaction(map[key], this.props.transactionViewData.companyState, this.props.transactionViewData.companyId);
+        this.props.show(map[key]);
     }
 
     renderBody() {
