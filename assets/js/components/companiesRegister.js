@@ -31,7 +31,9 @@ const fields = [
 'arFilingMonth',
 'fraReportingMonth',
 'entityType',
-'companyStatus'];
+'companyStatus',
+'constitutionFiled',
+'ultimateHoldingCompany'];
 
 
 @connect((state, ownProps) => {
@@ -65,16 +67,18 @@ export class CompaniesRegisterWidget extends React.Component {
         const data = (this.props.data || {}).data || {};
         return <div className="row" key="body">
             <div className="col-xs-6">
-                    <div><strong>Name</strong> {data.companyName}</div>
-                    <div><strong>Company  Number</strong> {data.companyNumber ||  'Unknown'}</div>
-                    <div><strong>NZ Business Number</strong> {data.nzbn ||  'Unknown'}</div>
-                    <div><strong>Incorporation Date</strong> { data.incorporationDate}</div>
+                    <div><strong>Name</strong> {renderValue(data.companyName) }</div>
+                    <div><strong>{STRINGS.companyNumber}</strong> { renderValue(data.companyNumber) }</div>
+                    <div><strong>{STRINGS.nzbn}</strong> { renderValue(data.nzbn) }</div>
+                    <div><strong>{STRINGS.incorporationDate}</strong> {renderValue(data.incorporationDate) } </div>
                     </div>
             <div className="col-xs-6">
-                    <div><strong>AR Filing Month</strong> {data.arFilingMonth ||  'Unknown'}</div>
-                    <div><strong>Entity Type</strong> {data.entityType ||  'Unknown' }</div>
-                    <div><strong>Status</strong> {data.companyStatus ||  'Unknown' }</div>
-                    { data.fraReportingMonth && <div><strong>{ STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
+                    <div><strong>{ STRINGS.arFilingMonth}</strong> {renderValue(data.arFilingMonth) }</div>
+                    <div><strong>{ STRINGS.entityType}</strong> { renderValue(data.entityType) }</div>
+                    <div><strong>{ STRINGS.compayStatus}</strong> { renderValue(data.companyStatus) }</div>
+                    <div><strong>{ STRINGS.ultimateHoldingCompany}</strong> { renderValue(data.ultimateHoldingCompany)}</div>
+                    <div><strong>{STRINGS.constitutionFiled}</strong>{ renderValue(data.constitutionFiled) } </div>
+                    { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
             <div className="col-xs-12 text-center">
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>
@@ -101,6 +105,19 @@ export class CompaniesRegisterWidget extends React.Component {
             </div>
         </div>
     }
+}
+
+function renderValue(value){
+    if(value === true){
+        return 'Yes';
+    }
+    if(value === false){
+        return 'No'
+    }
+    if(value){
+        return value;
+    }
+    return "Unknown";
 }
 
 
@@ -134,7 +151,7 @@ export default class CompaniesRegister extends React.Component {
         const data = (this.props.data || {}).data || {};
         return <div key="body">
             { fields.map((f, i) => {
-                return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ data[f] || "Unknown"}</div></div>
+                return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(data[f])}</div></div>
             })}
             <div className="text-center">
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>

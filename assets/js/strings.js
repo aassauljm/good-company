@@ -16,7 +16,8 @@ export default {
     holding: 'Shareholding',
     arFilingMonth: 'AR Filing Month',
     fraReportingMonth: 'FRA Reporting Month',
-
+    constitutionFiled: 'Constitution Filed',
+    ultimateHoldingCompany: 'Ultimate Holding Company',
     entityType: 'Entity Type',
     companyStatus: 'Company Status',
 
