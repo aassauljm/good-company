@@ -70,7 +70,7 @@ class ResolveAllWarnings extends React.Component {
         return  <div>
         <Link to={`/company/view/${this.props.companyId}/guided_setup`} onClick={this.props.resetTransactionViews} className="text-success alert-entry">
         <Glyphicon glyph="forward" className="big-icon"/>
-        Click here to setup your share register{this.props.companyName && ` for ${this.props.companyName}`}.</Link>
+        Click here to set up your share register{this.props.companyName && ` for ${this.props.companyName}`}.</Link>
         </div>
     }
 }

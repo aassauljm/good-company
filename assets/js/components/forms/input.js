@@ -6,6 +6,11 @@ import ControlLabel from 'react-bootstrap/lib/ControlLabel';
 import HelpBlock from 'react-bootstrap/lib/HelpBlock';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { splitBsProps } from 'react-bootstrap/lib/utils/bootstrapUtils';
+import DropdownList from 'react-widgets/lib/DropdownList';
+
+
+const DROPLIST_THRESHOLD = 6;
+
 
 class FormGroup extends React.Component {
   render() {
@@ -207,11 +212,16 @@ class InputBase extends React.Component {
 
     switch (this.props.type) {
     case 'select':
-      return (
-        <select {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
-          {this.props.children}
-        </select>
-      );
+        const children = React.Children.toArray(this.props.children);
+        if(children.length > DROPLIST_THRESHOLD && !this.props.forceSelect){
+            debugger
+        }
+        else{
+            return (
+            <select {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
+              {this.props.children}
+            </select>);
+        }
     case 'textarea':
       return <textarea {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
     case 'static':

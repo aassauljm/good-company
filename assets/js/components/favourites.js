@@ -29,8 +29,40 @@ export class FavouritesWidget extends React.Component {
         this.fetch();
     };
 
-    render() {
+    renderList() {
         const favourites = this.props.data || [];
+        return <ul>
+                {favourites.map((f, i) => <li key={i}>
+                    <Link to={`/company/view/${f.id}`}>
+                    <span className="company-name">{f.currentCompanyState.companyName } </span>
+                    <span className="extra">Company Number: {f.currentCompanyState.companyNumber } </span>
+                    <span className="extra">NZBN: {f.currentCompanyState.nzbn } </span>
+                    </Link>
+
+                </li>)}
+                </ul>
+    }
+
+    renderTable() {
+        const handleClick = (event, id) => {
+            event.preventDefault();
+            this.props.navigate(`/company/view/${id}`);
+        }
+        const favourites = (this.props.data || []).slice(0, 6);
+
+        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        return <table className="table table-striped table-hover table-condensed">
+            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
+            <tbody>
+            { favourites.map(
+                (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
+                    { fields.map(f => <td key={f}>{row.currentCompanyState[f]}</td>) }
+                </tr>) }
+            </tbody>
+        </table>
+    }
+
+    render() {
         return <div className="widget favourites">
             <div className="widget-header">
                 <div className="widget-title">
@@ -42,16 +74,7 @@ export class FavouritesWidget extends React.Component {
             </div>
 
             <div className="widget-body">
-                <ul>
-                {favourites.map((f, i) => <li key={i}>
-                    <Link to={`/company/view/${f.id}`}>
-                    <span className="company-name">{f.currentCompanyState.companyName } </span>
-                    <span className="extra">Company Number: {f.currentCompanyState.companyNumber } </span>
-                    <span className="extra">NZBN: {f.currentCompanyState.nzbn } </span>
-                    </Link>
-
-                </li>)}
-                </ul>
+                { this.renderTable() }
             </div>
         </div>
     }

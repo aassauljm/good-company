@@ -4,7 +4,7 @@ export default {
     nzbn: 'NZBN',
     companyNumber: 'Company Number',
     addressForService: 'Address for Service',
-    registeredCompanyAddress: 'Registered Company Address',
+    registeredCompanyAddress: 'Registered Office',
     incorporationDate: 'Incorporation Date',
     name: 'Full Name',
     address: 'Address',

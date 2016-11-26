@@ -229,10 +229,7 @@ export class UpdateShares extends React.Component {
     render() {
         return <SelectionBase {...this.props} title="Update Shares" >
 
-            <div className="actionable select-button"  onClick={() => {
-                    this.props.navigate({pathname: `/company/view/${this.props.transactionViewData.companyId}/share_classes`, state: {skipDirtyLeave: true}});
-                    this.props.end();
-                }} >
+            <div className="actionable select-button"  onClick={() => this.props.show('manageShareClasses')} >
                 <span className="glyphicon glyphicon-envelope"></span>
                 <span className="transaction-button-text">Manage Share Classes</span>
             </div>
