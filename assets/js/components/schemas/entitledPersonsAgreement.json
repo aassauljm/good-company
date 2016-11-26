@@ -37,6 +37,7 @@
                             }
                         }
                     },
+                    "default": [{}],
                     "minItems": 1
                 }
             },
@@ -111,6 +112,7 @@
                                 },
                                 "required": ["power", "details"]
                             },
+                            "default": [{}],
                             "minItems": 1
                         }
                     }

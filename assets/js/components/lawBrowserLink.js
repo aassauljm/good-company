@@ -305,43 +305,25 @@ Popover.defaultProps = defaultProps;
 
 
 
-@connect(state => state.lawBrowser,
-    {
-        fetchData: (query) => requestLawBrowser(query)
-    })
+
 export class LawBrowserContent extends React.Component {
-
-    componentWillMount() {
-        return this.props.fetchData(this.query())
-            .then(() => {
-                this.props.reposition();
-            })
-    }
-
-    query() {
-        if(this.props.location){
-            return `${LAW_BROWSER_URL}/query?doc_type=instrument&title=${this.props.title}&find=location&location=${this.props.location}`;
-        }
-        else if(this.props.definition){
-             return `${LAW_BROWSER_URL}/definition/${this.props.definition}`;
-        }
-    }
-
     render() {
         return <div>
-            { this.props[this.query()] && this.props[this.query()].data &&
+            { this.props.data &&
                 <div className="fragment">
-                    <div dangerouslySetInnerHTML={{__html: replaceUrls(this.props[this.query()].data.html_content) }} />
+                    <div dangerouslySetInnerHTML={{__html: replaceUrls(this.props.data.html_content) }} />
                 </div> }
-            { !this.props[this.query()] || !this.props[this.query()].data && <Loading /> }
+            {  !this.props.data && <Loading /> }
             <p/>
             </div>
-
     }
 }
 
 
-
+@connect(state => state.lawBrowser,
+    {
+        fetchData: (query) => requestLawBrowser(query)
+    })
 export class LawBrowserPopover extends React.Component {
     query() {
         if(this.props.location){
@@ -352,12 +334,22 @@ export class LawBrowserPopover extends React.Component {
         }
     }
 
+    data() {
+        return this.props[this.query()] && this.props[this.query()].data;
+    }
+
+    componentWillMount() {
+        return this.props.fetchData(this.query())
+            .then(() => {
+                this.props.reposition();
+            })
+    }
 
     render() {
         const id = `${this.props.title.replace(' ', '-')}-${this.props.location ? this.props.location.replace(' ', '-') : this.props.definition}`
-        const title = `${this.props.title}`
-        return <Popover id={id} title={title} close={this.props.close} {...this.props}>
-                <LawBrowserContent {...this.props} needsReposition/>
+        const title = this.data() ? this.data().full_title : this.props.title;
+        return <Popover {...this.props} id={id} title={title} close={this.props.close}>
+                <LawBrowserContent data={this.data()} needsReposition/>
                    <div className="popover-footer">
                       <a className="btn btn-primary" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank">Open in Law Browser <Glyphicon glyph="new-window"/></a>
                 </div>
