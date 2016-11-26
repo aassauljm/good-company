@@ -1192,7 +1192,7 @@ const ScrapingService = {
     getDocumentSummaries: function(data){
         return Promise.map(data.documents, function(document){
             return ScrapingService.getCachedDocumentSummary(data, document);
-        }, {concurrency: 5});
+        }, {concurrency: 10});
     },
 
     writeDocumentSummaries: function(data){
@@ -1310,6 +1310,8 @@ const ScrapingService = {
                 }
             }).get()
         }
+
+        result.extensive = result.holdings.extensive;
 
         result['historicHolders'] = $('.historic').find('.shareholder').map(function(i, e){
             return {

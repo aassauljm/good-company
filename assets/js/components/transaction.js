@@ -215,7 +215,7 @@ export class TransactionViewBody extends React.Component {
             { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState}) }
 
             <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div>
-            { this.state.showingData && <p><pre>{JSON.stringify(transaction, null, 4)}</pre></p> }
+            { this.state.showingData && <pre>{JSON.stringify(transaction, null, 4)}</pre> }
         </div>
     };
 

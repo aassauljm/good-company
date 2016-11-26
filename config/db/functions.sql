@@ -348,6 +348,12 @@ CREATE OR REPLACE FUNCTION has_no_applied_share_classes(companyStateId integer)
         ) q
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
+    RETURNS BOOLEAN
+    AS $$
+    SELECT extensive from  company_state cs where cs.id = $1
+$$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
     RETURNS JSONB
@@ -356,7 +362,8 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
         'pendingHistory', has_pending_historic_actions($1),
         'missingVotingShareholders', has_missing_voting_shareholders($1),
         'shareClassWarning', has_no_share_classes($1),
-        'applyShareClassWarning', has_no_applied_share_classes($1)
+        'applyShareClassWarning', has_no_applied_share_classes($1),
+        'extensiveWarning', has_extensive_shareholding($1)
         )
 $$ LANGUAGE SQL;
 

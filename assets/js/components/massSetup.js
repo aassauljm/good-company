@@ -119,7 +119,7 @@ const PAGES = {
         alerts.sort((a, b) => (a.companyName || '').localeCompare(b.companyName));
 
         const filteredCompanies = alerts
-                                    .filter(a => a.warnings.shareClassWarning);
+                                    .filter(a => a.warnings.shareClassWarning && !a.warnings.extensiveWarning);
         const initialValues = {companies: filteredCompanies
                                     .map(c => ({companyName: c.companyName, companyId: c.id}) )}
 

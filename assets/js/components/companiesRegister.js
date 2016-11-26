@@ -77,7 +77,7 @@ export class CompaniesRegisterWidget extends React.Component {
                     <div><strong>{ STRINGS.entityType}</strong> { renderValue(data.entityType) }</div>
                     <div><strong>{ STRINGS.compayStatus}</strong> { renderValue(data.companyStatus) }</div>
                     <div><strong>{ STRINGS.ultimateHoldingCompany}</strong> { renderValue(data.ultimateHoldingCompany)}</div>
-                    <div><strong>{STRINGS.constitutionFiled}</strong>{ renderValue(data.constitutionFiled) } </div>
+                    <div><strong>{STRINGS.constitutionFiled}</strong> { renderValue(data.constitutionFiled) } </div>
                     { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
             <div className="col-xs-12 text-center">
