@@ -20,6 +20,7 @@ import { SelectPersonTransactionView, SelectHistoricPersonTransactionView  } fro
 import { SelectDirectorTransactionView  } from './transactions/selectDirector';
 import { UpdateDirectorTransactionView  } from './transactions/updateDirector';
 import { SubdivisionTransactionView  } from './transactions/subdivision';
+import { CancellationTransactionView  } from './transactions/cancellation';
 import { ResolveAmbiguityTransactionView  } from './transactions/resolve';
 import { DeleteCompanyTransactionView  } from './transactions/deleteCompany';
 import { ResetHistoryTransactionView  } from './transactions/resetHistory';
@@ -51,6 +52,9 @@ export const TransactionViewSwitch = (props) => {
 
             case 'subdivision':
                 return <SubdivisionTransactionView {...props} />
+
+            case 'cancellation':
+                return <CancellationTransactionView {...props} />
 
             case 'applyShareClasses':
                 return <ApplyShareClassesTransactionView {...props} />

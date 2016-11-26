@@ -250,22 +250,25 @@ export class UpdateShares extends React.Component {
             </div>
             <div className="actionable select-button"  onClick={() => this.props.show('consolidation')} >
                 <span className="glyphicon glyphicon-envelope"></span>
-                <span className="transaction-button-text">Consolidation of Shares</span>
+                <span className="transaction-button-text">Consolidate Shares</span>
             </div>
             <div className="actionable select-button" onClick={() => this.props.show('subdivision')} >
                 <span className="glyphicon glyphicon-resize-full"></span>
-                <span className="transaction-button-text">Subdivision of Shares</span>
+                <span className="transaction-button-text">Subdivide Shares</span>
             </div>
             <div className="actionable select-button"  onClick={() => this.props.show('purchase')} >
                 <span className="glyphicon glyphicon-usd"></span>
-                <span className="transaction-button-text">Repurchase of Shares</span>
+                <span className="transaction-button-text">Repurchase Shares</span>
 
             </div>
             <div className="actionable select-button" onClick={() => this.props.show('redemption')} >
                 <span className="glyphicon glyphicon-import"></span>
-                <span className="transaction-button-text">Redemption of Shares</span>
+                <span className="transaction-button-text">Redeem Shares</span>
             </div>
-
+            <div className="actionable select-button" onClick={() => this.props.show('cancellation')} >
+                <span className="glyphicon glyphicon-import"></span>
+                <span className="transaction-button-text">Cancel Shares</span>
+            </div>
 
 
         </SelectionBase>
