@@ -789,23 +789,25 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                 }
                 if(JSON.stringify(result.beforeHolders).toLowerCase() !== JSON.stringify(result.afterHolders).toLowerCase()){
                     result.unknownHoldingChange = true;
-                    let difference = false;
+                    let difference = result.beforeHolders.length !== result.afterHolders.length
                         // must a holder change or holding transfer
                         // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
-                    result.beforeHolders.map((holder, i) => {
-                        const nameSame = result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase();
-                        if(nameSame &&
-                           result.beforeHolders[i].address.toLowerCase() !== result.afterHolders[i].address.toLowerCase()){
-                            results.push({
-                                transactionType: Transaction.types.HOLDER_CHANGE,
-                                beforeHolder: result.beforeHolders[i],
-                                afterHolder: result.afterHolders[i]
-                            });
-                        }
-                        else if(!nameSame){
-                            difference = true;
-                        }
-                    });
+                    if(!difference){
+                        result.beforeHolders.map((holder, i) => {
+                            const nameSame = result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase();
+                            if(nameSame &&
+                               result.beforeHolders[i].address.toLowerCase() !== result.afterHolders[i].address.toLowerCase()){
+                                results.push({
+                                    transactionType: Transaction.types.HOLDER_CHANGE,
+                                    beforeHolder: result.beforeHolders[i],
+                                    afterHolder: result.afterHolders[i]
+                                });
+                            }
+                            else if(!nameSame){
+                                difference = true;
+                            }
+                        });
+                    }
                     if(difference){
                         results.push({
                             ...result,
