@@ -61,7 +61,9 @@ export class Header extends React.Component {
     }
 
     renderNavLinks() {
-        return [
+        return [<li key={0} className="nav-item">
+                    <IndexLink to={`/`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Home</IndexLink>
+                </li>,
                 <li key={1} className="nav-item">
                     <Link to={`/companies`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Companies</Link>
                 </li>,
