@@ -822,7 +822,9 @@ SELECT *,
     FROM transaction_history qq
     WHERE qq."personId" = q."personId" AND  (qq."shareClass" = "shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
     AND qq."holdingId" = q."holdingId"
+      AND (data->>amount::text)::int != 0
     AND  type = ANY(ARRAY['AMEND', 'REMOVE_ALLOCATION', 'NEW_ALLOCATION']::enum_transaction_type[]) )
+
     AS "ambiguousChanges"
 
 FROM

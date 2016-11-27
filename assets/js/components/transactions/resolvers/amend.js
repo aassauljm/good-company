@@ -340,14 +340,15 @@ export default function Amend(context, submit){
                 if(!amends[i].beforeHolders){
                     amends[i].beforeHolders = amends[i].afterHolders = amends[i].holders;
                 }
-                if(amends[i].beforeAmount  === 0 ){
+                /*if(amends[i].beforeAmount  === 0 ){
                     newAllocations.push({
                         ...amends[i],
                         amount: 0,
                         beforeAmount: 0,
                         afterAmount: 0
                     })
-                }
+                }*/
+                //TODO, shareclass
                 if(isTransfer(r.type)){
                     const result = {...amends[i], transactionType: r.type, transactionMethod: method,
                         amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)};
