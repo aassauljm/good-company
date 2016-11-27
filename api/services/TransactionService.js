@@ -909,6 +909,17 @@ export function validateAmend(data, companyState){
         }
         return p.amount;
     });
+
+      // if there is a holdingId, its not validatting before and after amount, so...
+    const diff = (data.afterAmount - data.beforeAmount);
+    data.beforeAmount = sum;
+    data.afterAmount = sum + diff;
+
+
+    if(Math.abs(data.beforeAmount - data.afterAmount) !== data.amount){
+        throw new sails.config.exceptions.InvalidOperation('Amount is incorrect')
+    }
+
     if(data.amount && !Number.isInteger(data.amount)){
         throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer')
     }
@@ -930,6 +941,8 @@ export const performAmend = Promise.method(function(data, companyState, previous
             const difference = data.afterAmount - data.beforeAmount;
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
             const newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
+
+
             const transactionType  = data.transactionType;
             let matches;
             transaction = Transaction.build({type: transactionType,
@@ -1714,7 +1727,7 @@ export function performAll(data, company, state, isReplay){
 export function transactionsToActions(transactions){
     return transactions.map(t => {
         const {id, subTransactions, data, ...info} = t;
-        return {...info, ...data, id: null, originalTransactionId: id, actions: t.subTransactions.map(s => {
+        return {...info, ...data, id: null, transactionType: t.type, originalTransactionId: id, actions: t.subTransactions.map(s => {
             const {id,  parentTransactionId, data, ...info} = s;
             return {...info, ...data, id: null};
         })}

@@ -181,6 +181,11 @@ export class TransactionViews extends React.Component {
 
             }
         }
+        if(props.transactionViewData.loadCompanyState){
+            props.transactionViewData = {...props.transactionViewData, companyState: this.props.companyState, companyId: this.props.companyId};
+        }
+
+
         return <TransactionViewSwitch showing={showing} {...props} />;
     }
 
