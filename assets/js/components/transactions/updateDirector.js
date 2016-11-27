@@ -14,7 +14,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { DirectorConnected, NewDirectorConnected, directorSubmit } from '../forms/person';
 import { Director } from '../company';
 import { personOptionsFromState } from '../../utils';
-
+import { DirectorLawLinks } from './selectDirector'
 
 
 @connect(undefined)
@@ -35,11 +35,7 @@ export class UpdateDirectorTransactionView extends React.Component {
     }
 
     renderBody() {
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                { this.props.transactionViewData.director ? this.updateDirector() : this.newDirector() }
-                </div>
-            </div>
+        return this.props.transactionViewData.director ? this.updateDirector() : this.newDirector()
     }
 
     updateDirector() {
@@ -92,7 +88,7 @@ export class UpdateDirectorTransactionView extends React.Component {
 
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={DirectorLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Manage Directors</TransactionView.Title>
               </TransactionView.Header>

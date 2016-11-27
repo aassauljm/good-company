@@ -194,6 +194,12 @@ export class UpdatePeople extends React.Component {
                     <span className="glyphicon glyphicon-user"></span>
                     <span className="transaction-button-text">Directors</span>
             </div>
+
+            <div className="actionable select-button"  onClick={() => this.props.show('selectHolding')} >
+                <span className="glyphicon glyphicon-briefcase"></span>
+                <span className="transaction-button-text">Update Shareholding</span>
+
+            </div>
         </SelectionBase>
     }
 }

@@ -1,5 +1,27 @@
-.company-page{
+.well.actionable{
+
+    position: relative;
+
+    .well-icon{
+        font-size: 4em;
+        position: absolute;
+            top: 12px;
+        right: 12px;
+        @media (min-width:$screen-sm-min){
+            left: 12px;
+            right: auto;
+        }
+        transition: all ease-in-out 300ms;
 
 
+    }
 
+    transition: all ease-in-out 300ms;
+
+    &:hover{
+        background-color: $gray-lighter;
+        .well-icon{
+            color: $deep-red;
+        }
+    }
 }

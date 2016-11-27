@@ -103,7 +103,7 @@ export const UpdatePersonConnected = reduxForm({
 
 export const DirectorConnected = reduxForm({
   form: 'director',
-  fields : ['appointment', 'cessation', 'person.name', 'person.address', 'documents'],
+  fields : ['appointment', 'cessation', 'person.name', 'person.address', 'documents', 'dateOfBirth', 'placeOfBirth'],
   validate: validateDirector
 })(Director);
 
