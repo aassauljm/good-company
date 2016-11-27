@@ -4,7 +4,7 @@ export default {
     nzbn: 'NZBN',
     companyNumber: 'Company Number',
     addressForService: 'Address for Service',
-    registeredCompanyAddress: 'Registered Company Address',
+    registeredCompanyAddress: 'Registered Office',
     incorporationDate: 'Incorporation Date',
     name: 'Full Name',
     address: 'Address',
@@ -16,7 +16,8 @@ export default {
     holding: 'Shareholding',
     arFilingMonth: 'AR Filing Month',
     fraReportingMonth: 'FRA Reporting Month',
-
+    constitutionFiled: 'Constitution Filed',
+    ultimateHoldingCompany: 'Ultimate Holding Company',
     entityType: 'Entity Type',
     companyStatus: 'Company Status',
 
@@ -92,6 +93,8 @@ export default {
         UPLOAD_DOCUMENT: 'Upload Document',
         UPDATE_DOCUMENT: 'Update Document',
         CREATE_DIRECTORY: 'Create Directory',
+        USER_FIELDS_CHANGE: 'Update Contact Details',
+        INFERRED_REMOVE_DIRECTOR: 'Remove Director'
     },
     amendTypes: {
         ISSUE_TO: 'Issue',

@@ -180,11 +180,7 @@ const ShareClassFormConnected = reduxForm({
 
 export class ShareClassCreate extends React.Component {
     render() {
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <ShareClassFormConnected {...this.props} />
-            </div>
-        </div>
+        return <ShareClassFormConnected {...this.props} />
     }
 }
 
@@ -194,11 +190,7 @@ export class ShareClassEdit extends React.Component {
             return s.id.toString() === this.props.routeParams.shareClassId;
         })[0];
 
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
-            </div>
-        </div>
+        return  <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
     }
 }
 
@@ -210,7 +202,7 @@ export class ShareClassCreateTransactionView extends React.Component {
                 <TransactionView.Title>Create Share Class</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
-                <ShareClassFormConnected {...this.props.transactionViewData} end={this.props.end} />
+                <ShareClassFormConnected {...this.props} {...this.props.transactionViewData} end={this.props.end} />
           </TransactionView.Body>
         </TransactionView>
     }
@@ -230,7 +222,7 @@ export class ShareClassEditTransactionView extends React.Component {
               <TransactionView.Body>
               <div className="row">
                 <div className="col-md-6 col-md-offset-3">
-                    <ShareClassFormConnected {...this.props.transactionViewData} end={this.props.end}  initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
+                    <ShareClassFormConnected {...this.props} {...this.props.transactionViewData} end={this.props.end}  initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
                 </div>
             </div>
 
@@ -298,6 +290,7 @@ export class ShareClassesTable extends React.Component {
             </div> }
 
             { this.props.transactionViewButton && <div className="button-row">
+               { this.props.end && <Button onClick={this.props.end}>Cancel</Button> }
                <Button bsStyle="primary" onClick={this.props.createTransactionView}>Create New Share Class</Button>
                { !!data.length && <Button bsStyle="success" onClick={this.props.end}>Finished Creating Share Classes</Button> }
             </div> }
@@ -342,7 +335,7 @@ export const ShareClasses = connect(undefined, (dispatch, ownProps) => ({
 
 
 export const ShareClassManageTransactionView  = (props) => {
-    const shareClasses = ((props.transactionViewData.companyState.shareClasses || {}).shareClasses || []);
+    const shareClasses = (((props.transactionViewData.companyState || {}).shareClasses || {}).shareClasses || []);
     return <ShareClassesTable  {...props.transactionViewData}
     transactionViewButton={true}
     createTransactionView={() => props.show('createShareClass', {...props.transactionViewData, afterClose: {showTransactionView: {key: 'manageShareClasses', data: {loadCompanyState: true} }}  })}

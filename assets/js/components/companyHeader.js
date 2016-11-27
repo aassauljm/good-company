@@ -101,7 +101,7 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.startTransaction('resetDelete') }>Reset or Delete Company</MenuItem> */ }
                         </Dropdown.Menu>
                 </Dropdown>,
-             <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} activeClassName="active" className="nav-link">Templates</Link></li>,
+             <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} onClick={() => this.closeMenu()} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
 

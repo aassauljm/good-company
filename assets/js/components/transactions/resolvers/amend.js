@@ -74,6 +74,13 @@ function absoluteAmount(type, amount){
     return Number.isInteger(amount) ? -amount : 0;
 }
 
+function isIncrease(type) {
+    return [TransactionTypes.ISSUE_TO,
+    TransactionTypes.TRANSFER_TO,
+    TransactionTypes.CONVERSION_TO].indexOf(type) > -1
+}
+
+
 function validTransactionType(type){
     return [
         TransactionTypes.ISSUE_TO,
@@ -167,7 +174,7 @@ class AmendOptions extends React.Component {
         </div>
     }
     render() {
-        console.log(this.props)
+
         const { shareClassMap, fields: {actions}, amendActions, allSameDirection } = this.props;
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
@@ -313,52 +320,83 @@ export default function Amend(context, submit){
 
 
     const handleSubmit = (values) => {
+        const amends = [...(amendActions.map(a => ({...a})))];
         const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
         const pendingActions = [{id: context.actionSet.id, data: otherActions, previous_id: context.actionSet.previous_id}];
         const transactions = {};
         const transfers = [];
+
+
+        const transferMappings = values.actions.reduce((acc, v, i) => {
+            v.recipients.reduce((acc, r) => {
+                acc[r.holding] = acc[r.holding] || {};
+                acc[r.holding][i] =  {recipient: r, amendIndex: i};
+                return acc;
+            }, acc)
+            return acc;
+        }, {})
+
         values.actions.map((action, i) => {
             action.recipients.map((r, j) => {
-                const amount = parseInt(r.amount, 10);
-                // TODO, this ordering might result in problems
-                if(amendActions[i].beforeAmount !== undefined){
-                    const increase = actionAmountDirection(amendActions[i])
-                    amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);
+                if(r.handled){
+                    return;
                 }
+                const amount = parseInt(r.amount, 10);
+                amends[i] = {...amends[i]}
+
+                if(amends[i].beforeAmount !== undefined){
+                    const increase = isIncrease(r.type)
+                    amends[i].beforeAmount = amends[i].afterAmount + (increase ? -amount : amount);
+                }
+                let method = TransactionTypes.AMEND;
+                if(!amends[i].beforeHolders){
+                    amends[i].beforeHolders = amends[i].afterHolders = amends[i].holders;
+                }
+
                 if(isTransfer(r.type)){
-                    transfers.push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod || amendActions[i].transactionType,
-                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)});
+                    let method = amends[i].beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
+                    const transfer = {...amends[i], transactionType: r.type, transactionMethod: method,
+                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10), };
+                    // find reciprocal
+                    amends[i].afterAmount = amends[i].beforeAmount;
+                    const reciprocal = transferMappings[i][r.holding];
+                    const reciprocalAmend = amends[reciprocal.amendIndex];
+                    const increase = isIncrease(reciprocalAmend.type)
+                    reciprocalAmend.beforeAmount = reciprocalAmend.afterAmount + (increase ? -amount : amount);
+
+                    method = reciprocalAmend.beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
+
+                    const reciprocalAction = {...reciprocalAmend, transactionType: reciprocal.recipient.type, transactionMethod: method,
+                        amount: amount};
+                    reciprocalAmend.afterAmount = reciprocalAmend.beforeAmount;
+                    reciprocal.recipient.handled = true;
+
+                    transfers.push([transfer, reciprocalAction])
+
                 }
                 else{
                     transactions[r.type] = transactions[r.type] || [];
-                    transactions[r.type].push({...amendActions[i], transactionType: r.type, transactionMethod: amendActions[i].transactionMethod || amendActions[i].transactionType,
-                        amount: amount});
-                }
-                if(amendActions[i].beforeAmount !== undefined){
-                    amendActions[i].afterAmount = amendActions[i].beforeAmount;
+                    const result = {...amends[i], transactionType: r.type, transactionMethod: method,
+                        amount: amount};
+                    transactions[r.type].push(result);
+                    amends[i].afterAmount = amends[i].beforeAmount;
                 }
             })
-        })
 
+        })
         // group each other type
         Object.keys(transactions).map(k => {
-            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, actions: transactions[k]}, previous_id: context.actionSet.previous_id});
+            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: transactions[k]}, previous_id: context.actionSet.previous_id});
         })
-        //pair up transfers
-        while(transfers.length){
-            const transfer = transfers.shift();
-            const reciprocalIndex = transfers.findIndex(t => {
-                return t.amount === transfer.amount && t.shareClass === transfer.shareClass && t.recipientIndex === transfer.index;
-            });
-            const reciprocal = transfers.splice(reciprocalIndex, 1)[0];
-            pendingActions.push({
-                id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
-            })
-        }
+        transfers.map(k => {
+            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: k, transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id});
+        });
         submit({
             pendingActions: pendingActions
         })
     }
+
+
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
         return acc + actionAmountDirection(action) ? 1 : 0
     }, 0);
@@ -370,7 +408,7 @@ export default function Amend(context, submit){
         return acc;
     }, {true: {}, false: {}})
 
-    const initialValues = {actions: amendActions.map((a, i) => {
+    let initialValues = {actions: amendActions.map((a, i) => {
         // if all same direction, set amount;
         let amount, holding;
         if(allSameDirection){
@@ -402,6 +440,7 @@ export default function Amend(context, submit){
         acc.push(values);
         return acc;
     }, [])
+
 
     return <div>
 

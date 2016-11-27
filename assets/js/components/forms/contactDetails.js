@@ -7,7 +7,7 @@ import { reduxForm } from 'redux-form';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 
 export const immutableFields = ['registeredCompanyAddress', 'addressForService'];
-export const defaultCustomFields = ['Address for Inspection of Records', 'Head Office', 'Branch Offices', 'Website URL', 'Email', 'Phone', 'Fax', 'Lawyers', 'Accountants', 'Bank'];
+export const defaultCustomFields = ['Place of Records (if not Registered Office)', 'Head Office', 'Website URL', 'Email', 'Phone', 'Fax'];
 
 const fields = [
 ...immutableFields,
@@ -57,7 +57,7 @@ export class ContactForm extends React.Component {
                     onClick={() => {
                         this.props.fields.contactFields.addField({})
                     }}
-                >Add Field</button>
+                >Add Contact</button>
             </div>
             <Documents documents={this.props.fields.documents}/>
             { this.props.controls && <div className="button-row">

@@ -17,11 +17,15 @@ export function contactLawLinks(){
     return <div>
     <LawBrowserLink title="Companies Act 1993" location="s 186">Requirement to have registered office</LawBrowserLink>
     <LawBrowserLink title="Companies Act 1993" location="s 187">Change of registered office by board</LawBrowserLink>
-    <LawBrowserLink title="Companies Act 1993" location="s 188">Requirement tocange registered office</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 188">Requirement to change registered office</LawBrowserLink>
     <LawBrowserLink title="Companies Act 1993" location="s 189">Records kept at registered Offie</LawBrowserLink>
     <LawBrowserLink title="Companies Act 1993" location="s 192">Requirement to have address for service</LawBrowserLink>
     <LawBrowserLink title="Companies Act 1993" location="s 193">Change of address for service by board </LawBrowserLink>
     <LawBrowserLink title="Companies Act 1993" location="s 193A">Rectification or correction of address for service</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 2(5)">Meaning of address</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 387">Service of documents on companies in legal proceedings</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 388">Service of other documents on companies</LawBrowserLink>
+    <LawBrowserLink title="Companies Act 1993" location="s 392">Additional provisions relating to service</LawBrowserLink>
     </div>
 }
 
@@ -183,8 +187,7 @@ export class ContactDetailsTransactionView extends React.Component {
             return;
         }
         const id = this.props.companyId;
-        this.props.navigate(`/company/view/${id}/new_transaction`);
-        this.props.startTransaction(map[key], this.props.transactionViewData.companyState, this.props.transactionViewData.companyId);
+        this.props.show(map[key]);
     }
 
     renderBody() {

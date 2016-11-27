@@ -65,10 +65,8 @@ module.exports.policies = {
         'destroy': false
     },
     DocumentController: {
-        'delete': false,
-        //'*': false,
+        //'delete': false,
         /*'find': ['passport','sessionAuth', 'OwnerPolicy'],
-        'findOne': ['passport','sessionAuth', 'OwnerPolicy'],
         'delete':  ['passport','sessionAuth', 'OwnerPolicy'],
         'update':  ['passport','sessionAuth', 'OwnerPolicy'],
         'uploadDocument': ['passport','sessionAuth'],

@@ -440,7 +440,7 @@ export  class CreateEvent extends React.Component {
 
     render() {
         const {location: {query: {date}}} = this.props;
-        const dateValue = date ? moment(date, 'YYYY-MM-DD').toDate() : new Date();
+        const dateValue = date ? moment(date, 'YYYY-MM-DD').toDate() : null;
         return <div>
             <EventFormConnected initialValues={{date: dateValue}} companyOptions={companyOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
                 <div className="button-row">

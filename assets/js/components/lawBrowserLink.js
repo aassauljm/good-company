@@ -123,8 +123,9 @@ export class OverlayTrigger extends React.Component {
         }
         const [elX, elY] = [pos.left + pos.width/2, pos.top + pos.height/2]
         const [width, height] = [win.innerWidth, win.innerHeight];
+
         const distances = [
-            {dist: elY, placement: 'top'},
+            //{dist: elY, placement: 'top'},
             {dist: height - elY, placement: 'bottom'},
             {dist: elX, placement: 'left'},
             {dist: width - elX, placement: 'right'}
@@ -275,8 +276,8 @@ class Popover extends React.Component {
       zIndex: zIndex || popoverIndex
     };
     const arrowStyle = {
-      top: arrowOffsetTop,
-      left: arrowOffsetLeft,
+        top: arrowOffsetTop,
+        left: arrowOffsetLeft,
     };
     return connectDragPreview(
       <div
@@ -305,19 +306,26 @@ Popover.defaultProps = defaultProps;
 
 
 
+
+export class LawBrowserContent extends React.Component {
+    render() {
+        return <div>
+            { this.props.data &&
+                <div className="fragment">
+                    <div dangerouslySetInnerHTML={{__html: replaceUrls(this.props.data.html_content) }} />
+                </div> }
+            {  !this.props.data && <Loading /> }
+            <p/>
+            </div>
+    }
+}
+
+
 @connect(state => state.lawBrowser,
     {
         fetchData: (query) => requestLawBrowser(query)
     })
-export class LawBrowserContent extends React.Component {
-
-    componentWillMount() {
-        return this.props.fetchData(this.query())
-            .then(() => {
-                this.props.reposition();
-            })
-    }
-
+export class LawBrowserPopover extends React.Component {
     query() {
         if(this.props.location){
             return `${LAW_BROWSER_URL}/query?doc_type=instrument&title=${this.props.title}&find=location&location=${this.props.location}`;
@@ -327,27 +335,22 @@ export class LawBrowserContent extends React.Component {
         }
     }
 
-    render() {
-        return <div>
-            { this.props[this.query()] && this.props[this.query()].data &&
-                <div className="fragment">
-                    <div dangerouslySetInnerHTML={{__html: replaceUrls(this.props[this.query()].data.html_content) }} />
-                </div> }
-            { !this.props[this.query()] || !this.props[this.query()].data && <Loading /> }
-            <p/>
-            </div>
-
+    data() {
+        return this.props[this.query()] && this.props[this.query()].data;
     }
-}
 
+    componentWillMount() {
+        return this.props.fetchData(this.query())
+            .then(() => {
+                this.props.reposition();
+            })
+    }
 
-
-export class LawBrowserPopover extends React.Component {
     render() {
         const id = `${this.props.title.replace(' ', '-')}-${this.props.location ? this.props.location.replace(' ', '-') : this.props.definition}`
-        const title = `${this.props.title} ${this.props.location ? this.props.location : ''}`
-        return <Popover id={id} title={title} close={this.props.close} {...this.props}>
-                <LawBrowserContent {...this.props} needsReposition/>
+        const title = this.data() ? this.data().full_title : this.props.title;
+        return <Popover {...this.props} id={id} title={title} close={this.props.close}>
+                <LawBrowserContent data={this.data()} needsReposition/>
                    <div className="popover-footer">
                       <a className="btn btn-primary" href={formatLink(this.props)} rel="noopener noreferrer" target="_blank">Open in Law Browser <Glyphicon glyph="new-window"/></a>
                 </div>

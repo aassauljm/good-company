@@ -56,12 +56,13 @@ $rw-version:          "4.1.0";
     }
 }
 
-
+.rw-dropdownlist,
 .rw-combobox.rw-widget{
     position: relative;
 
     .rw-input{
         @extend .form-control;
+
     }
 
     button.rw-select{
@@ -94,6 +95,73 @@ $rw-version:          "4.1.0";
     }
 }
 
+.rw-dropdownlist {
+    cursor:pointer;
+   &:focus {
+        outline: none;
+    }
+
+  &.rw-state-disabled,
+  &.rw-state-readonly {
+    cursor: not-allowed;
+  }
+
+  > .rw-input {
+   // line-height:      @input-height;
+    background-color:   transparent;
+    padding-top:    0;
+    padding-bottom: 0;
+    padding-right:  0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.rw-rtl > .rw-input {
+   // padding:  @input-padding; // grumble resets
+    padding-top:    0;
+    padding-bottom: 0;
+    padding-left: 0;
+  }
+
+  > .rw-select,
+  &.rw-rtl > .rw-select {
+    border-width: 0;
+  }
+  .rw-i-caret-down{
+    position: absolute;
+    right: 8px;
+    top: 10px;
+  }
+  .rw-select {
+    position: absolute;
+    width: 1.9em;
+    height: 100%;
+    right: 0;
+    top: 0;
+    }
+    .rw-filter-input{
+        position:relative;
+        .rw-i-search{
+            height: 100%;
+            vertical-align: middle;
+            outline: 0;
+                line-height: 32px;
+        }
+    }
+    .rw-popup-container{
+        width:100%;
+        left:0;
+        .rw-popup{
+            left:0;
+            right:0;
+        }
+    }
+    .rw-input{
+        vertical-align: middle;
+        line-height: 32px;
+    }
+}
 
 
 .rw-popup {

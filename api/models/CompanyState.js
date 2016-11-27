@@ -70,6 +70,9 @@ module.exports = {
         ultimateHoldingCompany: {
             type: Sequelize.BOOLEAN
         },
+        extensive: {
+            type: Sequelize.BOOLEAN
+        },
         "contactFields": {
             "type": Sequelize.JSON
         },

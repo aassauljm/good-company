@@ -55,8 +55,13 @@ export const AccountControls = (props) => {
 @FavouritesHOC
 export class Header extends React.Component {
 
+    constructor() {
+        super();
+        this.closeMenu = ::this.closeMenu;
+    }
+
     renderNavLinks() {
-        return [<li key={-1} className="nav-item separator" />, <li key={0} className="nav-item">
+        return [<li key={0} className="nav-item">
                     <IndexLink to={`/`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Home</IndexLink>
                 </li>,
                 <li key={1} className="nav-item">
@@ -77,6 +82,11 @@ export class Header extends React.Component {
                 return <li key={i}><Link to={`/company/view/${f.id}`} onClick={this.closeMenu}>{f.currentCompanyState.companyName}</Link></li>
            }));
        }
+    }
+
+    closeMenu() {
+        this.refs.dropdown.refs.inner.handleClose()
+
     }
 
     status()  {
@@ -111,7 +121,7 @@ export class Header extends React.Component {
 
                                 </DropdownToggle>
                                 <Dropdown.Menu>
-                                    <li><Link to="/">Good Companies Home</Link></li>
+                                    <li><Link to="/" onClick={this.closeMenu}>Good Companies Home</Link></li>
 
                                      { this.renderNavLinks() }
                                     { this.renderFavourites() }

@@ -130,7 +130,7 @@ export class SearchWidget extends React.Component {
         }
 
         const inputProps = {
-            placeholder: 'Type to find or import your companies',
+            placeholder: 'Type to find or import a company',
             value: fields.input.value || '',
             onChange: fields.input.onChange
         };

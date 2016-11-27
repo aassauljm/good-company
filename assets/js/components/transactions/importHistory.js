@@ -29,6 +29,13 @@ PAGES[INTRODUCTION] = function() {
     if(this.props.pendingHistory._status === 'fetching'){
         return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
     }
+
+    if(this.props.transactionViewData.companyState.extensive){
+        return <div className="alert alert-danger">
+        <p>Warning, this company has an extensive shareholdings, meaning full shareholding information is unavailable.  </p>
+        <p>We are currently working on tools to enable the creation of a complete share register for an extensive shareholding.</p>
+            </div>
+    }
     if(this.props.pendingHistory._status === 'complete'){
         return <div><p>There are total of { this.props.pendingHistory.data.length } historic documents from the Companies Office to import.</p>
         <p>Good Companies can usually understand the transactions in these documents, but may need your input to resolve any ambiguities.  </p>
@@ -74,7 +81,7 @@ FOOTERS[INTRODUCTION] = function(){
     if(this.props.pendingHistory._status === 'complete'){
         return <div className="button-row">
             <Button onClick={this.props.end} >Cancel</Button>
-            <Button onClick={this.handleStart} bsStyle="primary">Start Importing Company History</Button>
+            { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStart} bsStyle="primary">Start Importing Company History</Button> }
             </div>
     }
 }

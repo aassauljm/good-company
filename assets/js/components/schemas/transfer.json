@@ -1,6 +1,6 @@
 {
     "description": "",
-    "title": "Transfer Shares",
+    "title": "Share Transfer Form",
     "formName": "Transfer",
     "properties": {
         "filename": { "$ref": "#/definitions/filename" },

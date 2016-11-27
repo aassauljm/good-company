@@ -73,6 +73,7 @@ export class Director extends React.Component {
             className += 'actionable ';
         }
         return <div className={className} onClick={this.props.editDirector && (() => this.props.editDirector(this.props.director))}>
+                    <i className="fa fa-user-circle well-icon" />
             <dl className="dl-horizontal">
                 <dt >Name</dt>
                 <dd >{ this.props.director.person.name}</dd>

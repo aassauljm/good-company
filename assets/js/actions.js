@@ -205,10 +205,10 @@ export function deleteResource(resource, options = {}) {
             headers: json_headers,
             credentials: 'same-origin'
         }),
+        confirmation: options.confirmation,
         payload: {key: resource, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
     };
 }
-
 
 const WORKING_DAY_URL = 'https://api.catalex.nz';
 

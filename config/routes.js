@@ -122,7 +122,7 @@ module.exports.routes = {
         action: 'recentActivityFull'
     },
 
-    'PUT /api/set_password': {
+   'PUT /api/set_password': {
         controller: 'UserController',
         modelIdentity: 'user',
         action: 'setPassword',
@@ -185,6 +185,13 @@ module.exports.routes = {
         model: 'company',
         action: 'create'
     },
+
+    'DELETE /api/company/:id/transactions/:transactionIds': {
+        controller: 'CompanyStateController',
+        model: 'company',
+        action: 'deleteTransactions'
+    },
+
     'GET /api/company/:id/get_info': {
         controller: 'CompanyController',
         action: 'getInfo',

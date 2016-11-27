@@ -4,7 +4,7 @@ import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { personList } from '../../utils';
-import { updateResource, addNotification } from '../../actions';
+import { updateResource, addNotification, resetTransactionViews } from '../../actions';
 
 
 
@@ -13,9 +13,10 @@ import { updateResource, addNotification } from '../../actions';
 }, (dispatch, ownProps) => {
     return {
         resetAction: (args) => {
-            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {loadingMessage: 'Resetting History'}))
             .then(() => {
                 ownProps.end();
+                dispatch(resetTransactionViews())
                 dispatch(addNotification({message: 'Company History Reset'}));
             })
         }
@@ -39,7 +40,7 @@ export class ResetHistoryTransactionView extends React.Component {
     render() {
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>Reset Company History</TransactionView.Title>
+                <TransactionView.Title>Undo Import Company History</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
               <p>Selecting 'Reset Company History' below will undo any historic transactions imported from the companies office.</p>

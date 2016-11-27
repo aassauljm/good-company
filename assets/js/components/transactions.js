@@ -26,6 +26,58 @@ function subTransactionCounts(subTransactions){
     });
 }
 
+class TransactionsTable extends React.Component {
+    rowsRowSpan(transactions) {
+        const rows = [];
+        transactions.map((t, i) => {
+            const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
+            rows.push(<tr key={i} onClick={() => this.props.show(t.transaction.id)}>
+                <td rowSpan={rowSpan}>{ t.transaction.id }</td>
+                <td rowSpan={rowSpan}>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
+                <td rowSpan={rowSpan}>{ STRINGS.transactionTypes[t.transaction.type] }</td>
+                { !t.transaction.subTransactions && <td></td> }
+            </tr>);
+            (t.transaction.subTransactions || []).map((t, j) => {
+                rows.push(<tr key={i+'-'+j} onClick={() => this.props.show(t.id)}><td>{STRINGS.transactionTypes[t.type]}</td></tr>)
+            });
+
+        });
+        return rows;
+    }
+
+    rows(transactions) {
+        const rows = [];
+        transactions.map((t, i) => {
+            rows.push(<tr key={i} onClick={() => this.props.show(t.transaction.id)}>
+                <td>{ t.transaction.id }</td>
+                <td>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
+                <td>{ STRINGS.transactionTypes[t.transaction.type] }</td>
+                <td>{ subTransactionCounts(t.transaction.subTransactions) } </td>
+            </tr>);
+
+
+        });
+        return rows;
+    }
+    render() {
+        const transactions = (this.props.data || {}).transactions;
+        if(!transactions){
+            return <div className="loading"></div>
+        }
+        return <table className="table table-hover">
+            <thead><tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Subtype</th>
+            </tr></thead>
+            <tbody>
+                {this.rows(transactions) }
+            </tbody>
+        </table>
+    }
+}
+
 
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/transactions']}
@@ -55,56 +107,6 @@ export class CompanyTransactions extends React.Component {
         this.props.dispatch(push(`/company/view/${this.props.companyId}/transactions/${transactionId}`));
     }
 
-    rowsRowSpan(transactions) {
-        const rows = [];
-        transactions.map((t, i) => {
-            const rowSpan = (t.transaction.subTransactions ? t.transaction.subTransactions.length : 0) + 1;
-            rows.push(<tr key={i} onClick={() => this.show(t.transaction.id)}>
-                <td rowSpan={rowSpan}>{ t.transaction.id }</td>
-                <td rowSpan={rowSpan}>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
-                <td rowSpan={rowSpan}>{ STRINGS.transactionTypes[t.transaction.type] }</td>
-                { !t.transaction.subTransactions && <td></td> }
-            </tr>);
-            (t.transaction.subTransactions || []).map((t, j) => {
-                rows.push(<tr key={i+'-'+j} onClick={() => this.show(t.id)}><td>{STRINGS.transactionTypes[t.type]}</td></tr>)
-            });
-
-        });
-        return rows;
-    }
-
-    rows(transactions) {
-        const rows = [];
-        transactions.map((t, i) => {
-            rows.push(<tr key={i} onClick={() => this.show(t.transaction.id)}>
-                <td>{ t.transaction.id }</td>
-                <td>{ stringDateToFormattedString(t.transaction.effectiveDate) }</td>
-                <td>{ STRINGS.transactionTypes[t.transaction.type] }</td>
-                <td>{ subTransactionCounts(t.transaction.subTransactions) } </td>
-            </tr>);
-
-
-        });
-        return rows;
-    }
-    renderTable() {
-        const transactions = (this.props.data || {}).transactions;
-        if(!transactions){
-            return <div className="loading"></div>
-        }
-        return <table className="table table-hover">
-            <thead><tr>
-                <th>#</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Subtype</th>
-            </tr></thead>
-            <tbody>
-                {this.rows(transactions) }
-            </tbody>
-        </table>
-    }
-
     renderChildren() {
         return React.cloneElement(this.props.children, {
             ...this.props,
@@ -122,13 +124,52 @@ export class CompanyTransactions extends React.Component {
                     </div>
                 </div>
                 <div className="widget-body">
-                    { this.props.children ? this.renderChildren() : this.renderTable() }
+                    { this.props.children ? this.renderChildren() : <TransactionsTable {...this.props}  show={(id) => this.show(id)} /> }
                 </div>
             </div>
             </div>
         </div>
     }
 }
+
+
+@connect(undefined, {
+    showTransaction: (companyId, id) => push(`/company/view/${companyId}/upcoming_transactions/${id}`)
+})
+export class PendingTransactions extends React.Component {
+
+    show(transactionId) {
+        this.props.showTransaction(this.props.companyId, transactionId);
+    }
+
+    renderChildren() {
+        return React.cloneElement(this.props.children, {
+            ...this.props,
+            transactions:  this.props.companyState.futureTransactions
+        });
+    }
+
+    render() {
+        return <div className="container">
+            <div className="row">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Upcoming Transactions
+                    </div>
+                </div>
+                <div className="widget-body">
+                    { this.props.children ? this.renderChildren() : <TransactionsTable
+                        {...this.props}
+                        data={{transactions: ((this.props.companyState || {}).futureTransactions || []).map(t => ({transaction: t}))}}
+                        show={(id) => this.show(id)} /> }
+                </div>
+            </div>
+            </div>
+        </div>
+    }
+}
+
 
 export class TransactionWidget extends React.Component {
     static propTypes = {
@@ -158,7 +199,7 @@ export class TransactionWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    <span className="fa fa-balance-scale"/> Completed Transactions
+                    <span className="fa fa-balance-scale"/>Completed Transactions
                 </div>
                 <div className="widget-control">
                 <Link to={`/company/view/${this.props.companyId}/transactions`} >View All</Link>
@@ -206,6 +247,10 @@ export class PendingTransactionsWidget extends React.Component {
                 <div className="widget-title">
                 <span className="fa fa-hourglass-end"/> Upcoming Transactions
                 </div>
+                <div className="widget-control">
+                <Link to={`/company/view/${this.props.companyId}/upcoming_transactions`} >View All</Link>
+                </div>
+
             </div>
 
             <div className="widget-body">

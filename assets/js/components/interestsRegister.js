@@ -116,9 +116,8 @@ class EntryForm extends React.Component {
         //189(1)(c)
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
-            <legend>Create Interests Registry Entry</legend>
             { fields.persons.map((n, i) => {
-                return <Input type="select" key={i} {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Name"
+                return <Input type="select" key={i} {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Interested Person"
                 hasFeedback groupClassName='has-group'
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
                     <option></option>
@@ -134,7 +133,7 @@ class EntryForm extends React.Component {
                 fields.persons.addField();    // pushes empty child field onto the end of the array
             }}>Add Person</ButtonInput></div>
             <DateInput {...fields.date} bsStyle={fieldStyle(fields.date)} help={fieldHelp(fields.date)} label="Date" hasFeedback />
-            <Input type="textarea" rows="6" {...fields.details} bsStyle={fieldStyle(fields.details)} help={fieldHelp(fields.details)} label="Details" hasFeedback />
+            <Input type="textarea" rows="6" {...fields.details} bsStyle={fieldStyle(fields.details)} help={fieldHelp(fields.details)} label="Details of Interest" hasFeedback />
 
             <Documents documents={fields.documents } />
 
@@ -161,11 +160,7 @@ const ConnectedForm = reduxForm({
 
 export class InterestsRegisterCreate extends React.Component {
     render() {
-        return  <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <ConnectedForm companyId={this.props.companyId} companyState={this.props.companyState}/>
-        </div>
-        </div>
+        return <ConnectedForm companyId={this.props.companyId} companyState={this.props.companyState}/>
     }
 }
 

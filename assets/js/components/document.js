@@ -117,6 +117,7 @@ export default class Document extends React.Component {
                     </AutoAffix> }
                 </div>
                 <div className="col-md-12 col-lg-9 col-lg-pull-3">
+                    <h5>Page One Preview</h5>
                      <img className="image-loading" src={"/api/document/get_document_preview/"+ this.key()} />
 
                 </div>

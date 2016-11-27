@@ -1,14 +1,16 @@
 "use strict";
 import React, {PropTypes} from 'react';
+import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import { numberWithCommas, stringDateToFormattedString, generateShareClassMap, renderShareClass } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router';
+import { deleteResource, addNotification } from '../actions'
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
-import { companiesOfficeDocumentUrl, holderChange } from './transactions/resolvers/summaries';
-
+import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary } from './transactions/resolvers/summaries';
+import { push } from 'react-router-redux'
 
 const TEMPLATABLE = {
     [TransactionTypes.TRANSFER]: {
@@ -44,26 +46,48 @@ const BaseTransaction = (props) => {
     </div>
 }
 const CommonInfo = (props) => {
-    return <div className="basic">
-    <div className="transaction-row">
-        <div className="transaction-label">{ STRINGS.transactionTypes._ }</div>
-        <div className="transaction-value">{ STRINGS.transactionTypes[props.type] }</div>
-    </div>
-    <div  className="transaction-row">
-        <div className="transaction-label">{ STRINGS.effectiveDate }</div>
-        <div className="transaction-value">{ stringDateToFormattedString(props.effectiveDate) }</div>
-    </div>
+    return <div>
+            <div className="row">
+                <div className="col-md-6 col-md-offset-3">
+                    <div className="basic">
+                    <div className="transaction-row">
+                        <div className="transaction-label">{ STRINGS.transactionTypes._ }</div>
+                        <div className="transaction-value">{ STRINGS.transactionTypes[props.type] }</div>
+                    </div>
+                    <div  className="transaction-row">
+                        <div className="transaction-label">{ STRINGS.effectiveDate }</div>
+                        <div className="transaction-value">{ stringDateToFormattedString(props.effectiveDate) }</div>
+                    </div>
 
-    { props.data && props.data.documentId && <div  className="transaction-row">
-        <div className="transaction-label">Source Document</div>
-        <div className="transaction-value">
-            <Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeDocumentUrl(props.companyState, props.data.documentId)}>{ props.data.label} <Glyphicon glyph="new-window"/></Link>
+                    { props.data && props.data.documentId && props.companyState && <div  className="transaction-row">
+                        <div className="transaction-label">Source Document</div>
+                        <div className="transaction-value">
+                            <Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeDocumentUrl(props.companyState, props.data.documentId)}>{ props.data.label} <Glyphicon glyph="new-window"/></Link>
+                        </div>
+                        </div> }
+
+                    </div>
+                </div>
+            </div>
         </div>
-        </div> }
 
-    </div>
 }
 
+
+const BasicLoop = (props) => {
+        return <BaseTransaction {...props}>
+           { (props.subTransactions || []).map((t, i) => {
+                const Comp = TransactionRenderMap[t.type];
+                if(Comp){
+                    return <Comp key={i} {...t} parentTransaction={props} />
+                }
+            }).filter(f => f) }
+        </BaseTransaction>
+}
+
+const HoldingChange = (props) => {
+    return beforeAndAfterSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+}
 
 export const TransactionRenderMap = {
     SEED: () => {
@@ -100,20 +124,28 @@ export const TransactionRenderMap = {
         </BaseTransaction>
     },
 
-    COMPOUND: (props) => {
+    COMPOUND: BasicLoop,
+    ISSUE: BasicLoop,
 
-        return <BaseTransaction {...props}>
-           { (props.subTransactions || []).map((t, i) => {
-                const Comp = TransactionRenderMap[t.type];
-                if(Comp){
-                    return <Comp key={i} {...t} parentTransaction={props} />
-                }
-            }).filter(f => f) }
-        </BaseTransaction>
-    },
     HOLDER_CHANGE: (props) => {
         return holderChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}})
-    }
+    },
+
+    UPDATE_DIRECTOR: (props) => {
+        return directorChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    },
+
+    ISSUE_TO: HoldingChange,
+    CONVERSION_TO: HoldingChange,
+    SUBDIVISION_TO: HoldingChange,
+    ACQUISITION_FROM: HoldingChange,
+    PURCHASE_FROM: HoldingChange,
+    REDEMPTION_FROM: HoldingChange,
+    CONVERSION_TO: HoldingChange,
+    CONSOLIDATION_FROM: HoldingChange,
+    TRANSFER: BasicLoop,
+    TRANSFER_TO: HoldingChange,
+    TRANSFER_FROM: HoldingChange
 }
 /*
 
@@ -189,6 +221,11 @@ export const TransactionRenderMap = {
 
 export class TransactionViewBody extends React.Component {
 
+    constructor() {
+        super();
+        this.state = {showingData: false}
+    }
+
     static propTypes = {
         transaction: PropTypes.object.isRequired,
     };
@@ -196,12 +233,13 @@ export class TransactionViewBody extends React.Component {
     renderTransaction(transaction) {
         const template = TEMPLATABLE[transaction.type];
         return <div>
-            { template &&
+
             <div className="button-row">
-                <Link to={{pathname: `/company/view/${this.props.companyId}/templates/${template.url}`,
+               { template && <Link to={{pathname: `/company/view/${this.props.companyId}/templates/${template.url}`,
                     query: {json: JSON.stringify(template.format(transaction, this.props.companyState))}}}
-                    className="btn btn-primary">Transfer Share Form</Link>
-            </div> }
+                    className="btn btn-primary">Transfer Share Form</Link> }
+                { this.props.cancel &&  <Button bsStyle="danger" onClick={() => this.props.cancel(transaction.id) }>Cancel Transaction</Button>}
+            </div>
 
             { transaction.documents && transaction.documents.map((d, i) => {
                 return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
@@ -209,7 +247,8 @@ export class TransactionViewBody extends React.Component {
 
             { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState}) }
 
-            <pre>{JSON.stringify(transaction, null, 4)}</pre>
+            <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div>
+            { this.state.showingData && <pre>{JSON.stringify(transaction, null, 4)}</pre> }
         </div>
     };
 
@@ -245,4 +284,59 @@ export class TransactionView extends React.Component {
     }
 }
 
+@connect(undefined, {
+    deleteTransaction: (companyId, id) => deleteResource(`/company/${companyId}/transactions/${id}`, {
+        confirmation: {
+            title: 'Confirm Deletion',
+            description: 'Please confirm the cancellation of this transaction',
+            resolveMessage: 'Confirm Deletion',
+            resolveBsStyle: 'danger'
+        },
+        loadingMessage: 'Cancelling Transaction'
+    }),
+    push: (url) => push(url),
+    addNotification: (args) => addNotification(args)
+})
+export class PendingTransactionView extends React.Component {
+
+    constructor() {
+        super();
+        this.cancel = ::this.cancel;
+    }
+
+    cancel(transactionId) {
+        this.props.deleteTransaction(this.props.companyId, transactionId)
+            .then(() => {
+                this.props.push(`/company/view/${this.props.companyId}/upcoming_transactions`);
+                this.props.addNotification({message: 'Transaction Cancelled'});
+            })
+    }
+
+    render() {
+        const id = this.props.params.transactionId;
+        let transaction;
+        (this.props.transactions || []).some(t => {
+            if(t.id.toString() === id){
+                transaction = t;
+                return true;
+            }
+            return (t.subTransactions || []).some(t => {
+                if(t.id.toString() === id){
+                    transaction = t;
+                    return true;
+                }
+            })
+        });
+        if(transaction){
+            return <div>
+                <div className="button-row">
+                </div>
+                <TransactionViewBody transaction={transaction} companyState={this.props.companyState} companyId={this.props.companyId} cancel={this.cancel}/>
+                </div>
+        }
+        else{
+            return <div className="loading"></div>
+        }
+    }
+}
 

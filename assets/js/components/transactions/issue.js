@@ -271,6 +271,8 @@ export function issueFormatSubmit(values, companyState){
             actions.push({
                 holdingId: parseInt(h.holding, 10) || null,
                 holders: (h.newHolding || {}).persons,
+                afterHolders: (h.holding || {}).persons,
+                beforeolders: (h.holding || {}).persons,
                 shareClass: shareClass,
                 amount: amount,
                 beforeAmount: (amounts[h.holding] || {})[p.shareClass] || 0,

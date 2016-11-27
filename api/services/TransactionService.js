@@ -101,7 +101,7 @@ export function validateInverseAmend(amend, companyState){
             importErrorType: sails.config.enums.UNKNOWN_AMEND
         })
     }
-    const holding = companyState.getMatchingHolding({holders: amend.afterHolders, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]},
+    const holding = companyState.getMatchingHolding({holders: amend.afterHolders, holdingId: amend.holdingId, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]},
                                                     {ignoreCompanyNumber: true});
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId',{
@@ -222,7 +222,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             companyState.dataValues.h_list_id = null;
             const difference = data.afterAmount - data.beforeAmount;
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
-            const newHolding = {holders: data.afterHolders, parcels: [parcel]};
+            const newHolding = {holders: data.afterHolders, holdingId: data.holdingId, parcels: [parcel]};
 
             if(!data.shareClass){
                 data.shareClass = parcel.shareClass = _.find(holding.dataValues.parcels, p => data.afterAmount === p.amount).shareClass;
@@ -597,7 +597,7 @@ export const performHolderChange = function(data, companyState, previousState, e
 
 
 export  function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
-    if(data.transactionType === Transaction.types.NEW_ALLOCATION){
+    if(data.transactionType === Transaction.types.NEW_ALLOCATION && data.amount){
         throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
             action: data,
             importErrorType: sails.config.enums.UNKNOWN_AMEND
@@ -833,7 +833,7 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            return companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId},
+            return companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId, attr: data.personAttr},
                                          {name: data.beforeName, address: beforeAddress, personId: data.personId}, null, userId)
             .then(() => {
                return transaction.save()
@@ -909,6 +909,17 @@ export function validateAmend(data, companyState){
         }
         return p.amount;
     });
+
+      // if there is a holdingId, its not validatting before and after amount, so...
+    const diff = (data.afterAmount - data.beforeAmount);
+    data.beforeAmount = sum;
+    data.afterAmount = sum + diff;
+
+
+    if(Math.abs(data.beforeAmount - data.afterAmount) !== data.amount){
+        throw new sails.config.exceptions.InvalidOperation('Amount is incorrect')
+    }
+
     if(data.amount && !Number.isInteger(data.amount)){
         throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer')
     }
@@ -930,6 +941,8 @@ export const performAmend = Promise.method(function(data, companyState, previous
             const difference = data.afterAmount - data.beforeAmount;
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
             const newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
+
+
             const transactionType  = data.transactionType;
             let matches;
             transaction = Transaction.build({type: transactionType,
@@ -1047,6 +1060,12 @@ export function performNewDirector(data, companyState, previousState, effectiveD
     .then(function(dl){
         companyState.dataValues.directorList = dl;
         return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
+    })
+    .then(person => {
+        if(data.personAttr){
+            return person.update({attr: {...(person.attr || {}), ...data.personAttr}});
+        }
+        return person;
     })
     .then(person => {
         if(_.find(companyState.dataValues.directorList.dataValues.directors, d => d.person.isEqual(person))){
@@ -1714,7 +1733,7 @@ export function performAll(data, company, state, isReplay){
 export function transactionsToActions(transactions){
     return transactions.map(t => {
         const {id, subTransactions, data, ...info} = t;
-        return {...info, ...data, id: null, originalTransactionId: id, actions: t.subTransactions.map(s => {
+        return {...info, ...data, id: null, transactionType: t.type, originalTransactionId: id, actions: t.subTransactions.map(s => {
             const {id,  parentTransactionId, data, ...info} = s;
             return {...info, ...data, id: null};
         })}
@@ -1745,10 +1764,33 @@ export function performAllInsertByEffectiveDate(data, company){
         })
         .then(state => {
             if(futureTransactions.length){
-                return performAll(transactionsToActions(futureTransactions), company, this.state, true)
+                return performAll(transactionsToActions(futureTransactions), company, state, true)
             }
             return state;
         })
+}
+
+export function performFilterOutTransactions(transactionIds, company){
+    const date = new Date()
+    let state, futureTransactions;
+
+    return company.getDatedCompanyState(date)
+        .then(_state => {
+            state = _state;
+            return company.getTransactionsAfter(state.id)
+        })
+        .then(_transactions => {
+            futureTransactions = _transactions;
+            futureTransactions = futureTransactions.filter(f => transactionIds.indexOf(f.id) === -1);
+            if(futureTransactions.length){
+                return performAll(transactionsToActions(futureTransactions), company, state, true)
+            }else{
+                return company.setCurrentCompanyState(state);
+            }
+        })
+        .then(() => {
+            return state;
+        });
 }
 
 export function createImplicitTransactions(state, transactions, effectiveDate){
