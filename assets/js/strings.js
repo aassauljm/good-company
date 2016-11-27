@@ -93,7 +93,8 @@ export default {
         UPLOAD_DOCUMENT: 'Upload Document',
         UPDATE_DOCUMENT: 'Update Document',
         CREATE_DIRECTORY: 'Create Directory',
-        USER_FIELDS_CHANGE: 'Update Contact Details'
+        USER_FIELDS_CHANGE: 'Update Contact Details',
+        INFERRED_REMOVE_DIRECTOR: 'Remove Director'
     },
     amendTypes: {
         ISSUE_TO: 'Issue',

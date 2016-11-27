@@ -4,12 +4,18 @@
     .basic{
         @extend .summary;
     }
-
+    .transaction-row{
+        @extend .row;
+    }
     .transaction-label{
-        @extend dt;
+        @extend .col-md-6;
+        font-weight:bold;
+         @media (min-width:$screen-md-min){
+            text-align: right;
+        }
     }
     .transaction-value{
-        @extend dd;
+         @extend .col-md-6;
     }
 }
 

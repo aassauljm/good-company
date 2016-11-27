@@ -92,8 +92,29 @@ export function holderChange(context) {
 }
 
 
+export function directorChange(context, companyState, showType) {
+    return <div className="row row-separated">
+                <div className="col-md-5">
+                <div className="shareholding action-description">
+                  { renderHolders({name: context.action.beforeName, address: context.action.beforeAddress }) }
+                </div>
+                </div>
+            <div className="col-md-2">
+                <div className="text-center">
+                    { showType && <p> { STRINGS.transactionTypes[context.action.transactionType || action.type] }</p> }
+                    <Glyphicon glyph="arrow-right" className="big-arrow" />
+                    <h5>Effective as at {stringDateToFormattedStringTime(context.action.effectiveDate)}</h5>
+                </div>
+            </div>
+            <div className="col-md-5">
+                            <div className="shareholding action-description">
+                { renderHolders({name: context.action.afterName, address: context.action.afterAddress})  }
+                </div>
+                </div>
+        </div>
+}
 
-export function beforeAndAfterSummary(context, companyState){
+export function beforeAndAfterSummary(context, companyState, showType){
     const { action, actionSet } = context;
     const increase = actionAmountDirection(action);
     const beforeCount = action.beforeAmount || 0;
@@ -112,6 +133,7 @@ export function beforeAndAfterSummary(context, companyState){
                 </div>
                 <div className="col-md-2">
                     <div className="text-center">
+                    { showType && <p> { STRINGS.transactionTypes[action.transactionType || action.type] }</p> }
                         <Glyphicon glyph="arrow-right" className="big-arrow" />
                         <p><span className="shares">{ numberWithCommas(action.amount) } { renderShareClass(action.shareClass, context.shareClassMap)} Shares { increase ? 'added' : 'removed'}</span></p>
                     </div>

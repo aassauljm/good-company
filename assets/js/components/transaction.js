@@ -9,7 +9,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router';
 import { deleteResource, addNotification } from '../actions'
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
-import { companiesOfficeDocumentUrl, holderChange } from './transactions/resolvers/summaries';
+import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary } from './transactions/resolvers/summaries';
 import { push } from 'react-router-redux'
 
 const TEMPLATABLE = {
@@ -46,26 +46,48 @@ const BaseTransaction = (props) => {
     </div>
 }
 const CommonInfo = (props) => {
-    return <div className="basic">
-    <div className="transaction-row">
-        <div className="transaction-label">{ STRINGS.transactionTypes._ }</div>
-        <div className="transaction-value">{ STRINGS.transactionTypes[props.type] }</div>
-    </div>
-    <div  className="transaction-row">
-        <div className="transaction-label">{ STRINGS.effectiveDate }</div>
-        <div className="transaction-value">{ stringDateToFormattedString(props.effectiveDate) }</div>
-    </div>
+    return <div>
+            <div className="row">
+                <div className="col-md-6 col-md-offset-3">
+                    <div className="basic">
+                    <div className="transaction-row">
+                        <div className="transaction-label">{ STRINGS.transactionTypes._ }</div>
+                        <div className="transaction-value">{ STRINGS.transactionTypes[props.type] }</div>
+                    </div>
+                    <div  className="transaction-row">
+                        <div className="transaction-label">{ STRINGS.effectiveDate }</div>
+                        <div className="transaction-value">{ stringDateToFormattedString(props.effectiveDate) }</div>
+                    </div>
 
-    { props.data && props.data.documentId && <div  className="transaction-row">
-        <div className="transaction-label">Source Document</div>
-        <div className="transaction-value">
-            <Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeDocumentUrl(props.companyState, props.data.documentId)}>{ props.data.label} <Glyphicon glyph="new-window"/></Link>
+                    { props.data && props.data.documentId && props.companyState && <div  className="transaction-row">
+                        <div className="transaction-label">Source Document</div>
+                        <div className="transaction-value">
+                            <Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeDocumentUrl(props.companyState, props.data.documentId)}>{ props.data.label} <Glyphicon glyph="new-window"/></Link>
+                        </div>
+                        </div> }
+
+                    </div>
+                </div>
+            </div>
         </div>
-        </div> }
 
-    </div>
 }
 
+
+const BasicLoop = (props) => {
+        return <BaseTransaction {...props}>
+           { (props.subTransactions || []).map((t, i) => {
+                const Comp = TransactionRenderMap[t.type];
+                if(Comp){
+                    return <Comp key={i} {...t} parentTransaction={props} />
+                }
+            }).filter(f => f) }
+        </BaseTransaction>
+}
+
+const HoldingChange = (props) => {
+    return beforeAndAfterSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+}
 
 export const TransactionRenderMap = {
     SEED: () => {
@@ -102,20 +124,28 @@ export const TransactionRenderMap = {
         </BaseTransaction>
     },
 
-    COMPOUND: (props) => {
+    COMPOUND: BasicLoop,
+    ISSUE: BasicLoop,
 
-        return <BaseTransaction {...props}>
-           { (props.subTransactions || []).map((t, i) => {
-                const Comp = TransactionRenderMap[t.type];
-                if(Comp){
-                    return <Comp key={i} {...t} parentTransaction={props} />
-                }
-            }).filter(f => f) }
-        </BaseTransaction>
-    },
     HOLDER_CHANGE: (props) => {
         return holderChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}})
-    }
+    },
+
+    UPDATE_DIRECTOR: (props) => {
+        return directorChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    },
+
+    ISSUE_TO: HoldingChange,
+    CONVERSION_TO: HoldingChange,
+    SUBDIVISION_TO: HoldingChange,
+    ACQUISITION_FROM: HoldingChange,
+    PURCHASE_FROM: HoldingChange,
+    REDEMPTION_FROM: HoldingChange,
+    CONVERSION_TO: HoldingChange,
+    CONSOLIDATION_FROM: HoldingChange,
+    TRANSFER: BasicLoop,
+    TRANSFER_TO: HoldingChange,
+    TRANSFER_FROM: HoldingChange
 }
 /*
 
