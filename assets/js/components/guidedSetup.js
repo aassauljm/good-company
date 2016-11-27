@@ -84,6 +84,7 @@ export class GuidedSetup extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = this.calcSteps(props);
     }
     componentWillMount() {
         this.checkOpenNext(this.props);
@@ -92,7 +93,6 @@ export class GuidedSetup extends React.Component {
     checkOpenNext(props) {
         if(!props.transactionViews.showing){
             const warnings = getWarnings(props.companyState);
-            console.log(warnings);
             if(warnings.votingShareholderWarning){
                 props.dispatch(showContextualTransactionView(props.companyId, 'votingShareholders', {companyId: props.companyId, companyState: props.companyState}));
             }
@@ -110,19 +110,24 @@ export class GuidedSetup extends React.Component {
 
     componentWillReceiveProps(newProps) {
         this.checkOpenNext(newProps);
+        if(newProps.companyState && newProps.companyState.warnings){
+            this.setState(this.calcSteps(newProps));
+        }
     }
 
-
-    render() {
-        const data = this.props.transactionViews[this.props.transactionViews.showing] || {};
-        const warnings = getWarnings(this.props.companyState);
+    calcSteps(props) {
+        const warnings = getWarnings(props.companyState);
         const warningCount = Object.keys(warnings).reduce((acc, key) => {
             return acc + (warnings[key] ? GuidedSetup.warningCounts[key] : 0);
         }, 0);
         const warningSteps  =  Object.keys(GuidedSetup.warningCounts).reduce((acc, key) => {
             return acc + GuidedSetup.warningCounts[key];
         }, 0);
-        const now = ((warningSteps - warningCount) / warningSteps * 100);
+        return {now: ((warningSteps - warningCount) / warningSteps * 100), warningSteps, warningCount};
+    }
+
+    render() {
+        const data = this.props.transactionViews[this.props.transactionViews.showing] || {};
         const props = {
             index: data.index,
             transactionViewData: {...data.data, companyId: this.props.companyId, companyState: this.props.companyState},
@@ -159,9 +164,9 @@ export class GuidedSetup extends React.Component {
                         </div>
                         </div>
                          <div className="widget-body">
-                            <h5 className="text-center">Share Register Setup {warningSteps - warningCount} / {warningSteps}</h5>
-                            <ProgressBar now={now} striped bsStyle="success" /></div>
-                            { warningCount === 0 && <div>
+                            <h5 className="text-center">Share Register Setup {this.state.warningSteps - this.state.warningCount} / {this.state.warningSteps}</h5>
+                            <ProgressBar now={this.state.now} striped bsStyle="success" /></div>
+                            { this.state.warningCount === 0 && <div>
                                 <p>Congratulations, { this.props.companyState.companyName } has succesfully been set up. </p>
                                 <div className="button-row"><Link className="btn btn-primary" to={`/company/view/${this.props.companyId}/shareregister`}>View Share Register</Link></div>
                                 </div> }
@@ -171,7 +176,7 @@ export class GuidedSetup extends React.Component {
                 </div>
                 { this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
             </div>
-            <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={warningCount !== 0}/>
+            <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={this.state.warningCount !== 0}/>
         </div>
     }
 }

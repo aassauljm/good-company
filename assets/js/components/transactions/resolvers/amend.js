@@ -74,6 +74,13 @@ function absoluteAmount(type, amount){
     return Number.isInteger(amount) ? -amount : 0;
 }
 
+function isIncrease(type) {
+    return [TransactionTypes.ISSUE_TO,
+    TransactionTypes.TRANSFER_TO,
+    TransactionTypes.CONVERSION_TO].indexOf(type) > -1
+}
+
+
 function validTransactionType(type){
     return [
         TransactionTypes.ISSUE_TO,
@@ -167,7 +174,7 @@ class AmendOptions extends React.Component {
         </div>
     }
     render() {
-        console.log(this.props)
+
         const { shareClassMap, fields: {actions}, amendActions, allSameDirection } = this.props;
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
@@ -313,6 +320,7 @@ export default function Amend(context, submit){
 
 
     const handleSubmit = (values) => {
+        const amends = [...amendActions];
         const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
         const pendingActions = [{id: context.actionSet.id, data: otherActions, previous_id: context.actionSet.previous_id}];
         const transactions = {};
@@ -322,62 +330,68 @@ export default function Amend(context, submit){
             action.recipients.map((r, j) => {
                 const amount = parseInt(r.amount, 10);
                 // TODO, this ordering might result in problems
+                amends[i] = {...amends[i]}
 
-                if(amendActions[i].beforeAmount !== undefined){
-                    const increase = actionAmountDirection(amendActions[i])
-                    amendActions[i].beforeAmount = amendActions[i].afterAmount + (increase ? -amount : amount);
+                if(amends[i].beforeAmount !== undefined){
+                    const increase = isIncrease(r.type)
+                    amends[i].beforeAmount = amends[i].afterAmount + (increase ? -amount : amount);
                 }
                 let method = TransactionTypes.AMEND;
-                if(!amendActions[i].beforeHolders){
-                    amendActions[i].beforeHolders = amendActions[i].afterHolders = amendActions[i].holders;
+                if(!amends[i].beforeHolders){
+                    amends[i].beforeHolders = amends[i].afterHolders = amends[i].holders;
                 }
-                if(amendActions[i].beforeAmount === 0){
-                    method = TransactionTypes.NEW_ALLOCATION;
+                if(amends[i].beforeAmount  === 0 ){
                     newAllocations.push({
-                        ...amendActions[i],
-                        beforeHolders: null,
-                        afterHolders: null,
-                        method: TransactionTypes.NEW_ALLOCATION,
-                        type: TransactionTypes.NEW_ALLOCATION,
+                        ...amends[i],
+                        amount: 0,
+                        beforeAmount: 0,
+                        afterAmount: 0
                     })
                 }
-
                 if(isTransfer(r.type)){
-                    const result = {...amendActions[i], transactionType: r.type, transactionMethod: method,
+                    const result = {...amends[i], transactionType: r.type, transactionMethod: method,
                         amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)};
                     transfers.push(result);
 
                 }
                 else{
                     transactions[r.type] = transactions[r.type] || [];
-                    const result = {...amendActions[i], transactionType: r.type, transactionMethod: method,
+                    const result = {...amends[i], transactionType: r.type, transactionMethod: method,
                         amount: amount};
                     transactions[r.type].push(result);
                 }
-                if(amendActions[i].beforeAmount !== undefined){
-                    amendActions[i].afterAmount = amendActions[i].beforeAmount;
-                }
+                amends[i].afterAmount = amends[i].beforeAmount;
             })
         })
 
         // group each other type
         Object.keys(transactions).map(k => {
-            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, actions: transactions[k]}, previous_id: context.actionSet.previous_id});
+            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: transactions[k]}, previous_id: context.actionSet.previous_id});
         })
+
         //pair up transfers
         while(transfers.length){
+            debugger
             const transfer = transfers.shift();
             const reciprocalIndex = transfers.findIndex(t => {
                 return t.amount === transfer.amount && t.shareClass === transfer.shareClass && t.recipientIndex === transfer.index;
             });
             const reciprocal = transfers.splice(reciprocalIndex, 1)[0];
-
-            pendingActions.push({
-                id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
-            })
+            const newActionSet = {
+                id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], totalAmount: null, transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
+            };
+            /*if(transfer.transactionMethod === TransactionTypes.AMEND || reciprocal.transactionMethod === TransactionTypes.AMEND){
+                pendingActions.unshift(newActionSet)
+            }
+            else{*/
+                pendingActions.push(newActionSet)
+            //}
+        }
+        if(newAllocations.length){
+            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: newAllocations, transactionType: TransactionTypes.NEW_ALLOCATION}, previous_id: context.actionSet.previous_id})
         }
         submit({
-            pendingActions: newAllocations.concat(pendingActions)
+            pendingActions: pendingActions
         })
     }
 

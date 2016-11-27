@@ -21,7 +21,6 @@ export class ImportCompany extends React.Component {
 
     renderSummary() {
         const {location: {query: {companyName, companyNumber, struckOff, notes}}} = this.props;
-        console.log(this.props)
         return <div className="well">
             <dl className="dl-horizontal">
                 <dt >Company Name</dt>

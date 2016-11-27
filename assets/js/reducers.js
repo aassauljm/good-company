@@ -233,6 +233,8 @@ function contextualTransactionViews(state = {}, action){
                         return state;
                 }
                 })(state[action.context])};
+        case RESET_TRANSACTION_VIEWS:
+            return {} ;
         default:
             return state
     }

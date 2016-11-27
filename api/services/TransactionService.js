@@ -101,7 +101,7 @@ export function validateInverseAmend(amend, companyState){
             importErrorType: sails.config.enums.UNKNOWN_AMEND
         })
     }
-    const holding = companyState.getMatchingHolding({holders: amend.afterHolders, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]},
+    const holding = companyState.getMatchingHolding({holders: amend.afterHolders, holdingId: amend.holdingId, parcels: [{amount: amend.afterAmount, shareClass: amend.shareClass}]},
                                                     {ignoreCompanyNumber: true});
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId',{
@@ -222,7 +222,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             companyState.dataValues.h_list_id = null;
             const difference = data.afterAmount - data.beforeAmount;
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
-            const newHolding = {holders: data.afterHolders, parcels: [parcel]};
+            const newHolding = {holders: data.afterHolders, holdingId: data.holdingId, parcels: [parcel]};
 
             if(!data.shareClass){
                 data.shareClass = parcel.shareClass = _.find(holding.dataValues.parcels, p => data.afterAmount === p.amount).shareClass;
@@ -597,7 +597,7 @@ export const performHolderChange = function(data, companyState, previousState, e
 
 
 export  function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
-    if(data.transactionType === Transaction.types.NEW_ALLOCATION){
+    if(data.transactionType === Transaction.types.NEW_ALLOCATION && data.amount){
         throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
             action: data,
             importErrorType: sails.config.enums.UNKNOWN_AMEND
@@ -833,7 +833,7 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            return companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId},
+            return companyState.replaceDirector({name: data.afterName, address: afterAddress, personId: data.personId, attr: data.personAttr},
                                          {name: data.beforeName, address: beforeAddress, personId: data.personId}, null, userId)
             .then(() => {
                return transaction.save()
@@ -1060,6 +1060,12 @@ export function performNewDirector(data, companyState, previousState, effectiveD
     .then(function(dl){
         companyState.dataValues.directorList = dl;
         return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
+    })
+    .then(person => {
+        if(data.personAttr){
+            return person.update({attr: {...(person.attr || {}), ...data.personAttr}});
+        }
+        return person;
     })
     .then(person => {
         if(_.find(companyState.dataValues.directorList.dataValues.directors, d => d.person.isEqual(person))){
