@@ -37,14 +37,20 @@ module.exports = {
     serverRender: false,
     renderServiceUrl: 'http://localhost:5668/render', //'https://convert.catalex.nz'
     GOOD_COMPANIES_LOGIN_URL: 'http://localhost:5667/auth/catalex/login',
-    USERS_LOGIN_URL: 'http://localhost:8000/good-companies-login',
-    ACCOUNT_URL: 'http://localhost:8000',
-    OAUTH_ACCESS_TOKEN_URL: 'http://localhost:8000/oauth/access_token',
-    USER_RESOURCE_URL: 'http://localhost:8000/api/user',
-    USER_LOGOUT_URL: 'http://localhost:8000/auth/logout',
+    // USERS_LOGIN_URL: 'http://localhost:8000/good-companies-login',
+    // ACCOUNT_URL: 'http://localhost:8000',
+    // OAUTH_ACCESS_TOKEN_URL: 'http://localhost:8000/oauth/access_token',
+    // USER_RESOURCE_URL: 'http://localhost:8000/api/user',
+    // USER_LOGOUT_URL: 'http://localhost:8000/auth/logout',
+    USERS_LOGIN_URL: 'http://catalexusers.dev/good-companies-login',
+    ACCOUNT_URL: 'http://catalexusers.dev',
+    OAUTH_ACCESS_TOKEN_URL: 'http://catalexusers.dev/oauth/access_token',
+    USER_RESOURCE_URL: 'http://catalexusers.dev/api/user',
+    USER_LOGOUT_URL: 'http://catalexusers.dev/auth/logout',
     OAUTH_CLIENT_ID: 'gc',
     OAUTH_CLIENT_SECRET: 'gc',
     CACHE_DIR: '/tmp/.gc',
     APP_URL: 'http://localhost:5667',
-    EMAIL_URL: 'http://localhost:8000/mail/send'
+    // EMAIL_URL: 'http://localhost:8000/mail/send'
+    EMAIL_URL: 'http://catalexusers.dev/mail/send'
 };

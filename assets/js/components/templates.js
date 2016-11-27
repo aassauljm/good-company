@@ -15,6 +15,7 @@ import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
+import { CompanyHOC } from '../hoc/resources';
 let Combobox = require('react-widgets/lib/Combobox');
 
 const LOOKUP_COMPANY = 'LOOKUP_COMPANY';
@@ -94,7 +95,7 @@ function renderField(fieldProps, componentProps, index){
             <Combobox data={[1, 2, 3, 4]} />
         );
     }
-    else */if(fieldProps.type === 'string'){
+    else */ if(fieldProps.type === 'string'){
         if (componentType(fieldProps) === 'date') {
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         } else if (componentType(fieldProps) == 'dateTime') {
@@ -458,7 +459,12 @@ export const TemplateMap = {
     }
 }
 
-
+@CompanyHOC
+class SomeBullshitClass extends React.Component {
+    render() {
+        return <div>{this.props.company.data && this.props.company.data.currentCompanyState.companyName}</div>;
+    }
+}
 
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
@@ -499,6 +505,7 @@ export  class TemplateView extends React.Component {
 
     render() {
         return <div className="row">
+            <SomeBullshitClass companyId={10010} />
             <div className="col-md-12">
                 { this.renderBody() }
             </div>

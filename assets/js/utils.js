@@ -17,6 +17,29 @@ export function fieldStyle(field){
     }
 }
 
+export function companyListToOptions(companies) {
+    return [
+        <option key={-1}></option>,
+        ...(((companies || {}).data || []).map((c, i) =>
+            <option value={c.id} key={i}>{c.currentCompanyState.companyName}</option>
+    ))];
+}
+
+export function analyseCompany(company){
+    // create a list of holders for a c
+    company.currentCompanyState.holdingList = company.currentCompanyState.holdingList || {holdings: []};
+    company.currentCompanyState.directorList = company.currentCompanyState.directorList || {directors: []};
+    company.currentCompanyState.holders = company.currentCompanyState.holdingList.holdings.reduce((acc, holding) => {
+        holding.holders.reduce((acc, holder) => {
+            acc[holder.person.personId] = (acc[holder.person.personId] || []).concat([holding.holdingId]);
+            return acc
+        }, acc)
+        return acc;
+    }, {});
+    company.currentCompanyState.holdingList.holdings.sort((a, b) => a.name.localeCompare(b.name))
+    return company;
+}
+
 export function fieldHelp(field, help){
     if(field.touched && field.error){
         return Array.isArray(field.error) ? field.error[0] : field.error;

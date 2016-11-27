@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, changeCompanyTab, showTransactionView, toggleWidget, resetTransactionViews } from '../actions';
-import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, analyseCompany } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import CompanyHeader from  './companyHeader';
@@ -24,22 +24,6 @@ import Notifications from './notifications';
 import { push } from 'react-router-redux'
 import Header from './header';
 import { CompanyAlertsWidget } from './companyAlerts';
-
-
-export function analyseCompany(company){
-    // create a list of holders for a c
-    company.currentCompanyState.holdingList = company.currentCompanyState.holdingList || {holdings: []};
-    company.currentCompanyState.directorList = company.currentCompanyState.directorList || {directors: []};
-    company.currentCompanyState.holders = company.currentCompanyState.holdingList.holdings.reduce((acc, holding) => {
-        holding.holders.reduce((acc, holder) => {
-            acc[holder.person.personId] = (acc[holder.person.personId] || []).concat([holding.holdingId]);
-            return acc
-        }, acc)
-        return acc;
-    }, {});
-    company.currentCompanyState.holdingList.holdings.sort((a, b) => a.name.localeCompare(b.name))
-    return company;
-}
 
 
 const DEFAULT_OBJ = {};
