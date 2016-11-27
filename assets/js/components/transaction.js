@@ -1,14 +1,16 @@
 "use strict";
 import React, {PropTypes} from 'react';
+import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from './forms/input';
 import STRINGS from '../strings'
 import { numberWithCommas, stringDateToFormattedString, generateShareClassMap, renderShareClass } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router';
+import { deleteResource, addNotification } from '../actions'
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { companiesOfficeDocumentUrl, holderChange } from './transactions/resolvers/summaries';
-
+import { push } from 'react-router-redux'
 
 const TEMPLATABLE = {
     [TransactionTypes.TRANSFER]: {
@@ -201,12 +203,13 @@ export class TransactionViewBody extends React.Component {
     renderTransaction(transaction) {
         const template = TEMPLATABLE[transaction.type];
         return <div>
-            { template &&
+
             <div className="button-row">
-                <Link to={{pathname: `/company/view/${this.props.companyId}/templates/${template.url}`,
+               { template && <Link to={{pathname: `/company/view/${this.props.companyId}/templates/${template.url}`,
                     query: {json: JSON.stringify(template.format(transaction, this.props.companyState))}}}
-                    className="btn btn-primary">Transfer Share Form</Link>
-            </div> }
+                    className="btn btn-primary">Transfer Share Form</Link> }
+                { this.props.cancel &&  <Button bsStyle="danger" onClick={() => this.props.cancel(transaction.id) }>Cancel Transaction</Button>}
+            </div>
 
             { transaction.documents && transaction.documents.map((d, i) => {
                 return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
@@ -251,4 +254,59 @@ export class TransactionView extends React.Component {
     }
 }
 
+@connect(undefined, {
+    deleteTransaction: (companyId, id) => deleteResource(`/company/${companyId}/transactions/${id}`, {
+        confirmation: {
+            title: 'Confirm Deletion',
+            description: 'Please confirm the cancellation of this transaction',
+            resolveMessage: 'Confirm Deletion',
+            resolveBsStyle: 'danger'
+        },
+        loadingMessage: 'Cancelling Transaction'
+    }),
+    push: (url) => push(url),
+    addNotification: (args) => addNotification(args)
+})
+export class PendingTransactionView extends React.Component {
+
+    constructor() {
+        super();
+        this.cancel = ::this.cancel;
+    }
+
+    cancel(transactionId) {
+        this.props.deleteTransaction(this.props.companyId, transactionId)
+            .then(() => {
+                this.props.push(`/company/view/${this.props.companyId}/upcoming_transactions`);
+                this.props.addNotification({message: 'Transaction Cancelled'});
+            })
+    }
+
+    render() {
+        const id = this.props.params.transactionId;
+        let transaction;
+        (this.props.transactions || []).some(t => {
+            if(t.id.toString() === id){
+                transaction = t;
+                return true;
+            }
+            return (t.subTransactions || []).some(t => {
+                if(t.id.toString() === id){
+                    transaction = t;
+                    return true;
+                }
+            })
+        });
+        if(transaction){
+            return <div>
+                <div className="button-row">
+                </div>
+                <TransactionViewBody transaction={transaction} companyState={this.props.companyState} companyId={this.props.companyId} cancel={this.cancel}/>
+                </div>
+        }
+        else{
+            return <div className="loading"></div>
+        }
+    }
+}
 

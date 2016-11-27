@@ -1745,10 +1745,33 @@ export function performAllInsertByEffectiveDate(data, company){
         })
         .then(state => {
             if(futureTransactions.length){
-                return performAll(transactionsToActions(futureTransactions), company, this.state, true)
+                return performAll(transactionsToActions(futureTransactions), company, state, true)
             }
             return state;
         })
+}
+
+export function performFilterOutTransactions(transactionIds, company){
+    const date = new Date()
+    let state, futureTransactions;
+
+    return company.getDatedCompanyState(date)
+        .then(_state => {
+            state = _state;
+            return company.getTransactionsAfter(state.id)
+        })
+        .then(_transactions => {
+            futureTransactions = _transactions;
+            futureTransactions = futureTransactions.filter(f => transactionIds.indexOf(f.id) === -1);
+            if(futureTransactions.length){
+                return performAll(transactionsToActions(futureTransactions), company, state, true)
+            }else{
+                return company.setCurrentCompanyState(state);
+            }
+        })
+        .then(() => {
+            return state;
+        });
 }
 
 export function createImplicitTransactions(state, transactions, effectiveDate){

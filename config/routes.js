@@ -185,6 +185,13 @@ module.exports.routes = {
         model: 'company',
         action: 'create'
     },
+
+    'DELETE /api/company/:id/transactions/:transactionIds': {
+        controller: 'CompanyStateController',
+        model: 'company',
+        action: 'deleteTransactions'
+    },
+
     'GET /api/company/:id/get_info': {
         controller: 'CompanyController',
         action: 'getInfo',

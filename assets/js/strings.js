@@ -93,6 +93,7 @@ export default {
         UPLOAD_DOCUMENT: 'Upload Document',
         UPDATE_DOCUMENT: 'Update Document',
         CREATE_DIRECTORY: 'Create Directory',
+        USER_FIELDS_CHANGE: 'Update Contact Details'
     },
     amendTypes: {
         ISSUE_TO: 'Issue',

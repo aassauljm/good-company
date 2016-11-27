@@ -594,6 +594,46 @@ function createTransaction(req, res, type){
 }
 
 
+function deleteTransactions(req, res) {
+    let company;
+    const transactionIds = req.params.transactionIds.split(';').map(t => parseInt(t, 10));
+    return Company.findById(req.params.id)
+        .then(function(_company) {
+            company = _company;
+            return PermissionService.isAllowed(company, req.user, 'update', Company.tableName)
+        })
+        .then(() => {
+            return TransactionService.performFilterOutTransactions(transactionIds, company);
+        })
+        .then((state) => {
+            const messages = [{messages: `Upcoming transaction for ${state.companyName} cancelled`}]
+            return createActivityLog(req.user, company, messages)
+                .then(() => ({
+                    message: messages
+                }))
+        })
+
+        .then((result) => {
+            res.json(result);
+        })
+
+        .catch(sails.config.exceptions.ValidationException, (e) => {
+            res.badRequest(e);
+        })
+        .catch(sails.config.exceptions.InvalidOperation, (e) => {
+            res.badRequest(e);
+        })
+        .catch(sails.config.exceptions.NameExistsException, (e) => {
+            res.badRequest(e);
+        })
+        .catch(sails.config.exceptions.ForbiddenException, (e) => {
+            res.forbidden();
+        })
+        .catch((e) => {
+            res.serverError(e);
+        })
+}
+
 
 module.exports = {
     transactions: transactions,
@@ -609,5 +649,6 @@ module.exports = {
     },
     updateShareClass: function(req, res){
         createTransaction(req, res, 'updateShareClass');
-    }
+    },
+    deleteTransactions: deleteTransactions
 };

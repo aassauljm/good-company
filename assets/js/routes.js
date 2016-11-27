@@ -28,9 +28,9 @@ import Templates, { TemplateView } from './components/templates';
 import  { LoginWithCatalex } from './components/login';
 import ImportCompany from './components/importCompany';
 import ImportMenu from './components/importMenu';
-import { CompanyTransactions } from './components/transactions';
+import { CompanyTransactions, PendingTransactions } from './components/transactions';
 import { UpdatePeople, UpdateContact, UpdateShares, UpdateResetDelete } from './components/transactions/selection';
-import { TransactionView } from './components/transaction';
+import { TransactionView, PendingTransactionView  } from './components/transaction';
 import { MassSetup } from './components/massSetup';
 import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
@@ -78,6 +78,11 @@ export default (store) => {
                 <Route path="transactions" component={ CompanyTransactions }>
                     <Route path=":transactionId" component={ TransactionView }/>
                 </Route>
+
+                <Route path="upcoming_transactions" component={ PendingTransactions }>
+                    <Route path=":transactionId" component={ PendingTransactionView }/>
+                </Route>
+
                 <Route path="shareregister" component={ ShareRegister } />
                 <Route path="shareholders" component={ Shareholders } />
                 <Route path="documents" component={ CompanyDocuments } />

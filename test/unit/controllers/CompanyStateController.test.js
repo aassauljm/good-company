@@ -515,6 +515,7 @@ describe('Future Transactions', function(){
             })
             .expect(200, done)
         });
+
     it('Checks that shares not updated now', function(done) {
        req.get('/api/company/'+companyId+'/get_info')
             .expect(200)
@@ -525,5 +526,24 @@ describe('Future Transactions', function(){
                 done();
             });
     });
+
+    it('Deletes future transaction', function(done) {
+        let transactionId;
+        req.get('/api/company/'+companyId+'/get_info')
+            .expect(200)
+            .then(function(res){
+                const transaction = res.body.currentCompanyState.futureTransactions.find(t =>t.type === 'ISSUE');
+                transaction.should.not.be.equal(null);
+                transactionId = transaction.id;
+                return req.delete('/api/company/' + companyId + '/transactions/' + transactionId)
+            })
+            .then((res) => {
+                return req.get('/api/company/'+companyId+'/get_info')
+            })
+            .then(function(res){
+                res.body.currentCompanyState.futureTransactions.length.should.be.equal(2);
+                done();
+            });
+    })
 });
 
