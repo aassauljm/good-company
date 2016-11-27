@@ -19,24 +19,11 @@
                     }
                 },
                 "meetingDateTime": {
-                    "type": "object",
-                    "properties": {
-                        "date": {
-                            "title": "Date of Meeting",
-                            "type": "string",
-                            "x-hints": {
-                                "form": {"inputComponent": "date"}
-                            }
-                        },
-                        "time": {
-                            "title": "Time of Meeting",
-                            "type": "string",
-                            "x-hints": {
-                                "form": {"inputComponent": "time"}
-                            }
-                        }
-                    },
-                    "required": ["date", "time"]
+                    "title": "Date and Time of Meeting",
+                    "type": "string",
+                    "x-hints": {
+                        "form": {"inputComponent": "dateTime"}
+                    }
                 },
                 "locationOfMeeting": {
                     "title": "Location of Meeting",
@@ -113,84 +100,7 @@
                         "meetingType": {
                             "enum": ["Annual Meeting of Shareholders"]
                         },
-                        "meetingOptions": {
-                            "type": "object",
-                            "properties": {
-                                "items": {
-                                    "type": "array",
-                                    "title": "Items of Business",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "text": {
-                                                "type": "string",
-                                                "title": "Description",
-                                                "x-hints": {
-                                                    "form": {
-                                                        "inputComponent": "textarea"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "minItems": 1
-                                },
-                                "specialResolutions": {
-                                    "type": "array",
-                                    "title": "Special Resolutions",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "text": {
-                                                "type": "string",
-                                                "title": "Description",
-                                                "x-hints": {
-                                                    "form": {
-                                                        "inputComponent": "textarea"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "minItems": 1
-                                },
-                                "boardFixedDateForAscertainingShareholders": {
-                                    "title": "Has the board fixed a date for ascertaining shareholders?",
-                                    "enum": ["Yes", "No"]
-                                }
-                            },
-                            "default": {"boardFixedDateForAscertainingShareholders": "Yes"},
-                            "x-hints": {
-                                "form": {
-                                    "selector": "boardFixedDateForAscertainingShareholders"
-                                }
-                            },
-                            "oneOf":[
-                                {
-                                    "properties": {
-                                        "boardFixedDateForAscertainingShareholders": {
-                                            "enum": ["Yes"]
-                                        },
-                                        "dateShareholdersAscertained": {
-                                            "title": "Shareholders Ascertained on",
-                                            "type": "string",
-                                            "x-hints": {
-                                                "form": {
-                                                    "inputComponent": "date"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "boardFixedDateForAscertainingShareholders": {
-                                            "enum": ["No"]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
+                        "meetingOptions": { "$ref": "#/definitions/meetingOptions" }
                     }
                 },
                 {
@@ -198,84 +108,7 @@
                         "meetingType": {
                             "enum": ["Special Meeting of Shareholders"]
                         },
-                        "meetingOptions": {
-                            "type": "object",
-                            "properties": {
-                                "items": {
-                                    "type": "array",
-                                    "title": "Items of Business",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "text": {
-                                                "type": "string",
-                                                "title": "Description",
-                                                "x-hints": {
-                                                    "form": {
-                                                        "inputComponent": "textarea"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "minItems": 1
-                                },
-                                "specialResolutions": {
-                                    "type": "array",
-                                    "title": "Special Resolutions",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "text": {
-                                                "type": "string",
-                                                "title": "Description",
-                                                "x-hints": {
-                                                    "form": {
-                                                        "inputComponent": "textarea"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "minItems": 1
-                                },
-                                "boardFixedDateForAscertainingShareholders": {
-                                    "title": "Has the board fixed a date for ascertaining shareholders?",
-                                    "enum": ["Yes", "No"]
-                                }
-                            },
-                            "default": {"boardFixedDateForAscertainingShareholders": "Yes"},
-                            "x-hints": {
-                                "form": {
-                                    "selector": "boardFixedDateForAscertainingShareholders"
-                                }
-                            },
-                            "oneOf":[
-                                {
-                                    "properties": {
-                                        "boardFixedDateForAscertainingShareholders": {
-                                            "enum": ["Yes"]
-                                        },
-                                        "dateShareholdersAscertained": {
-                                            "title": "Shareholders Ascertained on",
-                                            "type": "string",
-                                            "x-hints": {
-                                                "form": {
-                                                    "inputComponent": "date"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "properties": {
-                                        "boardFixedDateForAscertainingShareholders": {
-                                            "enum": ["No"]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
+                        "meetingOptions": { "$ref": "#/definitions/meetingOptions" }
                     }
                 }
             ]
@@ -294,6 +127,93 @@
         {"link": {"title": "Companies Act 1993", "location": "s 125(3) and (4)"}, "text": "Shareholders entitled to receive notice of meeting"},
         {"link": {"title": "Companies Act 1993", "location": "s 160"}, "text": "Proceedings of the board"},
         {"link": {"title": "Companies Act 1993", "location": "sch 3, cl 2"}, "text": "Notice of board meeting"}
-    ]
-
+    ],
+    "definitions": {
+        "meetingOptions": {
+            "type": "object",
+            "properties": {
+                "shareholders": { "$ref": "#/definitions/shareholders" },
+                "itemsOfBusiness": {
+                    "type": "array",
+                    "title": "Items of Business",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "text": {
+                                "type": "string",
+                                "title": "Description",
+                                "x-hints": {
+                                    "form": {"inputComponent": "textarea"}
+                                }
+                            }
+                        }
+                    },
+                    "minItems": 1
+                },
+                "specialResolutions": {
+                    "type": "array",
+                    "title": "Special Resolutions",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "alterConstitutionOrMajorTransaction": {
+                                "title": "Is this resolution to adopt, revoke, or alter constitution or approve major transaction?",
+                                "enum": ["Yes", "No"]
+                            },
+                            "text": {
+                                "type": "string",
+                                "title": "Description",
+                                "x-hints": {
+                                    "form": {
+                                        "inputComponent": "textarea"
+                                    }
+                                }
+                            }
+                        },
+                        "required": ["alterConstitutionOrMajorTransaction", "text"]
+                    },
+                    "default": [
+                        {"alterConstitutionOrMajorTransaction": "Yes"}
+                    ],
+                    "minItems": 1
+                },
+                "boardFixedDateForAscertainingShareholders": {
+                    "title": "Has the board fixed a date for ascertaining shareholders?",
+                    "enum": ["Yes", "No"]
+                }
+            },
+            "default": {"boardFixedDateForAscertainingShareholders": "Yes"},
+            "x-hints": {
+                "form": {
+                    "selector": "boardFixedDateForAscertainingShareholders"
+                }
+            },
+            "oneOf":[
+                {
+                    "properties": {
+                        "boardFixedDateForAscertainingShareholders": {
+                            "enum": ["Yes"]
+                        },
+                        "dateShareholdersAscertained": {
+                            "title": "Shareholders Ascertained on",
+                            "type": "string",
+                            "x-hints": {
+                                "form": {
+                                    "inputComponent": "date"
+                                }
+                            }
+                        }
+                    },
+                    "required": ["dateShareholdersAscertained"]
+                },
+                {
+                    "properties": {
+                        "boardFixedDateForAscertainingShareholders": {
+                            "enum": ["No"]
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

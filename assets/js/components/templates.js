@@ -97,8 +97,9 @@ function renderField(fieldProps, componentProps, index){
     else */if(fieldProps.type === 'string'){
         if (componentType(fieldProps) === 'date') {
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
-        } else if (componentType(fieldProps) == 'time') {
-            return <DateInput {...componentProps} format={"h:mm a"} displayFormat={"h:mm a"} {...props} calendar={false} time={true} />
+        } else if (componentType(fieldProps) == 'dateTime') {
+            // return <DateInput {...componentProps} format={"h:mm a"} {...props} time={true} />
+            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
         } else if(componentType(fieldProps) === 'textarea') {
             return <Input type="textarea" rows="5"{...componentProps}  {...props} />
         }
@@ -253,6 +254,7 @@ function getValidate(schema){
     }
 }
 
+// Appears to not be populating default on list items
 function getDefaultValues(schema, defaults){
     if(!defaults){
         defaults = {};
