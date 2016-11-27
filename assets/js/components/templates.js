@@ -400,7 +400,7 @@ export class ResignationOfDirector extends React.Component {
 export const TemplateMap = {
     'transfer': {
         form: TransferForm,
-        title: 'Transfer Shares',
+        title: 'Share Transfer Form',
         schema: templateSchemas.transfer,
         getInitialValues: (values) => getDefaultValues(templateSchemas.transfer, values),
         icon: 'transfer'

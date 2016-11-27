@@ -123,8 +123,9 @@ export class OverlayTrigger extends React.Component {
         }
         const [elX, elY] = [pos.left + pos.width/2, pos.top + pos.height/2]
         const [width, height] = [win.innerWidth, win.innerHeight];
+
         const distances = [
-            {dist: elY, placement: 'top'},
+            //{dist: elY, placement: 'top'},
             {dist: height - elY, placement: 'bottom'},
             {dist: elX, placement: 'left'},
             {dist: width - elX, placement: 'right'}
@@ -275,8 +276,8 @@ class Popover extends React.Component {
       zIndex: zIndex || popoverIndex
     };
     const arrowStyle = {
-      top: arrowOffsetTop,
-      left: arrowOffsetLeft,
+        top: arrowOffsetTop,
+        left: arrowOffsetLeft,
     };
     return connectDragPreview(
       <div
