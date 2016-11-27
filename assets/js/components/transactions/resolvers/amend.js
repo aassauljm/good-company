@@ -320,16 +320,28 @@ export default function Amend(context, submit){
 
 
     const handleSubmit = (values) => {
-        const amends = [...amendActions];
+        const amends = [...(amendActions.map(a => ({...a})))];
         const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
         const pendingActions = [{id: context.actionSet.id, data: otherActions, previous_id: context.actionSet.previous_id}];
         const transactions = {};
         const transfers = [];
-        const newAllocations = [];
+
+
+        const transferMappings = values.actions.reduce((acc, v, i) => {
+            v.recipients.reduce((acc, r) => {
+                acc[r.holding] = acc[r.holding] || {};
+                acc[r.holding][i] =  {recipient: r, amendIndex: i};
+                return acc;
+            }, acc)
+            return acc;
+        }, {})
+
         values.actions.map((action, i) => {
             action.recipients.map((r, j) => {
+                if(r.handled){
+                    return;
+                }
                 const amount = parseInt(r.amount, 10);
-                // TODO, this ordering might result in problems
                 amends[i] = {...amends[i]}
 
                 if(amends[i].beforeAmount !== undefined){
@@ -340,19 +352,26 @@ export default function Amend(context, submit){
                 if(!amends[i].beforeHolders){
                     amends[i].beforeHolders = amends[i].afterHolders = amends[i].holders;
                 }
-                /*if(amends[i].beforeAmount  === 0 ){
-                    newAllocations.push({
-                        ...amends[i],
-                        amount: 0,
-                        beforeAmount: 0,
-                        afterAmount: 0
-                    })
-                }*/
-                //TODO, shareclass
+
                 if(isTransfer(r.type)){
-                    const result = {...amends[i], transactionType: r.type, transactionMethod: method,
-                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10)};
-                    transfers.push(result);
+                    let method = amends[i].beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
+                    const transfer = {...amends[i], transactionType: r.type, transactionMethod: method,
+                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10), };
+                    // find reciprocal
+                    amends[i].afterAmount = amends[i].beforeAmount;
+                    const reciprocal = transferMappings[i][r.holding];
+                    const reciprocalAmend = amends[reciprocal.amendIndex];
+                    const increase = isIncrease(reciprocalAmend.type)
+                    reciprocalAmend.beforeAmount = reciprocalAmend.afterAmount + (increase ? -amount : amount);
+
+                    method = reciprocalAmend.beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
+
+                    const reciprocalAction = {...reciprocalAmend, transactionType: reciprocal.recipient.type, transactionMethod: method,
+                        amount: amount};
+                    reciprocalAmend.afterAmount = reciprocalAmend.beforeAmount;
+                    reciprocal.recipient.handled = true;
+
+                    transfers.push([transfer, reciprocalAction])
 
                 }
                 else{
@@ -360,37 +379,18 @@ export default function Amend(context, submit){
                     const result = {...amends[i], transactionType: r.type, transactionMethod: method,
                         amount: amount};
                     transactions[r.type].push(result);
+                    amends[i].afterAmount = amends[i].beforeAmount;
                 }
-                amends[i].afterAmount = amends[i].beforeAmount;
             })
-        })
 
+        })
         // group each other type
         Object.keys(transactions).map(k => {
             pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: transactions[k]}, previous_id: context.actionSet.previous_id});
         })
-
-        //pair up transfers
-        while(transfers.length){
-            debugger
-            const transfer = transfers.shift();
-            const reciprocalIndex = transfers.findIndex(t => {
-                return t.amount === transfer.amount && t.shareClass === transfer.shareClass && t.recipientIndex === transfer.index;
-            });
-            const reciprocal = transfers.splice(reciprocalIndex, 1)[0];
-            const newActionSet = {
-                id: context.actionSet.id, data: {...actionSet.data, actions: [transfer, reciprocal], totalAmount: null, transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id
-            };
-            /*if(transfer.transactionMethod === TransactionTypes.AMEND || reciprocal.transactionMethod === TransactionTypes.AMEND){
-                pendingActions.unshift(newActionSet)
-            }
-            else{*/
-                pendingActions.push(newActionSet)
-            //}
-        }
-        if(newAllocations.length){
-            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: newAllocations, transactionType: TransactionTypes.NEW_ALLOCATION}, previous_id: context.actionSet.previous_id})
-        }
+        transfers.map(k => {
+            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: k, transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id});
+        });
         submit({
             pendingActions: pendingActions
         })
@@ -408,7 +408,7 @@ export default function Amend(context, submit){
         return acc;
     }, {true: {}, false: {}})
 
-    const initialValues = {actions: amendActions.map((a, i) => {
+    let initialValues = {actions: amendActions.map((a, i) => {
         // if all same direction, set amount;
         let amount, holding;
         if(allSameDirection){
@@ -440,6 +440,7 @@ export default function Amend(context, submit){
         acc.push(values);
         return acc;
     }, [])
+
 
     return <div>
 
