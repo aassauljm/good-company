@@ -99,6 +99,9 @@ export default class Directors extends React.Component {
     }
 
     render() {
+        if(!this.props.companyState || !this.props.companyState.directorList){
+            return false;
+        }
         const directors = this.props.companyState.directorList.directors;
         const holders = this.props.companyState.holders;
         return <div className="container">

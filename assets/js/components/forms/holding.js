@@ -107,7 +107,8 @@ export class HoldingNoParcels extends React.Component {
 
                 const onChange = p.onChange;
                 const interceptChange =  (event) => {
-                    if(event.target.value === CREATE_NEW_PERSON){
+                    const value = event.target ? event.target.value : event.value;
+                    if(value === CREATE_NEW_PERSON){
                         this.props.showTransactionView('newPerson', i);
                     }
                     else{
@@ -127,11 +128,6 @@ export class HoldingNoParcels extends React.Component {
                             { this.props.personOptions }
                             { !p.newPerson.value && !p.personId.value && <option value={CREATE_NEW_PERSON}>Create new Person</option>}
                         </Input> }
-
-                       {/*} { !p.newPerson.value && !p.personId.value &&
-                        <div className="button-row"><ButtonInput className="new-person" onClick={() => {
-                            this.props.showTransactionView('newPerson', i);
-                        }}>Create New Person</ButtonInput></div> } */ }
 
                     { p.newPerson.value &&
                         <Input type="static" label={'New Shareholder'} value={p.newPerson.value.name}

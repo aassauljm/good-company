@@ -71,7 +71,10 @@ class DocumentBase extends React.Component {
             onChange: (e) => this.onDrop(e)
         };
 
-        return <div>{ connectDropTarget(<div className="dropzone" onClick={() => this.open()}>
+        return <div>
+            { this.props.label && <label className="control-label">{ this.props.label }</label>}
+
+                { connectDropTarget(<div className="dropzone" onClick={() => this.open()}>
                                         <div>Drop files here to upload or <span className="vanity-link">click to browse</span> your device</div>
                   <input {...inputAttributes} />
             </div>) }

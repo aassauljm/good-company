@@ -227,7 +227,7 @@ class InputBase extends React.Component {
             </select>);
         }
     case 'textarea':
-      return <textarea {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
+      return <textarea {...elementProps} value={elementProps.value||''} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
     case 'static':
       return (
         <p {...elementProps} className={classNames(this.props.className, 'form-control-static')} ref="input" key="input">

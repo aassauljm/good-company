@@ -42,6 +42,10 @@ export default {
         hasNoTransferRestriction: "There are no restrictions or limitations on the transfer of shares",
         hasTransferRestriction: "There are restrictions or limitations on the transfer of shares"
     },
+    persons: {
+        'dateOfBirth': 'Date of Birth',
+        'placeOfBirth': 'Place of Birth'
+    },
     bulkImport: {
         'listType': 'Identifier Type',
         'identifierListHelp': 'Each entry should on a separate line',
@@ -122,13 +126,13 @@ export default {
         CONSOLIDATION_FROM: 'Consolidation',
     },
     transfer: {
-        from: 'Source Holding',
-        to: 'Destination Holding',
+        from: 'From',
+        to: 'To',
     },
     interestsRegister: {
         date: 'Date',
-        persons: 'Persons',
-        details: 'Details',
+        persons: 'Interested Persons',
+        details: 'Details of Interests',
         documents: 'Documents'
     },
     companyDocuments: {
