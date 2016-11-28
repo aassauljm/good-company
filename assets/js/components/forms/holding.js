@@ -16,6 +16,38 @@ import StaticField from './staticField';
 const CREATE_NEW_SHAREHOLDING = 'create-new';
 const CREATE_NEW_PERSON = 'create-new';
 
+@formFieldProps()
+export class HoldingSelectWithNew extends React.Component {
+
+    render() {
+        const onChange = this.props.fields[this.props.fieldName].onChange;
+        const interceptChange =  (event) => {
+            if((event.target ? event.target : event.value) === CREATE_NEW_SHAREHOLDING){
+                this.props.showNewHolding()
+            }
+            else{
+                onChange(event);
+            }
+        }
+
+        return <div>
+            { !this.props.fields[this.props.newFieldName].value && <Input type="select" {...this.formFieldProps(this.props.fieldName, this.props.strings)} onChange={interceptChange}>
+                <option></option>
+                { this.props.holdingOptions }
+                <option value={CREATE_NEW_SHAREHOLDING}>Create new Shareholding</option>
+            </Input> }
+
+            { this.props.fields[this.props.newFieldName].value  &&
+                <StaticField type="static" label={this.props.strings[this.props.fieldName]}
+                value={newHoldingString(this.props.fields[this.props.newFieldName].value)}
+                buttonAfter={<button className="btn btn-default" onClick={(e) => {
+                    this.props.fields[this.props.newFieldName].onChange(null);
+                }}><Glyphicon glyph='trash'/></button>} /> }
+
+            </div>
+    }
+}
+
 
 @formFieldProps()
 export class HoldingWithRemove extends React.Component {
@@ -105,7 +137,7 @@ export class HoldingNoParcels extends React.Component {
             <Input type='text' {...this.formFieldProps([ 'holdingName'])} />
             { this.props.fields.persons.map((p, i) =>{
 
-                const onChange = p.onChange;
+                const onChange = p.personId.onChange;
                 const interceptChange =  (event) => {
                     const value = event.target ? event.target.value : event.value;
                     if(value === CREATE_NEW_PERSON){

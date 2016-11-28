@@ -84,6 +84,7 @@ export function formFieldProps(args = {}){
                     labelClassName: args.labelClassName,
                     wrapperClassName: args.wrapperClassName,
                     hasFeedback: true,
+                    required: field.error && field.error.indexOf('Required') >= 0,
                     help: fieldHelp(field, strings[`${Array.isArray(name) ? name[name.length-1] : name}Help`])
                 }
         }
@@ -316,3 +317,9 @@ export function sortAlerts(response) {
     return {alertList: data, companyMap, dateMap}
 }
 
+
+export function isNaturalPerson(person){
+    let nonNatural = !!person.companyNumber;
+    nonNatural = nonNatural || (person.attr || {}).isNaturalPerson === false;
+    return !nonNatural;
+}

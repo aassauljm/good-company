@@ -190,7 +190,8 @@ class InputBase extends React.Component {
 
   renderLabel(children) {
     let classes = {
-      'control-label': !this.isCheckboxOrRadio()
+      'control-label': !this.isCheckboxOrRadio(),
+      'required': this.props.required
     };
     classes[this.props.labelClassName] = this.props.labelClassName;
 
@@ -204,44 +205,44 @@ class InputBase extends React.Component {
 
   renderInput() {
     // strip values
-    const elementProps = getValidInputProps(this.props)
+    const elementProps = getValidInputProps(this.props);
 
     if (!this.props.type) {
       return this.props.children;
     }
 
     switch (this.props.type) {
-    case 'select':
-        const children = React.Children.toArray(this.props.children);
-        if(children.length > DROPLIST_THRESHOLD && !this.props.forceSelect){
-            return <DropdownList {...elementProps} valueField='value' textField='text'
-                data={ children.filter(c => c.props.value).map(c => ({value: c.props.value, text: Array.isArray(c.props.children) ? c.props.children.join('') : c.props.children }))}
-                caseSensitive={false}
-                filter={'contains'}
-                {...elementProps} />
+        case 'select':
+            const children = React.Children.toArray(this.props.children);
+            if(children.length > DROPLIST_THRESHOLD && !this.props.forceSelect){
+                return <DropdownList {...elementProps} valueField='value' textField='text'
+                    data={ children.filter(c => c.props.value).map(c => ({value: c.props.value, text: Array.isArray(c.props.children) ? c.props.children.join('') : c.props.children }))}
+                    caseSensitive={false}
+                    filter={'contains'}
+                    {...elementProps} />
+            }
+            else{
+                return (
+                <select {...elementProps} value={elementProps.value||''} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
+                  {this.props.children}
+                </select>);
+            }
+        case 'textarea':
+          return <textarea {...elementProps} value={elementProps.value||''} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
+        case 'static':
+          return (
+            <p {...elementProps} className={classNames(this.props.className, 'form-control-static')} ref="input" key="input">
+              {this.props.value}
+            </p>
+          );
+        default:
+          const className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
+          if(this.isCheckboxOrRadio()){
+                delete elementProps.value;
+                elementProps.checked = elementProps.checked || false;
+          }
+          return <input {...elementProps}  value={elementProps.value||''} className={classNames(this.props.className, className)} ref="input" key="input" />;
         }
-        else{
-            return (
-            <select {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
-              {this.props.children}
-            </select>);
-        }
-    case 'textarea':
-      return <textarea {...elementProps} value={elementProps.value||''} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
-    case 'static':
-      return (
-        <p {...elementProps} className={classNames(this.props.className, 'form-control-static')} ref="input" key="input">
-          {this.props.value}
-        </p>
-      );
-    default:
-      const className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
-      if(this.isCheckboxOrRadio()){
-            delete elementProps.value;
-            elementProps.checked = elementProps.checked || false;
-      }
-      return <input {...elementProps} className={classNames(this.props.className, className)} ref="input" key="input" />;
-    }
   }
 
   renderFormGroup(children) {

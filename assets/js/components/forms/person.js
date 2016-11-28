@@ -16,7 +16,6 @@ import moment from 'moment';
 import WorkingDays from './workingDays';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon'
 
-
 const CREATE_NEW_PERSON = 'CREATE_NEW_PERSON';
 
 
@@ -26,15 +25,38 @@ export class Person extends React.Component {
 
     };
     render() {
+        const isNatural = !this.props.fields.attr.isNaturalPerson || this.props.fields.attr.isNaturalPerson.value;
         return <form className="form" >
             <fieldset>
                 { this.props.fields.effectiveDate && <DateInput{...this.formFieldProps('effectiveDate')} /> }
                 <PersonName {...this.formFieldProps('name')} />
-                <Address {...this.formFieldProps('address')} />
+                { this.props.fields.attr.isNaturalPerson && <Input type="checkbox"  {...this.formFieldProps(['attr', 'isNaturalPerson'], STRINGS.persons)} /> }
+
+                { !isNatural &&  <Input type="text"  {...this.formFieldProps('companyNumber')} /> }
+
+                <Address {...this.formFieldProps('address', isNatural ? STRINGS.persons.naturalPerson : STRINGS.persons.notNaturalPerson) } />
+                <Address {...this.formFieldProps(['attr', 'postalAddress'])} label={'Postal Address (if different)'} />
+
+                <Input type="text"  {...this.formFieldProps(['attr', 'email'], STRINGS.persons)} />
+                <Input type="text"  {...this.formFieldProps(['attr', 'fax'], STRINGS.persons)} />
+                <Input type="text"  {...this.formFieldProps(['attr', 'phone'], STRINGS.persons)} />
+
+                <Input type="select"  {...this.formFieldProps(['attr', 'contactMethod'], STRINGS.persons)}>
+                    <option value="physical">Post to physical address</option>
+                    <option value="postal">Post to postal address</option>
+                    <option value="email">Email</option>
+                    <option value="fax">fax</option>
+                </Input>
+
+                { isNatural &&  <Country {...this.formFieldProps(['attr','placeOfBirth'], STRINGS.persons)} /> }
+                { isNatural &&  <DateInput {...this.formFieldProps(['attr','dateOfBirth'], STRINGS.persons)} /> }
+
             </fieldset>
         </form>
     }
 }
+
+
 
 @formFieldProps()
 export class Director extends React.Component {
@@ -49,7 +71,7 @@ export class Director extends React.Component {
                 <PersonName {...this.formFieldProps(['person', 'name'])} />
                 <Address {...this.formFieldProps(['person', 'address'])} />
                 <DateInput {...this.formFieldProps(['person', 'attr', 'dateOfBirth'], STRINGS.persons)} />
-                  <Country {...this.formFieldProps(['person', 'attr','placeOfBirth'], STRINGS.persons)} />
+                <Country {...this.formFieldProps(['person', 'attr','placeOfBirth'], STRINGS.persons)} />
             </fieldset>
             <Documents documents={this.props.fields.documents} label="Approval Documents"/>
         </form>
@@ -128,24 +150,22 @@ const validateNewDirector = (values, props) => {
     if(values.person.attr.dateOfBirth && values.appointment &&  moment(values.appointment).diff(values.person.attr.dateOfBirth, 'years') < MIN_AGE_DIRECTOR){
         personAttrErrors.dateOfBirth = [`Director must be at least ${MIN_AGE_DIRECTOR} years of age`];
     }
-
     return {...newDirectorRequirements(values), 'personId': (!values.personId && !values.newPerson) && ['Required.'],
         person: {attr: personAttrErrors}
-
     };
 }
 
 
 export const NewPersonConnected = reduxForm({
   form: 'person',
-  fields: ['name', 'address'],
+  fields: ['name', 'address', 'companyNumber',  'attr.isNaturalPerson', 'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'],
   validate: validateNew
 })(Person);
 
 
 export const UpdatePersonConnected = reduxForm({
   form: 'person',
-  fields : ['effectiveDate', 'name', 'address'],
+  fields : ['effectiveDate', 'name', 'address', 'attr.isNaturalPerson', 'companyNumber', 'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'],
   validate: validateUpdate
 })(Person);
 
@@ -162,11 +182,12 @@ export const NewDirectorConnected = reduxForm({
   destroyOnUnmount: false
 })(NewDirector);
 
+
 export function updatePersonAction(values, oldPerson){
     const action = {
         transactionType: TransactionTypes.HOLDER_CHANGE,
-        afterHolder: {name: values.name, address: values.address, companyNumber: oldPerson.companyNumber},
-        beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId, companyNumber: oldPerson.companyNumber}
+        afterHolder: {name: values.name, address: values.address, companyNumber: values.companyNumber, attr: {...(oldPerson.attr || {}), ...values.attr}, personId: oldPerson.personId},
+        beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId, companyNumber: oldPerson.companyNumber, attr: oldPerson.attr}
     }
     return action;
 }
@@ -182,8 +203,8 @@ export function updatePersonSubmit(values, oldPerson){
 export function updateHistoricPersonAction(values, oldPerson){
     const action = {
         transactionType: TransactionTypes.HISTORIC_HOLDER_CHANGE,
-        afterHolder: {name: values.name, address: values.address, companyNumber: oldPerson.companyNumber},
-        beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId, companyNumber: oldPerson.companyNumber}
+        afterHolder: {name: values.name, address: values.address, companyNumber: values.companyNumber, attr: {...(oldPerson.attr || {}), ...values.attr}, personId: oldPerson.personId},
+        beforeHolder: {name: oldPerson.name, address: oldPerson.address, personId: oldPerson.personId, companyNumber: oldPerson.companyNumber, attr: oldPerson.attr}
     }
     return action;
 }
@@ -212,7 +233,7 @@ export function directorSubmit(values, oldDirector, companyState){
                 appointment: values.appointment,
                 effectiveDate: values.appointment,
                 noticeDate: values.noticeDate,
-                personAttr: values.person.attr
+                personAttr: values.attr
             }]
         }]
     }
@@ -226,7 +247,7 @@ export function directorSubmit(values, oldDirector, companyState){
                 personId: oldDirector.person.personId,
                 effectiveDate: values.cessation,
                 noticeDate: values.noticeDate,
-                personAttr: values.person.attr
+                personAttr: {...(oldDirector.person.attr || {}), ...values.person.attr}
             }]
         }]
     }
@@ -242,7 +263,7 @@ export function directorSubmit(values, oldDirector, companyState){
                 appointment: values.appointment,
                 personId: oldDirector.person.personId,
                 noticeDate: values.noticeDate,
-                personAttr: values.person.attr
+                personAttr: {...(oldDirector.person.attr || {}), ...values.person.attr}
             }]
         }]
     }

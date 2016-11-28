@@ -20,7 +20,6 @@ export default {
     ultimateHoldingCompany: 'Ultimate Holding Company',
     entityType: 'Entity Type',
     companyStatus: 'Company Status',
-
     holdingName: 'Holding Name',
     appointment: 'Appointment Date',
     cessation: 'Cessation of Directorship Date',
@@ -44,7 +43,19 @@ export default {
     },
     persons: {
         'dateOfBirth': 'Date of Birth',
-        'placeOfBirth': 'Place of Birth'
+        'placeOfBirth': 'Place of Birth',
+        'naturalPerson':{
+            'address': 'Residential Address',
+        },
+        'notNaturalPerson':{
+            'address': 'Registered Office / Place of Business'
+        },
+        'isNaturalPerson': 'Is a Natural Person',
+        'postalAddress': 'Postal Address',
+        'email': 'Email',
+        'fax': 'Fax',
+        'phone': 'Phone',
+        'contactMethod': 'Preferred Contact Method'
     },
     bulkImport: {
         'listType': 'Identifier Type',
@@ -128,6 +139,7 @@ export default {
     transfer: {
         from: 'From',
         to: 'To',
+        consideration: 'Consideration'
     },
     interestsRegister: {
         date: 'Date',

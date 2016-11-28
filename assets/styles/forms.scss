@@ -49,3 +49,8 @@
 legend{
     font-size:1.1em;
 }
+
+.control-label.required:after{
+    content:"*";
+    color: $brand-danger;
+}

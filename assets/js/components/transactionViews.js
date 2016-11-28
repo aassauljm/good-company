@@ -107,11 +107,19 @@ export const TransactionViewSwitch = (props) => {
             case 'updateHolding':
                 return <UpdateHoldingTransactionView {...props} />
 
-            case 'selectDirector':
-                return <SelectDirectorTransactionView {...props} />
+            case 'selectDirectorUpdate':
+                return <SelectDirectorUpdateTransactionView {...props} />
 
             case 'updateDirector':
                 return <UpdateDirectorTransactionView {...props} />
+
+
+            case 'selectDirectorRemove':
+                return <SelectDirectorRemoveTransactionView {...props} />
+
+            case 'removeDirector':
+                return <RemoveDirectorTransactionView {...props} />
+
 
             case 'importHistory':
                 return <ImportHistoryTransactionView {...props} />

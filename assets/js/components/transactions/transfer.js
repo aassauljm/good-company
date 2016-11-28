@@ -14,7 +14,7 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from '../forms/staticField';
 import { ParcelWithRemove } from '../forms/parcel';
-import { newHoldingFormatAction } from '../forms/holding';
+import { newHoldingFormatAction, HoldingSelectWithNew } from '../forms/holding';
 import { Documents } from '../forms/documents';
 import LawBrowserLink from '../lawBrowserLink'
 
@@ -25,11 +25,12 @@ const fields = [
     'newHolding',
     'parcels[].shareClass',
     'parcels[].amount',
+    'consideration',
     'newHolding',
     'documents'
     ];
 
-
+const CREATE_NEW_SHAREHOLDING = 'create-new';
 
 @formFieldProps()
 export class Transfer extends React.Component {
@@ -49,21 +50,16 @@ export class Transfer extends React.Component {
                 { this.props.holdingOptions }
             </Input>
 
-            { !this.props.fields.newHolding.value &&
-                <div className="or-group"><Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
+            { /*!this.props.fields.newHolding.value &&
+               <Input type="select" {...this.formFieldProps('to', STRINGS.transfer)} >
                     <option></option>
                     { this.props.holdingOptions }
-                </Input>
-                <span className="or-divider">- or -</span>
-                <div className="button-row"><ButtonInput className="new-holding" onClick={() => {
-                    this.props.showTransactionView('newHolding');
-                }}>Create New Holding</ButtonInput></div></div> }
+                    { this.props.showNewHolding && <option value={CREATE_NEW_SHAREHOLDING}>Create new Shareholding</option> }
+                </Input> */}
 
-            { this.props.fields.newHolding.value  &&
-                <StaticField type="static" label={STRINGS.transfer.to} value={newHoldingString(this.props.fields.newHolding.value)}
-                buttonAfter={<button className="btn btn-default" onClick={(e) => {
-                    this.props.fields.newHolding.onChange(null);
-                }}><Glyphicon glyph='trash'/></button>} /> }
+            <HoldingSelectWithNew {...this.props} fieldName="to" newFieldName="newHolding" strings={STRINGS.transfer}/>
+
+
 
 
                 <label className="control-label">Parcels</label>
@@ -75,6 +71,9 @@ export class Transfer extends React.Component {
             <div className="button-row"><ButtonInput className="add-parcel" onClick={() => {
                 this.props.fields.parcels.addField();    // pushes empty child field onto the end of the array
             }}>Add Parcel</ButtonInput></div>
+
+            <Input type="text" {...this.formFieldProps('consideration', STRINGS.transfer) } />
+
         </fieldset>
         { this.props.error && <div className="alert alert-danger">
             { this.props.error.map((e, i) => <span key={i}> { e } </span>) }
@@ -264,7 +263,7 @@ export class TransferTransactionView extends React.Component {
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
                     shareOptions={shareOptions}
-                    showTransactionView={(key) => this.props.dispatch(showTransactionView(key, {
+                    showNewHolding={() => this.props.dispatch(showTransactionView('newHolding', {
                         ...this.props.transactionViewData,
                         formName: 'transfer',
                         field: 'newHolding',
