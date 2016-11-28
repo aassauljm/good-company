@@ -93,17 +93,95 @@
             "items": {
                 "type": "object",
                 "properties": {
-                    "text": {
-                        "type": "string",
-                        "title": "Description",
-                        "x-hints": {
-                            "form": {
-                                "inputComponent": "textarea"
+                    "individualResolutionType": {
+                        "title": "Resolution Type",
+                        "enumeratedTitle": "Resolution {0}",
+                        "enum": [
+                            "Custom",
+                            "Change Company Name",
+                            "Records in Good Companies",
+                            "Agent for Company Changes"
+                        ]
+                    }
+                },
+                "required": ["individualResolutionType"],
+                "x-hints": {
+                    "form": {"selector": "individualResolutionType"}
+                },
+                "oneOf": [
+                    {
+                        "properties": {
+                            "individualResolutionType": {
+                                "enum": ["Custom"]
+                            },
+                            "resolutionOptions": {
+                                "type": "object",
+                                "properties": {
+                                    "text": {
+                                        "type": "string",
+                                        "title": "Description",
+                                        "x-hints": {
+                                            "form": {"inputComponent": "textarea"}
+                                        }
+                                    }
+                                },
+                                "required": ["text"]
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "individualResolutionType": {
+                                "enum": ["Change Company Name"]
+                            },
+                            "resolutionOptions": {
+                                "type": "object",
+                                "properties": {
+                                    "newCompanyName": {
+                                        "type": "string",
+                                        "title": "New Company Name"
+                                    },
+                                    "effectiveDate": {
+                                        "title": "Effective Date",
+                                        "type": "string",
+                                        "x-hints" : {
+                                            "form": {"inputComponent": "date"}
+                                        }
+                                    }
+                                },
+                                "required": ["newCompanyName", "effectiveDate"]
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "individualResolutionType": {
+                                "enum": ["Records in Good Companies"]
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "individualResolutionType": {
+                                "enum": ["Agent for Company Changes"]
+                            },
+                            "resolutionOptions": {
+                                "type": "object",
+                                "properties": {
+                                    "nameOfAuthorisedAgent": {
+                                        "type": "string",
+                                        "title": "Name of Authorised Agent"
+                                    }
+                                },
+                                "required": ["nameOfAuthorisedAgent"]
                             }
                         }
                     }
-                }
+                ]
             },
+            "default": [
+                {"individualResolutionType": "Custom"}
+            ],
             "minItems": 1
         },
         "notes": { "$ref": "#/definitions/notes" }
