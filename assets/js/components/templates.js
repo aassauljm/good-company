@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
-import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString, companyListToOptions } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
@@ -15,10 +15,6 @@ import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
-import { CompanyHOC } from '../hoc/resources';
-let Combobox = require('react-widgets/lib/Combobox');
-
-const LOOKUP_COMPANY = 'LOOKUP_COMPANY';
 
 function createLawLinks(list){
     return <div>
@@ -38,6 +34,14 @@ function oneOfField(fieldProps){
 
 function addItem(fieldProps){
     return (fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["addItem"]) || 'Add Item';
+}
+
+function inputSource(fieldProps){
+    return (fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputSource"]);
+}
+
+function inputSourceTitle(fieldProps){
+    return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputTitle"];
 }
 
 function oneOfMatchingSchema(fieldProps, values){
@@ -81,7 +85,12 @@ function renderList(fieldProps, componentProps){
 }
 
 function renderField(fieldProps, componentProps, index){
-    const title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
+    let title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
+    
+    if (componentType(fieldProps) === 'selectFromSource') {
+        title = inputSourceTitle(fieldProps);
+    }
+
     const props = {
         bsStyle: fieldStyle(componentProps),
         hasFeedback: true,
@@ -90,46 +99,39 @@ function renderField(fieldProps, componentProps, index){
         labelClassName: 'col-md-3',
         wrapperClassName: 'col-md-7'
     };
-    /*if (fieldProps.lookupSource && fieldProps.lookupSource == LOOKUP_COMPANY) {
-        return (
-            <Combobox data={[1, 2, 3, 4]} />
-        );
-    }
-    else */ if(fieldProps.type === 'string'){
+
+    /*if (componentType(fieldProps) === 'selectFromSource') {
+        return <Input type="text" {...props} data={componentProps.data} />
+    } else */if (fieldProps.type === 'string') {
         if (componentType(fieldProps) === 'date') {
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         } else if (componentType(fieldProps) == 'dateTime') {
-            // return <DateInput {...componentProps} format={"h:mm a"} {...props} time={true} />
             return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
         } else if(componentType(fieldProps) === 'textarea') {
             return <Input type="textarea" rows="5"{...componentProps}  {...props} />
         }
+
         return <Input type="text" {...componentProps} {...props} />
-    }
-    else if(fieldProps.type === 'number'){
+    } else if (fieldProps.type === 'number'){
         return <Input type="number" {...componentProps} {...props} />
+    } else if (fieldProps.enum && fieldProps.enum.length > 1) {
+        return (
+            <Input type="select"  {...componentProps} {...props}>
+                { fieldProps.enum.map((f, i) => {
+                    return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
+                })}
+            </Input>
+        );
     }
-    else if(fieldProps.enum && fieldProps.enum.length > 1){
-        return <Input type="select"  {...componentProps} {...props}>
-            { fieldProps.enum.map((f, i) => {
-                return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
-            })}
-        </Input>
-    }
-    else if(fieldProps.type === 'array'){
+    else if (fieldProps.type === 'array'){
         return renderList(fieldProps, componentProps);
     }
-    else if(fieldProps.type === 'object'){
-        return <div>
-            { renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }
-        </div>
+    else if (fieldProps.type === 'object'){
+        return <div>{ renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }</div>
     }
 }
 
-
-
-
-function renderFormSet(schemaProps, fields, oneOfs, listIndex){
+function renderFormSet(schemaProps, fields, oneOfs, listIndex) {
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
     }
@@ -139,14 +141,20 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex){
             selectKey = key;
         }
     });
-    return <fieldset>
-        { Object.keys(schemaProps).map((key, i) => {
-            return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
-        }) }
-        { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
-    </fieldset>
+    return (
+        <fieldset>
+            { Object.keys(schemaProps).map((key, i) => {
+                if (componentType(schemaProps[key]) === 'selectFromSource') {
+                    //return <Input type="text" {...props} data={componentProps.data} />
+                }
+                return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
+            }) }
+            { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
+        </fieldset>
+    );
 }
 
+@injectContext
 export class RenderForm extends React.Component {
     controls() {
         return <div className="button-row form-controls">
@@ -157,16 +165,18 @@ export class RenderForm extends React.Component {
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
 
-        return <form className="generated-form form-horizontal"  onSubmit={handleSubmit}>
-            { this.controls() }
-            <h4>{ schema.title }</h4>
-           { schema.description && <h5>{ schema.description }</h5>}
-           { renderFormSet(schema.properties, fields) }
-            { this.props.error && <div className="alert alert-danger">
-                { this.props.error.map((e, i) => <div key={i}> { e } </div>) }
-            </div> }
-             { this.controls() }
-        </form>
+        return (
+            <form className="generated-form form-horizontal"  onSubmit={handleSubmit}>
+                { this.controls() }
+                <h4>{ schema.title }</h4>
+                { schema.description && <h5>{ schema.description }</h5>}
+                { renderFormSet(schema.properties, fields) }
+                { this.props.error && <div className="alert alert-danger">
+                    { this.props.error.map((e, i) => <div key={i}> { e } </div>) }
+                </div> }
+                { this.controls() }
+            </form>
+        );
     }
 
 }
@@ -184,7 +194,7 @@ function getFields(schema) {
                     });
                 }
             }
-            else if(props[key].type === 'array'){
+            else if (props[key].type === 'array'){
                 fields.push(path + key + '[]._keyIndex');
                 if(props[key].items.type === "object"){
                     loop(props[key].items.properties, path+key + '[].');
@@ -206,6 +216,59 @@ function getFields(schema) {
     loop(schema.properties, '');
     return fields;
 }
+
+function injectContext(FormComponent) {
+    class Injector extends React.Component {
+        render() {
+            const fields = injectContext(this.props.schema.properties, this.props.fields, this.props.context);
+            return <FormComponent {...this.props} fields={fields} />
+        }
+    }
+
+    function injectContext(schemaProperties, fields, context) {
+        function loop(schemaProperties, fields) {
+            Object.keys(schemaProperties).map(key => {
+                if (schemaProperties[key].type === 'object') {
+                    loop(schemaProperties[key].properties, fields[key]);
+                    
+                    if (schemaProperties[key].oneOf) {
+                        schemaProperties[key].oneOf.map(oneOf => {
+                            loop(oneOf.properties, fields[key]);
+                        });
+                    }
+                } else if (schemaProperties[key].type === 'array') {
+                    if (schemaProperties[key].items.type === "object") {
+                        loop(schemaProperties[key].items.properties, fields[key]);
+                        
+                        if (schemaProperties[key].items.oneOf) {
+                            schemaProperties[key].items.oneOf.map(oneOf => {
+                                loop(oneOf.properties, fields[key]);
+                            })
+                        }
+                    }
+                }
+
+                // If this component is a select from source component, resolve the source and add the select values
+                if (componentType(schemaProperties[key]) === 'selectFromSource') {
+                    if (inputSource(schemaProperties[key]) === 'companies.directors') {
+                        let directors = [];
+                        context.directorList.directors.map((director) => {
+                            directors.push(director.person.name);
+                        });
+                        fields[key].data = directors;
+                    }
+                }
+            });
+        
+            return fields;
+        }
+
+        return loop(schemaProperties, fields);
+    }
+
+    return Injector;
+}
+
 
 function getValidate(schema){
     return (values) => {
@@ -307,7 +370,7 @@ function getDefaultValues(schema, defaults){
   fields: getFields(templateSchemas.transfer),
   validate: getValidate(templateSchemas.transfer)
 })
-export  class TransferForm extends React.Component {
+export class TransferForm extends React.Component {
     render() {
         const { fields } = this.props;
         return <RenderForm schema={templateSchemas.transfer}  {...this.props} />
@@ -459,13 +522,6 @@ export const TemplateMap = {
     }
 }
 
-@CompanyHOC
-class SomeBullshitClass extends React.Component {
-    render() {
-        return <div>{this.props.company.data && this.props.company.data.currentCompanyState.companyName}</div>;
-    }
-}
-
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
 }, {
@@ -498,14 +554,13 @@ export  class TemplateView extends React.Component {
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
             const values = template.getInitialValues(state || {company: this.props.companyState || {}})
-            return <template.form onSubmit={this.submit} initialValues={values} />
+            return <template.form onSubmit={this.submit} initialValues={values} context={this.props.companyState} />
         }
         return <div>Not Found</div>
     }
 
     render() {
         return <div className="row">
-            <SomeBullshitClass companyId={10010} />
             <div className="col-md-12">
                 { this.renderBody() }
             </div>

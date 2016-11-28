@@ -7,6 +7,7 @@ import HelpBlock from 'react-bootstrap/lib/HelpBlock';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { splitBsProps } from 'react-bootstrap/lib/utils/bootstrapUtils';
 import DropdownList from 'react-widgets/lib/DropdownList';
+import { Combobox } from 'react-widgets';
 
 
 const DROPLIST_THRESHOLD = 20;
@@ -236,10 +237,17 @@ class InputBase extends React.Component {
       );
     default:
       const className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
-      if(this.isCheckboxOrRadio()){
-            delete elementProps.value;
-            elementProps.checked = elementProps.checked || false;
+      
+      if (this.props.data && this.props.data.length) {
+        console.log(elementProps);
+        return <Combobox data={this.props.data} ref="input" key="input" />
       }
+
+      if (this.isCheckboxOrRadio()){
+        delete elementProps.value;
+        elementProps.checked = elementProps.checked || false;
+      }
+
       return <input {...elementProps} className={classNames(this.props.className, className)} ref="input" key="input" />;
     }
   }
