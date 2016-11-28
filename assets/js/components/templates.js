@@ -307,7 +307,6 @@ function getDefaultValues(schema, defaults){
 export  class TransferForm extends React.Component {
     render() {
         const { fields } = this.props;
-                debugger
         return <RenderForm schema={templateSchemas.transfer}  {...this.props} />
     }
 }
@@ -492,7 +491,7 @@ export  class TemplateView extends React.Component {
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
             const values = template.getInitialValues(state || {company: this.props.companyState || {}})
-            return <template.form onSubmit={this.submit} initialValues={values}/>
+            return <template.form onSubmit={this.submit} initialValues={values} />
         }
         return <div>Not Found</div>
     }

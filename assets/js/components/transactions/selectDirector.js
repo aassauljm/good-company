@@ -8,7 +8,7 @@ import { reduxForm } from 'redux-form';
 import { formFieldProps, requireFields, joinAnd, personList } from '../../utils';
 import { showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
-import { Director } from '../companyDetails';
+import { Director } from '../directors';
 import LawBrowserLink from '../lawBrowserLink';
 
 export function DirectorLawLinks(){

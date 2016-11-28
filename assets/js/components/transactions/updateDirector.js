@@ -12,7 +12,6 @@ import { companyTransaction, addNotification, showTransactionView } from '../../
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { DirectorConnected, NewDirectorConnected, directorSubmit } from '../forms/person';
-import { Director } from '../company';
 import { personOptionsFromState } from '../../utils';
 import { DirectorLawLinks } from './selectDirector'
 

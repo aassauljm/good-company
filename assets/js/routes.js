@@ -37,6 +37,7 @@ import { CompanyAlerts } from './components/companyAlerts';
 import Calendar, { CreateEvent, EditEvent } from './components/calendar';
 import Alerts from './components/alerts';
 import AnnualReturn from './components/annualReturn';
+import { CompanyGraph } from './components/companyDetails';
 
 
 
@@ -94,6 +95,7 @@ export default (store) => {
                 <Route path="reporting" component={ ReportingDetails } />
                 <Route path="source_data" component={ CompaniesRegister } />
                 <Route path="directors" component={ Directors } />
+                <Route path="graph" component={ CompanyGraph } />
                 <Route path="share_classes" component={ ShareClasses } >
                     <Route path="create" component={ ShareClassCreate } />
                     <Route path="view/:shareClassId" component={ ShareClassEdit } />
