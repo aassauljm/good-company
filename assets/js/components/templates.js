@@ -15,6 +15,7 @@ import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
+import { CompanyHOC } from '../hoc/resources';
 let Combobox = require('react-widgets/lib/Combobox');
 
 const LOOKUP_COMPANY = 'LOOKUP_COMPANY';
@@ -94,11 +95,12 @@ function renderField(fieldProps, componentProps, index){
             <Combobox data={[1, 2, 3, 4]} />
         );
     }
-    else */if(fieldProps.type === 'string'){
+    else */ if(fieldProps.type === 'string'){
         if (componentType(fieldProps) === 'date') {
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
-        } else if (componentType(fieldProps) == 'time') {
-            return <DateInput {...componentProps} format={"h:mm a"} displayFormat={"h:mm a"} {...props} calendar={false} time={true} />
+        } else if (componentType(fieldProps) == 'dateTime') {
+            // return <DateInput {...componentProps} format={"h:mm a"} {...props} time={true} />
+            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
         } else if(componentType(fieldProps) === 'textarea') {
             return <Input type="textarea" rows="5"{...componentProps}  {...props} />
         }
@@ -253,6 +255,7 @@ function getValidate(schema){
     }
 }
 
+// Appears to not be populating default on list items
 function getDefaultValues(schema, defaults){
     if(!defaults){
         defaults = {};
@@ -457,7 +460,12 @@ export const TemplateMap = {
     }
 }
 
-
+@CompanyHOC
+class SomeBullshitClass extends React.Component {
+    render() {
+        return <div>{this.props.company.data && this.props.company.data.currentCompanyState.companyName}</div>;
+    }
+}
 
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
@@ -498,6 +506,7 @@ export  class TemplateView extends React.Component {
 
     render() {
         return <div className="row">
+            <SomeBullshitClass companyId={10010} />
             <div className="col-md-12">
                 { this.renderBody() }
             </div>

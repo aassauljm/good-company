@@ -16,12 +16,13 @@ import Input from './forms/input';
 import { reduxForm } from 'redux-form';
 import WorkingDayNotice from './forms/workingDays';
 import STRINGS from '../strings';
-import { formFieldProps, requireFields, stringDateToFormattedStringTime } from '../utils';
+import { formFieldProps, requireFields, stringDateToFormattedStringTime, companyListToOptions } from '../utils';
 import { OverlayTrigger } from './lawBrowserLink';
 import Tooltip from 'react-bootstrap/lib/Tooltip';
 import exportICS from './ics'
 import Loading from './loading';
 import { requestAlerts } from './alerts';
+
 
 const DEFAULT_OBJ = {};
 const DEFAULT_DEADLINE_HOUR = 11;
@@ -411,15 +412,6 @@ const EventFormConnected = reduxForm({
 })(EventForm)
 
 
-function companyOptions(companies) {
-    return [
-        <option key={-1}></option>,
-        ...(((companies || {}).data || []).map((c, i) =>
-            <option value={c.id} key={i}>{c.currentCompanyState.companyName}</option>
-    ))];
-}
-
-
 @connect(undefined, {
     addNotification: (args) => addNotification(args),
     createEvent: (args) => createResource('/event', args)
@@ -446,7 +438,7 @@ export  class CreateEvent extends React.Component {
         const {location: {query: {date}}} = this.props;
         const dateValue = date ? moment(date, 'YYYY-MM-DD').toDate() : new Date();
         return <div>
-            <EventFormConnected initialValues={{date: dateValue}} companyOptions={companyOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
+            <EventFormConnected initialValues={{date: dateValue}} companyOptions={companyListToOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
                 <div className="button-row">
                 <Button onClick={this.props.close}>Cancel</Button>
                 <Button bsStyle="primary" onClick={() => this.refs.form.submit()}>{ STRINGS.calendar.create}</Button>
@@ -479,7 +471,7 @@ export  class EditEventUnpopulated extends React.Component {
     render() {
 
         return <div>
-            <EventFormConnected initialValues={this.props.event} companyOptions={companyOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
+            <EventFormConnected initialValues={this.props.event} companyOptions={companyListToOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
                 <div className="button-row">
                 <Button onClick={this.props.close}>Cancel</Button>
                 <Button bsStyle="primary" onClick={() => this.refs.form.submit()}>{ STRINGS.calendar.update}</Button>
