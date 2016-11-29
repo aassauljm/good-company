@@ -48,6 +48,7 @@
             },
             "required": ["dateOfResignation", "resigningDirector", "companyHasConstitution", "effective"],
             "default": {
+                "companyHasConstitution": "Company has Constitution",
                 "effective": "Effective Immediately"
             },
             "x-hints": {
