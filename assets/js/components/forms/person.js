@@ -42,8 +42,8 @@ export class Person extends React.Component {
                 <Input type="text"  {...this.formFieldProps(['attr', 'phone'], STRINGS.persons)} />
 
                 <Input type="select"  {...this.formFieldProps(['attr', 'contactMethod'], STRINGS.persons)}>
-                    <option value="physical">Post to physical address</option>
-                    <option value="postal">Post to postal address</option>
+                    <option value="address">Post to physical address</option>
+                    <option value="postalAddress">Post to postal address</option>
                     <option value="email">Email</option>
                     <option value="fax">fax</option>
                 </Input>
@@ -67,13 +67,9 @@ export class Director extends React.Component {
         return <form className="form" >
             <fieldset>
                 { this.props.fields.appointment && <DateInput {...this.formFieldProps('appointment')} /> }
-                { this.props.fields.cessation && <DateInput {...this.formFieldProps('cessation')} description="Setting cessation date will end this directorship."/> }
+
                 <PersonName {...this.formFieldProps(['person', 'name'])} />
-                <Address {...this.formFieldProps(['person', 'address'])} />
-                <DateInput {...this.formFieldProps(['person', 'attr', 'dateOfBirth'], STRINGS.persons)} />
-                <Country {...this.formFieldProps(['person', 'attr','placeOfBirth'], STRINGS.persons)} />
             </fieldset>
-            <Documents documents={this.props.fields.documents} label="Approval Documents"/>
         </form>
     }
 }
@@ -87,15 +83,20 @@ export class NewDirector extends React.Component {
         const newPerson = this.props.fields.newPerson;
         const personId = this.props.fields.personId
         const onChange = personId.onChange;
+
         const interceptChange =  (event) => {
             const value = event.target ? event.target.value : event.value;
             if(value === CREATE_NEW_PERSON){
                 this.props.newPerson();
             }
             else{
+                if(value){
+                    this.props.fields.person.onChange(this.props.personMap[value]);
+                }
                 onChange(event);
             }
         }
+
         return <form className="form" >
             <fieldset>
                  { this.props.fields.appointment && <DateInput{...this.formFieldProps('appointment')} /> }
@@ -112,9 +113,6 @@ export class NewDirector extends React.Component {
                             newPerson.onChange(null);
                         }}><Glyphicon glyph='trash'/></button>} /> }
 
-
-                <DateInput {...this.formFieldProps(['person', 'attr', 'dateOfBirth'], STRINGS.persons)} />
-                <Country {...this.formFieldProps(['person', 'attr','placeOfBirth'], STRINGS.persons)} />
                 <WorkingDays field={this.props.fields.noticeDate} source={this.props.fields.appointment.value} days={20} label="Notice must be given to the Registrar by" />
                 <DateInput {...this.formFieldProps(['approvalDate'], STRINGS.persons)} label ="Approval Date"/>
 
@@ -141,43 +139,59 @@ const validateDirector = (values, props) => {
     return {...requireFields('appointment')(values), person: personErrors};
 }
 
-const personAttributes = requireFields('dateOfBirth', 'placeOfBirth');
+const birthAttributes = requireFields('dateOfBirth', 'placeOfBirth');
 const newDirectorRequirements = requireFields('appointment', 'approvalDate', 'approvedBy');
 
+const validateUpdateDirector = (values, props) => {
+    return {}
+};
+
+
+const validateNewPersonFull = (values, props) => {
+    const error = validateNew(values, props)
+    error.attr = {...birthAttributes(values, props) }
+    return error;
+}
 
 const validateNewDirector = (values, props) => {
-    const personAttrErrors = personAttributes(values.person.attr)
-    if(values.person.attr.dateOfBirth && values.appointment &&  moment(values.appointment).diff(values.person.attr.dateOfBirth, 'years') < MIN_AGE_DIRECTOR){
-        personAttrErrors.dateOfBirth = [`Director must be at least ${MIN_AGE_DIRECTOR} years of age`];
+    const errors = validateUpdateDirector(values, props);
+    if(values.newPerson){
+        errors.newPerson = validateNewPersonFull(values.newPerson)
     }
-    return {...newDirectorRequirements(values), 'personId': (!values.personId && !values.newPerson) && ['Required.'],
-        person: {attr: personAttrErrors}
-    };
+    if(values.person){
+        errors.person = validateNewPersonFull(values.person)
+    }
+    return {};
 }
+
+
+const PersonFields = ['name', 'address', 'companyNumber',  'isNaturalPerson', 'postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'];
 
 
 export const NewPersonConnected = reduxForm({
   form: 'person',
-  fields: ['name', 'address', 'companyNumber',  'attr.isNaturalPerson', 'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'],
-  validate: validateNew
+  fields: PersonFields,
+  validate: validateNew,
 })(Person);
 
 
 export const UpdatePersonConnected = reduxForm({
   form: 'person',
-  fields : ['effectiveDate', 'name', 'address', 'attr.isNaturalPerson', 'companyNumber', 'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'],
+  fields : ['effectiveDate'].concat(PersonFields),
   validate: validateUpdate
 })(Person);
 
-export const DirectorConnected = reduxForm({
+
+export const DeleteDirectorConnected = reduxForm({
   form: 'director',
-  fields : ['appointment', 'cessation', 'person.name', 'person.address', 'documents', 'person.attr.dateOfBirth', 'person.attr.placeOfBirth', 'noticeDate', 'approvedBy', 'approvalDate', 'approval' ],
-  validate: validateDirector
-})(Director);
+  fields : ['effectiveDate'].concat(PersonFields),
+  validate: validateUpdateDirector
+})(Person);
+
 
 export const NewDirectorConnected = reduxForm({
   form: 'director',
-  fields : ['appointment', 'personId', 'newPerson', 'documents', 'person.attr.dateOfBirth', 'person.attr.placeOfBirth',  'noticeDate', 'approvedBy', 'approvalDate', 'approval'  ],
+  fields : ['appointment', 'personId', 'newPerson', 'person', 'documents', 'noticeDate', 'approvedBy', 'approvalDate', 'approval'  ],
   validate: validateNewDirector,
   destroyOnUnmount: false
 })(NewDirector);
@@ -233,7 +247,7 @@ export function directorSubmit(values, oldDirector, companyState){
                 appointment: values.appointment,
                 effectiveDate: values.appointment,
                 noticeDate: values.noticeDate,
-                personAttr: values.attr
+                personAttr: values.person.attr
             }]
         }]
     }

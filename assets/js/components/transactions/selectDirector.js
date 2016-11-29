@@ -41,11 +41,8 @@ export class SelectDirectorTransactionView extends React.Component {
         const directors = this.props.transactionViewData.companyState.directorList.directors;
         return <div >
                 { directors.map((p, i) => {
-                    return <Director key={i} director={p} editDirector={() => this.props.dispatch(showTransactionView('updateDirector', {...this.props.transactionViewData, director: p}))}/>
+                    return <Director key={i} director={p} editDirector={() => this.props.dispatch(showTransactionView(this.props.selectAction, {...this.props.transactionViewData, director: p}))}/>
                     }) }
-            <div className="button-row"><ButtonInput bsStyle={'primary'} onClick={(e) => {
-                    this.props.dispatch(showTransactionView('updateDirector', {...this.props.transactionViewData, director: null}))
-                }}>Appoint Director</ButtonInput></div>
             </div>
     }
 
@@ -63,4 +60,14 @@ export class SelectDirectorTransactionView extends React.Component {
             </TransactionView>
     }
 
+}
+
+
+export const SelectDirectorRemoveTransactionView = (props) => {
+    return <SelectDirectorTransactionView selectAction='removeDirector' {...props}/>
+}
+
+
+export const SelectDirectorUpdateTransactionView = (props) => {
+    return <SelectDirectorTransactionView selectAction='updateDirector' {...props}/>
 }

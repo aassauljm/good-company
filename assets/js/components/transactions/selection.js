@@ -198,12 +198,13 @@ export class UpdatePeople extends React.Component {
             </div>
             </div>
 
-            <div>
+            <div className="row">
+            <div className="col-xs-12">
             <div className="actionable select-button" onClick={() => this.props.show('newDirector')  } >
                     <span className="glyphicon glyphicon-user"></span>
                     <span className="transaction-button-text">Appoint Director</span>
             </div>
-            <div className="actionable select-button" onClick={() => this.props.show('selectDirectUpdate')  } >
+            <div className="actionable select-button" onClick={() => this.props.show('selectDirectorUpdate')  } >
                     <span className="glyphicon glyphicon-user"></span>
                     <span className="transaction-button-text">Update Director</span>
             </div>
@@ -213,6 +214,7 @@ export class UpdatePeople extends React.Component {
                     <span className="transaction-button-text">Remove Director</span>
             </div>
 
+            </div>
             </div>
         </SelectionBase>
     }

@@ -276,6 +276,27 @@ export function populatePerson(person, companyState){
     }
 }
 
+export function personMap(companyState){
+    // dumb
+    const result = {};
+    companyState.holdingList.holdings.map((h) => {
+        h.holders.map((p) => {
+            result[p.personId] = {name: p.name, address: p.address, personId: p.personId, companyNumber: p.companyNumber, attr: p.attr};
+        });
+    });
+    companyState.directorList.directors.map((p) => {
+        result[p.person.personId] = {name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber, attr: p.person.attr};
+    });
+    return result;
+}
+
+
+export function isNaturalPerson(person){
+    let nonNatural = !!person.companyNumber;
+    nonNatural = nonNatural || (person.attr || {}).isNaturalPerson === false;
+    return !nonNatural;
+}
+
 
 export function generateShareClassMap(companyState){
     if(companyState && companyState.shareClasses && companyState.shareClasses.shareClasses){
@@ -338,11 +359,4 @@ export function sortAlerts(response) {
         return acc;
     }, {});
     return {alertList: data, companyMap, dateMap}
-}
-
-
-export function isNaturalPerson(person){
-    let nonNatural = !!person.companyNumber;
-    nonNatural = nonNatural || (person.attr || {}).isNaturalPerson === false;
-    return !nonNatural;
 }
