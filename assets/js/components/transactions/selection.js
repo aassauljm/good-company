@@ -183,6 +183,7 @@ export class UpdatePeople extends React.Component {
     render() {
         return <SelectionBase {...this.props} title="Update People" >
             <div>
+            <div className="text-center"><h5>Shareholdings & Shareholders</h5></div>
             <div className="actionable select-button" onClick={() => this.props.show('selectPerson')} >
                 <span className="glyphicon glyphicon-user"></span>
                 <span className="transaction-button-text">Shareholders</span>
@@ -200,6 +201,7 @@ export class UpdatePeople extends React.Component {
 
             <div className="row">
             <div className="col-xs-12">
+            <div className="text-center"><h5>Directors</h5></div>
             <div className="actionable select-button" onClick={() => this.props.show('newDirector')  } >
                     <span className="glyphicon glyphicon-user"></span>
                     <span className="transaction-button-text">Appoint Director</span>

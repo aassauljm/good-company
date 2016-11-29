@@ -70,10 +70,10 @@ export class DirectorList extends React.Component {
         const directors = (this.props.directors || []).map((d, i) => <Director director={d} holders={this.props.holders} editDirector={this.props.editDirector} key={i} />);
         return <div className="row">
         <div className="col-md-6">
-            { directors.slice(0, directors.length/2)}
+            { directors.filter((d, i) => i % 2 === 0)}
         </div>
         <div className="col-md-6">
-            { directors.slice(directors.length/2) }
+            { directors.filter((d, i) => i % 2 === 1) }
         </div>
         </div>
     }

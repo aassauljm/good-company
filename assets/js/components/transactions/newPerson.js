@@ -5,12 +5,12 @@ import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
 import { change } from 'redux-form';
-import { NewPersonConnected } from '../forms/person';
-
+import { NewPersonConnected, DirectorPersonConnected } from '../forms/person';
+import { DirectorLawLinks } from './selectDirector'
 
 
 @connect(undefined)
-export class NewPersonTransactionView extends React.Component {
+class NewPerson extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
@@ -26,24 +26,22 @@ export class NewPersonTransactionView extends React.Component {
             this.props.end();
             return;
         }
-        this.props.end();
+        else{
+            this.props.end();
+        }
     }
 
     renderBody(companyState) {
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <NewPersonConnected
+        return <this.props.form
                     ref="form"
                     onSubmit={this.submit}/>
-                </div>
-            </div>
 
     }
 
     render() {
         // TODO, connect this to the form data, check valid and submitting, disable submit button
         // figture out lawlinks
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.props.end} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.props.end} backdrop={'static'} lawLinks={this.props.lawLinks}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Create New Person</TransactionView.Title>
               </TransactionView.Header>
@@ -59,3 +57,10 @@ export class NewPersonTransactionView extends React.Component {
 }
 
 
+export function NewPersonTransactionView(props) {
+    return <NewPerson {...props} form={NewPersonConnected} />
+}
+
+export function NewDirectorPersonTransactionView(props) {
+    return <NewPerson {...props} form={DirectorPersonConnected} lawLinks={DirectorLawLinks()}/>
+}

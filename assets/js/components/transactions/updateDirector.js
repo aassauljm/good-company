@@ -13,7 +13,7 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { UpdateDirectorConnected, NewDirectorConnected, RemoveDirectorConnected, directorSubmit } from '../forms/person';
 import { personOptionsFromState } from '../../utils';
-import { DirectorLawLinks } from './selectDirector'
+import { DirectorLawLinks, RemoveDirectorLawLinks } from './selectDirector'
 
 
 @connect(undefined)
@@ -38,18 +38,10 @@ export class UpdateDirectorTransactionView extends React.Component {
     renderBody() {
         return <UpdateDirectorConnected
             ref="form"
-            initialValues={{...this.props.transactionViewData.director,
-                appointment: new Date(this.props.transactionViewData.director.appointment)
+            initialValues={{
+                ...this.props.transactionViewData.director.person,
+                effectiveDate: new Date()
             }}
-            updatePerson={() => this.props.dispatch(showTransactionView('updatePerson', {
-                ...this.props.transactionViewData,
-                formName: 'director',
-                field: 'person',
-                afterClose: { // open this transactionView again
-                    showTransactionView: {key: 'updateDirector', data: {...this.props.transactionViewData, index: this.props.index}}
-                }
-            }))}
-
             onSubmit={this.submit}/>
     }
 
@@ -62,7 +54,7 @@ export class UpdateDirectorTransactionView extends React.Component {
                                     {transactions: transactions, documents: values.documents} ))
                 .then(() => {
                     this.handleClose({reload: true});
-                    this.props.dispatch(addNotification({message: this.isNew() ? 'Director Appointed' : 'Directorship Updated.'}));
+                    this.props.dispatch(addNotification({message: 'Directorship Updated.'}));
                     const key = this.props.transactionViewData.companyId;
                 })
                 .catch((err) => {
@@ -119,7 +111,7 @@ export class NewDirectorTransactionView extends React.Component {
                 approvedBy: 'Ordinary Resolution',
                 appointment: new Date() }}
             personOptions={personOptions}
-            newPerson={() => this.props.dispatch(showTransactionView('newPerson', {
+            newPerson={() => this.props.dispatch(showTransactionView('newDirectorPerson', {
                 ...this.props.transactionViewData,
                 formName: 'director',
                 field: 'newPerson',
@@ -127,7 +119,7 @@ export class NewDirectorTransactionView extends React.Component {
                     showTransactionView: {key: 'newDirector', data: {...this.props.transactionViewData, index: this.props.index}}
                 }
             }))}
-            updatePerson={(person) => this.props.dispatch(showTransactionView('updatePerson', {
+            updatePerson={(person) => this.props.dispatch(showTransactionView('updateDirectorPerson', {
                 ...this.props.transactionViewData,
                 person,
                 formName: 'director',
@@ -165,7 +157,7 @@ export class NewDirectorTransactionView extends React.Component {
     render() {
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={DirectorLawLinks()}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>Manage Directors</TransactionView.Title>
+                <TransactionView.Title>Appoint Director</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody() }
@@ -197,14 +189,9 @@ export class RemoveDirectorTransactionView extends React.Component {
     }
 
     renderBody() {
-        return this.updateDirector()
-    }
-
-    updateDirector() {
         return <RemoveDirectorConnected
             ref="form"
-            initialValues={{...this.props.transactionViewData.director,
-                appointment: new Date(this.props.transactionViewData.director.appointment) }}
+            initialValues={{...this.props.transactionViewData.director}}
             onSubmit={this.submit}/>
     }
 
@@ -231,7 +218,7 @@ export class RemoveDirectorTransactionView extends React.Component {
 
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={DirectorLawLinks()}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={RemoveDirectorLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Remove Director</TransactionView.Title>
               </TransactionView.Header>
@@ -240,7 +227,7 @@ export class RemoveDirectorTransactionView extends React.Component {
               </TransactionView.Body>
               <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-                 <Button onClick={this.handleNext} bsStyle="primary">Update Director</Button>
+                 <Button onClick={this.handleNext} bsStyle="primary">Remove Director</Button>
               </TransactionView.Footer>
             </TransactionView>
     }

@@ -14,8 +14,8 @@ import { NewHoldingTransactionView } from './transactions/newHolding';
 import { UpdateHoldingTransactionView } from './transactions/updateHolding';
 import { SelectHoldingTransactionView } from './transactions/selectHolding';
 import { ImportHistoryTransactionView } from './transactions/importHistory';
-import { NewPersonTransactionView } from './transactions/newPerson';
-import { UpdatePersonTransactionView, UpdateHistoricPersonTransactionView } from './transactions/updatePerson';
+import { NewPersonTransactionView, NewDirectorPersonTransactionView } from './transactions/newPerson';
+import { UpdatePersonTransactionView, UpdateDirectorPersonTransactionView, UpdateHistoricPersonTransactionView } from './transactions/updatePerson';
 import { SelectPersonTransactionView, SelectHistoricPersonTransactionView  } from './transactions/selectPerson';
 import { SelectDirectorRemoveTransactionView, SelectDirectorUpdateTransactionView  } from './transactions/selectDirector';
 import { NewDirectorTransactionView, UpdateDirectorTransactionView, RemoveDirectorTransactionView  } from './transactions/updateDirector';
@@ -98,6 +98,9 @@ export const TransactionViewSwitch = (props) => {
             case 'updatePerson':
                 return <UpdatePersonTransactionView {...props} />
 
+            case 'updateDirectorPerson':
+                return <UpdateDirectorPersonTransactionView {...props} />
+
             case 'updateHistoricPerson':
                 return <UpdateHistoricPersonTransactionView {...props} />
 
@@ -122,6 +125,8 @@ export const TransactionViewSwitch = (props) => {
             case 'newDirector':
                 return <NewDirectorTransactionView {...props} />
 
+            case 'newDirectorPerson':
+                return <NewDirectorPersonTransactionView {...props} />
 
             case 'importHistory':
                 return <ImportHistoryTransactionView {...props} />

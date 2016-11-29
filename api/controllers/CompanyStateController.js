@@ -55,6 +55,7 @@ function transactionMessages(transactions, companyName){
     const removeDirector = _.filter(transactions, t => t.transactionType === Transaction.types.REMOVE_DIRECTOR);
     const updateDirector = _.filter(transactions, t => t.transactionType === Transaction.types.UPDATE_DIRECTOR);
 
+
     if(issue.length){
         const sum = calcSum(issue, Transaction.types.ISSUE);
         const plural = sum !== 1 ? 'shares' : 'share';

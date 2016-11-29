@@ -6,9 +6,11 @@ import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
-import { UpdatePersonConnected, updatePersonSubmit, updateHistoricPersonSubmit } from '../forms/person';
+import { UpdatePersonConnected, DirectorPersonConnected, updatePersonSubmit, updateHistoricPersonSubmit } from '../forms/person';
 import LawBrowserLink from '../lawBrowserLink';
 import { change } from 'redux-form';
+import { DirectorLawLinks } from './selectDirector'
+
 
 export function ShareholderLawLinks(){
     return <div>
@@ -45,10 +47,10 @@ class UpdatePersonTransactionViewBase extends React.Component {
             person.attr = person.attr || {};
             person.attr.isNaturalPerson = person.attr.isNaturalPerson || true;
         }
-        return <UpdatePersonConnected
+        return <this.props.form
                     ref="form"
                     initialValues={{effectiveDate: new Date(), ...person}}
-                    onSubmit={this.submit}/>
+                    onSubmit={this.submit} />;
 
     }
 
@@ -79,7 +81,7 @@ class UpdatePersonTransactionViewBase extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={ShareholderLawLinks()}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>{this.props.title}</TransactionView.Title>
               </TransactionView.Header>
@@ -97,11 +99,15 @@ class UpdatePersonTransactionViewBase extends React.Component {
 }
 
 export function UpdatePersonTransactionView(props) {
-    return <UpdatePersonTransactionViewBase {...props} submitFormat={updatePersonSubmit} title="Update Person"/>
+    return <UpdatePersonTransactionViewBase {...props} submitFormat={updatePersonSubmit} title="Update Person" form={UpdatePersonConnected} lawLinks={ShareholderLawLinks()}/>
+}
+
+export function UpdateDirectorPersonTransactionView(props) {
+    return <UpdatePersonTransactionViewBase {...props} submitFormat={updatePersonSubmit} title="Update Person" form={DirectorPersonConnected} lawLinks={DirectorLawLinks()}/>
 }
 
 export function UpdateHistoricPersonTransactionView(props) {
-    return <UpdatePersonTransactionViewBase {...props} submitFormat={updateHistoricPersonSubmit} title="Update Historic Shareholder"/>
+    return <UpdatePersonTransactionViewBase {...props} submitFormat={updateHistoricPersonSubmit} title="Update Historic Shareholder" form={UpdatePersonConnected} lawLinks={ShareholderLawLinks()}/>
 }
 
 

@@ -61,20 +61,37 @@ export class Person extends React.Component {
 
 
 @formFieldProps()
-export class Director extends React.Component {
+export class RemoveDirector extends React.Component {
     static propTypes = {
 
     };
     render() {
+        const {fields: {reason}} = this.props;
+        console.log(this.props)
         return <form className="form" >
             <fieldset>
-                { this.props.fields.appointment && <DateInput {...this.formFieldProps('appointment')} /> }
 
-                <PersonName {...this.formFieldProps(['person', 'name'])} />
+                <Input {...this.formFieldProps(['person', 'name'])} type="static"/>
+                <DateInput {...this.formFieldProps('cessation')} />
+                <WorkingDays field={this.props.fields.noticeDate} source={this.props.fields.cessation.value} days={20} label="Notice must be given to the Registrar by" />
+                <Input type="select"  {...this.formFieldProps(['reason'])} label="Reason">
+                    <option value=""></option>
+                    <option value="Resignation">Resignation</option>
+                    <option value="Shareholders' Resolution">Shareholders' Resolution</option>
+                    <option value="Disqualification">Disqualification</option>
+                    <option value="Death">Death</option>
+                    <option value="Court Order">Court Order</option>
+                    <option value="Other">Other</option>
+                </Input>
+
+                { ['Disqualification', 'Other'].indexOf(reason.value) > -1 && <Input type="textarea" {...this.formFieldProps('reasonDetails')} label="Details"/> }
+                { ['Resignation', "Shareholders' Resolution", "Court Order"].indexOf(reason.value) > -1 && <DateInput {...this.formFieldProps('reasonDate')} label="Date"/> }
+                 <Documents documents={this.props.fields.documents}  label="Documents"/>
             </fieldset>
         </form>
     }
 }
+
 
 @formFieldProps()
 export class NewDirector extends React.Component {
@@ -119,6 +136,11 @@ export class NewDirector extends React.Component {
                     <p>More information is required about this person.</p>
                     <div className="button-row"><Button bsStyle="danger" onClick={() => this.props.updatePerson(person.value)}>Click here to Update</Button></div>
                     </div> }
+
+                    { !newPerson.value && !person.error && person.value &&
+                    <div className="button-row"><Button bsStyle="info" onClick={() => this.props.updatePerson(person.value)}>Click here to Update Person</Button></div> }
+
+
                 <WorkingDays field={this.props.fields.noticeDate} source={this.props.fields.appointment.value} days={20} label="Notice must be given to the Registrar by" />
                 <DateInput {...this.formFieldProps(['approvalDate'], STRINGS.persons)} label ="Approval Date"/>
 
@@ -141,24 +163,34 @@ const MIN_AGE_DIRECTOR = 18;
 
 const validateDirector = (values, props) => {
     const personErrors = validateNew(values.person);
-
     return {...requireFields('appointment')(values), person: personErrors};
 }
 
 
-
-
 const validateUpdateDirector = (values, props) => {
-    return {}
+    // have to allow people to update existing director info without DoB etc
+    return validateUpdate(values, props)
 };
 
 const birthAttributes = requireFields('dateOfBirth', 'placeOfBirth');
+
+const contactAttributes = (values, props) => {
+    const errors = {}
+    if(values && values.contactMethod && values.contactMethod !== 'physical'){
+        if(!values[values.contactMethod]){
+            errors[values.contactMethod] = ['Required.']
+        }
+    }
+    return errors;
+}
+
 const validateNewPersonFull = (values, props) => {
     const error = validateNew(values, props)
-    const attrError = {...birthAttributes(values.attr, props) };
+    const attrError = {...birthAttributes(values.attr, props), ...contactAttributes(values.attr, props) };
     if(Object.keys(attrError).length){
         error.attr = attrError
     }
+
     return error;
 }
 
@@ -166,19 +198,30 @@ const newDirectorRequirements = requireFields('appointment', 'approvalDate', 'ap
 
 const validateNewDirector = (values, props) => {
     const errors = newDirectorRequirements(values, props);
-
-    if(values.person){
-        const personErrors = validateNewPersonFull(values.person);
+    const person = values.newPerson || values.person;
+    if(person){
+        const personErrors = validateNewPersonFull(person);
         if(Object.keys(personErrors).length){
-            errors.person = personErrors
+            errors[values.newPerson ? 'newPerson': 'person'] = personErrors
         }
+        if(person.attr && person.attr.dateOfBirth && values.appointment){
+            if(moment(values.appointment).diff(person.attr.dateOfBirth, 'years') < MIN_AGE_DIRECTOR){
+                errors.appointment = [`Director must be at least ${MIN_AGE_DIRECTOR} years old`]
+            }
+        }
+
     }
     return errors;;
 }
 
+const validateRemoveDirector = requireFields('cessation', 'reason');
 
-const PersonFields = ['name', 'address', 'companyNumber',  'isNaturalPerson', 'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'];
 
+
+const PersonFields = [
+    'name', 'address', 'companyNumber',  'isNaturalPerson',
+    'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone',
+    'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'];
 
 export const NewPersonConnected = reduxForm({
   form: 'person',
@@ -207,6 +250,23 @@ export const NewDirectorConnected = reduxForm({
   validate: validateNewDirector,
   destroyOnUnmount: false
 })(NewDirector);
+
+
+export const DirectorPersonConnected = reduxForm({
+  form: 'person',
+  fields: PersonFields,
+  validate: validateNewPersonFull,
+})(Person);
+
+export const RemoveDirectorConnected = reduxForm({
+  form: 'RemoveDirector',
+  fields: ['cessation','noticeDate', 'person.name',  'reason', 'reasonDetails', 'reasonDate', 'documents'],
+  validate: validateRemoveDirector
+})(RemoveDirector);
+
+
+
+//Resignation", "Shareholders' Resolution", "Disqualification", "Death", "Court Order", "Other"
 
 
 export function updatePersonAction(values, oldPerson){
@@ -244,13 +304,13 @@ export function updateHistoricPersonSubmit(values, oldPerson){
 }
 
 
-
 export function directorSubmit(values, oldDirector, companyState){
     let actions;
     if(!oldDirector){
         const person = populatePerson(values, companyState);
         return [{
             effectiveDate: values.appointment,
+            transactionType: TransactionTypes.NEW_DIRECTOR,
             actions: [{
                 transactionType: TransactionTypes.NEW_DIRECTOR,
                 name: person.name,
@@ -259,13 +319,14 @@ export function directorSubmit(values, oldDirector, companyState){
                 appointment: values.appointment,
                 effectiveDate: values.appointment,
                 noticeDate: values.noticeDate,
-                personAttr: values.person.attr
+                personAttr: person.attr
             }]
         }]
     }
     if(values.cessation){
         return [{
             effectiveDate: values.cessation,
+            transactionType: TransactionTypes.REMOVE_DIRECTOR,
             actions: [{
                 transactionType: TransactionTypes.REMOVE_DIRECTOR,
                 name: values.person.name,
@@ -279,17 +340,17 @@ export function directorSubmit(values, oldDirector, companyState){
     }
     else{
         return [{
-            effectiveDate: new Date(),
+            effectiveDate: values.effectiveDate,
+            transactionType: TransactionTypes.UPDATE_DIRECTOR,
             actions: [{
                 transactionType: TransactionTypes.UPDATE_DIRECTOR,
                 beforeName: oldDirector.person.name,
-                afterName: values.person.name,
+                afterName: values.name,
                 beforeAddress: oldDirector.person.address,
-                afterAddress: values.person.address,
-                appointment: values.appointment,
+                afterAddress: values.address,
                 personId: oldDirector.person.personId,
                 noticeDate: values.noticeDate,
-                personAttr: {...(oldDirector.person.attr || {}), ...values.person.attr}
+                personAttr: {...(oldDirector.person.attr || {}), ...values.attr}
             }]
         }]
     }

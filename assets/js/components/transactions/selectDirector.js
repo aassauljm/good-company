@@ -25,6 +25,18 @@ export function DirectorLawLinks(){
 
 }
 
+export function RemoveDirectorLawLinks(){
+    return <div>
+            <LawBrowserLink title="Companies Act 1993" location="s 126" >Meaning of director</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 156" >Removal of directors</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 157(1)" >Vacation in office of director</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 157(2)" >Resignation of director</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 157(3)" >Liability of former directors</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 159" >Notice of change of directors</LawBrowserLink>
+        </div>
+
+}
+
 
 @connect(undefined)
 export class SelectDirectorTransactionView extends React.Component {
@@ -47,7 +59,7 @@ export class SelectDirectorTransactionView extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={DirectorLawLinks()}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Select Director</TransactionView.Title>
               </TransactionView.Header>
@@ -64,10 +76,10 @@ export class SelectDirectorTransactionView extends React.Component {
 
 
 export const SelectDirectorRemoveTransactionView = (props) => {
-    return <SelectDirectorTransactionView selectAction='removeDirector' {...props}/>
+    return <SelectDirectorTransactionView selectAction='removeDirector' {...props} lawLinks={RemoveDirectorLawLinks()}/>
 }
 
 
 export const SelectDirectorUpdateTransactionView = (props) => {
-    return <SelectDirectorTransactionView selectAction='updateDirector' {...props}/>
+    return <SelectDirectorTransactionView selectAction='updateDirector' {...props} lawLinks={DirectorLawLinks()}/>
 }
