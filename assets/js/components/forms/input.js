@@ -7,6 +7,7 @@ import HelpBlock from 'react-bootstrap/lib/HelpBlock';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { splitBsProps } from 'react-bootstrap/lib/utils/bootstrapUtils';
 import DropdownList from 'react-widgets/lib/DropdownList';
+import { Combobox } from 'react-widgets';
 
 
 const DROPLIST_THRESHOLD = 20;

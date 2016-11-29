@@ -28,6 +28,13 @@
                             "type": "string"
                         }
                     },
+                    "x-hints": {
+                        "form": {
+                            "inputComponent": "selectFromSource",
+                            "inputSource": "companies.directors",
+                            "inputTitle": "Name of Resigning Director"
+                        }
+                    },
                     "required": ["name"]
                 },
                 "companyHasConstitution": {
