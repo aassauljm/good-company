@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
-import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString, companyListToOptions } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString, companyListToOptions, personList } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
@@ -24,25 +24,37 @@ function createLawLinks(list){
     </div>
 }
 
+function getIn(obj, fields){
+    return fields.reduce((obj, f) => {
+        return obj ? obj[f] : null
+    }, obj);
+}
+
+
 function componentType(fieldProps){
-    return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
+    return getIn(fieldProps, ['x-hints', "form", "inputComponent"])
 }
 
 function oneOfField(fieldProps){
-    return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["selector"]
+    return getIn(fieldProps, ['x-hints', "form", "selector"])
 }
 
 function addItem(fieldProps){
-    return (fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["addItem"]) || 'Add Item';
+    return getIn(fieldProps, ['x-hints', "form", "addItem"]) || 'Add Item';
 }
 
-function inputSource(fieldProps){
-    return (fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputSource"]);
+function inputSelectSource(fieldProps){
+    return getIn(fieldProps, ['x-hints', "form", "selectFromSource"]);
 }
 
 function inputSourceTitle(fieldProps){
-    return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputTitle"];
+    return getIn(fieldProps, ['x-hints', "form", "inputTitle"]);
 }
+
+function inputSource(fieldProps){
+    return getIn(fieldProps, ['x-hints', "form", "source"]);
+}
+
 
 function oneOfMatchingSchema(fieldProps, values){
     const field = oneOfField(fieldProps);
@@ -86,10 +98,7 @@ function renderList(fieldProps, componentProps){
 
 function renderField(fieldProps, componentProps, index){
     let title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
-    
-    if (componentType(fieldProps) === 'selectFromSource') {
-        title = inputSourceTitle(fieldProps);
-    }
+
 
     const props = {
         bsStyle: fieldStyle(componentProps),
@@ -100,17 +109,17 @@ function renderField(fieldProps, componentProps, index){
         wrapperClassName: 'col-md-7'
     };
 
-    /*if (componentType(fieldProps) === 'selectFromSource') {
-        return <Input type="text" {...props} data={componentProps.data} />
-    } else */if (fieldProps.type === 'string') {
+
+    if (fieldProps.type === 'string') {
         if (componentType(fieldProps) === 'date') {
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
-        } else if (componentType(fieldProps) == 'dateTime') {
-            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
-        } else if(componentType(fieldProps) === 'textarea') {
-            return <Input type="textarea" rows="5"{...componentProps}  {...props} />
         }
-
+        else if (componentType(fieldProps) == 'dateTime') {
+            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
+        }
+        else if(componentType(fieldProps) === 'textarea') {
+            return <Input type="textarea" rows="5" {...componentProps}  {...props} />
+        }
         return <Input type="text" {...componentProps} {...props} />
     } else if (fieldProps.type === 'number'){
         return <Input type="number" {...componentProps} {...props} />
@@ -144,9 +153,6 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex) {
     return (
         <fieldset>
             { Object.keys(schemaProps).map((key, i) => {
-                if (componentType(schemaProps[key]) === 'selectFromSource') {
-                    //return <Input type="text" {...props} data={componentProps.data} />
-                }
                 return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
             }) }
             { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
@@ -180,7 +186,6 @@ export class RenderForm extends React.Component {
     }
 
 }
-
 
 function getFields(schema) {
     const fields = [];
@@ -225,12 +230,28 @@ function injectContext(FormComponent) {
         }
     }
 
+    function interceptChangesAndInject(schemaProperties, key, fields, context){
+        if (inputSelectSource(schemaProperties)) {
+            const source = inputSource(schemaProperties);
+            const onChange = fields[key][source].onChange;
+            fields[key][source].onChange = (event) => {
+                onChange(event);
+                const result = context[inputSelectSource(schemaProperties)].find(f => f[source] === event);
+                result && Object.keys(result).map(k => {
+                    if(k !== source && fields[key][k]){
+                        fields[key][k].onChange(result[k]);
+                    }
+                });
+            }
+            fields[key][source].comboData = context[inputSelectSource(schemaProperties)].map(f => f[source]);
+        }
+    }
+
     function injectContext(schemaProperties, fields, context) {
         function loop(schemaProperties, fields) {
             Object.keys(schemaProperties).map(key => {
                 if (schemaProperties[key].type === 'object') {
                     loop(schemaProperties[key].properties, fields[key]);
-                    
                     if (schemaProperties[key].oneOf) {
                         schemaProperties[key].oneOf.map(oneOf => {
                             loop(oneOf.properties, fields[key]);
@@ -239,7 +260,10 @@ function injectContext(FormComponent) {
                 } else if (schemaProperties[key].type === 'array') {
                     if (schemaProperties[key].items.type === "object") {
                         loop(schemaProperties[key].items.properties, fields[key]);
-                        
+
+                        fields[key] && fields[key].map((field, index) => {
+                            interceptChangesAndInject(schemaProperties[key].items,  index, fields[key], context);
+                        });
                         if (schemaProperties[key].items.oneOf) {
                             schemaProperties[key].items.oneOf.map(oneOf => {
                                 loop(oneOf.properties, fields[key]);
@@ -247,19 +271,9 @@ function injectContext(FormComponent) {
                         }
                     }
                 }
-
-                // If this component is a select from source component, resolve the source and add the select values
-                if (componentType(schemaProperties[key]) === 'selectFromSource') {
-                    if (inputSource(schemaProperties[key]) === 'companies.directors') {
-                        let directors = [];
-                        context.directorList.directors.map((director) => {
-                            directors.push(director.person.name);
-                        });
-                        fields[key].data = directors;
-                    }
-                }
+                interceptChangesAndInject(schemaProperties[key], key, fields, context)
             });
-        
+
             return fields;
         }
 
@@ -523,6 +537,18 @@ export const TemplateMap = {
     }
 }
 
+function makeContext(companyState) {
+    if(!companyState){
+        return {};
+    }
+    return {
+        'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
+        'company.shareholders': personList(companyState)
+    }
+
+}
+
+
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
 }, {
@@ -555,7 +581,7 @@ export  class TemplateView extends React.Component {
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
             const values = template.getInitialValues(state || {company: this.props.companyState || {}})
-            return <template.form onSubmit={this.submit} initialValues={values} context={this.props.companyState} />
+            return <template.form onSubmit={this.submit} initialValues={values} context={makeContext(this.props.companyState)} />
         }
         return <div>Not Found</div>
     }

@@ -52,6 +52,12 @@
                                     "type": "string"
                                 }
                             },
+                            "x-hints": {
+                                "form": {
+                                    "selectFromSource": "company.directors",
+                                    "source": "name"
+                                }
+                            },
                             "required": [
                                 "name"
                             ]
@@ -110,7 +116,9 @@
                                 },
                                 "x-hints": {
                                     "form": {
-                                        "addItem": "Add Shareholder"
+                                        "addItem": "Add Shareholder",
+                                        "selectFromSource": "company.shareholders",
+                                        "source": "name"
                                     }
                                 },
                                 "required": ["name"]
