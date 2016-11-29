@@ -292,6 +292,7 @@
     ],
     "type": "object",
     "x-ordering": [],
+    "x-icon": "th",
     "lawBrowserLinks": [
         {"link": {"title": "Companies Act 1993", "definition": "28784-DLM319985"}, "text": "Special resolution"},
         {"link": {"title": "Companies Act 1993", "location": "s 106"}, "text": "Powers exercised by special resolution"},

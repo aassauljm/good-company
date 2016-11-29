@@ -130,6 +130,7 @@
         "resolutionOptions"
     ],
     "type": "object",
+    "x-icon": "user",
     "x-ordering": [],
     "lawBrowserLinks": [
         {"link": {"title": "Companies Act 1993", "definition": "28784-DLM319913"}, "text": "Definition of entitled persons"},

@@ -30,7 +30,6 @@ function getIn(obj, fields){
     }, obj);
 }
 
-
 function componentType(fieldProps){
     return getIn(fieldProps, ['x-hints', "form", "inputComponent"])
 }
@@ -54,7 +53,6 @@ function inputSourceTitle(fieldProps){
 function inputSource(fieldProps){
     return getIn(fieldProps, ['x-hints', "form", "source"]);
 }
-
 
 function oneOfMatchingSchema(fieldProps, values){
     const field = oneOfField(fieldProps);
@@ -379,163 +377,32 @@ function getDefaultValues(schema, defaults){
 }
 
 
-@reduxForm({
-  form: 'transferTemplate',
-  fields: getFields(templateSchemas.transfer),
-  validate: getValidate(templateSchemas.transfer)
-})
-export class TransferForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.transfer}  {...this.props} />
-    }
+const CreateForm = (schema, name) => {
+    @reduxForm({
+      form: name,
+      fields: getFields(schema),
+      validate: getValidate(schema)
+    })
+    class Form extends React.Component {
+        render() {
+            const { fields } = this.props;
+            return <RenderForm schema={schema}  {...this.props} />
+        }
+    };
+    return Form;
 }
 
-
-@reduxForm({
-  form: 'specialResolutionTemplate',
-  fields: getFields(templateSchemas.specialResolution),
-  validate: getValidate(templateSchemas.specialResolution)
-})
-export class SpecialResolutionForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-
-        return <RenderForm schema={templateSchemas.specialResolution}  {...this.props} />
+export const TemplateMap = Object.keys(templateSchemas).reduce((acc, k) => {
+    acc[k] = {
+        form: CreateForm(templateSchemas[k], k),
+        title: templateSchemas[k].title,
+        schema: templateSchemas[k],
+        icon: templateSchemas[k]['x-icon'],
+        getInitialValues: (values) => getDefaultValues(templateSchemas[k], values),
     }
-}
+    return acc;
+}, {})
 
-@reduxForm({
-  form: 'ordinaryResolutionTemplate',
-  fields: getFields(templateSchemas.ordinaryResolution),
-  validate: getValidate(templateSchemas.ordinaryResolution)
-})
-export class OrdinaryResolutionForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.ordinaryResolution}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'boardResolution',
-  fields: getFields(templateSchemas.boardResolution),
-  validate: getValidate(templateSchemas.boardResolution)
-})
-export class BoardResolutionForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.boardResolution}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'entitledPersonsAgreement',
-  fields: getFields(templateSchemas.entitledPersonsAgreement),
-  validate: getValidate(templateSchemas.entitledPersonsAgreement)
-})
-export class EntitledPersonsAgreementForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.entitledPersonsAgreement}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'directorsCertificate',
-  fields: getFields(templateSchemas.directorsCertificate),
-  validate: getValidate(templateSchemas.directorsCertificate)
-})
-export class DirectorsCertificate extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.directorsCertificate}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'noticeOfMeeting',
-  fields: getFields(templateSchemas.noticeOfMeeting),
-  validate: getValidate(templateSchemas.noticeOfMeeting)
-})
-export class NoticeOfMeeting extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.noticeOfMeeting}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'resignationOfDirector',
-  fields: getFields(templateSchemas.resignationOfDirector),
-  validate: getValidate(templateSchemas.resignationOfDirector)
-})
-export class ResignationOfDirector extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.resignationOfDirector}  {...this.props} />
-    }
-}
-
-
-export const TemplateMap = {
-    'transfer': {
-        form: TransferForm,
-        title: 'Share Transfer Form',
-        schema: templateSchemas.transfer,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.transfer, values),
-        icon: 'transfer'
-    },
-    'special_resolution': {
-        form: SpecialResolutionForm,
-        title: 'Special Resolution of Shareholders',
-        schema: templateSchemas.specialResolution,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.specialResolution, values),
-        icon: 'th'
-    },
-    'ordinary_resolution': {
-        form: OrdinaryResolutionForm,
-        title: 'Ordinary Resolution of Shareholders',
-        schema: templateSchemas.ordinaryResolution,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
-        icon: 'th-list'
-    },
-    'board_resolution': {
-        form: BoardResolutionForm,
-        title: 'Board Resolution',
-        schema: templateSchemas.boardResolution,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.boardResolution, values),
-        icon: 'th-large'
-    },
-    'entitled_persons_agreement': {
-        form: EntitledPersonsAgreementForm,
-        title: 'Entitled Persons\' Agreement',
-        schema: templateSchemas.entitledPersonsAgreement,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.entitledPersonsAgreement, values),
-        icon: 'user'
-    },
-    'directors_certificate': {
-        form: DirectorsCertificate,
-        title: 'Director\'s Certificate',
-        schema: templateSchemas.directorsCertificate,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.directorsCertificate, values),
-        icon: 'certificate'
-    },
-    'notice_of_meeting': {
-        form: NoticeOfMeeting,
-        title: 'Notice of Meeting',
-        schema: templateSchemas.noticeOfMeeting,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.noticeOfMeeting, values),
-        icon: 'calendar'
-    },
-    'resignation_of_director': {
-        form: ResignationOfDirector,
-        title: 'Resignation of Director',
-        schema: templateSchemas.resignationOfDirector,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.resignationOfDirector, values),
-        icon: 'remove'
-    }
-}
 
 function makeContext(companyState) {
     if(!companyState){
@@ -547,7 +414,6 @@ function makeContext(companyState) {
     }
 
 }
-
 
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
@@ -604,7 +470,7 @@ const RenderTemplateList = (props) => {
                     <span className="transaction-button-text">{TemplateMap[template].title}</span>
                 </Link></div>
             }) }
-            </div>
+        </div>
 }
 
 @pureRender
@@ -650,9 +516,6 @@ export default class TemplateList extends React.Component {
             </div>
     }
 }
-
-
-
 
 @pureRender
 export class TemplateWidget extends React.Component {
