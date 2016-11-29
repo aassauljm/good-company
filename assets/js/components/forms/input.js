@@ -7,6 +7,7 @@ import HelpBlock from 'react-bootstrap/lib/HelpBlock';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { splitBsProps } from 'react-bootstrap/lib/utils/bootstrapUtils';
 import DropdownList from 'react-widgets/lib/DropdownList';
+import Combobox from 'react-widgets/lib/Combobox';
 
 
 const DROPLIST_THRESHOLD = 20;
@@ -241,6 +242,11 @@ class InputBase extends React.Component {
                 delete elementProps.value;
                 elementProps.checked = elementProps.checked || false;
           }
+          if (this.props.comboData && this.props.comboData.length) {
+            return <Combobox  {...elementProps} data={this.props.comboData}  />
+          }
+
+
           return <input {...elementProps}  value={elementProps.value||''} className={classNames(this.props.className, className)} ref="input" key="input" />;
         }
   }
@@ -308,7 +314,7 @@ InputBase.defaultProps = {
 export function getValidInputProps(props){
     const {initialValue, autofill, onUpdate, valid, invalid, dirty, pristine, error, active,
         touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName,
-        wrapperClassName, groupClassName, buttonAfter, ...elementProps} = props;
+        wrapperClassName, groupClassName, buttonAfter, comboData, ...elementProps} = props;
     return elementProps;
 }
 

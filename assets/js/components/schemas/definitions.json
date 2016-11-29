@@ -6,11 +6,7 @@
         },
         "fileType": {
             "title": "File Type",
-            "enum": [
-                "docx",
-                "odt",
-                "pdf"
-            ],
+            "enum": ["docx", "odt", "pdf"],
             "enumNames": [
                 "Word Document (.docx)",
                 "OpenDocument Text (.odt)",
@@ -32,7 +28,6 @@
         },
         "company": {
             "type": "object",
-            "lookupSource": "LOOKUP_COMPANY",
             "properties": {
                 "companyName": {
                     "title": "Company Name",

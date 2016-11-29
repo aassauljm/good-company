@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
-import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString, companyListToOptions, personList } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
@@ -15,10 +15,6 @@ import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
-import { CompanyHOC } from '../hoc/resources';
-let Combobox = require('react-widgets/lib/Combobox');
-
-const LOOKUP_COMPANY = 'LOOKUP_COMPANY';
 
 function createLawLinks(list){
     return <div>
@@ -28,16 +24,34 @@ function createLawLinks(list){
     </div>
 }
 
+function getIn(obj, fields){
+    return fields.reduce((obj, f) => {
+        return obj ? obj[f] : null
+    }, obj);
+}
+
 function componentType(fieldProps){
-    return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["inputComponent"]
+    return getIn(fieldProps, ['x-hints', "form", "inputComponent"])
 }
 
 function oneOfField(fieldProps){
-    return fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["selector"]
+    return getIn(fieldProps, ['x-hints', "form", "selector"])
 }
 
 function addItem(fieldProps){
-    return (fieldProps['x-hints'] && fieldProps['x-hints']["form"] && fieldProps['x-hints']["form"]["addItem"]) || 'Add Item';
+    return getIn(fieldProps, ['x-hints', "form", "addItem"]) || 'Add Item';
+}
+
+function inputSelectSource(fieldProps){
+    return getIn(fieldProps, ['x-hints', "form", "selectFromSource"]);
+}
+
+function inputSourceTitle(fieldProps){
+    return getIn(fieldProps, ['x-hints', "form", "inputTitle"]);
+}
+
+function inputSource(fieldProps){
+    return getIn(fieldProps, ['x-hints', "form", "source"]);
 }
 
 function oneOfMatchingSchema(fieldProps, values){
@@ -81,7 +95,9 @@ function renderList(fieldProps, componentProps){
 }
 
 function renderField(fieldProps, componentProps, index){
-    const title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
+    let title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
+
+
     const props = {
         bsStyle: fieldStyle(componentProps),
         hasFeedback: true,
@@ -90,46 +106,39 @@ function renderField(fieldProps, componentProps, index){
         labelClassName: 'col-md-3',
         wrapperClassName: 'col-md-7'
     };
-    /*if (fieldProps.lookupSource && fieldProps.lookupSource == LOOKUP_COMPANY) {
-        return (
-            <Combobox data={[1, 2, 3, 4]} />
-        );
-    }
-    else */ if(fieldProps.type === 'string'){
+
+
+    if (fieldProps.type === 'string') {
         if (componentType(fieldProps) === 'date') {
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
-        } else if (componentType(fieldProps) == 'dateTime') {
-            // return <DateInput {...componentProps} format={"h:mm a"} {...props} time={true} />
+        }
+        else if (componentType(fieldProps) == 'dateTime') {
             return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
-        } else if(componentType(fieldProps) === 'textarea') {
-            return <Input type="textarea" rows="5"{...componentProps}  {...props} />
+        }
+        else if(componentType(fieldProps) === 'textarea') {
+            return <Input type="textarea" rows="5" {...componentProps}  {...props} />
         }
         return <Input type="text" {...componentProps} {...props} />
-    }
-    else if(fieldProps.type === 'number'){
+    } else if (fieldProps.type === 'number'){
         return <Input type="number" {...componentProps} {...props} />
+    } else if (fieldProps.enum && fieldProps.enum.length > 1) {
+        return (
+            <Input type="select"  {...componentProps} {...props}>
+                { fieldProps.enum.map((f, i) => {
+                    return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
+                })}
+            </Input>
+        );
     }
-    else if(fieldProps.enum && fieldProps.enum.length > 1){
-        return <Input type="select"  {...componentProps} {...props}>
-            { fieldProps.enum.map((f, i) => {
-                return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
-            })}
-        </Input>
-    }
-    else if(fieldProps.type === 'array'){
+    else if (fieldProps.type === 'array'){
         return renderList(fieldProps, componentProps);
     }
-    else if(fieldProps.type === 'object'){
-        return <div>
-            { renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }
-        </div>
+    else if (fieldProps.type === 'object'){
+        return <div>{ renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }</div>
     }
 }
 
-
-
-
-function renderFormSet(schemaProps, fields, oneOfs, listIndex){
+function renderFormSet(schemaProps, fields, oneOfs, listIndex) {
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
     }
@@ -139,14 +148,17 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex){
             selectKey = key;
         }
     });
-    return <fieldset>
-        { Object.keys(schemaProps).map((key, i) => {
-            return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
-        }) }
-        { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
-    </fieldset>
+    return (
+        <fieldset>
+            { Object.keys(schemaProps).map((key, i) => {
+                return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
+            }) }
+            { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
+        </fieldset>
+    );
 }
 
+@injectContext
 export class RenderForm extends React.Component {
     controls() {
         return <div className="button-row form-controls">
@@ -157,20 +169,21 @@ export class RenderForm extends React.Component {
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
 
-        return <form className="generated-form form-horizontal"  onSubmit={handleSubmit}>
-            { this.controls() }
-            <h4>{ schema.title }</h4>
-           { schema.description && <h5>{ schema.description }</h5>}
-           { renderFormSet(schema.properties, fields) }
-            { this.props.error && <div className="alert alert-danger">
-                { this.props.error.map((e, i) => <div key={i}> { e } </div>) }
-            </div> }
-             { this.controls() }
-        </form>
+        return (
+            <form className="generated-form form-horizontal"  onSubmit={handleSubmit}>
+                { this.controls() }
+                <h4>{ schema.title }</h4>
+                { schema.description && <h5>{ schema.description }</h5>}
+                { renderFormSet(schema.properties, fields) }
+                { this.props.error && <div className="alert alert-danger">
+                    { this.props.error.map((e, i) => <div key={i}> { e } </div>) }
+                </div> }
+                { this.controls() }
+            </form>
+        );
     }
 
 }
-
 
 function getFields(schema) {
     const fields = [];
@@ -184,7 +197,7 @@ function getFields(schema) {
                     });
                 }
             }
-            else if(props[key].type === 'array'){
+            else if (props[key].type === 'array'){
                 fields.push(path + key + '[]._keyIndex');
                 if(props[key].items.type === "object"){
                     loop(props[key].items.properties, path+key + '[].');
@@ -206,6 +219,68 @@ function getFields(schema) {
     loop(schema.properties, '');
     return fields;
 }
+
+function injectContext(FormComponent) {
+    class Injector extends React.Component {
+        render() {
+            const fields = injectContext(this.props.schema.properties, this.props.fields, this.props.context);
+            return <FormComponent {...this.props} fields={fields} />
+        }
+    }
+
+    function interceptChangesAndInject(schemaProperties, key, fields, context){
+        if (inputSelectSource(schemaProperties)) {
+            const source = inputSource(schemaProperties);
+            const onChange = fields[key][source].onChange;
+            fields[key][source].onChange = (event) => {
+                onChange(event);
+                const result = context[inputSelectSource(schemaProperties)].find(f => f[source] === event);
+                result && Object.keys(result).map(k => {
+                    if(k !== source && fields[key][k]){
+                        fields[key][k].onChange(result[k]);
+                    }
+                });
+            }
+            fields[key][source].comboData = context[inputSelectSource(schemaProperties)].map(f => f[source]);
+        }
+    }
+
+    function injectContext(schemaProperties, fields, context) {
+        function loop(schemaProperties, fields) {
+            Object.keys(schemaProperties).map(key => {
+                if (schemaProperties[key].type === 'object') {
+                    loop(schemaProperties[key].properties, fields[key]);
+                    if (schemaProperties[key].oneOf) {
+                        schemaProperties[key].oneOf.map(oneOf => {
+                            loop(oneOf.properties, fields[key]);
+                        });
+                    }
+                } else if (schemaProperties[key].type === 'array') {
+                    if (schemaProperties[key].items.type === "object") {
+                        loop(schemaProperties[key].items.properties, fields[key]);
+
+                        fields[key] && fields[key].map((field, index) => {
+                            interceptChangesAndInject(schemaProperties[key].items,  index, fields[key], context);
+                        });
+                        if (schemaProperties[key].items.oneOf) {
+                            schemaProperties[key].items.oneOf.map(oneOf => {
+                                loop(oneOf.properties, fields[key]);
+                            })
+                        }
+                    }
+                }
+                interceptChangesAndInject(schemaProperties[key], key, fields, context)
+            });
+
+            return fields;
+        }
+
+        return loop(schemaProperties, fields);
+    }
+
+    return Injector;
+}
+
 
 function getValidate(schema){
     return (values) => {
@@ -302,169 +377,42 @@ function getDefaultValues(schema, defaults){
 }
 
 
-@reduxForm({
-  form: 'transferTemplate',
-  fields: getFields(templateSchemas.transfer),
-  validate: getValidate(templateSchemas.transfer)
-})
-export  class TransferForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.transfer}  {...this.props} />
-    }
+const CreateForm = (schema, name) => {
+    @reduxForm({
+      form: name,
+      fields: getFields(schema),
+      validate: getValidate(schema)
+    })
+    class Form extends React.Component {
+        render() {
+            const { fields } = this.props;
+            return <RenderForm schema={schema}  {...this.props} />
+        }
+    };
+    return Form;
 }
 
-
-@reduxForm({
-  form: 'specialResolutionTemplate',
-  fields: getFields(templateSchemas.specialResolution),
-  validate: getValidate(templateSchemas.specialResolution)
-})
-export class SpecialResolutionForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-
-        return <RenderForm schema={templateSchemas.specialResolution}  {...this.props} />
+export const TemplateMap = Object.keys(templateSchemas).reduce((acc, k) => {
+    acc[k] = {
+        form: CreateForm(templateSchemas[k], k),
+        title: templateSchemas[k].title,
+        schema: templateSchemas[k],
+        icon: templateSchemas[k]['x-icon'],
+        getInitialValues: (values) => getDefaultValues(templateSchemas[k], values),
     }
-}
+    return acc;
+}, {})
 
-@reduxForm({
-  form: 'ordinaryResolutionTemplate',
-  fields: getFields(templateSchemas.ordinaryResolution),
-  validate: getValidate(templateSchemas.ordinaryResolution)
-})
-export class OrdinaryResolutionForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.ordinaryResolution}  {...this.props} />
+
+function makeContext(companyState) {
+    if(!companyState){
+        return {};
     }
-}
-
-@reduxForm({
-  form: 'boardResolution',
-  fields: getFields(templateSchemas.boardResolution),
-  validate: getValidate(templateSchemas.boardResolution)
-})
-export class BoardResolutionForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.boardResolution}  {...this.props} />
+    return {
+        'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
+        'company.shareholders': personList(companyState)
     }
-}
 
-@reduxForm({
-  form: 'entitledPersonsAgreement',
-  fields: getFields(templateSchemas.entitledPersonsAgreement),
-  validate: getValidate(templateSchemas.entitledPersonsAgreement)
-})
-export class EntitledPersonsAgreementForm extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.entitledPersonsAgreement}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'directorsCertificate',
-  fields: getFields(templateSchemas.directorsCertificate),
-  validate: getValidate(templateSchemas.directorsCertificate)
-})
-export class DirectorsCertificate extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.directorsCertificate}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'noticeOfMeeting',
-  fields: getFields(templateSchemas.noticeOfMeeting),
-  validate: getValidate(templateSchemas.noticeOfMeeting)
-})
-export class NoticeOfMeeting extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.noticeOfMeeting}  {...this.props} />
-    }
-}
-
-@reduxForm({
-  form: 'resignationOfDirector',
-  fields: getFields(templateSchemas.resignationOfDirector),
-  validate: getValidate(templateSchemas.resignationOfDirector)
-})
-export class ResignationOfDirector extends React.Component {
-    render() {
-        const { fields } = this.props;
-        return <RenderForm schema={templateSchemas.resignationOfDirector}  {...this.props} />
-    }
-}
-
-
-export const TemplateMap = {
-    'transfer': {
-        form: TransferForm,
-        title: 'Share Transfer Form',
-        schema: templateSchemas.transfer,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.transfer, values),
-        icon: 'transfer'
-    },
-    'special_resolution': {
-        form: SpecialResolutionForm,
-        title: 'Special Resolution of Shareholders',
-        schema: templateSchemas.specialResolution,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.specialResolution, values),
-        icon: 'th'
-    },
-    'ordinary_resolution': {
-        form: OrdinaryResolutionForm,
-        title: 'Ordinary Resolution of Shareholders',
-        schema: templateSchemas.ordinaryResolution,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.ordinaryResolution, values),
-        icon: 'th-list'
-    },
-    'board_resolution': {
-        form: BoardResolutionForm,
-        title: 'Board Resolution',
-        schema: templateSchemas.boardResolution,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.boardResolution, values),
-        icon: 'th-large'
-    },
-    'entitled_persons_agreement': {
-        form: EntitledPersonsAgreementForm,
-        title: 'Entitled Persons\' Agreement',
-        schema: templateSchemas.entitledPersonsAgreement,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.entitledPersonsAgreement, values),
-        icon: 'user'
-    },
-    'directors_certificate': {
-        form: DirectorsCertificate,
-        title: 'Director\'s Certificate',
-        schema: templateSchemas.directorsCertificate,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.directorsCertificate, values),
-        icon: 'certificate'
-    },
-    'notice_of_meeting': {
-        form: NoticeOfMeeting,
-        title: 'Notice of Meeting',
-        schema: templateSchemas.noticeOfMeeting,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.noticeOfMeeting, values),
-        icon: 'calendar'
-    },
-    'resignation_of_director': {
-        form: ResignationOfDirector,
-        title: 'Resignation of Director',
-        schema: templateSchemas.resignationOfDirector,
-        getInitialValues: (values) => getDefaultValues(templateSchemas.resignationOfDirector, values),
-        icon: 'remove'
-    }
-}
-
-@CompanyHOC
-class SomeBullshitClass extends React.Component {
-    render() {
-        return <div>{this.props.company.data && this.props.company.data.currentCompanyState.companyName}</div>;
-    }
 }
 
 @connect((state, ownProps) => {
@@ -499,14 +447,13 @@ export  class TemplateView extends React.Component {
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
             const values = template.getInitialValues(state || {company: this.props.companyState || {}})
-            return <template.form onSubmit={this.submit} initialValues={values} />
+            return <template.form onSubmit={this.submit} initialValues={values} context={makeContext(this.props.companyState)} />
         }
         return <div>Not Found</div>
     }
 
     render() {
         return <div className="row">
-            <SomeBullshitClass companyId={10010} />
             <div className="col-md-12">
                 { this.renderBody() }
             </div>
@@ -523,7 +470,7 @@ const RenderTemplateList = (props) => {
                     <span className="transaction-button-text">{TemplateMap[template].title}</span>
                 </Link></div>
             }) }
-            </div>
+        </div>
 }
 
 @pureRender
@@ -569,9 +516,6 @@ export default class TemplateList extends React.Component {
             </div>
     }
 }
-
-
-
 
 @pureRender
 export class TemplateWidget extends React.Component {

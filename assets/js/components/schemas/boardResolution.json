@@ -189,6 +189,7 @@
     "required": ["resolutionOptions", "resolutions"],
     "type": "object",
     "x-ordering": [],
+    "x-icon": "th-large",
     "lawBrowserLinks": [
         {"link": {"title": "Companies Act 1993", "location": "s 127"}, "text": "Meaning of board and board of directors"},
         {"link": {"title": "Companies Act 1993", "location": "s 128"}, "text": "Board to manage company"},
