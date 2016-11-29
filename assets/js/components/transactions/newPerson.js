@@ -42,6 +42,7 @@ export class NewPersonTransactionView extends React.Component {
 
     render() {
         // TODO, connect this to the form data, check valid and submitting, disable submit button
+        // figture out lawlinks
         return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.props.end} backdrop={'static'}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Create New Person</TransactionView.Title>

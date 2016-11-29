@@ -8,6 +8,7 @@ import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
 import { UpdatePersonConnected, updatePersonSubmit, updateHistoricPersonSubmit } from '../forms/person';
 import LawBrowserLink from '../lawBrowserLink';
+import { change } from 'redux-form';
 
 export function ShareholderLawLinks(){
     return <div>
@@ -52,6 +53,11 @@ class UpdatePersonTransactionViewBase extends React.Component {
     }
 
     submit(values) {
+        if(this.props.transactionViewData.afterClose){
+            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, values));
+            this.props.end();
+            return;
+        }
         const transactions = this.props.submitFormat(values, this.props.transactionViewData.person)
         if(transactions.length){
             this.props.dispatch(companyTransaction(
@@ -91,10 +97,11 @@ class UpdatePersonTransactionViewBase extends React.Component {
 }
 
 export function UpdatePersonTransactionView(props) {
-    return <UpdatePersonTransactionViewBase {...props} submitFormat={updatePersonSubmit} title="Update Shareholder"/>
+    return <UpdatePersonTransactionViewBase {...props} submitFormat={updatePersonSubmit} title="Update Person"/>
 }
 
 export function UpdateHistoricPersonTransactionView(props) {
     return <UpdatePersonTransactionViewBase {...props} submitFormat={updateHistoricPersonSubmit} title="Update Historic Shareholder"/>
 }
+
 

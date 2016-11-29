@@ -15,6 +15,8 @@ import STRINGS from '../../strings';
 import moment from 'moment';
 import WorkingDays from './workingDays';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon'
+import Button from 'react-bootstrap/lib/Button'
+
 
 const CREATE_NEW_PERSON = 'CREATE_NEW_PERSON';
 
@@ -82,6 +84,7 @@ export class NewDirector extends React.Component {
     render() {
         const newPerson = this.props.fields.newPerson;
         const personId = this.props.fields.personId
+        const person = this.props.fields.person
         const onChange = personId.onChange;
 
         const interceptChange =  (event) => {
@@ -96,7 +99,6 @@ export class NewDirector extends React.Component {
                 onChange(event);
             }
         }
-
         return <form className="form" >
             <fieldset>
                  { this.props.fields.appointment && <DateInput{...this.formFieldProps('appointment')} /> }
@@ -113,6 +115,10 @@ export class NewDirector extends React.Component {
                             newPerson.onChange(null);
                         }}><Glyphicon glyph='trash'/></button>} /> }
 
+                    { !newPerson.value && person.error && <div className="alert alert-danger">
+                    <p>More information is required about this person.</p>
+                    <div className="button-row"><Button bsStyle="danger" onClick={() => this.props.updatePerson(person.value)}>Click here to Update</Button></div>
+                    </div> }
                 <WorkingDays field={this.props.fields.noticeDate} source={this.props.fields.appointment.value} days={20} label="Notice must be given to the Registrar by" />
                 <DateInput {...this.formFieldProps(['approvalDate'], STRINGS.persons)} label ="Approval Date"/>
 
@@ -139,33 +145,39 @@ const validateDirector = (values, props) => {
     return {...requireFields('appointment')(values), person: personErrors};
 }
 
-const birthAttributes = requireFields('dateOfBirth', 'placeOfBirth');
-const newDirectorRequirements = requireFields('appointment', 'approvalDate', 'approvedBy');
+
+
 
 const validateUpdateDirector = (values, props) => {
     return {}
 };
 
-
+const birthAttributes = requireFields('dateOfBirth', 'placeOfBirth');
 const validateNewPersonFull = (values, props) => {
     const error = validateNew(values, props)
-    error.attr = {...birthAttributes(values, props) }
+    const attrError = {...birthAttributes(values.attr, props) };
+    if(Object.keys(attrError).length){
+        error.attr = attrError
+    }
     return error;
 }
 
+const newDirectorRequirements = requireFields('appointment', 'approvalDate', 'approvedBy');
+
 const validateNewDirector = (values, props) => {
-    const errors = validateUpdateDirector(values, props);
-    if(values.newPerson){
-        errors.newPerson = validateNewPersonFull(values.newPerson)
-    }
+    const errors = newDirectorRequirements(values, props);
+
     if(values.person){
-        errors.person = validateNewPersonFull(values.person)
+        const personErrors = validateNewPersonFull(values.person);
+        if(Object.keys(personErrors).length){
+            errors.person = personErrors
+        }
     }
-    return {};
+    return errors;;
 }
 
 
-const PersonFields = ['name', 'address', 'companyNumber',  'isNaturalPerson', 'postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'];
+const PersonFields = ['name', 'address', 'companyNumber',  'isNaturalPerson', 'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone', 'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'];
 
 
 export const NewPersonConnected = reduxForm({
@@ -182,7 +194,7 @@ export const UpdatePersonConnected = reduxForm({
 })(Person);
 
 
-export const DeleteDirectorConnected = reduxForm({
+export const UpdateDirectorConnected = reduxForm({
   form: 'director',
   fields : ['effectiveDate'].concat(PersonFields),
   validate: validateUpdateDirector

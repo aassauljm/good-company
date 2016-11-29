@@ -281,7 +281,7 @@ export function personMap(companyState){
     const result = {};
     companyState.holdingList.holdings.map((h) => {
         h.holders.map((p) => {
-            result[p.personId] = {name: p.name, address: p.address, personId: p.personId, companyNumber: p.companyNumber, attr: p.attr};
+            result[p.person.personId] = {name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber, attr: p.person.attr};
         });
     });
     companyState.directorList.directors.map((p) => {

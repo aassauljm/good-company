@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { DirectorConnected, NewDirectorConnected, directorSubmit } from '../forms/person';
+import { UpdateDirectorConnected, NewDirectorConnected, RemoveDirectorConnected, directorSubmit } from '../forms/person';
 import { personOptionsFromState } from '../../utils';
 import { DirectorLawLinks } from './selectDirector'
 
@@ -36,7 +36,7 @@ export class UpdateDirectorTransactionView extends React.Component {
 
 
     renderBody() {
-        return <DirectorConnected
+        return <UpdateDirectorConnected
             ref="form"
             initialValues={{...this.props.transactionViewData.director,
                 appointment: new Date(this.props.transactionViewData.director.appointment)
@@ -127,8 +127,9 @@ export class NewDirectorTransactionView extends React.Component {
                     showTransactionView: {key: 'newDirector', data: {...this.props.transactionViewData, index: this.props.index}}
                 }
             }))}
-            updatePerson={() => this.props.dispatch(showTransactionView('updatePerson', {
+            updatePerson={(person) => this.props.dispatch(showTransactionView('updatePerson', {
                 ...this.props.transactionViewData,
+                person,
                 formName: 'director',
                 field: 'person',
                 afterClose: { // open this transactionView again
@@ -196,11 +197,11 @@ export class RemoveDirectorTransactionView extends React.Component {
     }
 
     renderBody() {
-        return this.props.transactionViewData.director ? this.updateDirector() : this.newDirector()
+        return this.updateDirector()
     }
 
     updateDirector() {
-        return <DirectorConnected
+        return <RemoveDirectorConnected
             ref="form"
             initialValues={{...this.props.transactionViewData.director,
                 appointment: new Date(this.props.transactionViewData.director.appointment) }}
