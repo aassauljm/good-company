@@ -1090,8 +1090,8 @@ export function performUpdateDirector(data, companyState, previousState, effecti
             return Promise.join(AddressService.normalizeAddress(data.afterAddress), AddressService.normalizeAddress(data.beforeAddress))
         })
         .spread((afterAddress, beforeAddress) => {
-            return companyState.replaceDirector({name: data.beforeName, address: beforeAddress, personId: data.personId},
-                                         {name: data.afterName, address: afterAddress, personId: data.personId}, transaction, userId);
+            return companyState.replaceDirector({name: data.beforeName, address: beforeAddress, personId: data.personId, attr: data.personAttr},
+                                         {name: data.afterName, address: afterAddress, personId: data.personId, attr: data.personAttr}, transaction, userId);
         })
         .then(() => {
             return transaction;
@@ -1733,7 +1733,7 @@ export function performAll(data, company, state, isReplay){
 export function transactionsToActions(transactions){
     return transactions.map(t => {
         const {id, subTransactions, data, ...info} = t;
-        return {...info, ...data, id: null, transactionType: t.type, originalTransactionId: id, actions: t.subTransactions.map(s => {
+        return {...info, ...data, id: null, transactionType: t.type, originalTransactionId: id, actions: (t.subTransactions || []).map(s => {
             const {id,  parentTransactionId, data, ...info} = s;
             return {...info, ...data, id: null};
         })}

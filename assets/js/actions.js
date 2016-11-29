@@ -166,6 +166,7 @@ export function updateResource(resource, data, options = {stringify: true}) {
             body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
+        confirmation: options.confirmation,
         payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
 
     };

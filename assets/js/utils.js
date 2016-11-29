@@ -107,6 +107,7 @@ export function formFieldProps(args = {}){
                     labelClassName: args.labelClassName,
                     wrapperClassName: args.wrapperClassName,
                     hasFeedback: true,
+                    required: field.error && field.error.indexOf('Required') >= 0,
                     help: fieldHelp(field, strings[`${Array.isArray(name) ? name[name.length-1] : name}Help`])
                 }
         }
@@ -246,8 +247,8 @@ export function personList(companyState){
     return orderedPersons;
 }
 
-export function personOptionsFromState(companyState){
-    return personList(companyState).map((p, i) => <option key={i} value={p.personId}>{p.name}</option>);
+export function personOptionsFromState(companyState, filter = x => true){
+    return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId}>{p.name}</option>);
 }
 
 
@@ -339,3 +340,9 @@ export function sortAlerts(response) {
     return {alertList: data, companyMap, dateMap}
 }
 
+
+export function isNaturalPerson(person){
+    let nonNatural = !!person.companyNumber;
+    nonNatural = nonNatural || (person.attr || {}).isNaturalPerson === false;
+    return !nonNatural;
+}

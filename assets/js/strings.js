@@ -20,7 +20,6 @@ export default {
     ultimateHoldingCompany: 'Ultimate Holding Company',
     entityType: 'Entity Type',
     companyStatus: 'Company Status',
-
     holdingName: 'Holding Name',
     appointment: 'Appointment Date',
     cessation: 'Cessation of Directorship Date',
@@ -41,6 +40,22 @@ export default {
         transferHistoryFrom: 'Date of transfer of Shares from the Shareholder',
         hasNoTransferRestriction: "There are no restrictions or limitations on the transfer of shares",
         hasTransferRestriction: "There are restrictions or limitations on the transfer of shares"
+    },
+    persons: {
+        'dateOfBirth': 'Date of Birth',
+        'placeOfBirth': 'Place of Birth',
+        'naturalPerson':{
+            'address': 'Residential Address',
+        },
+        'notNaturalPerson':{
+            'address': 'Registered Office / Place of Business'
+        },
+        'isNaturalPerson': 'Is a Natural Person',
+        'postalAddress': 'Postal Address',
+        'email': 'Email',
+        'fax': 'Fax',
+        'phone': 'Phone',
+        'contactMethod': 'Preferred Contact Method'
     },
     bulkImport: {
         'listType': 'Identifier Type',
@@ -122,13 +137,14 @@ export default {
         CONSOLIDATION_FROM: 'Consolidation',
     },
     transfer: {
-        from: 'Source Holding',
-        to: 'Destination Holding',
+        from: 'From',
+        to: 'To',
+        consideration: 'Consideration'
     },
     interestsRegister: {
         date: 'Date',
-        persons: 'Persons',
-        details: 'Details',
+        persons: 'Interested Persons',
+        details: 'Details of Interests',
         documents: 'Documents'
     },
     companyDocuments: {

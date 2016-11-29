@@ -22,6 +22,7 @@ function companyStateToTree(state){
                 name: 'Shareholdings',
                 children: state.holdingList.holdings.map(h => ({
                     name: h.name,
+                    radiusProportion: h.parcels.reduce((sum, p) => sum + p.amount, 0) / state.totalShares,
                     children: h.holders.map(h => ({
                                 name: h.person.name
                             }))
@@ -61,54 +62,9 @@ export class DetailsPanel extends React.Component {
 }
 
 
-@pureRender
-export class Director extends React.Component {
-    static propTypes = {
-        director: PropTypes.object.isRequired,
-        editDirector: PropTypes.func
-    };
-    render() {
-        let className = 'director well ';
-        if(this.props.editDirector){
-            className += 'actionable ';
-        }
-        return <div className={className} onClick={this.props.editDirector && (() => this.props.editDirector(this.props.director))}>
-                    <i className="fa fa-user-circle well-icon" />
-            <dl className="dl-horizontal">
-                <dt >Name</dt>
-                <dd >{ this.props.director.person.name}</dd>
-                <dt >Address</dt>
-                <dd ><span className="address">{ this.props.director.person.address}</span></dd>
-                <dt >Appointment</dt>
-                <dd >{ stringDateToFormattedString(this.props.director.appointment) }</dd>
-            </dl>
-        </div>
-    }
-}
 
 @pureRender
-class Directors extends React.Component {
-    static propTypes = {
-        directors: PropTypes.array.isRequired,
-        editDirector: PropTypes.func
-    };
-    render() {
-        const directors = (this.props.directors || []).map((d, i) => <Director director={d} editDirector={this.props.editDirector} key={i} />);
-        return <div className="row">
-        <div className="text-center"><h3>Directors</h3></div>
-        <div className="col-md-6">
-            { directors.slice(0, directors.length/2)}
-        </div>
-        <div className="col-md-6">
-            { directors.slice(directors.length/2) }
-        </div>
-        </div>
-    }
-}
-
-
-@pureRender
-export class CompanyDetails extends React.Component {
+export class CompanyGraph extends React.Component {
     static propTypes = {
         companyState: PropTypes.object,
         showTransactionView: PropTypes.func
@@ -132,39 +88,8 @@ export class CompanyDetails extends React.Component {
 
     render() {
         const current = this.props.companyState;
-        return <div className="container"><div className="well">
-                <dl className="dl-horizontal">
-                    <dt >NZ Business Number</dt>
-                    <dd >{current.nzbn ||  'Unknown'}</dd>
-
-                    <dt >Incorporation Date</dt>
-                    <dd >{stringDateToFormattedString(current.incorporationDate)}</dd>
-
-                    <dt >Total Shares</dt>
-                    <dd >{numberWithCommas(current.totalShares)}</dd>
-
-                    <dt >AR Filing Month</dt>
-                    <dd >{current.arFilingMonth}</dd>
-
-                    <dt >Entity Type</dt>
-                    <dd >{current.entityType}</dd>
-
-
-                    { current.registeredCompanyAddress && <dt>Company Address</dt> }
-                    { current.registeredCompanyAddress && <dd>{current.registeredCompanyAddress }</dd> }
-
-                    { current.addressForShareRegister && <dt>Address for Share Register</dt> }
-                    { current.addressForShareRegister && <dd>{current.addressForShareRegister }</dd> }
-
-                    { current.addressForService && <dt>Address For Service</dt> }
-                    { current.addressForService && <dd>{current.addressForService}</dd> }
-                </dl>
-            </div>
-            <Directors directors={current.directorList.directors} editDirector={this.editDirector}/>
-            <div>
-                <RadialGraph data={companyStateToTree(current)} />
-            </div>
-
+        return <div className="container">
+            <RadialGraph data={companyStateToTree(current)} />
             </div>
     }
 }

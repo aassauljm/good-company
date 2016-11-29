@@ -4,7 +4,7 @@ import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import { formFieldProps, requireFields, joinAnd, personList } from '../../utils';
 import { Link } from 'react-router';
@@ -12,7 +12,6 @@ import { companyTransaction, addNotification, showTransactionView } from '../../
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { DirectorConnected, NewDirectorConnected, directorSubmit } from '../forms/person';
-import { Director } from '../company';
 import { personOptionsFromState } from '../../utils';
 import { DirectorLawLinks } from './selectDirector'
 
@@ -31,6 +30,7 @@ export class UpdateDirectorTransactionView extends React.Component {
     }
 
     handleClose(data={}) {
+        this.props.dispatch(destroy('director'));
         this.props.end(data);
     }
 
@@ -47,22 +47,27 @@ export class UpdateDirectorTransactionView extends React.Component {
     }
 
     newDirector() {
-        const personOptions = personOptionsFromState(this.props.transactionViewData.companyState);
+        const personOptions = personOptionsFromState(this.props.transactionViewData.companyState, (p => !p.companyNumber));
         return <NewDirectorConnected
             ref="form"
             initialValues={{...this.props.transactionViewData.director,
+                approvedBy: 'Ordinary Resolution',
                 appointment: new Date() }}
                 personOptions={personOptions}
                 newPerson={() => this.props.dispatch(showTransactionView('newPerson', {
                     ...this.props.transactionViewData,
                     formName: 'director',
-                    field: `newPerson`,
+                    field: 'newPerson',
                     afterClose: { // open this transactionView again
-                        showTransactionView: {key: 'manageDirectors', data: {...this.props.transactionViewData, index: this.props.index}}
+                        showTransactionView: {key: 'updateDirector', data: {...this.props.transactionViewData, index: this.props.index}}
                     }
                 }))}
 
             onSubmit={this.submit}/>
+    }
+
+    isNew() {
+        return !!this.props.transactionViewData.director;
     }
 
     submit(values) {
@@ -74,7 +79,7 @@ export class UpdateDirectorTransactionView extends React.Component {
                                     {transactions: transactions, documents: values.documents} ))
                 .then(() => {
                     this.handleClose({reload: true});
-                    this.props.dispatch(addNotification({message: 'Directorship Updated.'}));
+                    this.props.dispatch(addNotification({message: this.isNew() ? 'Director Appointed' : 'Directorship Updated.'}));
                     const key = this.props.transactionViewData.companyId;
                 })
                 .catch((err) => {
@@ -97,8 +102,8 @@ export class UpdateDirectorTransactionView extends React.Component {
               </TransactionView.Body>
               <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-                { this.props.transactionViewData.director && <Button onClick={this.handleNext} bsStyle="primary">Update</Button> }
-                { !this.props.transactionViewData.director && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
+                { !this.isNew() && <Button onClick={this.handleNext} bsStyle="primary">Update</Button> }
+                { this.isNew() && <Button onClick={this.handleNext} bsStyle="primary">Create</Button> }
               </TransactionView.Footer>
             </TransactionView>
     }

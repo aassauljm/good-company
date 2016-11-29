@@ -7,6 +7,17 @@ import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification } from '../../actions';
 import { UpdatePersonConnected, updatePersonSubmit, updateHistoricPersonSubmit } from '../forms/person';
+import LawBrowserLink from '../lawBrowserLink';
+
+export function ShareholderLawLinks(){
+    return <div>
+            <LawBrowserLink title="Companies Act 1993" location="s 214(1)" >Shareholder's address prescribed for annual return</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 87(2)(a)" >Share Register to contain last known addresses</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 2(5)" >Meaning of address</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 391" >Service of documents on shareholders</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 392" >Additional provisions relating to service</LawBrowserLink>
+        </div>
+}
 
 
 @connect(undefined)
@@ -28,14 +39,16 @@ class UpdatePersonTransactionViewBase extends React.Component {
 
 
     renderBody() {
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <UpdatePersonConnected
+        const person = this.props.transactionViewData.person;
+        if(!person.companyNumber){
+            person.attr = person.attr || {};
+            person.attr.isNaturalPerson = person.attr.isNaturalPerson || true;
+        }
+        return <UpdatePersonConnected
                     ref="form"
-                    initialValues={{effectiveDate: new Date(), ...this.props.transactionViewData.person}}
+                    initialValues={{effectiveDate: new Date(), ...person}}
                     onSubmit={this.submit}/>
-                </div>
-            </div>
+
     }
 
     submit(values) {
@@ -60,7 +73,7 @@ class UpdatePersonTransactionViewBase extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={ShareholderLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>{this.props.title}</TransactionView.Title>
               </TransactionView.Header>

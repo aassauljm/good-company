@@ -33,6 +33,54 @@ function renderDirector(director, holders){
 
 
 @pureRender
+export class Director extends React.Component {
+    static propTypes = {
+        director: PropTypes.object.isRequired,
+        editDirector: PropTypes.func
+    };
+    render() {
+        let className = 'director well ';
+        if(this.props.editDirector){
+            className += 'actionable ';
+        }
+        return <div className={className} onClick={this.props.editDirector && (() => this.props.editDirector(this.props.director))}>
+                <i className="fa fa-user-circle well-icon" />
+            <dl className="dl-horizontal">
+                <dt >Name</dt>
+                <dd >{ this.props.director.person.name}</dd>
+                <dt >Address</dt>
+                <dd ><span className="address">{ this.props.director.person.address}</span></dd>
+                <dt >Appointment</dt>
+                <dd >{ stringDateToFormattedString(this.props.director.appointment) }</dd>
+                { this.props.holders && <dt>Current Shareholder</dt> }
+                { this.props.holders && <dd>{ this.props.holders[this.props.director.person.personId] ? 'Yes': 'No'}</dd> }
+            </dl>
+        </div>
+    }
+}
+
+@pureRender
+export class DirectorList extends React.Component {
+    static propTypes = {
+        directors: PropTypes.array.isRequired,
+        editDirector: PropTypes.func,
+        holders: PropTypes.object,
+    };
+    render() {
+        const directors = (this.props.directors || []).map((d, i) => <Director director={d} holders={this.props.holders} editDirector={this.props.editDirector} key={i} />);
+        return <div className="row">
+        <div className="col-md-6">
+            { directors.slice(0, directors.length/2)}
+        </div>
+        <div className="col-md-6">
+            { directors.slice(directors.length/2) }
+        </div>
+        </div>
+    }
+}
+
+
+@pureRender
 export class DirectorsWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
@@ -87,6 +135,11 @@ export default class Directors extends React.Component {
         companyId: PropTypes.string
     };
 
+    constructor(props){
+        super();
+        this.editDirector = ::this.editDirector;
+    }
+
     editDirector(director) {
         this.props.showTransactionView('updateDirector', {
             companyId: this.props.companyId,
@@ -99,6 +152,9 @@ export default class Directors extends React.Component {
     }
 
     render() {
+        if(!this.props.companyState || !this.props.companyState.directorList){
+            return false;
+        }
         const directors = this.props.companyState.directorList.directors;
         const holders = this.props.companyState.holders;
         return <div className="container">
@@ -110,18 +166,7 @@ export default class Directors extends React.Component {
             </div>
             <div className='widget-body'>
                 <h5 className="text-center">Current Directors</h5>
-                <div className="row">
-                    { directors.map((director, i) => <div key={i} className="col-md-6">
-                        <div className="outline actionable" onClick={() => this.editDirector(director)}>
-                            { renderDirector(director, holders) }
-                        </div>
-                    </div>) }
-                </div>
-
-                { /* <h5 className="text-center">Former Directors</h5>
-                <div className="row">
-                    TODO
-                </div> */ }
+                    <DirectorList directors={directors} holders={holders} editDirector={this.editDirector} />
             </div>
         </div>
         </div>

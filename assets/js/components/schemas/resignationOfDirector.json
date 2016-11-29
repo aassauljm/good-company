@@ -30,9 +30,8 @@
                     },
                     "x-hints": {
                         "form": {
-                            "inputComponent": "selectFromSource",
-                            "inputSource": "companies.directors",
-                            "inputTitle": "Name of Resigning Director"
+                            "selectFromSource": "company.directors",
+                            "source": "name"
                         }
                     },
                     "required": ["name"]
@@ -84,6 +83,7 @@
     "required": ["fileType", "company", "addressForService", "resolutionOptions"],
     "type": "object",
     "x-ordering": [],
+    "x-icon": "remove",
     "lawBrowserLinks": [
         {"link": {"title": "Companies Act 1993", "location": "s 126"}, "text": "Meaning of director"},
         {"link": {"title": "Companies Act 1993", "location": "s 156"}, "text": "Removal of directors"},

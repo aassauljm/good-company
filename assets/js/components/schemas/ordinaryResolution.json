@@ -290,6 +290,7 @@
     ],
     "type": "object",
     "x-ordering": [],
+    "x-icon": "th-list",
     "lawBrowserLinks": [
         {"link": {"title": "Companies Act 1993", "location": "s 105(2)"}, "text": "Ordinary resolution"},
         {"link": {"title": "Companies Act 1993", "location": "s 96"}, "text": "Shareholders"},

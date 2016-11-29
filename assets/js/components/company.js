@@ -87,7 +87,7 @@ const FAKE_COMPANY = {
 },
 (dispatch, ownProps) => ({
     requestData: (id) => dispatch(requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany})),
-    showTransactionView: (key, data) => dispatch(showTransactionView(key, data)) && dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)),
+    showTransactionView: (key, data) => { dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)); dispatch(showTransactionView(key, data)) },
     toggleWidget: (path, args) => dispatch(toggleWidget(path, args)),
     push: (url) => dispatch(push(url))
 }))

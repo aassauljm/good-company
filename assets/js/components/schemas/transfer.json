@@ -119,6 +119,7 @@
     ],
     "type": "object",
     "x-ordering": [],
+    "x-icon": "transfer",
     "lawBrowserLinks":[
         {"link": {"title": "Companies Act 1993", "location": "s 39"}, "text": "Transferability of shares"},
         {"link": {"title": "Companies Act 1993", "location": "s 84(1)"}, "text": "Transfer by entry in share register"},

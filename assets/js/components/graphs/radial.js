@@ -92,7 +92,12 @@ export default class RadialGraph extends React.Component {
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
 
   node.append("circle")
-      .attr("r", 20);
+      .attr("r", (d) =>{
+        if(d.radiusProportion){
+            return d.radiusProportion * 300;
+        }
+        return 20;
+    })
 
   node.append("text")
       .attr("dy", ".31em")

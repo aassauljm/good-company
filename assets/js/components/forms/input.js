@@ -7,7 +7,7 @@ import HelpBlock from 'react-bootstrap/lib/HelpBlock';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { splitBsProps } from 'react-bootstrap/lib/utils/bootstrapUtils';
 import DropdownList from 'react-widgets/lib/DropdownList';
-import { Combobox } from 'react-widgets';
+import Combobox from 'react-widgets/lib/Combobox';
 
 
 const DROPLIST_THRESHOLD = 20;
@@ -191,7 +191,8 @@ class InputBase extends React.Component {
 
   renderLabel(children) {
     let classes = {
-      'control-label': !this.isCheckboxOrRadio()
+      'control-label': !this.isCheckboxOrRadio(),
+      'required': this.props.required
     };
     classes[this.props.labelClassName] = this.props.labelClassName;
 
@@ -205,51 +206,49 @@ class InputBase extends React.Component {
 
   renderInput() {
     // strip values
-    const elementProps = getValidInputProps(this.props)
+    const elementProps = getValidInputProps(this.props);
 
     if (!this.props.type) {
       return this.props.children;
     }
 
     switch (this.props.type) {
-    case 'select':
-        const children = React.Children.toArray(this.props.children);
-        if(children.length > DROPLIST_THRESHOLD && !this.props.forceSelect){
-            return <DropdownList {...elementProps} valueField='value' textField='text'
-                data={ children.filter(c => c.props.value).map(c => ({value: c.props.value, text: Array.isArray(c.props.children) ? c.props.children.join('') : c.props.children }))}
-                caseSensitive={false}
-                filter={'contains'}
-                {...elementProps} />
-        }
-        else{
-            return (
-            <select {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
-              {this.props.children}
-            </select>);
-        }
-    case 'textarea':
-      return <textarea {...elementProps} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
-    case 'static':
-      return (
-        <p {...elementProps} className={classNames(this.props.className, 'form-control-static')} ref="input" key="input">
-          {this.props.value}
-        </p>
-      );
-    default:
-      const className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
-      
-      if (this.props.data && this.props.data.length) {
-        console.log(elementProps);
-        return <Combobox data={this.props.data} ref="input" key="input" />
-      }
+        case 'select':
+            const children = React.Children.toArray(this.props.children);
+            if(children.length > DROPLIST_THRESHOLD && !this.props.forceSelect){
+                return <DropdownList {...elementProps} valueField='value' textField='text'
+                    data={ children.filter(c => c.props.value).map(c => ({value: c.props.value, text: Array.isArray(c.props.children) ? c.props.children.join('') : c.props.children }))}
+                    caseSensitive={false}
+                    filter={'contains'}
+                    {...elementProps} />
+            }
+            else{
+                return (
+                <select {...elementProps} value={elementProps.value||''} className={classNames(this.props.className, 'form-control')} ref="input" key="input">
+                  {this.props.children}
+                </select>);
+            }
+        case 'textarea':
+          return <textarea {...elementProps} value={elementProps.value||''} className={classNames(this.props.className, 'form-control')} ref="input" key="input" />;
+        case 'static':
+          return (
+            <p {...elementProps} className={classNames(this.props.className, 'form-control-static')} ref="input" key="input">
+              {this.props.value}
+            </p>
+          );
+        default:
+          const className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
+          if(this.isCheckboxOrRadio()){
+                delete elementProps.value;
+                elementProps.checked = elementProps.checked || false;
+          }
+          if (this.props.comboData && this.props.comboData.length) {
+            return <Combobox  {...elementProps} data={this.props.comboData}  />
+          }
 
-      if (this.isCheckboxOrRadio()){
-        delete elementProps.value;
-        elementProps.checked = elementProps.checked || false;
-      }
 
-      return <input {...elementProps} className={classNames(this.props.className, className)} ref="input" key="input" />;
-    }
+          return <input {...elementProps}  value={elementProps.value||''} className={classNames(this.props.className, className)} ref="input" key="input" />;
+        }
   }
 
   renderFormGroup(children) {
@@ -315,7 +314,7 @@ InputBase.defaultProps = {
 export function getValidInputProps(props){
     const {initialValue, autofill, onUpdate, valid, invalid, dirty, pristine, error, active,
         touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName,
-        wrapperClassName, groupClassName, buttonAfter, ...elementProps} = props;
+        wrapperClassName, groupClassName, buttonAfter, comboData, ...elementProps} = props;
     return elementProps;
 }
 

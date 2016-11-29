@@ -239,7 +239,6 @@ const CalendarHOC = ComposedComponent => {
         deleteEvent: (id) => deleteResource(`/event/${id}`),
         addNotification: (args) => addNotification(args),
         updateMenu: (date) => updateMenu('calendar', {date: date, selected: moment(date).format('YYYY-MM-DD')})
-
     })(Calendar);
 
 }
@@ -250,6 +249,7 @@ export default class CalendarFull extends React.Component {
         super();
         this.selectDay = ::this.selectDay;
         this.deleteEvent = ::this.deleteEvent;
+        this.close = ::this.close;
     }
 
     selectDay(value) {
@@ -308,6 +308,10 @@ export default class CalendarFull extends React.Component {
         </div>
     }
 
+    close() {
+        this.props.push('/'+this.props.route.path)
+    }
+
     render() {
         return <LawContainer>
             <div className="widget">
@@ -322,7 +326,7 @@ export default class CalendarFull extends React.Component {
 
                 <div className="widget-body calendar-full">
                     { this.props.children && React.cloneElement(this.props.children, {
-                            close: () => this.props.push('/'+this.props.route.path),
+                            close: this.close,
                             events: this.props.events,
                             companies: this.props.companies
                     })}
@@ -432,7 +436,7 @@ export  class CreateEvent extends React.Component {
 
     render() {
         const {location: {query: {date}}} = this.props;
-        const dateValue = date ? moment(date, 'YYYY-MM-DD').toDate() : null;
+        const dateValue = date ? moment(date, 'YYYY-MM-DD').toDate() : new Date();
         return <div>
             <EventFormConnected initialValues={{date: dateValue}} companyOptions={companyListToOptions(this.props.companies)} onSubmit={this.handleSubmit} ref='form'/>
                 <div className="button-row">

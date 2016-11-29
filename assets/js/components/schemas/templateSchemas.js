@@ -3,13 +3,13 @@ import definitionsSchema from './definitions.json';
 
 let templateSchemas = {
     transfer: require('./transfer.json'),
-    specialResolution: require('./specialResolution.json'),
-    ordinaryResolution: require('./ordinaryResolution.json'),
-    boardResolution: require('./boardResolution.json'),
-    entitledPersonsAgreement: require('./entitledPersonsAgreement.json'),
-    directorsCertificate: require('./directorsCertificate.json'),
-    noticeOfMeeting: require('./noticeOfMeeting.json'),
-    resignationOfDirector: require('./resignationOfDirector.json')
+    special_resolution: require('./specialResolution.json'),
+    ordinary_resolution: require('./ordinaryResolution.json'),
+    board_resolution: require('./boardResolution.json'),
+    entitled_persons_agreement: require('./entitledPersonsAgreement.json'),
+    directors_certificate: require('./directorsCertificate.json'),
+    notice_of_meeting: require('./noticeOfMeeting.json'),
+    resignation_of_director: require('./resignationOfDirector.json')
 }
 
 Object.keys(templateSchemas).map((key) => {
