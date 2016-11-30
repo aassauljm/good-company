@@ -13,7 +13,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext, DropTarget } from 'react-dnd';
 import { POPOVER_DRAGGABLE } from './lawBrowserLink';
 import Promise from 'bluebird';
-
+import { AsyncHOCFactory, ALERTS, FAVOURITES } from '../hoc/resources';
 
 
 
@@ -77,7 +77,10 @@ export default class App extends React.Component {
     }
 }
 
-@pureRender
+
+
+
+@AsyncHOCFactory([ALERTS, FAVOURITES])
 export class LoggedInApp extends React.Component {
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){

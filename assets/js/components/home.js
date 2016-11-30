@@ -12,13 +12,11 @@ import { FavouritesWidget } from './favourites';
 import { CompaniesWidget } from './companies';
 import { TemplateWidget } from './templates';
 import { CalendarWidget } from './calendar';
-import { FavouritesHOC, AlertsHOC, CompaniesHOC } from '../hoc/resources';
+import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS, FAVOURITES } from '../hoc/resources';
 
-@AlertsHOC(true)
-@FavouritesHOC(true)
-@CompaniesHOC(true)
+
+@AsyncHOCFactory([COMPANIES, FAVOURITES, ALERTS, EVENTS, RECENT_ACTIVITY])
 export default class Home extends React.Component {
-
     render() {
         return <div className="container">
                 <div className="row">

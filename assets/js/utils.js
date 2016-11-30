@@ -360,3 +360,13 @@ export function sortAlerts(response) {
     }, {});
     return {alertList: data, companyMap, dateMap}
 }
+
+export const processEvents = (events) => {
+    const eventMap = events.reduce((acc, event) => {
+        const str = moment(event.date).format('YYYY-MM-DD');
+        acc[str] = acc[str] || []
+        acc[str].push(event);
+        return acc;
+    }, {})
+    return {eventList: events, eventMap: eventMap}
+}

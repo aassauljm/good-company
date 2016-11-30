@@ -24,7 +24,7 @@ const DropdownToggle = (props) => {
       </a>
 }
 
-@FavouritesHOC
+@FavouritesHOC()
 export class CompanyHeader extends React.Component {
 
     static propTypes = {

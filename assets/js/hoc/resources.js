@@ -1,9 +1,12 @@
 "use strict"
 import React from 'react';
 import { connect } from 'react-redux';
-import { sortAlerts as alertPostProcess} from '../utils';
+import { sortAlerts as alertPostProcess, processEvents} from '../utils';
 import { requestResource } from '../actions'
 import { asyncConnect } from 'redux-connect';
+import Promise from 'bluebird';
+
+
 
 function stringOrFunction(input, props) {
     if (typeof input === 'function') {
@@ -13,7 +16,7 @@ function stringOrFunction(input, props) {
     }
 }
 
-const HOCFactory = (resource, location, postProcess, useAsyncConnect)  => ComposedComponent => {
+const HOCFactory = ({resource, location, postProcess}, useAsyncConnect)  => ComposedComponent => {
 
     class Injector extends React.Component {
 
@@ -21,7 +24,7 @@ const HOCFactory = (resource, location, postProcess, useAsyncConnect)  => Compos
             this.props.fetch()
         }
 
-        componentDidlMount() {
+        componentWillMount() {
             this.fetch();
         }
 
@@ -58,6 +61,54 @@ const HOCFactory = (resource, location, postProcess, useAsyncConnect)  => Compos
 
 }
 
+export const AsyncHOCFactory = (resourceTuples)  => ComposedComponent => {
+
+    class Injector extends React.Component {
+
+        fetch(){
+            this.props.fetch()
+        }
+
+        componentWillMount() {
+            this.fetch();
+        }
+
+        componentDidUpdate() {
+            this.fetch();
+        }
+
+        render() {
+            const {...props} = this.props;
+            return <ComposedComponent {...props} />;
+        }
+    }
+
+    const DEFAULT = {};
+
+
+    const stateToProps = (state, ownProps) => {
+        return resourceTuples.reduce((acc, {resource, location, postProcess}) => {
+            acc[stringOrFunction(resource, ownProps)] = state.resources[stringOrFunction(location, ownProps)] || DEFAULT
+            return acc;
+        }, {});
+    };
+
+
+    const actions = (dispatch, ownProps) => ({
+        fetch: () => Promise.all(resourceTuples.map(({resource, location, postProcess}) => dispatch(requestResource(stringOrFunction(location, ownProps), {postProcess}))))
+    });
+
+
+    return asyncConnect([{
+        promise: ({store: {dispatch, ownProps}}) => {
+            return Promise.all(resourceTuples.map(({resource, location, postProcess}) => dispatch(requestResource(stringOrFunction(location, ownProps), {postProcess}))))
+        }
+    }],  stateToProps, actions)(Injector);
+
+
+}
+
+
 export const FromRouteHOC = (mappingFunction) => (ComposedComponent) => {
     class Injector extends React.Component {
         render() {
@@ -67,8 +118,19 @@ export const FromRouteHOC = (mappingFunction) => (ComposedComponent) => {
     }
 }
 
-export const FavouritesHOC = (async) => HOCFactory('favourites', '/favourites', null, async);
-export const AlertsHOC = (async) => HOCFactory('alerts', '/alerts', alertPostProcess, async);
-export const CompaniesHOC = (async) => HOCFactory('companies', 'companies', async);
-export const CompanyHOC = (async) => HOCFactory('company', props => `/company/${props.companyId}/get_info`, async);
+export const FAVOURITES = {resource: 'favourites', location: '/favourites'};
+export const EVENTS = {resource: 'events', location: '/events', postProcess: processEvents};
+export const ALERTS = {resource: 'alerts', location: '/alerts', postProcess: alertPostProcess};
+export const RECENT_ACTIVITY = {resource: 'recent_activity', location: '/recent_activity' };
+export const COMPANIES = {resource: 'companies', location: 'companies'};
+export const COMPANY = {resource: props => `/company/${props.companyId}/get_info`, location: props => `/company/${props.companyId}/get_info`};
+
+
+export const FavouritesHOC = (async) => HOCFactory(FAVOURITES, async);
+export const AlertsHOC = (async) => HOCFactory(ALERTS, async);
+export const CompaniesHOC = (async) => HOCFactory(COMPANIES,  async);
+export const CompanyHOC = (async) => HOCFactory(COMPANY, async);
 export const CompanyHOCFromRoute = (async) => FromRouteHOC((params) => ({companyId: params.id}))(CompanyHOC(async));
+
+
+

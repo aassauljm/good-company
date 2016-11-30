@@ -16,7 +16,7 @@ import Input from './forms/input';
 import { reduxForm } from 'redux-form';
 import WorkingDayNotice from './forms/workingDays';
 import STRINGS from '../strings';
-import { formFieldProps, requireFields, stringDateToFormattedStringTime, companyListToOptions } from '../utils';
+import { formFieldProps, requireFields, stringDateToFormattedStringTime, companyListToOptions, processEvents } from '../utils';
 import { OverlayTrigger } from './lawBrowserLink';
 import Tooltip from 'react-bootstrap/lib/Tooltip';
 import exportICS from './ics'
@@ -26,17 +26,6 @@ import { requestAlerts } from './alerts';
 
 const DEFAULT_OBJ = {};
 const DEFAULT_DEADLINE_HOUR = 11;
-
-
-const eventMap = (events) => {
-    const eventMap = events.reduce((acc, event) => {
-        const str = moment(event.date).format('YYYY-MM-DD');
-        acc[str] = acc[str] || []
-        acc[str].push(event);
-        return acc;
-    }, {})
-    return {eventList: events, eventMap: eventMap}
-}
 
 
 
@@ -233,7 +222,7 @@ const CalendarHOC = ComposedComponent => {
         menu: state.menus['calendar'] || {date: new Date(), selected: moment().format('YYYY-MM-DD')}
         }), {
         push: (location) => push(location),
-        requestEvents: (args) => requestResource('/events', {postProcess:eventMap}),
+        requestEvents: (args) => requestResource('/events', {postProcess: processEvents}),
         requestAlerts: requestAlerts,
         requestCompanies: () => requestResource('companies'),
         deleteEvent: (id) => deleteResource(`/event/${id}`),
