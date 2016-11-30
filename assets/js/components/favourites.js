@@ -7,30 +7,15 @@ import { requestResource } from '../actions';
 import { stringDateToFormattedStringTime } from '../utils';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
+import { FavouritesHOC } from '../hoc/resources';
 
-
-
-@connect((state, ownProps) => {
-    return state.resources['/favourites'] || {};
-}, {
-    requestData: (key) => requestResource('/favourites'),
+@connect(undefined, {
     navigate: (url) => push(url)
 })
+@FavouritesHOC(false)
 export class FavouritesWidget extends React.Component {
-
-    fetch() {
-        return this.props.requestData();
-    };
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
-
     renderList() {
-        const favourites = this.props.data || [];
+        const favourites = this.props.favourites.data || [];
         return <ul>
                 {favourites.map((f, i) => <li key={i}>
                     <Link to={`/company/view/${f.id}`}>
@@ -48,7 +33,7 @@ export class FavouritesWidget extends React.Component {
             event.preventDefault();
             this.props.navigate(`/company/view/${id}`);
         }
-        const favourites = (this.props.data || []).slice(0, 6);
+        const favourites = (this.props.favourites.data || []).slice(0, 6);
 
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         return <table className="table table-striped table-hover table-condensed">
@@ -81,32 +66,18 @@ export class FavouritesWidget extends React.Component {
 }
 
 
-@connect((state, ownProps) => {
-    return state.resources['/favourites'] || {};
-}, {
-    requestData: (key) => requestResource('/favourites'),
+@connect(undefined, {
     navigate: (url) => push(url)
 })
+@FavouritesHOC(true)
 export default class Favourites extends React.Component {
-
-    fetch() {
-        return this.props.requestData();
-    };
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
-
 
     renderTable() {
         const handleClick = (event, id) => {
             event.preventDefault();
             this.props.navigate(`/company/view/${id}`);
         }
-        const favourites = this.props.data || [];
+        const favourites = this.props.favourites.data || [];
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         return <table className="table table-striped table-hover">
             <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>

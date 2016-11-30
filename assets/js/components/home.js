@@ -12,9 +12,11 @@ import { FavouritesWidget } from './favourites';
 import { CompaniesWidget } from './companies';
 import { TemplateWidget } from './templates';
 import { CalendarWidget } from './calendar';
+import { FavouritesHOC, AlertsHOC, CompaniesHOC } from '../hoc/resources';
 
-
-
+@AlertsHOC(true)
+@FavouritesHOC(true)
+@CompaniesHOC(true)
 export default class Home extends React.Component {
 
     render() {

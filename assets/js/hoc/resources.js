@@ -21,7 +21,7 @@ const HOCFactory = (resource, location, postProcess, useAsyncConnect)  => Compos
             this.props.fetch()
         }
 
-        componentWillMount() {
+        componentDidlMount() {
             this.fetch();
         }
 
@@ -36,11 +36,25 @@ const HOCFactory = (resource, location, postProcess, useAsyncConnect)  => Compos
     }
     const DEFAULT = {};
 
-    return (useAsyncConnect ? asyncConnect : connect)((state, ownProps) => ({
+
+    const stateToProps = (state, ownProps) => ({
         [stringOrFunction(resource, ownProps)]: state.resources[stringOrFunction(location, ownProps)] || DEFAULT
-    }), (dispatch, ownProps) => ({
+    });
+
+    const actions = (dispatch, ownProps) => ({
         fetch: () => dispatch(requestResource(stringOrFunction(location, ownProps), {postProcess}))
-    }))(Injector)
+    })
+
+    if(useAsyncConnect){
+        return asyncConnect([{
+            promise: ({store: {dispatch, ownProps}}) => {
+                return dispatch(requestResource(stringOrFunction(location, ownProps), {postProcess}))
+            }
+        }],  stateToProps, actions)(Injector); //(connect(stateToProps, actions)(Injector))
+    }
+    else{
+        return connect(stateToProps, actions)(Injector)
+    }
 
 }
 
@@ -53,8 +67,8 @@ export const FromRouteHOC = (mappingFunction) => (ComposedComponent) => {
     }
 }
 
-export const FavouritesHOC = HOCFactory('favourites', '/favourites');
-export const AlertsHOC = HOCFactory('alerts', '/alerts', alertPostProcess);
-export const CompaniesHOC = HOCFactory('companies', 'companies');
-export const CompanyHOC = HOCFactory('company', props => `/company/${props.companyId}/get_info`);
-export const CompanyHOCFromRoute = FromRouteHOC((params) => ({companyId: params.id}))(CompanyHOC);
+export const FavouritesHOC = (async) => HOCFactory('favourites', '/favourites', null, async);
+export const AlertsHOC = (async) => HOCFactory('alerts', '/alerts', alertPostProcess, async);
+export const CompaniesHOC = (async) => HOCFactory('companies', 'companies', async);
+export const CompanyHOC = (async) => HOCFactory('company', props => `/company/${props.companyId}/get_info`, async);
+export const CompanyHOCFromRoute = (async) => FromRouteHOC((params) => ({companyId: params.id}))(CompanyHOC(async));

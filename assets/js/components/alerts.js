@@ -35,7 +35,7 @@ export class AlertsWidget extends React.Component {
     }
 
     fetch(refresh) {
-        this.props.requestData()
+        this.props.requestData();
         this.props.requestJobs(refresh)
             .then((r) => {
                 if(!this._unmounted && r.response){

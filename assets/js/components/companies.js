@@ -29,7 +29,7 @@ const CompanyItem = (props) => {
 }
 
 
-const CompaniesHOC = ComposedComponent => class extends React.Component {
+const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
 
     renderTable(data, condensed) {
         const handleClick = (event, id) => {
@@ -80,7 +80,7 @@ const CompaniesHOC = ComposedComponent => class extends React.Component {
     handleImport: () => push('/import'),
     fetchAlerts: requestAlerts,
 })
-@CompaniesHOC
+@CompaniesRenderHOC
 export default class Companies extends React.Component {
 
     componentWillMount() {
@@ -140,7 +140,7 @@ export default class Companies extends React.Component {
     handleImport: () => push('/import'),
     push: (id) => push(`/company/view/${id}`)
 })
-@CompaniesHOC
+@CompaniesRenderHOC
 export class CompaniesWidget extends React.Component {
 
     fetch() {

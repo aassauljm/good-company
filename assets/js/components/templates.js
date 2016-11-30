@@ -412,7 +412,6 @@ function makeContext(companyState) {
         'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
         'company.shareholders': personList(companyState)
     }
-
 }
 
 @connect((state, ownProps) => {
@@ -446,7 +445,11 @@ export  class TemplateView extends React.Component {
         let values;
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
-            const values = template.getInitialValues(state || {company: this.props.companyState || {}})
+            let companyState = {};
+            if(this.props.companyState){
+                companyState = {company: this.props.companyState || {}, ...this.props.companyState};
+            }
+            const values = template.getInitialValues(state || companyState)
             return <template.form onSubmit={this.submit} initialValues={values} context={makeContext(this.props.companyState)} />
         }
         return <div>Not Found</div>

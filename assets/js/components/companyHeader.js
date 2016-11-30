@@ -15,6 +15,8 @@ import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
 import { AccountControls } from './header'
+import { FavouritesHOC } from '../hoc/resources';
+
 
 const DropdownToggle = (props) => {
     return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
@@ -22,7 +24,7 @@ const DropdownToggle = (props) => {
       </a>
 }
 
-
+@FavouritesHOC
 export class CompanyHeader extends React.Component {
 
     static propTypes = {
@@ -42,17 +44,6 @@ export class CompanyHeader extends React.Component {
         // ugly ugly
         this.refs.dropdown.refs.inner.handleClose()
     }
-
-    fetch() {
-        return this.props.requestData();
-    };
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
 
     renderFavourites() {
         const items = (this.props.favourites.data || []);
@@ -185,9 +176,8 @@ export class CompanyHeader extends React.Component {
 
 const CompanyHeaderConnected = connect(state => {
      // adding routes so links update active status
-    return { login: state.login, userInfo: state.userInfo, routing: state.routing, favourites: state.resources['/favourites'] || {} }
+    return { login: state.login, userInfo: state.userInfo, routing: state.routing }
 }, {
-    requestData: (key) => requestResource('/favourites'),
     navigate: (url) => push(url),
     resetData: () => resetTransactionViews(),
     addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),

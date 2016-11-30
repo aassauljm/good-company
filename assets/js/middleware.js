@@ -91,7 +91,6 @@ export function callAPIMiddleware({
                 payload = {},
                 postProcess,
             } = action;
-
             if (!types || !callAPI) {
                 // Normal action: pass it on
                 return next(action);

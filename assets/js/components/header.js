@@ -51,8 +51,8 @@ export const AccountControls = (props) => {
 
 
 
-@AlertsHOC
-@FavouritesHOC
+@FavouritesHOC()
+@AlertsHOC()
 export class Header extends React.Component {
 
     constructor() {
@@ -76,8 +76,8 @@ export class Header extends React.Component {
     }
 
     renderFavourites() {
-        const items = (this.props.favourites.data || []);
-        if(items.length){
+        const items = this.props.favourites && (this.props.favourites.data || []);
+        if(items && items.length){
            return [<li key={-1} className="separator" />].concat(items.map((f, i) => {
                 return <li key={i}><Link to={`/company/view/${f.id}`} onClick={this.closeMenu}>{f.currentCompanyState.companyName}</Link></li>
            }));
