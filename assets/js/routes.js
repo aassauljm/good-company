@@ -73,7 +73,7 @@ export default (store) => {
             <Route path="documents/view/:documentId" component={ Document }  />
             <Route path="companies" component={ Companies }  />
             <Route path="mass_setup" component={ MassSetup }  />
-            <Route path="company/view/:id" component={ Company } childrenOnly={false}>
+            <Route path="company/view/:id" component={ Company } childrenOnly={true}>
                 <Route path="shareholdings" component={ Shareholdings } />
                 <Route path="details" component={ CompanyDetails } />
                 <Route path="transactions" component={ CompanyTransactions }>
