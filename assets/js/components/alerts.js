@@ -12,6 +12,7 @@ import moment from 'moment';
 import { sortAlerts } from '../utils';
 import { AlertsHOC } from '../hoc/resources'
 
+export const requestAlerts = () => requestResource('/alerts', {postProcess: sortAlerts})
 
 @AlertsHOC(true)
 @connect((state, ownProps) => {
@@ -20,7 +21,7 @@ import { AlertsHOC } from '../hoc/resources'
     requestJobs: (refresh) => requestResource('/pending_jobs', {refresh: refresh}),
     refreshCompanies: () => requestResource('companies', {refresh: true}),
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
-    refreshAlerts: () => requestResource('/alerts', {refresh: true, postProcess: sortAlerts}),
+    refreshAlerts: () => requestAlerts,
     navigate: (url) => push(url),
     resetTransactionViews: () => resetTransactionViews()
 })
