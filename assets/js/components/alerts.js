@@ -10,15 +10,13 @@ import { AlertWarnings } from './companyAlerts';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment';
 import { sortAlerts } from '../utils';
+import { AlertsHOC } from '../hoc/resources'
 
 
-export const requestAlerts = () => requestResource('/alerts', {postProcess: sortAlerts});
-
-
+@AlertsHOC(true)
 @connect((state, ownProps) => {
-    return {alerts: state.resources['/alerts'] || {}, pendingJobs:  state.resources['/pending_jobs'] || {}};
+    return {pendingJobs:  state.resources['/pending_jobs'] || {}};
 }, {
-    requestData: requestAlerts,
     requestJobs: (refresh) => requestResource('/pending_jobs', {refresh: refresh}),
     refreshCompanies: () => requestResource('companies', {refresh: true}),
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
@@ -35,7 +33,6 @@ export class AlertsWidget extends React.Component {
     }
 
     fetch(refresh) {
-        this.props.requestData();
         this.props.requestJobs(refresh)
             .then((r) => {
                 if(!this._unmounted && r.response){
