@@ -241,7 +241,9 @@ function injectContext(FormComponent) {
                     }
                 });
             }
-            fields[key][source].comboData = context[inputSelectSource(schemaProperties)].map(f => f[source]);
+            if(context[inputSelectSource(schemaProperties)]){
+                fields[key][source].comboData = context[inputSelectSource(schemaProperties)].map(f => f[source]);
+            }
         }
     }
 

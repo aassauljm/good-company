@@ -55,3 +55,32 @@
     font-style: italic;
     position: absolute;
 }
+
+
+
+.search-results{
+    text-align: left;
+    position: absolute;
+     left: 0;
+    right: 0;
+    top: 100%;
+    background-color: #fff;
+    z-index: 1080;
+     box-shadow: 0 4px 6px 2px rgba(0, 0, 0, .10);
+    .result{
+        padding: 8px;
+        border-bottom: 1px solid $gray-lighter;
+        cursor: pointer;
+        display:block;
+        &:hover{
+            color: $white;
+            background-color: $deep-red;
+        }
+        &:last-child{
+            border-bottom:none;
+        }
+    }
+    .highlight{
+        font-weight: bold;
+    }
+}

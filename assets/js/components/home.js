@@ -13,13 +13,19 @@ import { CompaniesWidget } from './companies';
 import { TemplateWidget } from './templates';
 import { CalendarWidget } from './calendar';
 import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS, FAVOURITES } from '../hoc/resources';
+import { HeaderSubControls } from './header';
 
+
+
+@connect(state => ({ userInfo: state.userInfo}))
 export class LandingPageView extends React.Component {
     render() {
         return  <div>
             <div className="container-fluid page-top">
                 <div className="container">
-
+                <div className="welcome-back">
+                Hello <strong>{ this.props.userInfo.username }</strong>, you last logged in {this.props.userInfo.lastLogin}
+                </div>
                 </div>
             </div>
                 <div className="container-fluid page-body">

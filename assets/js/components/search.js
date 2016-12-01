@@ -8,17 +8,17 @@ import { reduxForm } from 'redux-form';
 import { push } from 'react-router-redux'
 
 
-function highlightString(string, query, highlightClass='highlight'){
-    return string;
+export function highlightString(string, query, highlightClass='highlight'){
+
     // not doing currently
     const startIndex = string.toLowerCase().indexOf(query.toLowerCase()),
             endIndex = startIndex + query.length;
     if(startIndex < 0){
         return string;
     }
-    return  [<span>{string.substring(0, startIndex)}</span>,
-    <span className={highlightClass}>{string.substring(startIndex, endIndex)}</span>,
-    <span>{string.substring(endIndex)}</span>];
+    return  [<span key={0}>{string.substring(0, startIndex)}</span>,
+    <span key={1}className={highlightClass}>{string.substring(startIndex, endIndex)}</span>,
+    <span key={2}>{string.substring(endIndex)}</span>];
 }
 
 

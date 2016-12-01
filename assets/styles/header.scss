@@ -152,7 +152,7 @@ nav.navbar{
             }
         }
         .alert-count{
-            font-size: 14px;
+
         }
     }
     .control-icons{
@@ -194,9 +194,37 @@ nav.navbar{
 
 
 .nav-controls{
-    .navbar-collapse.collapse{
-        padding: 0;
+
+    .full-controls{
+        @extend .hidden-xs;
+        .nav.navbar-nav{
+            margin:0;
+            float: left;
+            .nav-item{
+                float:left;
+            }
+        }
     }
+
+    .small-controls{
+        @extend .visible-xs-block;
+        .nav.navbar-nav{
+            margin:0;
+            float: left;
+            .nav-item{
+                float:left;
+                & > .dropdown-menu{
+                    position:absolute;
+                    .nav-item{
+                        float:none;
+                    }
+                }
+            }
+        }
+    }
+
+
+
     li a{
         padding: 4px 20px;
         font-size: 1em;
@@ -245,6 +273,10 @@ nav.navbar{
             }
             .fa{
                 margin-right: 8px;
+            }
+
+            .dropdown-menu{
+                position:static;
             }
         }
 
