@@ -8,6 +8,7 @@
 module.exports = {
 
     favourites: function(req, res) {
+        // oh shit
         const favs = () => Favourite.findAll({
             where: {userId: req.user.id},
             include: [

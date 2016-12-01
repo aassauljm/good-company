@@ -168,7 +168,7 @@ export class GuidedSetup extends React.Component {
                             <ProgressBar now={this.state.now} striped bsStyle="success" /></div>
                             { this.state.warningCount === 0 && <div>
                                 <p>Congratulations, { this.props.companyState.companyName } has succesfully been set up. </p>
-                                <div className="button-row"><Link className="btn btn-primary" to={`/company/view/${this.props.companyId}/shareregister`}>View Share Register</Link></div>
+                                <div className="button-row"><Link className="btn btn-primary" to={`/company/view/${this.props.companyId}/registers/shareregister`}>View Share Register</Link></div>
                                 </div> }
                         </div>
                     </div>

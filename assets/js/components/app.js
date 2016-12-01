@@ -83,20 +83,6 @@ export default class App extends React.Component {
 @AsyncHOCFactory([ALERTS, FAVOURITES])
 export class LoggedInApp extends React.Component {
     render() {
-        if(this.props.routes.some(r => r.childrenOnly)){
-            return <div>
-                { this.props.children }
-            </div>
-        }
-        return  <div>
-            <div className="container-fluid page-top">
-                <div className="container">
-                    <Search />
-                </div>
-            </div>
-                <div className="container-fluid page-body">
-                        { this.props.children }
-                </div>
-        </div>
+        return this.props.children
     }
 }

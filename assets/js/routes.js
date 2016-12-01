@@ -3,7 +3,7 @@ import { IndexRoute, Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import App, { LoggedInApp } from './components/app';
 import Landing from './components/landing';
-import Home from './components/home';
+import Home, { LandingPageView } from './components/home';
 import NotFound from './components/notFound';
 import Users from './components/users';
 import Roles from './components/roles';
@@ -61,19 +61,32 @@ export default (store) => {
     return <Route path="/" component={ App }>
         <Route path="login" component={ LoginWithCatalex }  />
         <Route onEnter={requireLogin} component={ LoggedInApp }>
-            <IndexRoute component={ Home }  />
-            <Route path="recent_activity" component={ RecentActivity }  />
-            <Route path="calendar" component={ Calendar }>
-                <Route path="create" component={ CreateEvent }/>
-                <Route path="edit/:eventId" component={ EditEvent }/>
+            <Route component={ LandingPageView }>
+                <IndexRoute component={ Home }  />
+                <Route path="recent_activity" component={ RecentActivity }  />
+                <Route path="calendar" component={ Calendar }>
+                    <Route path="create" component={ CreateEvent }/>
+                    <Route path="edit/:eventId" component={ EditEvent }/>
+                </Route>
+                <Route path="users" component={ Users }  />
+                <Route path="roles" component={ Roles }  />
+                <Route path="documents" component={ Documents }  />
+                <Route path="documents/view/:documentId" component={ Document }  />
+                <Route path="companies" component={ Companies }  />
+                <Route path="mass_setup" component={ MassSetup }  />
+                <Route path="import" component={ ImportMenu } />
+                <Route path="import/:companyNumber" component={ ImportCompany } />
+                <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
+                    <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
+                </Route>
+                <Route path="favourites" component={ Favourites } />
+                <Route path="alerts" component={ Alerts } />
+                <Route path="annual_returns" component={ AnnualReturn } />
+                 <Route path="templates" component={ Templates }>
+                    <Router path=":name" component={ TemplateView }/>
+                </Route>
             </Route>
-            <Route path="users" component={ Users }  />
-            <Route path="roles" component={ Roles }  />
-            <Route path="documents" component={ Documents }  />
-            <Route path="documents/view/:documentId" component={ Document }  />
-            <Route path="companies" component={ Companies }  />
-            <Route path="mass_setup" component={ MassSetup }  />
-            <Route path="company/view/:id" component={ Company } childrenOnly={true}>
+            <Route path="company/view/:id" component={ Company } >
                 <Route path="shareholdings" component={ Shareholdings } />
                 <Route path="details" component={ CompanyDetails } />
                 <Route path="transactions" component={ CompanyTransactions }>
@@ -84,7 +97,6 @@ export default (store) => {
                     <Route path=":transactionId" component={ PendingTransactionView }/>
                 </Route>
 
-                <Route path="shareregister" component={ ShareRegister } />
                 <Route path="shareholders" component={ Shareholders } />
                 <Route path="documents" component={ CompanyDocuments } />
                 <Route path="document/view/:documentId" component={ Document }  />
@@ -96,14 +108,21 @@ export default (store) => {
                 <Route path="source_data" component={ CompaniesRegister } />
                 <Route path="directors" component={ Directors } />
                 <Route path="graph" component={ CompanyGraph } />
+
                 <Route path="share_classes" component={ ShareClasses } >
                     <Route path="create" component={ ShareClassCreate } />
                     <Route path="view/:shareClassId" component={ ShareClassEdit } />
                 </Route>
-                <Route path="interests_register" component={ InterestsRegister } >
-                    <Route path="create" component={ InterestsRegisterCreate } />
-                    <Route path="view/:entryId" component={ InterestsRegisterView } />
+
+                <Route path="registers">
+                    <Route path="shareregister" component={ ShareRegister } />
+                    <Route path="interests_register" component={ InterestsRegister } >
+                        <Route path="create" component={ InterestsRegisterCreate } />
+                        <Route path="view/:entryId" component={ InterestsRegisterView } />
+                    </Route>
+
                 </Route>
+
                 <Route path="new_transaction" component={ NewTransaction } >
                     <Route path="contact" component={ UpdateContact } />
                     <Route path="people" component={ UpdatePeople } />
@@ -115,19 +134,12 @@ export default (store) => {
                 <Route path="annual_returns" component={ AnnualReturn } />
               <Route path="*" component={ NotFound } />
             </Route>
-            <Route path="company/view/:id/history/:generation" component={ Company }  />
-            <Route path="import" component={ ImportMenu } />
-            <Route path="import/:companyNumber" component={ ImportCompany } />
-            <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
-                <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
-            </Route>
-            <Route path="favourites" component={ Favourites } />
-            <Route path="alerts" component={ Alerts } />
-            <Route path="annual_returns" component={ AnnualReturn } />
-             <Route path="templates" component={ Templates }>
-                <Router path=":name" component={ TemplateView }/>
-            </Route>
+
+
+
+
         </Route>
+
         <Route path="*" component={ NotFound } />
     </Route>
 };

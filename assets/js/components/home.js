@@ -14,6 +14,21 @@ import { TemplateWidget } from './templates';
 import { CalendarWidget } from './calendar';
 import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS, FAVOURITES } from '../hoc/resources';
 
+export class LandingPageView extends React.Component {
+    render() {
+        return  <div>
+            <div className="container-fluid page-top">
+                <div className="container">
+
+                </div>
+            </div>
+                <div className="container-fluid page-body">
+                        { this.props.children }
+                </div>
+        </div>
+    }
+}
+
 
 @AsyncHOCFactory([COMPANIES, FAVOURITES, ALERTS, EVENTS, RECENT_ACTIVITY])
 export default class Home extends React.Component {

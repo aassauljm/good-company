@@ -24,7 +24,7 @@ import Notifications from './notifications';
 import { push } from 'react-router-redux'
 import Header from './header';
 import { CompanyAlertsWidget } from './companyAlerts';
-
+import moment from 'moment';
 
 const DEFAULT_OBJ = {};
 
@@ -207,29 +207,15 @@ export default class Company extends React.Component {
         const data = this.props.data || DEFAULT_OBJ;
         const current = data.currentCompanyState || data.companyState;
         if(this.props._status === 'error'){
-            return <div><Header />
-                <NotFound descriptor="Company" />
-            </div>
+            return <NotFound descriptor="Company" />
+
         }
         return <div className="company">
-                <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} />
+
                 <div className="company-page">
                     <div className="container-fluid page-top">
-                    { <Notifications />}
-                     <div className="container">
-                        <div className="row">
-                             <div className="col-md-12">
-                                { current && !this.props.children && <CompanyAlertsWidget companyId={this.key()}  companyState={current} /> }
-                             </div>
+                        <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} />
                         </div>
-
-                    { false && this.props.children &&  <ul className="pager">
-                            <li ><Link activeClassName="active" className="nav-link" to={"/"} >← Home</Link></li>
-                            <li ><Link activeClassName="active" className="nav-link" to={"/company/view/"+this.props.params.id} >← Company Page</Link></li>
-                            </ul> }
-                    </div>
-
-                    </div>
                     <div className="container-fluid page-body">
                         { this.renderBody(current || FAKE_COMPANY) }
                     </div>

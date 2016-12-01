@@ -1,8 +1,7 @@
 "use strict"
 import React, { PropTypes } from 'react'
 import { pureRender }  from '../utils';
-import { Link, IndexLink } from 'react-router';
-import { requestResource, createResource, deleteResource, addNotification, showTransactionView, resetTransactionViews } from '../actions';
+import { Link, IndexLink, withRouter } from 'react-router';
 import Navbar from 'react-bootstrap/lib/Navbar'
 import Collapse from 'react-bootstrap/lib/Collapse'
 import NavbarHeader from 'react-bootstrap/lib/NavbarHeader';
@@ -10,22 +9,121 @@ import NavbarToggle from 'react-bootstrap/lib/NavbarToggle';
 import NavbarCollapse from 'react-bootstrap/lib/NavbarCollapse';
 import Dropdown from 'react-bootstrap/lib/Dropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { requestUserInfo } from '../actions';
+import { addNotification, createResource, deleteResource } from '../actions';
 import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
-import { AccountControls } from './header'
+import moment from 'moment'
 import { FavouritesHOC } from '../hoc/resources';
 
 
 const DropdownToggle = (props) => {
-    return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
+    return <Link to={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}} activeClassName="active"  >
         {props.children}
-      </a>
+      </Link>
 }
 
 @FavouritesHOC()
-export class CompanyHeader extends React.Component {
+@connect(state => ({login: state.login, userInfo: state.userInfo, routing: state.routing}), {
+    navigate: (url) => push(url),
+    addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),
+    removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']})
+})
+export default class CompanyHeader extends React.Component {
+    closeMenu() {
+        // ugly ugly
+        //this.refs.dropdown.refs.inner.handleClose()
+    }
+
+    isFavourite() {
+        const companyIdInt = parseInt(this.props.companyId, 10);
+        // save result maybe
+        return (this.props.favourites.data || []).filter(f => f.id === companyIdInt && f.favourited).length;
+    }
+
+    toggleFavourite() {
+        (this.isFavourite() ? this.props.removeFavourite(this.props.companyId) : this.props.addFavourite(this.props.companyId))
+            .then(response => {
+
+            })
+            .catch(e => {
+                this.props.addNotification({error: true, message: this.isFavourite() ? 'Could not remove Favourite' : 'Could not add Favourite.'})
+            })
+    }
+
+    renderRightActions() {
+        const glyph = this.isFavourite() ? 'star' : 'star-empty';
+        return [<div key={0} className="favourite">
+            <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}>
+            <span className="visible-lg-inline">Favourite</span>
+            <Glyphicon glyph={glyph}/>
+            </a>
+        </div>]
+    }
+
+    renderNavLinks() {
+        const id = this.props.companyId;
+
+        return [ <li key={-1} className="nav-item separator" />,
+                <li key={0} className="nav-item">
+                    <IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
+                </li>,
+
+            <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
+                    <DropdownToggle href={`/company/view/${id}/registers`} bsRole="toggle">
+                        Registers
+                   </DropdownToggle>
+                    <Dropdown.Menu bsRole="menu">
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
+                        <MenuItem  onClick={() => this.props.navigate(`/company/view/${id}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
+                        </Dropdown.Menu>
+                </Dropdown>,
+
+              <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
+                    <DropdownToggle href={`/company/view/${id}/new_transaction`} bsRole="toggle">
+                        Update
+                   </DropdownToggle>
+                    <Dropdown.Menu bsRole="menu">
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
+                        </Dropdown.Menu>
+                </Dropdown>,
+             <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} onClick={() => this.closeMenu()} activeClassName="active" className="nav-link">Templates</Link></li>,
+             ]
+    }
+
+
+
+     render() {
+        return <div className="container">
+            <div className="nav-controls">
+
+                     <div className="company-summary">
+                        <h1> { this.props.companyState.companyName}</h1>
+                        <h2> as at { moment(this.props.companyState.transaction.effectiveDate).format('hh:mm a D MMMM YYYY') } </h2>
+                    </div>
+                <NavbarCollapse>
+                     <ul className="nav navbar-nav">
+                        { this.renderNavLinks() }
+                       </ul>
+                <ul className="nav navbar-nav pull-right">
+                     { this.renderRightActions() }
+                </ul>
+                </NavbarCollapse>
+            </div>
+
+            </div>
+        }
+}
+
+
+
+/*
+
+@FavouritesHOC()
+export class CompanyHeaderSHIT extends React.Component {
 
     static propTypes = {
         companyState: PropTypes.object.isRequired,
@@ -89,7 +187,7 @@ export class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.startTransaction('updateAddresses')  }>Update Addresses</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('selectDirector') }>Update Directors</MenuItem>
                         <MenuItem onClick={() => this.startTransaction('updateHoldingHolder') }>Update Shareholders</MenuItem>
-                        <MenuItem onClick={() => this.startTransaction('resetDelete') }>Reset or Delete Company</MenuItem> */ }
+                        <MenuItem onClick={() => this.startTransaction('resetDelete') }>Reset or Delete Company</MenuItem> */ /*}
                         </Dropdown.Menu>
                 </Dropdown>,
              <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} onClick={() => this.closeMenu()} activeClassName="active" className="nav-link">Templates</Link></li>,
@@ -157,14 +255,6 @@ export class CompanyHeader extends React.Component {
 
             </div>
             <div className="navbar-bottom">
-            <NavbarCollapse>
-                 <ul className="nav navbar-nav">
-                    { this.renderNavLinks() }
-                   </ul>
-                   <ul className="nav navbar-nav pull-right">
-                        { this.renderRightActions() }
-                   </ul>
-            </NavbarCollapse>
             </div>
       </Navbar>
 
@@ -174,7 +264,7 @@ export class CompanyHeader extends React.Component {
 
 
 
-const CompanyHeaderConnected = connect(state => {
+const CompanyHeaderConnectedSHIT = connect(state => {
      // adding routes so links update active status
     return { login: state.login, userInfo: state.userInfo, routing: state.routing }
 }, {
@@ -186,4 +276,6 @@ const CompanyHeaderConnected = connect(state => {
     startTransaction: (key, companyState, companyId) => showTransactionView(key, {companyState: companyState, companyId: companyId})
 })(CompanyHeader);
 
-export default CompanyHeaderConnected;
+export default CompanyHeaderConnectedSHIT;
+
+*/

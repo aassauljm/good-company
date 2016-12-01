@@ -12,6 +12,7 @@ $border-light: #ccc;
 $well-bg: #fff;
 $well-border: $border-light;
 $popover-max-width: 500px;
+$background-gray: #f2f2f2;
 
 
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/mixins";
@@ -76,11 +77,9 @@ $fa-font-path: '~font-awesome/fonts';
 @import "~catalex_shared/sass/catalex-vars";
 @import "~catalex_shared/sass/catalex-legislation";
 
-
-
-
-
+$navbar-height: 50px;
 $header-image:url("~catalex_shared/images/hero-bg.jpg");
+$text-color: #333;
 
 
 @import "reactWidgets";
@@ -110,13 +109,16 @@ $header-image:url("~catalex_shared/images/hero-bg.jpg");
 @import "tooltip";
 @import "transactions";
 
+
+
+
 html{
     min-height: 100%;
     position:relative;
 }
 
 html,body{
-    background-color: #f2f2f2;
+    background-color: $background-gray;
 }
 
 body{

@@ -25,14 +25,13 @@ const DropdownToggle = (props) => {
 
 export const AccountControls = (props) => {
     if(props.login.loggedIn){
-        return <div><ul  className="nav navbar-nav navbar-right">
-
-              <Dropdown id="update-dropdown" className="nav-item" componentClass="li">
+        return <Dropdown id="update-dropdown" componentClass="li" className="control-icon">
                     <DropdownToggle href={props.login.userUrl} bsRole="toggle">
-                        {props.userInfo.username}
+                        <span className="fa fa-user-circle"/>
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
                         <MenuItem rel="noopener noreferrer" target="_blank" href={`${props.login.userUrl}/user/profile`}>Account</MenuItem>
+                        <li className="last-login">Last login: {props.userInfo.lastLogin}</li>
                         <li  className="separator" />
                         <MenuItem rel="noopener noreferrer" target="_blank" href='https://browser.catalex.nz'>Law Browser</MenuItem>
                         <MenuItem rel="noopener noreferrer" target="_blank" href='https://workingdays.catalex.nz'>Working Days</MenuItem>
@@ -41,10 +40,6 @@ export const AccountControls = (props) => {
                         <MenuItem href='/logout'>Log out</MenuItem>
                     </Dropdown.Menu>
                 </Dropdown>
-        </ul>
-        <ul key={1} className="nav navbar-nav navbar-right clear-right">
-                    <li className="nav-item"><em>Last login: {props.userInfo.lastLogin}</em></li>
-     </ul></div>
     }
     return false;
 }
@@ -95,30 +90,40 @@ export class Header extends React.Component {
             if(!count){
                 return;
             }
-            return <li key={0} className="nav-item">
+            return <li  className="control-icon">
             <Link className="alerts-icon" to="/alerts"><span className="fa fa-bell-o"/>
             <span className="alerts-invert"><span className="alert-count">{ numberWithCommas(count) }</span></span>
             </Link>
         </li>
         }
-        //f
 
+    }
+
+
+    search() {
+        return <form className="search-form navbar-form">
+            <div className="form-group">
+                <div className="input-group">
+                    <input  type="text" className="form-control" placeholder="Search..."/>
+                    <span className="input-group-addon" >
+                            <span className="fa fa-search"/>
+                    </span>
+                </div>
+            </div>
+            </form>
     }
 
     render() {
         if(this.props.login.loggedIn){
             return  <Navbar>
-                <div className="navbar-top">
                    <Navbar.Header>
-
                         <Navbar.Brand>
                             <Dropdown id="title-dropdown"  ref="dropdown">
                                 <DropdownToggle href="/" bsRole="toggle">
                                             <span className="company-title">
-                                            <Glyphicon glyph='menu-hamburger'/>
-                                             <span className="logo" /><span className="text-logo">Good Companies</span>
-                                        </span>
-
+                                             <span className="fa fa-bars"/>
+                                                <span className="logo" />
+                                            </span>
                                 </DropdownToggle>
                                 <Dropdown.Menu>
                                     <li><Link to="/" onClick={this.closeMenu}>Good Companies Home</Link></li>
@@ -136,21 +141,17 @@ export class Header extends React.Component {
                             </Dropdown>
                         </Navbar.Brand>
                     </Navbar.Header>
-                    <NavbarCollapse>
-                        <AccountControls {...this.props}/>
-                    </NavbarCollapse>
 
-                </div>
-                <div className="navbar-bottom">
-                <NavbarCollapse>
-                     <ul className="nav navbar-nav">
-                         { this.renderNavLinks() }
-                       </ul>
-                       <ul className="nav navbar-nav pull-right">
-                        { this.status() }
-                       </ul>
-                </NavbarCollapse>
-                </div>
+
+                         <ul  className="nav navbar-nav navbar-right control-icons">
+                            { this.status() }
+                            <AccountControls {...this.props} />
+                        </ul>
+
+                        { this.search() }
+
+
+
           </Navbar>
       }
       return <Navbar>
