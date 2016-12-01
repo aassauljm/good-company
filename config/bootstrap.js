@@ -124,6 +124,7 @@ module.exports.bootstrap = function(cb) {
     patchBluebird(session);
     return Promise.all([loadDB(), prepTemp(), stats(), patchReactWidget()])
         .then(function(){
+
             cb();
         })
 

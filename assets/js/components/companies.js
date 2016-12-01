@@ -105,7 +105,7 @@ export default class Companies extends React.Component {
         return <div className="company-list-body">
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
-                <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
+                { /*<Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button> */}
             </div>
             { this.props.renderTable(data) }
         </div>
