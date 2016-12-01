@@ -99,7 +99,7 @@ export default class CompanyHeader extends React.Component {
 
                     <div className="company-summary">
                         <h1> { this.props.companyState.companyName}</h1>
-                        <h2> as at { moment(this.props.companyState.transaction.effectiveDate).format('hh:mm a D MMMM YYYY') } </h2>
+                        { this.props.companyState.transaction && <h2> as at { moment(this.props.companyState.transaction.effectiveDate).format('hh:mm a D MMMM YYYY') } </h2> }
                     </div>
                     <div className="full-controls">
                         <ul className="nav navbar-nav">

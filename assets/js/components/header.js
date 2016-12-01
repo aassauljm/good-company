@@ -14,72 +14,8 @@ import Dropdown from 'react-bootstrap/lib/Dropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { numberWithCommas } from '../utils';
-import { FavouritesHOC, AlertsHOC, CompaniesHOC  } from '../hoc/resources';
-import { highlightString } from './search';
-
-import RootCloseWrapper from 'react-overlays/lib/RootCloseWrapper';
-
-
-@CompaniesHOC()
-export class Search extends React.Component {
-    constructor(props){
-        super();
-        this.onChange = ::this.onChange;
-        this.hide = ::this.hide;
-        this.show = ::this.show;
-        this.setAndClose = ::this.setAndClose;
-        this.state = {value: '', showing: false, list: []};
-    }
-
-    onChange(event) {
-        const filterCompanies = (value, list) => {
-            return !value ? [] : list.filter(l => l.currentCompanyState.companyName.toLocaleLowerCase().indexOf(value) > -1);
-        }
-
-        this.setState({show: true, value: event.target.value, list: filterCompanies(event.target.value.toLocaleLowerCase(), this.props.companies.data)});
-    }
-
-    hide(e) {
-        this.setState({show: false})
-    }
-
-    show() {
-        this.setState({show: true})
-    }
-
-    setAndClose(value) {
-        this.setState({show: false, value: value})
-    }
-
-    results() {
-        return  this.state.show && <div className="search-results" >
-            { this.state.list.map((c, i) => {
-                return <Link key={i} className="result" to={`/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
-            }) }
-            </div>
-    }
-
-    render() {
-        return <form className="search-form navbar-form" ref="form">
-            <div className="form-group">
-                  <RootCloseWrapper
-                            onRootClose={this.hide}
-                            event={'click'}
-                          >
-                <div className="input-group" >
-
-                    <input  type="text" className="form-control" placeholder="Search..." value={this.state.value} onChange={this.onChange} onFocus={this.show}  />
-                    { this.results() }
-                    <span className="input-group-addon" >
-                        <span className="fa fa-search"/>
-                    </span>
-                </div>
-            </RootCloseWrapper>
-        </div>
-    </form>
-    }
-}
-
+import { FavouritesHOC, AlertsHOC } from '../hoc/resources';
+import { Search } from './search';
 
 const DropdownToggle = (props) => {
     return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
@@ -127,7 +63,7 @@ export class HeaderSubControls extends React.Component {
 
 export const NavLinks = (props) => {
     return [<li key={0} className="nav-item">
-                <IndexLink to={`/`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Home</IndexLink>
+                <IndexLink to={`/`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Good Companies Home</IndexLink>
             </li>,
             <li key={1} className="nav-item">
                 <Link to={`/companies`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Companies</Link>
@@ -195,8 +131,6 @@ export class Header extends React.Component {
                                             </span>
                                 </DropdownToggle>
                                 <Dropdown.Menu>
-                                    <li><Link to="/" onClick={this.closeMenu}>Good Companies Home</Link></li>
-
                                      { this.renderNavLinks() }
                                     { this.renderFavourites() }
                                      <li className="separator" />
@@ -224,10 +158,7 @@ export class Header extends React.Component {
           </Navbar>
       }
       return <Navbar>
-
             <div className="text-center"><span className="logo"/></div></Navbar>
-
-
     }
 }
 

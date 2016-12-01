@@ -11,6 +11,14 @@ nav.navbar{
     border-radius:0;
     text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 
+    .logo{
+        width: 220px;
+        background-image: url("~catalex_shared/images/good-companies-inline-28x.png");
+        height: $navbar-height;
+        background-position: left center;
+        background-repeat: no-repeat;
+        display:inline-block;
+    }
 
     .navbar-header{
         margin-right: 0;
@@ -37,10 +45,7 @@ nav.navbar{
             .logo{
                 display: none;
                 float:left;
-                width: 220px;
                 padding: 0;
-                background-image: url("~catalex_shared/images/good-companies-inline-28x.png");
-                height: $navbar-height;
                 background-position: left center;
                 background-repeat: no-repeat;
                 margin-left:16px;
@@ -97,8 +102,6 @@ nav.navbar{
                 padding-bottom:4px;
             }
             li:first-child a{
-                padding-top:10px;
-                padding-bottom:10px;
                 border-top-right-radius:4px;
                 border-top-left-radius:4px;
             }
@@ -115,11 +118,11 @@ nav.navbar{
                 color:white;
             }
 
-            a:hover{
+           /* a:hover{
                background-color: #fff;
-                color:$deep-red;
+               color:l$deep-red;
             }
-
+ */
 
             .dropdown-menu{
                 position: static;
@@ -162,35 +165,6 @@ nav.navbar{
 
 }
 
-.search-form{
-    width: auto;
-    border: 0;
-    margin-left: 0;
-    margin-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;;
-    box-shadow: none;
-
-    .form-group{
-        display:inline;
-        text-align: right;
-        .input-group{
-            display: table;
-
-        }
-        .input-group-addon{
-            width: 1%;
-            background-color: white;
-               border-color: white;
-        }
-        input {
-                border-color: white;
-            border-right:none;
-
-        }
-    }
-}
-
 
 
 .nav-controls{
@@ -215,6 +189,10 @@ nav.navbar{
                 float:left;
                 & > .dropdown-menu{
                     position:absolute;
+                    border-radius:0;
+                    .dropdown-menu{
+                        position:static;
+                    }
                     .nav-item{
                         float:none;
                     }
@@ -235,7 +213,7 @@ nav.navbar{
         border-top: 1px solid  white;
         border-bottom: 1px solid $border-light;
         &:hover, &:focus{
-            background-color:$deep-red;
+            background-color: $gray-text;
             color:white;
         }
         &.active{
@@ -250,26 +228,29 @@ nav.navbar{
          a, a:focus, a:hover{
              text-decoration:none;
              border-color: white;
-             color:$deep-red;
              &.active{
-                border-color: $border-light;
+                 border-color: $deep-red;
                 border-bottom: 1px solid $background-gray;
-             }
+            }
+            color: white;
+            background-color: $deep-red;
+            border-color: $deep-red;
         }
         .dropdown-menu{
             padding: 0;
             border:none;
+            border-top: 4px solid $deep-red;;
             a{
                 border:none;
                 padding: 12px;
-                background-color:$deep-red;
-                color:#fff;
+                background-color: white;
+                color:  $text-color;
                 font-weight:bold;
                 transition: all ease-in-out 300ms;
             }
             a:hover{
-               background-color: #fff;
-                color:$deep-red;
+               background-color:$gray-lighter;
+
             }
             .fa{
                 margin-right: 8px;

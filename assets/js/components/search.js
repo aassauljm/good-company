@@ -2,15 +2,16 @@
 import React from 'react';
 import { pureRender,  debounce } from '../utils';
 import { lookupCompany, lookupOwnCompany } from '../actions';
-import Autosuggest from 'react-autosuggest';
+//import Autosuggest from 'react-autosuggest';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { push } from 'react-router-redux'
+import { CompaniesHOC  } from '../hoc/resources';
+import RootCloseWrapper from 'react-overlays/lib/RootCloseWrapper';
+import { Link, IndexLink } from 'react-router';
 
 
 export function highlightString(string, query, highlightClass='highlight'){
-
-    // not doing currently
     const startIndex = string.toLowerCase().indexOf(query.toLowerCase()),
             endIndex = startIndex + query.length;
     if(startIndex < 0){
@@ -23,6 +24,70 @@ export function highlightString(string, query, highlightClass='highlight'){
 
 
 
+
+@CompaniesHOC()
+export class Search extends React.Component {
+    constructor(props){
+        super();
+        this.onChange = ::this.onChange;
+        this.hide = ::this.hide;
+        this.show = ::this.show;
+        this.setAndClose = ::this.setAndClose;
+        this.state = {value: '', showing: false, list: []};
+    }
+
+    onChange(event) {
+        const filterCompanies = (value, list) => {
+            return !value ? [] : list.filter(l => l.currentCompanyState.companyName.toLocaleLowerCase().indexOf(value) > -1);
+        }
+
+        this.setState({show: true, value: event.target.value, list: filterCompanies(event.target.value.toLocaleLowerCase(), this.props.companies.data)});
+    }
+
+    hide(e) {
+        this.setState({show: false})
+    }
+
+    show() {
+        this.setState({show: true})
+    }
+
+    setAndClose(value) {
+        this.setState({show: false, value: value})
+    }
+
+    results() {
+        return  this.state.show && <div className="search-results" >
+            { this.state.list.map((c, i) => {
+                return <Link key={i} className="result" to={`/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
+            }) }
+            { this.state.list.length === 0 && !!this.state.value && <div className="no-results">No results</div> }
+            </div>
+    }
+
+    render() {
+        return <form className="search-form navbar-form" ref="form">
+            <div className="form-group">
+                  <RootCloseWrapper
+                    onRootClose={this.hide}
+                    event={'click'}>
+                <div className={`input-group ${this.state.show && !!this.state.value ? 'showing': ''}`} >
+                    <input  type="text" className="form-control" placeholder="Search..." value={this.state.value} onChange={this.onChange} onFocus={this.show}  />
+                    { this.results() }
+                    <span className="input-group-addon" >
+                        <span className="fa fa-search"/>
+                    </span>
+                </div>
+            </RootCloseWrapper>
+        </div>
+    </form>
+    }
+}
+
+
+
+
+/*
 function getSuggestionValue(suggestion) {
   return suggestion.companyName;
 }
@@ -162,3 +227,4 @@ const SearchWidgetForm = reduxForm({
 const ConnectedSearchWidget = connect(mapStateToProps, mapDispatchToProps)(SearchWidgetForm);
 
 export default ConnectedSearchWidget;
+*/
