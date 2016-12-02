@@ -11,6 +11,8 @@ import { fieldStyle, fieldHelp, requireFields, formFieldProps } from '../utils';
 import { push } from 'react-router-redux'
 import LookupCompany from './lookupCompany';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import { ConnectedPlaceholderSearch } from './search';
+import { Link } from 'react-router';
 
 const fields = [
     'listType',
@@ -45,12 +47,150 @@ const BulkImportConnected = reduxForm({
 })(BulkImport);
 
 
+
+
+/*
+
+
+    importCompany(){
+        this.props.dispatch(importCompany(this.props.params.companyNumber))
+            .then((result = {response: {message: 'No connection'}}) => {
+                this.props.dispatch(addNotification({message: 'Company Imported'}));
+                this.props.dispatch(requestResource('companies', {refresh: true}));
+                this.props.dispatch(push('/company/view/'+result.response.id))
+            })
+            .catch(error => {
+                this.props.dispatch(addNotification({message: `Could not import company, Reason: ${error.message}`, error: true}));
+            })
+    };
+*/
+
+
+
+@connect(state => ({importCompanyData: state.importCompany}), {
+    importCompany: (...args) => importCompany(...args),
+    addNotification: (...args) => addNotification(...args),
+    requestResource: (...args) => requestResource(...args),
+})
+export class ImportSingle extends React.Component {
+
+    constructor(props) {
+        super();
+        this.handleSelect = ::this.handleSelect;
+        this.importCompany = ::this.importCompany;
+        this.state = {};
+    }
+
+
+    handleSelect(item) {
+        this.setState({company: item});
+    }
+
+    renderSummary(company) {
+        const {companyName, companyNumber, struckOff, notes} = company;
+        return <div>
+            <dl className="dl-horizontal">
+                <dt >Company Name</dt>
+                <dd >{companyName}</dd>
+                <dt >Company Number</dt>
+                <dd >{companyNumber}</dd>
+                <dt >Status</dt>
+                <dd >{struckOff === "true" ? 'Struck Off': 'Registered'}</dd>
+                <dt >Notes</dt>
+                <dd >{ ([notes] || []).map((note, i) => {
+                        return <span key={i}>{note}</span>
+                    }) }</dd>
+                </dl>
+                <div className="button-row">
+                    <Button  onClick={() => this.setState({'company': null, finished: null})} >Cancel</Button>
+                    <Button bsStyle="primary" onClick={this.importCompany} >Import this Company</Button>
+                </div>
+        </div>
+    }
+
+    importCompany() {
+        this.props.importCompany(this.state.company.companyNumber)
+            .then((result = {response: {message: 'No connection'}}) => {
+                this.props.addNotification({message: 'Company Imported'});
+                this.props.requestResource('companies', {refresh: true});
+                this.setState({finished: result.response.id});
+            })
+            .catch(error => {
+                this.props.addNotification({message: `Could not import company, Reason: ${error.message}`, error: true});
+            })
+    }
+
+    renderLoading() {
+        return <div>
+        <div className="text-center">Importing Company - {this.state.company.companyName}.</div>
+        <div className="text-center">This may take a few moments...</div>
+            <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+            </div>
+    }
+
+    render() {
+        if(this.props.importCompanyData._status === 'fetching'){
+            return this.renderLoading();
+        }
+        if(this.state.finished){
+            return this.renderResult();
+        }
+        if(this.state.company){
+            return this.renderSummary(this.state.company);
+        }
+        return  <ConnectedPlaceholderSearch placeholder='Type to find a company' onlyCompaniesOffice={true} onSelect={this.handleSelect}/>
+    }
+
+    renderResult() {
+        return <div>
+        <p><strong>{this.state.company.companyName}</strong> has been imported.</p>
+                <div className="button-row">
+                    <Button  onClick={() => this.setState({'company': null, finished: null})} >Search for another company</Button>
+                    <Link to={`/company/view/${this.state.finished}`} className="btn btn-primary">View Company</Link>
+                </div>
+        </div>
+    }
+
+}
+
+export const ImportSingleFull = () => {
+    return <div className="container">
+        <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                   Search the New Zealand Companies Office
+                </div>
+            </div>
+            <div className="widget-body">
+                 <div className="row">
+                 <div className="col-md-6 col-md-offset-3">
+                        <ImportSingle />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+export const ImportSingleWidget = () => {
+    return  <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                   Search the New Zealand Companies Office
+                </div>
+            </div>
+            <div className="widget-body">
+                <ImportSingle />
+            </div>
+        </div>
+}
+
 @connect(state => state.importBulk, {
     importBulk: (data) => importBulk(data),
     addNotification: (data) => addNotification(data),
     navigateHome: () => push('/')
 })
-export class ImportMenu extends React.Component {
+export class ImportBulk extends React.Component {
 
     handleSubmit(values) {
         const list = values.identifierList.split('\n').filter(v => v);
@@ -70,7 +210,6 @@ export class ImportMenu extends React.Component {
     render() {
         const valid = false;
         return <div className="container">
-                <div className="row">
                 <div className="widget">
                     <div className="widget-header">
                         <div className="widget-title">
@@ -87,15 +226,18 @@ export class ImportMenu extends React.Component {
                         </div>
                     </div>
                 </div>
-                </div>
             </div>
     }
 
 }
-const DEFAULT_STATE = {};
 
 
-const ImportMenuConnected = connect(state => DEFAULT_STATE, {
-    import: () => createResource('/company/import_bulk/companiesoffice')
-})(ImportMenu);
-export default ImportMenuConnected;
+
+export default class ImportPage extends React.Component {
+    render() {
+        return <div>
+            <ImportSingleFull />
+            <ImportBulk />
+        </div>
+    }
+}

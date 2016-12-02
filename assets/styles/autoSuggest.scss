@@ -1,4 +1,4 @@
-/*
+
 .auto-suggest{
     position: relative;
     .suggest-container{
@@ -9,10 +9,18 @@
         width: 100%;
         background-color: white;
         z-index: 1000;
+
         .list-group-item{
             border-width:1px 0 1px 0;
             p{
                 font-size: 0.9em;
+            }
+            &.active {
+                border:none;
+                border-left: 4px solid $gray;
+                background-color: $gray-lighter;
+                color: $text-color;
+
             }
         }
         .list-group-item:first-child {
@@ -33,8 +41,9 @@
                 font-size:15px;
             }
         }
-        h5{
+        h5.list-group-item-heading{
             font-weight: bold;
+             color:$text-color;
         }
     }
     input.form-control{
@@ -55,7 +64,7 @@
     font-style: italic;
     position: absolute;
 }
-*/
+
 
 .search-form{
     width: auto;

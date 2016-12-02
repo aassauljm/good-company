@@ -198,11 +198,13 @@ export default class Companies extends React.Component {
             return this.props.deleteResource(`/company/${id}`, options);
         })
         .then(() => {
-            this.props.resetResources();
-            this.props.addNotification({message: `${ids.length} companies deleted`})
+            return this.props.addNotification({message: `${ids.length} companies deleted`})
         })
         .catch((e) => {
-            this.props.resetResources();
+
+        })
+        .then(() => {
+           this.props.resetResources();
         });
 
     }
