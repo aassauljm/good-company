@@ -181,6 +181,9 @@ export const ImportSingleWidget = () => {
             </div>
             <div className="widget-body">
                 <ImportSingle />
+                <div className="button-row">
+                <Link className="btn btn-info" to="/import">Bulk Import</Link>
+                </div>
             </div>
         </div>
 }

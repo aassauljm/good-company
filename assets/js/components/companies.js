@@ -290,10 +290,7 @@ export class CompaniesWidget extends React.Component {
         return  <div className="widget-body">
 
             { this.props.renderTable(data.slice(0, 6), true) }
-           <div className="button-row">
-                { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
-                <Button bsStyle="info" className="company-import" onClick={this.props.handleImport}>Bulk Import</Button>
-            </div>
+
         </div>
     }
 

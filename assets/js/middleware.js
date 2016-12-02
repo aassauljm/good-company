@@ -76,6 +76,7 @@ export function confirmationMiddleware({
     }
 }
 
+let USER_WARNED = false;
 
 export function callAPIMiddleware({
     dispatch, getState
@@ -129,7 +130,8 @@ export function callAPIMiddleware({
                         return;
                     }
                     if(error.response && error.response.status === 503){
-                        setTimeout(() => alert('Good Companies is currently undergoing maintenance.  Please try again in a few moments.'), 0);
+                        !USER_WARNED && setTimeout(() => alert('Good Companies is currently undergoing maintenance.  Please try again in a few moments.'), 0);
+                        USER_WARNED = true;
                         throw new Error('Currently undergoing Maintenance');
                         return;
                     }
