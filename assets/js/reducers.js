@@ -5,6 +5,7 @@ import {
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
     SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE,
     RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE,
+    RESOURCE_RESET,
     RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE,
     RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE,
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
@@ -337,6 +338,8 @@ function resources(state = default_resources, action){
                 return default_resources;
             }
             //return {...state, ...{[action.key]: {...{data: {}, status: 'complete'}}}};
+        case RESOURCE_RESET:
+            return default_resources;
         default:
             return state;
     }
@@ -421,7 +424,7 @@ function modals(state = {}, action) {
         case RESOURCE_DELETE_REQUEST:
         case TRANSACTION_REQUEST:
             if(action.loadingMessage){
-                return {...state, loading: {message: action.loadingMessage, showing: true}};
+                return {...state, loading: {message: action.loadingMessage, showing: true, ...(action.loadingOptions || {})}};
             }
             return state;
         case RESOURCE_FAILURE:
@@ -436,7 +439,7 @@ function modals(state = {}, action) {
         case TRANSACTION_SUCCESS:
         case TRANSACTION_FAILURE:
             if(action.loadingMessage){
-                return {...state, loading: {message: action.loadingMessage, showing: false}};
+                return {...state, loading: {message: action.loadingMessage, showing: false, ...(action.loadingOptions || {})}};
             }
             return state;
         default:

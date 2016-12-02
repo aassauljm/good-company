@@ -44,7 +44,7 @@ export class Confirmation extends React.Component {
 }
 
 export function Loading(props) {
-    return <LoadingOverlay message={props.message} />
+    return <LoadingOverlay message={props.message} animationTime={props.animationTime}/>
 }
 
 @connect(state => ({modals: state.modals}))
