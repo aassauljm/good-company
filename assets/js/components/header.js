@@ -16,6 +16,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { numberWithCommas } from '../utils';
 import { FavouritesHOC, AlertsHOC } from '../hoc/resources';
 import { Search } from './search';
+import { alertList } from './alerts';
+
 
 const DropdownToggle = (props) => {
     return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
@@ -109,10 +111,10 @@ export class Header extends React.Component {
 
     status()  {
         if(this.props.alerts && this.props.alerts.data){
-            const count = Object.keys(this.props.alerts.data.companyMap || {}).length;
-            if(!count){
-                return;
-            }
+            const {danger, warnings} = alertList(this.props);
+            const results = [...danger, ...warnings]
+            const count = results.length;
+
             return <li  className="control-icon">
             <Link className="alerts-icon" to="/alerts"><span className="fa fa-bell-o"/>
             <span className="alerts-invert"><span className="alert-count">{ numberWithCommas(count) }</span></span>
