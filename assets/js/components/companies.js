@@ -150,31 +150,21 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
         return dispatch(requestResource('companies'));
     }
 }],
-    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ, alerts: state.resources['/alerts'] || DEFAULT_OBJ}),
+    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ}),
 {
     push: (id) => push(`/company/view/${id}`),
     handleImport: () => push('/import'),
     addNotification: (args) => addNotification(args),
     deleteResource: (...args) => deleteResource(...args),
     resetResources: () => resetResources(),
-    fetchAlerts: requestAlerts,
 })
 @CompaniesRenderHOC
-export default class Companies extends React.Component {
+export class CompaniesDelete extends React.Component {
 
     constructor(props) {
         super();
         this.delete = ::this.delete;
     }
-
-    componentWillMount() {
-        this.props.fetchAlerts();
-    }
-
-    componentWillUpdate() {
-        this.props.fetchAlerts();
-    }
-
     delete(ids) {
         if(!ids.length){
             return;
@@ -208,17 +198,7 @@ export default class Companies extends React.Component {
         });
 
     }
-
     renderBody() {
-        /*const mappedAlerts = (this.props.alerts.data || []).companyMap || {};
-
-        const data = (this.props.companies.data || [])
-            .map(c => ({...c.currentCompanyState, ...c}))
-            .map(d => {
-                d.warnings = (mappedAlerts[d.id] || DEFAULT_OBJ).warnings || DEFAULT_OBJ;
-                d.deadlines = (mappedAlerts[d.id] || DEFAULT_OBJ).deadlines || DEFAULT_OBJ;
-                return d;
-            });*/
 
         const filteredCompanies = (this.props.companies.data || [])
             .filter(c => !c.deleted)
@@ -230,7 +210,6 @@ export default class Companies extends React.Component {
 
         const initialValues = {companies: filteredCompanies
                                     .map(c => ({companyName: c.companyName, companyId: c.companyId}) )}
-
         return <div className="company-list-body">
            <div className="button-row">
                 { /* <Button bsStyle="success" onClick={::this.handleNew }>Create New</Button> */ }
@@ -258,6 +237,61 @@ export default class Companies extends React.Component {
         </div>
     }
 }
+
+
+@asyncConnect([{
+    promise: ({store: {dispatch, getState}}) => {
+        return dispatch(requestResource('companies'));
+    }
+}],
+    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ}),
+{
+    push: (id) => push(`/company/view/${id}`),
+    handleImport: () => push('/import')
+})
+@CompaniesRenderHOC
+export default class Companies extends React.Component {
+
+    renderBody() {
+
+        const filteredCompanies = (this.props.companies.data || [])
+            .filter(c => !c.deleted)
+            .map(c => ({ ...c.currentCompanyState, ...c, companyId: c.id}));
+
+        if(!filteredCompanies.length){
+            return <div>No Companies</div>
+        }
+
+        const initialValues = {companies: filteredCompanies
+                                    .map(c => ({companyName: c.companyName, companyId: c.companyId}) )}
+        return <div className="company-list-body">
+           <div className="button-row">
+                <Link to="/companies/delete" className="btn btn-danger">Manage Companies</Link>
+                <Link to="/import" className="btn btn-info">Import Companies</Link>
+            </div>
+             { this.props.renderTable(filteredCompanies) }
+        </div>
+
+    }
+
+    render() {
+        return <div className="container">
+
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        Companies
+                    </div>
+                </div>
+                <div className="widget-body">
+                    { this.renderBody() }
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
 
 @asyncConnect([{
     promise: ({store: {dispatch, getState}}) => {

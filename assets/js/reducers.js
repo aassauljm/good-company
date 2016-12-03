@@ -317,7 +317,7 @@ function resources(state = default_resources, action){
         case RESOURCE_DELETE_FAILURE:
             return {...state, ...{[action.key]: {...{error: action.response, _status: 'error'}}}};
 
-
+        case IMPORT_COMPANY_SUCCESS:
         case RESOURCE_CREATE_SUCCESS:
         case RESOURCE_UPDATE_SUCCESS:
         case RESOURCE_DELETE_SUCCESS:

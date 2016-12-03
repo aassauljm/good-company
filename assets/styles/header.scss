@@ -134,6 +134,7 @@ nav.navbar{
                 font-style:italic;
                 padding: 0 20px;
                 color:white;
+                white-space: nowrap;
             }
 
             a:hover{
@@ -281,12 +282,19 @@ nav.navbar{
 
     }
 
-    .favourite .glyphicon {
-        top: 3px;
-        margin-left:4px;
-        font-size:17px;
-        &.glyphicon-star{
-            color: $deep-red;
+    .favourite{
+        text-decoration: none;
+        color: $text-color;
+        &:hover, &:active{
+            text-decoration: none;
+        }
+         .fa {
+            top: 3px;
+            margin-left:4px;
+            font-size:17px;
+            &.fa-star{
+                color: $deep-red;
+            }
         }
     }
 

@@ -20,7 +20,6 @@ import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
 import { TransactionWidget, PendingTransactionsWidget } from './transactions';
 import NotFound from './notFound';
-import Notifications from './notifications';
 import { push } from 'react-router-redux'
 import Header from './header';
 import { CompanyAlertsWidget } from './companyAlerts';
@@ -135,12 +134,18 @@ export default class Company extends React.Component {
 
             <div className="row">
                  <div className="col-md-6">
-                <CompaniesRegisterWidget
-                    toggle={(expanded) => this.props.toggleWidget([this.key(), 'companiesRegister'], expanded) }
-                    expanded={(this.props.widgets.companiesRegister || {}).expanded}
-                    companyState={current}
-                    companyId={this.props.params.id}
-                 />
+                     <CompanyAlertsWidget
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
+
+
+                    <CompaniesRegisterWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'companiesRegister'], expanded) }
+                        expanded={(this.props.widgets.companiesRegister || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                     />
 
 
                     <DocumentsWidget

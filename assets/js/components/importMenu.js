@@ -145,7 +145,7 @@ export class ImportSingle extends React.Component {
         return <div>
         <p><strong>{this.state.company.companyName}</strong> has been imported.</p>
                 <div className="button-row">
-                    <Button  onClick={() => this.setState({'company': null, finished: null})} >Search for another company</Button>
+                    <Button  onClick={() => this.setState({'company': null, finished: null})} >Import Another Company</Button>
                     <Link to={`/company/view/${this.state.finished}`} className="btn btn-primary">View Company</Link>
                 </div>
         </div>
@@ -158,7 +158,7 @@ export const ImportSingleFull = () => {
         <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                   Search the New Zealand Companies Office
+                   Import from the Companies Register
                 </div>
             </div>
             <div className="widget-body">
@@ -176,7 +176,7 @@ export const ImportSingleWidget = () => {
     return  <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                   Search the New Zealand Companies Office
+                   Import from the Companies Register
                 </div>
             </div>
             <div className="widget-body">

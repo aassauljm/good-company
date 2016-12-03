@@ -10,7 +10,7 @@ import Roles from './components/roles';
 import Favourites from './components/favourites';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
-import Companies from './components/companies';
+import Companies, { CompaniesDelete } from './components/companies';
 import Company, { CompanyLoader } from './components/company';
 import { Shareholders } from './components/shareholders';
 import { Shareholdings } from './components/shareholdings';
@@ -19,7 +19,7 @@ import { InterestsRegister, InterestsRegisterCreate, InterestsRegisterView } fro
 import { ShareRegister, ShareRegisterDocumentLoader } from './components/shareRegister';
 import CompaniesRegister from './components/companiesRegister';
 import { NewTransaction } from './components/newTransaction';
-import ContactDetails from './components/contactDetails';
+import ContactDetails, { ContactEditDetails } from './components/contactDetails';
 import ReportingDetails from './components/reportingDetails';
 import Directors from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassEdit } from './components/shareClasses';
@@ -61,6 +61,9 @@ export default (store) => {
     return <Route path="/" component={ App }>
         <Route path="login" component={ LoginWithCatalex }  />
         <Route onEnter={requireLogin} component={ LoggedInApp }>
+
+
+
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
                 <Route path="recent_activity" component={ RecentActivity }  />
@@ -73,6 +76,7 @@ export default (store) => {
                 <Route path="documents" component={ Documents }  />
                 <Route path="documents/view/:documentId" component={ Document }  />
                 <Route path="companies" component={ Companies }  />
+                <Route path="companies/delete" component={ CompaniesDelete  }  />
                 <Route path="mass_setup" component={ MassSetup }  />
                 <Route path="import" component={ ImportMenu } />
                 <Route path="import/:companyNumber" component={ ImportCompany } />
@@ -86,6 +90,7 @@ export default (store) => {
                     <Router path=":name" component={ TemplateView }/>
                 </Route>
             </Route>
+
             <Route path="company/view/:id" component={ Company } >
                 <Route path="shareholdings" component={ Shareholdings } />
                 <Route path="details" component={ CompanyDetails } />
@@ -104,6 +109,7 @@ export default (store) => {
                     <Router path=":name" component={ TemplateView }/>
                 </Route>
                 <Route path="contact" component={ ContactDetails } />
+                <Route path="contact/edit" component={ ContactEditDetails } />
                 <Route path="reporting" component={ ReportingDetails } />
                 <Route path="source_data" component={ CompaniesRegister } />
                 <Route path="directors" component={ Directors } />

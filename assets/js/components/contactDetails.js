@@ -13,6 +13,7 @@ import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
 import TransactionView from './forms/transactionView';
 
+
 export function contactLawLinks(){
     return <div>
     <LawBrowserLink title="Companies Act 1993" location="s 186">Requirement to have registered office</LawBrowserLink>
@@ -79,7 +80,7 @@ export class ContactDetailsWidget extends React.Component {
     navigate: (url) => push(url),
     startTransaction: (key, companyState, companyId) => showTransactionView(key, {companyState: companyState, companyId: companyId})
 })
-export default class ContactDetails extends React.Component {
+export class ContactEditDetails extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired
@@ -133,6 +134,7 @@ export default class ContactDetails extends React.Component {
                                 initialValues={{...data, contactFields : contactFields}}
                                 onSubmit={::this.handleSubmit}
                                 handleClickImmutable={::this.handleSelectAddressChange}
+                                cancel={() => this.props.navigate(`/company/view/${this.props.companyId}/contact`)}
                                 controls={true}
                             />
                     </div>
@@ -142,6 +144,43 @@ export default class ContactDetails extends React.Component {
     }
 }
 
+
+export default class ContactDetails extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object.isRequired,
+        companyId: PropTypes.string.isRequired
+    };
+    render() {
+        const data = this.props.companyState, contactFields = data.contactFields || [];
+        const defaults = ['registeredCompanyAddress', 'addressForService']
+        const labelClassName = 'col-sm-4';
+        const wrapperClassName = 'col-sm-8';
+
+        return <LawBrowserContainer lawLinks={contactLawLinks()}>
+                <div className="widget">
+                    <div className="widget-header">
+                        <div className="widget-title">
+                            Contact
+                        </div>
+                    </div>
+                    <div className="widget-body">
+
+                        <div key="body" >
+                        <dl className="dl-horizontal dl-spacing">
+                            { immutableFields.map((f, i) =>  <div key={i} className="dl-row"><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
+                            { contactFields.map((f, i) => f.value && f.label && <div key={i}><dt>{ f.label }</dt><dd>{ f.value}</dd></div>) }
+                            </dl>
+                        </div>
+
+                    <div className="button-row">
+                        <Link to={`/company/view/${this.props.companyId}/contact/edit`} className="btn btn-info">Edit Contact Details</Link>
+                    </div>
+                    </div>
+                </div>
+            </LawBrowserContainer>
+
+    }
+}
 
 
 @connect(undefined, {

@@ -85,7 +85,7 @@ export class AlertsWidget extends React.Component {
             }, 0);
 
             if(shareClassWarningCount > 1){
-                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={this.props.resetTransactionViews} ><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk set up your companies.</Link></div></li>);
+                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={this.props.resetTransactionViews} ><Glyphicon glyph="cog" className="big-icon"/>"Click here to set up multiple companies at the same time.</Link></div></li>);
             }
 
             if(firstCompanyId){
