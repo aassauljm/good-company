@@ -112,6 +112,7 @@ nav.navbar{
             border:none;
             background-color:$gray;
             position:absolute;
+            @include border-top-radius(4px);
             a{
                 color:#fff;
                 font-size: 1em;

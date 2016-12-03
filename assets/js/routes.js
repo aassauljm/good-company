@@ -38,7 +38,7 @@ import Calendar, { CreateEvent, EditEvent } from './components/calendar';
 import Alerts from './components/alerts';
 import AnnualReturn from './components/annualReturn';
 import { CompanyGraph } from './components/companyDetails';
-
+import Account from './components/account';
 
 
 export default (store) => {
@@ -73,10 +73,11 @@ export default (store) => {
                 </Route>
                 <Route path="users" component={ Users }  />
                 <Route path="roles" component={ Roles }  />
-                <Route path="documents" component={ Documents }  />
+                <Route path="account_settings" component={ Account }  />
+
                 <Route path="documents/view/:documentId" component={ Document }  />
                 <Route path="companies" component={ Companies }  />
-                <Route path="companies/delete" component={ CompaniesDelete  }  />
+                <Route path="companies/manage" component={ CompaniesDelete  }  />
                 <Route path="mass_setup" component={ MassSetup }  />
                 <Route path="import" component={ ImportMenu } />
                 <Route path="import/:companyNumber" component={ ImportCompany } />

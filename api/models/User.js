@@ -26,6 +26,9 @@ module.exports = {
             validate: {
                 isEmail: true,
             }
+        },
+        settings: {
+            type: Sequelize.JSONB
         }
     },
     associations: function() {

@@ -105,14 +105,14 @@ export function setPassword(data) {
     };
 }
 
-export function requestUserInfo() {
+export function requestUserInfo(options = {}) {
     return {
         types: [USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE],
         callAPI: () => fetch('/api/get_info', {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => state.login.loggedIn && !state.userInfo._status
+        shouldCallAPI: (state) => state.login.loggedIn && (!state.userInfo._status || options.refresh),
     };
 }
 

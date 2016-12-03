@@ -158,5 +158,16 @@ module.exports = {
          .then(results => {
             return res.json(results[0].result)
          })
+    },
+
+    accountSettings: function(req, res) {
+        var data = actionUtil.parseValues(req).settings;
+        return req.user.update({settings: {...(req.user.settings || {}), ...data}})
+            .then(() => {
+                res.json({message: 'Account Updated'});
+            })
+            .catch(function(err){
+                return res.serverError(err);
+            });
     }
 }

@@ -57,7 +57,8 @@ module.exports.policies = {
         'setPassword': simpleAuth,
         'signup': true,
         'validateUser': true,
-        'pendingJobs': simpleAuth
+        'pendingJobs': simpleAuth,
+        'accountSettings': noCriteria
     },
     ModelController:{
         'create': false,
