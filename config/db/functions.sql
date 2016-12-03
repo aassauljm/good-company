@@ -160,6 +160,25 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
+    RETURNS SETOF json
+    AS $$
+    WITH basic_company_state as (
+        SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
+    )
+    SELECT row_to_json(q) FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", TRUE as "favourite" FROM (
+        SELECT c.*, company_now(c.id)
+    FROM favourite f
+        JOIN company c on f."companyId" = c.id
+
+        WHERE c."ownerId" = $1 and f."userId" = $1 and c.deleted != true
+        ) q
+        JOIN basic_company_state cs on cs.id = q.company_now
+        ORDER BY cs."companyName"
+    ) q
+$$ LANGUAGE SQL;
+
 --CREATE OR REPLACE FUNCTION future_transactions(companyId integer)
 --    RETURNS SETOF json
 --    AS $$

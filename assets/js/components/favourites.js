@@ -7,12 +7,13 @@ import { requestResource } from '../actions';
 import { stringDateToFormattedStringTime } from '../utils';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
-import { FavouritesHOC } from '../hoc/resources';
+import { FavouritesHOC, CompaniesHOC } from '../hoc/resources';
 
 @connect(undefined, {
     navigate: (url) => push(url)
 })
 @FavouritesHOC(false)
+@CompaniesHOC(false)
 export class FavouritesWidget extends React.Component {
     renderList() {
         const favourites = this.props.favourites.data || [];
@@ -33,7 +34,11 @@ export class FavouritesWidget extends React.Component {
             event.preventDefault();
             this.props.navigate(`/company/view/${id}`);
         }
-        const favourites = (this.props.favourites.data || []).slice(0, 6);
+        let favourites = this.props.favourites.data || [];
+        if(this.props.favourites._status === 'complete' && !favourites.length){
+            favourites = (this.props.companies.data || []).slice(0, 10)
+        }
+        favourites = favourites.slice(0, 6);
 
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         return <table className="table table-striped table-hover table-condensed">
@@ -70,6 +75,7 @@ export class FavouritesWidget extends React.Component {
     navigate: (url) => push(url)
 })
 @FavouritesHOC(true)
+@CompaniesHOC(true)
 export default class Favourites extends React.Component {
 
     renderTable() {
@@ -77,7 +83,10 @@ export default class Favourites extends React.Component {
             event.preventDefault();
             this.props.navigate(`/company/view/${id}`);
         }
-        const favourites = this.props.favourites.data || [];
+        let favourites = this.props.favourites.data || [];
+        if(this.props.favourites._status === 'complete' && !favourites.length){
+            favourites = (this.props.companies.data || []).slice(0, 10)
+        }
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         return <table className="table table-striped table-hover">
             <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>

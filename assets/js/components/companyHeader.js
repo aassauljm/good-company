@@ -38,7 +38,7 @@ export default class CompanyHeader extends React.Component {
     isFavourite() {
         const companyIdInt = parseInt(this.props.companyId, 10);
         // save result maybe
-        return (this.props.favourites.data || []).filter(f => f.id === companyIdInt && f.favourited).length;
+        return (this.props.favourites.data || []).filter(f => f.id === companyIdInt && f.favourite).length;
     }
 
     toggleFavourite() {
