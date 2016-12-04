@@ -1,3 +1,4 @@
+"use strict";
 require("babel-polyfill");
 var Sails = require('sails');
 var Promise = require("bluebird");
@@ -31,11 +32,11 @@ function lift(cb){
 
     console.log('- Lifting sails')
 
-    let sailsConfig = deepMerge({
+    let sailsConfig = deepMerge.all([{
             port: 1338,
             serverRender: true,
             log: {
-                level: 'error'
+                level: 'verbose'
             },
             fixtures: false,
             hooks: {
@@ -62,9 +63,9 @@ function lift(cb){
         },
         {
             models: {
-                migrate: 'safe'
+                migrate: 'alter'
             }
-        }
+        }]
     );
 
     return new Promise((resolve, reject) => {
