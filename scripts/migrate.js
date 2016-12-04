@@ -47,10 +47,10 @@ db.tx(function (t) {
                 return readFile(f)
                     .then(function(sql) {
                         useTransaction = sql.indexOf('--no-transaction') === -1;
-                        return sql.indexOf('--split-statements') > -1  ? sql.split(/;/) : [sql]
+                        return sql.indexOf('--split-statements') > -1  ? sql.split(/;/).map(s => s + ';') : [sql]
                     })
                     .then(function(sqls) {
-                        return useTransaction ? Promise.all(sqls, db.none) : Promise.all(sqls, t.none)
+                        return useTransaction ?  Promise.each(sqls, t.none) : Promise.each(sqls, db.none)
                     })
                     .then(function(){
                         console.log('Migration run, adding to DB.');
@@ -58,12 +58,12 @@ db.tx(function (t) {
                     })
             });
         })
-        .then(function(){
-            return fs.readFileAsync('config/db/functions.sql', 'utf8')
-        })
-         .then(function(sql){
-            return t.none(sql);
-        })
+})
+.then(function(){
+    return fs.readFileAsync('config/db/functions.sql', 'utf8')
+})
+ .then(function(sql){
+    return db.none(sql);
 })
 
 .then(function(){
