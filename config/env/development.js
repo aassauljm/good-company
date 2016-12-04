@@ -46,5 +46,6 @@ module.exports = {
     OAUTH_CLIENT_SECRET: 'gc',
     CACHE_DIR: '/tmp/.gc',
     APP_URL: 'http://localhost:5667',
-    EMAIL_URL: 'http://localhost:8000/mail/send'
+    EMAIL_URL: 'http://localhost:8000/mail/send',
+    ADMIN_KEY: 'gc'
 };

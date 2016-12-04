@@ -351,6 +351,10 @@ module.exports.routes = {
     },
 
 
+    'POST /api/admin/billing': {
+        controller: 'AdminController',
+        action: 'billingInfo'
+    },
 
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},

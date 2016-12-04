@@ -89,6 +89,10 @@ module.exports.policies = {
     },
     EventController: {
         'find': noCriteria
+    },
+
+    AdminController: {
+        '*': 'adminPolicy'
     }
 
     /***************************************************************************
