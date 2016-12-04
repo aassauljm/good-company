@@ -6,6 +6,7 @@ import {
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
     SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE,
     RESOURCE_REQUEST, RESOURCE_SUCCESS, RESOURCE_FAILURE,
+    RESOURCE_RESET,
     RESOURCE_CREATE_REQUEST, RESOURCE_CREATE_SUCCESS, RESOURCE_CREATE_FAILURE,
     RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE,
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
@@ -74,6 +75,9 @@ export function hideNotification(notificationId){
     return {type: HIDE_NOTIFICATION, notificationId};
 }
 
+export function resetResources(){
+    return {type: RESOURCE_RESET}
+}
 export function requestLogin(credentials) {
     return {
         types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],
@@ -101,14 +105,14 @@ export function setPassword(data) {
     };
 }
 
-export function requestUserInfo() {
+export function requestUserInfo(options = {}) {
     return {
         types: [USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE],
         callAPI: () => fetch('/api/get_info', {
             headers: json_headers,
             credentials: 'same-origin'
         }),
-        shouldCallAPI: (state) => state.login.loggedIn && !state.userInfo._status
+        shouldCallAPI: (state) => state.login.loggedIn && (!state.userInfo._status || options.refresh),
     };
 }
 
@@ -147,7 +151,7 @@ export function createResource(resource, data, options = {stringify: true}) {
             body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
-        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage, loadingOptions: options.loadingOptions}
     };
 }
 
@@ -167,7 +171,7 @@ export function updateResource(resource, data, options = {stringify: true}) {
             credentials: 'same-origin'
         }),
         confirmation: options.confirmation,
-        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage, loadingOptions: options.loadingOptions}
 
     };
 }
@@ -176,6 +180,14 @@ export function softDeleteResource(resource, options = {stringify: true}) {
     const data = {deleted: true};
     if(options && options.stringify === undefined){
         options = {...options, stringify: true}
+    }
+    if(!options.confirmation){
+        options.confirmation = {
+            title: 'Confirm Deletion',
+            description: 'Please confirm the deletion of this item',
+            resolveMessage: 'Confirm Deletion',
+            resolveBsStyle: 'danger'
+        };
     }
     return {
         types: [RESOURCE_UPDATE_REQUEST, RESOURCE_UPDATE_SUCCESS, RESOURCE_UPDATE_FAILURE],
@@ -187,13 +199,8 @@ export function softDeleteResource(resource, options = {stringify: true}) {
             body: (options.stringify && data) ? JSON.stringify(data) : data,
             credentials: 'same-origin'
         }),
-        confirmation: {
-            title: 'Confirm Deletion',
-            description: 'Please confirm the deletion of this item',
-            resolveMessage: 'Confirm Deletion',
-            resolveBsStyle: 'danger'
-        },
-        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
+        confirmation: options.confirmation,
+        payload: {key: resource, form: options.form, invalidateList: options.invalidates, loadingMessage: options.loadingMessage, loadingOptions: options.loadingOptions}
 
     };
 }
@@ -207,7 +214,7 @@ export function deleteResource(resource, options = {}) {
             credentials: 'same-origin'
         }),
         confirmation: options.confirmation,
-        payload: {key: resource, invalidateList: options.invalidates, loadingMessage: options.loadingMessage}
+        payload: {key: resource, invalidateList: options.invalidates, loadingMessage: options.loadingMessage, loadingOptions: options.loadingOptions}
     };
 }
 

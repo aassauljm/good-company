@@ -61,12 +61,19 @@ nav.navbar{
             }
 
 
-
             span.text-logo{
                 display:none;
             }
 
+            &.open.dropdown{
+                & > a {
+                    background-color: transparent;
+                    color: white;
+                }
+            }
+
             & > a{
+
                 display:inline-block;
                 &:active, &:focus{
                     outline:none;
@@ -85,8 +92,18 @@ nav.navbar{
 
         }
     }
+    .navbar-right .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+
 
      .open.dropdown{
+        & > a {
+            background-color:white;
+            color: $deep-red;
+        }
+
          a, a:focus, a:hover{
             text-decoration:none;
         }
@@ -94,6 +111,8 @@ nav.navbar{
             padding:0;
             border:none;
             background-color:$gray;
+            position:absolute;
+            @include border-top-radius(4px);
             a{
                 color:#fff;
                 font-size: 1em;
@@ -116,6 +135,7 @@ nav.navbar{
                 font-style:italic;
                 padding: 0 20px;
                 color:white;
+                white-space: nowrap;
             }
 
             a:hover{
@@ -263,12 +283,19 @@ nav.navbar{
 
     }
 
-    .favourite .glyphicon {
-        top: 3px;
-        margin-left:4px;
-        font-size:17px;
-        &.glyphicon-star{
-            color: $deep-red;
+    .favourite{
+        text-decoration: none;
+        color: $text-color;
+        &:hover, &:active{
+            text-decoration: none;
+        }
+         .fa {
+            top: 3px;
+            margin-left:4px;
+            font-size:17px;
+            &.fa-star{
+                color: $deep-red;
+            }
         }
     }
 

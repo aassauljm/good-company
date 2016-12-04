@@ -2,7 +2,7 @@
 import React from 'react';
 import { pureRender,  debounce } from '../utils';
 import { lookupCompany, lookupOwnCompany } from '../actions';
-//import Autosuggest from 'react-autosuggest';
+import Autosuggest from 'react-autosuggest';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { push } from 'react-router-redux'
@@ -87,7 +87,7 @@ export class Search extends React.Component {
 
 
 
-/*
+
 function getSuggestionValue(suggestion) {
   return suggestion.companyName;
 }
@@ -97,15 +97,15 @@ function renderSuggestion(suggestion, { value, valueBeforeUpDown }) {
     if(suggestion.companiesOffice){
         return (
             <div>
-                <h5 className="list-group-item-heading">{highlightString(suggestion.companyName, value)}</h5>
-                { (suggestion.notes || []).map((s, i) => <p key={i} className="list-group-item-text"><em>{highlightString(s,value)}</em></p> ) }
+                <h5 className="list-group-item-heading">{suggestion.companyName}</h5>
+                { (suggestion.notes || []).map((s, i) => <p key={i} className="list-group-item-text"><em>{value}</em></p> ) }
             </div>
         );
     }
     else{
       return (
         <div>
-            <h5 className="list-group-item-heading">{highlightString(suggestion.companyName, value)}</h5>
+            <h5 className="list-group-item-heading">{suggestion.companyName}</h5>
             <p className="list-group-item-text"><strong>Company Number:</strong> {suggestion.companyNumber}</p>
             <p className="list-group-item-text"><strong>NZBN:</strong> {suggestion.nzbn}</p>
             </div>
@@ -125,7 +125,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     return {
         onSuggestionsUpdateRequested: debounce(({ value, reason }) => {
             if(reason === 'type'){
-                dispatch(lookupOwnCompany(value));
+                !ownProps.onlyCompaniesOffice && dispatch(lookupOwnCompany(value));
                 dispatch(lookupCompany(value));
             }
         }),
@@ -133,7 +133,7 @@ function mapDispatchToProps(dispatch, ownProps) {
             dispatch(push("/company/view/"+ id));
         },
         onSelectCompany: (item) => {
-            dispatch(push({pathname: `/import/${item.companyNumber}`,  query: item}));
+            ownProps.onSelect ? ownProps.onSelect(item) : dispatch(push({pathname: `/import/${item.companyNumber}`,  query: item}));
         }
     };
 }
@@ -195,7 +195,7 @@ export class SearchWidget extends React.Component {
         }
 
         const inputProps = {
-            placeholder: 'Type to find or import a company',
+            placeholder: this.props.placeholder || 'Type to find or import a company',
             value: fields.input.value || '',
             onChange: fields.input.onChange
         };
@@ -224,7 +224,4 @@ const SearchWidgetForm = reduxForm({
   fields: ['input']
 })(SearchWidget);
 
-const ConnectedSearchWidget = connect(mapStateToProps, mapDispatchToProps)(SearchWidgetForm);
-
-export default ConnectedSearchWidget;
-*/
+export const ConnectedPlaceholderSearch = connect(mapStateToProps, mapDispatchToProps)(SearchWidgetForm);

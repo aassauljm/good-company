@@ -160,6 +160,25 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
+    RETURNS SETOF json
+    AS $$
+    WITH basic_company_state as (
+        SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
+    )
+    SELECT row_to_json(q) FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", TRUE as "favourite" FROM (
+        SELECT c.*, company_now(c.id)
+    FROM favourite f
+        JOIN company c on f."companyId" = c.id
+
+        WHERE c."ownerId" = $1 and f."userId" = $1 and c.deleted != true
+        ) q
+        JOIN basic_company_state cs on cs.id = q.company_now
+        ORDER BY cs."companyName"
+    ) q
+$$ LANGUAGE SQL;
+
 --CREATE OR REPLACE FUNCTION future_transactions(companyId integer)
 --    RETURNS SETOF json
 --    AS $$
@@ -858,3 +877,19 @@ FROM
     ) as q
 
 $$ LANGUAGE SQL STABLE;
+
+
+
+CREATE OR REPLACE FUNCTION billing_info()
+    RETURNS SETOF json
+        AS $$
+    SELECT row_to_json(qq)
+    FROM (
+    SELECT identifier::int as "userId", q.id as "companyId", not q.deleted as active, cs."companyName" FROM (
+        SELECT identifier, "userId", c.deleted, c.id, company_now(c.id) as "companyStateId" FROM passport
+        LEFT OUTER JOIN company c on c."ownerId" = "userId"
+        WHERE provider = 'catalex'
+    ) q
+    JOIN company_state cs on cs.id = "companyStateId"
+    ) qq
+$$ LANGUAGE SQL;

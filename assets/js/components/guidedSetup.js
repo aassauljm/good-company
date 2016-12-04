@@ -32,7 +32,7 @@ export class NextCompanyControls extends React.Component {
     }
 
     fetch() {
-        return this.props.dispatch(requestAlerts())
+        return this.props.dispatch(requestAlerts());
     }
 
     render() {

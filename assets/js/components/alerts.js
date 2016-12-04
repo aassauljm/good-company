@@ -14,6 +14,56 @@ import { AlertsHOC } from '../hoc/resources'
 
 export const requestAlerts = () => requestResource('/alerts', {postProcess: sortAlerts})
 
+
+export function alertList(props){
+     if(props.alerts.data){
+            const thisMonth = moment().format('MMMM');
+            let warnings = [], danger = [], safe = [], firstCompanyId;
+
+            const shareClassWarningCount = props.alerts.data.alertList.reduce((acc, a) => {
+                return acc + (a.warnings.shareClassWarning ? 1 : 0);
+            }, 0);
+
+            props.alerts.data.alertList.map(a => {
+                if(Object.keys(a.warnings).some(k => a.warnings[k]) && !firstCompanyId){
+                    firstCompanyId = a.id;
+                }
+            }, 0);
+
+            if(shareClassWarningCount > 1){
+                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={props.resetTransactionViews} ><Glyphicon glyph="cog" className="big-icon"/>"Click here to set up multiple companies at the same time.</Link></div></li>);
+            }
+
+            if(firstCompanyId){
+                danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={props.resetTransactionViews} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
+            }
+
+
+
+            props.alerts.data.alertList.map((a, i) => {
+                if(Object.keys(a.warnings).some(warning => a.warnings[warning])){
+                    warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetTransactionViews={props.resetTransactionViews} companyName={a.companyName}/></li>)
+                }
+                if(a.deadlines.annualReturn){
+                    const url = `/company/view/${a.id}/annual_returns`;
+                    if(a.deadlines.annualReturn.overdue){
+                        const dueDiff = moment(a.deadlines.annualReturn.dueDate).from(moment());
+                        danger.push(<li key={i+'.1'}><div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue ({dueDiff}).</Link></div></li>);
+                    }
+                    if(!a.deadlines.annualReturn.filedThisYear && thisMonth === a.deadlines.annualReturn.arFilingMonth){
+                        warnings.push(<li key={i+'.2'}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
+                    }
+                    if(a.deadlines.annualReturn.filedThisYear){
+                        safe.push(<li key={i+'.3'}><div><Link to={url} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return for { a.companyName } already filed this year.</Link></div></li>);
+                    }
+                }
+
+            });
+            return {warnings, danger, safe};
+        }
+}
+
+
 @AlertsHOC(true)
 @connect((state, ownProps) => {
     return {pendingJobs:  state.resources['/pending_jobs'] || {}};
@@ -71,48 +121,7 @@ export class AlertsWidget extends React.Component {
 
     renderAlerts() {
         if(this.props.alerts.data){
-            const thisMonth = moment().format('MMMM');
-            let warnings = [], danger = [], safe = [], firstCompanyId;
-
-            const shareClassWarningCount = this.props.alerts.data.alertList.reduce((acc, a) => {
-                return acc + (a.warnings.shareClassWarning ? 1 : 0);
-            }, 0);
-
-            this.props.alerts.data.alertList.map(a => {
-                if(Object.keys(a.warnings).some(k => a.warnings[k]) && !firstCompanyId){
-                    firstCompanyId = a.id;
-                }
-            }, 0);
-
-            if(shareClassWarningCount > 1){
-                danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={this.props.resetTransactionViews} ><Glyphicon glyph="cog" className="big-icon"/>Click here to bulk set up your companies.</Link></div></li>);
-            }
-
-            if(firstCompanyId){
-                danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={this.props.resetTransactionViews} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
-            }
-
-
-
-            this.props.alerts.data.alertList.map((a, i) => {
-                if(Object.keys(a.warnings).some(warning => a.warnings[warning])){
-                    warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetTransactionViews={this.props.resetTransactionViews} companyName={a.companyName}/></li>)
-                }
-                if(a.deadlines.annualReturn){
-                    const url = `/company/view/${a.id}/annual_returns`;
-                    if(a.deadlines.annualReturn.overdue){
-                        const dueDiff = moment(a.deadlines.annualReturn.dueDate).from(moment());
-                        danger.push(<li key={i+'.1'}><div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue ({dueDiff}).</Link></div></li>);
-                    }
-                    if(!a.deadlines.annualReturn.filedThisYear && thisMonth === a.deadlines.annualReturn.arFilingMonth){
-                        warnings.push(<li key={i+'.2'}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
-                    }
-                    if(a.deadlines.annualReturn.filedThisYear){
-                        safe.push(<li key={i+'.3'}><div><Link to={url} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return for { a.companyName } already filed this year.</Link></div></li>);
-                    }
-                }
-
-            });
+            const {danger, warnings} = alertList(this.props);
             const results = [...danger, ...warnings]
             if(!this.props.full){
                 return results.slice(0, 10);

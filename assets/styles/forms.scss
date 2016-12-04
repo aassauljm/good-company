@@ -54,3 +54,16 @@ legend{
     content:"*";
     color: $brand-danger;
 }
+
+table{
+    .form-group{
+        margin:0;
+        .checkbox{
+            margin:0;
+            input{
+                position:static;
+                margin:0;
+            }
+        }
+    }
+}

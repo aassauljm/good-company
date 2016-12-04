@@ -12,7 +12,11 @@ export default function Loading(props) {
 }
 
 export function LoadingOverlay(props) {
-    return <Modal show={true} backdrop={true} backdropTransitionTimeout={300} dialogTransitionTimeout={300} className="basic-modal" backdropClassName="modal-backdrop" transition={Fade} keyboard={false}>
+    let animationTime = props.animationTime;
+    if(props.animationTime === undefined){
+        animationTime = 300;
+    }
+    return <Modal show={true} backdrop={true} backdropTransitionTimeout={animationTime} dialogTransitionTimeout={animationTime} className="basic-modal" backdropClassName="modal-backdrop" transition={animationTime ? Fade : null} keyboard={false}>
         <div className="loading-modal" >
         <div className="message">{props.message || 'Loading'}</div>
             <Loading />

@@ -8,38 +8,16 @@
 module.exports = {
 
     favourites: function(req, res) {
-        // oh shit
-        const favs = () => Favourite.findAll({
-            where: {userId: req.user.id},
-            include: [
-                {
-                    model: Company,
-                        as: 'company',
-                        where: {deleted: false},
-                        include: {
-                        model: CompanyState,
-                        as: 'currentCompanyState'
-                    }
-                }]
-            })
-            .then(favourites => {
-                return favourites.map(f => {
-                    return {...f.company.toJSON(), favourited: true}
-                })
-            });
-
-        const fallback = () => Company.findAll({
-            where: {ownerId: req.user.id, deleted: false},
-            include: {
-                model: CompanyState,
-                as: 'currentCompanyState'
-            },
-            limit: 10
-        });
-        favs()
-            .then(items => !items.length ? fallback() : items)
-            .then(items => res.json(items))
-            .catch(e => res.negotiate(e))
+         return sequelize.query("select user_favourites_now(:id)",
+                       { type: sequelize.QueryTypes.SELECT,
+                        replacements: { id: req.user.id}})
+                    .map(r => r.user_favourites_now)
+                    .then(results => {
+                        res.json(results);
+                    })
+                    .catch((e) => {
+                        res.serverError(e)
+                    })
     },
 
     addFavourite: function(req, res) {

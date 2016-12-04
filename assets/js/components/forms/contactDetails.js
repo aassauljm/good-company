@@ -61,6 +61,8 @@ export class ContactForm extends React.Component {
             </div>
             <Documents documents={this.props.fields.documents}/>
             { this.props.controls && <div className="button-row">
+                { this.props.cancel && <button type="button" className="btn btn-default"
+                    onClick={this.props.cancel}>Cancel</button> }
                 <button type="button" className="btn btn-default"
                     onClick={resetForm}>Reset</button>
                 <button type="submit" className="btn btn-primary"

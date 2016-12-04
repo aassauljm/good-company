@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
-import { formFieldProps, requireFields, joinAnd, renderShareClass, generateShareClassMap } from '../../utils';
+import { formFieldProps, requireFields, joinAnd, renderShareClass, generateShareClassMap, holdingOptionsFromState } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
@@ -170,7 +170,7 @@ export class Decrease extends React.Component {
             <div className="button-row"><ButtonInput onClick={() => {
                 this.props.fields.holdings.addField({parcels: [{}]});    // pushes empty child field onto the end of the array
             }}>Add Holding</ButtonInput></div>
-            <Documents documents={this.props.fields.documents}/>
+            <Documents documents={this.props.fields.documents} label="Approval Documents"/>
             { this.renderRemaining() }
         </fieldset>
         </form>
@@ -288,9 +288,7 @@ export class DecreaseTransactionView extends React.Component {
     }
 
     renderBody(companyState) {
-        const holdingOptions = companyState.holdingList.holdings.map((h, i) => {
-                    return <option key={i} value={h.holdingId}>{h.name && h.name+': ' } { joinAnd(h.holders, {prop: 'name'}) }</option>
-                });
+        const holdingOptions = holdingOptionsFromState(companyState);
         const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         })
@@ -299,9 +297,7 @@ export class DecreaseTransactionView extends React.Component {
             return acc;
         }, {});
         const shareClassMap = generateShareClassMap(companyState);
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <DecreaseConnected ref="form"
+        return  <DecreaseConnected ref="form"
                     initialValues={{parcels: [{}], holdings: [{parcels: [{}]}], effectiveDate: new Date() }}
                     holdingOptions={holdingOptions}
                     holdingMap={holdingMap}
@@ -310,12 +306,10 @@ export class DecreaseTransactionView extends React.Component {
                     onSubmit={this.submit}
                     shareClassMap={shareClassMap}
                     {...this.props.formOptions}/>
-                </div>
-            </div>
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={this.props.lawLinks}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>{ this.props.title }</TransactionView.Title>
               </TransactionView.Header>

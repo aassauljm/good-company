@@ -14,7 +14,7 @@ import { Documents } from '../forms/documents';
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const fields = ['effectiveDate', 'companyName', 'nzbn', 'companyNumber', 'addressForService', 'registeredCompanyAddress', 'arFilingMonth', 'fraReportingMonth', 'documents']
+const fields = ['effectiveDate', 'companyName', 'nzbn', 'companyNumber', 'arFilingMonth', 'fraReportingMonth', 'documents']
 
 
 @formFieldProps()
@@ -59,8 +59,6 @@ const CompanyDetailsConnected = reduxForm({
 export function companyDetailsFormatSubmit(values, companyState){
     const actions = [];
     const transactionMap = {
-        'addressForService': 'ADDRESS_CHANGE',
-        'registeredCompanyAddress': 'ADDRESS_CHANGE',
         'companyName': 'NAME_CHANGE'
     };
     const fieldNameMap = {

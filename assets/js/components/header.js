@@ -16,6 +16,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { numberWithCommas } from '../utils';
 import { FavouritesHOC, AlertsHOC } from '../hoc/resources';
 import { Search } from './search';
+import { alertList } from './alerts';
+
 
 const DropdownToggle = (props) => {
     return <a href={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}}>
@@ -24,25 +26,30 @@ const DropdownToggle = (props) => {
 }
 
 
-export const AccountControls = (props) => {
-    if(props.login.loggedIn){
-        return <Dropdown id="update-dropdown" componentClass="li" className="control-icon">
-                    <DropdownToggle href={props.login.userUrl} bsRole="toggle">
-                        <span className="fa fa-user-circle"/>
-                   </DropdownToggle>
-                    <Dropdown.Menu bsRole="menu">
-                        <MenuItem rel="noopener noreferrer" target="_blank" href={`${props.login.userUrl}/user/profile`}>Account</MenuItem>
-                        <li className="last-login">Last login: {props.userInfo.lastLogin}</li>
-                        <li  className="separator" />
-                        <MenuItem rel="noopener noreferrer" target="_blank" href='https://browser.catalex.nz'>Law Browser</MenuItem>
-                        <MenuItem rel="noopener noreferrer" target="_blank" href='https://workingdays.catalex.nz'>Working Days</MenuItem>
-                        <MenuItem rel="noopener noreferrer" target="_blank" href='https://concat.catalex.nz'>ConCat</MenuItem>
-                        <li  className="separator" />
-                        <MenuItem href='/logout'>Log out</MenuItem>
-                    </Dropdown.Menu>
-                </Dropdown>
+export class AccountControls extends React.Component {
+    render() {
+        const props = this.props;
+        const close = () => this.refs.dropdown.refs.inner.handleClose()
+        if(props.login.loggedIn){
+            return <Dropdown id="update-dropdown" componentClass="li" className="control-icon" ref="dropdown">
+                        <DropdownToggle href={props.login.userUrl} bsRole="toggle">
+                            <span className="fa fa-user-circle"/>
+                       </DropdownToggle>
+                        <Dropdown.Menu bsRole="menu">
+                            <MenuItem rel="noopener noreferrer" target="_blank" href={`${props.login.userUrl}/user/profile`}>Account</MenuItem>
+                            <li><Link to={`/account_settings`} onClick={close}>Email Settings</Link></li>
+                            <li className="last-login">Last login: {props.userInfo.lastLogin}</li>
+                            <li  className="separator" />
+                            <MenuItem rel="noopener noreferrer" target="_blank" href='https://browser.catalex.nz'>Law Browser</MenuItem>
+                            <MenuItem rel="noopener noreferrer" target="_blank" href='https://workingdays.catalex.nz'>Working Days</MenuItem>
+                            <MenuItem rel="noopener noreferrer" target="_blank" href='https://concat.catalex.nz'>ConCat</MenuItem>
+                            <li  className="separator" />
+                            <MenuItem href='/logout'>Log out</MenuItem>
+                        </Dropdown.Menu>
+                    </Dropdown>
+        }
+        return false;
     }
-    return false;
 }
 
 
@@ -104,10 +111,10 @@ export class Header extends React.Component {
 
     status()  {
         if(this.props.alerts && this.props.alerts.data){
-            const count = Object.keys(this.props.alerts.data.companyMap || {}).length;
-            if(!count){
-                return;
-            }
+            const {danger, warnings} = alertList(this.props);
+            const results = [...danger, ...warnings]
+            const count = results.length;
+
             return <li  className="control-icon">
             <Link className="alerts-icon" to="/alerts"><span className="fa fa-bell-o"/>
             <span className="alerts-invert"><span className="alert-count">{ numberWithCommas(count) }</span></span>

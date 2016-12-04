@@ -1,45 +1,36 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import TransactionView from '../forms/transactionView';
-import Button from 'react-bootstrap/lib/Button';
-import { connect } from 'react-redux';
-import { reduxForm } from 'redux-form';
-import Input from '../forms/input';
-import STRINGS from '../../strings'
-import { numberWithCommas } from '../../utils'
-import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import { fieldStyle, fieldHelp } from '../../utils';
-import { Link } from 'react-router';
-import { companyTransaction, addNotification } from '../../actions';
+import { DecreaseTransactionView, createFormatSubmit } from './decreaseShares';
+import LawBrowserLink from '../lawBrowserLink'
+
+const formatSubmit = createFormatSubmit({baseTransaction: 'CANCELLATION', fromTransaction: 'CANCELLATION_FROM'})
 
 
+function cancellationLawLinks() {
+    return <div>
+        <LawBrowserLink title="Companies Act 1993" location="s 97, 99">Liability of shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 98, 99">Liability of former shareholders </LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 100">Liability for calls</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 222(1)(b), 222(2)(b),(ii)">Cancellation of shares on amalgamation</LawBrowserLink>
+    </div>
+}
 
 
-@connect(undefined)
 export class CancellationTransactionView extends React.Component {
-    constructor(props) {
-        super(props);
-        // this.submit = ::this.submit;
-    }
-
-    handleNext() {
-       // this.refs.form.submit();
-       //this.submit();
-
-    }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
-              <TransactionView.Header closeButton>
-                <TransactionView.Title>Cancel Shares</TransactionView.Title>
-              </TransactionView.Header>
-              <TransactionView.Body>
-               THIS FUNCTIONALITY IS UNDER DEVELOPMENT
-              </TransactionView.Body>
-              <TransactionView.Footer>
-                <Button onClick={this.props.end} >Cancel</Button>
-                 {/* <Button onClick={::this.handleNext} bsStyle="primary">{ 'Submit' }</Button> */ }
-              </TransactionView.Footer>
-            </TransactionView>
+        return <DecreaseTransactionView
+            lawLinks={cancellationLawLinks()}
+            title="Cancellation of Shares"
+            formName="cancellation"
+            successMessage="Shares Cancelled"
+            formatSubmit={formatSubmit}
+            formOptions={{
+                remainderVerb: "cancel",
+                overVerb: "cancel",
+                parcelHeading: "Shares To Cancel"
+            }}
+            {...this.props}
+        />
     }
 }

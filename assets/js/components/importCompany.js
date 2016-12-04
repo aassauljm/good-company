@@ -64,7 +64,6 @@ export class ImportCompany extends React.Component {
     render() {
         const valid = false;
         return <div className="container">
-                <div className="row">
                 <div className="widget">
                     <div className="widget-header">
                         <div className="widget-title">
@@ -74,7 +73,6 @@ export class ImportCompany extends React.Component {
                     <div className="widget-body">
                         { this.props.importCompany._status === 'fetching' ? this.renderLoading() : this.renderSummary() }
                     </div>
-                </div>
                 </div>
             </div>
     }

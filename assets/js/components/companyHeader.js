@@ -24,7 +24,7 @@ const DropdownToggle = (props) => {
 }
 
 @FavouritesHOC()
-@connect(state => ({login: state.login, userInfo: state.userInfo, routing: state.routing}), {
+@connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing, favourite: state.resources[`/favourites/${ownProps.companyId}`]}), {
     navigate: (url) => push(url),
     addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),
     removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']})
@@ -38,7 +38,7 @@ export default class CompanyHeader extends React.Component {
     isFavourite() {
         const companyIdInt = parseInt(this.props.companyId, 10);
         // save result maybe
-        return (this.props.favourites.data || []).filter(f => f.id === companyIdInt && f.favourited).length;
+        return (this.props.favourites.data || []).filter(f => f.id === companyIdInt && f.favourite).length;
     }
 
     toggleFavourite() {
@@ -52,11 +52,15 @@ export default class CompanyHeader extends React.Component {
     }
 
     renderRightActions() {
-        const glyph = this.isFavourite() ? 'star' : 'star-empty';
+        let glyph = this.isFavourite() ? 'fa fa-star' : 'fa fa-star-o';
+        let className = ''
+        if(this.props.favourites._status === 'fetching' || (this.props.favourite && this.props.favourite._status === 'fetching')){
+            glyph = 'fa fa-spinner spin';
+        }
         return [<div key={0} className="favourite">
             <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}>
             <span className="visible-lg-inline">Favourite</span>
-            <Glyphicon glyph={glyph}/>
+            <span className={glyph}/>
             </a>
         </div>]
     }

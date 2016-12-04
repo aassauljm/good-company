@@ -53,6 +53,11 @@ module.exports.routes = {
         action: 'userInfo'
     },
 
+    'PUT /api/account_settings': {
+        controller: 'UserController',
+        action: 'accountSettings',
+    },
+
     'GET /api/user': {
         controller: 'UserController',
         model: 'user',
@@ -320,6 +325,7 @@ module.exports.routes = {
         model: 'company'
     },
 
+
      'PUT /api/company/:id/reset_pending_history': {
         controller: 'CompanyController',
         action: 'resetPendingHistory',
@@ -345,6 +351,10 @@ module.exports.routes = {
     },
 
 
+    'POST /api/admin/billing': {
+        controller: 'AdminController',
+        action: 'billingInfo'
+    },
 
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
