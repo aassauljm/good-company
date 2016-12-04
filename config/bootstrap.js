@@ -24,6 +24,7 @@ var session = require('continuation-local-storage').createNamespace('session');
 //var patchBluebird = require('cls-bluebird');
 var Promise = require('bluebird'),
     shimmer = require('shimmer');
+const touch = Promise.promisify(require('touch'));
 var fs = Promise.promisifyAll(require('fs'));
 var shittyLodash = require('react-widgets/lib/util/_.js');
 var _ = require('lodash');
@@ -114,6 +115,10 @@ function patchReactWidget(){
     }
 }
 
+function touchLoadedFile() {
+    return touch('serviceIsLive.flag');
+}
+
 
 module.exports.bootstrap = function(cb) {
     sails.services.passport.loadStrategies();
@@ -123,6 +128,7 @@ module.exports.bootstrap = function(cb) {
     patchBluebird(namespace);
     patchBluebird(session);
     return Promise.all([loadDB(), prepTemp(), stats(), patchReactWidget()])
+        .then(touchLoadedFile())
         .then(function(){
             cb();
         })
