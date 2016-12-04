@@ -43,12 +43,17 @@ db.tx(function (t) {
             console.log('Pending Migrations:', files.length);
             return Promise.each(files, function(f){
                 console.log('Running ', f);
+                let useTransaction;
                 return readFile(f)
                     .then(function(sql) {
-                        return t.none(sql);
+                        useTransaction = sql.indexOf('--no-transaction') === -1;
+                        return sql.indexOf('--split-statements') > -1  ? sql.split(/;/) : [sql]
+                    })
+                    .then(function(sqls) {
+                        return useTransaction ? Promise.all(sqls, db.none) : Promise.all(sqls, t.none)
                     })
                     .then(function(){
-                        console.log('Migration run, adding to DB.')
+                        console.log('Migration run, adding to DB.');
                         return t.none('insert into migrations(name) values ($1)', [f]);
                     })
             });

@@ -251,6 +251,11 @@ export function personOptionsFromState(companyState, filter = x => true){
     return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId}>{p.name}</option>);
 }
 
+export  function holdingOptionsFromState(companyState) {
+    return companyState.holdingList.holdings.map((h, i) => {
+            return <option key={i} value={h.holdingId}>{h.name && h.name+': ' } { joinAnd(h.holders.map(h => h.person), {prop: 'name'}) }</option>
+        });
+}
 
 export function populatePerson(person, companyState){
     //TODO, make a store or something

@@ -1,7 +1,7 @@
 import React, {PropTypes, cloneElement} from 'react';
 import ReactDOM from 'react-dom';
-import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-import Overlay from 'react-bootstrap/lib/Overlay';
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';import Overlay from 'react-bootstrap/lib/Overlay';
+
 import { connect } from 'react-redux';
 import { requestLawBrowser } from '../actions';
 import Loading from './loading';
@@ -348,7 +348,7 @@ export class LawBrowserPopover extends React.Component {
 
     render() {
         const id = `${this.props.title.replace(' ', '-')}-${this.props.location ? this.props.location.replace(' ', '-') : this.props.definition}`
-        const title = this.data() ? this.data().full_title : this.props.title;
+        const title = (this.data() ? this.data().full_title : this.props.title) || this.props.title;
         return <Popover {...this.props} id={id} title={title} close={this.props.close}>
                 <LawBrowserContent data={this.data()} needsReposition/>
                    <div className="popover-footer">

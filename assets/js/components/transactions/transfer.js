@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { reduxForm, destroy } from 'redux-form';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
-import { formFieldProps, requireFields, joinAnd, newHoldingString } from '../../utils';
+import { formFieldProps, requireFields, joinAnd, newHoldingString, holdingOptionFromState } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
@@ -250,9 +250,7 @@ export class TransferTransactionView extends React.Component {
     }
 
     renderBody(companyState) {
-        const holdingOptions = companyState.holdingList.holdings.map((h, i) => {
-            return <option key={i} value={h.holdingId}>{h.name && h.name+': ' } { joinAnd(h.holders.map(h => h.person), {prop: 'name'}) }</option>
-        });
+        const holdingOptions = holdingOptionsFromState(companyState);
         const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         });
