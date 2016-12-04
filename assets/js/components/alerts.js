@@ -38,8 +38,6 @@ export function alertList(props){
                 danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={props.resetTransactionViews} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
             }
 
-
-
             props.alerts.data.alertList.map((a, i) => {
                 if(Object.keys(a.warnings).some(warning => a.warnings[warning])){
                     warnings.push(<li key={i+'.0'}><AlertWarnings.ResolveAllWarnings companyId={a.id} resetTransactionViews={props.resetTransactionViews} companyName={a.companyName}/></li>)
@@ -71,7 +69,7 @@ export function alertList(props){
     requestJobs: (refresh) => requestResource('/pending_jobs', {refresh: refresh}),
     refreshCompanies: () => requestResource('companies', {refresh: true}),
     refreshRecentActivity: () => requestResource('/recent_activity', {refresh: true}),
-    refreshAlerts: () => requestAlerts,
+    refreshAlerts: () => requestResource('/alerts', {postProcess: sortAlerts, refresh: true}),
     navigate: (url) => push(url),
     resetTransactionViews: () => resetTransactionViews()
 })
