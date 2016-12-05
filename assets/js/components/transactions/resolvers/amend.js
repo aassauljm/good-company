@@ -4,6 +4,7 @@ import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTim
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';
+import DateInput from '../../forms/dateInput';
 import STRINGS from '../../../strings'
 import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -98,12 +99,13 @@ function validTransactionType(type){
 @formFieldProps()
 class Recipient extends React.Component {
     render(){
-        const title =  'This transaction was a:';
+        const title =  'Transaction #';
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         const holdings = this.props.holdings;
         return  <Panel remove={() => this.props.remove()} title={title}>
             { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
                 <div className="input-group-pair input-row">
+                    <DateInput {...this.formFieldProps('effectiveDate')} />
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={!!this.props.isInverse.value}
                     onChange={(value) => {this.props.type.onChange(value);  this.props.onChange(); }}
@@ -216,6 +218,9 @@ class AmendOptions extends React.Component {
                 return <div  key={i}>
                         { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
                 <div className="row">
+                <div className="text-center">
+                <p><strong>This change is comprised of:</strong></p>
+                </div>
                     <Recipients
                     recipients={actions[i].recipients}
                     increase={increase}
@@ -299,6 +304,7 @@ const validateAmend = (values, props) => {
 const amendFields = [
     'actions[].recipients[].type',
     'actions[].recipients[].amount',
+    'actions[.recipients[].effectiveDate',
     'actions[].recipients[].holding',
     'actions[].recipients[].isInverse',
 ];

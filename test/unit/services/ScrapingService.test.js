@@ -487,8 +487,23 @@ describe('Scraping Service', function() {
                     const result = ScrapingService.processDocument(document, {
                         'documentType': 'Particulars of Shareholding',
                     });
-                    console.log(JSON.stringify(result, null, 4));
                     result.actions.length.should.be.equal(4);
+                    const final = InferenceService.segmentAndSortActions([result]);
+                    // this is getting the holders wrong, should be 1 not 2
+                    done();
+                })
+            });
+    });
+
+    describe('Should figure out transfer with holding change', function() {
+        it('reads file, creates transfers', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/22705246.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding',
+                    });
+                    console.log(JSON.stringify(result, null, 4));
+                    result.actions.length.should.be.equal(5);
                     const final = InferenceService.segmentAndSortActions([result]);
                     console.log(JSON.stringify(final, null, 4));
                     // this is getting the holders wrong, should be 1 not 2
@@ -496,8 +511,6 @@ describe('Scraping Service', function() {
                 })
             });
     });
-
-
 
 
 });

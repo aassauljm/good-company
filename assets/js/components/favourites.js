@@ -40,13 +40,13 @@ export class FavouritesWidget extends React.Component {
         }
         favourites = favourites.slice(0, 6);
 
-        const fields = ['companyName', 'companyNumber', 'nzbn'];
+        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
         return <table className="table table-striped table-hover table-condensed">
             <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
             <tbody>
             { favourites.map(
                 (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
-                    { fields.map(f => <td key={f}>{row.currentCompanyState[f]}</td>) }
+                    { fields.map(f => <td key={f}>{{...row.currentCompanyState, ...row}[f]}</td>) }
                 </tr>) }
             </tbody>
         </table>

@@ -125,7 +125,7 @@ module.exports = {
                 if(!removalActions.length){
                     acc.push(doc);
                 } else {
-                   const amends = _.cloneDeep(doc);
+                    const amends = _.cloneDeep(doc);
                     doc = _.cloneDeep(doc);
                     amends.actions = removalActions.map(a => {
                         return {
@@ -256,7 +256,7 @@ module.exports = {
         }
 
 
-        function decomposeAmbiguousHoldingTransfers(docs){
+        /*function decomposeAmbiguousHoldingTransfers(docs){
             // decompose transfers that are a holding_transfer + multiple transfers
             return  _.reduce(docs, (acc, doc, i) => {
                 const transferActions = _.filter(doc.actions, a => a.requiresTransferOrdering);
@@ -310,7 +310,6 @@ module.exports = {
                         afterAmount:0,
                         transactionMethod: null,
                         transactionType: Transaction.types.REMOVE_ALLOCATION,
-
                     }))
                 }
 
@@ -319,15 +318,42 @@ module.exports = {
             }
             return acc;
         }, []);
-        }
+        }*/
 
 
         let results = splitAmends(docs);
-        results = holdingChangeRemovals(results);
+        //results = holdingChangeRemovals(results)
+
         results = splitMultiTransfers(results);
-        results = decomposeAmbiguousHoldingTransfers(results);
+        //results = decomposeAmbiguousHoldingTransfers(results);
         return results;
     },
+
+    splitHoldingTransfers: function(docs) {
+        docs.map(doc => {
+            doc.actions = (doc.actions || []).reduce((acc, action) => {
+                if(action.type === Transaction.types.HOLDING_TRANSFER){
+                    // the new allaction
+                    acc.push({
+
+                    });
+
+                    acc.push({
+
+                    });
+
+                }
+                else{
+                    acc.push(action);
+                }
+
+                return acc;
+            }, [])
+
+        });
+        return docs;
+    },
+
 
     inferDirectorshipActions: function (data, docs){
         // The appointment and removal of directorships, inferred from start/end dates
@@ -492,6 +518,9 @@ module.exports = {
             [Transaction.types.INFERRED_REMOVE_DIRECTOR]: 1,
             [Transaction.types.INFERRED_NEW_DIRECTOR]: 0
         }
+
+
+        docs =  InferenceService.splitHoldingTransfers(docs);
 
         // before sort, fine amend types
         docs = InferenceService.inferAmendTypes(docs);
