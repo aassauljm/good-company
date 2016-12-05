@@ -143,7 +143,7 @@ module.exports = {
         // should be using this, but it shows removed jobs
         QueueService.searchJobs(req.user.id)
             .then(results => {
-                return res.json({pending: results.filter(r => r).map(r => r.toJSON()).filter(r => r.state !== 'failed')});
+                return res.json({pending: results.filter(r => r.state !== 'failed')});
             })
             .catch(e => {
                 res.json({pending:[]});

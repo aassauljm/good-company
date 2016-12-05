@@ -22,6 +22,11 @@ import { ImportSingleWidget } from './importMenu'
 export class LandingPageView extends React.Component {
 
     welcomeBack() {
+        if(this.props.userInfo.lastLogin === 'first log in'){
+            return  <div className="welcome-back">
+                 Hello <strong>{ this.props.userInfo.username }</strong>, welcome to Good Companies
+                </div>
+        }
         return  <div className="welcome-back">
              Hello <strong>{ this.props.userInfo.username }</strong>, you last logged in {this.props.userInfo.lastLogin}
             </div>

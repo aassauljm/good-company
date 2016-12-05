@@ -130,8 +130,8 @@ module.exports.bootstrap = function(cb) {
     return Promise.all([loadDB(), prepTemp(), stats(), patchReactWidget()])
         .then(touchLoadedFile())
         .then(function(){
-
             cb();
         })
-
 }
+
+

@@ -40,7 +40,7 @@ export class FavouritesWidget extends React.Component {
         }
         favourites = favourites.slice(0, 6);
 
-        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        const fields = ['companyName', 'companyNumber', 'nzbn'];
         return <table className="table table-striped table-hover table-condensed">
             <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
             <tbody>
@@ -87,7 +87,7 @@ export default class Favourites extends React.Component {
         if(this.props.favourites._status === 'complete' && !favourites.length){
             favourites = (this.props.companies.data || []).slice(0, 10)
         }
-        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        const fields = ['companyName', 'companyNumber', 'nzbn'];
         return <table className="table table-striped table-hover">
             <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
             <tbody>

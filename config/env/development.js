@@ -28,7 +28,8 @@ module.exports = {
    ***************************************************************************/
     hookTimeout: 40000,
     models: {
-        connection: 'pg_test'
+        connection: 'pg_test',
+        migrate: 'safe'
     },
     log: {
         custom: customLogger,

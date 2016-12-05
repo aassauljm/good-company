@@ -352,6 +352,7 @@ CREATE OR REPLACE FUNCTION has_no_share_classes(companyStateId integer)
     WHERE cs.id = $1)
 $$ LANGUAGE SQL;
 
+
 CREATE OR REPLACE FUNCTION has_no_applied_share_classes(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
@@ -366,6 +367,7 @@ CREATE OR REPLACE FUNCTION has_no_applied_share_classes(companyStateId integer)
         where cs.id = $1
         ) q
 $$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
     RETURNS BOOLEAN
@@ -382,7 +384,8 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
         'missingVotingShareholders', has_missing_voting_shareholders($1),
         'shareClassWarning', has_no_share_classes($1),
         'applyShareClassWarning', has_no_applied_share_classes($1),
-        'extensiveWarning', has_extensive_shareholding($1)
+        'extensiveWarning', has_extensive_shareholding($1),
+        'treasuryStockOverAllocated', FALSE
         )
 $$ LANGUAGE SQL;
 

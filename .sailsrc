@@ -14,7 +14,7 @@
         "level": "verbose"
     },
     "models": {
-        "migrate": "alter"
+
     },
     "port": 5667
 }

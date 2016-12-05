@@ -1,7 +1,7 @@
 "use strict";
 var Sails = require('sails').constructor;
 var kue = require('kue');
-var app = new Sails();
+var sails = new Sails();
 var queue = kue.createQueue();
 var Promise = require('bluebird');
 
@@ -68,7 +68,7 @@ function patchBluebird(ns) {
 
 
 
-app.load({
+sails.load({
     log: {
         level: 'verbose'
     },
@@ -95,7 +95,7 @@ app.load({
         sockets: false,
         views: false
     }
-}, function(err, app){
+}, function(err){
     sails.log.info('Worker Ready');
     if(err){
         sails.log.error('Worker Error');
