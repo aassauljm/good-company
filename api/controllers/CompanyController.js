@@ -253,7 +253,6 @@ module.exports = {
                 })
                 //.attempts(5)
                 //.backoff( {type:'exponential'} )
-                .searchKeys( ['userId'] )
                 .removeOnComplete( true )
                 .on('complete', () => {resolveJob(1);})
                 .on('failed', () => {resolveJob(0)})
@@ -310,7 +309,6 @@ module.exports = {
                             transactions: transaction.transactions,
                             companySearchId: `companyId$${transaction.companyId}$`
                         })
-                        .searchKeys( ['userId', 'companySearchId'] )
                         .removeOnComplete( true )
                         .on('complete', () => {resolveJob(1);})
                         .on('failed', () => { resolveJob(0)})
