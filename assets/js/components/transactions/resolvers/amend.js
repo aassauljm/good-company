@@ -16,7 +16,9 @@ import { reduxForm } from 'redux-form';
 import Panel from '../../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './summaries'
 import moment from 'moment';
+import Shuffle from 'react-shuffle';
 
+let keyIndex = 0;
 
 function increaseOptions(){
     return [
@@ -104,9 +106,10 @@ class Recipient extends React.Component {
         const title =  `Transaction #${this.props.index+1}`;
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         const holdings = this.props.holdings;
-        return  <Panel remove={() => this.props.remove()} title={title}>
+        return  <Panel title={title}>
             { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
-                    <DateInput {...this.formFieldProps('effectiveDate')} />
+
+                <DateInput {...this.formFieldProps('effectiveDate')} disabled={!!this.props.isInverse.value}/>
                 <div className="input-group-pair input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={!!this.props.isInverse.value}
@@ -147,19 +150,32 @@ class Recipient extends React.Component {
 
 function Recipients(props){
     return <div className="col-md-6 col-md-offset-3">
+            <Shuffle>
             {props.recipients.map((r, i) => {
-                return <Recipient {...r} key={i}
+            return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
+                <Recipient {...r} key={i}
                     index={i}
                     increase={props.increase}
                     allSameDirection={props.allSameDirection}
                     holdings={props.holdings}
                     remove={() => props.recipients.removeField(i)}
-                    onChange={props.onChange(i)}/>
+                    onChange={props.onChange(i)}>
+                    </Recipient>
+                     <div className="btn-group-vertical btn-group-sm list-controls">
+                        { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
+                        <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
+                        { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
+                    </div>
+            </div>;
+
+
+
             }) }
+            </Shuffle>
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
                 <div className="button-row">
                 <Button type="button" onClick={() => {
-                    props.recipients.addField()    // pushes empty child field onto the end of the array
+                    props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate})    // pushes empty child field onto the end of the array
                 }}>
                 Add Transaction
                 </Button>
@@ -190,14 +206,24 @@ class AmendOptions extends React.Component {
             // See if this recipient is a in a transfer
             const type = this.props.values.actions[i].recipients[j].type; //safe?
             const amount = this.props.values.actions[i].recipients[j].amount; //safe?
+            const effectiveDate = this.props.values.actions[i].recipients[j].effectiveDate; //safe?
+            const inverseIndex = this.props.values.actions[i].recipients[j].inverse;
             if(isTransfer(type)){
                 const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
                 if(Number.isInteger(actionIndex)){
                     const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
-                        return (!r.type || isTransfer(r.type)) && (!r.holding || r.holding === i.toString());
+                        return r._keyIndex === inverseIndex;
                     });
                     if(reciprocalIndex < 0){
-                        actions[actionIndex].recipients.addField({type: inverseTransfer(type), amount: amount, holding: i.toString(), isInverse: true})
+                        actions[actionIndex].recipients.addField({
+                            type: inverseTransfer(type),
+                            amount: amount,
+                            holding: i.toString(),
+                            effectiveDate: effectiveDate,
+                            isInverse: true,
+                            inverse: inverseIndex,
+                             _keyIndex: keyIndex++
+                         });
                     }
                     else{
                         actions[actionIndex].recipients[reciprocalIndex].amount.onChange((amount||0).toString());
@@ -210,7 +236,9 @@ class AmendOptions extends React.Component {
 
                 }
             }
-            this.props.values;
+            else{
+
+            }
         }, 0);
 
 
@@ -225,6 +253,7 @@ class AmendOptions extends React.Component {
                 <p><strong>This change is comprised of:</strong></p>
                 </div>
                     <Recipients
+                    effectiveDate={this.props.effectiveDate}
                     recipients={actions[i].recipients}
                     increase={increase}
                     allSameDirection={allSameDirection}
@@ -323,6 +352,8 @@ const amendFields = [
     'actions[].recipients[].effectiveDate',
     'actions[].recipients[].holding',
     'actions[].recipients[].isInverse',
+    'actions[].recipients[].inverse',
+    'actions[].recipients[]._keyIndex',
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -333,6 +364,84 @@ const AmendOptionsConnected = reduxForm({
 
 
 
+export function formatSubmit(values, actionSet, amendActions) {
+    const amends = [...(amendActions.map(a => ({...a})))];
+    const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
+    const pendingActions = [{id: actionSet.id, data: otherActions, previous_id: actionSet.previous_id}];
+    const transactions = {};
+    const transfers = [];
+
+
+    const transferMappings = values.actions.reduce((acc, v, i) => {
+        v.recipients.reduce((acc, r) => {
+            acc[r.holding] = acc[r.holding] || {};
+            acc[r.holding][i] =  {recipient: r, amendIndex: i};
+            return acc;
+        }, acc)
+        return acc;
+    }, {})
+
+    values.actions.map((action, i) => {
+        action.recipients.map((r, j) => {
+        if(r.handled){
+                return;
+            }
+            const amount = parseInt(r.amount, 10);
+            amends[i] = {...amends[i]}
+
+            if(amends[i].beforeAmount !== undefined){
+                const increase = isIncrease(r.type)
+                amends[i].beforeAmount = amends[i].afterAmount + (increase ? -amount : amount);
+            }
+            let method = TransactionTypes.AMEND;
+            if(!amends[i].beforeHolders){
+                amends[i].beforeHolders = amends[i].afterHolders = amends[i].holders;
+            }
+
+            if(isTransfer(r.type)){
+                let method = amends[i].beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
+                const transfer = {...amends[i], transactionType: r.type, transactionMethod: method,
+                    amount: amount, index: i, recipientIndex: parseInt(r.holding, 10), };
+                // find reciprocal
+                amends[i].afterAmount = amends[i].beforeAmount;
+                const reciprocal = transferMappings[i][r.holding];
+                const reciprocalAmend = amends[reciprocal.amendIndex];
+                const increase = isIncrease(reciprocalAmend.type)
+                reciprocalAmend.beforeAmount = reciprocalAmend.afterAmount + (increase ? -amount : amount);
+
+                method = reciprocalAmend.beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
+
+                const reciprocalAction = {...reciprocalAmend, transactionType: reciprocal.recipient.type, transactionMethod: method,
+                    amount: amount};
+                reciprocalAmend.afterAmount = reciprocalAmend.beforeAmount;
+                reciprocal.recipient.handled = true;
+
+                transfers.push([transfer, reciprocalAction])
+
+            }
+            else{
+                transactions[r.type] = transactions[r.type] || [];
+                const result = {...amends[i], transactionType: r.type, transactionMethod: method,
+                    amount: amount};
+                transactions[r.type].push(result);
+                amends[i].afterAmount = amends[i].beforeAmount;
+            }
+        })
+
+    })
+    // group each other type
+    Object.keys(transactions).map(k => {
+        pendingActions.push({id: actionSet.id, data: {...actionSet.data, totalAmount: null, actions: transactions[k]}, previous_id: actionSet.previous_id});
+    })
+    transfers.map(k => {
+        pendingActions.push({id: actionSet.id, data: {...actionSet.data, totalAmount: null, actions: k, transactionType: TransactionTypes.TRANSFER}, previous_id: actionSet.previous_id});
+    });
+    return pendingActions;
+}
+
+
+const VALUES = {"actions":[{"recipients":[{"type":"ISSUE_TO","amount":1111,"effectiveDate":"2014-09-04T12:00:00.000Z","_keyIndex":0}]},{"recipients":[{"type":"TRANSFER_TO","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"5","_keyIndex":1}]},{"recipients":[{"type":"TRANSFER_TO","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"6","_keyIndex":2}]},{"recipients":[{"type":"TRANSFER_TO","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"5","_keyIndex":3}]},{"recipients":[{"type":"TRANSFER_TO","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"6","_keyIndex":4}]},{"recipients":[{"type":"TRANSFER_FROM","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"1","isInverse":true,"_keyIndex":7},{"type":"TRANSFER_FROM","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"3","isInverse":true,"_keyIndex":9}]},{"recipients":[{"type":"TRANSFER_FROM","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"2","isInverse":true,"_keyIndex":8},{"type":"TRANSFER_FROM","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"4","isInverse":true,"_keyIndex":10}]}]}
+
 export default function Amend(context, submit){
     const { actionSet, companyState, shareClassMap } = context;
     const amendActions = actionSet.data.actions.filter(a => {
@@ -342,77 +451,7 @@ export default function Amend(context, submit){
 
 
     const handleSubmit = (values) => {
-        const amends = [...(amendActions.map(a => ({...a})))];
-        const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
-        const pendingActions = [{id: context.actionSet.id, data: otherActions, previous_id: context.actionSet.previous_id}];
-        const transactions = {};
-        const transfers = [];
-
-
-        const transferMappings = values.actions.reduce((acc, v, i) => {
-            v.recipients.reduce((acc, r) => {
-                acc[r.holding] = acc[r.holding] || {};
-                acc[r.holding][i] =  {recipient: r, amendIndex: i};
-                return acc;
-            }, acc)
-            return acc;
-        }, {})
-
-        values.actions.map((action, i) => {
-            action.recipients.map((r, j) => {
-            if(r.handled){
-                    return;
-                }
-                const amount = parseInt(r.amount, 10);
-                amends[i] = {...amends[i]}
-
-                if(amends[i].beforeAmount !== undefined){
-                    const increase = isIncrease(r.type)
-                    amends[i].beforeAmount = amends[i].afterAmount + (increase ? -amount : amount);
-                }
-                let method = TransactionTypes.AMEND;
-                if(!amends[i].beforeHolders){
-                    amends[i].beforeHolders = amends[i].afterHolders = amends[i].holders;
-                }
-
-                if(isTransfer(r.type)){
-                    let method = amends[i].beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
-                    const transfer = {...amends[i], transactionType: r.type, transactionMethod: method,
-                        amount: amount, index: i, recipientIndex: parseInt(r.holding, 10), };
-                    // find reciprocal
-                    amends[i].afterAmount = amends[i].beforeAmount;
-                    const reciprocal = transferMappings[i][r.holding];
-                    const reciprocalAmend = amends[reciprocal.amendIndex];
-                    const increase = isIncrease(reciprocalAmend.type)
-                    reciprocalAmend.beforeAmount = reciprocalAmend.afterAmount + (increase ? -amount : amount);
-
-                    method = reciprocalAmend.beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
-
-                    const reciprocalAction = {...reciprocalAmend, transactionType: reciprocal.recipient.type, transactionMethod: method,
-                        amount: amount};
-                    reciprocalAmend.afterAmount = reciprocalAmend.beforeAmount;
-                    reciprocal.recipient.handled = true;
-
-                    transfers.push([transfer, reciprocalAction])
-
-                }
-                else{
-                    transactions[r.type] = transactions[r.type] || [];
-                    const result = {...amends[i], transactionType: r.type, transactionMethod: method,
-                        amount: amount};
-                    transactions[r.type].push(result);
-                    amends[i].afterAmount = amends[i].beforeAmount;
-                }
-            })
-
-        })
-        // group each other type
-        Object.keys(transactions).map(k => {
-            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: transactions[k]}, previous_id: context.actionSet.previous_id});
-        })
-        transfers.map(k => {
-            pendingActions.push({id: context.actionSet.id, data: {...actionSet.data, totalAmount: null, actions: k, transactionType: TransactionTypes.TRANSFER}, previous_id: context.actionSet.previous_id});
-        });
+        const pendingActions = formatSubmit(values, actionSet, amendActions);
         submit({
             pendingActions: pendingActions
         })
@@ -438,7 +477,7 @@ export default function Amend(context, submit){
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{amount:  a.amount, effectiveDate}]
+                recipients: [{amount:  a.amount, effectiveDate, _keyIndex: keyIndex++}]
             };
         }
         // else if one exact opposite transaction, then set that
@@ -449,14 +488,16 @@ export default function Amend(context, submit){
                 amount: a.amount,
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
                 holding: amountValues[!increase][a.amount][0].index+'',
-                effectiveDate
+                effectiveDate,
+                _keyIndex: keyIndex++
             }]};
         }
         return {recipients: [{
-            amount:  a.amount, type: validTransactionType(a.transactionType) , effectiveDate
+            amount:  a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++
         }]};
     })};
 
+    //initialValues = VALUES;
 
     const holdings = amendActions.reduce((acc, a, i) => {
         const increase = actionAmountDirection(a);

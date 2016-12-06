@@ -23,3 +23,27 @@
         margin-bottom:40px;
     }
 }
+
+.panel-external-controls{
+    display:table;
+    width: 100%;
+    margin-bottom:20px;
+    & > * {
+        display:table-cell;
+        .list-controls{
+            width:100%;
+        }
+    }
+    .input-group, .rw-datetimepicker {
+        width:100%
+    }
+
+    .list-controls.btn-group-vertical{
+        .btn{
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-left: none;
+            padding: 17px 8px;
+        }
+    }
+}

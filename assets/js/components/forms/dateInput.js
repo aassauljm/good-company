@@ -19,7 +19,7 @@ export default class DateInput extends React.Component {
             <DateTimePicker
             onChange={(date, string) => this.props.format ? this.props.onChange(string) :  this.props.onChange(date)}
             onSelect={this.props.onSelect}
-
+            disabled={this.props.disabled}
             onClick={(e) => {
                 e.preventDefault();
             }}
@@ -36,7 +36,7 @@ export default class DateInput extends React.Component {
                 }
             }
             onBlur={() => {
-                this.props.onBlur(this.props.value)
+                this.props.onBlur && this.props.onBlur(this.props.value)
             }}
             format={this.props.format || format} />
           </Input>
