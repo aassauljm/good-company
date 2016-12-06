@@ -457,25 +457,6 @@ module.exports = {
             });
             return acc;
         }, []);
-
-        /*docs.map(d => {
-            (d.actions || []).map(action => {
-
-                if(action.transactionType === Transaction.types.HOLDER_CHANGE){
-                    const changedPerson = Person.build(action.afterHolder);
-                    const beforeHolder = action.beforeHolder;
-                    d.actions.map(otherAction => {
-                        if(otherAction.afterHolders){
-                            otherAction.afterHolders.map((afterHolder, i) => {
-                                if(changedPerson.isEqual(afterHolder)){
-                                    otherAction.afterHolders[i] = beforeHolder;
-                                }
-                            })
-                        }
-                    });
-                }
-            });
-        })*/
     },
 
     extraActions: function(data, docs){

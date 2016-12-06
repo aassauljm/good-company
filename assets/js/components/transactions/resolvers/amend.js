@@ -15,6 +15,8 @@ import { Holding } from '../../shareholdings';
 import { reduxForm } from 'redux-form';
 import Panel from '../../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './summaries'
+import moment from 'moment';
+
 
 function increaseOptions(){
     return [
@@ -249,10 +251,19 @@ const validateAmend = (values, props) => {
         const errors = {};
         let sum = 0;
         const selectedRecipients = {};
-        errors.recipients = action.recipients.map(recipient => {
+        errors.recipients = action.recipients.map((recipient, j) => {
             const errors = {};
             const amount = parseInt(recipient.amount, 10) || 0;
-
+            if(!recipient.effectiveDate){
+                errors.effectiveDate = ['Required.'];
+            }
+            if(recipient.effectiveDate && recipient.effectiveDate > props.effectiveDate){
+                errors.effectiveDate = ['Effective date must be on or before the date of the document.'];
+            }
+            if(j > 0 && recipient.effectiveDate < actions.recipients[j-1].effectiveDate){
+                errors.effectiveDate = errors.effectiveDate || [];
+                errors.effectiveDate.push('Effective date cannot be before previous transaction.')
+            }
             if(!amount){
                 errors.amount = ['Required.'];
             }
@@ -277,6 +288,7 @@ const validateAmend = (values, props) => {
             if(recipient.type){
                 sum += absoluteAmount(recipient.type, amount);
             }
+            console.log(recipient.effectiveDate)
             return errors;
         });
 
@@ -289,12 +301,21 @@ const validateAmend = (values, props) => {
             formErrors.actions = formErrors.actions || [];
             const diff = sum - amount;
             if(diff < 0){
-                formErrors.actions[i] = [`${-diff} shares left to allocate.`];
+                formErrors.actions[i] = formErrors.actions[i] || [];
+                formErrors.actions[i].push(`${-diff} shares left to allocate.`);
             }
             else if(diff > 0){
-                formErrors.actions[i] = [`${diff} shares over allocated.`];
+                formErrors.actions[i] = formErrors.actions[i] || [];
+                formErrors.actions[i].push(`${diff} shares over allocated.`);
             }
         }
+
+        /*action.recipients.map((r, i) => {
+            if(i > 0 && action.recipients[i-1].effectiveDate){
+
+            }
+        })*/
+
         return errors;
     });
 
@@ -415,12 +436,15 @@ export default function Amend(context, submit){
         return acc;
     }, {true: {}, false: {}})
 
+
+
     let initialValues = {actions: amendActions.map((a, i) => {
         // if all same direction, set amount;
+        const effectiveDate = moment(a.effectiveDate || actionSet.data.effectiveDate).startOf('day').toDate();
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{amount:  a.amount}]
+                recipients: [{amount:  a.amount, effectiveDate}]
             };
         }
         // else if one exact opposite transaction, then set that
@@ -430,11 +454,12 @@ export default function Amend(context, submit){
             return {recipients: [{
                 amount: a.amount,
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
-                holding: amountValues[!increase][a.amount][0].index+''
+                holding: amountValues[!increase][a.amount][0].index+'',
+                effectiveDate
             }]};
         }
         return {recipients: [{
-            amount:  a.amount, type: validTransactionType(a.transactionType)
+            amount:  a.amount, type: validTransactionType(a.transactionType) , effectiveDate
         }]};
     })};
 
@@ -453,6 +478,8 @@ export default function Amend(context, submit){
 
             <AmendOptionsConnected
             amendActions={amendActions}
+            effectiveDate={moment(actionSet.data.effectiveDate).toDate()}
+            totalAmount={actionSet.data.totalAmount}
             allSameDirection={allSameDirection}
             holdings={holdings}
             shareClassMap={shareClassMap}
