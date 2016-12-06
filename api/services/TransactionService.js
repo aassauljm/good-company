@@ -317,7 +317,8 @@ function findHolding(holding, action, companyState, errors={}){
             possibleMatches: current.map(c => c.toJSON())
         }
       )
-    }else{
+    }
+    else{
         current = current[0];
     }
     return current;
@@ -333,12 +334,13 @@ function inverseFindHolding(data, companyState){
          throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
             action: data,
             companyState: companyState.toJSON(),
-            importErrorType: sails.config.enums.HOLDING_NOT_FOUND})
+            importErrorType: sails.config.enums.HOLDING_NOT_FOUND
+        })
     }
     else if(current.length > 1 && session.get('options')){
         // ambiguity resolving strategy
         if(!session.get('options')[session.get('index')]){
-            session.get('options')[session.get('index')] = {index: 0, keys: current.map((c, i) => i)} //, keys: current.map(c => c.holdingId).sort()};
+            session.get('options')[session.get('index')] = {index: 0, keys: current.map((c, i) => i).sort()} //, keys: current.map(c => c.holdingId).sort()};
         }
         // have to sort by something
         current = _.sortBy(current, c => c.holdingId);
@@ -357,7 +359,6 @@ function inverseFindHolding(data, companyState){
     }
     return current;
 }
-
 
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
@@ -1500,13 +1501,6 @@ export function performInverseAllPendingResolve(company, root, endCondition){
                                 state.set('pending_historic_action_id', (actions[i+1] || {}).id ||  actionSet.previous_id);
                                 return state.save(['pending_historic_action_id'])
                             })
-                            .then(state => {
-                                if(actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN){
-                                    //console.log("COMMIT!!!!!!!!")
-                                    //t.commit();
-                                }
-                                return state;
-                            })
                     })
                     .then(resolve)
                     .catch(reject)
@@ -1544,11 +1538,17 @@ export function performInverseAllPendingResolve(company, root, endCondition){
                 }, []);
             }
             return historicActions.length && loop(historicActions)
-        });
+        })
+        .then((result) => {
+            sails.log.error('Resolve Complete');
+            return result;
+        })
 }
 
 
-export function performInverseAllPending(company, endCondition){
+
+
+export function performInverseAllPendingUntil(company, endCondition){
     // unlike above this will commit all successful transactions, and complain when one fails
     let state, current, firstError;
 
@@ -1612,8 +1612,15 @@ export function performInverseAllPending(company, endCondition){
             }
             return historicActions.length && perform(historicActions)
         })
-        .catch((e) => {
-            throw e;
+}
+
+export function performInverseAllPending(company, endCondition){
+    // if we specify endCondition, it should get there fine, as it will not be before SEED
+    return performInverseAllPendingUntil(company, endCondition || ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN))
+        .then(result => {
+            if(!!result && !endCondition){
+                return performInverseAllPending(company, endCondition);
+            }
         })
 }
 

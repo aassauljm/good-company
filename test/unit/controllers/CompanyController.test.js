@@ -353,6 +353,15 @@ describe('Company Controller', function() {
             })
             .catch(done)
         });
+
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                })
+                .catch(done);
+        });
     });
 
 
@@ -380,7 +389,6 @@ describe('Company Controller', function() {
                 })
             .catch(done)
         });
-
     });
 
     describe('Test import with confusing addresses (BOLLORE)', function(){

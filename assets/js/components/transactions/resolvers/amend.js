@@ -27,7 +27,7 @@ function increaseOptions(){
 function decreaseOptions(){
     return [
         <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_FROM]}</option>,
-        <option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
+        //<option key={1} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>,
         <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.REDEMPTION_FROM]}</option>,
         <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.ACQUISITION_FROM]}</option>,
         <option key={4} value={TransactionTypes.CONSOLIDATION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.CONSOLIDATION_FROM]}</option>
@@ -88,7 +88,7 @@ function validTransactionType(type){
         TransactionTypes.TRANSFER_TO,
         TransactionTypes.CONVERSION_TO,
         TransactionTypes.TRANSFER_FROM,
-        TransactionTypes.PURCHASE_FROM,
+        //TransactionTypes.PURCHASE_FROM,
         TransactionTypes.REDEMPTION_FROM,
         TransactionTypes.ACQUISITION_FROM,
         TransactionTypes.CONSOLIDATION_FROM
@@ -99,7 +99,7 @@ function validTransactionType(type){
 @formFieldProps()
 class Recipient extends React.Component {
     render(){
-        const title =  `Transaction ${this.props.index+1}`;
+        const title =  `Transaction #${this.props.index+1}`;
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         const holdings = this.props.holdings;
         return  <Panel remove={() => this.props.remove()} title={title}>

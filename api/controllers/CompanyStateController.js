@@ -436,6 +436,7 @@ const selfManagedTransactions = {
                 return TransactionService.performInverseAllPending(company, (action => action.data.transactionType === Transaction.types.SEED))
                 .catch(e => {
                     // swallow import error
+                    sails.log.error(e)
                 })
             })
             .then(function() {
