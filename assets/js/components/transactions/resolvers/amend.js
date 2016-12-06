@@ -180,7 +180,7 @@ class AmendOptions extends React.Component {
     }
     render() {
 
-        const { shareClassMap, fields: {actions}, amendActions, allSameDirection } = this.props;
+        const { shareClassMap, fields: { actions }, amendActions, allSameDirection } = this.props;
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
@@ -260,7 +260,7 @@ const validateAmend = (values, props) => {
             if(recipient.effectiveDate && recipient.effectiveDate > props.effectiveDate){
                 errors.effectiveDate = ['Effective date must be on or before the date of the document.'];
             }
-            if(j > 0 && recipient.effectiveDate < actions.recipients[j-1].effectiveDate){
+            if(j > 0 && recipient.effectiveDate < action.recipients[j-1].effectiveDate){
                 errors.effectiveDate = errors.effectiveDate || [];
                 errors.effectiveDate.push('Effective date cannot be before previous transaction.')
             }
@@ -288,7 +288,6 @@ const validateAmend = (values, props) => {
             if(recipient.type){
                 sum += absoluteAmount(recipient.type, amount);
             }
-            console.log(recipient.effectiveDate)
             return errors;
         });
 
@@ -310,11 +309,6 @@ const validateAmend = (values, props) => {
             }
         }
 
-        /*action.recipients.map((r, i) => {
-            if(i > 0 && action.recipients[i-1].effectiveDate){
-
-            }
-        })*/
 
         return errors;
     });
@@ -366,7 +360,7 @@ export default function Amend(context, submit){
 
         values.actions.map((action, i) => {
             action.recipients.map((r, j) => {
-                if(r.handled){
+            if(r.handled){
                     return;
                 }
                 const amount = parseInt(r.amount, 10);
