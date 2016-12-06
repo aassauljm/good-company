@@ -61,8 +61,12 @@ describe('Should segment actions', function() {
                         return acc + (d.actions || []).filter(a=>{
                             return a.transactionType === Transaction.types.TRANSFER_TO
                         }).length;
+                    }, 0).should.be.equal(1);
+                    results.reduce((acc, d) => {
+                        return acc + (d.actions || []).filter(a=>{
+                            return a.transactionType === Transaction.types.TRANSFER_FROM
+                        }).length;
                     }, 0).should.be.equal(2);
-
                 })
             })
     });

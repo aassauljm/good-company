@@ -66,7 +66,11 @@ function patchBluebird(ns) {
 }
 
 
-
+process.on('SIGINT', function() {
+    sails.lower(function(err){
+        process.exit(err ? 1 : 0);
+    });
+});
 
 sails.load({
     log: {

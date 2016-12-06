@@ -33,6 +33,7 @@ module.exports = {
                 }
                 const allocationsUp = _.filter(d.actions, a => a.amount && a.afterAmount > a.beforeAmount).length;
                 const allocationsDown = _.filter(d.actions, a => a.amount && a.afterAmount < a.beforeAmount).length;
+
                 // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
                     // totalShares = zero SHOULD mean transfers.  Hopefully.
@@ -116,7 +117,7 @@ module.exports = {
         }, []);
     },
 
-    insertIntermediateActions: function (docs){
+     insertIntermediateActions: function (docs){
         //  split removeAllocations into amend to zero, then removeAllocation.
         function splitAmends(docs){
             const removalTypes = [Transaction.types.REMOVE_ALLOCATION];
@@ -129,6 +130,7 @@ module.exports = {
                     doc = _.cloneDeep(doc);
                     amends.actions = removalActions.map(a => {
                         return {
+                            ...a,
                             effectiveDate: a.effectiveDate,
                             beforeHolders: a.holders,
                             afterHolders: a.holders,
@@ -147,6 +149,8 @@ module.exports = {
                             a.transactionMethod = null;
                             a.amount = 0;
                             a.beforeAmount = 0;
+                            a.afterAmount = 0;
+                            a.beforeAmountLookup = null;
                             return a;
                         }
                         else{
@@ -163,51 +167,22 @@ module.exports = {
             }, []);
         }
 
-        function holdingChangeRemovals(docs){
-            const holdingChangeTypes = [Transaction.types.HOLDING_TRANSFER];
-            return  _.reduce(docs, (acc, doc, i) => {
-                const holdingChangeActions = _.filter(doc.actions, a => holdingChangeTypes.indexOf(a.transactionType) >= 0);
-                if(!holdingChangeActions.length){
-                    acc.push(doc);
-                }
-                else{
-                    const transfers = _.cloneDeep(doc);
-                    const removals = _.cloneDeep(doc);
-                    const creations = _.cloneDeep(doc);
-                    const results = holdingChangeActions.reduce((acc, a) => {
-                        acc.removals.push({
-                            effectiveDate: a.effectiveDate,
-                            holders: a.beforeHolders,
-                            //matchHoldingId: {holders: a.afterHolders},
-                            transactionType: Transaction.types.REMOVE_ALLOCATION
-                        });
-                        return acc;
-                    }, {removals: []});
-                    removals.actions = results.removals;
-                    removals.transactionType = Transaction.types.INFERRED_INTRA_ALLOCATION_TRANSFER;
-                    acc.push(removals);
-                    docs.actions = doc.actions.filter(a => holdingChangeTypes.indexOf(a.transactionType) < 0);
-                    acc.push(doc)
-                }
-                return acc;
-            }, [])
-        }
 
         function splitMultiTransfers(docs){
             // segment out transfers into separate pairwise transactions
             const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
             return  _.reduce(docs, (acc, doc, i) => {
                 const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);
-                const holdingChange = _.filter(doc.actions, a => a.unknownHoldingChange)
+                //const holdingChange = _.filter(doc.actions, a => a.unknownHoldingChange)
                 if(!transferActions.length || transferActions.length === 2){
                     // if no transfers, or already a pair, then continue
                     acc.push(doc);
                 }
-                else if(holdingChange.length){
+                /*else if(holdingChange.length){
                     // don't know in what order to do pairing
                     holdingChange.map(a => a.requiresTransferOrdering = true);
                     acc.push(doc);
-                }
+                }*/
                 else{
                     let up = doc.actions.filter(a => a.afterAmount > a.beforeAmount);
                     let down = doc.actions.filter(a => a.afterAmount < a.beforeAmount);
@@ -255,103 +230,71 @@ module.exports = {
             }, []);
         }
 
-
-        /*function decomposeAmbiguousHoldingTransfers(docs){
-            // decompose transfers that are a holding_transfer + multiple transfers
-            return  _.reduce(docs, (acc, doc, i) => {
-                const transferActions = _.filter(doc.actions, a => a.requiresTransferOrdering);
-                if(!transferActions.length){
-                    acc.push(doc);
-                }
-                else{
-                    doc.actions = _.filter(doc.actions, a => !a.requiresTransferOrdering);
-                    transferActions.map(a => {
-                        doc.actions.push({
-                            ...a,
-                            transactionType: Transaction.types.TRANSFER_TO,
-                            transactionMethod: Transaction.types.NEW_ALLOCATION,
-                            requiresTransferOrdering: false,
-                            unknownHoldingChange: false,
-                            holders: a.afterHolders,
-                            beforeHolders: null,
-                            afterHolders: null,
-                            beforeAmount: 0,
-                            amount: a.afterAmount,
-                            afterAmount: a.afterAmount,
-                            votingShareholder: a.afterVotingShareholder,
-                            name: a.afterName
-                        });
-
-                        doc.actions.push({
-                            ...a,
-                            transactionType: Transaction.types.AMEND,
-                            transactionMethod: Transaction.types.AMEND,
-                            requiresTransferOrdering: false,
-                            unknownHoldingChange: false,
-                            holders: a.beforeHolders,
-                            beforeHolders: a.beforeHolders,
-                            afterHolders: a.beforeHolders,
-                            beforeAmount: a.beforeAmount,
-                            amount: a.beforeAmount,
-                            afterAmount: 0
-                        });
-                    });
-
-
-
-                const removals = {
-                    ...doc,
-                    transactionType: Transaction.types.COMPOUND_REMOVALS,
-                    actions: transferActions.map(a => ({
-                        ...a,
-                        holders: a.beforeHolders,
-                        amount: 0,
-                        beforeAmount: 0,
-                        afterAmount:0,
-                        transactionMethod: null,
-                        transactionType: Transaction.types.REMOVE_ALLOCATION,
-                    }))
-                }
-
-                acc.push(removals);
-                acc.push(doc);
-            }
-            return acc;
-        }, []);
-        }*/
-
-
         let results = splitAmends(docs);
-        //results = holdingChangeRemovals(results)
 
-        results = splitMultiTransfers(results);
-        //results = decomposeAmbiguousHoldingTransfers(results);
+
+        //results = splitMultiTransfers(results);
+
         return results;
     },
 
     splitHoldingTransfers: function(docs) {
-        docs.map(doc => {
+        // holding transfers are now deprecated
+        return docs.reduce((acc, doc) => {
+            const standardActions = [];
+            const removals = []
             doc.actions = (doc.actions || []).reduce((acc, action) => {
-                if(action.type === Transaction.types.HOLDING_TRANSFER){
-                    // the new allaction
-                    acc.push({
+                if(action.transactionType === Transaction.types.HOLDING_TRANSFER){
+                    const amend = {
+                        ...action,
+                        unknownAmount: null,
+                        afterHolders: null,
+                        beforeHolders: null,
+                        amount: action.beforeAmount,
+                        afterAmount: 0,
+                        transactionType: Transaction.types.REMOVE_ALLOCATION,
+                        holders: action.beforeHolders,
+                    };
+                    if(action.unknownAmount){
+                        amend.transactionMethod = Transaction.types.REMOVE_ALLOCATION;
+                        amend.transactionType = Transaction.types.TRANSFER_FROM;
+                        amend.unknownAmount = null;
+                        amend.inferAmount = true;
+                        amend.beforeAmountLookup = {afterHolders: action.afterHolders};
+                    }
 
-                    });
 
-                    acc.push({
+                    const newAlloc = {
+                        ...action,
+                        transactionType: Transaction.types.NEW_ALLOCATION,
+                        amount: action.afterAmount,
+                        afterAmount: action.afterAmount,
+                        beforeAmount: 0,
+                        holders: action.afterHolders,
+                        beforeHolders: null,
+                        afterHolders: null
+                    }
 
-                    });
+                    if(action.unknownAmount){
+                        newAlloc.transactionMethod = Transaction.types.NEW_ALLOCATION;
+                        newAlloc.transactionType = Transaction.types.TRANSFER_TO;
+                        newAlloc.unknownAmount = null;
+                        newAlloc.inferAmount = true
+                        newAlloc.afterAmountLookup = {beforeHolders: action.beforeHolders};
+                    }
+
+                    acc.push(newAlloc);
+                    acc.push(amend);
 
                 }
                 else{
                     acc.push(action);
                 }
-
                 return acc;
-            }, [])
-
-        });
-        return docs;
+            }, []);
+            acc.push(doc);
+            return acc;
+        }, []);
     },
 
 
@@ -478,18 +421,51 @@ module.exports = {
         // then the name needs to be set to the old version
         // See Judith Elisabeth HERBERT in
         // http://www.business.govt.nz/companies/app/ui/pages/companies/1951111/21005885/entityFilingRequirement
-        docs.map(d => {
+
+        return docs.reduce((acc, doc) => {
+            const holderChanges = []
+            const standardActions = (doc.actions || []).reduce((acc, action) => {
+                if(action.transactionType === Transaction.types.HOLDER_CHANGE){
+                    const changedPerson = Person.build(action.afterHolder);
+                    const beforeHolder = action.beforeHolder;
+                    doc.actions.map(otherAction => {
+                        if(otherAction.afterHolders){
+                            otherAction.afterHolders.map((afterHolder, i) => {
+                                if(changedPerson.isEqual(afterHolder)){
+                                    otherAction.afterHolders[i] = beforeHolder;
+                                }
+                            })
+                        }
+                    });
+                    holderChanges.push(action);
+                }
+                else{
+                    acc.push(action)
+                }
+                return acc;
+            }, []);
+            if(holderChanges.length){
+                acc.push({
+                    ...doc,
+                    transactionType: Transaction.types.HOLDER_CHANGE,
+                    actions: holderChanges
+                })
+            }
+            acc.push({
+                ...doc,
+                actions: standardActions
+            });
+            return acc;
+        }, []);
+
+        /*docs.map(d => {
             (d.actions || []).map(action => {
+
                 if(action.transactionType === Transaction.types.HOLDER_CHANGE){
                     const changedPerson = Person.build(action.afterHolder);
                     const beforeHolder = action.beforeHolder;
                     d.actions.map(otherAction => {
-                        const transactionMatch = [
-                            Transaction.types.HOLDING_CHANGE,
-                            Transaction.types.HOLDING_TRANSFER
-                            ].indexOf(otherAction.transactionType) > -1;
-
-                        if(transactionMatch){
+                        if(otherAction.afterHolders){
                             otherAction.afterHolders.map((afterHolder, i) => {
                                 if(changedPerson.isEqual(afterHolder)){
                                     otherAction.afterHolders[i] = beforeHolder;
@@ -498,9 +474,8 @@ module.exports = {
                         }
                     });
                 }
-            })
-        })
-        return docs;
+            });
+        })*/
     },
 
     extraActions: function(data, docs){
@@ -516,9 +491,12 @@ module.exports = {
 
         const TRANSACTION_ORDER = {
             [Transaction.types.INFERRED_REMOVE_DIRECTOR]: 1,
-            [Transaction.types.INFERRED_NEW_DIRECTOR]: 0
+            [Transaction.types.INFERRED_NEW_DIRECTOR]: 2,
+            [Transaction.types.HOLDER_CHANGE] : 3,
+            undefined: 2
         }
 
+        docs = InferenceService.massageAmendAllocations(docs)
 
         docs =  InferenceService.splitHoldingTransfers(docs);
 
@@ -526,7 +504,6 @@ module.exports = {
         docs = InferenceService.inferAmendTypes(docs);
 
 
-        docs = InferenceService.massageAmendAllocations(docs)
 
         docs = docs.reduce((acc, doc) =>{
             const docDate = doc.date;
@@ -572,66 +549,6 @@ module.exports = {
 
         return docs;
     },
-
-    /*splitMultiTransfers: function(doc){
-        // segment out transfers into separate pairwise transactions
-        const transferTypes = [Transaction.types.TRANSFER_TO, Transaction.types.TRANSFER_FROM];
-        const transferActions = _.filter(doc.actions, a => transferTypes.indexOf(a.transactionType) >= 0);
-        const acc = [];
-        if(!transferActions.length || transferActions.length === 2){
-            // if no transfers, or already a pair, then continue
-            acc.push(doc);
-        }
-        else{
-            // to make it this far, you must have 1 down, >=1 up, or vice versa.
-            let up = doc.actions.filter(a => a.afterAmount > a.beforeAmount);
-            let down = doc.actions.filter(a => a.afterAmount < a.beforeAmount);
-            if(up.length === 1){
-                up = _.cloneDeep(up[0]);
-                const originalTransactionGroupId = uuid.v4();
-                down.map(action => {
-                    const docClone = _.cloneDeep(doc);
-                    up.amount = action.amount;
-                    up.beforeAmount = up.afterAmount - action.amount;
-                    up.originalTransactionGroupId = originalTransactionGroupId;
-                    if(up.beforeAmount !== 0 && up.transactionMethod === Transaction.types.NEW_ALLOCATION){
-                        up.transactionMethod = Transaction.types.AMEND;
-                        up.afterHolders = up.holders;
-                        up.beforeHolders = up.holders;
-                    }
-                    else if(up.beforeAmount === 0){
-                        up.transactionMethod = Transaction.types.NEW_ALLOCATION;
-                    }
-                    docClone.actions = [
-                        _.cloneDeep(up),
-                        action
-                    ];
-                    docClone.totalShares = 0;
-                    acc.push(docClone);
-                    up.afterAmount = up.beforeAmount;
-                });
-            }
-            else{
-                down = _.cloneDeep(down[0]);
-                const originalTransactionGroupId = uuid.v4();
-                up.map(action => {
-                    const docClone = _.cloneDeep(doc);
-                    down.amount = action.amount;
-                    down.beforeAmount = down.afterAmount + action.amount;
-                    down.originalTransactionGroupId = originalTransactionGroupId;
-                    docClone.actions = [
-                        _.cloneDeep(down),
-                        action
-                    ];
-                    docClone.totalShares = 0;
-                    acc.push(docClone);
-                    down.afterAmount = down.beforeAmount;
-                });
-            }
-        }
-        return acc;
-    }*/
-
 
 }
 

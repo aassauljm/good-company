@@ -4,39 +4,32 @@
             "data": {
                 "actions": [
                     {
+                        "transactionType": "TRANSFER_TO",
+                        "transactionMethod": "NEW_ALLOCATION",
                         "holders": [
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": null,
-                                "name": "Tamina Kelly CUNNINGHAM-ADAMS"
-                            }
-                        ],
-                        "transactionType": "REMOVE_ALLOCATION"
-                    }
-                ],
-                "date": "2014-07-31T17:48:00.000Z",
-                "documentId": "19941799",
-                "documentType": "Particulars of Shareholding",
-                "effectiveDate": "2014-07-31T17:48:00.000Z",
-                "label": "Particulars of Shareholding",
-                "totalShares": null
-            }
-        },
-        {
-            "data": {
-                "actions": [
-                    {
-                        "afterAmount": 5000,
-                        "afterHolders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
                                 "companyNumber": "4479218",
                                 "name": "NOT THE ROCKPOOL LIMITED"
                             }
                         ],
-                        "amount": null,
-                        "beforeAmount": 5000,
+                        "documentId": "19941799",
+                        "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
+                        "beforeAmount": 0,
+                        "afterAmount": 5000,
+                        "amount": 5000
+                    },
+                    {
+                        "transactionType": "TRANSFER_FROM",
+                        "transactionMethod": "AMEND",
                         "beforeHolders": [
+                            {
+                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                                "companyNumber": null,
+                                "name": "Tamina Kelly CUNNINGHAM-ADAMS"
+                            }
+                        ],
+                        "afterHolders":[
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
                                 "companyNumber": null,
@@ -45,8 +38,9 @@
                         ],
                         "documentId": "19941799",
                         "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
-                        "transactionMethod": null,
-                        "transactionType": "HOLDING_TRANSFER"
+                        "beforeAmount": 5000,
+                        "afterAmount": 0,
+                        "amount": 5000
                     }
                 ],
                 "date": "2014-07-31T17:48:00.000Z",
@@ -108,12 +102,65 @@
                         "beforeHolders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": "5387329",
+                                "name": "BLOY CONSULTING LIMITED"
+                            }
+                        ],
+                        "documentId": "19941799",
+                        "id": "ae18d8f5-f42d-4e1d-b6f8-cb2f68bacd5e",
+                        "transactionMethod": "AMEND",
+                        "transactionType": "ISSUE_TO"
+                    }
+                ],
+                "date": "2014-07-31T17:48:00.000Z",
+                "documentId": "19941799",
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-07-31T17:48:00.000Z",
+                "label": "Particulars of Shareholding",
+                "totalShares": null
+            }
+        },
+        {
+            "data": {
+                "actions": [
+                    {
+                        "transactionType": "TRANSFER_TO",
+                        "transactionMethod": "NEW_ALLOCATION",
+                        "holders": [
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": "5387329",
+                                "name": "BLOY CONSULTING LIMITED"
+                            }
+                        ],
+                        "documentId": "19941799",
+                        "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
+                        "beforeAmount": 0,
+                        "afterAmount": 500,
+                        "amount": 500
+                    },
+                    {
+                        "transactionType": "TRANSFER_FROM",
+                        "transactionMethod": "AMEND",
+                        "beforeHolders": [
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
                                 "companyNumber": null,
                                 "name": "Thomas David BLOY"
                             }
                         ],
-                        "transactionMethod": "AMEND",
-                        "transactionType": "ISSUE_TO"
+                        "afterHolders":[
+                            {
+                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                                "companyNumber": null,
+                                "name": "Thomas David BLOY"
+                            }
+                        ],
+                        "documentId": "19941799",
+                        "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
+                        "beforeAmount": 500,
+                        "afterAmount": 0,
+                        "amount": 500
                     }
                 ],
                 "date": "2014-07-31T17:48:00.000Z",

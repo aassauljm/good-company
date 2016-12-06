@@ -150,13 +150,14 @@ function parseAmendAllocation($, $el){
         transactionType: Transaction.types.AMEND
     }
     // if the holdings change, we must wait and prompt user to figure out order
-    //JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
     if(!result.beforeAmount && !result.afterAmount ){
         result.transactionType = Transaction.types.HOLDING_TRANSFER;
+        result.unknownAmount = true;
     }
 
     if(JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
-        result.unknownHoldingChange = true;
+        //result.unknownHoldingChange = true;
+        result.transactionType = Transaction.types.HOLDING_TRANSFER;
     }
 
 
@@ -234,6 +235,7 @@ const EXTRACT_DOCUMENT_MAP = {
         }
         return {actions: [result], totalShares: result.increase ? -result.amount : result.amount };
     },
+
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
         let result = {};
         result.actions = $('#reviewContactChangesContent .panel').map(function(){
