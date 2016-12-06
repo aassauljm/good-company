@@ -110,7 +110,7 @@ export class GuidedSetup extends React.Component {
 
     componentWillReceiveProps(newProps) {
         this.checkOpenNext(newProps);
-        if(newProps.companyState && newProps.companyState.warnings){
+        if(newProps.companyState && newProps.companyState.warnings && Object.keys(newProps.companyState.warnings).length){
             this.setState(this.calcSteps(newProps));
         }
     }

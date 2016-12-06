@@ -1,6 +1,6 @@
 "use strict";
 var cluster = require('cluster'),
-    kue = require('kue');
+kue = require('kue');
 //require("babel-core/register");
 /**
  * app.js
@@ -28,25 +28,41 @@ var cluster = require('cluster'),
 
 process.chdir(__dirname);
 if (cluster.isMaster) {
+    var children = [];
+    process.on('SIGINT', function() {
+        children.map(function(c){
+            c.send('DIE');
+        })
+    });
 
   // Keep track of http requests
   var numReqs = 0;
   // Count requests
   function messageHandler(msg) {
-    if (msg.cmd && msg.cmd == 'notifyRequest') {
-      numReqs += 1;
+        if (msg.cmd && msg.cmd == 'notifyRequest') {
+          numReqs += 1;
+      }
     }
-  }
 
-  kue.app.listen(3000);
-  // Start workers and listen for messages containing notifyRequest
-  for (var i = 0; i < process.env.NUM_WORKERS; i++) {
-    cluster.fork();
-  }
+    kue.app.listen(3000);
+      // Start workers and listen for messages containing notifyRequest
+    var deadChildren = 0;
+    var numberChildren = parseInt(process.env.NUM_WORKERS, 10);
+    for (var i = 0; i < numberChildren; i++) {
+        var worker = cluster.fork()
+        children.push(worker);
+        worker.on('exit', function(){
+            deadChildren++;
+            if(deadChildren === numberChildren){
+                process.exit(0);
+            }
+        });
+    }
 
+    setTimeout(function() { children[0].send('hi') }, 3000 )
  /* Object.keys(cluster.workers).forEach((id) => {
     cluster.workers[id].on('message', messageHandler);
-  });*/
+});*/
 
 } else {
 

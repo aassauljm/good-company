@@ -224,9 +224,14 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
             if(data.inferAmount){
-
-                const holding = inverseFindHolding(data.beforeAmountLookup, previousState);
-                data.amount = holding.dataValues.parcels[0].amount;
+                data = {...data}
+                // note: prevousState
+                const inverseHolding = findHolding({holders: data.beforeAmountLookup.afterHolders, holdingId: data.beforeAmountLookup.holdingId},
+                                 data, previousState, {
+                                multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
+                                none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND
+                });
+                data.amount = inverseHolding.dataValues.parcels[0].amount;
                 data.beforeAmount = data.amount;
                 data.inferAmount = false;
             }
@@ -237,7 +242,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             const newHolding = {holders: data.afterHolders, holdingId: data.holdingId, parcels: [parcel]};
 
             if(!data.shareClass){
-                data.shareClass = parcel.shareClass = _.find(holding.dataValues.parcels, p => data.afterAmount === p.amount).shareClass;
+                data.shareClass = parcel.shareClass =  holding.dataValues.parcels[0].shareClass;
             }
 
             if(difference < 0){
@@ -284,6 +289,41 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 };
 
 
+function findHolding(holding, action, companyState, errors={}){
+    let current = companyState.getMatchingHoldings(holding);
+    if(!current.length){
+        current = companyState.getMatchingHoldings(holding, {ignoreCompanyNumber: true});
+    }
+    if(!current.length){
+         throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
+            action: action,
+            companyState: companyState.toJSON(),
+            importErrorType: errors.none})
+    }
+    else if(current.length > 1 && session.get('options')){
+        // ambiguity resolving strategy
+        if(!session.get('options')[session.get('index')]){
+            session.get('options')[session.get('index')] = {index: 0, keys: current.map((c, i) => i)} //, keys: current.map(c => c.holdingId).sort()};
+        }
+        // have to sort by something
+        current = _.sortBy(current, c => c.holdingId);
+        const obj = session.get('options')[session.get('index')]
+        current = current[obj.index];
+    }
+    else if(current.length > 1){
+        throw new sails.config.exceptions.AmbiguousInverseOperation('Multiple holding matches', {
+            action: action ,
+            importErrorType: errors.multiple,
+            possibleMatches: current.map(c => c.toJSON())
+        }
+      )
+    }else{
+        current = current[0];
+    }
+    return current;
+}
+
+
 function inverseFindHolding(data, companyState){
     let current = companyState.getMatchingHoldings({holders: data.afterHolders, holdingId: data.holdingId});
     if(!current.length){
@@ -307,8 +347,8 @@ function inverseFindHolding(data, companyState){
     }
     else if(current.length > 1){
         throw new sails.config.exceptions.AmbiguousInverseOperation('Multiple holding matches', {
-            action: data,
-            importErrorType: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
+            action: action || data,
+            importErrorType:sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
             possibleMatches: current.map(c => c.toJSON())
         }
       )
@@ -578,27 +618,22 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             parcels = [{amount: data.amount, shareClass: data.shareClass}];
         }
 
-        let holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId, parcels: parcels});
 
-        if(!holding){
-            // if fail, ignore company number
-            sails.log.error('Could not find matching holding, trying with ignored companyNumber')
-            holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId, parcels: parcels}, {ignoreCompanyNumber: true});
-        }
-        if(!holding){
-            throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holding, new allocation', {
-                action: data,
-                importErrorType: sails.config.enums.HOLDING_NOT_FOUND,
-                companyState: companyState.toJSON()
-            });
-        }
+
+
+        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: parcels},
+          data, companyState, {
+            multiple: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
+            none: sails.config.enums.HOLDING_NOT_FOUND
+          });
 
         if(data.inferAmount){
+            data = {...data}
             data.amount = holding.dataValues.parcels[0].amount;
             data.inferAmount = false;
         }
         if(!data.shareClass){
-            data.shareClass = _.find(holding.dataValues.parcels, p => data.amount === p.amount).shareClass;
+            data.shareClass = holding.dataValues.parcels[0].shareClass;
         }
         companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
         let sum = _.sum(holding.parcels, (p) => {
@@ -1464,7 +1499,14 @@ export function performInverseAllPendingResolve(company, root, endCondition){
                                 state = _state;
                                 state.set('pending_historic_action_id', (actions[i+1] || {}).id ||  actionSet.previous_id);
                                 return state.save(['pending_historic_action_id'])
-                            });
+                            })
+                            .then(state => {
+                                if(actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN){
+                                    //console.log("COMMIT!!!!!!!!")
+                                    //t.commit();
+                                }
+                                return state;
+                            })
                     })
                     .then(resolve)
                     .catch(reject)

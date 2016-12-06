@@ -10,7 +10,7 @@ import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import TransactionView from '../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
-
+import Loading from '../loading'
 
 function companiesOfficeDocumentUrl(companyState, documentId){
     const companyNumber = companyState.companyNumber;
@@ -45,10 +45,11 @@ PAGES[INTRODUCTION] = function() {
 };
 
 PAGES[LOADING] = function() {
+
     if(this.props.importHistory._status === 'fetching'){
         return <div>
             <p className="text-center">This may take a few moments</p>
-            <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+                <Loading />
             </div>
     }
     else if(this.props.importHistory._status === 'complete'){
@@ -144,7 +145,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     renderBody() {
-        return PAGES[this.props.index] && PAGES[this.props.index].call(this);
+        return  PAGES[this.props.index] && PAGES[this.props.index].call(this);
     }
 
     renderFooter(){

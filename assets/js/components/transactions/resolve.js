@@ -46,8 +46,6 @@ const submitRestart = (...rest) => skipOrRestart(false, ...rest);
 const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
 
 
-
-
 function AddressDifference(context, submit, reset){
 
     function skip(){
@@ -158,6 +156,7 @@ function MultipleHoldings(context,  submit){
             if(a.id === context.action.id){
                 a.holdingId = holding.holdingId;
                 if(a.transactionMethod === TransactionTypes.NEW_ALLOCATION){
+
                     a.holders = holding.holders.map(h => {
                         return {personId: h.person.personId, name: h.person.name, address: h.person.address}
                     })
@@ -182,6 +181,38 @@ function MultipleHoldings(context,  submit){
     </div>
 }
 
+function MultipleHoldingTransferSources(context,  submit){
+    const { companyState, shareClassMap } = context;
+    let { possibleMatches } = context;
+    if(!possibleMatches){
+        possibleMatches = context.companyState.holdingList.holdings;
+    }
+    function handleSelect(holding){
+        const updatedActions = {...context.actionSet.data};
+        updatedActions.actions = updatedActions.actions.map(a => {
+            a = {...a};
+            if(a.id === context.action.id){
+                a.beforeAmountLookup.holdingId = holding.holdingId;
+            }
+            return a;
+        })
+        submit({
+            pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
+        })
+    }
+    return <div>
+        { beforeAndAfterSummary(context) }
+         <div className="row">
+            <div className="col-md-12">
+            <p className="instructions">Which shareholding did this one transfer all it's shares to?</p>
+            </div>
+         </div>
+         <div className="row">
+         { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }
+         </div>
+    </div>
+}
+
 
 const DESCRIPTIONS = {
     [TransactionTypes.ADDRESS_CHANGE]: addressChange,
@@ -196,6 +227,7 @@ const DESCRIPTIONS = {
 
 const PAGES = {
     [ImportErrorTypes.MULTIPLE_HOLDINGS_FOUND]: MultipleHoldings,
+    [ImportErrorTypes.MULTIPLE_HOLDING_TRANSFER_SOURCE]: MultipleHoldingTransferSources,
     [ImportErrorTypes.HOLDER_NOT_FOUND]: HolderNotFound,
     [ImportErrorTypes.HOLDING_NOT_FOUND]: MultipleHoldings,
     [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: submitSkipRestart,

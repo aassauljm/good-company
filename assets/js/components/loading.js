@@ -7,7 +7,7 @@ import Modal from 'react-overlays/lib/Modal';
 
 export default function Loading(props) {
     return <div className="loading">
-            <Glyphicon glyph="refresh" className="spin" />
+            <span className="fa fa-refresh spin" />
         </div>;
 }
 

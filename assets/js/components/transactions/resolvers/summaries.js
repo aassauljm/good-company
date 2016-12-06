@@ -119,9 +119,13 @@ export function beforeAndAfterSummary(context, companyState, showType){
     const increase = actionAmountDirection(action);
     const beforeCount = action.beforeAmount || 0;
     const afterCount = action.afterAmount !== undefined ? action.afterAmount : action.amount;
-    const beforeShares = beforeCount ? `${numberWithCommas(beforeCount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares` : 'No Shares';
-    const afterShares = afterCount ? `${numberWithCommas(afterCount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares` : 'No Shares';
-
+    let beforeShares = beforeCount ? `${numberWithCommas(beforeCount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares` : 'No Shares';
+    let afterShares = afterCount ? `${numberWithCommas(afterCount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares` : 'No Shares';
+    let shareChange =  `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares ${ increase ? 'Added' : 'Removed'}`;
+    if(action.inferAmount && action.beforeAmountLookup && !action.beforeAmount){
+        beforeShares = 'Unknown Number of Shares';
+        shareChange = 'Shares Removed'
+    }
     return <div className="row row-separated">
                 <div className="col-md-5">
                     <div className="shareholding action-description ">
@@ -134,7 +138,7 @@ export function beforeAndAfterSummary(context, companyState, showType){
                     <div className="text-center">
                     { showType && <p> { STRINGS.transactionTypes[action.transactionType || action.type] }</p> }
                         <Glyphicon glyph="arrow-right" className="big-arrow" />
-                        <p><span className="shares">{ numberWithCommas(action.amount) } { renderShareClass(action.shareClass, context.shareClassMap)} Shares { increase ? 'added' : 'removed'}</span></p>
+                        <p><span className="shares">{ shareChange }</span></p>
                     </div>
                 </div>
                 <div className="col-md-5">
@@ -145,6 +149,7 @@ export function beforeAndAfterSummary(context, companyState, showType){
                 </div>
             </div>
 }
+
 
 export function holdingChangeSummary(context, companyState, showType){
     const { action, actionSet } = context;

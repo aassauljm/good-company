@@ -5,12 +5,22 @@ var sails = new Sails();
 var queue = kue.createQueue();
 var Promise = require('bluebird');
 
-process.once( 'SIGTERM', function ( sig ) {
-  queue.shutdown( 5000, function(err) {
-    console.log( 'Kue shutdown: ', err||'' );
-    process.exit( 0 );
-  });
+
+
+process.on('message', (msg) => {
+    if(msg === 'DIE'){
+         queue.shutdown( 5000, function(err) {
+            console.log( 'Kue shutdown: ', err||'' );
+            sails.lower(function(){
+                process.exit( 0 );
+            });
+          });
+     }
 });
+
+
+process.on('SIGINT', function() {});
+
 
 var getNamespace = require('continuation-local-storage').getNamespace;
 //var patchBluebird = require('cls-bluebird');
@@ -66,11 +76,6 @@ function patchBluebird(ns) {
 }
 
 
-process.on('SIGINT', function() {
-    sails.lower(function(err){
-        process.exit(err ? 1 : 0);
-    });
-});
 
 sails.load({
     log: {

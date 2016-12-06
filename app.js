@@ -53,11 +53,6 @@ process.chdir(__dirname);
     }
   }
 
-    process.on('SIGINT', function() {
-        sailsApp.lower(function(err){
-            process.exit(err ? 1 : 0);
-        });
-    });
 
 
   // Start server

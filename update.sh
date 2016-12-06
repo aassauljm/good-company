@@ -4,7 +4,8 @@
 git pull
 npm update
 rm serviceIsLive.flag
+pm2 stop gc.prod.config.json
 node scripts/migrate.js config/env/production.js
 rm .tmp/public/*/*
 NODE_ENV=production webpack
-pm2 restart gc.prod.config.json --env production
+pm2 start gc.prod.config.json --env production
