@@ -126,6 +126,11 @@ export function beforeAndAfterSummary(context, companyState, showType){
         beforeShares = 'Unknown Number of Shares';
         shareChange = 'Shares Removed'
     }
+    if(action.inferAmount && action.afterAmountLookup && !action.afterAmount){
+        afterShares = 'Unknown Number of Shares';
+        shareChange = 'Shares Added'
+    }
+
     return <div className="row row-separated">
                 <div className="col-md-5">
                     <div className="shareholding action-description ">

@@ -192,7 +192,12 @@ function MultipleHoldingTransferSources(context,  submit){
         updatedActions.actions = updatedActions.actions.map(a => {
             a = {...a};
             if(a.id === context.action.id){
-                a.beforeAmountLookup.holdingId = holding.holdingId;
+                if(a.beforeAmountLookup){
+                    a.beforeAmountLookup.holdingId = holding.holdingId;
+                }
+                else if(a.afterAmountLookup){
+                    a.afterAmountLookup.holdingId = holding.holdingId;
+                }
             }
             return a;
         })

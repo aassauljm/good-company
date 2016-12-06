@@ -99,13 +99,13 @@ function validTransactionType(type){
 @formFieldProps()
 class Recipient extends React.Component {
     render(){
-        const title =  'Transaction #';
+        const title =  `Transaction ${this.props.index+1}`;
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         const holdings = this.props.holdings;
         return  <Panel remove={() => this.props.remove()} title={title}>
             { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
-                <div className="input-group-pair input-row">
                     <DateInput {...this.formFieldProps('effectiveDate')} />
+                <div className="input-group-pair input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={!!this.props.isInverse.value}
                     onChange={(value) => {this.props.type.onChange(value);  this.props.onChange(); }}
@@ -147,6 +147,7 @@ function Recipients(props){
     return <div className="col-md-6 col-md-offset-3">
             {props.recipients.map((r, i) => {
                 return <Recipient {...r} key={i}
+                    index={i}
                     increase={props.increase}
                     allSameDirection={props.allSameDirection}
                     holdings={props.holdings}
@@ -304,7 +305,7 @@ const validateAmend = (values, props) => {
 const amendFields = [
     'actions[].recipients[].type',
     'actions[].recipients[].amount',
-    'actions[.recipients[].effectiveDate',
+    'actions[].recipients[].effectiveDate',
     'actions[].recipients[].holding',
     'actions[].recipients[].isInverse',
 ];
