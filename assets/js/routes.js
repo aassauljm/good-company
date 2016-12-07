@@ -41,6 +41,57 @@ import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
 
 
+const CompanyChildren = [
+    <Route path="shareholdings" component={ Shareholdings } />,
+    <Route path="details" component={ CompanyDetails } />,
+    <Route path="transactions" component={ CompanyTransactions }>
+        <Route path=":transactionId" component={ TransactionView }/>
+    </Route>,
+
+    <Route path="upcoming_transactions" component={ PendingTransactions }>
+        <Route path=":transactionId" component={ PendingTransactionView }/>
+    </Route>,
+
+    <Route path="shareholders" component={ Shareholders } />,
+    <Route path="documents" component={ CompanyDocuments } />,
+    <Route path="document/view/:documentId" component={ Document }  />,
+    <Route path="templates" component={ Templates }>
+        <Router path=":name" component={ TemplateView }/>
+    </Route>,
+    <Route path="contact" component={ ContactDetails } />,
+    <Route path="contact/edit" component={ ContactEditDetails } />,
+    <Route path="reporting" component={ ReportingDetails } />,
+    <Route path="source_data" component={ CompaniesRegister } />,
+    <Route path="directors" component={ Directors } />,
+    <Route path="graph" component={ CompanyGraph } />,
+
+    <Route path="share_classes" component={ ShareClasses } >
+        <Route path="create" component={ ShareClassCreate } />
+        <Route path="view/:shareClassId" component={ ShareClassEdit } />
+    </Route>,
+
+    <Route path="registers">
+        <Route path="shareregister" component={ ShareRegister } />,
+        <Route path="interests_register" component={ InterestsRegister } >
+            <Route path="create" component={ InterestsRegisterCreate } />
+            <Route path="view/:entryId" component={ InterestsRegisterView } />
+        </Route>
+
+    </Route>,
+
+    <Route path="new_transaction" component={ NewTransaction } >
+        <Route path="contact" component={ UpdateContact } />
+        <Route path="people" component={ UpdatePeople } />
+        <Route path="shares" component={ UpdateShares } />
+        <Route path="reset_delete" component={ UpdateResetDelete } />
+    </Route>,
+    <Route path="guided_setup" component={ GuidedSetup } />,
+    <Route path="notifications" component={ CompanyAlerts } />,
+    <Route path="annual_returns" component={ AnnualReturn } />,
+    <Route path="*" component={ NotFound } />
+];
+
+
 export default (store) => {
 
     const requireLogin = (nextState, replace, cb) => {
@@ -92,54 +143,8 @@ export default (store) => {
                 </Route>
             </Route>
 
-            <Route path="company/view/:id" component={ Company } >
-                <Route path="shareholdings" component={ Shareholdings } />
-                <Route path="details" component={ CompanyDetails } />
-                <Route path="transactions" component={ CompanyTransactions }>
-                    <Route path=":transactionId" component={ TransactionView }/>
-                </Route>
+            <Route path="company/view/:id" component={ Company } children={CompanyChildren}>
 
-                <Route path="upcoming_transactions" component={ PendingTransactions }>
-                    <Route path=":transactionId" component={ PendingTransactionView }/>
-                </Route>
-
-                <Route path="shareholders" component={ Shareholders } />
-                <Route path="documents" component={ CompanyDocuments } />
-                <Route path="document/view/:documentId" component={ Document }  />
-                <Route path="templates" component={ Templates }>
-                    <Router path=":name" component={ TemplateView }/>
-                </Route>
-                <Route path="contact" component={ ContactDetails } />
-                <Route path="contact/edit" component={ ContactEditDetails } />
-                <Route path="reporting" component={ ReportingDetails } />
-                <Route path="source_data" component={ CompaniesRegister } />
-                <Route path="directors" component={ Directors } />
-                <Route path="graph" component={ CompanyGraph } />
-
-                <Route path="share_classes" component={ ShareClasses } >
-                    <Route path="create" component={ ShareClassCreate } />
-                    <Route path="view/:shareClassId" component={ ShareClassEdit } />
-                </Route>
-
-                <Route path="registers">
-                    <Route path="shareregister" component={ ShareRegister } />
-                    <Route path="interests_register" component={ InterestsRegister } >
-                        <Route path="create" component={ InterestsRegisterCreate } />
-                        <Route path="view/:entryId" component={ InterestsRegisterView } />
-                    </Route>
-
-                </Route>
-
-                <Route path="new_transaction" component={ NewTransaction } >
-                    <Route path="contact" component={ UpdateContact } />
-                    <Route path="people" component={ UpdatePeople } />
-                    <Route path="shares" component={ UpdateShares } />
-                    <Route path="reset_delete" component={ UpdateResetDelete } />
-                </Route>
-                <Route path="guided_setup" component={ GuidedSetup } />
-                <Route path="notifications" component={ CompanyAlerts } />
-                <Route path="annual_returns" component={ AnnualReturn } />
-              <Route path="*" component={ NotFound } />
             </Route>
 
 
