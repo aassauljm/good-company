@@ -356,7 +356,7 @@ describe('Company Controller', function() {
 
         it('Imports history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
-                .expect(200)
+                .expect(500)
                 .then(function(res){
                     done();
                 })
