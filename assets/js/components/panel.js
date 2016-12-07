@@ -13,9 +13,9 @@ export default class Panel extends React.Component {
                     this.props.remove();
                 }}><Glyphicon glyph="remove" /></Button>}
             </div>
-            <div className="panel-body">
+            { this.props.children && <div className="panel-body">
                 { this.props.children }
-            </div>
+            </div> }
         </div>
     }
 }

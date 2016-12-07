@@ -107,7 +107,7 @@ class Recipient extends React.Component {
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         const holdings = this.props.holdings;
         return  <Panel title={title}>
-            { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
+                { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
                 <DateInput {...this.formFieldProps('effectiveDate')} disabled={!!this.props.isInverse.value}/>
                 <div className="input-group-pair input-row">
@@ -148,28 +148,33 @@ class Recipient extends React.Component {
 function Recipients(props){
     return <div className="col-md-6 col-md-offset-3">
             <Shuffle>
-            {props.recipients.map((r, i) => {
-            return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
-                <Recipient {...r} key={i}
-                    index={i}
-                    increase={props.increase}
-                    allSameDirection={props.allSameDirection}
-                    holdings={props.holdings}
-                    remove={() => props.recipients.removeField(i)}
-                    >
-                    </Recipient>
-                    { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
-                        { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                        <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
-                        { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                    </div> }
-            </div>;
-
-
-
+            { props.recipients.map((r, i) => {
+                const show = !r.isInverse.value;
+                if(!show){
+                    const title = `Transfer of ${r.amount.value || 0} ${isIncrease(r.type.value) ?  'from' : 'to' } ${props.holdings[parseInt(r.holding.value, 10)].label}`;
+                    return <div className="list-item" key={r._keyIndex.value}>
+                        <Panel title={title} />
+                    </div>
+                }
+                return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
+                        <Recipient {...r} key={i}
+                        index={i}
+                        increase={props.increase}
+                        allSameDirection={props.allSameDirection}
+                        holdings={props.holdings}
+                        remove={() => props.recipients.removeField(i)}
+                        >
+                        </Recipient>
+                        { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
+                            { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
+                            <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
+                            { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
+                        </div> }
+                </div>
             }) }
             </Shuffle>
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
+
                 <div className="button-row">
                 <Button type="button" onClick={() => {
                     props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate})    // pushes empty child field onto the end of the array
@@ -199,11 +204,16 @@ class AmendOptions extends React.Component {
         }
 
         return <form onSubmit={this.props.handleSubmit}>
+            <div className="button-row">
+                <Button type="submit" onClick={this.props.reset}>Reset</Button>
+                <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
+            </div>
             { actions.map((field, i) => {
                 const action = amendActions[i];
                 const increase = actionAmountDirection(action);
                 return <div  key={i}>
                         { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
+
                 <div className="row">
                 <div className="text-center">
                 <p><strong>This change is comprised of:</strong></p>
@@ -221,6 +231,7 @@ class AmendOptions extends React.Component {
             }) }
 
             <div className="button-row">
+             <Button type="submit" onClick={this.props.reset}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
         </form>
@@ -280,7 +291,7 @@ const validateAmend = (values, props) => {
             formErrors.actions[i] = ['Required.'];
         }
         const amount = props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount;
-        if(sum !== amount){
+        if(!props.amendActions[i].inferAmount && sum !== amount){
             formErrors.actions = formErrors.actions || [];
             const diff = sum - amount;
             if(diff < 0){
@@ -319,13 +330,16 @@ const AmendOptionsConnected = reduxForm({
 
 
 
-export function formatSubmit(values, actionSet, amendActions) {
+export function formatSubmit(values, actionSet) {
+    const amendActions = actionSet.data.actions.filter(a => {
+        return [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionMethod || a.transactionType) >= 0;
+    });
+
     const amends = [...(amendActions.map(a => ({...a})))];
     const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
     const pendingActions = [{id: actionSet.id, data: otherActions, previous_id: actionSet.previous_id}];
     const transactions = {};
     const transfers = [];
-
 
     const transferMappings = values.actions.reduce((acc, v, i) => {
         v.recipients.reduce((acc, r) => {
@@ -334,7 +348,7 @@ export function formatSubmit(values, actionSet, amendActions) {
             return acc;
         }, acc)
         return acc;
-    }, {})
+    }, {});
 
     values.actions.map((action, i) => {
         action.recipients.map((r, j) => {
@@ -404,7 +418,7 @@ export default function Amend(context, submit){
     });
 
     const handleSubmit = (values) => {
-        const pendingActions = formatSubmit(values, actionSet, amendActions);
+        const pendingActions = formatSubmit(values, actionSet);
         submit({
             pendingActions: pendingActions
         })
@@ -507,7 +521,8 @@ export function calculateReciprocals(actions) {
                     isInverse: {value: true},
                     type: {value: inverseType},
                     holding: {value: inverseHolding},
-                    amount: {value: recipient.amount.value}
+                    amount: {value: recipient.amount.value},
+                    _keyIndex: {value: keyIndex++}
                 });
                 // better sort reciprocals
                 actions[holdingIndex].recipients.sort((a, b) => {

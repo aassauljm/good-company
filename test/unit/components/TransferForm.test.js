@@ -10,6 +10,8 @@ import { Provider } from 'react-redux';
 import chai from 'chai';
 import { DragDropContext } from 'react-dnd';
 import TestBackend from 'react-dnd-test-backend';
+
+
 const should = chai.should();
 
 function wrapInTestContext(DecoratedComponent) {
@@ -24,8 +26,8 @@ function wrapInTestContext(DecoratedComponent) {
 
 
 describe('Transfer form', () => {
-    const holdingMap = {1: [{amount: 1, shareClass: null}], 2: [{amount: 2, shareClass: 2},{amount: 1, shareClass: 4}], 3: [{amount: 3, shareClass: 3}]}
 
+    const holdingMap = {1: [{amount: 1, shareClass: null}], 2: [{amount: 2, shareClass: 2},{amount: 1, shareClass: 4}], 3: [{amount: 3, shareClass: 3}]}
     const companyState = {
         holdingList: {holdings: [
             {holdingId: 1, parcels: [{amount: 1}]},
@@ -192,7 +194,7 @@ describe('Transfer form', () => {
             ];
             const shareOptions = holdingOptions;
             const TransferWrapped = wrapInTestContext(TransferConnected);
-  
+
             form = TestUtils.renderIntoDocument(<Provider store={store}>
                     <TransferWrapped
                         initialValues={{parcels: [{}], effectiveDate: new Date() }}
@@ -200,7 +202,7 @@ describe('Transfer form', () => {
                         holdingMap={holdingMap}
                         shareOptions={shareOptions}
                         onSubmit={(data) => { submitResult = data}}
-                        /> 
+                        />
                 </Provider>);
         });
 
