@@ -37,6 +37,8 @@ import validator from 'validator'
 import { relationNameToModel } from './schemas';
 import { routerReducer, LOCATION_CHANGE } from 'react-router-redux'
 import { reducer as reduxAsyncConnect } from 'redux-connect'
+import { calculateReciprocals } from './components/transactions/resolvers/amend';
+
 
 const initialState = {
 
@@ -452,7 +454,21 @@ const normalizeNumber = (value) => {
     return value ? value.replace(/[^\d]/g, '') : value
 }
 
-export const form = formReducer;
+
+
+export const form = formReducer.plugin({
+    amendAction: (state, action) => {
+        switch(action.type) {
+            case "redux-form/FOCUS":
+            case "redux-form/BLUR":
+            case "redux-form/REMOVE_ARRAY_VALUE":
+            case "redux-form/ADD_ARRAY_VALUE":
+                return { ...state, actions: calculateReciprocals(state.actions)}
+            default:
+                return state
+      }
+  }
+});
 
 const appReducer = combineReducers({
     routing: routerReducer,

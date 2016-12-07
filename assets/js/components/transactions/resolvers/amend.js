@@ -113,7 +113,6 @@ class Recipient extends React.Component {
                 <div className="input-group-pair input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={!!this.props.isInverse.value}
-                    onChange={(value) => {this.props.type.onChange(value);  this.props.onChange(); }}
                     label={false}>
                         <option value="" disabled></option>
                             {  this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
@@ -125,7 +124,6 @@ class Recipient extends React.Component {
                     placeholder={'Number of Shares'}
                     value={this.props.amount.value }
                     disabled={!!this.props.isInverse.value}
-                    onChange={(value) => {this.props.amount.onChange(value);  this.props.onChange(); }}
                     label={null}/>
                 </div>
 
@@ -133,7 +131,6 @@ class Recipient extends React.Component {
                 { isTransfer(this.props.type.value) &&
                     <div className="input-row">
                         <Input type="select" {...this.formFieldProps('holding')}
-                            onChange={(value) => {this.props.holding.onChange(value);  this.props.onChange(); }}
                             disabled={!!this.props.isInverse.value}
                             label={this.props.type.value === TransactionTypes.TRANSFER_TO ? 'Transfer From' : 'Transfer To'}>
                             <option value="" disabled></option>
@@ -159,13 +156,13 @@ function Recipients(props){
                     allSameDirection={props.allSameDirection}
                     holdings={props.holdings}
                     remove={() => props.recipients.removeField(i)}
-                    onChange={props.onChange(i)}>
+                    >
                     </Recipient>
-                     <div className="btn-group-vertical btn-group-sm list-controls">
+                    { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
                         { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                         <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
                         { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                    </div>
+                    </div> }
             </div>;
 
 
@@ -200,47 +197,6 @@ class AmendOptions extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
-        // curry the indices, children will populate them
-
-        const reciprocate = (i) => (j) => () => setTimeout(() => {
-            // See if this recipient is a in a transfer
-            const type = this.props.values.actions[i].recipients[j].type; //safe?
-            const amount = this.props.values.actions[i].recipients[j].amount; //safe?
-            const effectiveDate = this.props.values.actions[i].recipients[j].effectiveDate; //safe?
-            const inverseIndex = this.props.values.actions[i].recipients[j].inverse;
-            if(isTransfer(type)){
-                const actionIndex = parseInt(this.props.values.actions[i].recipients[j].holding, 10);
-                if(Number.isInteger(actionIndex)){
-                    const reciprocalIndex = this.props.values.actions[actionIndex].recipients.findIndex(r => {
-                        return r._keyIndex === inverseIndex;
-                    });
-                    if(reciprocalIndex < 0){
-                        actions[actionIndex].recipients.addField({
-                            type: inverseTransfer(type),
-                            amount: amount,
-                            holding: i.toString(),
-                            effectiveDate: effectiveDate,
-                            isInverse: true,
-                            inverse: inverseIndex,
-                             _keyIndex: keyIndex++
-                         });
-                    }
-                    else{
-                        actions[actionIndex].recipients[reciprocalIndex].amount.onChange((amount||0).toString());
-                        actions[actionIndex].recipients[reciprocalIndex].type.onChange(inverseTransfer(type));
-                        actions[actionIndex].recipients[reciprocalIndex].holding.onChange(i.toString());
-                        actions[actionIndex].recipients[reciprocalIndex].isInverse.onChange(true);
-                    }
-                }
-                else{
-
-                }
-            }
-            else{
-
-            }
-        }, 0);
-
 
         return <form onSubmit={this.props.handleSubmit}>
             { actions.map((field, i) => {
@@ -258,7 +214,6 @@ class AmendOptions extends React.Component {
                     increase={increase}
                     allSameDirection={allSameDirection}
                     error={getError(i)}
-                    onChange={reciprocate(i)}
                     holdings={this.props.holdings.filter(h => h.index !== i)} />
                 </div>
                 <hr/>
@@ -279,7 +234,7 @@ const validateAmend = (values, props) => {
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
         let sum = 0;
-        const selectedRecipients = {};
+        //const selectedRecipients = {};
         errors.recipients = action.recipients.map((recipient, j) => {
             const errors = {};
             const amount = parseInt(recipient.amount, 10) || 0;
@@ -307,10 +262,10 @@ const validateAmend = (values, props) => {
                     errors.holding = ['Transfer shareholding required.'];
                 }
                 else{
-                    if(selectedRecipients[recipient.holding]){
+                    /*if(selectedRecipients[recipient.holding]){
                         errors.holding = ['Share allocation already specified in transaction.'];
                     }
-                    selectedRecipients[recipient.holding] = true;
+                    selectedRecipients[recipient.holding] = true;*/
                 }
 
             }
@@ -448,15 +403,12 @@ export default function Amend(context, submit){
         return [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionMethod || a.transactionType) >= 0;
     });
 
-
-
     const handleSubmit = (values) => {
         const pendingActions = formatSubmit(values, actionSet, amendActions);
         submit({
             pendingActions: pendingActions
         })
     }
-
 
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
         return acc + actionAmountDirection(action) ? 1 : 0
@@ -468,8 +420,6 @@ export default function Amend(context, submit){
         acc[dir][action.amount] = (acc[dir][action.amount] || []).concat({...action, index: i});
         return acc;
     }, {true: {}, false: {}})
-
-
 
     let initialValues = {actions: amendActions.map((a, i) => {
         // if all same direction, set amount;
@@ -521,4 +471,51 @@ export default function Amend(context, submit){
             onSubmit={handleSubmit}
             initialValues={initialValues} />
         </div>
+}
+
+
+
+export function calculateReciprocals(actions) {
+    if(!actions){
+        return null;
+    }
+    console.log(actions)
+    // removal all reciprocals
+    actions = actions.map(action => {
+        const recipients = action.recipients.filter(r => !r.isInverse.value);
+        return {...action, recipients}
+    });
+    // re add them
+    actions.map((action, i) => {
+
+        (action.recipients || []).map((recipient, j) => {
+            if(isTransfer(recipient.type.value) && !recipient.isInverse.value){
+                const holding = recipient.holding.value;
+                if(!holding){
+                    return;
+                }
+                const holdingIndex = parseInt(holding, 10)
+                // has a holding, insert inverse transaction
+                const inverseType = inverseTransfer(recipient.type.value)
+                const inverseHolding = i.toString();
+                // does the reciprocal any fields that have been touched?
+                actions[holdingIndex].recipients = actions[holdingIndex].recipients.filter(r => {
+                    return r.amount.touched || r.effectiveDate.touched || r.type.touched || r.holding.touched || r.isInverse.value;
+                });
+                actions[holdingIndex].recipients.push({
+                    effectiveDate: {value: recipient.effectiveDate.value},
+                    isInverse: {value: true},
+                    type: {value: inverseType},
+                    holding: {value: inverseHolding},
+                    amount: {value: recipient.amount.value}
+                });
+                // better sort reciprocals
+                actions[holdingIndex].recipients.sort((a, b) => {
+                    return a.effectiveDate.value || b.effectiveDate.value
+                });
+            }
+        })
+        return {...action}
+    });
+    return actions;
 }
