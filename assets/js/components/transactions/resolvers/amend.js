@@ -329,93 +329,88 @@ const AmendOptionsConnected = reduxForm({
 })(AmendOptions);
 
 
+const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0 && !action.inferAmount;
+
+const collectAmendActions = (actions) => actions.filter(isAmendable);
+
 
 export function formatSubmit(values, actionSet) {
-    const amendActions = actionSet.data.actions.filter(a => {
-        return [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionMethod || a.transactionType) >= 0;
+    const amendActions = collectAmendActions(actionSet.data.actions);
+    const amends = [...(amendActions.map(a => ({...a})))];
+    const otherActions = actionSet.data.actions.filter(a => !isAmendable(a))
+    const pendingActions = [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}];
+
+    const transactions = [];
+
+    values.actions.map((a, i) => {
+        a.recipients.map((r, j) => {
+            if(!r.isInverse){
+                let method = TransactionTypes.AMEND;
+                const amount = parseInt(r.amount, 0);
+                const holders = amends[i].afterHolders || amends[i].holders;
+                if(isTransfer(r.type)){
+                    const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
+                        transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i};
+                    const holdingIndex = parseInt(r.holding, 10)
+                    const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
+                    const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
+                        transactionType: inverseTransfer(r.type),  amount: amount, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex}
+                    transactions.push([result, inverse])
+                }
+                else{
+                    const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
+                        transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i};
+                    transactions.push([result]);
+                }
+            }
+        });
     });
 
-    const amends = [...(amendActions.map(a => ({...a})))];
-    const otherActions = actionSet.data.actions.filter(a => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionType) < 0);
-    const pendingActions = [{id: actionSet.id, data: otherActions, previous_id: actionSet.previous_id}];
-    const transactions = {};
-    const transfers = [];
+    // sort by date
+    transactions.sort((a, b) => {
+        return a[0].effectiveDate < b[0].effectiveDate
+    });
 
-    const transferMappings = values.actions.reduce((acc, v, i) => {
-        v.recipients.reduce((acc, r) => {
-            acc[r.holding] = acc[r.holding] || {};
-            acc[r.holding][i] =  {recipient: r, amendIndex: i};
-            return acc;
-        }, acc)
-        return acc;
-    }, {});
-
-    values.actions.map((action, i) => {
-        action.recipients.map((r, j) => {
-        if(r.handled){
-                return;
-            }
-            const amount = parseInt(r.amount, 10);
-            amends[i] = {...amends[i]}
-
-            if(amends[i].beforeAmount !== undefined){
-                const increase = isIncrease(r.type)
-                amends[i].beforeAmount = amends[i].afterAmount + (increase ? -amount : amount);
-            }
-            let method = TransactionTypes.AMEND;
-            if(!amends[i].beforeHolders){
-                amends[i].beforeHolders = amends[i].afterHolders = amends[i].holders;
-            }
-
-            if(isTransfer(r.type)){
-                let method = amends[i].beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
-                const transfer = {...amends[i], transactionType: r.type, transactionMethod: method,
-                    amount: amount, index: i, recipientIndex: parseInt(r.holding, 10), };
-                // find reciprocal
-                amends[i].afterAmount = amends[i].beforeAmount;
-                const reciprocal = transferMappings[i][r.holding];
-                const reciprocalAmend = amends[reciprocal.amendIndex];
-                const increase = isIncrease(reciprocalAmend.type)
-                reciprocalAmend.beforeAmount = reciprocalAmend.afterAmount + (increase ? -amount : amount);
-
-                method = reciprocalAmend.beforeAmount === 0 ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND;
-
-                const reciprocalAction = {...reciprocalAmend, transactionType: reciprocal.recipient.type, transactionMethod: method,
-                    amount: amount};
-                reciprocalAmend.afterAmount = reciprocalAmend.beforeAmount;
-                reciprocal.recipient.handled = true;
-
-                transfers.push([transfer, reciprocalAction])
-
+    const newAllocations = {};
+    transactions.map(sets => {
+        sets.map(action => {
+            //look up original action
+            const original = amends[action._holding];
+            action.afterAmount = amends[action._holding].afterAmount;
+            action.beforeAmount = action.afterAmount + (isIncrease(action.transactionType) ? -action.amount : action.amount);
+            original.afterAmount = action.beforeAmount;
+            if(action.beforeAmount === 0 && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
+                newAllocations[action._holding] = action;
             }
             else{
-                transactions[r.type] = transactions[r.type] || [];
-                const result = {...amends[i], transactionType: r.type, transactionMethod: method,
-                    amount: amount};
-                transactions[r.type].push(result);
-                amends[i].afterAmount = amends[i].beforeAmount;
+                delete action.holders;
             }
-        })
+            delete action._holding;
+        });
 
-    })
-    // group each other type
-    Object.keys(transactions).map(k => {
-        pendingActions.push({id: actionSet.id, data: {...actionSet.data, totalAmount: null, actions: transactions[k]}, previous_id: actionSet.previous_id});
-    })
-    transfers.map(k => {
-        pendingActions.push({id: actionSet.id, data: {...actionSet.data, totalAmount: null, actions: k, transactionType: TransactionTypes.TRANSFER}, previous_id: actionSet.previous_id});
     });
+    // put new allocation types where needed
+    Object.keys(newAllocations).map(k => {
+        newAllocations[k].transactionMethod = TransactionTypes.NEW_ALLOCATION;
+        delete newAllocations[k].afterHolders;
+        delete newAllocations[k].beforeHolders;
+    });
+
+
+    transactions.map(t => {
+        pendingActions.push({id: actionSet.id, data: {...actionSet.data, effectiveDate: t[0].effectiveDate, totalShares: null, actions: t}, previous_id: actionSet.previous_id});
+    });
+
     return pendingActions;
 }
 
 
-const VALUES = {"actions":[{"recipients":[{"type":"ISSUE_TO","amount":1111,"effectiveDate":"2014-09-04T12:00:00.000Z","_keyIndex":0}]},{"recipients":[{"type":"TRANSFER_TO","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"5","_keyIndex":1}]},{"recipients":[{"type":"TRANSFER_TO","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"6","_keyIndex":2}]},{"recipients":[{"type":"TRANSFER_TO","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"5","_keyIndex":3}]},{"recipients":[{"type":"TRANSFER_TO","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"6","_keyIndex":4}]},{"recipients":[{"type":"TRANSFER_FROM","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"1","isInverse":true,"_keyIndex":7},{"type":"TRANSFER_FROM","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"3","isInverse":true,"_keyIndex":9}]},{"recipients":[{"type":"TRANSFER_FROM","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"2","isInverse":true,"_keyIndex":8},{"type":"TRANSFER_FROM","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"4","isInverse":true,"_keyIndex":10}]}]}
+//const VALUES = {"actions":[{"recipients":[{"type":"ISSUE_TO","amount":1111,"effectiveDate":"2014-09-04T12:00:00.000Z","_keyIndex":0}]},{"recipients":[{"type":"TRANSFER_TO","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"5","_keyIndex":1}]},{"recipients":[{"type":"TRANSFER_TO","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"6","_keyIndex":2}]},{"recipients":[{"type":"TRANSFER_TO","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"5","_keyIndex":3}]},{"recipients":[{"type":"TRANSFER_TO","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"6","_keyIndex":4}]},{"recipients":[{"type":"TRANSFER_FROM","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"1","isInverse":true,"_keyIndex":7},{"type":"TRANSFER_FROM","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"3","isInverse":true,"_keyIndex":9}]},{"recipients":[{"type":"TRANSFER_FROM","amount":4999,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"2","isInverse":true,"_keyIndex":8},{"type":"TRANSFER_FROM","amount":1,"effectiveDate":"2014-09-04T12:00:00.000Z","holding":"4","isInverse":true,"_keyIndex":10}]}]}
 
 export default function Amend(context, submit){
     const { actionSet, companyState, shareClassMap } = context;
-    const amendActions = actionSet.data.actions.filter(a => {
-        return [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(a.transactionMethod || a.transactionType) >= 0;
-    });
+    const amendActions = collectAmendActions(actionSet.data.actions);
+
 
     const handleSubmit = (values) => {
         const pendingActions = formatSubmit(values, actionSet);
