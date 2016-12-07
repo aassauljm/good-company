@@ -151,7 +151,7 @@ function Recipients(props){
             { props.recipients.map((r, i) => {
                 const show = !r.isInverse.value;
                 if(!show){
-                    const title = `Transfer of ${r.amount.value || 0} ${isIncrease(r.type.value) ?  'from' : 'to' } ${props.holdings[parseInt(r.holding.value, 10)].label}`;
+                    const title = `Transfer of ${r.amount.value || 0} ${isIncrease(r.type.value) ?  'from' : 'to' } ${props.holdings.find(h => h.value === r.holding.value).label}`;
                     return <div className="list-item" key={r._keyIndex.value}>
                         <Panel title={title} />
                     </div>
@@ -202,7 +202,7 @@ class AmendOptions extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
-
+        console.log(this.props)
         return <form onSubmit={this.props.handleSubmit}>
             <div className="button-row">
                 <Button type="submit" onClick={this.props.reset}>Reset</Button>
@@ -465,14 +465,13 @@ export default function Amend(context, submit){
         values = {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i};
         acc.push(values);
         return acc;
-    }, [])
-
+    }, []);
 
     return <div>
 
             <AmendOptionsConnected
             amendActions={amendActions}
-            effectiveDate={moment(actionSet.data.effectiveDate).toDate()}
+            effectiveDate={moment(actionSet.data.effectiveDate).startOf('day').toDate()}
             totalAmount={actionSet.data.totalAmount}
             allSameDirection={allSameDirection}
             holdings={holdings}
@@ -488,7 +487,6 @@ export function calculateReciprocals(actions) {
     if(!actions){
         return null;
     }
-    console.log(actions)
     // removal all reciprocals
     actions = actions.map(action => {
         const recipients = action.recipients.filter(r => !r.isInverse.value);
