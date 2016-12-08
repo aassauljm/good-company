@@ -509,6 +509,23 @@ describe('Scraping Service', function() {
                 })
             });
     });
+    describe('Should parse biznet share parcel changes, implied new allocation', function() {
+        it('reads file, creates transfers', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/8579266.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding',
+                    });
+                    console.log(JSON.stringify(result, null, 4));
+                    result.actions.length.should.be.equal(2);
+                    result.actions.filter(a => a.transactionType === 'AMEND').length.should.be.equal(1)
+                    result.actions.filter(a => a.transactionType === 'NEW_ALLOCATION').length.should.be.equal(1)
+                    // this is getting the holders wrong, should be 1 not 2
+                    done();
+                })
+            });
+    });
+
 
 
 });

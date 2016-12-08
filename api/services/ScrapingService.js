@@ -786,14 +786,24 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     index++;
                 }
                 const results = [];
+                if(!result.beforeHolders.length){
+                    result.holders = result.afterHolders;
+                    delete result.afterHolders;
+                    delete result.beforeHolders;
+                    result.beforeAmount = 0;
+                    result.amount = result.afterAmount;
+                    result.transactionType = Transaction.types.NEW_ALLOCATION;
+                    return [result];
+                }
                 if(result.amount){
                     results.push(result);
                 }
+
                 if(JSON.stringify(result.beforeHolders).toLowerCase() !== JSON.stringify(result.afterHolders).toLowerCase()){
-                    result.unknownHoldingChange = true;
                     let difference = result.beforeHolders.length !== result.afterHolders.length
                         // must a holder change or holding transfer
                         // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
+
                     if(!difference){
                         result.beforeHolders.map((holder, i) => {
                             const nameSame = result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase();
