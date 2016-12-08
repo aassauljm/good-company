@@ -6,6 +6,8 @@ export function importCompany(companyNumber, options) {
     return ScrapingService.fetch(companyNumber)
         .then(ScrapingService.parseNZCompaniesOffice)
         .tap(checkNameCollision.bind(null, options.userId))
+        .tap(checkExtensive)
+        .tap(checkEntityType)
         .then((_data) => {
             data = _data;
             companyName = data.companyName;
@@ -98,3 +100,24 @@ export function checkNameCollision(ownerId, data) {
             }
         })
 };
+
+
+export function checkExtensive(data) {
+    if(data.holdings.extensive) {
+        throw new sails.config.exceptions.UnsupportedCompanyException(
+            'Good Companies does not currently support companies with extensive shareholding.  We are developing this feature for release in 2017.');
+    }
+}
+
+
+export function checkEntityType(data) {
+    if(data.entityType === 'Overseas Non-ASIC Company') {
+        throw new sails.config.exceptions.UnsupportedCompanyException(
+            'Good Companies does not support Overseas Non-ASIC companies.');
+    }
+    if(data.entityType === 'Overseas ASIC Company') {
+        throw new sails.config.exceptions.UnsupportedCompanyException(
+            'Good Companies does not currently support Overseas ASIC companies.  We are developing this feature for release in 2017.');
+    }
+}
+

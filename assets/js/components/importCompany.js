@@ -48,6 +48,7 @@ export class ImportCompany extends React.Component {
             </div>
     }
 
+
     importCompany(){
         this.props.dispatch(importCompany(this.props.params.companyNumber))
             .then((result = {response: {message: 'No connection'}}) => {

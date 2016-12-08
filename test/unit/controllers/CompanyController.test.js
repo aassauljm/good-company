@@ -848,8 +848,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
                     res.body.filter(f=> f.data.transactionType === 'INFERRED_NEW_DIRECTOR').length.should.be.equal(0);
-                    res.body[res.body.length-4].data.transactionType.should.be.equal('INCORPORATION')
-
+                    res.body[res.body.length-4].data.transactionType.should.be.equal('INCORPORATION');
                     done();
                 })
                 .catch(done)

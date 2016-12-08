@@ -102,7 +102,7 @@ export class ImportSingle extends React.Component {
                     }) }</dd>
                 </dl>
                 <div className="button-row">
-                    <Button  onClick={() => this.setState({'company': null, finished: null})} >Cancel</Button>
+                    <Button  onClick={() => this.setState({'company': null, finished: null, error: null})} >Cancel</Button>
                     <Button bsStyle="primary" onClick={this.importCompany} >Import this Company</Button>
                 </div>
         </div>
@@ -116,7 +116,8 @@ export class ImportSingle extends React.Component {
                 this.setState({finished: result.response.id});
             })
             .catch(error => {
-                this.props.addNotification({message: `Could not import company, Reason: ${error.message}`, error: true});
+                this.setState({error: error.message});
+                //this.props.addNotification({message: `Could not import company, Reason: ${error.message}`, error: true});
             })
     }
 
@@ -135,17 +136,29 @@ export class ImportSingle extends React.Component {
         if(this.state.finished){
             return this.renderResult();
         }
+        if(this.state.error){
+            return this.renderError();
+        }
         if(this.state.company){
             return this.renderSummary(this.state.company);
         }
         return  <ConnectedPlaceholderSearch placeholder='Type to find a company' onlyCompaniesOffice={true} onSelect={this.handleSelect}/>
     }
+    renderError() {
+        return <div>
+        <p><strong>{this.state.company.companyName}</strong> could not be imported.</p>
+        <div className="alert alert-danger">{ this.state.error }</div>
 
+                <div className="button-row">
+                    <Button  onClick={() => this.setState({'company': null, finished: null, error: null})} >Import Another Company</Button>
+                </div>
+        </div>
+    }
     renderResult() {
         return <div>
         <p><strong>{this.state.company.companyName}</strong> has been imported.</p>
                 <div className="button-row">
-                    <Button  onClick={() => this.setState({'company': null, finished: null})} >Import Another Company</Button>
+                    <Button  onClick={() => this.setState({'company': null, finished: null, error: null})} >Import Another Company</Button>
                     <Link to={`/company/view/${this.state.finished}`} className="btn btn-primary">View Company</Link>
                 </div>
         </div>

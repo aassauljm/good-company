@@ -273,10 +273,6 @@ const validateAmend = (values, props) => {
                     errors.holding = ['Transfer shareholding required.'];
                 }
                 else{
-                    /*if(selectedRecipients[recipient.holding]){
-                        errors.holding = ['Share allocation already specified in transaction.'];
-                    }
-                    selectedRecipients[recipient.holding] = true;*/
                 }
 
             }
