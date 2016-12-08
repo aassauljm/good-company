@@ -526,6 +526,21 @@ describe('Scraping Service', function() {
             });
     });
 
+    describe('Should flag unparsable issue', function() {
+        it('reads file, creates transfers', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/6766171.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Notice Of Issue Of Shares',
+                    });
+                    result.actions.length.should.be.equal(1);
+                    result.actions[0].unknownAmount.should.be.equal(true);
+                    done();
+                })
+            });
+    });
+
+
 
 
 });

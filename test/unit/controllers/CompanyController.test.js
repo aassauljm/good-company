@@ -856,6 +856,58 @@ describe('Company Controller', function() {
         });
     });
 
+   describe('Unparsable issue (1892698)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/1892698')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(500)
+                .then(function(res){
+                    context = res.body.context;
+                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    done();
+                })
+            .catch(done)
+        });
+        it('Submits resolution (amend)', function(done){
+            return fs.readFileAsync('test/fixtures/transactionData/larsenAmend.json', 'utf8')
+                .then(function(text){
+                    var json = JSON.parse(text);
+                    json.pendingActions.map(function(p){
+                        p.id = context.actionSet.id;
+                        p.previous_id = context.actionSet.previous_id;
+                    });
+                    return req.put('/api/company/'+companyId+'/update_pending_history')
+                        .send(json)
+                        .expect(200)
+                })
+                .then(function() {
+                    req.get('/api/company/'+companyId+'/pending_history')
+                })
+                .then(function(){
+                     return req.post('/api/company/'+companyId+'/import_pending_history')
+                        .expect(500)
+                })
+                .then(function(res){
+                    context = res.body.context;
+                    res.body.context.importErrorType.should.be.equal('UNKNOWN_ISSUE');
+                    done();
+                })
+            .catch(done)
+        });
 
+    });
 
 });

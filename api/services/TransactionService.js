@@ -40,7 +40,7 @@ export function validateAnnualReturn(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match', {
                     action: data,
                     importErrorType: sails.config.enums.ANNUAL_RETURN_HOLDING_DIFFERENCE,
-                    companyState: companyState.toJSON()
+                    companyState: companyState
                 });
             }
             return Promise.join(
@@ -72,7 +72,7 @@ export function validateAnnualReturn(data, companyState){
                     throw new sails.config.exceptions.InvalidInverseOperation('Total shares do not match', {
                         action: data,
                         importErrorType: sails.config.enums.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE,
-                        companyState: companyState.toJSON()
+                        companyState: companyState
                     });
 
                 }
@@ -130,7 +130,7 @@ export function validateInverseAmend(amend, companyState){
         throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
             action: amend,
             importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
-            companyState: companyState.toJSON()
+            companyState: companyState
         });
     }
 
@@ -143,7 +143,11 @@ export function validateInverseIssue(data, companyState){
     return companyState.stats()
         .then((stats) =>{
             if(!Number.isInteger(data.amount) || data.amount <= 0){
-                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )')
+                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )', {
+                        action: data,
+                        importErrorType: sails.config.enums.INVALID_ISSUE,
+                        companyState: companyState
+                    });
             }
             if(!Number.isSafeInteger(data.amount)){
                 throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
@@ -153,7 +157,7 @@ export function validateInverseIssue(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue', {
                     action: data,
                     importErrorType: sails.config.enums.INVERSE_INCREASE_SUM_MISMATCH,
-                    companyState: companyState.toJSON()
+                    companyState: companyState
                 });
             }
             if(data.fromAmount + data.amount !== data.toAmount ){
@@ -176,7 +180,7 @@ export function validateInverseDecreaseShares(data, companyState){
                 throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, decrease', {
                     action: data,
                     importErrorType: sails.config.enums.INVERSE_DECREASE_SUM_MISMATCH,
-                    companyState: companyState.toJSON()
+                    companyState: companyState
                 });
             }
             if(data.fromAmount - data.amount !== data.toAmount ){
@@ -297,7 +301,7 @@ function findHolding(holding, action, companyState, errors={}){
     if(!current.length){
          throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
             action: action,
-            companyState: companyState.toJSON(),
+            companyState: companyState,
             importErrorType: errors.none})
     }
     else if(current.length > 1 && session.get('options')){
@@ -333,7 +337,7 @@ function inverseFindHolding(data, companyState){
     if(!current.length){
          throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
             action: data,
-            companyState: companyState.toJSON(),
+            companyState: companyState,
             importErrorType: sails.config.enums.HOLDING_NOT_FOUND
         })
     }
@@ -566,7 +570,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change', {
                 action: data,
                 importErrorType: sails.config.enums.HOLDER_NOT_FOUND,
-                companyState: companyState.toJSON()
+                companyState: companyState
             })
         });
 };
@@ -731,7 +735,7 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
             throw new sails.config.exceptions.InvalidInverseOperation('New address does not match expected',
                     {
                     action: data,
-                    companyState: companyState.toJSON(),
+                    companyState: companyState,
                     importErrorType: sails.config.enums.ADDRESS_DIFFERENCE
                 });
         }
@@ -741,7 +745,7 @@ export function validateInverseAddressChange(data, companyState, effectiveDate){
             throw new sails.config.exceptions.InvalidInverseOperation('Address field not valid',
                     {
                     action: data,
-                    companyState: companyState.toJSON(),
+                    companyState: companyState,
                     importErrorType: sails.config.enums.ADDRESS_DIFFERENCE
                 })
         }
@@ -861,7 +865,7 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
             throw new sails.config.exceptions.InvalidInverseOperation('Could not update director', {
                 action: data,
                 importErrorType: sails.config.enums.DIRECTOR_NOT_FOUND,
-                companyState: companyState.toJSON()
+                companyState: companyState
             });
         });
 };
@@ -1586,7 +1590,13 @@ export function performInverseAllPendingUntil(company, endCondition){
                 else{
                     e.context = e.context || {};
                     e.context.actionSet = current;
-                    throw e;
+                    if(e.context.companyState){
+                        return e.context.companyState.fullPopulateJSON()
+                            .then(function(fullState) {
+                                e.context.companyState = fullState;
+                                throw e;
+                            })
+                    }
                 }
             })
 

@@ -19,7 +19,7 @@ import { Holding } from '../shareholdings';
 import { reduxForm } from 'redux-form';
 import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
-
+import { InvalidIssue } from './resolvers/unknownShareChanges'
 
 import { Shareholder } from '../shareholders';
 
@@ -227,7 +227,8 @@ const DESCRIPTIONS = {
     [TransactionTypes.HOLDING_TRANSFER]: basicSummary,
     [TransactionTypes.NEW_ALLOCATION]: basicSummary,
     [TransactionTypes.REMOVE_ALLOCATION]: basicSummary,
-    [TransactionTypes.UPDATE_DIRECTOR]: basicSummary
+    [TransactionTypes.UPDATE_DIRECTOR]: basicSummary,
+    [TransactionTypes.ISSUE]: basicSummary
 }
 
 const PAGES = {
@@ -241,7 +242,7 @@ const PAGES = {
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
-    [ImportErrorTypes.ADDRESS_DIFFERENCE]: AddressDifference,
+    [ImportErrorTypes.INVALID_ISSUE]: InvalidIssue,
 }
 
 

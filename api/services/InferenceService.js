@@ -338,8 +338,6 @@ module.exports = {
 
         incorporationDate.add(1, 'second');
 
-
-
         data.directors.forEach(d => {
             const date = moment(d.appointmentDate, 'DD MMM YYYY')
 

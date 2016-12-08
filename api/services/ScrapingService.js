@@ -578,6 +578,16 @@ const EXTRACT_DOCUMENT_MAP = {
         }],
         transactionType: Transaction.types.ANNUAL_RETURN
         }
+    },
+    [DOCUMENT_TYPES.ISSUE]: ($) => {
+        const result = {};
+        result.transactionType = Transaction.types.ISSUE;
+        result.registrationDate = moment($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Registration Date and Time/);
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate()
+        result.unknownAmount = true;
+        result.effectiveDate = result.registrationDate;
+        return {actions: [result] }
     }
 }
 
@@ -956,6 +966,9 @@ const DOCUMENT_TYPE_MAP = {
     },
     'New Company Incorporation': {
         type: DOCUMENT_TYPES.INCORPORATION
+    },
+    'Notice Of Issue Of Shares': {
+        type: DOCUMENT_TYPES.ISSUE
     }
 };
 
@@ -982,6 +995,7 @@ function processCompaniesOffice($){
     let typeRegex =/^Document Type$/;
     result.label = textAfterMatch($, '.row.wideLabel label', typeRegex);
     let docType = DOCUMENT_TYPE_MAP[result.label];
+
     if(docType && docType.type){
         result = {...result, ...EXTRACT_DOCUMENT_MAP[docType.type]($)}
     }
@@ -991,6 +1005,7 @@ function processCompaniesOffice($){
 function processBizNet($, info){
     let result = {};
     let docType = BIZ_DOCUMENT_TYPE_MAP[info.documentType];
+
     if(docType && docType.type){
         result = {...result, ...EXTRACT_BIZ_DOCUMENT_MAP[docType.type]($)}
     }
