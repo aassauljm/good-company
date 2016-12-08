@@ -126,13 +126,13 @@ export function validateInverseAmend(amend, companyState){
         throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
     }
     // If holders have changed too
-    if(!holding.holdersMatch({holders: amend.beforeHolders}, true)){
+    /*if(!holding.holdersMatch({holders: amend.beforeHolders}, true)){
         throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
             action: amend,
             importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
             companyState: companyState
         });
-    }
+    }*/
 
     return Promise.resolve(holding);
 }

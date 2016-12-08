@@ -164,6 +164,7 @@ function MultipleHoldings(context,  submit){
             }
             return a;
         })
+        debugger
         submit({
             pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
         })

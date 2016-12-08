@@ -902,7 +902,7 @@ describe('Company Controller', function() {
                 })
                 .then(function(res){
                     context = res.body.context;
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_ISSUE');
+                    res.body.context.importErrorType.should.be.equal('INVALID_ISSUE');
                     done();
                 })
             .catch(done)
