@@ -304,7 +304,9 @@ module.exports = {
             // make sure we haven't described this action yet
             return !_.some(docs, doc => {
                 return _.find(doc.actions, a => {
-                    return a.transactionType === action.transactionType && a.date === action.date && a.name === action.name;
+                    return a.transactionType === action.transactionType &&
+                    moment(a.date || doc.date).isSame(action.effectiveDate, 'day') &&
+                    a.name === action.name;
                 })
             });
         }
@@ -327,39 +329,53 @@ module.exports = {
         }
         const results = [];
 
+
+
+        const incorporationDoc = docs.find(d => d.transactionType === Transaction.types.INCORPORATION);
+
+        const incorporationDate = incorporationDoc ? moment(incorporationDoc.date || incorporationDoc.effectiveDate) :
+            moment(data.incorporationDate, 'DD MMM YYYY');
+
+        incorporationDate.add(1, 'second');
+
+
+
         data.directors.forEach(d => {
-            const date = moment(d.appointmentDate, 'DD MMM YYYY').toDate();
+            const date = moment(d.appointmentDate, 'DD MMM YYYY')
 
             const action = {
                     transactionType: Transaction.types.NEW_DIRECTOR,
-                    effectiveDate: date,
+                    effectiveDate: moment.max(date, incorporationDate).toDate(),
                     ...firstDetails(d.fullName, d.residentialAddress)
                 };
             if(doesNotContain(docs, action) && doesNotContain(results, action)){
                 results.push({
                     actions: [action],
                     // maybe infered transaction type
-                    effectiveDate: date,
+                    effectiveDate: moment.max(date, incorporationDate).toDate()
                 });
             }
         });
+
+
         data.formerDirectors.forEach(d => {
             // without a cease date, this makes no sense
             // https://www.business.govt.nz/companies/app/ui/pages/companies/135116/directors
-            const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY').toDate(),
-                ceasedDate = moment(d.ceasedDate, 'DD MMM YYYY').toDate();
+            const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY'),
+                ceasedDate = moment(d.ceasedDate, 'DD MMM YYYY');
+
             let action = {
                     transactionType: Transaction.types.NEW_DIRECTOR,
                     name: d.fullName,
                     address: d.residentialAddress,
-                    effectiveDate: appointmentDate,
+                    effectiveDate: moment.max(appointmentDate, incorporationDate).toDate(),
                     orderingCoef: 0
                 };
 
             if(doesNotContain(docs, action) && doesNotContain(results, action)){
                 results.push({
                     actions: [action],
-                    effectiveDate: appointmentDate,
+                    effectiveDate:  moment.max(appointmentDate, incorporationDate).toDate(),
                     transactionType: Transaction.types.INFERRED_NEW_DIRECTOR,
                     orderingCoef: 0
                 });
@@ -368,7 +384,7 @@ module.exports = {
                 transactionType: Transaction.types.REMOVE_DIRECTOR,
                 name: d.fullName,
                 address: d.residentialAddress,
-                effectiveDate: ceasedDate,
+                effectiveDate:  moment.max(ceasedDate, incorporationDate).toDate(),
                 orderingCoef: 1
             };
 
@@ -376,7 +392,7 @@ module.exports = {
             if(doesNotContain(docs, action) && doesNotContain(results, action)){
                 results.push({
                     actions: [action],
-                    effectiveDate: ceasedDate,
+                    effectiveDate:  moment.max(ceasedDate, incorporationDate).toDate(),
                     transactionType: Transaction.types.INFERRED_REMOVE_DIRECTOR,
                     orderingCoef: 1
                 });
@@ -474,6 +490,11 @@ module.exports = {
             [Transaction.types.INFERRED_REMOVE_DIRECTOR]: 1,
             [Transaction.types.INFERRED_NEW_DIRECTOR]: 2,
             [Transaction.types.HOLDER_CHANGE] : 3,
+
+            [Transaction.types.REMOVE_DIRECTOR] : 1,
+            [Transaction.types.NEW_DIRECTOR] : 2,
+            [Transaction.types.INCORPORATION] : 0,
+
             undefined: 2
         }
 
@@ -523,6 +544,7 @@ module.exports = {
         // AFTER SORT
         docs = InferenceService.insertIntermediateActions(docs);
         // Add ids
+
         docs.map(p => {
             p.id = uuid.v4();
             (p.actions || []).map(a => a.id = uuid.v4())

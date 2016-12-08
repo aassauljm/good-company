@@ -502,10 +502,8 @@ describe('Scraping Service', function() {
                     const result = ScrapingService.processDocument(document, {
                         'documentType': 'Particulars of Shareholding',
                     });
-                    console.log(JSON.stringify(result, null, 4));
                     result.actions.length.should.be.equal(5);
                     const final = InferenceService.segmentAndSortActions([result]);
-                    console.log(JSON.stringify(final, null, 4));
                     // this is getting the holders wrong, should be 1 not 2
                     done();
                 })

@@ -171,7 +171,7 @@ function grantRegisteredPermissions(roles, models, admin) {
     var permissions = Object.keys(registered).reduce((acc, modelKey) => {
         return registered[modelKey].reduce((acc, perm) => {
             acc.push({
-                modelId: _.find(sails.models, {
+                modelId: _.find(models, {
                     name: modelKey
                 }).id,
                 action: perm.action,

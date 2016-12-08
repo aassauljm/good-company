@@ -500,12 +500,6 @@ export class ShareRegister extends React.Component {
 
     renderControls() {
         return  <div className="button-row">
-                {/* <Input type="select"
-                value={this.props.menu.view}
-                onChange={(e) => this.props.dispatch(updateMenu('shareRegister', {view: e.target.value}))}>
-                <option value="document">Document View</option>
-                <option value="table">Table View</option>
-                </Input> */}
                 <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/shareregister`} target='_blank'>Download</Link>
             </div>
 

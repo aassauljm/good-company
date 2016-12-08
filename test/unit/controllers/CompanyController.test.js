@@ -829,6 +829,32 @@ describe('Company Controller', function() {
         });
     });
 
+   describe('Director appointed and removed on incorporation day (1522101)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/1522101')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Gets history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then(function(res){
+                    res.body.filter(f=> f.data.transactionType === 'INFERRED_NEW_DIRECTOR').length.should.be.equal(0);
+                    res.body[res.body.length-4].data.transactionType.should.be.equal('INCORPORATION')
+
+                    done();
+                })
+                .catch(done)
+        });
+    });
 
 
 

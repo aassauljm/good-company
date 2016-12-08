@@ -28,44 +28,6 @@ import { CompanyHOCFromRoute, CompanyDatedHOCFromRoute } from '../hoc/resources'
 const DEFAULT_OBJ = {};
 
 
-@asyncConnect([{
-    key: 'company',
-    promise: ({store: {dispatch, getState}, params}) => {
-        return dispatch(requestResource('/company/' + params.id + '/get_info', {postProcess: analyseCompany}));
-    }
-}], (state, ownProps) => {
-    return {
-        data: DEFAULT_OBJ,
-         ...state.resources['/company/'+ownProps.params.id +'/get_info']};
-}, (dispatch, ownProps) => ({
-    requestData: (id) => dispatch(requestResource('/company/' + id + '/get_info', {postProcess: analyseCompany}))
-}))
-export class CompanyLoader extends React.Component {
-    key() {
-        return this.props.params.id
-    }
-
-    fetch() {
-        return this.props.requestData(this.key());
-    };
-
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
-
-    render() {
-        return React.cloneElement(this.props.children, {
-                    companyState: this.props.data.currentCompanyState,
-                    companyId: this.key()
-            });
-    }
-}
-
-
 const FAKE_COMPANY = {
     holdingList: {holdings: []}, warnings: {}, deadlines: {}
 };
@@ -125,7 +87,7 @@ export class CompanyView extends React.Component {
                         companyState: current,
                         companyId: this.key(),
                         push: this.props.push,
-                        baseRoute: this.props.baseRoute,
+                        baseUrl: this.props.baseUrl,
                         showTransactionView: (key, data) => this.props.showTransactionView(key, data)
                 });
         }
