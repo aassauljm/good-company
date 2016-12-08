@@ -8,7 +8,7 @@
 var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
-
+var moment = require('moment');
 
 
 module.exports = {
@@ -110,6 +110,7 @@ module.exports = {
     history: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
+                this.company = company;
                 return company.getPreviousCompanyState(req.params.generation)
             })
             .then(function(companyState) {
@@ -119,6 +120,24 @@ module.exports = {
             .spread(function(stats, hasPendingJob) {
                 var json = this.companyState.get();
                 res.json({companyState: _.merge(json, stats, {hasPendingJob: hasPendingJob})});
+            }).catch(function(err) {
+                return res.notFound();
+            });
+    },
+
+   atDate: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                this.company = company;
+                return  company.getDatedCompanyState(moment(req.params.date, 'D-M-YYYY').toDate())
+            })
+            .then(function(companyState) {
+                this.companyState = companyState;
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id)])
+            })
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions) {
+                var json = this.companyState.get();
+                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions}, });
             }).catch(function(err) {
                 return res.notFound();
             });

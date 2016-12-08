@@ -104,7 +104,7 @@ export class CompanyTransactions extends React.Component {
     };
 
     show(transactionId) {
-        this.props.dispatch(push(`/company/view/${this.props.companyId}/transactions/${transactionId}`));
+        this.props.dispatch(push(`${this.props.baseUrl}/transactions/${transactionId}`));
     }
 
     renderChildren() {
@@ -202,10 +202,9 @@ export class TransactionWidget extends React.Component {
                     <span className="fa fa-balance-scale"/>Completed Transactions
                 </div>
                 <div className="widget-control">
-                <Link to={`/company/view/${this.props.companyId}/transactions`} >View All</Link>
+                    <Link to={`${this.props.baseUrl}/transactions`} >View All</Link>
                 </div>
             </div>
-
             { this.renderBody() }
         </div>
     }
@@ -248,7 +247,7 @@ export class PendingTransactionsWidget extends React.Component {
                 <span className="fa fa-hourglass-end"/> Upcoming Transactions
                 </div>
                 <div className="widget-control">
-                <Link to={`/company/view/${this.props.companyId}/upcoming_transactions`} >View All</Link>
+                <Link to={`${this.props.baseUrl}/upcoming_transactions`} >View All</Link>
                 </div>
 
             </div>

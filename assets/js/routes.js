@@ -2,7 +2,6 @@
 import { IndexRoute, Route, Router, DefaultRoute } from 'react-router';
 import React from 'react';
 import App, { LoggedInApp } from './components/app';
-import Landing from './components/landing';
 import Home, { LandingPageView } from './components/home';
 import NotFound from './components/notFound';
 import Users from './components/users';
@@ -11,7 +10,7 @@ import Favourites from './components/favourites';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies, { CompaniesDelete } from './components/companies';
-import Company, { CompanyLoader } from './components/company';
+import Company, { CompanyDated } from './components/company';
 import { Shareholders } from './components/shareholders';
 import { Shareholdings } from './components/shareholdings';
 import { CompanyDetails } from './components/companyDetails';
@@ -91,7 +90,6 @@ const CompanyChildren = [
     <Route path="*" component={ NotFound } />
 ];
 
-
 export default (store) => {
 
     const requireLogin = (nextState, replace, cb) => {
@@ -112,9 +110,6 @@ export default (store) => {
     return <Route path="/" component={ App }>
         <Route path="login" component={ LoginWithCatalex }  />
         <Route onEnter={requireLogin} component={ LoggedInApp }>
-
-
-
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
                 <Route path="recent_activity" component={ RecentActivity }  />
@@ -132,7 +127,7 @@ export default (store) => {
                 <Route path="mass_setup" component={ MassSetup }  />
                 <Route path="import" component={ ImportMenu } />
                 <Route path="import/:companyNumber" component={ ImportCompany } />
-                <Route path="company/render/:id" component={ CompanyLoader } childrenOnly={true} print={true}>
+                <Route path="company/render/:id" childrenOnly={true} print={true}>
                     <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
                 </Route>
                 <Route path="favourites" component={ Favourites } />
@@ -143,9 +138,8 @@ export default (store) => {
                 </Route>
             </Route>
 
-            <Route path="company/view/:id" component={ Company } children={CompanyChildren}>
-
-            </Route>
+            <Route path="company/view/:id" component={ Company } children={CompanyChildren} />
+            <Route path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
 
 
 

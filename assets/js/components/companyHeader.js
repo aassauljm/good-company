@@ -70,31 +70,31 @@ export default class CompanyHeader extends React.Component {
 
         return [ <li key={-1} className="nav-item separator" />,
                 <li key={0} className="nav-item">
-                    <IndexLink to={`/company/view/${id}`} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
+                    <IndexLink to={this.props.baseUrl} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
 
             <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
-                    <DropdownToggle href={`/company/view/${id}/registers`} bsRole="toggle">
+                    <DropdownToggle href={`${this.props.baseUrl}/registers`} bsRole="toggle">
                         Registers
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
-                        <MenuItem  onClick={() => this.props.navigate(`/company/view/${id}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
+                        <MenuItem  onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown>,
 
               <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
-                    <DropdownToggle href={`/company/view/${id}/new_transaction`} bsRole="toggle">
+                    <DropdownToggle href={`${this.props.baseUrl}/new_transaction`} bsRole="toggle">
                         Update
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
-                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
-                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
-                        <MenuItem onClick={() => this.props.navigate(`/company/view/${id}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
+                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown>,
-             <li key={4} className="nav-item"><Link to={`/company/view/${id}/templates`} onClick={() => this.closeMenu()} activeClassName="active" className="nav-link">Templates</Link></li>,
+             <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={() => this.closeMenu()} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
      render() {
@@ -104,6 +104,7 @@ export default class CompanyHeader extends React.Component {
                     <div className="company-summary">
                         <h1> { this.props.companyState.companyName}</h1>
                         { this.props.companyState.transaction && <h2> as at { moment(this.props.companyState.transaction.effectiveDate).format('hh:mm a D MMMM YYYY') } </h2> }
+                        { !this.props.companyState.transaction && <h2> as at { moment(this.props.companyState.incorporationDate).format('hh:mm a D MMMM YYYY') } </h2> }
                     </div>
                     <div className="full-controls">
                         <ul className="nav navbar-nav">

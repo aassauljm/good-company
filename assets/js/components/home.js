@@ -39,8 +39,12 @@ export class LandingPageView extends React.Component {
     }
 
     render() {
-        //
         const noCompanies = this.props.companies._status === 'complete' && this.props.companies.data.filter(d => !d.deleted).length === 0;
+        if(this.props.routes.some(r => r.childrenOnly)){
+            return this.props.children
+        }
+
+
         return  <div>
             <div className="container-fluid page-top">
                 <div className="container">

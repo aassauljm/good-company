@@ -86,6 +86,7 @@ module.exports.routes = {
         model: 'company',
         action: 'find'
     },
+
     'DELETE /api/company/:id': {
         controller: 'CompanyController',
         model: 'company',
@@ -207,6 +208,12 @@ module.exports.routes = {
         action: 'history',
         modelIdentity: 'company'
     },
+    'GET /api/company/:id/at_date/:date': {
+        controller: 'CompanyController',
+        action: 'atDate',
+        modelIdentity: 'company'
+    },
+
     'GET /api/company/:id/root': {
         controller: 'CompanyController',
         action: 'root',

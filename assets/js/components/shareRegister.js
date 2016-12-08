@@ -11,7 +11,7 @@ import Input from './forms/input';
 import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
-
+import { CompanyHOCFromRoute } from '../hoc/resources';
 
 
 const shareRegisterLawLinks = () => <div>
@@ -259,6 +259,8 @@ export class ShareRegisterTable extends React.Component {
     }
 }
 
+
+
 export class ShareRegisterDocument extends React.Component {
     static propTypes = {
         shareRegister: PropTypes.array.isRequired,
@@ -426,7 +428,6 @@ export class ShareRegisterDocument extends React.Component {
 }
 
 
-
 @asyncConnect([{
     key: 'shareRegister',
     promise: ({store: {dispatch, getState}, params}) => {
@@ -436,6 +437,7 @@ export class ShareRegisterDocument extends React.Component {
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/share_register']}
 })
+@CompanyHOCFromRoute(true)
 export class ShareRegisterDocumentLoader extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired,
@@ -447,7 +449,8 @@ export class ShareRegisterDocumentLoader extends React.Component {
             return false;
         }
         const shareClassMap = generateShareClassMap(this.props.companyState)
-        return <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
+        const companyState = ((this.props['/company/'+this.props.params.id +'/get_info'] || {}).data || {}).currentCompanyState || {};
+        return <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={companyState}/>
     }
 }
 

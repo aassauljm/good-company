@@ -104,7 +104,7 @@ export class DocumentsWidget extends React.Component {
                 <tbody>
                 { documents.filter(d => !d.deleted).slice(0, 15).map((d, i) => {
                     return <tr key={i}><td><span className={documentTypeClasses(d)}/> </td>
-                    <td><Link activeClassName="active" className="nav-link" to={`/company/view/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td>
+                    <td><Link activeClassName="active" className="nav-link" to={`${this.props.baseUrl}/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td>
                     <td>{stringDateToFormattedString(d.date)}</td></tr>
                 }) }
                 </tbody>
@@ -119,7 +119,7 @@ export class DocumentsWidget extends React.Component {
                     <span className="fa fa-files-o"/> File Cabinet
                 </div>
                 <div className="widget-control">
-                 <Link to={`/company/view/${this.key()}/documents`} >View All</Link>
+                 <Link to={`${this.props.baseUrl}/documents`} >View All</Link>
                 </div>
             </div>
             { this.renderBody() }

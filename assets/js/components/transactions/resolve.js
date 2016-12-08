@@ -172,7 +172,7 @@ function MultipleHoldings(context,  submit){
         { beforeAndAfterSummary(context) }
          <div className="row">
             <div className="col-md-12">
-            <p className="instructions">Which shareholding does the result of the transaction refer to?</p>
+            <p className="instructions">Select the shareholding that results from the above transaction</p>
             </div>
          </div>
          <div className="row">

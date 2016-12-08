@@ -63,7 +63,8 @@ export class ShareholdingsWidget extends React.Component {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired,
         toggle: PropTypes.func.isRequired,
-        expanded: PropTypes.bool
+        expanded: PropTypes.bool,
+        baseUrl: PropTypes.string
     };
 
     countHolders() {
@@ -86,7 +87,7 @@ export class ShareholdingsWidget extends React.Component {
                     <span className="fa fa-group"/> Shareholdings
                 </div>
                 <div className="widget-control">
-                <Link to={`/company/view/${this.props.companyId}/shareholdings`}>View All</Link>
+                <Link to={`${this.props.baseUrl}/shareholdings`}>View All</Link>
                 </div>
             </div>
 
