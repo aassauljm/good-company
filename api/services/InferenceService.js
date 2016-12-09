@@ -40,12 +40,15 @@ module.exports = {
                     d.actions.map(a => {
                         a.transactionMethod = a.transactionType;
                         if(a.transactionType === Transaction.types.NEW_ALLOCATION){
+                            a.inferredType = true;
                             a.transactionType = Transaction.types.TRANSFER_TO;
                         }
                         if(a.transactionType === Transaction.types.REMOVE_ALLOCATION){
+                            a.inferredType = true;
                             a.transactionType = Transaction.types.TRANSFER_FROM;
                         }
                         else if(a.transactionType === Transaction.types.AMEND){
+                            a.inferredType = true;
                             a.transactionType  = a.afterAmount > a.beforeAmount ? Transaction.types.TRANSFER_TO : Transaction.types.TRANSFER_FROM;
                         }
                     })
@@ -61,12 +64,15 @@ module.exports = {
                                 match.actions.map(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.ISSUE:
+                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.ISSUE_TO;
                                             break;
                                         case Transaction.types.CONVERSION:
+                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.CONVERSION_TO;
                                             break;
                                         case Transaction.types.SUBDIVISION:
+                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.SUBDIVISION_TO;
                                             break;
                                     }
@@ -87,15 +93,19 @@ module.exports = {
                                 match.actions.map(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.PURCHASE:
+                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.PURCHASE_FROM;
                                             break;
                                         case Transaction.types.ACQUISITION:
+                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.ACQUISITION_FROM;
                                             break;
                                         case Transaction.types.CONSOLIDATION:
+                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.CONSOLIDATION_FROM;
                                             break;
                                         case Transaction.types.REDEMPTION:
+                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.REDEMPTION_FROM;
                                             break;
                                     }

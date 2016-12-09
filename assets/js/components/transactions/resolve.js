@@ -191,7 +191,7 @@ function HoldingNotFound(context,  submit){
             if(a.id === context.action.id){
                 a.holdingId = holding.holdingId;
 
-                /*if((a.afterHolders || a.holders).length === 1 && holding.holders.length === 1){
+                if((a.afterHolders || a.holders).length === 1 && holding.holders.length === 1){
                     // name change, just chuck it in
                     pendingActions.push({id: context.actionSet.id, data: {
                         ...context.actionSet.data,
@@ -202,7 +202,7 @@ function HoldingNotFound(context,  submit){
                         }]
 
                     }, previous_id: context.actionSet.previous_id});
-                }*/
+                }
 
                 if(a.transactionMethod === TransactionTypes.NEW_ALLOCATION){
                     a.holders = holding.holders.map(h => {
@@ -213,7 +213,7 @@ function HoldingNotFound(context,  submit){
             return a;
         });
         pendingActions.push({id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id});
-        debugger
+
         submit({
             pendingActions: pendingActions
         })

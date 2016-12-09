@@ -279,6 +279,10 @@ const EXTRACT_DOCUMENT_MAP = {
                     return acc + action.amount;
                 case Transaction.types.REMOVE_ALLOCATION:
                     return acc - action.amount;
+                 case Transaction.types.HOLDING_TRANSFER:
+                    if(action.amount){
+                        return acc + (action.afterAmount - action.beforeAmount)
+                    }
                 default:
                     return acc;
             }
@@ -902,6 +906,10 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     return acc + action.amount;
                 case Transaction.types.REMOVE_ALLOCATION:
                     return acc - action.amount;
+                 case Transaction.types.HOLDING_TRANSFER:
+                    if(action.amount){
+                        return acc + (action.afterAmount - action.beforeAmount)
+                    }
                 default:
                     return acc;
             }
@@ -926,9 +934,9 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         const registeredDate = match(/Registration Date:/);
         const regString = cleanString(registeredDate.text().replace('Registration Date:', ''));
         result.registrationDate = moment(regString, 'DD MMM YYYY').toDate();
-        result.afterAmount = toInt(cleanString(match(/\s*Total Number of Company Shares\s*/).parent().next().text()));
+        result.toAmount = toInt(cleanString(match(/\s*Total Number of Company Shares\s*/).parent().next().text()));
         result.amount = toInt(cleanString(match(/\s*Total Number of Shares Issued\s*/).parent().next().text()));
-        result.beforeAmount = result.afterAmount - result.amount;
+        result.fromAmount = result.toAmount - result.amount;
         result.increase = true;
         result.effectiveDate = moment(cleanString(match(/\s*Date of Issue\s*/).parent().next().text()), 'DD MMM YYYY').toDate();
         return {actions: [result], totalShares: result.increase ? -result.amount : result.amount};

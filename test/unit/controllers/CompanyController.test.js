@@ -794,9 +794,8 @@ describe('Company Controller', function() {
         });
         it('Imports history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
-                .expect(500)
+                .expect(200)
                 .then(function(res){
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
                     done();
                 })
                 .catch(done)
@@ -831,7 +830,8 @@ describe('Company Controller', function() {
                         return e.data.documentId === documentId;
                     });
                     actionSet.length.should.be.equal(2);
-                    actionSet[1].data.actions.should.be.equal(2);
+                    actionSet[1].data.actions.length.should.be.equal(2);
+                    actionSet[1].data.totalShares.should.be.equal(900)
                     //const
                     done();
                 })
@@ -842,7 +842,7 @@ describe('Company Controller', function() {
             req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(500)
                 .then(function(res){
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    res.body.context.importErrorType.should.be.equal('HOLDING_NOT_FOUND');
                     done();
                 })
                 .catch(done)
