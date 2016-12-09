@@ -259,7 +259,7 @@ function injectContext(FormComponent) {
                     }
                 } else if (schemaProperties[key].type === 'array') {
                     if (schemaProperties[key].items.type === "object") {
-                        loop(schemaProperties[key].items.properties, fields[key]);
+                        loop(schemaProperties[key].items.properties, fields[key] || {});
 
                         fields[key] && fields[key].map((field, index) => {
                             interceptChangesAndInject(schemaProperties[key].items,  index, fields[key], context);
