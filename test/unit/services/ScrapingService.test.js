@@ -516,7 +516,6 @@ describe('Scraping Service', function() {
                     const result = ScrapingService.processDocument(document, {
                         'documentType': 'Particulars of Shareholding',
                     });
-                    console.log(JSON.stringify(result, null, 4));
                     result.actions.length.should.be.equal(2);
                     result.actions.filter(a => a.transactionType === 'AMEND').length.should.be.equal(1)
                     result.actions.filter(a => a.transactionType === 'NEW_ALLOCATION').length.should.be.equal(1)

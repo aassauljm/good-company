@@ -146,9 +146,6 @@ function HolderNotFound(context, submit, reset){
 function MultipleHoldings(context,  submit){
     const { companyState, shareClassMap } = context;
     let { possibleMatches } = context;
-    if(!possibleMatches){
-        possibleMatches = context.companyState.holdingList.holdings;
-    }
     function handleSelect(holding){
         const updatedActions = {...context.actionSet.data};
         updatedActions.actions = updatedActions.actions.map(a => {
@@ -164,9 +161,61 @@ function MultipleHoldings(context,  submit){
             }
             return a;
         })
-        debugger
         submit({
             pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
+        })
+    }
+    return <div>
+        { beforeAndAfterSummary(context) }
+         <div className="row">
+            <div className="col-md-12">
+            <p className="instructions">Select the shareholding that results from the above transaction</p>
+            </div>
+         </div>
+         <div className="row">
+         { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }
+         </div>
+    </div>
+}
+
+function HoldingNotFound(context,  submit){
+    const { companyState, shareClassMap } = context;
+    const possibleMatches = context.companyState.holdingList.holdings;
+
+    const pendingActions = [];
+    function handleSelect(holding){
+        const updatedActions = {...context.actionSet.data};
+        updatedActions.actions = updatedActions.actions.map(a => {
+            a = {...a};
+
+            if(a.id === context.action.id){
+                a.holdingId = holding.holdingId;
+
+                /*if((a.afterHolders || a.holders).length === 1 && holding.holders.length === 1){
+                    // name change, just chuck it in
+                    pendingActions.push({id: context.actionSet.id, data: {
+                        ...context.actionSet.data,
+                        actions: [{
+                            transactionType: TransactionTypes.HOLDER_CHANGE,
+                            beforeHolder: context.action.beforeHolders[0],
+                            afterHolder: holding.holders.map(h => ({name: h.person.name, address: h.person.address, companyNumber: h.person.companyNumber, personId: h.person.personId}))[0]
+                        }]
+
+                    }, previous_id: context.actionSet.previous_id});
+                }*/
+
+                if(a.transactionMethod === TransactionTypes.NEW_ALLOCATION){
+                    a.holders = holding.holders.map(h => {
+                        return {personId: h.person.personId, name: h.person.name, address: h.person.address}
+                    })
+                }
+            }
+            return a;
+        });
+        pendingActions.push({id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id});
+        debugger
+        submit({
+            pendingActions: pendingActions
         })
     }
     return <div>
@@ -236,7 +285,7 @@ const PAGES = {
     [ImportErrorTypes.MULTIPLE_HOLDINGS_FOUND]: MultipleHoldings,
     [ImportErrorTypes.MULTIPLE_HOLDING_TRANSFER_SOURCE]: MultipleHoldingTransferSources,
     [ImportErrorTypes.HOLDER_NOT_FOUND]: HolderNotFound,
-    [ImportErrorTypes.HOLDING_NOT_FOUND]: MultipleHoldings,
+    [ImportErrorTypes.HOLDING_NOT_FOUND]: HoldingNotFound,
     [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: submitSkipRestart,
     [ImportErrorTypes.DIRECTOR_NOT_FOUND]: submitSkipRestart,
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,

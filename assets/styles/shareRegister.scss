@@ -42,10 +42,20 @@
     }
 
 
+
 }
 
-.widget .share-register-document  h5{
-    color: #000;
+.widget .share-register-document  {
+    h5{
+        color: #000;
+    }
+    ul li {
+        &:hover{
+            color: $text-color;
+        }
+        white-space: normal;
+    }
+
 }
 
 .shareregister-container{

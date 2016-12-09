@@ -78,7 +78,8 @@ export const NavLinks = (props) => {
             <li key={2} className="nav-item">
                 <Link to={`/calendar`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Calendar</Link>
             </li>,
-            <li key={3} className="nav-item"><Link to={`/templates`} activeClassName="active" className="nav-link">Templates</Link></li>
+            <li key={3} className="nav-item"><Link to={`/templates`} activeClassName="active" className="nav-link">Templates</Link></li>,
+            <li key={4} className="nav-item"><Link to={`/import`} activeClassName="active" className="nav-link">Import</Link></li>
          ];
 }
 

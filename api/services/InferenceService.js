@@ -255,6 +255,7 @@ module.exports = {
                         transactionType: Transaction.types.REMOVE_ALLOCATION,
                         holders: action.beforeHolders,
                     };
+
                     if(action.unknownAmount){
                         amend.transactionMethod = Transaction.types.REMOVE_ALLOCATION;
                         amend.transactionType = Transaction.types.TRANSFER_FROM;
@@ -282,7 +283,6 @@ module.exports = {
                         newAlloc.inferAmount = true
                         newAlloc.afterAmountLookup = {beforeHolders: action.beforeHolders};
                     }
-
                     acc.push(newAlloc);
                     acc.push(amend);
 

@@ -805,9 +805,6 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     result.transactionType = Transaction.types.NEW_ALLOCATION;
                     return [result];
                 }
-                if(result.amount){
-                    results.push(result);
-                }
 
                 if(JSON.stringify(result.beforeHolders).toLowerCase() !== JSON.stringify(result.afterHolders).toLowerCase()){
                     let difference = result.beforeHolders.length !== result.afterHolders.length
@@ -831,13 +828,14 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                         });
                     }
                     if(difference){
-                        results.push({
-                            ...result,
-                            transactionType: Transaction.types.HOLDING_TRANSFER,
-                        })
+                        result.transactionType =  Transaction.types.HOLDING_TRANSFER;
+                        return [result];
                     }
                 }
 
+                if(result.amount){
+                    results.push(result);
+                }
                 return results;
             }
 
@@ -1087,6 +1085,10 @@ const ScrapingService = {
             .then(function(res){
                 return res.text();
             })
+    },
+
+    fetchParentCompanyInfo: function(data){
+
     },
 
     cleanUpQuery: function(query) {

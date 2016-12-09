@@ -8,6 +8,7 @@ export function importCompany(companyNumber, options) {
         .tap(checkNameCollision.bind(null, options.userId))
         .tap(checkExtensive)
         .tap(checkEntityType)
+        //.then(ScrapingService.fetchParentCompanyChanges)
         .then((_data) => {
             data = _data;
             companyName = data.companyName;
@@ -103,7 +104,7 @@ export function checkNameCollision(ownerId, data) {
 
 
 export function checkExtensive(data) {
-    if(data.holdings.extensive) {
+    if(data.holdings.extensive && !sails.config.IMPORT_EXTENSIVE) {
         throw new sails.config.exceptions.UnsupportedCompanyException(
             'Good Companies does not currently support companies with extensive shareholding.  We are developing this feature for release in 2017.');
     }

@@ -805,10 +805,12 @@ describe('Company Controller', function() {
 
    describe('Test another multi transfer (1971578)', function(){
         var req, companyId, context, classes, holdings;
+
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
             login(req).then(done);
         });
+
         it('Does a stubbed import', function(done){
             req.post('/api/company/import/companiesoffice/1971578')
                 .expect(200)
@@ -818,6 +820,24 @@ describe('Company Controller', function() {
                 })
                 .catch(done);
         });
+
+
+        it("Confirms import isn't doing stupid things" , function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .expect(200)
+                .then(function(res){
+                    const documentId = "5620464";
+                    const actionSet = res.body.filter(e => {
+                        return e.data.documentId === documentId;
+                    });
+                    actionSet.length.should.be.equal(2);
+                    actionSet[1].data.actions.should.be.equal(2);
+                    //const
+                    done();
+                })
+                .catch(done);
+        });
+
         it('Imports history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(500)
@@ -827,6 +847,10 @@ describe('Company Controller', function() {
                 })
                 .catch(done)
         });
+
+
+
+
     });
 
    describe('Director appointed and removed on incorporation day (1522101)', function(){
