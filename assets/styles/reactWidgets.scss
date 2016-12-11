@@ -212,7 +212,7 @@ $rw-version:          "4.1.0";
         li.rw-list-option{
             padding-left:1em;
             cursor:pointer;
-            &:hover{
+            &:hover, &:hover > a{
                 background-color:$gray;
                 color:#fff;
             }
@@ -221,6 +221,10 @@ $rw-version:          "4.1.0";
 
 }
 
+.rw-combobox .rw-popup-container{
+    width:auto;
+    left: -10px - $input-border-width;
+}
 
 .rw-calendar {
   background-color: #fff;

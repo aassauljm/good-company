@@ -20,7 +20,7 @@ import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
 
 
-const shareClassLawLinks = () => <div>
+export const shareClassLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM320605/28784-DLM319594">Share classes</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 37">Issue of shares in different classes </LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 36">Rights attached to shares</LawBrowserLink>
@@ -128,9 +128,7 @@ export class ShareClassForm extends React.Component {
                 const value = !fields.votingRights[key].value;
                 decisionRights.map(d => fields.decisionMakingRights[d].onChange(value));
             }
-
             return fields.votingRights[key].onChange(event);
-
         }
 
         return <form onSubmit={handleSubmit(this.submit)}>
@@ -152,17 +150,21 @@ export class ShareClassForm extends React.Component {
                 fields.rights.addField();    // pushes empty child field onto the end of the array
             }}>Add Right</ButtonInput></div></div>
 
-            <div className="form-group"><label>{ STRINGS.shareClasses.decisionMakingRights._ }</label></div>
 
+             <div className="form-group"><label>{ STRINGS.shareClasses.decisionMakingRights._ }</label></div>
 
             { decisionRights.map((v, i) => {
                 return <Input key={i} type="checkbox" {...fields.decisionMakingRights[v]}  bsStyle={fieldStyle(fields.decisionMakingRights[v])}
                     help={fieldHelp(fields.decisionMakingRights[v])} label={STRINGS.shareClasses.decisionMakingRights[v]} hasFeedback />
             }) }
 
+            <div className="form-group">
+                <label>{ STRINGS.shareClasses.transferRestrictionQuestion }</label>
+                { this.props.companyState && <div><em>Note: This company { this.props.companyState.constitutionFiled ? 'has' : 'does not have'} a constitution</em></div> }
+            </div>
 
              <SelectBoolean {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
-                    help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestrictionQuestion} hasFeedback >
+                    help={fieldHelp(fields.transferRestriction)}  hasFeedback >
                     <option value={false}>No</option>
                     <option value={true}>Yes</option>
             </SelectBoolean>
@@ -170,7 +172,9 @@ export class ShareClassForm extends React.Component {
              { fields.transferRestriction.value &&
               <Input  {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)} className="combobox-wrapper"
                     help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback >
-                        <Combobox {...fields.transferRestrictionDocument} data={transferRestrictionDocumentLocations} itemComponent={Anchor} placeholder={STRINGS.shareClasses.transferRestrictionPlaceholder}/>
+                        <Combobox {...fields.transferRestrictionDocument} data={transferRestrictionDocumentLocations} itemComponent={Anchor}
+                        placeholder={STRINGS.shareClasses.transferRestrictionPlaceholder}
+                        />
                     </Input>
                 }
 

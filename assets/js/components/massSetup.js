@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { ShareClassCreate } from './shareClasses';
+import { ShareClassCreate, shareClassLawLinks } from './shareClasses';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { requestResource, resetTransactionViews, nextTransactionView, showTransactionView, transactionBulk, addNotification } from '../actions';
@@ -12,6 +12,8 @@ import { reduxForm } from 'redux-form';
 import ButtonInput from './forms/buttonInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { enums as BulkTransactionTypes } from '../../../config/enums/bulkTransactions';
+import LawBrowserContainer from './lawBrowserContainer'
+
 
 const CREATE_SHARE = 0;
 const SELECT_COMPANIES = 1;
@@ -81,8 +83,7 @@ const MassSetupLoading = (props) => {
 const PAGES = {
     [CREATE_SHARE]: (props) => {
         return <div>
-            <div className="row">
-                <div className="col-md-12">
+              <LawBrowserContainer>
                     <div className="widget">
                         <div className="widget-header">
                             <div className="widget-title">
@@ -94,11 +95,9 @@ const PAGES = {
                             To begin, fill out the details for the share class below.
                         </div>
                     </div>
-                </div>
-            </div>
+                </LawBrowserContainer>
 
-            <div className="row">
-                <div className="col-md-12">
+              <LawBrowserContainer lawLinks={shareClassLawLinks()}>
                     <div className="widget">
                         <div className="widget-header">
                             <div className="widget-title">
@@ -109,8 +108,7 @@ const PAGES = {
                             <ShareClassCreate submit={(values) => props.next({index: SELECT_COMPANIES, shareClass: values} )}  noDocuments={true}/>
                         </div>
                     </div>
-                </div>
-            </div>
+                    </LawBrowserContainer>
         </div>
     },
 
@@ -125,8 +123,7 @@ const PAGES = {
 
         return <div>
 
-            <div className="row">
-                <div className="col-md-12">
+            <LawBrowserContainer>
                     <div className="widget">
                         <div className="widget-header">
                             <div className="widget-title">
@@ -137,12 +134,10 @@ const PAGES = {
                         Next, select each company that has the "<strong>{props.massSetup.data.shareClass.name}</strong>" share class.
                         </div>
                     </div>
-                </div>
-            </div>
+            </LawBrowserContainer>
 
 
-            <div className="row">
-                <div className="col-md-12">
+             <LawBrowserContainer>
                     <div className="widget">
                         <div className="widget-header">
                             <div className="widget-title">
@@ -159,8 +154,7 @@ const PAGES = {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+            </LawBrowserContainer>
         </div>
     },
 
