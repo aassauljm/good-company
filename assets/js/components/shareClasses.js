@@ -37,6 +37,10 @@ const shareClassFields = [
     "votingRights.1(b)",
     "votingRights.1(c)",
     "rights[]",
+    "decisionMakingRights.dividend",
+    "decisionMakingRights.constitution",
+    "decisionMakingRights.capitalVariation",
+    "decisionMakingRights.appointDirector",
     "limitations[]",
     "transferRestriction",
     "transferRestrictionDocument",
@@ -116,6 +120,19 @@ export class ShareClassForm extends React.Component {
         } = this.props;
         const referenceUrl = 'https://browser.catalex.nz/open_article/instrument/DLM320143';
         const votingRights = ["1(a)", "1(b)", "1(c)"];
+        const decisionRights = ["dividend", "constitution", "capitalVariation", "appointDirector"];
+
+
+        const changeVotingRight = (key) => (event) => {
+            if(key === "1(a)"){
+                const value = !fields.votingRights[key].value;
+                decisionRights.map(d => fields.decisionMakingRights[d].onChange(value));
+            }
+
+            return fields.votingRights[key].onChange(event);
+
+        }
+
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
             {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 37">Learn more about share classes</LawBrowserLink></div> */ }
@@ -123,7 +140,7 @@ export class ShareClassForm extends React.Component {
 
             <div className="form-group"><label>{ STRINGS.shareClasses.votingRights.votingRights }</label></div>
             { votingRights.map((v, i) => {
-                return <Input key={i} type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])}
+                return <Input key={i} type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])} onChange={changeVotingRight(v)}
                     help={fieldHelp(fields.votingRights[v])} label={STRINGS.shareClasses.votingRights[v]} hasFeedback />
             }) }
             {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about rights attached to shares</LawBrowserLink></div> */ }
@@ -134,7 +151,15 @@ export class ShareClassForm extends React.Component {
             <div className="form-group"><div className="button-row"><ButtonInput onClick={() => {
                 fields.rights.addField();    // pushes empty child field onto the end of the array
             }}>Add Right</ButtonInput></div></div>
-            {/*  <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 87(1)">Learn more about transfer restrictions</LawBrowserLink></div> */ }
+
+            <div className="form-group"><label>{ STRINGS.shareClasses.decisionMakingRights._ }</label></div>
+
+
+            { decisionRights.map((v, i) => {
+                return <Input key={i} type="checkbox" {...fields.decisionMakingRights[v]}  bsStyle={fieldStyle(fields.decisionMakingRights[v])}
+                    help={fieldHelp(fields.decisionMakingRights[v])} label={STRINGS.shareClasses.decisionMakingRights[v]} hasFeedback />
+            }) }
+
 
              <SelectBoolean {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
                     help={fieldHelp(fields.transferRestriction)} label={STRINGS.shareClasses.transferRestrictionQuestion} hasFeedback >
@@ -215,16 +240,12 @@ export class ShareClassEditTransactionView extends React.Component {
             return s.id === this.props.transactionViewData.shareClassId;
         })[0];
 
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'} lawLinks={shareClassLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Create Share Class</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
-              <div className="row">
-                <div className="col-md-6 col-md-offset-3">
                     <ShareClassFormConnected {...this.props} {...this.props.transactionViewData} end={this.props.end}  initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
-                </div>
-            </div>
 
           </TransactionView.Body>
         </TransactionView>

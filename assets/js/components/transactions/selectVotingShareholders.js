@@ -151,7 +151,6 @@ export class VotingShareholdersTransactionView extends React.Component {
                 <TransactionView.Title>Select Voting Shareholders</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
-              <p><LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11">Learn more about Voting Shareholders</LawBrowserLink></p>
                 { this.renderBody(this.props.transactionViewData.companyState) }
               </TransactionView.Body>
               <TransactionView.Footer>

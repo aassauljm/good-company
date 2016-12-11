@@ -176,6 +176,13 @@ export default {
             "1(a)": "The right to 1 vote on a poll at a meeting of the company on any resolution",
             "1(b)": "The right to an equal share in dividends authorised by the board",
             "1(c)": "The right to an equal share in the distribution of the surplus assets of the company",
+        },
+        "decisionMakingRights": {
+            "_": "Decision-Making Rights",
+            "dividend": "A dividend or other distribution paid or made by the company, excluding decision-making undertaken by directors acting only in their capacity as directors",
+            "constitution": "The constitution of the company",
+            "capitalVariation": "A variation in the capital of the company",
+            "appointDirector": "The appointment of a director of the company"
         }
     },
     calendar: {
