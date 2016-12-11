@@ -126,7 +126,7 @@ export class ShareClassForm extends React.Component {
 
         /*const changeVotingRight = (key) => (event) => {
             if(key === "1(a)"){
-                const value = !fields.votingRights[key].value;
+            const value = !fields.votingRights[key].value;
                 if(value){
                     decisionRights.map(d => fields.decisionMakingRights[d].onChange(value));
                 }
@@ -146,7 +146,7 @@ export class ShareClassForm extends React.Component {
                     <Input  type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])}
                     help={fieldHelp(fields.votingRights[v])} label={STRINGS.shareClasses.votingRights[v]} hasFeedback />
 
-                    <div className="form-group-indent"> { v === '1(a)' &&  <div><em>{ STRINGS.shareClasses.decisionMakingRights._ }</em></div> }
+                    <div className="form-group-indent"> { v === '1(a)' &&  <div><em>{ STRINGS.shareClasses.decisionMakingRights._ }:</em></div> }
 
                     { v === '1(a)' &&  decisionRights.map((v, i) => {
                         return <Input key={i} type="checkbox" {...fields.decisionMakingRights[v]}  bsStyle={fieldStyle(fields.decisionMakingRights[v])}

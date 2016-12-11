@@ -178,7 +178,7 @@ export default {
             "1(c)": "The right to an equal share in the distribution of the surplus assets of the company",
         },
         "decisionMakingRights": {
-            "_": "Decision-Making Rights",
+            "_": "The right to vote or participate in decision-making concerning the following",
             "dividend": "A dividend or other distribution paid or made by the company, excluding decision-making undertaken by directors acting only in their capacity as directors",
             "constitution": "The constitution of the company",
             "capitalVariation": "A variation in the capital of the company",
