@@ -15,6 +15,18 @@ import LawBrowserLink from '../lawBrowserLink';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 
 
+
+
+function votingShareholdingLawLinks() {
+    return <div>
+        <LawBrowserLink title="Companies Act 1993" location="s 104">Exercise of powers of shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 124">Proceedings at meetings of shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11">Votes of joint shareholders</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87(2)(a)">Listing shareholders alphabetically in share registe</LawBrowserLink>
+    </div>
+}
+
+
 function renderHolders(holding){
     return <ul>
         { holding.holders.map((h, i) => {
@@ -134,7 +146,7 @@ export class VotingShareholdersTransactionView extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'} lawLinks={votingShareholdingLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Select Voting Shareholders</TransactionView.Title>
               </TransactionView.Header>
