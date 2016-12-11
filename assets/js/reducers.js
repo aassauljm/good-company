@@ -38,7 +38,7 @@ import { relationNameToModel } from './schemas';
 import { routerReducer, LOCATION_CHANGE } from 'react-router-redux'
 import { reducer as reduxAsyncConnect } from 'redux-connect'
 import { calculateReciprocals } from './components/transactions/resolvers/amend';
-
+import update from 'immutability-helper';
 
 const initialState = {
 
@@ -456,6 +456,8 @@ const normalizeNumber = (value) => {
 
 
 
+
+
 export const form = formReducer.plugin({
     amendAction: (state, action) => {
         switch(action.type) {
@@ -467,7 +469,37 @@ export const form = formReducer.plugin({
             default:
                 return state
       }
-  }
+  },
+    shareClass: (state, action) => {
+        switch(action.type) {
+            case "redux-form/CHANGE":
+                if(action.field === 'votingRights.1(a)'){
+                    state = {...state};
+                    state.decisionMakingRights = {...(state.decisionMakingRights || {})};
+                    state.decisionMakingRights.dividend = {...(state.decisionMakingRights.dividend || {})};
+                    state.decisionMakingRights.constitution = {...(state.decisionMakingRights.constitution || {})};
+                    state.decisionMakingRights.capitalVariation = {...(state.decisionMakingRights.capitalVariation || {})};
+                    state.decisionMakingRights.appointDirector= {...(state.decisionMakingRights.appointDirector || {})};
+                    if(action.value) {
+                        return update({decisionMakingRights: {}, ...state}, {decisionMakingRights: {
+                            "dividend": {value: {$set: true}},
+                            "constitution": {value: {$set: true}},
+                            "capitalVariation": {value: {$set: true}},
+                            "appointDirector": {value: {$set: true}}}})
+                    }
+                }
+                if(action.field.indexOf('decisionMakingRights.') === 0){
+                    if(!action.value) {
+                        state = {...state};
+                        state.votingRights = {...(state.votingRights || {})};
+                        state.votingRights["1(a)"] = {...(state.votingRights["1(a)"] || {})};
+                        return update(state, {votingRights: {"1(a)": {value: {$set: false}}}})
+                    }
+                }
+            default:
+                return state
+            }
+        }
 });
 
 const appReducer = combineReducers({

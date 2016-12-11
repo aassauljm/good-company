@@ -84,6 +84,7 @@
     "grunt-sync": "~0.0.4",
     "history": "1.13.1",
     "html-pdf": "^2.0.1",
+    "immutability-helper": "^2.0.0",
     "install": "^0.8.2",
     "isomorphic-fetch": "^2.1.1",
     "jsdom": "^8.0.4",

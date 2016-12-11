@@ -48,8 +48,9 @@ export default class Company extends React.Component {
 export class CompanyDated extends React.Component {
     render() {
         const loc = '/company/'+this.props.params.id +'/at_date/'+this.props.params.date;
-        const baseUrl = `/company/at_date/${this.props.params.date}/view/${this.props.params.id}`
-        return <CompanyView {...this.props} data={DEFAULT_OBJ} {...this.props[loc]}  baseUrl={baseUrl} />
+        const baseUrl = `/company/at_date/${this.props.params.date}/view/${this.props.params.id}`;
+        const date = moment(this.props.params.date, 'D-M-YYYY').toDate()
+        return <CompanyView {...this.props} data={DEFAULT_OBJ} {...this.props[loc]} date={date} baseUrl={baseUrl} />
     }
 }
 
@@ -182,6 +183,7 @@ export class CompanyView extends React.Component {
     render(){
         const data = this.props.data || DEFAULT_OBJ;
         const current = data.currentCompanyState || data.companyState;
+
         if(this.props._status === 'error'){
             return <NotFound descriptor="Company" />
 
@@ -190,7 +192,7 @@ export class CompanyView extends React.Component {
 
                 <div className="company-page">
                     <div className="container-fluid page-top">
-                        <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} baseUrl={this.props.baseUrl} />
+                        <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} baseUrl={this.props.baseUrl} date={this.props.date}/>
                         </div>
                     <div className="container-fluid page-body">
                         { this.renderBody(current || FAKE_COMPANY) }

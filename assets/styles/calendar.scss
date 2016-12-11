@@ -21,8 +21,8 @@
         background-color: $deep-red;
         color:white;
     }
-    .selected{
-         background-color: $brand-info;
+    .selected, .rw-state-selected {
+        background-color: $brand-info;
         color:white;
     }
 }
@@ -72,4 +72,8 @@
 
     }
 
+}
+
+.popover-content .rw-calendar{
+    width: 22em;
 }

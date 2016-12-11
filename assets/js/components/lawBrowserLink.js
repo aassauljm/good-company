@@ -244,7 +244,7 @@ const dragSource = {
   connectDragSource: connect.dragSource(),
   connectDragPreview: connect.dragPreview(),
 }))
-class Popover extends React.Component {
+export class Popover extends React.Component {
   render() {
     const {
       placement,
@@ -304,6 +304,11 @@ class Popover extends React.Component {
 Popover.defaultProps = defaultProps;
 
 
+
+export const OverlayPosition = (props) =>{
+    const style = {position: 'absolute',  left: props.positionLeft, top: props.positionTop}
+    return <div style={style}>{ props.children}</div>
+}
 
 
 

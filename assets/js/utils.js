@@ -36,7 +36,7 @@ export function analyseCompany(company){
         }, acc)
         return acc;
     }, {});
-    company.currentCompanyState.holdingList.holdings.sort((a, b) => a.name.localeCompare(b.name))
+    company.currentCompanyState.holdingList.holdings.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
     return company;
 }
 

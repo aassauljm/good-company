@@ -1,5 +1,6 @@
 "use strict"
 import React, { PropTypes } from 'react'
+import ReactDOM  from 'react-dom'
 import { pureRender }  from '../utils';
 import { Link, IndexLink, withRouter } from 'react-router';
 import Navbar from 'react-bootstrap/lib/Navbar'
@@ -15,6 +16,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
 import moment from 'moment'
 import { FavouritesHOC } from '../hoc/resources';
+import Calendar from 'react-widgets/lib/Calendar'
+import { OverlayTrigger, OverlayPosition, Popover }   from './lawBrowserLink';
 
 
 const DropdownToggle = (props) => {
@@ -30,6 +33,12 @@ const DropdownToggle = (props) => {
     removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']})
 })
 export default class CompanyHeader extends React.Component {
+
+    constructor(props){
+        super();
+        this.selectDate = ::this.selectDate
+    }
+
     closeMenu() {
         // ugly ugly
         //this.refs.dropdown.refs.inner.handleClose()
@@ -97,14 +106,41 @@ export default class CompanyHeader extends React.Component {
              <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={() => this.closeMenu()} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
+
+    dateControl() {
+        const date = new Date(this.props.companyState.transaction ? this.props.companyState.transaction.effectiveDate : this.props.companyState.incorporationDate);
+        return <div className="calendar-toggle">
+                <OverlayTrigger placement="bottom" rootClose={true} overlay={
+                    <Popover title="Select Date">
+                        <div>
+                            <Calendar value={date} onChange={this.selectDate} duration={0}/>
+                            <div className="button-row">
+                            <Link to={`/company/view/${this.props.companyId}`} className="btn btn-info">Today</Link>
+                            </div>
+                        </div>
+                    </Popover>
+                }>
+                <span className="actionable fa fa-calendar" />
+
+                </OverlayTrigger>
+        </div>
+    }
+
+    selectDate(value) {
+        const date = moment(value).format('D-M-YYYY');
+        this.props.navigate(`/company/at_date/${date}/view/${this.props.companyId}`);
+    }
+
      render() {
+        let date = this.props.date || new Date();
+        let dateString = moment(date).format('hh:mm a D MMMM YYYY');
+
         return <div className="container">
             <div className="nav-controls">
 
                     <div className="company-summary">
                         <h1> { this.props.companyState.companyName}</h1>
-                        { this.props.companyState.transaction && <h2> as at { moment(this.props.companyState.transaction.effectiveDate).format('hh:mm a D MMMM YYYY') } </h2> }
-                        { !this.props.companyState.transaction && <h2> as at { moment(this.props.companyState.incorporationDate).format('hh:mm a D MMMM YYYY') } </h2> }
+                        <h2> { this.dateControl() } as at { dateString }  </h2>
                     </div>
                     <div className="full-controls">
                         <ul className="nav navbar-nav">

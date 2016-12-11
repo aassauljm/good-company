@@ -301,7 +301,10 @@ nav.navbar{
 
 }
 
-
+.calendar-toggle{
+    display:inline-block;
+    position: relative;
+}
 
 .footer, nav.navbar{
     background-image: $header-image;

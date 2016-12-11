@@ -62,9 +62,7 @@ const SelectCompaniesConnected = reduxForm({
 })(SelectCompanies);
 
 const MassSetupLoading = (props) => {
-    return <div>
-            <div className="row">
-                <div className="col-md-12">
+    return <LawBrowserContainer>
                     <div className="widget">
                         <div className="widget-header">
                             <div className="widget-title">
@@ -75,9 +73,7 @@ const MassSetupLoading = (props) => {
                                 <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
+            </LawBrowserContainer>
 }
 
 const PAGES = {
@@ -165,10 +161,7 @@ const PAGES = {
             acc[a.id] = a.companyName;
             return acc;
         }, {});
-        return <div>
-
-            <div className="row">
-                <div className="col-md-12">
+        return <LawBrowserContainer>
                     <div className="widget">
                         <div className="widget-header">
                             <div className="widget-title">
@@ -193,10 +186,8 @@ const PAGES = {
                                 </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    }
+                    </LawBrowserContainer>
+        }
 
 }
 
@@ -235,23 +226,17 @@ export class MassSetup extends React.Component {
     fetch() {
         this.props.requestData();
         this.props.showTransactionView()
-
     }
 
     componentDidMount() {
         this.fetch();
     }
 
-    renderBody() {
+    render() {
         if(this.props.massSetup._status === 'fetching' || this.props.transactionBulk._status === 'fetching'){
             return <MassSetupLoading />;
         }
         return PAGES[this.props.massSetup.index || 0]({...this.props})
     }
 
-    render() {
-        return <div className="container">
-            { this.renderBody() }
-        </div>
-    }
 }

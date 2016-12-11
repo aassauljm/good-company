@@ -27,7 +27,8 @@ export const shareClassLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location="s 87(1)">Restrictions or limitations on share transfers</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 87(2)">Stating information by class on the share register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 117">Alteration of shareholder rights after interest group approval</LawBrowserLink>
-    </div>
+        <LawBrowserLink title="Companies Act 1993" definition="29156-DLM1522625">Definition of shareholder decision-making right</LawBrowserLink>
+    </div>;
 
 const defaultShareClass = '___default';
 
@@ -123,13 +124,15 @@ export class ShareClassForm extends React.Component {
         const decisionRights = ["dividend", "constitution", "capitalVariation", "appointDirector"];
 
 
-        const changeVotingRight = (key) => (event) => {
+        /*const changeVotingRight = (key) => (event) => {
             if(key === "1(a)"){
                 const value = !fields.votingRights[key].value;
-                decisionRights.map(d => fields.decisionMakingRights[d].onChange(value));
+                if(value){
+                    decisionRights.map(d => fields.decisionMakingRights[d].onChange(value));
+                }
             }
             return fields.votingRights[key].onChange(event);
-        }
+        }*/
 
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
@@ -138,8 +141,19 @@ export class ShareClassForm extends React.Component {
 
             <div className="form-group"><label>{ STRINGS.shareClasses.votingRights.votingRights }</label></div>
             { votingRights.map((v, i) => {
-                return <Input key={i} type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])} onChange={changeVotingRight(v)}
+
+                return <div key={i}>
+                    <Input  type="checkbox" {...fields.votingRights[v]} bsStyle={fieldStyle(fields.votingRights[v])}
                     help={fieldHelp(fields.votingRights[v])} label={STRINGS.shareClasses.votingRights[v]} hasFeedback />
+
+                    <div className="form-group-indent"> { v === '1(a)' &&  <div><em>{ STRINGS.shareClasses.decisionMakingRights._ }</em></div> }
+
+                    { v === '1(a)' &&  decisionRights.map((v, i) => {
+                        return <Input key={i} type="checkbox" {...fields.decisionMakingRights[v]}  bsStyle={fieldStyle(fields.decisionMakingRights[v])}
+                            help={fieldHelp(fields.decisionMakingRights[v])} label={STRINGS.shareClasses.decisionMakingRights[v]} hasFeedback />
+                    }) }
+                    </div>
+                </div>
             }) }
             {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about rights attached to shares</LawBrowserLink></div> */ }
             { fields.rights.map((n, i) => {
@@ -151,12 +165,6 @@ export class ShareClassForm extends React.Component {
             }}>Add Right</ButtonInput></div></div>
 
 
-             <div className="form-group"><label>{ STRINGS.shareClasses.decisionMakingRights._ }</label></div>
-
-            { decisionRights.map((v, i) => {
-                return <Input key={i} type="checkbox" {...fields.decisionMakingRights[v]}  bsStyle={fieldStyle(fields.decisionMakingRights[v])}
-                    help={fieldHelp(fields.decisionMakingRights[v])} label={STRINGS.shareClasses.decisionMakingRights[v]} hasFeedback />
-            }) }
 
             <div className="form-group">
                 <label>{ STRINGS.shareClasses.transferRestrictionQuestion }</label>
