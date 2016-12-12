@@ -4,7 +4,7 @@
  * Ensure that the 'owner' property of an Object is set upon creation.
  */
 module.exports = function AdminPolicy (req, res, next) {
-    if(sails.config.ADMIN_KEY !== req.body.key){
+    if(!sails.config.ADMIN_KEY || sails.config.ADMIN_KEY !== req.body.key){
         return res.forbidden();
     }
     next();
