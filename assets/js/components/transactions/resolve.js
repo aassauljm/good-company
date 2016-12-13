@@ -352,7 +352,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         }
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>Resolve Company Import Problem</TransactionView.Title>
+                <TransactionView.Title>Import History - More Information Required</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody() }

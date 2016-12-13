@@ -34,7 +34,7 @@ export function alertList(props){
                 danger.push(<li key='bulk'><div><Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={props.resetTransactionViews} ><Glyphicon glyph="cog" className="big-icon"/>Click here to set up multiple companies at the same time.</Link></div></li>);
             }
 
-            if(firstCompanyId){
+            if(firstCompanyId && props.alerts.data.alertList.length > 1){
                 danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={props.resetTransactionViews} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
             }
 

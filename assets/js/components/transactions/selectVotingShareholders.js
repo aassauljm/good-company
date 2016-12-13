@@ -22,7 +22,7 @@ function votingShareholdingLawLinks() {
         <LawBrowserLink title="Companies Act 1993" location="s 104">Exercise of powers of shareholders</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 124">Proceedings at meetings of shareholders</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="sch 1 cl 11">Votes of joint shareholders</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 87(2)(a)">Listing shareholders alphabetically in share registe</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 87(2)(a)">Listing shareholders alphabetically in share register</LawBrowserLink>
     </div>
 }
 

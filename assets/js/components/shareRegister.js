@@ -283,10 +283,7 @@ export class ShareRegisterDocument extends React.Component {
         }
         return <div >
                 <h4>{ renderShareClass(k, shareClassMap) }</h4>
-                <div ><div className="col-md-6">
-                    <h5>{ STRINGS.shareRegister['votingRights'] }</h5>
-                    { renderRights(properties.votingRights) }
-                    </div>
+                <div >
                     <div className="col-md-6">
                         <h5>{ STRINGS.shareClasses['transferRestriction'] }</h5>
                         { transferRestriction ? STRINGS.shareRegister.hasTransferRestriction : STRINGS.shareRegister.hasNoTransferRestriction }
