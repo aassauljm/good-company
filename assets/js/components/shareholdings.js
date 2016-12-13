@@ -77,7 +77,10 @@ export class ShareholdingsWidget extends React.Component {
         const shareClassMap = generateShareClassMap(this.props.companyState);
         const classCount = Object.keys(shareClassMap).length
 
-        let bodyClass = "widget-body expandable ";
+        let bodyClass = "widget-body ";
+        if(this.props.toggle){
+            bodyClass += "expandable "
+        }
         if(this.props.expanded){
             bodyClass += "expanded ";
         }
@@ -91,7 +94,7 @@ export class ShareholdingsWidget extends React.Component {
                 </div>
             </div>
 
-            <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+            <div className={bodyClass} onClick={() => this.props.toggle && this.props.toggle(!this.props.expanded)}>
                 <div className="row">
                     <div className="col-sm-6 summary">
                             <div className="col-xs-6 col-sm-12">
@@ -125,6 +128,7 @@ export class ShareholdingsWidget extends React.Component {
                     { Object.keys(shareCountByClass).map((k, i) => {
                         return <div key={i} className="class-summary">
                             <div><strong>{numberWithCommas(shareCountByClass[k].amount)}</strong> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
+                            <div className="largest-holdings">Largest Shareholdings:</div>
                                 { largestHolders(shareCountByClass[k].shareClass, shareCountByClass[k].amount, this.props.companyState).map((h, i) => {
                                     return <div key={i} className="indent"><strong>{numberWithCommas(h.amount)} ({(h.amount/shareCountByClass[k].amount*100).toFixed(2) + '%'})</strong> Held by {renderHolders(h.holding)}</div>
                                 }) }

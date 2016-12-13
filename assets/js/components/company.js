@@ -144,8 +144,8 @@ export class CompanyView extends React.Component {
                 </div>
                  <div className="col-md-6">
                      <ShareholdingsWidget
-                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'shareholdings'], expanded) }
-                        expanded={(this.props.widgets.shareholdings || {}).expanded}
+                        //toggle={(expanded) => this.props.toggleWidget([this.key(), 'shareholdings'], expanded) }
+                        expanded={true}
                         companyState={current}
                         companyId={this.props.params.id}
                         baseUrl={this.props.baseUrl}

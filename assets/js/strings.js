@@ -11,7 +11,7 @@ export default {
     parcel: 'Parcel',
     amount: 'Amount',
     shareClass: 'Class',
-    defaultShareClass: 'Ordinary',
+    defaultShareClass: 'Unknown',
     effectiveDate: 'Effective Date',
     holding: 'Shareholding',
     arFilingMonth: 'AR Filing Month',
