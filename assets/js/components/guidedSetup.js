@@ -61,7 +61,7 @@ export class NextCompanyControls extends React.Component {
                     <div className="row">
                     <div className="col-md-12">
                          <div className="button-row">
-                            <Link className="btn btn-info" to={`/company/view/${data[index].id}/guided_setup`}>{ this.props.showSkip && 'Skip and '}Set up {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
+                            <Link className="btn btn-info" to={`/company/view/${data[index].id}/guided_setup?show_next=true`}>{ this.props.showSkip && 'Skip and '}Set up {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
                         </div>
                     </div>
                 </div>
@@ -151,7 +151,7 @@ export class GuidedSetup extends React.Component {
         if(props.transactionViewData.loadCompanyState){
             props.transactionViewData = {...props.transactionViewData, companyState: this.props.companyState, companyId: this.props.companyId};
         }
-
+        const showNext = this.props.location.query.show_next;
         return <div className="transactionViews">
             <div>
                 <div className="container">
@@ -176,7 +176,7 @@ export class GuidedSetup extends React.Component {
                 </div>
                 { this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
             </div>
-            <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={this.state.warningCount !== 0}/>
+            { showNext && <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={this.state.warningCount !== 0}/> }
         </div>
     }
 }

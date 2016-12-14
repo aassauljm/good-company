@@ -35,7 +35,7 @@ export function alertList(props){
             }
 
             if(firstCompanyId && props.alerts.data.alertList.length > 1){
-                danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup`} onClick={props.resetTransactionViews} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
+                danger.push(<li key='guidedsetup'><div><Link to={`/company/view/${firstCompanyId}/guided_setup?show_next=true`} onClick={props.resetTransactionViews} className={'text-success alert-entry'}><Glyphicon glyph="repeat" className="big-icon"/>Click here to step through company alerts.</Link></div></li>);
             }
 
             props.alerts.data.alertList.map((a, i) => {

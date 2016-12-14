@@ -81,6 +81,7 @@ export class ShareClassForm extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
+        this.state = {};
     }
 
     handleDrop(e, files){
@@ -181,6 +182,10 @@ export class ShareClassForm extends React.Component {
               <Input  {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)} className="combobox-wrapper"
                     help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback >
                         <Combobox {...fields.transferRestrictionDocument} data={transferRestrictionDocumentLocations} itemComponent={Anchor}
+                        open={fields.transferRestrictionDocument}
+                        onFocus={() => this.setState({showTransferRestriction: true})}
+                        onBlur={() => this.setState({showTransferRestriction: false})}
+                        open={this.state.showTransferRestriction}
                         placeholder={STRINGS.shareClasses.transferRestrictionPlaceholder}
                         />
                     </Input>
