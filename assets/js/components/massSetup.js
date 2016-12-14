@@ -28,16 +28,21 @@ class SelectCompanies extends React.Component {
             <div className="button-row">
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(true) )} >Select All</ButtonInput>
                 <ButtonInput onClick={() => fields.companies.map((c, i) => this.props.companyData[i].constitutionFiled && c.selected.onChange(true))} >Select All With Constitution</ButtonInput>
+                <ButtonInput onClick={() => fields.companies.map((c, i) => !this.props.companyData[i].constitutionFiled && c.selected.onChange(true))} >Select All Without Constitution</ButtonInput>
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(false) )} >Unselect All</ButtonInput>
             </div>
-
-            { fields.companies.map((company, i) => {
-                return <Input key={i} type="checkbox"  {...this.formFieldProps(['companies', i, 'selected'])}
-                label={(<span><strong>{this.props.companyData[i].companyName}</strong>{ this.props.companyData[i].constitutionFiled && ' (Constitution Filed)'} </span>)} />
-            }) }
+            <div className="row">
+            <div className="col-md-6 col-md-offset-3">
+                { fields.companies.map((company, i) => {
+                    return <Input key={i} type="checkbox"  {...this.formFieldProps(['companies', i, 'selected'])}
+                    label={(<span><strong>{this.props.companyData[i].companyName}</strong>{ this.props.companyData[i].constitutionFiled && ' (Constitution Filed)'} </span>)} />
+                }) }
+            </div>
+            </div>
             <div className="button-row">
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(true) )} >Select All</ButtonInput>
                 <ButtonInput onClick={() => fields.companies.map((c, i) => this.props.companyData[i].constitutionFiled && c.selected.onChange(true))}>Select All With Constitution</ButtonInput>
+                <ButtonInput onClick={() => fields.companies.map((c, i) => !this.props.companyData[i].constitutionFiled && c.selected.onChange(true))}>Select All Without Constitution</ButtonInput>
                 <ButtonInput onClick={() => fields.companies.map(c => c.selected.onChange(false) )} >Unselect All</ButtonInput>
                 <ButtonInput type="submit" bsStyle="primary" disabled={ invalid}>Next</ButtonInput>
             </div>
@@ -141,13 +146,9 @@ const PAGES = {
                             </div>
                         </div>
                         <div className="widget-body">
-                            <div className="row">
-                                <div className="col-md-6 col-md-offset-3">
-                                    <SelectCompaniesConnected initialValues={initialValues} companyData={filteredCompanies}
-                                        onSubmit={(values) => props.next({index: FINALIZE, companies: values.companies.filter(c => c.selected)} )}
-                                        />
-                                </div>
-                            </div>
+                            <SelectCompaniesConnected initialValues={initialValues} companyData={filteredCompanies}
+                                onSubmit={(values) => props.next({index: FINALIZE, companies: values.companies.filter(c => c.selected)} )}
+                                />
                         </div>
                     </div>
             </LawBrowserContainer>
