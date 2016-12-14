@@ -85,9 +85,7 @@ const documentTypeClasses = (doc, showingSubTree) => {
 
 @pureRender
 export class DocumentsWidget extends React.Component {
-    key() {
-        return this.props.companyId;
-    }
+
     renderBody() {
         let bodyClass = "widget-body expandable ";
         if(this.props.expanded){
@@ -104,7 +102,7 @@ export class DocumentsWidget extends React.Component {
                 <tbody>
                 { documents.filter(d => !d.deleted).slice(0, 15).map((d, i) => {
                     return <tr key={i}><td><span className={documentTypeClasses(d)}/> </td>
-                    <td><Link activeClassName="active" className="nav-link" to={`${this.props.baseUrl}/${this.key()}/document/view/${d.id}`}>{ d.filename }</Link></td>
+                    <td><Link activeClassName="active" className="nav-link" to={`${this.props.baseUrl}/document/view/${d.id}`}>{ d.filename }</Link></td>
                     <td>{stringDateToFormattedString(d.date)}</td></tr>
                 }) }
                 </tbody>
