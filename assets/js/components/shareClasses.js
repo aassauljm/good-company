@@ -181,11 +181,13 @@ export class ShareClassForm extends React.Component {
              { fields.transferRestriction.value &&
               <Input  {...fields.transferRestrictionDocument} bsStyle={fieldStyle(fields.transferRestrictionDocument)} className="combobox-wrapper"
                     help={fieldHelp(fields.transferRestrictionDocument)} label={STRINGS.shareClasses.transferRestrictionDocument} hasFeedback >
-                        <Combobox {...fields.transferRestrictionDocument} data={transferRestrictionDocumentLocations} itemComponent={Anchor}
-                        open={fields.transferRestrictionDocument}
+                        <Combobox value={fields.transferRestrictionDocument.value}
+                        onChange={fields.transferRestrictionDocument.onChange}
+                        data={transferRestrictionDocumentLocations}
                         onFocus={() => this.setState({showTransferRestriction: true})}
                         onBlur={() => this.setState({showTransferRestriction: false})}
                         open={this.state.showTransferRestriction}
+                        onToggle={(show) => this.setState({showTransferRestriction: show})}
                         placeholder={STRINGS.shareClasses.transferRestrictionPlaceholder}
                         />
                     </Input>
