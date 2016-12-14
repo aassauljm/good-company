@@ -67,7 +67,6 @@ export class RemoveDirector extends React.Component {
     };
     render() {
         const {fields: {reason}} = this.props;
-        console.log(this.props)
         return <form className="form" >
             <fieldset>
 

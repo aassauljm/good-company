@@ -78,7 +78,7 @@ export class CompanyView extends React.Component {
     }
 
     renderBody(current) {
-        console.log(this.props)
+
         if(!current){
              return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }

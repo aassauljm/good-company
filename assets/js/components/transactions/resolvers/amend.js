@@ -202,7 +202,6 @@ class AmendOptions extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
-        console.log(this.props)
         return <form onSubmit={this.props.handleSubmit}>
             <div className="button-row">
                 <Button type="submit" onClick={this.props.reset}>Reset</Button>
