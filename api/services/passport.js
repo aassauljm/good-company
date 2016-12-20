@@ -127,7 +127,6 @@ passport.connect = function (req, query, profile, next) {
                   next(null, user);
                 })
                 .catch(next);
-
             }
             // Scenario: An existing user is trying to log in using an already
             //           connected passport.

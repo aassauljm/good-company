@@ -59,7 +59,7 @@ export default {
     },
     bulkImport: {
         'listType': 'Identifier Type',
-        'identifierListHelp': 'Each entry should on a separate line',
+        'identifierListHelp': 'Each entry should be on a separate line',
         'companyName': 'Full Company Name',
         'companyNumber': 'Company Number',
         'nzbn': 'NZBN'

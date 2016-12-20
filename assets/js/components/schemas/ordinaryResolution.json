@@ -1,6 +1,6 @@
 {
     "description": "",
-    "title": "Ordinary Resolution at Shareholder Meeting",
+    "title": "Ordinary Resolution",
     "formName": "Minute - Ordinary Resolution of Shareholders",
     "properties": {
         "filename": { "$ref": "#/definitions/filename" },
@@ -28,19 +28,19 @@
                 "resolutionType": {
                     "title": "Resolution Type",
                     "enum": [
-                        "Special Resolution at Shareholder Meeting",
+                        "Ordinary Resolution at Shareholder Meeting",
                         "Written Resolution in lieu of Shareholder Meeting"
                     ]
                 }
             },
             "default": {
-                "resolutionType": "Special Resolution at Shareholder Meeting"
+                "resolutionType": "Ordinary Resolution at Shareholder Meeting"
             },
             "oneOf":[
                 {
                     "properties": {
                         "resolutionType": {
-                            "enum": ["Special Resolution at Shareholder Meeting"]
+                            "enum": ["Ordinary Resolution at Shareholder Meeting"]
                         },
                         "chairperson": {
                             "type": "object",
