@@ -581,8 +581,6 @@ export function DateConfirmation(context, submit){
         const pendingActions = [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}];
         const transactions = [];
 
-
-
         const actions = amendActions.reduce((acc, a, i) => {
             acc[values.actions[i].effectiveDate] =  acc[values.actions[i].effectiveDate] || [];
             acc[values.actions[i].effectiveDate].push({...a, effectiveDate: values.actions[i].effectiveDate, userConfirmed: true});
