@@ -14,7 +14,7 @@ import TransactionView from '../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import HoldingTransfer from './resolvers/holdingTransfer';
-import Amend from './resolvers/amend';
+import Amend, { DateConfirmation } from './resolvers/amend';
 import { Holding } from '../shareholdings';
 import { reduxForm } from 'redux-form';
 import Panel from '../panel';
@@ -291,6 +291,7 @@ const PAGES = {
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
+    [ImportErrorTypes.CONFIRMATION_REQUIRED]: DateConfirmation,
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
     [ImportErrorTypes.INVALID_ISSUE]: InvalidIssue,
 }

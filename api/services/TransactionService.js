@@ -101,6 +101,7 @@ export function validateInverseAmend(amend, companyState){
             importErrorType: sails.config.enums.UNKNOWN_AMEND
         })
     }
+
     const parcels = amend.inferAmount ? null : [{amount: amend.afterAmount, shareClass: amend.shareClass}]
 
     const holding = companyState.getMatchingHolding({holders: amend.afterHolders,
@@ -239,7 +240,13 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 data.beforeAmount = data.amount;
                 data.inferAmount = false;
             }
-
+            if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed){
+                throw new sails.config.exceptions.AmbiguousInverseOperation('Confirmation Required',{
+                    action: data,
+                    companyState: companyState,
+                    importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
+                })
+            }
 
             const difference = data.afterAmount - data.beforeAmount;
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
@@ -623,7 +630,13 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             parcels = [{amount: data.amount, shareClass: data.shareClass}];
         }
 
-
+        if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed){
+            throw new sails.config.exceptions.AmbiguousInverseOperation('Confirmation Required',{
+                action: data,
+                companyState: companyState,
+                importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
+            })
+        }
 
 
         let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: parcels},
@@ -1597,6 +1610,7 @@ export function performInverseAllPendingUntil(company, endCondition){
                                 throw e;
                             })
                     }
+                    throw e;
                 }
             })
 
@@ -1626,6 +1640,7 @@ export function performInverseAllPendingUntil(company, endCondition){
 
 export function performInverseAllPending(company, endCondition){
     // if we specify endCondition, it should get there fine, as it will not be before SEED
+    session.set('REQUIRE_CONFIRMATION', true);
     return performInverseAllPendingUntil(company, endCondition || ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN))
         .then(result => {
             if(!!result && !endCondition){

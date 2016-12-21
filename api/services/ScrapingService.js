@@ -957,7 +957,6 @@ const DOCUMENT_TYPE_MAP = {
     'Change of Company Name': {
         type: DOCUMENT_TYPES.NAME_CHANGE
     },
-
     'Update Shares': {
         type: DOCUMENT_TYPES.UPDATE
     },
