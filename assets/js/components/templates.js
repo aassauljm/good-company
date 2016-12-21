@@ -15,6 +15,8 @@ import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
+import { Search } from './search';
+
 
 function createLawLinks(list){
     return <div>
@@ -547,5 +549,32 @@ export class TemplateWidget extends React.Component {
                     </div>
                 </div>
                 </div>
+    }
+}
+
+
+@pureRender
+export class TemplateSelectCompany extends React.Component {
+
+    render() {
+        return <LawBrowserContainer>
+            <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Templates
+                </div>
+            </div>
+            <div className="widget-body">
+                <div className="row">
+                    <div className="col-md-6 col-md-offset-3">
+                   <p className="text-center">Please select a company:</p>
+                   <Search target={(id) => this.props.params.name ? `/company/view/${id}/templates/${this.props.params.name}` : `/company/view/${id}/templates`}/>
+                </div>
+                </div>
+            </div>
+        </div>
+
+
+        </LawBrowserContainer>
     }
 }

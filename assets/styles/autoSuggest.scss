@@ -66,14 +66,7 @@
     position: absolute;
 }
 
-
-.search-form{
-    width: auto;
-    border: 0;
-    margin-left: 0;
-    margin-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;;
+nav .search-form{
     box-shadow: none;
 
     .form-group{
@@ -91,13 +84,44 @@
             }
         }
         .input-group-addon{
-            width: 1%;
             background-color: white;
-               border-color: white;
+            border-color: white;
         }
         input {
             border-color: white;
             border-right:none;
+        }
+    }
+
+}
+
+.search-form{
+    width: auto;
+    border: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    .form-group{
+        display:inline;
+        text-align: right;
+        .input-group{
+            display: table;
+            &.showing{
+                .form-control:first-child{
+                    border-bottom-left-radius:0;
+                }
+                .input-group-addon:last-child{
+                    border-bottom-right-radius:0;
+                }
+            }
+        }
+        .input-group-addon{
+            width: 1%;
+        }
+        input {
+
         }
     }
 

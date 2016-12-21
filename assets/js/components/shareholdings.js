@@ -62,7 +62,7 @@ export class ShareholdingsWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired,
-        toggle: PropTypes.func.isRequired,
+        toggle: PropTypes.func,
         expanded: PropTypes.bool,
         baseUrl: PropTypes.string
     };

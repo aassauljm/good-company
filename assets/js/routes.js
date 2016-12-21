@@ -23,7 +23,7 @@ import ReportingDetails from './components/reportingDetails';
 import Directors from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassEdit } from './components/shareClasses';
 import RecentActivity from './components/recentActivity';
-import Templates, { TemplateView } from './components/templates';
+import Templates, { TemplateView, TemplateSelectCompany } from './components/templates';
 import  { LoginWithCatalex } from './components/login';
 import ImportCompany from './components/importCompany';
 import ImportMenu from './components/importMenu';
@@ -133,9 +133,9 @@ export default (store) => {
                 <Route path="favourites" component={ Favourites } />
                 <Route path="alerts" component={ Alerts } />
                 <Route path="annual_returns" component={ AnnualReturn } />
-                 <Route path="templates" component={ Templates }>
-                    <Router path=":name" component={ TemplateView }/>
-                </Route>
+                 <Route path="templates" component={ TemplateSelectCompany } >
+                    <Router path=":name" component={ TemplateSelectCompany }/>
+                 </Route>
             </Route>
 
             <Route path="company/view/:id" component={ Company } children={CompanyChildren} />

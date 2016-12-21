@@ -36,7 +36,7 @@ export class AccountControls extends React.Component {
                             <span className="fa fa-user-circle"/>
                        </DropdownToggle>
                         <Dropdown.Menu bsRole="menu">
-                            <MenuItem rel="noopener noreferrer" target="_blank" href={`${props.login.userUrl}/user/profile`}>Account</MenuItem>
+                            <MenuItem rel="noopener noreferrer" target="_blank" href={`${props.login.userUrl}/user/profile`}>Account Settings</MenuItem>
                             <li><Link to={`/account_settings`} onClick={close}>Email Settings</Link></li>
                             <li className="last-login">Last login: {props.userInfo.lastLogin}</li>
                             <li  className="separator" />

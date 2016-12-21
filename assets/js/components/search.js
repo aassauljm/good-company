@@ -23,6 +23,7 @@ export function highlightString(string, query, highlightClass='highlight'){
 }
 
 
+const MAX_ITEMS = 20;
 
 
 @CompaniesHOC()
@@ -37,11 +38,14 @@ export class Search extends React.Component {
     }
 
     onChange(event) {
-        const filterCompanies = (value, list) => {
-            return !value ? [] : list.filter(l => l.currentCompanyState.companyName.toLocaleLowerCase().indexOf(value) > -1);
-        }
+        this.filter(event.target.value)
+    }
 
-        this.setState({show: true, value: event.target.value, list: filterCompanies(event.target.value.toLocaleLowerCase(), this.props.companies.data)});
+    filter(value) {
+        const filterCompanies = (value, list) => {
+            return !value ? list : list.filter(l => l.currentCompanyState.companyName.toLocaleLowerCase().indexOf(value) > -1);
+        }
+        this.setState({show: true, value: value, list: filterCompanies(value.toLocaleLowerCase(), this.props.companies.data).slice(0, MAX_ITEMS)});
     }
 
     hide(e) {
@@ -49,7 +53,7 @@ export class Search extends React.Component {
     }
 
     show() {
-        this.setState({show: true})
+        this.filter(this.state.value);
     }
 
     setAndClose(value) {
@@ -59,7 +63,7 @@ export class Search extends React.Component {
     results() {
         return  this.state.show && <div className="search-results" >
             { this.state.list.map((c, i) => {
-                return <Link key={i} className="result" to={`/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
+                return <Link key={i} className="result" to={this.props.target ? this.props.target(c.id) : `/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
             }) }
             { this.state.list.length === 0 && !!this.state.value && <div className="no-results">No results</div> }
             </div>
@@ -71,7 +75,7 @@ export class Search extends React.Component {
                   <RootCloseWrapper
                     onRootClose={this.hide}
                     event={'click'}>
-                <div className={`input-group ${this.state.show && !!this.state.value ? 'showing': ''}`} >
+                <div className={`input-group ${this.state.show  ? 'showing': ''}`} >
                     <input  type="text" className="form-control" placeholder="Search..." value={this.state.value} onChange={this.onChange} onFocus={this.show}  />
                     { this.results() }
                     <span className="input-group-addon" >
