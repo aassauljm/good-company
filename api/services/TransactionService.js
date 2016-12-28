@@ -1640,13 +1640,19 @@ export function performInverseAllPendingUntil(company, endCondition){
 
 export function performInverseAllPending(company, endCondition){
     // if we specify endCondition, it should get there fine, as it will not be before SEED
-    session.set('REQUIRE_CONFIRMATION', false);
-    return performInverseAllPendingUntil(company, endCondition || ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN))
-        .then(result => {
-            if(!!result && !endCondition){
-                return performInverseAllPending(company, endCondition);
-            }
-        })
+    return new Promise((resolve, reject) => {
+        session.run(() => {
+            session.set('REQUIRE_CONFIRMATION', false);
+            return performInverseAllPendingUntil(company, endCondition || ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN))
+                .then(result => {
+                    if(!!result && !endCondition){
+                        return performInverseAllPending(company, endCondition);
+                    }
+                })
+                .then(resolve)
+                .catch(reject)
+            });
+        });
 }
 
 

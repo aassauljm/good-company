@@ -315,7 +315,7 @@ module.exports = {
             return !_.some(docs, doc => {
                 return _.find(doc.actions, a => {
                     return a.transactionType === action.transactionType &&
-                    moment(a.date || doc.date).isSame(action.effectiveDate, 'day') &&
+                    moment(a.date || a.effectiveDate || doc.date).isSame(action.effectiveDate, 'day') &&
                     a.name === action.name;
                 })
             });
@@ -381,6 +381,7 @@ module.exports = {
                 };
 
             if(doesNotContain(docs, action) && doesNotContain(results, action)){
+                console.log("infering", action)
                 results.push({
                     actions: [action],
                     effectiveDate:  moment.max(appointmentDate, incorporationDate).toDate(),
