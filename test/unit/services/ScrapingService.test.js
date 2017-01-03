@@ -91,9 +91,9 @@ describe('Scraping Service', function() {
         })
     });
 
-    describe.skip('Parse Xero documents', function() {
+    describe('Parse Xero documents', function() {
         it('get and apply data structures for each file', function(done) {
-            var data, company, startStats, amend, issue, secondStats;
+            var documents
             fs.readFileAsync('test/fixtures/companies_office/xero.json', 'utf8')
                 .then(JSON.parse)
                 .then(function(data){
@@ -105,79 +105,9 @@ describe('Scraping Service', function() {
                         }, {concurrency: 10})
 
                 })
-                .then(function(_data){
-                    data = _data;
-                    return Company.findOne({include: [{model: CompanyState, as: 'currentCompanyState', where: {companyName: 'XERO LIMITED'}}]});
-                })
-                .then(function(_company){
-                    company = _company;
-                    return company.getCurrentCompanyState();
-                })
-                .then(function(companyState){
-                    return companyState.fullPopulate();
-                })
-                .then(function(state){
-                    return state.stats();
-                })
-                .then(function(stats){
-                    startStats = stats;
-                })
                 .then(function(){
-                    amend = _.find(data, {documentId: '21472248'});
-                    return TransactionService.performInverseTransaction({id: 1, ...amend}, company);
+                    done();
                 })
-                .then(function(){
-                    return company.getRootCompanyState()
-                })
-                .then(function(state){
-                    return state.stats();
-                })
-                .then(function(stats){
-                    secondStats = stats;
-                    stats.totalShares.should.be.equal(startStats.totalShares);
-                    stats.totalAllocatedShares.should.not.be.equal(startStats.totalSAllocatedShares);
-                    stats.totalUnallocatedShares.should.not.be.equal(startStats.totalUnallocatedShares);
-                    var allocated = 0;
-                    amend.actions.map(function(action){
-                        allocated -= action.afterAmount - action.beforeAmount;
-                    });
-                    (allocated + startStats.totalAllocatedShares).should.be.equal(stats.totalAllocatedShares);
-                    (startStats.totalUnallocatedShares - allocated).should.be.equal(stats.totalUnallocatedShares);
-                })
-                .then(function(){
-                    issue = _.find(data, {documentId: '21471850'});
-                    return TransactionService.performInverseTransaction({id: 2, ...issue}, company);
-                })
-                .then(function(){
-                    return company.getRootCompanyState()
-                })
-                .then(function(state){
-                    return state.stats();
-                })
-                .then(function(stats){
-                    stats.totalShares.should.be.equal(startStats.totalShares - issue.actions[0].amount);
-                    stats.totalUnallocatedShares.should.be.equal(secondStats.totalUnallocatedShares - issue.actions[0].amount)
-                    return company.createPrevious();
-                })
-                .then(function(){
-                    return Promise.each(['21386429', '21000586', '21000301', '21000289'], function(documentId){
-                        return TransactionService.performInverseTransaction({id: 3, ...(_.find(data, {documentId: documentId}))}, company);
-                    })
-                })
-                .then(function(){
-                    return company.getRootCompanyState()
-                })
-                .then(function(state){
-                    return state.stats();
-                })
-                .then(function(stats){
-                    // todo, reconfirm numbers
-                    stats.totalUnallocatedShares.should.be.equal(28128064)
-                    stats.totalAllocatedShares.should.be.equal(107888740)
-                    stats.totalShares.should.be.equal(136016804)
-                    return done();
-                })
-                .catch(done)
         })
     })
     describe.skip('Should get all fields from Timely html doc', function() {
@@ -539,6 +469,22 @@ describe('Scraping Service', function() {
             });
     });
 
+    describe('Should parse biznet annual return', function() {
+        it('reads file, creates ar action', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/14007338.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Online Annual Return',
+                    });
+                    result.actions.length.should.be.equal(1);
+                    result.transactionType.should.be.equal('ANNUAL_RETURN');
+                    result.actions[0].directors.length.should.be.equal(7);
+                    result.actions[0].holdings.length.should.be.equal(10);
+                    done();
+                })
+                .catch(done)
+            });
+    });
 
 
 

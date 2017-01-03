@@ -137,12 +137,8 @@ export default (store) => {
                     <Router path=":name" component={ TemplateSelectCompany }/>
                  </Route>
             </Route>
-
             <Route path="company/view/:id" component={ Company } children={CompanyChildren} />
             <Route path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
-
-
-
 
         </Route>
 

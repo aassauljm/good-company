@@ -531,6 +531,9 @@ const EXTRACT_DOCUMENT_MAP = {
 
     [DOCUMENT_TYPES.ANNUAL_RETURN]: ($) => {
         // This isn't really a transaction at the moment, but used for validation
+        const effectiveDate = moment($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Registration Date and Time/);
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate();
         return {actions: [{
             transactionType: Transaction.types.ANNUAL_RETURN,
 
@@ -576,10 +579,9 @@ const EXTRACT_DOCUMENT_MAP = {
                             }
                         }),
 
-            effectiveDate:  moment($('.row.wideLabel label').filter(function(){
-                    return $(this).text().match(/Registration Date and Time/);
-                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate(),
+            effectiveDate:  effectiveDate,
         }],
+        effectiveDate: effectiveDate,
         transactionType: Transaction.types.ANNUAL_RETURN
         }
     },
@@ -595,15 +597,42 @@ const EXTRACT_DOCUMENT_MAP = {
     }
 }
 
+function nextUntil(node, has) {
+    const results = [];
+    while(node.length && !node.find(has).length){
+        let str = cleanString(node.text());
+        if(str){
+            results.push(str);
+        }
+        node =  node.next();
+    }
+    return results;
+}
+
+function *nextUntilChunks($, node, has, sel) {
+    while(node.length){
+        let results = [];
+        while(node.length && !node.find(has).length){
+            results = results.concat(node.find(sel).map((i, e) => cleanString($(e).text())).get());
+            node =  node.next();
+        }
+        if(results.length){
+            yield results;
+        }
+        node = node.next();
+    }
+}
+
+const match = ($, match) => {
+    return $('table td font').filter(function(){
+        return $(this).text().match(match);
+    });
+}
+
 
 const EXTRACT_BIZ_DOCUMENT_MAP= {
        [DOCUMENT_TYPES.INCORPORATION]: ($) => {
 
-        const match = (match) => {
-            return $('table td font').filter(function(){
-                return $(this).text().match(match);
-            });
-        }
 
         const heading = $('table table').eq(2);
         const title = heading.find('td').first().find('font b').text();
@@ -615,42 +644,15 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         }
         const companyNumber = matches[1];
         const companyName = cleanString(matches[2]);
-        const date = moment(cleanString(match('Registration Date:').parent().text().replace('Registration Date:', '')), 'DD MMM YYYY').toDate();
+        const date = moment(cleanString(match($, 'Registration Date:').parent().text().replace('Registration Date:', '')), 'DD MMM YYYY').toDate();
 
-
-        function nextUntil(node, has) {
-            const results = [];
-            while(node.length && !node.find(has).length){
-                let str = cleanString(node.text());
-                if(str){
-                    results.push(str);
-                }
-                node =  node.next();
-            }
-            return results;
-        }
-
-        function *nextUntilChunks(node, has, sel) {
-            while(node.length){
-                let results = [];
-                while(node.length && !node.find(has).length){
-                    results = results.concat(node.find(sel).map((i, e) => cleanString($(e).text())).get());
-                    node =  node.next();
-                }
-                if(results.length){
-                    yield results;
-                }
-                node = node.next();
-            }
-        }
-
-        const registeredCompanyAddressNode = match('Registered Office').closest('tr').next();
+        const registeredCompanyAddressNode = match($, 'Registered Office').closest('tr').next();
         const registeredCompanyAddress = nextUntil(registeredCompanyAddressNode, 'img').join(', ');
-        const addressForShareRegisterNode = match('Address for Share Register').closest('tr').next();
+        const addressForShareRegisterNode = match($, 'Address for Share Register').closest('tr').next();
         const addressForShareRegister = nextUntil(addressForShareRegisterNode, 'img').join(', ');
-        const addressForServiceNode = match('Address for Service').closest('tr').next();
+        const addressForServiceNode = match($, 'Address for Service').closest('tr').next();
         const addressForService = nextUntil(addressForServiceNode, 'img').join(', ');
-        const addressForCommunicationNode = match('Address for Communication').closest('tr').next();
+        const addressForCommunicationNode = match($, 'Address for Communication').closest('tr').next();
         const addressForCommunication = nextUntil(addressForCommunicationNode, 'img').join(', ');
         const result = {
             transactionType: Transaction.types.INCORPORATION,
@@ -669,16 +671,13 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             }]
         }
 
-        const issue = match('Total Company Shares').closest('td');
+        const issue = match($, 'Total Company Shares').closest('td');
         const total = toInt(cleanString(issue.next().find('font').text().replace(',','')));
         const holdings = issue.closest('table').next('table');
-        const chunks = Array.from(nextUntilChunks(holdings.find('tr').first(), 'img[height=5]', 'td'))
+        const chunks = Array.from(nextUntilChunks($, holdings.find('tr').first(), 'img[height=5]', 'td'))
             .map(chunk => {
                 return chunk.filter(c => c);
             });
-
-
-
 
         const getHolders = (rows) => {
             const results = [];
@@ -699,6 +698,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             }
             return results;
         }
+
         const issueAction = {
             fromAmount: 0,
             toAmount: total,
@@ -727,7 +727,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         }
 
 
-        const directorsTable =  match(/2. Directors$/g).closest('table').closest('tr').next();
+        const directorsTable =  match($, /2. Directors$/g).closest('table').closest('tr').next();
 
         const directors = _.chunk(directorsTable.find('td')
             .map((i, el) => cleanString($(el).text())).get().filter(e => e), 2);
@@ -740,6 +740,84 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             })
         });
         return result;
+    },
+
+    [DOCUMENT_TYPES.ANNUAL_RETURN]: ($) => {
+        // This isn't really a transaction at the moment, but used for validation
+        const date = cleanString(match($, 'Registration Date:').parent().text().replace('Registration Date:', ''));
+        const time = cleanString(match($, 'Time:').parent().text().replace('Time:', ''));
+
+        const effectiveDate = moment(`${date} ${time}`, 'DD MMM YYYY HH:mm:ss').toDate();
+
+        const registeredCompanyAddressNode = match($, 'Registered Office').closest('tr').next();
+        const registeredCompanyAddress = nextUntil(registeredCompanyAddressNode, 'img').join(', ');
+        const addressForShareRegisterNode = match($, 'Address for Share Register').closest('tr').next();
+        const addressForShareRegister = nextUntil(addressForShareRegisterNode, 'img').join(', ');
+        const addressForServiceNode = match($, 'Address for Service').closest('tr').next();
+        const addressForService = nextUntil(addressForServiceNode, 'img').join(', ');
+        const addressForCommunicationNode = match($, 'Address for Communication').closest('tr').next();
+        const addressForCommunication = nextUntil(addressForCommunicationNode, 'img').join(', ');
+        const directorTable = match($, 'Directors').parentsUntil('tr').parentsUntil('tr').next('tr').next('tr').find('table');
+
+
+        const directorChunks = Array.from(nextUntilChunks($, directorTable.find('tr').first(), 'img[height=15]', 'td'))
+            .map(chunk => {
+                return chunk.filter(c => c);
+            });
+
+        const directors = directorChunks.map(d => {
+            return {
+                name: invertName(d[0]),
+                address: d[1]
+            }
+        });
+
+
+        const holdingTable = match($, 'Share Parcels').parentsUntil('tr').parentsUntil('tr').next('tr').find('table');
+
+        const holdingChunks = Array.from(nextUntilChunks($, holdingTable.find('tr').first(), 'img[height=10]', 'td'))
+            .map(chunk => {
+                return chunk.filter(c => c);
+            });
+
+        let totalShares = 0;
+        const holdings = holdingChunks.map(h => {
+
+            const holders  = _.chunk(h.slice(3), 2).map(h => {
+                let name = invertName(h[0]);
+                let companyNumber;
+                if(h[0].match(/^([\d+]{3,})/)){
+                    companyNumber = h[0].match(/^([\d+]{3,})/)[1];
+                    name = cleanString(h[0].replace(companyNumber, ''))
+                }
+                return {
+                    name,
+                    address: h[1],
+                    companyNumber
+                }
+            })
+            let amount= toInt(h[1]);
+            totalShares += amount;
+            return {
+                parcels: [{amount: amount }],
+                holders: holders
+            }
+        });
+
+        return {actions: [{
+            transactionType: Transaction.types.ANNUAL_RETURN,
+            registeredCompanyAddress,
+            addressForShareRegister,
+            addressForService,
+            addressForCommunication,
+            directors,
+            totalShares,
+            holdings,
+            effectiveDate,
+        }],
+        effectiveDate: effectiveDate,
+        transactionType: Transaction.types.ANNUAL_RETURN
+        }
     },
 
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
@@ -966,6 +1044,9 @@ const DOCUMENT_TYPE_MAP = {
     'File Annual Return': {
         type: DOCUMENT_TYPES.ANNUAL_RETURN
     },
+    'Annual Return Filed': {
+        type: DOCUMENT_TYPES.ANNUAL_RETURN
+    },
     'Particulars of Company Address': {
         type: DOCUMENT_TYPES.ADDRESS_CHANGE
     },
@@ -991,6 +1072,9 @@ const BIZ_DOCUMENT_TYPE_MAP = {
     'Notice Of Issue Of Shares': {
         type: DOCUMENT_TYPES.ISSUE
     },
+    'Online Annual Return': {
+        type: DOCUMENT_TYPES.ANNUAL_RETURN
+    }
 };
 
 

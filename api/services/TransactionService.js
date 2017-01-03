@@ -1365,7 +1365,7 @@ export function performInverseTransaction(data, company, rootState){
             prevState = _prevState;
             // loop over actions,
             return Promise.reduce(data.actions, function(arr, action){
-                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
+                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(session.get('options')){
@@ -1640,19 +1640,12 @@ export function performInverseAllPendingUntil(company, endCondition){
 
 export function performInverseAllPending(company, endCondition){
     // if we specify endCondition, it should get there fine, as it will not be before SEED
-    return new Promise((resolve, reject) => {
-        session.run(() => {
-            session.set('REQUIRE_CONFIRMATION', false);
-            return performInverseAllPendingUntil(company, endCondition || ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN))
-                .then(result => {
-                    if(!!result && !endCondition){
-                        return performInverseAllPending(company, endCondition);
-                    }
-                })
-                .then(resolve)
-                .catch(reject)
-            });
-        });
+    return performInverseAllPendingUntil(company, endCondition || ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN))
+        .then(result => {
+            if(!!result && !endCondition){
+                return performInverseAllPending(company, endCondition);
+            }
+        })
 }
 
 
@@ -1707,7 +1700,7 @@ export function performTransaction(data, company, companyState){
             // TODO, serviously consider having EACH action create a persistant graph
             // OR, force each transaction set to be pre grouped
             return Promise.reduce(data.actions, function(arr, action){
-                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.documentId);
+                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(PERFORM_ACTION_MAP[method]){

@@ -392,6 +392,34 @@ module.exports = {
         })
     },
 
+    importPendingHistoryUntilAR: function(req, res){
+        let company, companyName;
+        Company.findById(req.params.id)
+        .then(function(_company){
+            company  = _company;
+            return company.getNowCompanyState()
+        })
+        .then(_state => {
+            companyName = _state.get('companyName');
+            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN));
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        /*.then(() => {
+            return ActivityLog.create({
+                type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                userId: req.user.id,
+                description: `Complete ${companyName} History Import`,
+                data: {companyId: req.params.id}
+            });
+        })*/
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
+
+
     updatePendingHistory: function(req, res){
         const args = actionUtil.parseValues(req);
         let company ,state;

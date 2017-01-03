@@ -381,7 +381,6 @@ module.exports = {
                 };
 
             if(doesNotContain(docs, action) && doesNotContain(results, action)){
-                console.log("infering", action)
                 results.push({
                     actions: [action],
                     effectiveDate:  moment.max(appointmentDate, incorporationDate).toDate(),
