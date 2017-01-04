@@ -542,9 +542,6 @@ export function performHoldingChange(data, companyState, previousState, effectiv
 };
 
 
-
-
-
 export const performInverseHolderChange = function(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -573,6 +570,9 @@ export const performInverseHolderChange = function(data, companyState, previousS
             return transaction;
         })
         .catch((e)=>{
+            if(data.IGNORABLE){
+                return;
+            }
             sails.log.error(e);
             throw new sails.config.exceptions.InvalidInverseOperation('Cannot find holder, holder change', {
                 action: data,
@@ -581,6 +581,7 @@ export const performInverseHolderChange = function(data, companyState, previousS
             })
         });
 };
+
 
 export const performHolderChange = function(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);

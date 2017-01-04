@@ -418,6 +418,7 @@ module.exports = {
                     return a.transactionType === action.transactionType &&
                         a.previousCompanyName === action.previousCompanyName &&
                         a.newCompanyName === action.newCompanyName &&
+                        // magic number for noise around date change, 7 days
                         Math.abs(moment(a.effectiveDate).diff(moment(action.effectiveDate), 'days')) < 7;
                 })
             });
@@ -439,7 +440,24 @@ module.exports = {
         });
         return results;
     },
-
+    inferCompanyShareholderNameChanges: function(data, docs){
+        // for now, check if we have ever had any shareholders that are companies, and then check if they ever have had name changes
+        let companies = [];
+        data.holdings.allocations.map(a => {
+            a.holders.map(h => {
+                if(h.companyNumber){
+                    companies.push({name: h.name, companyNumber: h.companyNumber});
+                }
+            })
+        })
+        data.historicHolders.map(h => {
+            // is historic holder name all in capitals?  probably a company
+            if(h.name.toLocaleUpperCase() === h.name){
+                companies.push({name: h.name, vacationDate: moment(h.vacationDate, 'DD MMM YYYY').toDate()});
+            }
+        });
+        return CompanyInfoService.getNameChangeActions(companies, data);
+    },
     massageAmendAllocations: function(docs){
         // if a 'Amended Shareholder' happens just before a 'Amended Share Allocation',
         // then the name needs to be set to the old version
@@ -485,9 +503,12 @@ module.exports = {
 
     extraActions: function(data, docs){
         // These are INFERED actions
-        let results = InferenceService.inferDirectorshipActions(data, docs);
-        results = results.concat(InferenceService.inferNameChanges(data, docs));
-        return results;
+        docs = docs.concat(InferenceService.inferDirectorshipActions(data, docs));
+        docs = docs.concat(InferenceService.inferNameChanges(data, docs));
+        return InferenceService.inferCompanyShareholderNameChanges(data, docs)
+            .then(nameChanges => {
+                return docs.concat(nameChanges)
+            });
     },
 
 
@@ -557,7 +578,6 @@ module.exports = {
             p.id = uuid.v4();
             (p.actions || []).map(a => a.id = uuid.v4())
         })
-
         return docs;
     },
 

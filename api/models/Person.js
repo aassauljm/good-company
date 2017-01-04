@@ -95,17 +95,26 @@ module.exports = {
                     this.dataValues.companyNumber === other.companyNumber &&
                     (this.dataValues.address !== other.address || JSON.stringify(this.dataValues.attr) !== JSON.stringify(other.attr));
             },
+
             isEqual: function(other, options={}){
                 if(other.personId && other.personId === this.dataValues.personId){
                     return true;
+                }
+                if(this.dataValues.companyNumber && other.companyNumber){
+                    return this.dataValues.name.toLowerCase() === other.name.toLowerCase() && this.dataValues.companyNumber === other.companyNumber
                 }
                 return this.dataValues.name.toLowerCase() === other.name.toLowerCase() &&
                     (this.dataValues.companyNumber || null) === (other.companyNumber || null) &&
                     (options.skipAddress || AddressService.compareAddresses(this.dataValues.address, other.address));
             },
+
             replaceWith: function(other){
                 if(other.id){
                     return other;
+                }
+                if(!other.address){
+                    other = {...other};
+                    delete other.address;
                 }
                 const person = Person.build(_.merge(_.pick(this.toJSON(), 'attr'), other, {personId: this.dataValues.personId}), {
                                 include: [{

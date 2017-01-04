@@ -838,12 +838,12 @@ describe('Company Controller', function() {
                 .catch(done);
         });
 
-        // TODO, company name should change, allowing AR to pass validation
-        it.skip('Imports history', function(done){
+
+        it('Imports history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(500)
                 .then(function(res){
-                    res.body.context.importErrorType.should.be.equal('HOLDING_NOT_FOUND');
+                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
                     done();
                 })
                 .catch(done)

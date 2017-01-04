@@ -1345,6 +1345,7 @@ const ScrapingService = {
     },
 
     processDocuments: function(data, readDocuments){
+        let processedDocs;
         return Promise.map(data.documents, function(doc) {
             var docData = _.find(readDocuments, {
                 documentId: doc.documentId
@@ -1352,7 +1353,11 @@ const ScrapingService = {
             return ScrapingService.processDocument(docData.text, doc)
         })
         .then(function(_processedDocs) {
-            let processedDocs = _processedDocs.concat(InferenceService.extraActions(data, _processedDocs));
+            processedDocs = _processedDocs;
+            return InferenceService.extraActions(data, processedDocs);
+        })
+        .then(function(extraActions){
+            processedDocs = extraActions;
             processedDocs = InferenceService.segmentAndSortActions(processedDocs);
             sails.log.verbose('Processed ' + processedDocs.length + ' documents');
             return processedDocs;

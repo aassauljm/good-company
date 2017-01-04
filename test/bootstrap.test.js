@@ -49,6 +49,27 @@ function stubs(){
         return nodemailer.createTransport(stubTransport());
     }
 
+    CompanyInfoService.fetchNameHistory = function(companies) {
+        const data = [{
+            'ACUMEN CONSULTING LIMITED': {
+                'nzbn': '9429033966649',
+                 companyNumber: '1846929',
+                 history: [{name: 'ACUMEN CONSULTING LIMITED', from: '26 Feb 2010'}, {name: 'CAD ADVANCED SOLUTIONS LIMITED', from:'02 Aug 2006', to: '26 Feb 2010'}]
+            }
+        }];
+        const results = [];
+        companies.map(c => {
+            data.map(d => {
+                if(d[c.name]){
+                    results.push(d[c.name]);
+                }
+            })
+        })
+        return Promise.resolve(results);
+    }
+
+
+
     var cookie;
     // This function will allow cookie authentication to persist on the server side
     setFetch(function(url, args){
