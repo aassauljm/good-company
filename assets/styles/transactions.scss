@@ -19,7 +19,30 @@
     }
 }
 
-
+.transaction-terse-date{
+    font-weight:bold;
+     padding-right:16px
+}
 .transaction-terse-description{
     font-style:italic;
+}
+.transaction-terse{
+    display:block;
+}
+.transaction-terse + .transaction-terse{
+    margin-top:4px;
+}
+
+@media (min-width: $screen-md-min) {
+    .transaction-table{
+        display: table;
+        table-layout: fixed;
+        width:100%;
+        & > div {
+            display: table-cell;
+            vertical-align: middle;
+            float: none;
+
+        }
+    }
 }

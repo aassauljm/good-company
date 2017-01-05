@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from './forms/input';
 import STRINGS from '../strings'
-import { numberWithCommas, stringDateToFormattedString, generateShareClassMap, renderShareClass } from '../utils';
+import { numberWithCommas, stringDateToFormattedString, generateShareClassMap, renderShareClass, joinAnd } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router';
 import { deleteResource, addNotification } from '../actions'
@@ -91,13 +91,114 @@ const HoldingChange = (props) => {
 }
 
 
+
+//const TerseHolders = (action) => joinAnd(h.holders.map(h => h.person), {prop: 'name'})
+
+
 export const TransactionTerseRenderMap = {
+    ANNUAL_RETURN: (props) => {
+        return <span className="transaction-terse">
+            { STRINGS.transactionTypes[props.transactionType] }
+            </span>
+    },
     ADDRESS_CHANGE: (props) => {
-        return <span className="transaction-terse-description"> - { STRINGS[props.field] } changed to { props.newAddress } </span>
+        return <span className="transaction-terse">
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { STRINGS[props.field] } changed to { props.newAddress } </span>
+            </span>
     },
     UPDATE_DIRECTOR: (props) => {
-        return <span className="transaction-terse-description"> - { props.afterName} </span>
-    }
+        return <span className="transaction-terse">
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.afterName} </span>
+            </span>
+    },
+    REMOVE_DIRECTOR: (props) => {
+        return <span className="transaction-terse">
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.name} </span>
+            </span>
+    },
+    NEW_DIRECTOR: (props) => {
+        return <span className="transaction-terse">
+
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.name} </span>
+            </span>
+    },
+    NAME_CHANGE: (props) => {
+        return <span className="transaction-terse">
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - from { props.previousCompanyName} to {props.newCompanyName} </span>
+            </span>
+    },
+    TRANSFER_TO: (props) => {
+        return <span className="transaction-terse">
+            { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    ISSUE_TO: (props) => {
+        return <span className="transaction-terse">
+            { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    SUBDIVISION_TO: (props) => {
+        return <span className="transaction-terse">
+            { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    CONVERSION_TO: (props) => {
+        return <span className="transaction-terse">
+            { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    TRANSFER_FROM: (props) => {
+        return <span className="transaction-terse">
+             { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    PURCHASE_FROM: (props) => {
+        return <span className="transaction-terse">
+
+             { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    CONSOLIDATION_FROM: (props) => {
+        return <span className="transaction-terse">
+             { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    REDEMPTION_FROM: (props) => {
+        return <span className="transaction-terse">
+             { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    ACQUISITION_FROM: (props) => {
+        return <span className="transaction-terse">
+             { STRINGS.amendTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.amount } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            </span>
+    },
+    DETAILS_MASS: (props) => {
+        return <span className="transaction-terse">
+             { STRINGS.transactionTypes.INCORPORATION }
+            </span>
+    },
+
+
+    DEFAULT: (props) => {
+        return <span>
+              { STRINGS.transactionTypes[props.transactionType] }
+            </span>
+    },
 }
 
 export const TransactionRenderMap = {

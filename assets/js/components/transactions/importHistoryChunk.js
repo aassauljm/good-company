@@ -21,8 +21,9 @@ function companiesOfficeDocumentUrl(companyState, documentId){
 }
 
 function collectPreviousYearsActions(pendingHistory){
-    const index = pendingHistory.findIndex(p => p.data.transactionType === TransactionTypes.ANNUAL_RETURN) + 1;
-    return pendingHistory.slice(0, index).filter(p => p.data.actions && p.data.actions.length);
+    const index = pendingHistory.findIndex(p => p.data.transactionType === TransactionTypes.ANNUAL_RETURN);
+    const slice = index > -1 ? pendingHistory.slice(0, index + 1) : pendingHistory;
+    return slice.filter(p => p.data.actions && p.data.actions.length);
 }
 
 
@@ -39,20 +40,28 @@ function TransactionSummaries(props) {
     const pendingActions = [...props.pendingActions];
     pendingActions.reverse();
     return <div>
+    <p>Click on any entry to make corrections, then click 'Confirm Transactions' to move onto the next year</p>
     <h5 className="text-center">Summary for the Year beginning on { stringDateToFormattedString(props.pendingActions[props.pendingActions.length-1].data.effectiveDate) }  </h5>
+        <hr/>
         { pendingActions.map((p, i) => {
+            const actions = p.data.actions.filter(a => a.transactionType);
+            if(!actions){
+                return false;
+            }
             return <div key={i}>
-            { p.data.actions.map((action, i) => {
-                const Terse =  TransactionTerseRenderMap[action.transactionType];
-                return  <div key={i} className="panel panel-default">
-                        <div className="panel-body">
-
-                        <strong>{ stringDateToFormattedString(p.data.effectiveDate) } </strong>
-                        { STRINGS.transactionTypes[action.transactionType] }
-                        { Terse && <Terse {...action} /> }
+                <div  className="panel panel-default actionable">
+                        <div className="panel-body transaction-table">
+                        <div className="col-md-2 transaction-terse-date">
+                            { stringDateToFormattedString(p.data.effectiveDate) }
                         </div>
+                        <div className="col-md-10">
+                        { actions.map((action, i) => {
+                            const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
+                                return  Terse && <Terse {...action} key={i}/>
+                            }) }
                     </div>
-                }) }
+                </div>
+                </div>
             </div>
         })}
     <div className="button-row"><Button bsStyle="primary" onClick={props.performImport}>Confirm Transactions</Button></div>
@@ -74,9 +83,11 @@ PAGES[INTRODUCTION] = function() {
     }
     if(this.props.pendingHistory._status === 'complete'){
         const pendingYearActions = collectPreviousYearsActions(this.props.pendingHistory.data);
-
-        return <TransactionSummaries pendingActions={pendingYearActions} performImport={this.handleStart}/>
+        if(pendingYearActions.length){
+            return <TransactionSummaries pendingActions={pendingYearActions} performImport={this.handleStart}/>
+        }
     }
+    return false;
 };
 
 PAGES[LOADING] = function() {
@@ -96,7 +107,7 @@ PAGES[LOADING] = function() {
 @connect((state, ownProps) => {
     return {
         pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {},
-        importHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history`] || {},
+        importHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until_ar`] || {},
         companyState: state.resources[`/company/${ownProps.transactionViewData.companyId}`] || {},
     };
 }, (dispatch, ownProps) => {
@@ -160,7 +171,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
 
     handleResolve() {
         this.props.show('resolveAmbiguity', {...this.props.transactionViewData, error: this.props.importHistory.error, afterClose: { // open this transactionView again
-                            showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}}});
+                            showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: CONTINUE}}}});
     }
 
     render() {

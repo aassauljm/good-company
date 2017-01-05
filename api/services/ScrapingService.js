@@ -772,7 +772,6 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             }
         });
 
-
         const holdingTable = match($, 'Share Parcels').parentsUntil('tr').parentsUntil('tr').next('tr').find('table');
 
         const holdingChunks = Array.from(nextUntilChunks($, holdingTable.find('tr').first(), 'img[height=10]', 'td'))
@@ -782,7 +781,6 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
 
         let totalShares = 0;
         const holdings = holdingChunks.map(h => {
-
             const holders  = _.chunk(h.slice(3), 2).map(h => {
                 let name = invertName(h[0]);
                 let companyNumber;
