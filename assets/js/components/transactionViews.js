@@ -14,6 +14,7 @@ import { NewHoldingTransactionView } from './transactions/newHolding';
 import { UpdateHoldingTransactionView } from './transactions/updateHolding';
 import { SelectHoldingTransactionView } from './transactions/selectHolding';
 import { ImportHistoryTransactionView } from './transactions/importHistory';
+import { ImportHistoryChunkTransactionView } from './transactions/importHistoryChunk';
 import { NewPersonTransactionView, NewDirectorPersonTransactionView } from './transactions/newPerson';
 import { UpdatePersonTransactionView, UpdateDirectorPersonTransactionView, UpdateHistoricPersonTransactionView } from './transactions/updatePerson';
 import { SelectPersonTransactionView, SelectHistoricPersonTransactionView  } from './transactions/selectPerson';
@@ -130,6 +131,9 @@ export const TransactionViewSwitch = (props) => {
 
             case 'importHistory':
                 return <ImportHistoryTransactionView {...props} />
+
+            case 'importHistoryChunk':
+                return <ImportHistoryChunkTransactionView {...props} />
 
             case 'resolveAmbiguity':
                 return <ResolveAmbiguityTransactionView {...props} />

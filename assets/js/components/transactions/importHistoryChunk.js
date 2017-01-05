@@ -10,13 +10,20 @@ import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import TransactionView from '../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import Loading from '../loading'
+import { TransactionTerseRenderMap } from '../transaction';
+
 
 function companiesOfficeDocumentUrl(companyState, documentId){
     const companyNumber = companyState.companyNumber;
     return `http://www.business.govt.nz/companies/app/ui/pages/companies/${companyNumber}/${documentId}/entityFilingRequirement`;
 }
 
+function collectPreviousYearsActions(pendingHistory){
+    const index = pendingHistory.findIndex(p => p.data.transactionType === TransactionTypes.ANNUAL_RETURN) + 1;
+    return pendingHistory.slice(0, index).filter(p => p.data.actions && p.data.actions.length);
+}
 
 
 const INTRODUCTION = 0;
@@ -26,6 +33,33 @@ const FINISHED = 3;
 const CONTINUE = 4;
 
 const PAGES = [];
+
+
+function TransactionSummaries(props) {
+    const pendingActions = [...props.pendingActions];
+    pendingActions.reverse();
+    return <div>
+    <h5 className="text-center">Summary for the Year beginning on { stringDateToFormattedString(props.pendingActions[props.pendingActions.length-1].data.effectiveDate) }  </h5>
+        { pendingActions.map((p, i) => {
+            return <div key={i}>
+            { p.data.actions.map((action, i) => {
+                const Terse =  TransactionTerseRenderMap[action.transactionType];
+                return  <div key={i} className="panel panel-default">
+                        <div className="panel-body">
+
+                        <strong>{ stringDateToFormattedString(p.data.effectiveDate) } </strong>
+                        { STRINGS.transactionTypes[action.transactionType] }
+                        { Terse && <Terse {...action} /> }
+                        </div>
+                    </div>
+                }) }
+            </div>
+        })}
+    <div className="button-row"><Button bsStyle="primary" onClick={props.performImport}>Confirm Transactions</Button></div>
+    </div>
+}
+
+
 
 PAGES[INTRODUCTION] = function() {
     if(this.props.pendingHistory._status === 'fetching'){
@@ -39,68 +73,23 @@ PAGES[INTRODUCTION] = function() {
             </div>
     }
     if(this.props.pendingHistory._status === 'complete'){
-        return <div><p>There are { this.props.pendingHistory.data.length } documents from the Companies Office to import.</p>
-        <p>Most of the time Good Companies can import documents from the companies register and re-create company history automatically.  But sometimes the companies register does not have all the information required.  That’s where you come in.</p>
-        <p>If Good Companies needs more information to re-create this company’s history, you will be asked to provide the necessary details.  If some of those details are not available right now, don’t worry – you can come back at any point and continue where you left off.</p>
+        const pendingYearActions = collectPreviousYearsActions(this.props.pendingHistory.data);
 
-        </div>
+        return <TransactionSummaries pendingActions={pendingYearActions} performImport={this.handleStart}/>
     }
 };
 
 PAGES[LOADING] = function() {
-
     if(this.props.importHistory._status === 'fetching'){
         return <div>
             <p className="text-center">This may take a few moments</p>
                 <Loading />
             </div>
     }
-    else if(this.props.importHistory._status === 'complete'){
-       return <div>
-        <p>All Companies Office documents have successfully been imported.</p>
-        </div>
-    }
+    return false;
 };
 
-PAGES[AMBIGUITY] = function(){
-    if(this.props.importHistory._status === 'error'){
-        const companyName = this.props.transactionViewData.companyState.companyName;
-        const context = this.props.importHistory.error.context || {};
 
-        const documentId =  context.actionSet && context.actionSet.data.documentId;
-        const documentUrl = documentId && companiesOfficeDocumentUrl(this.props.transactionViewData.companyState, documentId);
-       return <div>
-        <p className="text-danger">We need your help understand a document from the Companies Office.</p>
-        <p className="text-danger">Reason: {this.props.importHistory.error.message || 'Processing Error'}</p>
-        { documentId && <p>Source: <Link target="_blank" to={documentUrl}>Companies Office document {documentId}</Link></p> }
-        </div>
-    }
-}
-
-
-
-const FOOTERS = [];
-
-FOOTERS[INTRODUCTION] = function(){
-    if(this.props.pendingHistory._status === 'complete'){
-        return <div className="button-row">
-            <Button onClick={this.props.end} >Cancel</Button>
-            { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStart} bsStyle="primary">Import Automatically</Button> }
-            { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStartYearByYear} bsStyle="primary">Import Year by Year</Button> }
-            </div>
-    }
-}
-
-FOOTERS[LOADING] = function(){
-    return false;
-}
-
-FOOTERS[AMBIGUITY] = function(){
-    return <div className="button-row">
-        <Button onClick={this.props.end} >Cancel</Button>
-        <Button onClick={this.handleResolve} bsStyle="primary">Resolve</Button>
-        </div>
-}
 
 
 
@@ -113,14 +102,14 @@ FOOTERS[AMBIGUITY] = function(){
 }, (dispatch, ownProps) => {
     return {
         requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
-        performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history`,
+        performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until_ar`,
                                                      {}, {
                                                         invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
     }
 })
-export class ImportHistoryTransactionView extends React.Component {
+export class ImportHistoryChunkTransactionView extends React.Component {
 
     constructor(props){
         super(props);
@@ -154,16 +143,15 @@ export class ImportHistoryTransactionView extends React.Component {
         return  PAGES[this.props.index] && PAGES[this.props.index].call(this);
     }
 
-    renderFooter(){
-        return FOOTERS[this.props.index] && FOOTERS[this.props.index].call(this);
-    }
-
     handleStart() {
         this.props.next({index: LOADING});
         this.props.performImport()
+            .then(r => {
+                this.props.next({index: INTRODUCTION});
+            })
             .catch(e => {
                 this.handleResolve();
-            });
+            })
     }
 
     handleStartYearByYear() {
@@ -183,9 +171,6 @@ export class ImportHistoryTransactionView extends React.Component {
               <TransactionView.Body>
                 { this.renderBody() }
               </TransactionView.Body>
-              <TransactionView.Footer>
-                { this.renderFooter() }
-              </TransactionView.Footer>
             </TransactionView>
     }
 }

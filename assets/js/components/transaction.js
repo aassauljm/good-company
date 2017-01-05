@@ -45,6 +45,7 @@ const BaseTransaction = (props) => {
         { props.children }
     </div>
 }
+
 const CommonInfo = (props) => {
     return <div>
             <div className="row">
@@ -87,6 +88,16 @@ const BasicLoop = (props) => {
 
 const HoldingChange = (props) => {
     return beforeAndAfterSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+}
+
+
+export const TransactionTerseRenderMap = {
+    ADDRESS_CHANGE: (props) => {
+        return <span className="transaction-terse-description"> - { STRINGS[props.field] } changed to { props.newAddress } </span>
+    },
+    UPDATE_DIRECTOR: (props) => {
+        return <span className="transaction-terse-description"> - { props.afterName} </span>
+    }
 }
 
 export const TransactionRenderMap = {

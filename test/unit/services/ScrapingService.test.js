@@ -486,6 +486,21 @@ describe('Scraping Service', function() {
             });
     });
 
-
+    describe.skip('Should parse biznet annual return (different format)', function() {
+        it('reads file, creates ar action', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/11267273.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Online Annual Return',
+                    });
+                    result.actions.length.should.be.equal(1);
+                    result.transactionType.should.be.equal('ANNUAL_RETURN');
+                    result.actions[0].directors.length.should.be.equal(7);
+                    result.actions[0].holdings.length.should.be.equal(10);
+                    done();
+                })
+                .catch(done)
+            });
+    });
 
 });

@@ -804,6 +804,10 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             }
         });
 
+        if(!holdings.length){
+            return {};
+        }
+
         return {actions: [{
             transactionType: Transaction.types.ANNUAL_RETURN,
             registeredCompanyAddress,

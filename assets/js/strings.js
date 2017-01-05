@@ -109,7 +109,10 @@ export default {
         UPDATE_DOCUMENT: 'Update Document',
         CREATE_DIRECTORY: 'Create Directory',
         USER_FIELDS_CHANGE: 'Update Contact Details',
-        INFERRED_REMOVE_DIRECTOR: 'Remove Director'
+        INFERRED_REMOVE_DIRECTOR: 'Remove Director',
+        ADDRESS_CHANGE: 'Address Change',
+        UPDATE_DIRECTOR: 'Update Director'
+
     },
     amendTypes: {
         ISSUE_TO: 'Issue',
