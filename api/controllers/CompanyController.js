@@ -403,17 +403,23 @@ module.exports = {
             companyName = _state.get('companyName');
             return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN));
         })
-        .then(function(result){
-            return res.json(result)
+        .then(() => {
+            return company.getPendingActions()
         })
-        /*.then(() => {
-            return ActivityLog.create({
-                type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
-                userId: req.user.id,
-                description: `Complete ${companyName} History Import`,
-                data: {companyId: req.params.id}
-            });
-        })*/
+        .then(pA => {
+            if(!pA.length){
+                res.json({complete: true})
+                return ActivityLog.create({
+                    type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                    userId: req.user.id,
+                    description: `Complete ${companyName} History Import`,
+                    data: {companyId: req.params.id}
+                });
+            }
+            else{
+                return res.json({complete: false})
+            }
+        })
         .catch(function(e){
             return res.serverError(e)
         })

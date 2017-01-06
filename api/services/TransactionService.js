@@ -1614,7 +1614,6 @@ export function performInverseAllPendingUntil(company, endCondition){
                     throw e;
                 }
             })
-
     }
 
     return sequelize.transaction(function(t){

@@ -29,7 +29,7 @@ const PAGES = [];
 
 PAGES[INTRODUCTION] = function() {
     if(this.props.pendingHistory._status === 'fetching'){
-        return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+        return <Loading />
     }
 
     if(this.props.transactionViewData.companyState.extensive){

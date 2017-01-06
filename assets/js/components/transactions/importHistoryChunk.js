@@ -27,7 +27,7 @@ function collectPreviousYearsActions(pendingHistory){
 }
 
 
-const INTRODUCTION = 0;
+const EXPLAINATION = 0;
 const LOADING = 1;
 const AMBIGUITY = 2;
 const FINISHED = 3;
@@ -40,26 +40,30 @@ function TransactionSummaries(props) {
     const pendingActions = [...props.pendingActions];
     pendingActions.reverse();
     return <div>
-    <p>Click on any entry to make corrections, then click 'Confirm Transactions' to move onto the next year</p>
+    <p>If any entry has an Edit button, you can make date and detail corrections.  Once all entries are correct, click 'Confirm Transactions' to move onto the next year.</p>
     <h5 className="text-center">Summary for the Year beginning on { stringDateToFormattedString(props.pendingActions[props.pendingActions.length-1].data.effectiveDate) }  </h5>
         <hr/>
         { pendingActions.map((p, i) => {
             const actions = p.data.actions.filter(a => a.transactionType);
-            if(!actions){
+            if(!actions || isInternalTransaction(p.data.transactionType)){
                 return false;
             }
+            const editable = isEditable(actions);
             return <div key={i}>
-                <div  className="panel panel-default actionable">
+                <div  className="panel panel-default">
                         <div className="panel-body transaction-table">
                         <div className="col-md-2 transaction-terse-date">
                             { stringDateToFormattedString(p.data.effectiveDate) }
                         </div>
-                        <div className="col-md-10">
+                        <div className="col-md-11">
                         { actions.map((action, i) => {
                             const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
                                 return  Terse && <Terse {...action} key={i}/>
                             }) }
                     </div>
+                        <div className="col-md-1">
+                        { editable && <div className="button-row"><Button bsStyle="info">Edit</Button></div> }
+                        </div>
                 </div>
                 </div>
             </div>
@@ -68,11 +72,36 @@ function TransactionSummaries(props) {
     </div>
 }
 
+function isEditable(actions){
+    const editableTypes = {
+        [TransactionTypes.ISSUE_TO]: true,
+        [TransactionTypes.AMEND]: true,
+        [TransactionTypes.NEW_ALLOCATION]: true,
+        [TransactionTypes.REMOVE_ALLOCATION]: true,
+        [TransactionTypes.HOLDER_CHANGE]: true,
+        [TransactionTypes.TRANSFER_TO]: true,
+        [TransactionTypes.TRANSFER_FROM]: true,
+        [TransactionTypes.CONVERSION_TO]: true,
+        [TransactionTypes.SUBDIVISION_TO]: true,
+        [TransactionTypes.UPDATE_DIRECTOR]: true,
+        [TransactionTypes.PURCHASE_FROM]: true,
+        [TransactionTypes.EDEMPTION_FROM]: true,
+        [TransactionTypes.CQUISITION_FROM]: true,
+        [TransactionTypes.CONSOLIDATION_FROM]: true,
+        [TransactionTypes.UPDATE_DIRECTOR]: true
+    };
+    return actions.some(a => editableTypes[a.transactionType]);
+}
 
+function isInternalTransaction(transactionType){
+    return {
+        [TransactionTypes.COMPOUND_REMOVALS]: true
+    }[transactionType]
+}
 
-PAGES[INTRODUCTION] = function() {
+PAGES[EXPLAINATION] = function() {
     if(this.props.pendingHistory._status === 'fetching'){
-        return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+        return  <Loading />
     }
 
     if(this.props.transactionViewData.companyState.extensive){
@@ -93,7 +122,7 @@ PAGES[INTRODUCTION] = function() {
 PAGES[LOADING] = function() {
     if(this.props.importHistory._status === 'fetching'){
         return <div>
-            <p className="text-center">This may take a few moments</p>
+            <p className="text-center">Importing Transactions</p>
                 <Loading />
             </div>
     }
@@ -157,8 +186,13 @@ export class ImportHistoryChunkTransactionView extends React.Component {
     handleStart() {
         this.props.next({index: LOADING});
         this.props.performImport()
-            .then(r => {
-                this.props.next({index: INTRODUCTION});
+            .then(action => {
+                if(!action.response.complete){
+                    this.props.next({index: EXPLAINATION});
+                }
+                else{
+                    this.props.close();
+                }
             })
             .catch(e => {
                 this.handleResolve();
