@@ -203,6 +203,7 @@ export class SearchWidget extends React.Component {
             value: fields.input.value || '',
             onChange: fields.input.onChange
         };
+
         return (
             <div>
                 <Autosuggest theme={theme}

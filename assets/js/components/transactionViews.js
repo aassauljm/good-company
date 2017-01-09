@@ -23,6 +23,7 @@ import { NewDirectorTransactionView, UpdateDirectorTransactionView, RemoveDirect
 import { SubdivisionTransactionView  } from './transactions/subdivision';
 import { CancellationTransactionView  } from './transactions/cancellation';
 import { ResolveAmbiguityTransactionView  } from './transactions/resolve';
+import { EditTransactionView } from './transactions/editTransaction';
 import { DeleteCompanyTransactionView  } from './transactions/deleteCompany';
 import { ResetHistoryTransactionView  } from './transactions/resetHistory';
 import { ChangeRegisteredOfficeTransactionView, ChangeAddressForServiceTransactionView  } from './transactions/changeAddress';
@@ -137,6 +138,9 @@ export const TransactionViewSwitch = (props) => {
 
             case 'resolveAmbiguity':
                 return <ResolveAmbiguityTransactionView {...props} />
+
+            case 'editTransaction':
+                return <EditTransactionView {...props} />
 
             case 'resetHistory':
                 return <ResetHistoryTransactionView {...props} />

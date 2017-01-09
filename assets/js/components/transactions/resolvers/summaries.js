@@ -101,7 +101,7 @@ export function directorChange(context, companyState, showType) {
                 </div>
             <div className="col-md-2">
                 <div className="text-center">
-                    { showType && <p> { STRINGS.transactionTypes[context.action.transactionType || action.type] }</p> }
+                    { showType && <p> { STRINGS.transactionTypes[context.action.transactionType || context.action.type] }</p> }
                     <Glyphicon glyph="arrow-right" className="big-arrow" />
                     <h5>Effective as at {stringDateToFormattedStringTime(context.action.effectiveDate)}</h5>
                 </div>
