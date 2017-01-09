@@ -121,7 +121,6 @@ export function DateConfirmation(context, submit){
 
 
     return <div>
-           { basicSummary(context, companyState)}
             <DateConfirmationFormConnected
             amendActions={amendActions }
             actionSet={actionSet.data}

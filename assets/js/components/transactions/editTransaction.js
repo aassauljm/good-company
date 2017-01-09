@@ -62,6 +62,7 @@ export class EditTransactionView extends React.Component {
                 <TransactionView.Title>Edit Transactions</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
+                { basicSummary(this.props.transactionViewData, this.props.transactionViewData.companyState)}
                 { this.renderBody() }
               </TransactionView.Body>
               <TransactionView.Footer>
