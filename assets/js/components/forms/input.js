@@ -243,7 +243,7 @@ class InputBase extends React.Component {
                 elementProps.checked = elementProps.checked || false;
           }
           if (this.props.comboData && this.props.comboData.length) {
-            return <Combobox  {...elementProps} data={this.props.comboData}  />
+            return <Combobox  {...elementProps} onBlur={null} data={this.props.comboData}  key="input"/>
           }
 
 

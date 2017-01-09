@@ -148,7 +148,9 @@ select.form-control {
 select.form-control + .form-control-feedback{
     right: 8px;
 }
-.form-horizontal select.form-control + .form-control-feedback{
+
+.form-horizontal select.form-control + .form-control-feedback,
+.form-horizontal .rw-combobox + .form-control-feedback{
     right: 26px;
 }
 

@@ -69,9 +69,10 @@ function oneOfMatchingSchema(fieldProps, values){
 let keyIndex=0;
 
 function renderList(fieldProps, componentProps){
+
     return <fieldset className="list">
         { fieldProps.title && <legend>{fieldProps.title}</legend>}
-        <Shuffle >
+        <Shuffle scale={false}>
         { componentProps.map((c, i) => {
             return <div className="list-item" key={c._keyIndex.value}>
                           <div className="text-right"><div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
@@ -231,7 +232,7 @@ function injectContext(FormComponent) {
     }
 
     function interceptChangesAndInject(schemaProperties, key, fields, context){
-        if (inputSelectSource(schemaProperties)) {
+        if (inputSelectSource(schemaProperties) && fields[key]) {
             const source = inputSource(schemaProperties);
             const onChange = fields[key][source].onChange;
             fields[key][source].onChange = (event) => {
@@ -251,7 +252,7 @@ function injectContext(FormComponent) {
 
     function injectContext(schemaProperties, fields, context) {
         function loop(schemaProperties, fields) {
-            Object.keys(schemaProperties).map(key => {
+            fields && Object.keys(schemaProperties).map(key => {
                 if (schemaProperties[key].type === 'object') {
                     loop(schemaProperties[key].properties, fields[key]);
                     if (schemaProperties[key].oneOf) {
@@ -268,7 +269,7 @@ function injectContext(FormComponent) {
                         });
                         if (schemaProperties[key].items.oneOf) {
                             schemaProperties[key].items.oneOf.map(oneOf => {
-                                loop(oneOf.properties, fields[key]);
+                                loop(oneOf.properties, fields[key][0]);
                             })
                         }
                     }

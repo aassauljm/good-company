@@ -123,7 +123,7 @@
     "react-router": "^2.0.0",
     "react-router-redux": "^4.0.0",
     "react-shuffle": "github:joshgagnon/react-shuffle#fe4b9ddf6406e1a0b8f53ec9923cd138f18126d6",
-    "react-widgets": "^3.1.0",
+    "react-widgets": "3.2.4",
     "redux": "^3.0.2",
     "redux-connect": "^2.4.0",
     "redux-form": "^5.0.1",
