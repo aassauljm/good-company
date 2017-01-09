@@ -18,8 +18,14 @@
             "type": "object",
             "properties": {
                 "name": {
-                    "title": "Name of Director Who Chaired Meeting",
+                    "title": "Director",
                     "type": "string"
+                }
+            },
+            "x-hints": {
+                "form": {
+                    "selectFromSource": "company.directors",
+                    "source": "name"
                 }
             },
             "required": [
@@ -73,12 +79,35 @@
                     }
                 },
                 "x-hints": {
-                    "form": { "addItem": "Add Shareholder" }
+                    "form": {
+                        "addItem": "Add Shareholder",
+                        "selectFromSource": "company.shareholders",
+                        "source": "name"
+                    }
                 },
                 "required": ["name"]
             },
             "default": [{}],
             "minItems": 1
+        },
+        "chairperson": {
+            "type": "object",
+
+            "properties": {
+                "name": {
+                    "title": "Chairperson Name",
+                    "type": "string"
+                }
+            },
+            "x-hints": {
+                "form": {
+                    "selectFromSource": "company.directors",
+                    "source": "name"
+                }
+            },
+            "required": [
+                "name"
+            ]
         }
     }
 }

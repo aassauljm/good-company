@@ -22,7 +22,6 @@
                 "companyName", "companyNumber"
             ]
         },
-
         "resolutionOptions": {
             "type": "object",
             "properties": {
@@ -44,23 +43,7 @@
                             "enum": ["Special Resolution at Shareholder Meeting"]
                         },
                         "chairperson": {
-                            "type": "object",
-
-                            "properties": {
-                                "name": {
-                                    "title": "Chairperson Name",
-                                    "type": "string"
-                                }
-                            },
-                            "x-hints": {
-                                "form": {
-                                    "selectFromSource": "company.directors",
-                                    "source": "name"
-                                }
-                            },
-                            "required": [
-                                "name"
-                            ]
+                            "$ref": "#/definitions/chairperson"
                         },
 
                         "dateOfShareholderMeeting": {

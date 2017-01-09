@@ -50,7 +50,7 @@
                                 }
                             }
                         },
-                        "chairperson": { "$ref": "#/definitions/director" }
+                        "chairperson": { "$ref": "#/definitions/chairperson" }
                     },
                     "required": ["dateOfMinute", "dateOfBoardMeeting", "chairperson"]
                 },

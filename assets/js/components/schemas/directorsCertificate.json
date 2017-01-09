@@ -29,14 +29,7 @@
                 "type": "object",
                 "properties": {
                     "director": {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "title": "Full Name",
-                                "type": "string"
-                            }
-                        },
-                        "required": ["name"]
+                        "$ref": "#/definitions/director"
                     }
                 },
                 "x-hints": {
@@ -45,6 +38,7 @@
                     }
                 }
             },
+            "default": [{}],
             "minItems": 1
         },
         "certifications": {
@@ -64,6 +58,7 @@
                     }
                 }
             },
+            "default": [{}],
             "minItems": 1
         },
         "notes": {

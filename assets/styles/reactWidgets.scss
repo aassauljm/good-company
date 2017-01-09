@@ -90,6 +90,10 @@ $rw-version:          "4.1.0";
                  &:hover{
                      @extend a.list-group-item:hover;
                 }
+                 &.rw-state-focus,
+                 &.rw-state-selected{
+                     @extend a.list-group-item:hover;
+                }
             }
         }
     }

@@ -48,7 +48,14 @@
                                 "title": "Signatory (if required)"
                             }
                         },
-                        "required": ["name", "address"]
+                        "required": ["name", "address"],
+                        "x-hints": {
+                            "form": {
+                                "selectFromSource": "company.shareholders",
+                                "source": "name",
+                                "addItem": "Add Shareholder"
+                            }
+                        }
                     },
                     "minItems": 1,
                     "default": [{}]
@@ -74,6 +81,13 @@
                             "behalfOf": {
                                 "type": "string",
                                 "title": "Signatory (if required)"
+                            }
+                        },
+                        "x-hints": {
+                            "form": {
+                                "selectFromSource": "company.shareholders",
+                                "source": "name",
+                                "addItem": "Add Shareholder"
                             }
                         },
                         "required": ["name", "address"]

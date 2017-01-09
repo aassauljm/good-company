@@ -262,15 +262,20 @@ function injectContext(FormComponent) {
                     }
                 } else if (schemaProperties[key].type === 'array') {
                     if (schemaProperties[key].items.type === "object") {
-                        loop(schemaProperties[key].items.properties, fields[key] || {});
-
+                        fields[key] && fields[key].map(f => {
+                            loop(schemaProperties[key].items.properties, f);
+                        })
                         fields[key] && fields[key].map((field, index) => {
                             interceptChangesAndInject(schemaProperties[key].items,  index, fields[key], context);
                         });
-                        if (schemaProperties[key].items.oneOf) {
-                            schemaProperties[key].items.oneOf.map(oneOf => {
-                                loop(oneOf.properties, fields[key][0]);
-                            })
+                        if(schemaProperties[key].items.oneOf) {
+                            fields[key].map(f => {
+                                let values = Object.keys(f).reduce((acc, k) => { acc[k] = f[k].value; return acc;}, {});
+                                let result = oneOfMatchingSchema(schemaProperties[key].items, values);
+                                if(result){
+                                     loop(result.properties, f);
+                                }
+                            });
                         }
                     }
                 }
