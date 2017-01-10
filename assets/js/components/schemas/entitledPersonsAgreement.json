@@ -35,6 +35,13 @@
                                 "type": "string",
                                 "title": "Entitled Person's Name"
                             }
+                        },
+                         "x-hints": {
+                            "form": {
+                                "addItem": "Add Entitled Party",
+                                "selectFromSource": "company.shareholders",
+                                "source": "name"
+                            }
                         }
                     },
                     "default": [{}],
