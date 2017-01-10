@@ -383,7 +383,7 @@ module.exports = {
             return ActivityLog.create({
                 type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
                 userId: req.user.id,
-                description: `Complete ${companyName} History Import`,
+                description: `Completed ${companyName} History Import`,
                 data: {companyId: req.params.id}
             });
         })
@@ -408,11 +408,11 @@ module.exports = {
         })
         .then(pA => {
             if(!pA.length){
-                res.json({complete: true})
+                res.json({complete: true});
                 return ActivityLog.create({
                     type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
                     userId: req.user.id,
-                    description: `Complete ${companyName} History Import`,
+                    description: `Completed ${companyName} History Import`,
                     data: {companyId: req.params.id}
                 });
             }

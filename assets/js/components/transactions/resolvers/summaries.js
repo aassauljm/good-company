@@ -6,6 +6,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router'
 
 export function actionAmountDirection(action){
+    // increase is true
     return action.afterAmount >= action.beforeAmount || !action.beforeHolders;
 }
 

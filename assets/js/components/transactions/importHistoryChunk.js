@@ -45,7 +45,7 @@ function TransactionSummaries(props) {
         <hr/>
         { pendingActions.map((p, i) => {
             const actions = p.data.actions.filter(a => a.transactionType);
-            if(!actions || isInternalTransaction(p.data.transactionType)){
+            if(!actions.length || isInternalTransaction(p.data.transactionType)){
                 return false;
             }
             const editable = isEditable(p.data);
@@ -119,7 +119,7 @@ PAGES[EXPLAINATION] = function() {
     if(this.props.pendingHistory._status === 'complete'){
         const pendingYearActions = collectPreviousYearsActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
-            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleEdit={this.handleResolve}/>
+            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleEdit={this.handleEdit}/>
         }
     }
     return false;
@@ -162,6 +162,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
         this.handleStart = ::this.handleStart;
         this.handleStartYearByYear = ::this.handleStartYearByYear;
         this.handleResolve = ::this.handleResolve;
+        this.handleEdit = ::this.handleEdit;
     };
 
     fetch() {
@@ -208,7 +209,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
         this.props.show('importHistoryChunk', {...this.props.transactionViewData});
     }
 
-    handleResolve(actionSet, pendingActions) {
+    handleEdit(actionSet, pendingActions) {
         const otherActions = pendingActions.filter(p => p !== actionSet);
         this.props.show('editTransaction', {...this.props.transactionViewData,
             startId: pendingActions[0].id,
@@ -216,6 +217,11 @@ export class ImportHistoryChunkTransactionView extends React.Component {
             actionSet,
             otherActions,
                     afterClose: { // open this transactionView again
+                            showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}});
+    }
+
+    handleResolve() {
+        this.props.show('resolveAmbiguity', {...this.props.transactionViewData, error: this.props.importHistory.error, afterClose: { // open this transactionView again
                             showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}});
     }
 

@@ -91,7 +91,7 @@ export function DateConfirmation(context, submit){
         }, {});
         const actionArray = Object.keys(actions).map(p => actions[p]);
         actionArray.sort((a, b) => {
-            return a[0].effectiveDate < b[0].effectiveDate
+            return b[0].effectiveDate - a[0].effectiveDate
         });
         actionArray.map(actions => {
             pendingActions.push({id: actionSet.id, data: {...actionSet.data, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});

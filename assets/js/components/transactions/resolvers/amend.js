@@ -304,6 +304,7 @@ const validateAmend = (values, props) => {
     });
 
     errors._error = Object.keys(formErrors).length ? formErrors: null;
+    console.log(errors)
     return errors;
 }
 
@@ -363,11 +364,12 @@ export function formatSubmit(values, actionSet) {
 
     // sort by date
     transactions.sort((a, b) => {
-        return a[0].effectiveDate < b[0].effectiveDate
+        return b[0].effectiveDate - a[0].effectiveDate
     });
 
     const newAllocations = {};
-    transactions.map(sets => {
+
+    transactions.map((sets, i) => {
         sets.map(action => {
             //look up original action
             const original = amends[action._holding];
@@ -383,6 +385,7 @@ export function formatSubmit(values, actionSet) {
             delete action._holding;
         });
 
+
     });
     // put new allocation types where needed
     Object.keys(newAllocations).map(k => {
@@ -392,8 +395,8 @@ export function formatSubmit(values, actionSet) {
     });
 
 
-    transactions.map(t => {
-        pendingActions.push({id: actionSet.id, data: {...actionSet.data, effectiveDate: t[0].effectiveDate, totalShares: null, actions: t}, previous_id: actionSet.previous_id});
+    transactions.map((t, orderIndex) => {
+        pendingActions.push({id: actionSet.id, data: {...actionSet.data, orderIndex: orderIndex, effectiveDate: t[0].effectiveDate, totalShares: null, actions: t}, previous_id: actionSet.previous_id});
     });
 
     return pendingActions;
@@ -403,7 +406,7 @@ export function formatSubmit(values, actionSet) {
 export default function Amend(context, submit){
     const { actionSet, companyState, shareClassMap } = context;
     const amendActions = collectAmendActions(actionSet.data.actions);
-
+    const identity = x => x;
 
     const handleSubmit = (values) => {
         const pendingActions = formatSubmit(values, actionSet);
@@ -413,17 +416,22 @@ export default function Amend(context, submit){
     }
 
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
-        return acc + actionAmountDirection(action) ? 1 : 0
+        return acc + (actionAmountDirection(action) ? 1 : 0)
     }, 0);
+
     const allSameDirection = allSameDirectionSum === 0 || allSameDirectionSum === amendActions.length;
+    const allButOneIncrease = amendActions.length > 1 && !allSameDirection && allSameDirectionSum === amendActions.length -1;
+    const allButOneDecrease = amendActions.length > 1 && !allSameDirection && allSameDirectionSum === 1;
+
+
 
     const amountValues = amendActions.reduce((acc, action, i) => {
         const dir = (action.afterAmount > action.beforeAmount || !action.beforeHolders);
         acc[dir][action.amount] = (acc[dir][action.amount] || []).concat({...action, index: i});
         return acc;
-    }, {true: {}, false: {}})
+    }, {true: {}, false: {}});
 
-    let initialValues = {actions: amendActions.map((a, i) => {
+    let initialValues = {actions: calculateReciprocals(amendActions.map((a, i) => {
         // if all same direction, set amount;
         const effectiveDate = moment(a.effectiveDate || actionSet.data.effectiveDate).startOf('day').toDate();
         let amount, holding;
@@ -441,15 +449,23 @@ export default function Amend(context, submit){
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
                 holding: amountValues[!increase][a.amount][0].index+'',
                 effectiveDate,
+                isInverse: !increase,
                 _keyIndex: keyIndex++
             }]};
         }
-        return {recipients: [{
-            amount:  a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++
-        }]};
-    })};
 
-    //initialValues = VALUES;
+        if(allButOneIncrease){
+            holding = amountValues[false][Object.keys(amountValues[false])[0]][0].index+'';
+        }
+
+        if(allButOneDecrease){
+            holding = amountValues[true][Object.keys(amountValues[false])[0]][0].index+'';
+        }
+
+        return {recipients: [{
+            amount:  a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
+        }]};
+    }).filter(identity), identity, identity, x => false)};
 
     const holdings = amendActions.reduce((acc, a, i) => {
         const increase = actionAmountDirection(a);
@@ -461,7 +477,6 @@ export default function Amend(context, submit){
     }, []);
 
     return <div>
-
             <AmendOptionsConnected
             amendActions={amendActions}
             effectiveDate={moment(actionSet.data.effectiveDate).startOf('day').toDate()}
@@ -476,43 +491,44 @@ export default function Amend(context, submit){
 
 
 
-export function calculateReciprocals(actions) {
+export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=(x) => ({value: x}), getTouched=(x) => x.touched) {
     if(!actions){
         return null;
     }
     // removal all reciprocals
     actions = actions.map(action => {
-        const recipients = action.recipients.filter(r => !r.isInverse.value);
+        const recipients = action.recipients.filter(r => !getValue(r.isInverse));
         return {...action, recipients}
     });
     // re add them
     actions.map((action, i) => {
 
         (action.recipients || []).map((recipient, j) => {
-            if(isTransfer(recipient.type.value) && !recipient.isInverse.value){
-                const holding = recipient.holding.value;
+            if(isTransfer(getValue(recipient.type)) && !getValue(recipient.isInverse)){
+                const holding = getValue(recipient.holding);
                 if(!holding){
                     return;
                 }
                 const holdingIndex = parseInt(holding, 10)
                 // has a holding, insert inverse transaction
-                const inverseType = inverseTransfer(recipient.type.value)
+                const inverseType = inverseTransfer(getValue(recipient.type))
                 const inverseHolding = i.toString();
                 // does the reciprocal any fields that have been touched?
                 actions[holdingIndex].recipients = actions[holdingIndex].recipients.filter(r => {
-                    return r.amount.touched || r.effectiveDate.touched || r.type.touched || r.holding.touched || r.isInverse.value;
+                    return getTouched(r.amount) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse);
                 });
                 actions[holdingIndex].recipients.push({
-                    effectiveDate: {value: recipient.effectiveDate.value},
-                    isInverse: {value: true},
-                    type: {value: inverseType},
-                    holding: {value: inverseHolding},
-                    amount: {value: recipient.amount.value},
-                    _keyIndex: {value: keyIndex++}
+                    effectiveDate: recipient.effectiveDate,
+                    isInverse: setValue(true),
+                    type: setValue(inverseType),
+                    holding: setValue(inverseHolding),
+                    amount: recipient.amount,
+                    _keyIndex: setValue(keyIndex++)
                 });
+
                 // better sort reciprocals
                 actions[holdingIndex].recipients.sort((a, b) => {
-                    return a.effectiveDate.value || b.effectiveDate.value
+                    return getValue(a.effectiveDate) - getValue(b.effectiveDate)
                 });
             }
         })

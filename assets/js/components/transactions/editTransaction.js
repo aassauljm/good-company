@@ -22,6 +22,8 @@ import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
 import { InvalidIssue } from './resolvers/unknownShareChanges'
 import { Shareholder } from '../shareholders';
+import firstBy from 'thenby';
+
 
 @connect((state, ownProps) => {
     return {};
@@ -52,9 +54,11 @@ export class EditTransactionView extends React.Component {
             const otherActions = this.props.transactionViewData.otherActions;
             const previousAction = this.props.transactionViewData.previousAction;
             const orderedActions = otherActions.concat(newActions.pendingActions);
-            orderedActions.sort((a, b) => new Date(a.data.effectiveDate) < new Date(b.data.effectiveDate) )
-            orderedActions[0].id = this.props.startId;
-            orderedActions[orderedActions.length-1].prevous_id = this.props.endId;
+
+            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => x.data.orderIndex));
+            orderedActions[0].id = this.props.transactionViewData.startId;
+            orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
+
             this.props.updateAction({pendingActions: orderedActions});
         }
         if(hasAmend){
