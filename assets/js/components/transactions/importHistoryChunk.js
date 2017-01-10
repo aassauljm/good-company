@@ -48,7 +48,7 @@ function TransactionSummaries(props) {
             if(!actions || isInternalTransaction(p.data.transactionType)){
                 return false;
             }
-            const editable = isEditable(actions);
+            const editable = isEditable(p.data);
             return <div key={i}>
                 <div  className="panel panel-default">
                         <div className="panel-body transaction-table">
@@ -62,7 +62,7 @@ function TransactionSummaries(props) {
                             }) }
                     </div>
                         <div className="col-md-1">
-                        { editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p)}>Edit</Button></div> }
+                        { editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div> }
                         </div>
                 </div>
                 </div>
@@ -72,7 +72,12 @@ function TransactionSummaries(props) {
     </div>
 }
 
-function isEditable(actions){
+function isEditable(data){
+    const actions = data.actions;
+    if({[TransactionTypes.INCORPORATION]: true}[data.transactionType]){
+        return false;
+    }
+
     const editableTypes = {
         [TransactionTypes.ISSUE_TO]: true,
         [TransactionTypes.AMEND]: true,
@@ -85,8 +90,9 @@ function isEditable(actions){
         [TransactionTypes.SUBDIVISION_TO]: true,
         [TransactionTypes.UPDATE_DIRECTOR]: true,
         [TransactionTypes.PURCHASE_FROM]: true,
-        [TransactionTypes.EDEMPTION_FROM]: true,
-        [TransactionTypes.CQUISITION_FROM]: true,
+        [TransactionTypes.REDEMPTION_FROM]: true,
+        [TransactionTypes.ACQUISITION_FROM]: true,
+        [TransactionTypes.CANCELLATION_FROM]: true,
         [TransactionTypes.CONSOLIDATION_FROM]: true,
         [TransactionTypes.UPDATE_DIRECTOR]: true
     };
@@ -156,8 +162,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
         this.handleStart = ::this.handleStart;
         this.handleStartYearByYear = ::this.handleStartYearByYear;
         this.handleResolve = ::this.handleResolve;
-
-    }
+    };
 
     fetch() {
         return this.props.requestData();
@@ -203,8 +208,14 @@ export class ImportHistoryChunkTransactionView extends React.Component {
         this.props.show('importHistoryChunk', {...this.props.transactionViewData});
     }
 
-    handleResolve(actionSet) {
-        this.props.show('editTransaction', {...this.props.transactionViewData, actionSet, afterClose: { // open this transactionView again
+    handleResolve(actionSet, pendingActions) {
+        const otherActions = pendingActions.filter(p => p !== actionSet);
+        this.props.show('editTransaction', {...this.props.transactionViewData,
+            startId: pendingActions[0].id,
+            endId: pendingActions[pendingActions.length-1].previous_id,
+            actionSet,
+            otherActions,
+                    afterClose: { // open this transactionView again
                             showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}});
     }
 

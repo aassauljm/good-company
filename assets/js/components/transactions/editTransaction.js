@@ -48,11 +48,20 @@ export class EditTransactionView extends React.Component {
     renderBody(){
         const actionSet = this.props.transactionViewData.actionSet;
         const hasAmend = actionSet.data.actions.some(action =>[TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0);
+        const updateAction = (newActions) => {
+            const otherActions = this.props.transactionViewData.otherActions;
+            const previousAction = this.props.transactionViewData.previousAction;
+            const orderedActions = otherActions.concat(newActions.pendingActions);
+            orderedActions.sort((a, b) => new Date(a.data.effectiveDate) < new Date(b.data.effectiveDate) )
+            orderedActions[0].id = this.props.startId;
+            orderedActions[orderedActions.length-1].prevous_id = this.props.endId;
+            this.props.updateAction({pendingActions: orderedActions});
+        }
         if(hasAmend){
-            return Amend({...this.props.transactionViewData}, this.props.updateAction)
+            return Amend({...this.props.transactionViewData}, updateAction)
         }
         else{
-            return DateConfirmation({...this.props.transactionViewData}, this.props.updateAction)
+            return DateConfirmation({...this.props.transactionViewData}, updateAction)
         }
     }
 

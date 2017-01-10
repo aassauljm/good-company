@@ -101,7 +101,7 @@ export function directorChange(context, companyState, showType) {
                 </div>
             <div className="col-md-2">
                 <div className="text-center">
-                    { showType && <p> { STRINGS.transactionTypes[context.action.transactionType || context.action.type] }</p> }
+                { showType && <h5>{ STRINGS.transactionTypes[context.action.transactionType || context.action.type] }</h5> }
                     <Glyphicon glyph="arrow-right" className="big-arrow" />
                     <h5>Effective as at {stringDateToFormattedStringTime(context.action.effectiveDate)}</h5>
                 </div>
@@ -141,7 +141,7 @@ export function beforeAndAfterSummary(context, companyState, showType){
                 </div>
                 <div className="col-md-2">
                     <div className="text-center">
-                    { showType && <p> { STRINGS.transactionTypes[action.transactionType || action.type] }</p> }
+                    { showType && <h5>{ STRINGS.transactionTypes[action.transactionType || action.type] }</h5> }
                         <Glyphicon glyph="arrow-right" className="big-arrow" />
                         <p><span className="shares">{ shareChange }</span></p>
                     </div>
