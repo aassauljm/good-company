@@ -81,6 +81,45 @@ function AddressDifference(context, submit, reset){
 }
 
 
+function AnnualReturnHoldingDifference(context, submit, reset){
+    function skip(){
+        return submit({
+            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+        })
+    }
+    function startOver(){
+        return reset();
+    }
+    return <div>
+         <p className="instructions">Sorry, the Shareholdings described in the Annual Return linked above do not match our records.</p>
+        <div className="button-row">
+            <Button onClick={skip} className="btn-primary">Skip Validation</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+        </div>
+    </div>
+}
+
+function DirectorNotFound(context, submit, reset, edit){
+    function skip(){
+        return submit({
+            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+        })
+    }
+    function startOver(){
+        return reset();
+    }
+
+    return <div>
+         <p className="instructions">Sorry, we could find the director "{context.action.afterName}" referenced in the document linked above.</p>
+        { context.action.transactionType === TransactionTypes.UPDATE_DIRECTOR &&
+                <p className="instructions">It is possible that this directorship has ceased, please consider editing the date of this transaction.</p> }
+        <div className="button-row">
+            <Button onClick={skip} className="btn-primary">Skip Validation</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            { edit &&  <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>}
+        </div>
+    </div>
+}
 
 
 function HolderNotFound(context, submit, reset){
@@ -287,8 +326,8 @@ const PAGES = {
     [ImportErrorTypes.MULTIPLE_HOLDING_TRANSFER_SOURCE]: MultipleHoldingTransferSources,
     [ImportErrorTypes.HOLDER_NOT_FOUND]: HolderNotFound,
     [ImportErrorTypes.HOLDING_NOT_FOUND]: HoldingNotFound,
-    [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: submitSkipRestart,
-    [ImportErrorTypes.DIRECTOR_NOT_FOUND]: submitSkipRestart,
+    [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: AnnualReturnHoldingDifference,
+    [ImportErrorTypes.DIRECTOR_NOT_FOUND]: DirectorNotFound,
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
@@ -341,10 +380,20 @@ export class ResolveAmbiguityTransactionView extends React.Component {
                     </div>
                 </div>
         }
+        let edit;
+        if(this.props.transactionViewData.editTransactionData){
+            // if we are doing a yeary by year import, we have greater flexibility for importing
+            edit = () => {
+                const otherActions = this.props.transactionViewData.editTransactionData.pendingActions.filter(p => p.id !== context.actionSet.id)
+                this.props.show('editTransaction', {...this.props.transactionViewData.editTransactionData, actionSet: context.actionSet, otherActions});
+            }
+        }
+
+
         return <div className="resolve">
             { basicSummary(context, this.props.transactionViewData.companyState)}
             <hr/>
-            { PAGES[context.importErrorType](context, this.props.updateAction, this.props.resetAction)}
+            { PAGES[context.importErrorType](context, this.props.updateAction, this.props.resetAction, edit)}
         </div>
     }
 

@@ -421,6 +421,9 @@ module.exports = {
             }
         })
         .catch(function(e){
+            if(e.context){
+                e.context.CHUNK_IMPORT = true;
+            }
             return res.serverError(e)
         })
     },

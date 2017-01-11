@@ -118,9 +118,9 @@ export default class CompanyHeader extends React.Component {
         const date = new Date(this.props.companyState.transaction ? this.props.companyState.transaction.effectiveDate : this.props.companyState.incorporationDate);
         return <div className="calendar-toggle">
                 <OverlayTrigger placement="bottom" rootClose={true} overlay={
-                    <Popover title="Select Date">
+                    <Popover title="Select Date" className="time-travel">
                         <div>
-                            <Calendar value={date} onChange={this.selectDate} duration={0}/>
+                            <Calendar value={date} onChange={this.selectDate} />
                             <div className="button-row">
                             <Link to={`/company/view/${this.props.companyId}`} className="btn btn-info">Today</Link>
                             </div>

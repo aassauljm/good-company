@@ -29,12 +29,12 @@ export function validateAnnualReturn(data, companyState){
             const currentHoldings = holdingToString(state.holdingList.holdings)
             const expectedHoldings = holdingToString(data.holdings)
 
-            if(JSON.stringify(currentDirectors) !== JSON.stringify(expectedDirectors)){
+            if(JSON.stringify(currentDirectors).toLocaleUpperCase() !== JSON.stringify(expectedDirectors).toLocaleUpperCase()){
                 sails.log.error('Current directors: '+JSON.stringify(currentDirectors))
                 sails.log.error('Expected directors: '+JSON.stringify(expectedDirectors));
                 throwDirectors = true;
             }
-            if(JSON.stringify(currentHoldings) !== JSON.stringify(expectedHoldings)){
+            if(JSON.stringify(currentHoldings).toLocaleUpperCase() !== JSON.stringify(expectedHoldings).toLocaleUpperCase()){
                 sails.log.error('Current', JSON.stringify(currentHoldings))
                 sails.log.error('Expected', JSON.stringify(expectedHoldings))
                 throw new sails.config.exceptions.InvalidInverseOperation('Holdings do not match', {

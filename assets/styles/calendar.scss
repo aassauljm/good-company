@@ -76,4 +76,8 @@
 
 .popover-content .rw-calendar{
     width: 22em;
+    .rw-state-focus{
+        background-color: $brand-success;
+        color:white;
+    }
 }

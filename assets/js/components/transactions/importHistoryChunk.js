@@ -217,13 +217,25 @@ export class ImportHistoryChunkTransactionView extends React.Component {
             endId: pendingActions[pendingActions.length-1].previous_id,
             actionSet,
             otherActions,
-                    afterClose: { // open this transactionView again
-                            showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}});
+            afterClose: { showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+        });
     }
 
     handleResolve() {
-        this.props.show('resolveAmbiguity', {...this.props.transactionViewData, error: this.props.importHistory.error, afterClose: { // open this transactionView again
-                            showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}});
+        const pendingActions = collectPreviousYearsActions(this.props.pendingHistory.data);
+        this.props.show('resolveAmbiguity',
+            {
+                ...this.props.transactionViewData,
+                error: this.props.importHistory.error,
+                 //open this transactionView again
+                afterClose: { showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
+                editTransactionData: {
+                    startId: pendingActions[0].id,
+                    endId: pendingActions[pendingActions.length-1].previous_id,
+                    pendingActions,
+                    afterClose: { showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+                }
+        });
     }
 
     render() {
