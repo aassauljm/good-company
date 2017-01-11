@@ -29,7 +29,8 @@ const DEFAULT_OBJ = {};
 
 
 const FAKE_COMPANY = {
-    holdingList: {holdings: []}, warnings: {}, deadlines: {}
+    holdingList: {holdings: []}, warnings: {}, deadlines: {},
+    FAKE: true
 };
 
 

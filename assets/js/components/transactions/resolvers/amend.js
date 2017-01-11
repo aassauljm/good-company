@@ -304,7 +304,6 @@ const validateAmend = (values, props) => {
     });
 
     errors._error = Object.keys(formErrors).length ? formErrors: null;
-    console.log(errors)
     return errors;
 }
 
@@ -420,8 +419,8 @@ export default function Amend(context, submit){
     }, 0);
 
     const allSameDirection = allSameDirectionSum === 0 || allSameDirectionSum === amendActions.length;
-    const allButOneIncrease = amendActions.length > 1 && !allSameDirection && allSameDirectionSum === amendActions.length -1;
-    const allButOneDecrease = amendActions.length > 1 && !allSameDirection && allSameDirectionSum === 1;
+    const allButOneIncrease = amendActions.length > 2 && !allSameDirection && allSameDirectionSum === amendActions.length -1;
+    const allButOneDecrease = amendActions.length > 2 && !allSameDirection && allSameDirectionSum === 1;
 
 
 

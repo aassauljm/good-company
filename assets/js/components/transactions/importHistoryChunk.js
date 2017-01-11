@@ -41,7 +41,7 @@ function TransactionSummaries(props) {
     pendingActions.reverse();
     return <div>
     <p>If any entry has an Edit button, you can make date and detail corrections.  Once all entries are correct, click 'Confirm Transactions' to move onto the next year.</p>
-    <h5 className="text-center">Summary for the Year beginning on { stringDateToFormattedString(props.pendingActions[props.pendingActions.length-1].data.effectiveDate) }  </h5>
+    <h5 className="text-center">Summary for the period beginning on { stringDateToFormattedString(props.pendingActions[props.pendingActions.length-1].data.effectiveDate) }  </h5>
         <hr/>
         { pendingActions.map((p, i) => {
             const actions = p.data.actions.filter(a => a.transactionType);
@@ -60,7 +60,8 @@ function TransactionSummaries(props) {
                             const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
                                 return  Terse && <Terse {...action} key={i}/>
                             }) }
-                    </div>
+                            { /* JSON.stringify(actions) */}
+                        </div>
                         <div className="col-md-1">
                         { editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div> }
                         </div>
@@ -101,7 +102,7 @@ function isEditable(data){
 
 function isInternalTransaction(transactionType){
     return {
-        [TransactionTypes.COMPOUND_REMOVALS]: true
+        [TransactionTypes.COMPOUND_REMOVALS]: true,
     }[transactionType]
 }
 
@@ -119,7 +120,7 @@ PAGES[EXPLAINATION] = function() {
     if(this.props.pendingHistory._status === 'complete'){
         const pendingYearActions = collectPreviousYearsActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
-            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleEdit={this.handleEdit}/>
+            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleEdit={this.handleEdit} />
         }
     }
     return false;

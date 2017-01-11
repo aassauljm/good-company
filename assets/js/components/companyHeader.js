@@ -37,6 +37,13 @@ export default class CompanyHeader extends React.Component {
     constructor(props){
         super();
         this.selectDate = ::this.selectDate
+        this.state = {companyState: props.companyState};
+    }
+
+    componentWillReceiveProps(newProps) {
+        if(newProps.companyState && !newProps.companyState.FAKE){
+            this.setState({companyState: newProps.companyState})
+        }
     }
 
     closeMenu() {
@@ -103,7 +110,7 @@ export default class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown>,
-             <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={() => this.closeMenu()} activeClassName="active" className="nav-link">Templates</Link></li>,
+             <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={this.closeMenu} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
 
@@ -139,7 +146,7 @@ export default class CompanyHeader extends React.Component {
             <div className="nav-controls">
 
                     <div className="company-summary">
-                        <h1> { this.props.companyState.companyName}</h1>
+                        <h1> { this.state.companyState.companyName}</h1>
                         <h2> { this.dateControl() } as at { dateString }  </h2>
                     </div>
                     <div className="full-controls">

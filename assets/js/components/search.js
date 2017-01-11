@@ -43,7 +43,7 @@ export class Search extends React.Component {
 
     filter(value) {
         const filterCompanies = (value, list) => {
-            return !value ? list : list.filter(l => l.currentCompanyState.companyName.toLocaleLowerCase().indexOf(value) > -1);
+            return (!value ? list : list.filter(l => l.currentCompanyState.companyName.toLocaleLowerCase().indexOf(value) > -1) || []);
         }
         this.setState({show: true, value: value, list: filterCompanies(value.toLocaleLowerCase(), this.props.companies.data).slice(0, MAX_ITEMS)});
     }

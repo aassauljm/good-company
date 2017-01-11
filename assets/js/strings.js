@@ -81,6 +81,7 @@ export default {
         ADDRESS_CHANGE: 'Company Address Change',
         HOLDING_CHANGE: 'Amend Shareholding',
         HOLDER_CHANGE: 'Shareholder Change',
+        INFERRED_HOLDER_CHANGE: 'Shareholder Change',
         TRANSFER: 'Transfer',
         TRANSFER_TO: 'Transfer To',
         TRANSFER_FROM: 'Transfer From',
@@ -124,6 +125,8 @@ export default {
 
         TRANSFER_TO: 'Transfer',
         TRANSFER_FROM: 'Transfer',
+        AMEND: 'Unknown Change',
+        NEW_ALLOCATION: 'Unknown Increase'
 
     },
     transactionVerbs: {
@@ -136,7 +139,7 @@ export default {
         PURCHASE_FROM: 'Purchase',
         REDEMPTION_FROM: 'Redemption',
         ACQUISITION_FROM: 'Acquisition',
-        CONSOLIDATION_FROM: 'Consolidation',
+        CONSOLIDATION_FROM: 'Consolidation'
     },
     transfer: {
         from: 'From',
