@@ -41,7 +41,7 @@ export default class CompanyHeader extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if(newProps.companyState && !newProps.companyState.FAKE){
+        if(newProps.companyState && newProps.companyState.companyName){
             this.setState({companyState: newProps.companyState})
         }
     }
@@ -141,7 +141,6 @@ export default class CompanyHeader extends React.Component {
      render() {
         let date = this.props.date || new Date();
         let dateString = moment(date).format('hh:mm a D MMMM YYYY');
-
         return <div className="container">
             <div className="nav-controls">
 

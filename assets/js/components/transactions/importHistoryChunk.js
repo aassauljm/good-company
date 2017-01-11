@@ -198,7 +198,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
                     this.props.next({index: EXPLAINATION});
                 }
                 else{
-                    this.props.close();
+                    this.props.end();
                 }
             })
             .catch(e => {
@@ -222,7 +222,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
     }
 
     handleResolve() {
-        const pendingActions = collectPreviousYearsActions(this.props.pendingHistory.data);
+        const pendingActions = collectPreviousYearsActions(this.props.pendingHistory.data || []);
         this.props.show('resolveAmbiguity',
             {
                 ...this.props.transactionViewData,

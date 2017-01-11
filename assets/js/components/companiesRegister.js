@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
 import { requestResource } from '../actions';
-import { stringDateToFormattedString } from '../utils'
+import { stringDateToFormattedString, stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
@@ -46,6 +46,7 @@ export class CompaniesRegisterWidget extends React.Component {
     fetch() {
         return this.props.requestData(this.props.companyId);
     };
+
     componentDidMount() {
         this.fetch();
     };
@@ -65,7 +66,9 @@ export class CompaniesRegisterWidget extends React.Component {
                     </div>
         }
         const data = (this.props.data || {}).data || {};
+
         return <div className="row" key="body">
+
             <div className="col-xs-6">
                     <div><strong>Name</strong> {renderValue(data.companyName) }</div>
                     <div><strong>{STRINGS.companyNumber}</strong> { renderValue(data.companyNumber) }</div>
@@ -81,7 +84,8 @@ export class CompaniesRegisterWidget extends React.Component {
                     { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
             <div className="col-xs-12 text-center">
-                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>
+                 { this.props.data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(this.props.data.createdAt) }</em></div> }
+                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
             </div>
         </div>
     }
@@ -154,6 +158,7 @@ export default class CompaniesRegister extends React.Component {
                 return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(data[f])}</div></div>
             })}
             <div className="text-center">
+                 { this.props.data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(this.props.data.createdAt) }</em></div> }
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>
             </div>
         </div>
