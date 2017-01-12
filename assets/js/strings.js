@@ -91,6 +91,7 @@ export default {
         SUBDIVISION_TO: 'Subdivison To',
         ACQUISITION: 'Acquisition',
         ANNUAL_RETURN: 'Annual Return',
+        INFERRED_NEW_DIRECTOR: 'New Director',
         NEW_DIRECTOR: 'New Director',
         REMOVE_DIRECTOR: 'Remove Director',
         UPDATE_DIRECTOR: 'Update Director',

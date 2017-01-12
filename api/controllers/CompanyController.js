@@ -383,8 +383,9 @@ module.exports = {
             return ActivityLog.create({
                 type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
                 userId: req.user.id,
+                companyId: company.id,
                 description: `Completed ${companyName} History Import`,
-                data: {companyId: req.params.id}
+                data: {companyId: company.id}
             });
         })
         .catch(function(e){
@@ -412,8 +413,9 @@ module.exports = {
                 return ActivityLog.create({
                     type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
                     userId: req.user.id,
+                    companyId: company.id,
                     description: `Completed ${companyName} History Import`,
-                    data: {companyId: req.params.id}
+                    data: {companyId: company.id}
                 });
             }
             else{
