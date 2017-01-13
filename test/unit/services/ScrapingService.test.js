@@ -503,4 +503,25 @@ describe('Scraping Service', function() {
             });
     });
 
+    describe('Should parse biznet amend with missing details', function() {
+        it('reads file, creates ar action', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/13077447.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding',
+                    });
+                    result.actions.length.should.be.equal(3);
+                    result.actions[0].amount.should.be.equal(50);
+                    result.actions[0].transactionType.should.be.equal(Transaction.types.AMEND);
+                    result.actions[1].amount.should.be.equal(40);
+                    result.actions[1].transactionType.should.be.equal(Transaction.types.REMOVE_ALLOCATION);
+                    result.actions[2].amount.should.be.equal(10);
+                    result.actions[2].transactionType.should.be.equal(Transaction.types.REMOVE_ALLOCATION);
+
+                    done();
+                })
+                .catch(done)
+            });
+    });
+
 });

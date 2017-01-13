@@ -1,4 +1,5 @@
 require("babel-core/register");
+require("babel-polyfill");
 global.sails = {
     log: {
         verbose: console.log,
@@ -12,6 +13,7 @@ global.sails = {
 const ScrapingService = require('../api/services/ScrapingService');
 
 const companyNumber = process.argv[2];
+
 
 if(!companyNumber){
     console.log('PLEASE PROVIDE COMPANY NUMBER');
@@ -30,9 +32,9 @@ ScrapingService.fetch(companyNumber)
     .then(function(companyData){
         this.companyData = companyData;
         console.log(JSON.stringify(companyData, null, 4));
-        console.log('Writing Docs')
+        console.log('Writing Docs');
         return ScrapingService.writeDocumentSummaries(companyData);
     })
     .then(function(){
-        console.log('Pulled ' + this.companyData.documents.length + ' documents')
+        console.log('Pulled ' + this.companyData.documents.length + ' documents');
     });

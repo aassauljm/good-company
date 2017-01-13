@@ -824,150 +824,249 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
 
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
         const result = {};
+        let remaining, chunks, type;
 
         let start = $('font').filter(function(){
             return $(this).text().match("Summary of Share Parcel Changes");
         }).parent().parent().next();
-        let remaining = start.nextAll();
-        // chunk by images
-        let chunks = chunkBy(remaining.toArray(), (el) => {
-            return $(el).find('img').length;
-        });
 
-        let type;
-        result.actions = chunks.reduce(function(acc, segment){
-            let amendAllocRegex = /^\s*Amended Share Parcel\(s\)\s*$/;
-            let newAllocRegex = /^\s*New Share Parcel\(s\)\s*$/;
-            let removedAllocRegex = /^\s*Removed Share Parcel\(s\)\s*$/;
-            let head = $(segment[0]).text();
-            if(head.match(amendAllocRegex)){
-                type = Transaction.types.AMEND;
-                return acc;
-            }
-            else if(head.match(newAllocRegex)){
-                type = Transaction.types.NEW_ALLOCATION;
-                return acc;
-            }
-            else if(head.match(removedAllocRegex)){
-                type = Transaction.types.REMOVE_ALLOCATION;
-                return acc;
-            }
+        if(!start.length){
+            // document looks like http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/422184/13077447/entityFilingRequirement
+            start = $('font').filter(function(){
+                return $(this).text().match("Summary of Share Parcel Changes");
+            }).parents('tr').parents('tr').next().find('tr');
+            remaining = start.nextAll();
 
-            const parseAmendAllocation = (segment) => {
-                // 0 === current
-                // 1 number shares
-                let index = 1;
-                let result = {beforeHolders: [], afterHolders: [],  transactionType: Transaction.types.AMEND}
-                result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
-                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
-                    result.afterHolders.push({
-                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
-                        address: cleanString($(segment[index]).find('td').eq(4).text())
-                    })
+            chunks = chunkBy(remaining.toArray(), (el) => {
+               return $(el).find('img').length || $(el).find('tr:empty').length;
+            }).filter(f => f.length);
+
+
+            console.log(chunks.map(c => $(c).text()))
+            result.actions = chunks.reduce(function(acc, segment, j){
+                let amendAllocRegex = /^\s*Amended Share Parcel\(s\)\s*$/;
+                let newAllocRegex = /^\s*New Share Parcel\(s\)\s*$/;
+                let deletedAllocRegex = /^\s*Deleted Share Parcel\(s\)\s*$/;
+                let index = 0
+                let head = $(segment[index]).text();
+                if(head.match(amendAllocRegex)){
+                    type = Transaction.types.AMEND;
                     index++;
                 }
-                // index is now === 'Previous'
-                index++;
-                result.beforeAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
-                result.amount = Math.abs(result.beforeAmount - result.afterAmount)
-
-
-                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
-                    result.beforeHolders.push({
-                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
-                        address: cleanString($(segment[index]).find('td').eq(4).text())
-                    })
+                else if(head.match(newAllocRegex)){
+                    type = Transaction.types.NEW_ALLOCATION;
                     index++;
                 }
-                const results = [];
-                if(!result.beforeHolders.length){
-                    result.holders = result.afterHolders;
-                    delete result.afterHolders;
-                    delete result.beforeHolders;
-                    result.beforeAmount = 0;
-                    result.amount = result.afterAmount;
-                    result.transactionType = Transaction.types.NEW_ALLOCATION;
+                else if(head.match(deletedAllocRegex)){
+                    type = Transaction.types.REMOVE_ALLOCATION;
+                    index++;
+                }
+
+                if(type === Transaction.types.AMEND){
+                    let result = {beforeHolders: [], afterHolders: [],  transactionType: type};
+                    const diff = cleanString($(segment[index++]).find('td').eq(1).text());
+                    const parts = diff.split(' was ');
+                    if(parts.length === 2){
+                        result.afterAmount = toInt(parts[0]);
+                        result.beforeAmount = toInt(parts[1]);
+                        result.amount = Math.abs(result.afterAmount - result.beforeAmount);
+                    }
+                    else{
+                        //ttp://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/1109509/2636770/entityFilingRequirement
+                        // For now, ignore this case
+                        return;
+                    }
+                    while(index < segment.length){
+                        if(cleanString($(segment[index]).text())){
+                            result.beforeHolders.push({
+                                name: invertName(cleanString($(segment[index]).find('td').eq(1).text())),
+                                address: cleanString($(segment[index]).find('td').eq(2).text())
+                            })
+                        }
+                        index++;
+                    }
+                    acc.push(result);
+                }
+                if(type === Transaction.types.NEW_ALLOCATION){
+                    let result = {holders:[], beforeAmount: 0,  transactionType: type};
+                    result.afterAmount = result.amount = toInt(cleanString($(segment[index++]).find('td').eq(1).text()));
+
+                    while(index < segment.length){
+                        if(cleanString($(segment[index]).text())){
+                            result.holders.push({
+                                name: invertName(cleanString($(segment[index]).find('td').eq(1).text())),
+                                address: cleanString($(segment[index]).find('td').eq(2).text())
+                            })
+                        }
+                        index++;
+                    }
+                    acc.push(result);
+
+                }
+                if(type === Transaction.types.REMOVE_ALLOCATION){
+                    let result = {holders:[], afterAmount: 0,  transactionType: type};
+                    result.beforeAmount = result.amount = toInt(cleanString($(segment[index++]).find('td').eq(1).text()));
+
+                    while(index < segment.length){
+                        if(cleanString($(segment[index]).text())){
+                            result.holders.push({
+                                name: invertName(cleanString($(segment[index]).find('td').eq(1).text())),
+                                address: cleanString($(segment[index]).find('td').eq(2).text())
+                            })
+                        }
+                        index++;
+                    }
+                    acc.push(result);
+                }
+
+
+                return acc;
+            }, []);
+        }
+        else{
+            // document looks like http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/1892698/8579266/entityFilingRequirement
+            remaining = start.nextAll();
+            // chunk by images
+            chunks = chunkBy(remaining.toArray(), (el) => {
+                return $(el).find('img').length;
+            });
+
+            result.actions = chunks.reduce(function(acc, segment, j){
+                let amendAllocRegex = /^\s*Amended Share Parcel\(s\)\s*$/;
+                let newAllocRegex = /^\s*New Share Parcel\(s\)\s*$/;
+                let removedAllocRegex = /^\s*Removed Share Parcel\(s\)\s*$/;
+                let head = $(segment[0]).text();
+                if(head.match(amendAllocRegex)){
+                    type = Transaction.types.AMEND;
+                    return acc;
+                }
+                else if(head.match(newAllocRegex)){
+                    type = Transaction.types.NEW_ALLOCATION;
+                    return acc;
+                }
+                else if(head.match(removedAllocRegex)){
+                    type = Transaction.types.REMOVE_ALLOCATION;
+                    return acc;
+                }
+
+                const parseAmendAllocation = (segment) => {
+                    // 0 === current
+                    // 1 number shares
+                    let index = 1;
+                    let result = {beforeHolders: [], afterHolders: [],  transactionType: Transaction.types.AMEND}
+                    result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                    while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                        result.afterHolders.push({
+                            name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                            address: cleanString($(segment[index]).find('td').eq(4).text())
+                        })
+                        index++;
+                    }
+                    // index is now === 'Previous'
+                    index++;
+                    result.beforeAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                    result.amount = Math.abs(result.beforeAmount - result.afterAmount)
+
+
+                    while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                        result.beforeHolders.push({
+                            name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                            address: cleanString($(segment[index]).find('td').eq(4).text())
+                        })
+                        index++;
+                    }
+                    const results = [];
+
+                    if(!result.beforeHolders.length){
+                        result.holders = result.afterHolders;
+                        delete result.afterHolders;
+                        delete result.beforeHolders;
+                        result.beforeAmount = 0;
+                        result.amount = result.afterAmount;
+                        result.transactionType = Transaction.types.NEW_ALLOCATION;
+                        return [result];
+                    }
+
+                    if(JSON.stringify(result.beforeHolders).toLowerCase() !== JSON.stringify(result.afterHolders).toLowerCase()){
+                        let difference = result.beforeHolders.length !== result.afterHolders.length
+                            // must a holder change or holding transfer
+                            // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
+
+                        if(!difference){
+                            result.beforeHolders.map((holder, i) => {
+                                const nameSame = result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase();
+                                if(nameSame &&
+                                   result.beforeHolders[i].address.toLowerCase() !== result.afterHolders[i].address.toLowerCase()){
+                                    results.push({
+                                        transactionType: Transaction.types.HOLDER_CHANGE,
+                                        beforeHolder: result.beforeHolders[i],
+                                        afterHolder: result.afterHolders[i]
+                                    });
+                                }
+                                else if(!nameSame){
+                                    difference = true;
+                                }
+                            });
+                        }
+                        if(difference){
+                            result.transactionType =  Transaction.types.HOLDING_TRANSFER;
+                            return [result];
+                        }
+                    }
+
+                    if(result.amount){
+                        results.push(result);
+                    }
+
+                    return results;
+                }
+
+                const parseRemoveAllocation = (segment) => {
+                    const result = {holders: [], afterAmount: 0, transactionType: Transaction.types.REMOVE_ALLOCATION};
+                    let index = 0;
+                    result.beforeAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                    result.amount = result.beforeAmount;
+                    while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                        result.holders.push({
+                            name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                            address: cleanString($(segment[index]).find('td').eq(4).text())
+                        })
+                        index++;
+                    }
                     return [result];
                 }
 
-                if(JSON.stringify(result.beforeHolders).toLowerCase() !== JSON.stringify(result.afterHolders).toLowerCase()){
-                    let difference = result.beforeHolders.length !== result.afterHolders.length
-                        // must a holder change or holding transfer
-                        // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
-
-                    if(!difference){
-                        result.beforeHolders.map((holder, i) => {
-                            const nameSame = result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase();
-                            if(nameSame &&
-                               result.beforeHolders[i].address.toLowerCase() !== result.afterHolders[i].address.toLowerCase()){
-                                results.push({
-                                    transactionType: Transaction.types.HOLDER_CHANGE,
-                                    beforeHolder: result.beforeHolders[i],
-                                    afterHolder: result.afterHolders[i]
-                                });
-                            }
-                            else if(!nameSame){
-                                difference = true;
-                            }
-                        });
+                const parseNewAllocation = (segment) => {
+                    const result = {holders: [], beforeAmount: 0, transactionType: Transaction.types.NEW_ALLOCATION};
+                    let index = 0;
+                    result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
+                    result.amount = result.afterAmount;
+                    while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
+                        result.holders.push({
+                            name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
+                            address: cleanString($(segment[index]).find('td').eq(4).text())
+                        })
+                        index++;
                     }
-                    if(difference){
-                        result.transactionType =  Transaction.types.HOLDING_TRANSFER;
-                        return [result];
-                    }
+                    return [result];
                 }
 
-                if(result.amount){
-                    results.push(result);
+
+                if(type === Transaction.types.AMEND){
+                    return acc.concat(parseAmendAllocation(segment));
                 }
-                return results;
-            }
-
-            const parseRemoveAllocation = (segment) => {
-                const result = {holders: [], afterAmount: 0, transactionType: Transaction.types.REMOVE_ALLOCATION};
-                let index = 0;
-                result.beforeAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
-                result.amount = result.beforeAmount;
-                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
-                    result.holders.push({
-                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
-                        address: cleanString($(segment[index]).find('td').eq(4).text())
-                    })
-                    index++;
+                else if(type === Transaction.types.NEW_ALLOCATION){
+                    return acc.concat(parseNewAllocation(segment));
                 }
-                return [result];
-            }
-
-            const parseNewAllocation = (segment) => {
-                const result = {holders: [], beforeAmount: 0, transactionType: Transaction.types.NEW_ALLOCATION};
-                let index = 0;
-                result.afterAmount = toInt(cleanString($(segment[index++]).find('td').eq(3).text()));
-                result.amount = result.afterAmount;
-                while($(segment[index]).find('td').eq(2).text().match(/^\s*•\s*$/)){
-                    result.holders.push({
-                        name: invertName(cleanString($(segment[index]).find('td').eq(3).text())),
-                        address: cleanString($(segment[index]).find('td').eq(4).text())
-                    })
-                    index++;
+                else if(type === Transaction.types.REMOVE_ALLOCATION){
+                    return acc.concat(parseRemoveAllocation(segment));
                 }
-                return [result];
-            }
-
-            if(type === Transaction.types.AMEND){
-                return acc.concat(parseAmendAllocation(segment));
-            }
-            else if(type === Transaction.types.NEW_ALLOCATION){
-                return acc.concat(parseNewAllocation(segment));
-            }
-            else if(type === Transaction.types.REMOVE_ALLOCATION){
-                return acc.concat(parseRemoveAllocation(segment));
-            }
-            return acc;
-        }, [])
-
+                return acc;
+            }, [])
+        }
         // there could be duplicate holder changes
         const holder_changes = {};
-        result.actions = result.actions.filter(a => {
+        result.actions = (result.actions || []).filter(a => {
             if(a.transactionType === Transaction.types.HOLDER_CHANGE){
                 if(holder_changes[a.beforeHolder.name]){
                     return false;
@@ -978,7 +1077,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         })
 
 
-       result.totalShares = result.actions.reduce((acc, action) => {
+        result.totalShares = result.actions.reduce((acc, action) => {
             switch(action.transactionType){
                 case Transaction.types.AMEND:
                     return acc + (action.afterAmount - action.beforeAmount)
@@ -1309,7 +1408,7 @@ const ScrapingService = {
                     })
                     .then(data => {
                         return {text: text, documentId: document.documentId}
-                    })
+                    });
             })
     },
 
@@ -1365,8 +1464,6 @@ const ScrapingService = {
             return processedDocs;
         });
     },
-
-
 
     parsePreviousNames: function($){
         const pattern = /^\s*(.*) \(from (.*) to (.*)\)/
