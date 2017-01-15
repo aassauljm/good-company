@@ -192,8 +192,7 @@ export class SearchWidget extends React.Component {
             });
         }
 
-        if(this.props.lookupOwnCompany._status === 'complete' &&
-           this.props.lookupCompany._status === 'complete' &&
+        if(this.props.lookupCompany._status === 'complete' &&
            suggestions.length === 0 && fields.input.value){
             noSuggestions = true;
         }

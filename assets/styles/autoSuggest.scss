@@ -61,9 +61,10 @@
     }
 }
 .no-suggestions {
-    padding: 4px 16px;
+    padding: 0 4px;
     font-style: italic;
     position: absolute;
+    top: 56px;
 }
 
 nav .search-form{
