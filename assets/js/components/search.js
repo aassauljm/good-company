@@ -45,7 +45,7 @@ export class Search extends React.Component {
         const filterCompanies = (value, list) => {
             return (!value ? list : list.filter(l => l.currentCompanyState.companyName.toLocaleLowerCase().indexOf(value) > -1) || []);
         }
-        this.setState({show: true, value: value, list: filterCompanies(value.toLocaleLowerCase(), this.props.companies.data).slice(0, MAX_ITEMS)});
+        this.setState({show: true, value: value, list: filterCompanies(value.toLocaleLowerCase(), this.props.companies.data || []).slice(0, MAX_ITEMS)});
     }
 
     hide(e) {
@@ -70,7 +70,7 @@ export class Search extends React.Component {
     }
 
     render() {
-        return <form className="search-form navbar-form" ref="form">
+        return <form className="search-form navbar-form" ref="form" onSubmit={(e) => e.preventDefault()}>
             <div className="form-group">
                   <RootCloseWrapper
                     onRootClose={this.hide}

@@ -39,10 +39,10 @@ PAGES[INTRODUCTION] = function() {
             </div>
     }
     if(this.props.pendingHistory._status === 'complete'){
-        return <div><p>There are { this.props.pendingHistory.data.length } documents from the Companies Office to import.</p>
+        return <div><p>There are { this.props.pendingHistory.data.length } documents from the Companies Register to import.</p>
         <p>Most of the time Good Companies can import documents from the companies register and re-create company history automatically.  But sometimes the companies register does not have all the information required.  That’s where you come in.</p>
         <p>If Good Companies needs more information to re-create this company’s history, you will be asked to provide the necessary details.  If some of those details are not available right now, don’t worry – you can come back at any point and continue where you left off.</p>
-
+        <div className="alert alert-info text-center ">Before we begin the import, has the Companies Register been notified of every share transaction?</div>
         </div>
     }
 };
@@ -83,10 +83,11 @@ const FOOTERS = [];
 
 FOOTERS[INTRODUCTION] = function(){
     if(this.props.pendingHistory._status === 'complete'){
-        return <div className="button-row">
-            <Button onClick={this.props.end} >Cancel</Button>
-            { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStart} bsStyle="primary">Import Automatically</Button> }
-            { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStartYearByYear} bsStyle="primary">Import Year by Year</Button> }
+        return <div>
+             <div className="button-row">
+                { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStart} bsStyle="primary">Yes, all transactions have been reported</Button> }
+                { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStartYearByYear} bsStyle="primary">No, there are transactions that have not been reported</Button> }
+                </div>
             </div>
     }
 }
@@ -114,7 +115,9 @@ FOOTERS[AMBIGUITY] = function(){
     return {
         requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
         performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history`,
-                                                     {}, {
+                                                     {
+                                                        requireConfirmation: true
+                                                     }, {
                                                         invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),

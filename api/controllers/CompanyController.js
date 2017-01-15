@@ -374,7 +374,7 @@ module.exports = {
         })
         .then(_state => {
             companyName = _state.get('companyName');
-            return TransactionService.performInverseAllPending(company);
+            return TransactionService.performInverseAllPending(company, null,  !!actionUtil.parseValues(req).requireConfirmation);
         })
         .then(function(result){
             return res.json(result)
