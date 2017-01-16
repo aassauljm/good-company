@@ -251,9 +251,9 @@ class AmendOptions extends React.Component {
             }) }
 
 
-            <div className="button-row">
+           { false && <div className="button-row">
              <Button bsStyle="info" onClick={() => actions.addField({userDefined: true, recipients: [{_keyIndex: keyIndex++}]})} >Add Temporary Shareholding</Button>
-            </div>
+            </div> }
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
