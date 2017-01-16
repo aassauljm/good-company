@@ -109,7 +109,7 @@
     "proxyquire": "^1.7.3",
     "react": "15.3.2",
     "react-addons-shallow-compare": "^15.0.0",
-    "react-autosuggest": "^4.0.0",
+    "react-autosuggest": "^8.0.0",
     "react-bootstrap": "^0.30.5",
     "react-d3-components": "joshgagnon/react-d3-components",
     "react-date-picker": "^3.1.8",

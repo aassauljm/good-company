@@ -2,8 +2,12 @@
 .auto-suggest{
     position: relative;
     margin-bottom: 20px;
+    &.open .suggest-container{
+         border: 1px solid $list-group-border;
+        border-width: 1px 1px 0 1px;
+    }
     .suggest-container{
-        border: 1px solid $list-group-border;
+
         border-width: 1px 1px 0 1px;
 
         position: absolute;
@@ -17,7 +21,7 @@
                 font-size: 0.9em;
             }
             &.active {
-                border:none;
+                border-color: $gray-lighter;
                 border-left: 4px solid $gray;
                 background-color: $gray-lighter;
                 color: $text-color;

@@ -65,7 +65,7 @@ export class Search extends React.Component {
             { this.state.list.map((c, i) => {
                 return <Link key={i} className="result" to={this.props.target ? this.props.target(c.id) : `/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
             }) }
-            { this.state.list.length === 0 && !!this.state.value && <div className="no-results">No results</div> }
+            { this.state.list.length === 0 && !!this.state.value && <div><div className="no-results">No results</div> <div><Link to='/import' query={{value: this.state.value}} className="result" onClick={this.hide}>Search for '{ this.state.value }' on the Companies Register</Link></div></div> }
             </div>
     }
 
@@ -127,11 +127,9 @@ function getSectionSuggestions(section) {
 
 function mapDispatchToProps(dispatch, ownProps) {
     return {
-        onSuggestionsUpdateRequested: debounce(({ value, reason }) => {
-            if(reason === 'type'){
-                !ownProps.onlyCompaniesOffice && dispatch(lookupOwnCompany(value));
-                dispatch(lookupCompany(value));
-            }
+        onSuggestionsUpdateRequested: debounce(({ value }) => {
+            !ownProps.onlyCompaniesOffice && dispatch(lookupOwnCompany(value));
+            dispatch(lookupCompany(value));
         }),
         onSelectOwnCompany: (id) => {
             dispatch(push("/company/view/"+ id));
@@ -165,6 +163,13 @@ export class SearchWidget extends React.Component {
         super();
         this.handleSelect = ::this.handleSelect;
     }
+
+    componentDidMount() {
+        if(this.props.fields.input.initialValue){
+            this.props.onSuggestionsUpdateRequested({value: this.props.fields.input.initialValue});
+        }
+    }
+
 
     handleSelect(event, { suggestion, suggestionValue, sectionIndex, method }){
         if(!suggestion.companiesOffice){
@@ -200,7 +205,8 @@ export class SearchWidget extends React.Component {
         const inputProps = {
             placeholder: this.props.placeholder || 'Type to find or import a company',
             value: fields.input.value || '',
-            onChange: fields.input.onChange
+            onChange: fields.input.onChange,
+            autoFocus: true
         };
 
         return (
@@ -208,7 +214,7 @@ export class SearchWidget extends React.Component {
                 <Autosuggest theme={theme}
                     multiSection={true}
                     suggestions={suggestions}
-                    onSuggestionsUpdateRequested={onSuggestionsUpdateRequested}
+                    onSuggestionsFetchRequested={onSuggestionsUpdateRequested}
                     onSuggestionSelected={this.handleSelect}
                     getSuggestionValue={getSuggestionValue}
                     getSectionSuggestions={getSectionSuggestions}

@@ -48,25 +48,6 @@ const BulkImportConnected = reduxForm({
 
 
 
-
-/*
-
-
-    importCompany(){
-        this.props.dispatch(importCompany(this.props.params.companyNumber))
-            .then((result = {response: {message: 'No connection'}}) => {
-                this.props.dispatch(addNotification({message: 'Company Imported'}));
-                this.props.dispatch(requestResource('companies', {refresh: true}));
-                this.props.dispatch(push('/company/view/'+result.response.id))
-            })
-            .catch(error => {
-                this.props.dispatch(addNotification({message: `Could not import company, Reason: ${error.message}`, error: true}));
-            })
-    };
-*/
-
-
-
 @connect(state => ({importCompanyData: state.importCompany}), {
     importCompany: (...args) => importCompany(...args),
     addNotification: (...args) => addNotification(...args),
@@ -142,13 +123,13 @@ export class ImportSingle extends React.Component {
         if(this.state.company){
             return this.renderSummary(this.state.company);
         }
-        return  <ConnectedPlaceholderSearch placeholder='Type to find a company' onlyCompaniesOffice={true} onSelect={this.handleSelect}/>
+
+        return  <ConnectedPlaceholderSearch placeholder='Type to find a company' onlyCompaniesOffice={true} onSelect={this.handleSelect} initialValues={{input: this.props.initialValue}}/>
     }
     renderError() {
         return <div>
         <p><strong>{this.state.company.companyName}</strong> could not be imported.</p>
         <div className="alert alert-danger">{ this.state.error }</div>
-
                 <div className="button-row">
                     <Button  onClick={() => this.setState({'company': null, finished: null, error: null})} >Import Another Company</Button>
                 </div>
@@ -166,7 +147,7 @@ export class ImportSingle extends React.Component {
 
 }
 
-export const ImportSingleFull = () => {
+export const ImportSingleFull = (props) => {
     return <div className="container">
         <div className="widget">
             <div className="widget-header">
@@ -177,7 +158,7 @@ export const ImportSingleFull = () => {
             <div className="widget-body">
                  <div className="row">
                  <div className="col-md-6 col-md-offset-3">
-                        <ImportSingle />
+                        <ImportSingle initialValue={props.initialValue} />
                     </div>
                 </div>
             </div>
@@ -252,7 +233,7 @@ export class ImportBulk extends React.Component {
 export default class ImportPage extends React.Component {
     render() {
         return <div>
-            <ImportSingleFull />
+            <ImportSingleFull initialValue={ this.props.location ? this.props.location.query.value : null }/>
             <ImportBulk />
         </div>
     }
