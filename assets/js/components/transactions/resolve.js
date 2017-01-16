@@ -220,8 +220,12 @@ function MultipleHoldings(context,  submit){
 
 function HoldingNotFound(context,  submit){
     const { companyState, shareClassMap } = context;
-    const possibleMatches = context.companyState.holdingList.holdings;
-
+    let possibleMatches = context.companyState.holdingList.holdings.filter(h => {
+        return h.parcels.reduce((sum, p) => sum + p.amount, 0) === context.action.afterAmount;
+    });
+    if(!possibleMatches.length){
+        possibleMatches = context.companyState.holdingList.holdings;
+    }
     const pendingActions = [];
     function handleSelect(holding){
         const updatedActions = {...context.actionSet.data};
@@ -229,16 +233,24 @@ function HoldingNotFound(context,  submit){
             a = {...a};
 
             if(a.id === context.action.id){
+                const afterHolders = holding.holders.map(h => ({name: h.person.name, address: h.person.address, companyNumber: h.person.companyNumber, personId: h.person.personId}));
                 a.holdingId = holding.holdingId;
 
-                if((a.afterHolders || a.holders).length === 1 && holding.holders.length === 1){
+                // there are cases where the names are unpopulated
+                if(a.afterHolders.length === 0){
+                    a.afterHolders = afterHolders;
+                }
+                if(a.beforeHolders.length === 0){
+                    a.beforeHolders = afterHolders;
+                }
+                if((a.afterHolders || a.holders).length === 1 && holding.holders.length === 1 && JSON.stringify(a.afterHolders) !== JSON.stringify(a.beforeHolders)){
                     // name change, just chuck it in
                     pendingActions.push({id: context.actionSet.id, data: {
                         ...context.actionSet.data,
                         actions: [{
                             transactionType: TransactionTypes.HOLDER_CHANGE,
                             beforeHolder: context.action.beforeHolders[0],
-                            afterHolder: holding.holders.map(h => ({name: h.person.name, address: h.person.address, companyNumber: h.person.companyNumber, personId: h.person.personId}))[0]
+                            afterHolder: afterHolders[0]
                         }]
 
                     }, previous_id: context.actionSet.previous_id});
@@ -374,7 +386,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}
                     <hr/>
-                    <div>Unknown Import Error</div>
+                    <div><p>An unknown problem occured while importing.  Please Restart the import process.</p></div>
                     <div className="button-row">
                         <Button onClick={this.props.resetAction} className="btn-danger">Restart Import</Button>
                     </div>

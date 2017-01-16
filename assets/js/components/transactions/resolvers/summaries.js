@@ -7,6 +7,13 @@ import { Link } from 'react-router'
 
 export function actionAmountDirection(action){
     // increase is true
+    if(action.inferAmount && action.afterAmountLookup){
+        return true;
+    }
+    if(action.inferAmount && action.beforeAmountLookup){
+        return false
+    }
+
     return action.afterAmount >= action.beforeAmount || !action.beforeHolders;
 }
 

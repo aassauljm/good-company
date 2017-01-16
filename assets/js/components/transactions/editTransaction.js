@@ -24,6 +24,9 @@ import { InvalidIssue } from './resolvers/unknownShareChanges'
 import { Shareholder } from '../shareholders';
 import firstBy from 'thenby';
 
+const TRANSACTION_ORDER = {
+    [TransactionTypes.COMPOUND_REMOVALS]: 1
+}
 
 @connect((state, ownProps) => {
     return {};
@@ -55,7 +58,7 @@ export class EditTransactionView extends React.Component {
             const previousAction = this.props.transactionViewData.previousAction;
             const orderedActions = otherActions.concat(newActions.pendingActions);
 
-            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => x.data.orderIndex));
+            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => x.data.orderIndex).thenBy(x =>  TRANSACTION_ORDER[x.data.transactionType] || 1000));
             orderedActions[0].id = this.props.transactionViewData.startId;
             orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
 

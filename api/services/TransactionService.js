@@ -231,11 +231,21 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             if(data.inferAmount){
                 data = {...data}
                 // note: prevousState
-                const inverseHolding = findHolding({holders: data.beforeAmountLookup.afterHolders, holdingId: data.beforeAmountLookup.holdingId},
+                let inverseHolding;
+                if(data.beforeAmountLookup){
+                    inverseHolding = findHolding({holders: data.beforeAmountLookup.afterHolders, holdingId: data.beforeAmountLookup.holdingId},
                                  data, previousState, {
                                 multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
                                 none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND
-                });
+                        });
+                }
+                else{
+                    inverseHolding = findHolding({holders: data.afterAmountLookup.beforeHolders, holdingId: data.afterAmountLookup.holdingId},
+                                 data, companyState, {
+                                multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
+                                none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND
+                        });
+                }
                 data.amount = inverseHolding.dataValues.parcels[0].amount;
                 data.beforeAmount = data.amount;
                 data.inferAmount = false;

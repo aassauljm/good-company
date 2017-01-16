@@ -120,10 +120,13 @@ class Recipient extends React.Component {
                             {  !this.props.increase &&<optgroup label="Decreases">{ decreaseOptions() } </optgroup> }
                             {  !this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
                     </Input>
-                    <Input className="amount" type="number" {...this.formFieldProps('amount')}
+                    <Input
+                    className="amount"
+                    type={this.props.amount.value === 'All' ? "text" : "number"}
+                    {...this.formFieldProps('amount')}
                     placeholder={'Number of Shares'}
-                    value={this.props.amount.value }
-                    disabled={!!this.props.isInverse.value}
+                    value={ this.props.amount.value }
+                    disabled={!!this.props.isInverse.value || this.props.amount.value === 'All'}
                     label={null}/>
                 </div>
 
@@ -151,7 +154,7 @@ function Recipients(props){
             { props.recipients.map((r, i) => {
                 const show = !r.isInverse.value;
                 if(!show){
-                    const title = `Transfer of ${r.amount.value || 0} ${isIncrease(r.type.value) ?  'from' : 'to' } ${props.holdings.find(h => h.value === r.holding.value).label}`;
+                    const title = `Transfer of ${r.amount.value || 0} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
                     return <div className="list-item" key={r._keyIndex.value}>
                         <Panel title={title} />
                     </div>
@@ -248,6 +251,7 @@ const validateAmend = (values, props) => {
         errors.recipients = action.recipients.map((recipient, j) => {
             const errors = {};
             const amount = parseInt(recipient.amount, 10) || 0;
+            const inferred = recipient.amount === 'All';
             if(!recipient.effectiveDate){
                 errors.effectiveDate = ['Required.'];
             }
@@ -258,10 +262,10 @@ const validateAmend = (values, props) => {
                 errors.effectiveDate = errors.effectiveDate || [];
                 errors.effectiveDate.push('Effective date cannot be before previous transaction.')
             }
-            if(!amount){
+            if(!amount && !inferred){
                 errors.amount = ['Required.'];
             }
-            else if(amount <= 0){
+            else if(amount <= 0 && !inferred){
                 errors.amount = ['Must be greater than 0.'];
             }
             if(!recipient.type){
@@ -272,6 +276,7 @@ const validateAmend = (values, props) => {
                     errors.holding = ['Transfer shareholding required.'];
                 }
                 else{
+
                 }
 
             }
@@ -304,6 +309,7 @@ const validateAmend = (values, props) => {
     });
 
     errors._error = Object.keys(formErrors).length ? formErrors: null;
+
     return errors;
 }
 
@@ -324,7 +330,7 @@ const AmendOptionsConnected = reduxForm({
 })(AmendOptions);
 
 
-const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0 && !action.inferAmount;
+const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0; // && !action.inferAmount;
 
 const collectAmendActions = (actions) => actions.filter(isAmendable);
 
@@ -341,7 +347,7 @@ export function formatSubmit(values, actionSet) {
         a.recipients.map((r, j) => {
             if(!r.isInverse){
                 let method = TransactionTypes.AMEND;
-                const amount = parseInt(r.amount, 0);
+                const amount = parseInt(r.amount, 0) || 0;
                 const holders = amends[i].afterHolders || amends[i].holders;
                 if(isTransfer(r.type)){
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
@@ -349,7 +355,7 @@ export function formatSubmit(values, actionSet) {
                     const holdingIndex = parseInt(r.holding, 10)
                     const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
                     const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
-                        transactionType: inverseTransfer(r.type),  amount: amount, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex}
+                        transactionType: inverseTransfer(r.type),  amount: amount, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true}
                     transactions.push([result, inverse])
                 }
                 else{
@@ -436,7 +442,7 @@ export default function Amend(context, submit){
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{amount:  a.amount, effectiveDate, _keyIndex: keyIndex++}]
+                recipients: [{amount:  a.inferAmount ? 'All' : a.amount, effectiveDate, _keyIndex: keyIndex++, type: a.transactionType || a.transactionMethod}]
             };
         }
         // else if one exact opposite transaction, then set that
@@ -444,7 +450,7 @@ export default function Amend(context, submit){
         if(amountValues[increase][a.amount] && amountValues[increase][a.amount].length === 1 &&
            amountValues[!increase][a.amount] && amountValues[!increase][a.amount].length === 1){
             return {recipients: [{
-                amount: a.amount,
+                amount:   a.inferAmount ? 'All' :  a.amount,
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
                 holding: amountValues[!increase][a.amount][0].index+'',
                 effectiveDate,
@@ -453,16 +459,18 @@ export default function Amend(context, submit){
             }]};
         }
 
-        if(allButOneIncrease){
-            holding = amountValues[false][Object.keys(amountValues[false])[0]][0].index+'';
+
+
+        /*if(allButOneIncrease){
+            holding = amountValues[increase][Object.keys(amountValues[increase])[0]][0].index+'';
         }
 
         if(allButOneDecrease){
-            holding = amountValues[true][Object.keys(amountValues[false])[0]][0].index+'';
-        }
+            holding = amountValues[increase][Object.keys(amountValues[!increase])[0]][0].index+'';
+        }*/
 
         return {recipients: [{
-            amount:  a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
+            amount:  a.inferAmount ? 'All' : a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
         }]};
     }).filter(identity), identity, identity, x => false)};
 

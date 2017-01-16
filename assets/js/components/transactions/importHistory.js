@@ -42,7 +42,7 @@ PAGES[INTRODUCTION] = function() {
         return <div><p>There are { this.props.pendingHistory.data.length } documents from the Companies Register to import.</p>
         <p>Most of the time Good Companies can import documents from the companies register and re-create company history automatically.  But sometimes the companies register does not have all the information required.  That’s where you come in.</p>
         <p>If Good Companies needs more information to re-create this company’s history, you will be asked to provide the necessary details.  If some of those details are not available right now, don’t worry – you can come back at any point and continue where you left off.</p>
-        <div className="alert alert-info text-center ">Before we begin the import, has the Companies Register been notified of every share transaction?</div>
+        <div className="alert alert-info text-center no-margin">Before we begin the import, has the Companies Register been notified of every share transaction?</div>
         </div>
     }
 };
