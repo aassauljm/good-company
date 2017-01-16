@@ -336,6 +336,7 @@ const collectAmendActions = (actions) => actions.filter(isAmendable);
 
 
 export function formatSubmit(values, actionSet) {
+    actionSet = actionSet || {data: {actions: []}};
     const amendActions = collectAmendActions(actionSet.data.actions);
     const amends = [...(amendActions.map(a => ({...a})))];
     const otherActions = actionSet.data.actions.filter(a => !isAmendable(a))
@@ -410,7 +411,10 @@ export function formatSubmit(values, actionSet) {
 
 export default function Amend(context, submit){
     const { actionSet, companyState, shareClassMap } = context;
-    const amendActions = collectAmendActions(actionSet.data.actions);
+    const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
+    const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
+    const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).startOf('day').toDate() : null;
+
     const identity = x => x;
 
     const handleSubmit = (values) => {
@@ -459,8 +463,6 @@ export default function Amend(context, submit){
             }]};
         }
 
-
-
         /*if(allButOneIncrease){
             holding = amountValues[increase][Object.keys(amountValues[increase])[0]][0].index+'';
         }
@@ -486,8 +488,8 @@ export default function Amend(context, submit){
     return <div>
             <AmendOptionsConnected
             amendActions={amendActions}
-            effectiveDate={moment(actionSet.data.effectiveDate).startOf('day').toDate()}
-            totalAmount={actionSet.data.totalAmount}
+            effectiveDate={effectiveDate}
+            totalAmount={totalAmount}
             allSameDirection={allSameDirection}
             holdings={holdings}
             shareClassMap={shareClassMap}

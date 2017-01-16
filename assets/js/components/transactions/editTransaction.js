@@ -52,7 +52,7 @@ const TRANSACTION_ORDER = {
 export class EditTransactionView extends React.Component {
     renderBody(){
         const actionSet = this.props.transactionViewData.actionSet;
-        const hasAmend = actionSet.data.actions.some(action =>[TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0);
+        const hasAmend = actionSet && actionSet.data.actions.some(action =>[TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0);
         const updateAction = (newActions) => {
             const otherActions = this.props.transactionViewData.otherActions;
             const previousAction = this.props.transactionViewData.previousAction;
@@ -64,7 +64,7 @@ export class EditTransactionView extends React.Component {
 
             this.props.updateAction({pendingActions: orderedActions});
         }
-        if(hasAmend){
+        if(hasAmend || !actionSet){
             return Amend({...this.props.transactionViewData}, updateAction)
         }
         else{
@@ -78,7 +78,7 @@ export class EditTransactionView extends React.Component {
                 <TransactionView.Title>Edit Transactions</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
-                { basicSummary(this.props.transactionViewData, this.props.transactionViewData.companyState)}
+                { this.props.transactionViewData.actionSet && basicSummary(this.props.transactionViewData, this.props.transactionViewData.companyState) }
                 { this.renderBody() }
               </TransactionView.Body>
               <TransactionView.Footer>

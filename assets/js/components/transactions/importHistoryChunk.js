@@ -71,7 +71,7 @@ function TransactionSummaries(props) {
         })}
         <div className="button-row">
         <Button bsStyle="primary" onClick={props.handleConfirm}>Confirm Transactions</Button>
-        <Button bsStyle="info" onClick={props.addNew}>Add New Transaction</Button>
+        <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button>
         </div>
     </div>
 }
@@ -123,7 +123,7 @@ PAGES[EXPLAINATION] = function() {
     if(this.props.pendingHistory._status === 'complete'){
         const pendingYearActions = collectPreviousYearsActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
-            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleEdit={this.handleEdit} />
+            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleAddNew={this.handleAddNew} handleEdit={this.handleEdit} />
         }
     }
     return false;
@@ -167,6 +167,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
         this.handleStartYearByYear = ::this.handleStartYearByYear;
         this.handleResolve = ::this.handleResolve;
         this.handleEdit = ::this.handleEdit;
+        this.handleAddNew = ::this.handleAddNew
     };
 
     fetch() {
@@ -220,6 +221,15 @@ export class ImportHistoryChunkTransactionView extends React.Component {
             endId: pendingActions[pendingActions.length-1].previous_id,
             actionSet,
             otherActions,
+            afterClose: { showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+        });
+    }
+
+    handleAddNew(pendingActions) {
+        this.props.show('editTransaction', {...this.props.transactionViewData,
+            startId: pendingActions[0].id,
+            endId: pendingActions[pendingActions.length-1].previous_id,
+            otherActions: pendingActions,
             afterClose: { showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
         });
     }
