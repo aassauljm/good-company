@@ -232,7 +232,11 @@ class AmendOptions extends React.Component {
                 </div>
             }) }
 
+
             <div className="button-row">
+             <Button bsStyle="info" onClick={() => actions.addField({recipients: [{_keyIndex: keyIndex++}]})} >Add Temporary Shareholding</Button>
+            </div>
+             <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
@@ -255,7 +259,7 @@ const validateAmend = (values, props) => {
             if(!recipient.effectiveDate){
                 errors.effectiveDate = ['Required.'];
             }
-            if(recipient.effectiveDate && recipient.effectiveDate > props.effectiveDate){
+            if(props.effectiveDate && recipient.effectiveDate && recipient.effectiveDate > props.effectiveDate){
                 errors.effectiveDate = ['Effective date must be on or before the date of the document.'];
             }
             if(j > 0 && recipient.effectiveDate < action.recipients[j-1].effectiveDate){
@@ -275,13 +279,12 @@ const validateAmend = (values, props) => {
                 if(!recipient.holding){
                     errors.holding = ['Transfer shareholding required.'];
                 }
-                else{
-
-                }
-
             }
             if(recipient.type){
                 sum += absoluteAmount(recipient.type, amount);
+            }
+            if(sum < 0){
+                errors.amount = ['Share count goes below 0.'];
             }
             return errors;
         });
@@ -290,8 +293,10 @@ const validateAmend = (values, props) => {
             formErrors.actions = formErrors.actions || [];
             formErrors.actions[i] = ['Required.'];
         }
-        const amount = props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount;
-        if(!props.amendActions[i].inferAmount && sum !== amount){
+
+        const amount = props.amendActions[i] ? props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount : 0;
+        const inferAmount = props.amendActions[i] ? props.amendActions[i].inferAmount: false;
+        if(!inferAmount && sum !== amount){
             formErrors.actions = formErrors.actions || [];
             const diff = sum - amount;
             if(diff < 0){

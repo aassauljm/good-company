@@ -5,7 +5,7 @@ import STRINGS from '../../../strings'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { Link } from 'react-router'
 
-export function actionAmountDirection(action){
+export function actionAmountDirection(action={}){
     // increase is true
     if(action.inferAmount && action.afterAmountLookup){
         return true;
@@ -123,7 +123,7 @@ export function directorChange(context, companyState, showType) {
 }
 
 export function beforeAndAfterSummary(context, companyState, showType){
-    let { action, actionSet } = context;
+    let { action = {}, actionSet } = context;
     const increase = actionAmountDirection(action);
     const beforeCount = action.beforeAmount || 0;
     const afterCount = action.afterAmount !== undefined ? action.afterAmount : action.amount;
@@ -137,6 +137,9 @@ export function beforeAndAfterSummary(context, companyState, showType){
     if(action.inferAmount && action.afterAmountLookup && !action.afterAmount){
         afterShares = 'Unknown Number of Shares';
         shareChange = 'Shares Added'
+    }
+    if(!action.afterAmount && !action.amount && !action.beforeAmount){
+        shareChange = 'Start and End with No Shares'
     }
 
     return <div className="row row-separated">
