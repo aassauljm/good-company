@@ -46,10 +46,9 @@ END:VCALENDAR`
 }
 
 export default function exportICS(data) {
-    const text = createICS(data)
+    const text = createICS(data);
     //const file = new Blob([text], {type: 'text/plain'});
-    window.open(`/echo_file?filename=${encodeURI(data.title)}.ics&file=${encodeURI(text)}`, '_blank');
-
+    window.open(`/echo_file?filename=${encodeURIComponent(data.title)}.ics&file=${encodeURI(text)}`, '_blank');
     //return saveAs(file, `${data.title}.ics`);
 }
 
