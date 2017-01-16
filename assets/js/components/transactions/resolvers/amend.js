@@ -148,6 +148,24 @@ class Recipient extends React.Component {
 }
 
 
+@formFieldProps()
+class Holders extends React.Component {
+    render() {
+        return <div>
+                <div className="row">
+                <div className="text-center">
+                <p><strong>This shareholding consists of:</strong></p>
+                </div>
+                </div>
+
+
+        </div>
+    }
+
+
+}
+
+
 function Recipients(props){
     return <div className="col-md-6 col-md-offset-3">
             <Shuffle>
@@ -214,8 +232,8 @@ class AmendOptions extends React.Component {
                 const action = amendActions[i];
                 const increase = actionAmountDirection(action);
                 return <div  key={i}>
-                        { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
-
+                         { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
+                         { field.userDefined.value && <Holders holders={actions[i].holders} /> }
                 <div className="row">
                 <div className="text-center">
                 <p><strong>This change is comprised of:</strong></p>
@@ -234,7 +252,7 @@ class AmendOptions extends React.Component {
 
 
             <div className="button-row">
-             <Button bsStyle="info" onClick={() => actions.addField({recipients: [{_keyIndex: keyIndex++}]})} >Add Temporary Shareholding</Button>
+             <Button bsStyle="info" onClick={() => actions.addField({userDefined: true, recipients: [{_keyIndex: keyIndex++}]})} >Add Temporary Shareholding</Button>
             </div>
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
@@ -251,6 +269,9 @@ const validateAmend = (values, props) => {
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
         let sum = 0;
+        const inferAmount = props.amendActions[i] ? props.amendActions[i].inferAmount: false;
+        const amount = props.amendActions[i] ? props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount : 0;
+        const startAmount = props.amendActions[i] ? props.amendActions[i].beforeAmount || 0 : 0;
         //const selectedRecipients = {};
         errors.recipients = action.recipients.map((recipient, j) => {
             const errors = {};
@@ -283,7 +304,7 @@ const validateAmend = (values, props) => {
             if(recipient.type){
                 sum += absoluteAmount(recipient.type, amount);
             }
-            if(sum < 0){
+            if((sum + startAmount)  < 0){
                 errors.amount = ['Share count goes below 0.'];
             }
             return errors;
@@ -294,8 +315,8 @@ const validateAmend = (values, props) => {
             formErrors.actions[i] = ['Required.'];
         }
 
-        const amount = props.amendActions[i] ? props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount : 0;
-        const inferAmount = props.amendActions[i] ? props.amendActions[i].inferAmount: false;
+
+
         if(!inferAmount && sum !== amount){
             formErrors.actions = formErrors.actions || [];
             const diff = sum - amount;
@@ -326,6 +347,10 @@ const amendFields = [
     'actions[].recipients[].isInverse',
     'actions[].recipients[].inverse',
     'actions[].recipients[]._keyIndex',
+    //'actions[].data',
+    'actions[].userDefined',
+    'actions[].holders[].name',
+    'actions[].holders[].address',
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -480,6 +505,11 @@ export default function Amend(context, submit){
             amount:  a.inferAmount ? 'All' : a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
         }]};
     }).filter(identity), identity, identity, x => false)};
+
+
+    if(!initialValues.actions.length){
+        initialValues.actions = [{userDefined: true, recipients: [{_keyIndex: keyIndex++, holders: [{}]}]}];
+    }
 
     const holdings = amendActions.reduce((acc, a, i) => {
         const increase = actionAmountDirection(a);

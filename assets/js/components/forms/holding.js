@@ -55,7 +55,7 @@ export class HoldingWithRemove extends React.Component {
     renderHoldingSelect() {
         const onChange = this.props.fields.holding.onChange;
         const interceptChange =  (event) => {
-            if((event.target ? event.target : event.value) === CREATE_NEW_SHAREHOLDING){
+            if((event.target ? event.target.value : event.value) === CREATE_NEW_SHAREHOLDING){
                 this.props.showNewHolding()
             }
             else{
