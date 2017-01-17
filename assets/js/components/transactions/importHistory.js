@@ -39,10 +39,9 @@ PAGES[INTRODUCTION] = function() {
             </div>
     }
     if(this.props.pendingHistory._status === 'complete'){
-        return <div><p>There are { this.props.pendingHistory.data.length } documents from the Companies Register to import.</p>
-        <p>Most of the time Good Companies can import documents from the companies register and re-create company history automatically.  But sometimes the companies register does not have all the information required.  That’s where you come in.</p>
-        <p>If Good Companies needs more information to re-create this company’s history, you will be asked to provide the necessary details.  If some of those details are not available right now, don’t worry – you can come back at any point and continue where you left off.</p>
-        <div className="alert alert-info text-center no-margin">Before we begin the import, has the Companies Register been notified of every share transaction?</div>
+        return <div><p>To create the share register, Good Companies starts with the documents on the companies register. Those documents contain current and historic details of shares, shareholders, and share transactions.</p>
+        <p>There are { this.props.pendingHistory.data.length }  documents to import. If those documents contain all the information required for a share register, Good Companies can create the register automatically. If not, you will be asked to confirm or, if necessary, edit the imported details.</p>
+        <div className="alert alert-info text-center no-margin">Before getting started, have all shareholding changes for this company been notified to the companies register?</div>
         </div>
     }
 };
@@ -85,8 +84,8 @@ FOOTERS[INTRODUCTION] = function(){
     if(this.props.pendingHistory._status === 'complete'){
         return <div>
              <div className="button-row">
-                { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStart} bsStyle="primary">Yes, all transactions have been reported</Button> }
-                { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStartYearByYear} bsStyle="primary">No, there are transactions that have not been reported</Button> }
+                { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStart} bsStyle="primary">Yes, all changes have been notified</Button> }
+                { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStartYearByYear} bsStyle="primary">No, there are changes that have not been notified</Button> }
                 </div>
             </div>
     }
@@ -181,7 +180,7 @@ export class ImportHistoryTransactionView extends React.Component {
     render() {
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>Import Company History</TransactionView.Title>
+                <TransactionView.Title>Import Company History from Companies Register</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody() }
