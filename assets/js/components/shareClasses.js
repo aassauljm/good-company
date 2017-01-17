@@ -77,11 +77,20 @@ const validate = (values) => {
 }
 
 
+const votingRights = ["1(a)", "1(b)", "1(c)"];
+const decisionRights = ["dividend", "constitution", "capitalVariation", "appointDirector"];
+
 export class ShareClassForm extends React.Component {
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
+        this.selectAllRights = ::this.selectAllRights;
         this.state = {};
+    }
+
+    selectAllRights() {
+        votingRights.map((v, i) => this.props.fields.votingRights[v].onChange(true));
+        decisionRights.map((v, i) => this.props.fields.decisionMakingRights[v].onChange(true));
     }
 
     handleDrop(e, files){
@@ -121,8 +130,7 @@ export class ShareClassForm extends React.Component {
             submitting
         } = this.props;
         const referenceUrl = 'https://browser.catalex.nz/open_article/instrument/DLM320143';
-        const votingRights = ["1(a)", "1(b)", "1(c)"];
-        const decisionRights = ["dividend", "constitution", "capitalVariation", "appointDirector"];
+
 
 
         /*const changeVotingRight = (key) => (event) => {
@@ -156,14 +164,16 @@ export class ShareClassForm extends React.Component {
                     </div>
                 </div>
             }) }
+            <div className="button-row"><Button onClick={this.selectAllRights}>Select All Rights</Button></div>
             {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 36">Learn more about rights attached to shares</LawBrowserLink></div> */ }
             { fields.rights.map((n, i) => {
                 return <Input key={i} type="textarea" rows="3" {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Describe Right" hasFeedback
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.rights.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
             }) }
+
             <div className="form-group"><div className="button-row"><ButtonInput onClick={() => {
                 fields.rights.addField();    // pushes empty child field onto the end of the array
-            }}>Add Right</ButtonInput></div></div>
+            }}>Add Custom Right</ButtonInput></div></div>
 
 
 
