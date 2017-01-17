@@ -22,7 +22,7 @@ export class HoldingSelectWithNew extends React.Component {
     render() {
         const onChange = this.props.fields[this.props.fieldName].onChange;
         const interceptChange =  (event) => {
-            if((event.target ? event.target : event.value) === CREATE_NEW_SHAREHOLDING){
+            if((event.target ? event.target.value : event.value) === CREATE_NEW_SHAREHOLDING){
                 this.props.showNewHolding()
             }
             else{
@@ -63,10 +63,10 @@ export class HoldingWithRemove extends React.Component {
             }
         }
         return <Input type="select" {...this.formFieldProps('holding')} onChange={interceptChange} label={''}>
-                        <option></option>
-                        { this.props.holdingOptions }
-                        { this.props.showNewHolding && <option value={CREATE_NEW_SHAREHOLDING}>Create new Shareholding</option>}
-                    </Input>
+                <option></option>
+                { this.props.holdingOptions }
+                { this.props.showNewHolding && <option value={CREATE_NEW_SHAREHOLDING}>Create new Shareholding</option>}
+            </Input>
     }
 
 

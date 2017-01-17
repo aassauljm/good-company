@@ -95,7 +95,7 @@ export function formFieldProps(args = {}){
         component.prototype.formFieldProps = function(name, strings=STRINGS) {
             let field;
             if(Array.isArray(name)){
-                field = name.reduce((acc, f) => acc[f], this.props.fields);
+                field = name.reduce((acc, f) => acc[f], this.props.fields ? this.props.fields : this.props);
             }
             else{
                 field = this.props.fields ? this.props.fields[name] : this.props[name];

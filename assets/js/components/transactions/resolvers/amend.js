@@ -5,6 +5,9 @@ import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';
 import DateInput from '../../forms/dateInput';
+//import PersonName from '../../forms/personName';
+//import Address from '../../forms/address';
+import { HoldingSelectWithNew, HoldingWithRemove } from '../../forms/holding';
 import STRINGS from '../../../strings'
 import { asyncConnect } from 'redux-connect';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -17,6 +20,7 @@ import Panel from '../../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './summaries'
 import moment from 'moment';
 import Shuffle from 'react-shuffle';
+import { showContextualTransactionView } from '../../../actions';
 
 let keyIndex = 0;
 
@@ -151,18 +155,18 @@ class Recipient extends React.Component {
 @formFieldProps()
 class Holders extends React.Component {
     render() {
-        return <div>
-                <div className="row">
-                <div className="text-center">
-                <p><strong>This shareholding consists of:</strong></p>
-                </div>
-                </div>
-
-
+        return  <div className="col-md-6 col-md-offset-3">
+            <Panel title='Shareholders'>
+                    <HoldingSelectWithNew
+                        fieldName='holding'
+                        newFieldName='newHolding'
+                        fields={this.props.holding}
+                        showNewHolding={this.props.showNewHolding}
+                        shareOptions={this.props.shareOptions}
+                        holdingOptions={this.props.holdingOptions}/>
+            </Panel>
         </div>
     }
-
-
 }
 
 
@@ -196,13 +200,13 @@ function Recipients(props){
             </Shuffle>
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
-                <div className="button-row">
+            <div className="button-row">
                 <Button type="button" onClick={() => {
                     props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate})    // pushes empty child field onto the end of the array
                 }}>
                 Add Transaction
                 </Button>
-          </div>
+             </div>
     </div>
 }
 
@@ -232,31 +236,52 @@ class AmendOptions extends React.Component {
                 const action = amendActions[i];
                 const increase = actionAmountDirection(action);
                 return <div  key={i}>
-                         { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
-                         { field.userDefined.value && <Holders holders={actions[i].holders} /> }
-                <div className="row">
-                <div className="text-center">
-                <p><strong>This change is comprised of:</strong></p>
-                </div>
-                    <Recipients
-                    effectiveDate={this.props.effectiveDate}
-                    recipients={actions[i].recipients}
-                    increase={increase}
-                    allSameDirection={allSameDirection}
-                    error={getError(i)}
-                    holdings={this.props.holdings.filter(h => h.index !== i)} />
-                </div>
                { field.userDefined.value &&  <div className="button-row">
-                    <Button bsStyle="warning" onClick={() => field.removeField()} >Remove Shareholding</Button>
+                    <Button bsStyle="warning" onClick={() => actions.removeField(i)} >Remove Shareholding</Button>
                 </div> }
+
+                { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
+
+                { field.userDefined.value &&  <div className="row">
+                    <div className="text-center">
+                        <p><strong>This shareholding consists of:</strong></p>
+                    </div>
+                    <Holders
+                        holding={actions[i].holding}
+                        //showNewHolding={() => this.props.showNewHolding(i)}
+                        showNewHolding={() => this.props.dispatch(showContextualTransactionView('newHolding', {
+                            ...this.props.transactionViewData,
+                            formName: 'amend',
+                            field: `actions[${i}].newHolding`,
+                            afterClose: { // open this transactionView again
+                                showTransactionView: {key: 'amend', data: {...this.props.transactionViewData}}
+                            }
+                        }))}
+                        />
+                    </div>
+                }
+
+
+                <div className="row">
+                    <div className="text-center">
+                        <p><strong>This change is comprised of:</strong></p>
+                    </div>
+                    <Recipients
+                        effectiveDate={this.props.effectiveDate}
+                        recipients={actions[i].recipients}
+                        increase={increase}
+                        allSameDirection={allSameDirection}
+                        error={getError(i)}
+                        holdings={this.props.holdings.filter(h => h.index !== i)} />
+                </div>
                 <hr/>
                 </div>
             }) }
 
 
-            <div className="button-row">
+            { false && <div className="button-row">
                 <Button bsStyle="info" onClick={() => actions.addField({userDefined: true, recipients: [{_keyIndex: keyIndex++}]})} >Add Shareholding</Button>
-            </div>
+            </div> }
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
@@ -350,10 +375,9 @@ const amendFields = [
     'actions[].recipients[].isInverse',
     'actions[].recipients[].inverse',
     'actions[].recipients[]._keyIndex',
-    //'actions[].data',
     'actions[].userDefined',
-    'actions[].holders[].name',
-    'actions[].holders[].address',
+    'actions[].holding.newHolding',
+    'actions[].holding.holding',
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -532,7 +556,8 @@ export default function Amend(context, submit){
             holdings={holdings}
             shareClassMap={shareClassMap}
             onSubmit={handleSubmit}
-            initialValues={initialValues} />
+            initialValues={initialValues}
+            />
         </div>
 }
 
