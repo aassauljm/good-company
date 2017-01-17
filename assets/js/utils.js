@@ -230,7 +230,7 @@ export function joinAnd(items=[], options={}){
 
 export function newHoldingString(newHolding){
     const names = joinAnd(newHolding.persons, {prop: 'name'});
-    return 'New Holding: ' + (newHolding.holdingName ? newHolding.holdingName + ' - ' + names :  names);
+    return 'New Shareholding: ' + (newHolding.holdingName ? newHolding.holdingName + ' - ' + names :  names);
 }
 
 export function personList(companyState){

@@ -17,7 +17,7 @@ import HoldingTransfer from './resolvers/holdingTransfer';
 import Amend from './resolvers/amend';
 import { DateConfirmation } from './resolvers/confirmDate';
 import { Holding } from '../shareholdings';
-import { reduxForm } from 'redux-form';
+import { reduxForm, destroy } from 'redux-form';
 import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
 import { InvalidIssue } from './resolvers/unknownShareChanges'
@@ -361,6 +361,7 @@ const PAGES = {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
             }))
             .then(() => {
+                this.props.dispatch(destroy('amend'));
                 ownProps.end();
             })
         },
@@ -369,6 +370,9 @@ const PAGES = {
             .then(() => {
                 ownProps.end();
             })
+        },
+        destroyForm: (args) => {
+            return dispatch(destroy(args))
         }
     }
 })
@@ -376,8 +380,12 @@ export class ResolveAmbiguityTransactionView extends React.Component {
 
     constructor(props){
         super(props);
+        this.handleClose = ::this.handleClose;
     }
-
+    handleClose() {
+        this.props.destroyForm('amend');
+        this.props.end();
+    }
     renderBody() {
         const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
         const action = context.action;
@@ -422,7 +430,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
               </TransactionView.Body>
               <TransactionView.Footer>
             <div className="button-row">
-            <Button onClick={this.props.end} >Cancel</Button>
+            <Button onClick={this.handleClose} >Cancel</Button>
             </div>
               </TransactionView.Footer>
             </TransactionView>

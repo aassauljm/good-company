@@ -1,12 +1,11 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../../utils';
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime,
+    renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState } from '../../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';
 import DateInput from '../../forms/dateInput';
-//import PersonName from '../../forms/personName';
-//import Address from '../../forms/address';
 import { HoldingSelectWithNew, HoldingWithRemove } from '../../forms/holding';
 import STRINGS from '../../../strings'
 import { asyncConnect } from 'redux-connect';
@@ -156,13 +155,14 @@ class Recipient extends React.Component {
 class Holders extends React.Component {
     render() {
         return  <div className="col-md-6 col-md-offset-3">
-            <Panel title='Shareholders'>
+            <Panel title='Select Shareholders'>
                     <HoldingSelectWithNew
                         fieldName='holding'
                         newFieldName='newHolding'
                         fields={this.props.holding}
                         showNewHolding={this.props.showNewHolding}
                         shareOptions={this.props.shareOptions}
+                        strings={STRINGS}
                         holdingOptions={this.props.holdingOptions}/>
             </Panel>
         </div>
@@ -248,15 +248,16 @@ class AmendOptions extends React.Component {
                     </div>
                     <Holders
                         holding={actions[i].holding}
-                        //showNewHolding={() => this.props.showNewHolding(i)}
-                        showNewHolding={() => this.props.dispatch(showContextualTransactionView('newHolding', {
+                        holdingOptions={this.props.currentHoldingOptions}
+                        showNewHolding={() => this.props.show('newHolding', {
                             ...this.props.transactionViewData,
                             formName: 'amend',
-                            field: `actions[${i}].newHolding`,
+                            field: `actions[${i}].holding.newHolding`,
+                            noEffectiveDate: true,
                             afterClose: { // open this transactionView again
-                                showTransactionView: {key: 'amend', data: {...this.props.transactionViewData}}
+                                showTransactionView: {key: 'editTransaction', data: {...this.props.transactionViewData}}
                             }
-                        }))}
+                        })}
                         />
                     </div>
                 }
@@ -278,10 +279,9 @@ class AmendOptions extends React.Component {
                 </div>
             }) }
 
-
-            { false && <div className="button-row">
+             <div className="button-row">
                 <Button bsStyle="info" onClick={() => actions.addField({userDefined: true, recipients: [{_keyIndex: keyIndex++}]})} >Add Shareholding</Button>
-            </div> }
+            </div>
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
@@ -382,8 +382,9 @@ const amendFields = [
 
 const AmendOptionsConnected = reduxForm({
     fields: amendFields,
-    form: 'amendAction',
-    validate: validateAmend
+    form: 'amend',
+    validate: validateAmend,
+    destroyOnUnmount: false
 })(AmendOptions);
 
 
@@ -466,7 +467,7 @@ export function formatSubmit(values, actionSet) {
 }
 
 
-export default function Amend(context, submit){
+export default function Amend(context, submit, props){
     const { actionSet, companyState, shareClassMap } = context;
     const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
@@ -557,6 +558,9 @@ export default function Amend(context, submit){
             shareClassMap={shareClassMap}
             onSubmit={handleSubmit}
             initialValues={initialValues}
+            show={props.show}
+            transactionViewData={props.transactionViewData}
+            currentHoldingOptions={ holdingOptionsFromState(props.transactionViewData.companyState) }
             />
         </div>
 }

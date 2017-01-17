@@ -39,7 +39,6 @@ import { push, replace } from 'react-router-redux';
 export const TransactionViewSwitch = (props) => {
 
         switch(props.showing){
-
             case 'addAssignShares':
                 return <AddAssignSharesTransactionView {...props} />
 

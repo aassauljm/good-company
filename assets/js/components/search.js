@@ -206,7 +206,7 @@ export class SearchWidget extends React.Component {
             placeholder: this.props.placeholder || 'Type to find or import a company',
             value: fields.input.value || '',
             onChange: fields.input.onChange,
-            autoFocus: true
+            autoFocus: !!fields.input.value
         };
 
         return (

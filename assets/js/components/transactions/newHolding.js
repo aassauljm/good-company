@@ -53,14 +53,15 @@ export class NewHoldingTransactionView extends React.Component {
                     form='newHolding'
                     initialValues={{persons: [{}]}}
                     personOptions={personOptions}
-                    showTransactionView={(key, index) => this.props.dispatch(showTransactionView(key, {
+                    noEffectiveDate={this.props.transactionViewData.noEffectiveDate}
+                    showTransactionView={(key, index) => this.props.show(key, {
                         ...this.props.transactionViewData,
                         formName: 'newHolding',
                         field: `persons[${index}].newPerson`,
                         afterClose: { // open this transactionView again
                             showTransactionView: {key: 'newHolding', data: {...this.props.transactionViewData}}
                         }
-                    }))}
+                    })}
                     onSubmit={this.submit}/>
                 </div>
             </div>

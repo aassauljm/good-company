@@ -71,7 +71,7 @@ function TransactionSummaries(props) {
         })}
         <div className="button-row">
         <Button bsStyle="primary" onClick={props.handleConfirm}>Confirm Transactions</Button>
-        { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
+        <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button>
         </div>
     </div>
 }

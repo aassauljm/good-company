@@ -21,6 +21,7 @@ export class HoldingSelectWithNew extends React.Component {
 
     render() {
         const onChange = this.props.fields[this.props.fieldName].onChange;
+
         const interceptChange =  (event) => {
             if((event.target ? event.target.value : event.value) === CREATE_NEW_SHAREHOLDING){
                 this.props.showNewHolding()
@@ -31,11 +32,12 @@ export class HoldingSelectWithNew extends React.Component {
         }
 
         return <div>
-            { !this.props.fields[this.props.newFieldName].value && <Input type="select" {...this.formFieldProps(this.props.fieldName, this.props.strings)} onChange={interceptChange}>
-                <option></option>
-                { this.props.holdingOptions }
-                <option value={CREATE_NEW_SHAREHOLDING}>Create new Shareholding</option>
-            </Input> }
+            { !this.props.fields[this.props.newFieldName].value &&
+                 <Input type="select" {...this.formFieldProps(this.props.fieldName, this.props.strings)} onChange={interceptChange}>
+                    <option></option>
+                    { this.props.holdingOptions }
+                    <option value={CREATE_NEW_SHAREHOLDING}>Create new Shareholding</option>
+                </Input> }
 
             { this.props.fields[this.props.newFieldName].value  &&
                 <StaticField type="static" label={this.props.strings[this.props.fieldName]}
@@ -54,6 +56,7 @@ export class HoldingWithRemove extends React.Component {
 
     renderHoldingSelect() {
         const onChange = this.props.fields.holding.onChange;
+
         const interceptChange =  (event) => {
             if((event.target ? event.target.value : event.value) === CREATE_NEW_SHAREHOLDING){
                 this.props.showNewHolding()
@@ -62,6 +65,7 @@ export class HoldingWithRemove extends React.Component {
                 onChange(event);
             }
         }
+
         return <Input type="select" {...this.formFieldProps('holding')} onChange={interceptChange} label={''}>
                 <option></option>
                 { this.props.holdingOptions }
@@ -131,9 +135,10 @@ export class HoldingNoParcels extends React.Component {
     }
 
     render() {
+        console.log(this.props)
         return <form className="form" >
         <fieldset>
-            <DateInput {...this.formFieldProps([ 'effectiveDate'])} />
+            { !this.props.noEffectiveDate && <DateInput {...this.formFieldProps([ 'effectiveDate'])} /> }
             <Input type='text' {...this.formFieldProps([ 'holdingName'])} />
             { this.props.fields.persons.map((p, i) =>{
 
@@ -147,8 +152,6 @@ export class HoldingNoParcels extends React.Component {
                         onChange(event);
                     }
                 }
-
-
                 return <div className="row " key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
