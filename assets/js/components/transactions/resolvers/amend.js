@@ -578,7 +578,6 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
     });
     // re add them
     actions.map((action, i) => {
-
         (action.recipients || []).map((recipient, j) => {
             if(isTransfer(getValue(recipient.type)) && !getValue(recipient.isInverse)){
                 const holding = getValue(recipient.holding);

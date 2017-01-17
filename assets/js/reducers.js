@@ -459,7 +459,7 @@ const normalizeNumber = (value) => {
 
 
 export const form = formReducer.plugin({
-    amendAction: (state, action) => {
+    amend: (state, action) => {
         switch(action.type) {
             case "redux-form/FOCUS":
             case "redux-form/BLUR":
