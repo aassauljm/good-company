@@ -16,7 +16,7 @@
 
 sudo add-apt-repository ppa:chris-lea/redis-server
 sudo apt-get update
-sudo apt-get install redis-server libpq-dev imagemagick ghostscript poppler-utils
+sudo apt-get install redis-server libpq-dev imagemagick ghostscript poppler-utils phantomjs-prebuilt
 
 
 

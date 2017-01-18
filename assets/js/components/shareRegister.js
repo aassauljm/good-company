@@ -430,7 +430,6 @@ export class ShareRegisterDocument extends React.Component {
         return dispatch(requestResource('/company/'+params.id+'/share_register'));
     }
 }])
-@CompanyHOCFromRoute(true)
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/share_register']}
 })
@@ -440,12 +439,11 @@ export class ShareRegisterDocumentLoader extends React.Component {
     };
     render() {
         const shareRegister = (this.props.data || {}).shareRegister;
-        console.log()
         if(!shareRegister){
             return false;
         }
-        const shareClassMap = generateShareClassMap(this.props.companyState)
         const companyState = ((this.props['/company/'+this.props.params.id +'/get_info'] || {}).data || {}).currentCompanyState;
+        const shareClassMap = generateShareClassMap(companyState)
 
         if(!companyState){
             return false;
