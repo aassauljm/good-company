@@ -424,29 +424,32 @@ export class ShareRegisterDocument extends React.Component {
     }
 }
 
-
 @asyncConnect([{
     key: 'shareRegister',
     promise: ({store: {dispatch, getState}, params}) => {
         return dispatch(requestResource('/company/'+params.id+'/share_register'));
     }
 }])
+@CompanyHOCFromRoute(true)
 @connect((state, ownProps) => {
     return {data: {}, ...state.resources['/company/'+ownProps.params.id +'/share_register']}
 })
-@CompanyHOCFromRoute(true)
 export class ShareRegisterDocumentLoader extends React.Component {
     static propTypes = {
-        data: PropTypes.object.isRequired,
-        companyState: PropTypes.object.isRequired
+        data: PropTypes.object.isRequired
     };
     render() {
         const shareRegister = (this.props.data || {}).shareRegister;
+        console.log()
         if(!shareRegister){
             return false;
         }
         const shareClassMap = generateShareClassMap(this.props.companyState)
-        const companyState = ((this.props['/company/'+this.props.params.id +'/get_info'] || {}).data || {}).currentCompanyState || {};
+        const companyState = ((this.props['/company/'+this.props.params.id +'/get_info'] || {}).data || {}).currentCompanyState;
+
+        if(!companyState){
+            return false;
+        }
         return <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={companyState}/>
     }
 }

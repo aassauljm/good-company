@@ -136,5 +136,5 @@ export const CompanyHOC = (async) => HOCFactory(COMPANY, async);
 export const CompanyHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_ROUTE, async);
 export const CompanyDatedHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_DATED_ROUTE, async);
 
-
+export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };
 

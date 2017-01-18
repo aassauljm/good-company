@@ -38,7 +38,7 @@ import Alerts from './components/alerts';
 import AnnualReturn from './components/annualReturn';
 import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
-
+import { CompanyHOCFromRoute, Injector } from './hoc/resources';
 
 const CompanyChildren = [
     <Route path="shareholdings" component={ Shareholdings } />,
@@ -127,7 +127,7 @@ export default (store) => {
                 <Route path="mass_setup" component={ MassSetup }  />
                 <Route path="import" component={ ImportMenu } />
                 <Route path="import/:companyNumber" component={ ImportCompany } />
-                <Route path="company/render/:id" childrenOnly={true} print={true}>
+                <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyHOCFromRoute(true)(Injector) } >
                     <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
                 </Route>
                 <Route path="favourites" component={ Favourites } />

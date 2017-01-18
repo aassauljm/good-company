@@ -215,7 +215,6 @@ class AmendOptions extends React.Component {
             const remaining = holding.amount - this.props.values.actions[i].recipients.reduce((sum, a) => {
                 return sum + (a.type ? absoluteAmount(a.type, (parseInt(a.amount, 10) || 0)) : 0)
             }, 0);
-            debugger
             return {...holding, remaining: remaining}
         }
         const getError = (index) => {
