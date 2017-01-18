@@ -974,9 +974,12 @@ describe('Company Controller', function() {
         });
         it('Imports history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
-                .expect(200)
-                .then(() => {
+                .expect(500)
+                .then((res) => {
+                    context = res.body.context;
+                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
                     done();
+                    // TODO, resolve this crazy doc
                 });
         });
     });
