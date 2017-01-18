@@ -250,7 +250,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 data.beforeAmount = data.amount;
                 data.inferAmount = false;
             }
-            if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed){
+            if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !data.confirmationUnneeded){
                 throw new sails.config.exceptions.AmbiguousInverseOperation('Confirmation Required',{
                     action: data,
                     companyState: companyState,
@@ -641,7 +641,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             parcels = [{amount: data.amount, shareClass: data.shareClass}];
         }
 
-        if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed){
+        if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !confirmationUnneeded){
             throw new sails.config.exceptions.AmbiguousInverseOperation('Confirmation Required',{
                 action: data,
                 companyState: companyState,

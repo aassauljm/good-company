@@ -151,24 +151,6 @@ class Recipient extends React.Component {
 }
 
 
-@formFieldProps()
-class Holders extends React.Component {
-    render() {
-        return  <div className="col-md-6 col-md-offset-3">
-            <Panel title='Select Shareholders'>
-                    <HoldingSelectWithNew
-                        fieldName='holding'
-                        newFieldName='newHolding'
-                        fields={this.props.holding}
-                        showNewHolding={this.props.showNewHolding}
-                        shareOptions={this.props.shareOptions}
-                        strings={STRINGS}
-                        holdingOptions={this.props.holdingOptions}/>
-            </Panel>
-        </div>
-    }
-}
-
 
 function Recipients(props){
     return <div className="col-md-6 col-md-offset-3">
@@ -236,32 +218,8 @@ class AmendOptions extends React.Component {
                 const action = amendActions[i];
                 const increase = actionAmountDirection(action);
                 return <div  key={i}>
-               { field.userDefined.value &&  <div className="button-row">
-                    <Button bsStyle="warning" onClick={() => actions.removeField(i)} >Remove Shareholding</Button>
-                </div> }
 
                 { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
-
-                { false && field.userDefined.value &&  <div className="row">
-                    <div className="text-center">
-                        <p><strong>This shareholding consists of:</strong></p>
-                    </div>
-                    <Holders
-                        holding={actions[i].holding}
-                        holdingOptions={this.props.currentHoldingOptions}
-                        showNewHolding={() => this.props.show('newHolding', {
-                            ...this.props.transactionViewData,
-                            formName: 'amend',
-                            field: `actions[${i}].holding.newHolding`,
-                            noEffectiveDate: true,
-                            afterClose: { // open this transactionView again
-                                showTransactionView: {key: 'editTransaction', data: {...this.props.transactionViewData}}
-                            }
-                        })}
-                        />
-                    </div>
-                }
-
 
                 <div className="row">
                     <div className="text-center">

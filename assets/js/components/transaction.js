@@ -40,6 +40,7 @@ const TEMPLATABLE = {
     }
 }
 
+
 const BaseTransaction = (props) => {
     return <div className="transaction-summary">
         <CommonInfo {...props} />
@@ -47,16 +48,18 @@ const BaseTransaction = (props) => {
     </div>
 }
 
+
 const CommonInfo = (props) => {
-    return <div>
-            <div className="row">
+    return <div className="row">
                 <div className="col-md-6 col-md-offset-3">
                     <div className="basic">
+
                     <div className="transaction-row">
                         <div className="transaction-label">{ STRINGS.transactionTypes._ }</div>
                         <div className="transaction-value">{ STRINGS.transactionTypes[props.type] }</div>
                     </div>
-                    <div  className="transaction-row">
+
+                    <div className="transaction-row">
                         <div className="transaction-label">{ STRINGS.effectiveDate }</div>
                         <div className="transaction-value">{ stringDateToFormattedString(props.effectiveDate) }</div>
                     </div>
@@ -71,7 +74,6 @@ const CommonInfo = (props) => {
                     </div>
                 </div>
             </div>
-        </div>
 }
 
 

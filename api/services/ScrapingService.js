@@ -504,7 +504,8 @@ const EXTRACT_DOCUMENT_MAP = {
                     transactionMethod: Transaction.types.NEW_ALLOCATION,
                     transactionType: Transaction.types.ISSUE_TO,
                     amount: toInt(chunk[0]),
-                    holders: getHolders(chunk.slice(1))
+                    holders: getHolders(chunk.slice(1)),
+                    confirmationUnneeded: true
                 })
             })
         }
@@ -715,7 +716,8 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     transactionMethod: Transaction.types.NEW_ALLOCATION,
                     transactionType: Transaction.types.ISSUE_TO,
                     amount: toInt(chunk[0]),
-                    holders: getHolders(chunk.slice(1))
+                    holders: getHolders(chunk.slice(1)),
+                    confirmationUnneeded: true
                 });
                 issuedTotal += toInt(chunk[0]);
             }
