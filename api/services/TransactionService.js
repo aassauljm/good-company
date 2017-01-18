@@ -641,7 +641,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             parcels = [{amount: data.amount, shareClass: data.shareClass}];
         }
 
-        if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !confirmationUnneeded){
+        if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !data.confirmationUnneeded){
             throw new sails.config.exceptions.AmbiguousInverseOperation('Confirmation Required',{
                 action: data,
                 companyState: companyState,
