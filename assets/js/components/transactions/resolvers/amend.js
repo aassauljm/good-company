@@ -109,6 +109,11 @@ class Recipient extends React.Component {
         const title =  `Transaction #${this.props.index+1}`;
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         const holdings = this.props.holdings;
+        const renderOption = (h, i) => {
+            return h.remaining ?
+                <option key={i} value={h.value}>{h.label} - {numberWithCommas(Math.abs(h.remaining))} {h.remaining < 0 ? 'over allocated' : 'under allocated'}</option> :
+                <option key={i} value={h.value}>{h.label} - shares balanced</option>
+        }
         return  <Panel title={title}>
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
@@ -140,10 +145,10 @@ class Recipient extends React.Component {
                             disabled={!!this.props.isInverse.value}
                             label={this.props.type.value === TransactionTypes.TRANSFER_TO ? 'Transfer From' : 'Transfer To'}>
                             <option value="" disabled></option>
-                            {  this.props.increase && <optgroup label="Suggested">{ holdings.filter(h => !h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
-                            {  this.props.increase && <optgroup label="Other">{ holdings.filter(h => h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
-                            {  !this.props.increase && <optgroup label="Suggested">{ holdings.filter(h => h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
-                            {  !this.props.increase && <optgroup label="Other">{ holdings.filter(h => !h.increase).map((h, i) => <option key={i} value={h.value}>{h.label}</option>) } </optgroup> }
+                            {  this.props.increase && <optgroup label="Suggested">{ holdings.filter(h => !h.increase).map(renderOption) }</optgroup> }
+                            {  this.props.increase && <optgroup label="Other">{ holdings.filter(h => h.increase).map(renderOption) } </optgroup> }
+                            {  !this.props.increase && <optgroup label="Suggested">{ holdings.filter(h => h.increase).map(renderOption) } </optgroup> }
+                            {  !this.props.increase && <optgroup label="Other">{ holdings.filter(h => !h.increase).map(renderOption) } </optgroup> }
                         </Input>
                 </div> }
         </Panel>
@@ -206,6 +211,13 @@ class AmendOptions extends React.Component {
     render() {
 
         const { shareClassMap, fields: { actions }, amendActions, allSameDirection } = this.props;
+        const amountRemaining = (holding, i) => {
+            const remaining = holding.amount - this.props.values.actions[i].recipients.reduce((sum, a) => {
+                return sum + (a.type ? absoluteAmount(a.type, (parseInt(a.amount, 10) || 0)) : 0)
+            }, 0);
+            debugger
+            return {...holding, remaining: remaining}
+        }
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
@@ -217,6 +229,8 @@ class AmendOptions extends React.Component {
             { actions.map((field, i) => {
                 const action = amendActions[i];
                 const increase = actionAmountDirection(action);
+
+
                 return <div  key={i}>
 
                 { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
@@ -231,7 +245,8 @@ class AmendOptions extends React.Component {
                         increase={increase}
                         allSameDirection={allSameDirection}
                         error={getError(i)}
-                        holdings={this.props.holdings.filter(h => h.index !== i)} />
+
+                        holdings={this.props.holdings.map(amountRemaining).filter(h => h.index !== i)} />
                 </div>
                 <hr/>
                 </div>
@@ -501,7 +516,7 @@ export default function Amend(context, submit, props){
         const increase = actionAmountDirection(a);
         const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
         let values;
-        values = {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i};
+        values = {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i, amount: a.afterAmount - a.beforeAmount};
         acc.push(values);
         return acc;
     }, []);
@@ -518,7 +533,6 @@ export default function Amend(context, submit, props){
             initialValues={initialValues}
             show={props.show}
             transactionViewData={props.transactionViewData}
-            //currentHoldingOptions={ holdingOptionsFromState(props.transactionViewData.companyState) }
             />
         </div>
 }
