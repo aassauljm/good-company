@@ -361,7 +361,7 @@ const PAGES = {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
             }))
             .then(() => {
-                this.props.dispatch(destroy('amend'));
+                dispatch(destroy('amend'));
                 ownProps.end();
             })
         },

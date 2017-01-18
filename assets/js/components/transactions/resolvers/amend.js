@@ -200,13 +200,13 @@ function Recipients(props){
             </Shuffle>
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
-            <div className="button-row">
+            { false && <div className="button-row">
                 <Button type="button" onClick={() => {
                     props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate})    // pushes empty child field onto the end of the array
                 }}>
                 Add Transaction
                 </Button>
-             </div>
+             </div> }
     </div>
 }
 
@@ -548,7 +548,7 @@ export default function Amend(context, submit, props){
         return acc;
     }, []);
 
-    return <div>
+    return <div className="resolve">
             <AmendOptionsConnected
             amendActions={amendActions}
             effectiveDate={effectiveDate}

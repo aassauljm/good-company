@@ -124,7 +124,7 @@ export class ImportSingle extends React.Component {
             return this.renderSummary(this.state.company);
         }
 
-        return  <ConnectedPlaceholderSearch placeholder='Type to find a company' onlyCompaniesOffice={true} onSelect={this.handleSelect} initialValues={{input: this.props.initialValue}}/>
+        return  <ConnectedPlaceholderSearch  form={this.props.form} placeholder='Type to find a company' onlyCompaniesOffice={true} onSelect={this.handleSelect} initialValues={{input: this.props.initialValue}}/>
     }
     renderError() {
         return <div>
@@ -158,7 +158,7 @@ export const ImportSingleFull = (props) => {
             <div className="widget-body">
                  <div className="row">
                  <div className="col-md-6 col-md-offset-3">
-                        <ImportSingle initialValue={props.initialValue} />
+                        <ImportSingle initialValue={props.initialValue} form='searchFormBig'/>
                     </div>
                 </div>
             </div>

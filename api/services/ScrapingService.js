@@ -1263,7 +1263,9 @@ const ScrapingService = {
                 })
             .catch(e => {
                 if(attempts > 5){
-                    throw new Error(`Cannot get document ${url}`)
+                    //throw new Error(`Cannot get document ${url}`);
+                    sails.log.error(`Cannot get document ${url}`);
+                    return {text: ''};
                 }
                 return ScrapingService.fetchDocument(companyNumber, documentId, attempts+1)
             })
@@ -1537,7 +1539,17 @@ const ScrapingService = {
             }).get()
         }
 
+
+        const calculatedTotal = result.holdings.allocations.reduce((sum, a) => sum + a.shares, 0);
+
+        // experimental override
+        if(calculatedTotal === result.holdings.total){
+            result.holdings.extensive = false;
+        }
+
         result.extensive = result.holdings.extensive;
+
+
 
         result['historicHolders'] = $('.historic').find('.shareholder').map(function(i, e){
             return {

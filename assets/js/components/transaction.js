@@ -98,13 +98,13 @@ const HoldingChange = (props) => {
 const amendTo =  props =>
     <span className="transaction-terse">
             { STRINGS.amendTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { props.inferAmount ? 'All' : props.amount } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            <span className="transaction-terse-description"> - { props.inferAmount ? 'All' : numberWithCommas(props.amount) } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
     </span>;
 
 const amendFrom = props =>
             <span className="transaction-terse">
             { STRINGS.amendTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { props.inferAmount ? 'All' : props.amount } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            <span className="transaction-terse-description"> - { props.inferAmount ? 'All' : numberWithCommas(props.amount) } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
     </span>;
 
 

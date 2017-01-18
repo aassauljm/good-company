@@ -39,8 +39,10 @@ class DateConfirmationForm extends React.Component {
                     <hr/>
             { actions.map((field, i) => {
                 const action = amendActions[i];
+                if(!TransactionRenderMap[action.transactionType]){
+                    return false;
+                }
                 const increase = actionAmountDirection(action);
-
                 return <div  key={i}>
 
                     { TransactionRenderMap[action.transactionType]({...action,  data: action, effectiveDate: action.effectiveDate || actionSet.effectiveDate, parentTransaction: actionSet, companyState: this.props.companyState}) }

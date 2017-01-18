@@ -1653,7 +1653,7 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
     return new Promise((resolve, reject) => {
         session.run(() => {
             session.set('REQUIRE_CONFIRMATION', !!requireConfirmation);
-            return performInverseAllPendingUntil(company, endCondition || ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN))
+            return performInverseAllPendingUntil(company, endCondition)
                 .then(result => {
                     if(!!result && !endCondition){
                         return performInverseAllPending(company, endCondition);

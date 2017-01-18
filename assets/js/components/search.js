@@ -215,6 +215,7 @@ export class SearchWidget extends React.Component {
                     multiSection={true}
                     suggestions={suggestions}
                     onSuggestionsFetchRequested={onSuggestionsUpdateRequested}
+                    onSuggestionsClearRequested={() => {}}
                     onSuggestionSelected={this.handleSelect}
                     getSuggestionValue={getSuggestionValue}
                     getSectionSuggestions={getSectionSuggestions}
