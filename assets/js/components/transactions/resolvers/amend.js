@@ -200,7 +200,7 @@ function Recipients(props){
             </Shuffle>
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
-            { false && <div className="button-row">
+            { <div className="button-row">
                 <Button type="button" onClick={() => {
                     props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate})    // pushes empty child field onto the end of the array
                 }}>
