@@ -83,10 +83,10 @@ export class CompaniesRegisterWidget extends React.Component {
                     <div><strong>{STRINGS.constitutionFiled}</strong> { renderValue(data.constitutionFiled) } </div>
                     { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
-            <div className="col-xs-12 text-center">
-                 { this.props.data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(this.props.data.createdAt) }</em></div> }
+            { data.createdAt && <div className="col-xs-12 text-center">
+                 { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
-            </div>
+            </div> }
         </div>
     }
 
