@@ -242,7 +242,7 @@ class AmendOptions extends React.Component {
 
                 { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
 
-                { field.userDefined.value &&  <div className="row">
+                { false && field.userDefined.value &&  <div className="row">
                     <div className="text-center">
                         <p><strong>This shareholding consists of:</strong></p>
                     </div>
@@ -279,9 +279,9 @@ class AmendOptions extends React.Component {
                 </div>
             }) }
 
-             <div className="button-row">
+             { false && <div className="button-row">
                 <Button bsStyle="info" onClick={() => actions.addField({userDefined: true, recipients: [{_keyIndex: keyIndex++}]})} >Add Shareholding</Button>
-            </div>
+            </div> }
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
@@ -560,7 +560,7 @@ export default function Amend(context, submit, props){
             initialValues={initialValues}
             show={props.show}
             transactionViewData={props.transactionViewData}
-            currentHoldingOptions={ holdingOptionsFromState(props.transactionViewData.companyState) }
+            //currentHoldingOptions={ holdingOptionsFromState(props.transactionViewData.companyState) }
             />
         </div>
 }
