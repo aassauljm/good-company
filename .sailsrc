@@ -11,7 +11,7 @@
         "pubsub": false
     },
     "log": {
-        "level": "verbose"
+        "level": "error"
     },
     "models": {
 

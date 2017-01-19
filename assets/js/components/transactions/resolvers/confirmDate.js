@@ -77,7 +77,8 @@ const DateConfirmationFormConnected = reduxForm({
 
 
 export function DateConfirmation(props){
-    const { actionSet, companyState, shareClassMap, context, submit } = props;
+    const { context, submit } = props;
+    const { actionSet, companyState, shareClassMap } = context;
     const amendActions = actionSet.data.actions; //.filter(action => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0 && !action.userConfirmed);
     const otherActions = actionSet.data.actions.filter(action => amendActions.indexOf(action) === -1);
 

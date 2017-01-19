@@ -96,7 +96,7 @@ export default (store) => {
         function checkAuth() {
             const { login: { loggedIn, loginUrl }} = store.getState();
             if (!loggedIn) {
-                replace('/login');
+                replace({pathname: '/login', query:  {next: nextState.location.pathname}});
                 cb();
             }
             else{

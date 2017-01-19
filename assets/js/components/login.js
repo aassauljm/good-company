@@ -26,10 +26,14 @@ export class LoginWithCatalex extends React.Component {
         }
     }
     render() {
+        let url = this.props.loginUrl;
+        if(this.props.location.query && this.props.location.query.next){
+            url += '?next='+encodeURIComponent(this.props.location.query.next);
+        }
         return <div className="container-fluid page-top">
                 <div className="container">
                     <div className="text-center">
-                        <a href={this.props.loginUrl}>
+                        <a href={url}>
                             <h5 style={{paddingTop: '30px'}}>Login with CataLex</h5>
                             <img style={{maxWidth: '100%', paddingBottom: '30px'}} src={'/images/logo-colour.png'} />
                         </a>

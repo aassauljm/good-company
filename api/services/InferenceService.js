@@ -468,7 +468,7 @@ module.exports = {
         data.historicHolders.map(h => {
             // is historic holder name all in capitals?  probably a company
             if(h.name.toLocaleUpperCase() === h.name){
-                companies.push({name: h.name, vacationDate: moment(h.vacationDate, 'DD MMM YYYY').toDate()});
+                companies.push({name: h.name, date: moment(h.vacationDate, 'DD MMM YYYY').toDate()});
             }
         });
         return CompanyInfoService.getNameChangeActions(companies, data);

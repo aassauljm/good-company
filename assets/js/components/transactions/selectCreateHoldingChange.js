@@ -27,7 +27,9 @@ function valuesToAction(values){
         holders: values.newHolding ? values.newHolding.persons : values.holding.persons,
         beforeHolders: values.newHolding ? values.newHolding.persons : values.holding.persons,
         afterHolders: values.newHolding ? values.newHolding.persons : values.holding.persons,
-        holdingId: values.newHolding ? null : values.holding.holdingId
+        holdingId: values.newHolding ? null : values.holding.holdingId,
+        transactionType: values.newHolding ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND,
+        isNewHolding: !!values.newHolding
     }
 }
 

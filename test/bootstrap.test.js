@@ -54,7 +54,8 @@ function stubs(){
             'ACUMEN CONSULTING LIMITED': {
                 'nzbn': '9429033966649',
                  companyNumber: '1846929',
-                 history: [{name: 'ACUMEN CONSULTING LIMITED', from: '26 Feb 2010'}, {name: 'CAD ADVANCED SOLUTIONS LIMITED', from:'02 Aug 2006', to: '26 Feb 2010'}]
+                 queryName: 'ACUMEN CONSULTING LIMITED',
+                 history: [{name: 'ACUMEN CONSULTING LIMITED', startDate: '26 Feb 2010'}, {name: 'CAD ADVANCED SOLUTIONS LIMITED', startDate:'02 Aug 2006', endDate: '26 Feb 2010'}]
             }
         }];
         const results = [];

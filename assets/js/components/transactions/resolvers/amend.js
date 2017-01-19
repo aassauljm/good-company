@@ -249,7 +249,9 @@ class AmendOptions extends React.Component {
             }) }
 
             <div className="button-row">
-                <Button bsStyle="info" onClick={() => this.props.show('selectCreateHoldingChange', {
+                <Button bsStyle="info" onClick={() => {
+                    this.props.destroyForm('selectCreateHoldingChange');
+                    this.props.show('selectCreateHoldingChange', {
                         ...this.props.transactionViewData,
                          formName: 'amend',
                          field: `actions[${actions.length}].data`,
@@ -257,7 +259,7 @@ class AmendOptions extends React.Component {
                          afterClose: { // open this transactionView again
                              showTransactionView: {key: 'editTransaction', data: {...this.props.transactionViewData}}
                          }
-                     })}>Add Shareholding</Button>
+                     })}}>Add Shareholding</Button>
             </div>
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>

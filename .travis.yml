@@ -14,7 +14,7 @@ addons:
     packages:
     - g++-4.8
 services:
-  - redis-server
+    - redis-server
 before_install:
   - psql -c 'create database test;' -U postgres
   - 'npm i -g npm@3'

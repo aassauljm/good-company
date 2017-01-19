@@ -126,7 +126,10 @@ export function callAPIMiddleware({
                     if(error.response && error.response.status === 403){
                         dispatch(logout());
                         // out redirect or something
-                        dispatch(push('/login'))
+                        const state = getState();
+                        if(state.routing.locationBeforeTransitions.pathname !== '/login'){
+                            dispatch(push({pathname: '/login', query: {next: state.routing.locationBeforeTransitions.pathname}}))
+                        }
                         return;
                     }
                     if(error.response && error.response.status === 503){
