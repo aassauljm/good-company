@@ -16,6 +16,7 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
+import EmailDocument from './modals/emailDocument';
 
 
 function createLawLinks(list){
@@ -167,10 +168,13 @@ export class RenderForm extends React.Component {
         return <div className="button-row form-controls">
                 <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
                 <Button type="submit" bsStyle="primary" >Generate Document <Glyphicon glyph='download'/></Button>
+                <Button bsStyle="info" >Email Document <Glyphicon glyph='envelope'/></Button>
             </div>
     }
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
+
+        return <EmailDocument />;
 
         return (
             <form className="generated-form form-horizontal"  onSubmit={handleSubmit}>
@@ -434,10 +438,24 @@ export  class TemplateView extends React.Component {
     constructor(props){
         super(props);
         this.submit = ::this.submit;
+        this.email = ::this.email;
     }
 
 
     submit(values) {
+        let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
+        this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.formName, values: {...values, filename: filename}})
+            .then((response) => {
+                const disposition = response.response.headers.get('Content-Disposition')
+                filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');
+                return response.response.blob()
+            })
+            .then(blob => {
+                saveAs(blob, filename);
+            })
+    }
+
+    email(values) {
         let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
         this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.formName, values: {...values, filename: filename}})
             .then((response) => {
@@ -460,7 +478,7 @@ export  class TemplateView extends React.Component {
                 companyState = {company: this.props.companyState || {}, ...this.props.companyState};
             }
             const values = template.getInitialValues(state || companyState)
-            return <template.form onSubmit={this.submit} initialValues={values} context={makeContext(this.props.companyState)} />
+            return <template.form onSubmit={this.submit} email={this.email} initialValues={values} context={makeContext(this.props.companyState)} />
         }
         return <div>Not Found</div>
     }
