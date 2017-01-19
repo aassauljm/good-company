@@ -229,10 +229,8 @@ class AmendOptions extends React.Component {
                 const action = field.data.value;
                 const increase = actionAmountDirection(action);
 
-
                 return <div  key={i}>
-
-                { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
+                    { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
 
                 <div className="row">
                     <div className="text-center">
@@ -252,14 +250,14 @@ class AmendOptions extends React.Component {
 
             <div className="button-row">
                 <Button bsStyle="info" onClick={() => this.props.show('selectCreateHoldingChange', {
-                            ...this.props.transactionViewData,
-                             formName: 'amend',
-                             field: `actions[${actions.length}].data`,
-                             noEffectiveDate: true,
-                             afterClose: { // open this transactionView again
-                                 showTransactionView: {key: 'editTransaction', data: {...this.props.transactionViewData}}
-                             }
-                         })}>Add Shareholding</Button>
+                        ...this.props.transactionViewData,
+                         formName: 'amend',
+                         field: `actions[${actions.length}].data`,
+                         noEffectiveDate: true,
+                         afterClose: { // open this transactionView again
+                             showTransactionView: {key: 'editTransaction', data: {...this.props.transactionViewData}}
+                         }
+                     })}>Add Shareholding</Button>
             </div>
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
@@ -445,8 +443,10 @@ export function formatSubmit(values, actionSet) {
 }
 
 
-export default function Amend(context, submit, props){
+export default function Amend(props){
+    const { context, submit } = props;
     const { actionSet, companyState, shareClassMap } = context;
+
     const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
     const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).startOf('day').toDate() : null;

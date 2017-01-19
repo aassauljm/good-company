@@ -25,7 +25,9 @@ import { InvalidIssue } from './resolvers/unknownShareChanges'
 import { Shareholder } from '../shareholders';
 
 
-function skipOrRestart(allowSkip, context, submit, reset){
+function skipOrRestart(props){
+    const { allowSkip, reset } = props;
+
     function skip(){
         return submit({
             pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
@@ -43,11 +45,12 @@ function skipOrRestart(allowSkip, context, submit, reset){
     </div>
 }
 
-const submitRestart = (...rest) => skipOrRestart(false, ...rest);
-const submitSkipRestart = (...rest) => skipOrRestart(true, ...rest);
+const submitRestart = (props) => skipOrRestart({allowSkip: false, ...props});
+const submitSkipRestart = (props) => skipOrRestart({allowSkip: true, ...props});
 
 
-function AddressDifference(context, submit, reset){
+function AddressDifference(props){
+    const { context, submit, reset } = props;
 
     function skip(){
         const id = context.action.id;
@@ -81,7 +84,8 @@ function AddressDifference(context, submit, reset){
 }
 
 
-function AnnualReturnHoldingDifference(context, submit, reset){
+function AnnualReturnHoldingDifference(props){
+    const { context, submit, reset } = props;
     function skip(){
         return submit({
             pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
@@ -99,7 +103,9 @@ function AnnualReturnHoldingDifference(context, submit, reset){
     </div>
 }
 
-function DirectorNotFound(context, submit, reset, edit){
+function DirectorNotFound(props){
+    const { context, submit, reset, edit } = props;
+
     function skip(){
         return submit({
             pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
@@ -122,8 +128,8 @@ function DirectorNotFound(context, submit, reset, edit){
 }
 
 
-function HolderNotFound(context, submit, reset){
-
+function HolderNotFound(props){
+    const { context, submit, reset } = props;
     function startOver(){
         return reset();
     }
@@ -183,8 +189,8 @@ function HolderNotFound(context, submit, reset){
 }
 
 
-function MultipleHoldings(context,  submit){
-    const { companyState, shareClassMap } = context;
+function MultipleHoldings(props){
+    const { context, submit } = props;
     let { possibleMatches } = context;
     function handleSelect(holding){
         const updatedActions = {...context.actionSet.data};
@@ -218,8 +224,8 @@ function MultipleHoldings(context,  submit){
     </div>
 }
 
-function HoldingNotFound(context,  submit){
-    const { companyState, shareClassMap } = context;
+function HoldingNotFound(props){
+    const { context, submit } = props;
     let possibleMatches = context.companyState.holdingList.holdings.filter(h => {
         return h.parcels.reduce((sum, p) => sum + p.amount, 0) === context.action.afterAmount;
     });
@@ -283,7 +289,8 @@ function HoldingNotFound(context,  submit){
     </div>
 }
 
-function MultipleHoldingTransferSources(context,  submit){
+function MultipleHoldingTransferSources(props){
+    const { context, submit } = props;
     const { companyState, shareClassMap } = context;
     let { possibleMatches } = context;
     if(!possibleMatches){
@@ -413,7 +420,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         return <div className="resolve">
             { basicSummary(context, this.props.transactionViewData.companyState)}
             <hr/>
-            { PAGES[context.importErrorType](context, this.props.updateAction, this.props.resetAction, edit)}
+            { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, ...this.props}) }
         </div>
     }
 

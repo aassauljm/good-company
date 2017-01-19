@@ -9,10 +9,14 @@ describe('Amend submit', () => {
         return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues.json', 'utf8')
             .then(data => {
                 data = JSON.parse(data);
-                data.values.actions.map(a => a.recipients.map(r => {
-                    r.effectiveDate = moment(r.effectiveDate).toDate();
-                }))
+                data.values.actions.map((a, i) => {
+                    a.recipients.map((r) => {
+                        r.effectiveDate = moment(r.effectiveDate).toDate()
+                    })
+                    a.data = data.actionSet.data.actions[i]
+                })
                 const results = formatSubmit(data.values, data.actionSet);
+
                 results.length.should.be.equal(6);
                 results[0].data.actions.length.should.be.equal(7);
                 results[1].data.actions.length.should.be.equal(1);
@@ -38,9 +42,12 @@ describe('Amend submit', () => {
         return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues2.json', 'utf8')
             .then(data => {
                 data = JSON.parse(data);
-                data.values.actions.map(a => a.recipients.map(r => {
-                    r.effectiveDate = moment(r.effectiveDate).toDate();
-                }))
+                data.values.actions.map((a, i) => {
+                    a.recipients.map((r) => {
+                        r.effectiveDate = moment(r.effectiveDate).toDate()
+                    })
+                    a.data = data.actionSet.data.actions[i]
+                })
                 const results = formatSubmit(data.values, data.actionSet);
 
                 results.length.should.be.equal(8);

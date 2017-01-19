@@ -31,6 +31,7 @@ module.exports = {
                     }
                     return null;
                 }
+
                 const allocationsUp = _.filter(d.actions, a => a.amount && a.afterAmount > a.beforeAmount).length;
                 const allocationsDown = _.filter(d.actions, a => a.amount && a.afterAmount < a.beforeAmount).length;
 

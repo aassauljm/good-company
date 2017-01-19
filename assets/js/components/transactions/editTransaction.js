@@ -67,10 +67,10 @@ export class EditTransactionView extends React.Component {
             })
         }
         if(hasAmend || !actionSet){
-            return Amend({...this.props.transactionViewData}, updateAction, this.props)
+            return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props})
         }
         else{
-            return DateConfirmation({...this.props.transactionViewData}, updateAction)
+            return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props})
         }
     }
 
