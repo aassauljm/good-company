@@ -31,7 +31,8 @@ import {
     SHOW_CONFIRMATION, END_CONFIRMATION,
     SHOW_LOADING, END_LOADING,
     TOGGLE_WIDGET_SIZE,
-    WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
+    WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE,
+    SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT, SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -507,4 +508,28 @@ export function endLoading(data){
     return {
         type: END_LOADING, data
     }
+}
+
+export function showEmailDocument(data) {
+    return {
+        type: SHOW_EMAIL_DOCUMENT, data
+    }
+}
+
+export function hideEmailDocument() {
+    return {
+        type: HIDE_EMAIL_DOCUMENT
+    }
+}
+
+export function sendDocument(recipients, templateData) {
+    return {
+        types: [SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE],
+        callAPI: () => fetch('/api/send_template', {
+            method: 'POST',
+            headers: json_headers,
+            body: JSON.stringify({ recipients, templateData }),
+            credentials: 'same-origin'
+        })
+    };
 }

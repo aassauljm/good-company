@@ -26,7 +26,8 @@ import {
     SHOW_LOADING, END_LOADING,
     UPDATE_MENU, TOGGLE_WIDGET_SIZE,
     LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
-    WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
+    WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE,
+    SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT
      } from './actionTypes';
 
 import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
@@ -295,6 +296,19 @@ function renderTemplate(state = {}, action){
         }
 }
 
+function sendDocument(state = {}, action){
+    switch(action.type){
+        case SEND_DOCUMENT_REQUEST:
+            return {...state, _status: 'fetching'};
+        case SEND_DOCUMENT_SUCCESS:
+            return {...state, data: action.response, _status: 'complete'};
+        case SEND_DOCUMENT_FAILURE:
+            return {...state, data: action.response, _status: 'error'};
+        default:
+            return state;
+    }
+}
+
 
 const default_resources = {users: {}, roles: {}, documents: {}, companies: {}}
 
@@ -419,6 +433,10 @@ function modals(state = {}, action) {
             return {...state, loading: {...action.data, showing: true}}
         case END_LOADING:
             return {...state, loading: {...action.data, showing: false}}
+        case SHOW_EMAIL_DOCUMENT:
+            return {...state, emailDocument: {templateData: action.data, showing: true}}
+        case HIDE_EMAIL_DOCUMENT:
+            return {...state, emailDocument: {showing: false}}
 
         case RESOURCE_REQUEST:
         case RESOURCE_CREATE_REQUEST:

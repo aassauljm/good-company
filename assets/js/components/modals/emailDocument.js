@@ -7,6 +7,8 @@ import { formFieldProps, requireFields } from '../../utils';
 import STRINGS from '../../strings';
 import { reduxForm } from 'redux-form';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import { sendDocument, hideEmailDocument, addNotification } from '../../actions';
+import { connect } from 'react-redux';
 
 const fields = [
     'recipients[].name',
@@ -41,7 +43,10 @@ const requireRecipient = requireFields('name', 'email');
     form: 'emailList',
     fields,
     validate: (values) => {
-        return {recipients: values.recipients.map(requireRecipient)};
+        return {
+            recipients: values.recipients.map(requireRecipient),
+            _error: values.recipients.length ? null : ['At least one recipient required']
+        };
     }
 })
 class EmailListForm extends React.Component {
@@ -55,41 +60,61 @@ class EmailListForm extends React.Component {
                 <div className='button-row'>
                     <Button onClick={() => { recipients.addField({}) }}>Add Recipient</Button>
                 </div>
+
+                { this.props.error && this.props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
             </form>
         );
     }
 }
 
+@connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ}),
+{
+    hide: () => hideEmailDocument(),
+    send: (recipients, templateData) => sendDocument(recipients, templateData),
+    addNotification: (data) => addNotification(data)
+})
 export default class EmailDocument extends React.Component {
     constructor() {
         super();
-        this.resolve = ::this.send;
-        this.reject = ::this.cancel;
+        this.send = ::this.send;
+        this.close = ::this.close;
     }
 
-    send(recipients) {
+    send(values) {
+        this.props.send(values.recipients, this.props.templateData)
+            .then(() => {
+                this.props.addNotification({
+                    message: 'Document sent'
+                });
+                this.close();
+            }).catch((error) => {
+                this.props.addNotification({
+                    message: 'Failed to send',
+                    error: true
+                });
+            });
     }
 
-    cancel() {
-
+    close() {
+        this.props.hide();
     }
 
     render() {
         return (
-            <Modal show={true} onHide={this.reject}>
+            <Modal show={true} onHide={this.close}>
                 <Modal.Header closeButton>
                     <Modal.Title>Email Document</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p></p>
-                    <EmailListForm initialValues={{recipients: [{}]}} />
+                    <EmailListForm initialValues={{recipients: [{}]}} ref="form" onSubmit={this.send} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle='default' onClick={this.reject}>Cancel</Button>
-                    <Button bsStyle='primary' onClick={this.resolve}>Send</Button>
+                    <Button bsStyle='default' onClick={this.close}>Cancel</Button>
+                    <Button bsStyle='primary' onClick={() => this.refs.form.submit()}>Send</Button>
                 </Modal.Footer>
             </Modal>
-            )
+        );
         return false;
     }
 

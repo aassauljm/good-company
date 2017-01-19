@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { endConfirmation } from '../actions';
 import { LoadingOverlay } from './loading';
+import EmailDocument from './modals/emailDocument';
 
 @connect()
 export class Confirmation extends React.Component {
@@ -55,6 +56,9 @@ export default class Modals extends React.Component {
         }
         else if(this.props.modals.loading && this.props.modals.loading.showing){
             return <Loading {...this.props.modals.loading} />
+        }
+        else if (this.props.modals.emailDocument && this.props.modals.emailDocument.showing) {
+            return <EmailDocument {...this.props.modals.emailDocument} />
         }
         return false;
     }

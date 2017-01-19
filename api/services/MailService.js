@@ -45,6 +45,27 @@ module.exports = {
               body: form
         })
     },
+    massSendCataLexMailWithAttachment: function(template, recipients, subject, file, filename) {
+        sails.log.info(`Mass Sending Mail with Document to ${recipients.length} recipients`);
+
+        const formData = new FormData();
+
+        form.append('client_id', sails.config.OAUTH_CLIENT_ID);
+        form.append('client_secret', sails.config.OAUTH_CLIENT_SECRET);
+        body.append('template', template);
+        body.append('subject', subject);
+        body.append('recipients', recipients);
+        body.append('file', file, filename);
+
+        return fetch(sails.config.renderServiceUrl, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: formData
+        });
+    },
     signup: function(user) {
         const template = 'Welcome to Good Company';
         return MailService.sendMail(user.email, template);
@@ -60,6 +81,9 @@ module.exports = {
             return MailService.sendCataLexMail('emails.goodcompanies.bulk-setup', user.email, 'Good Companies - Companies Import History Complete',
                                            {name: user.username, successCount, totalCount, link: sails.config.APP_URL})
         }
+    },
+    sendTemplate: function(recipients, file, filename) {
+        return MailService.massSendCataLexMailWithAttachment('emails.goodcompanies.attach-files', recipients, 'Files from Good Companies', file, filename);
     }
 };
 
