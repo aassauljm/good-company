@@ -210,7 +210,7 @@ class AmendOptions extends React.Component {
     }
     render() {
 
-        const { shareClassMap, fields: { actions }, amendActions, allSameDirection } = this.props;
+        const { shareClassMap, fields: { actions }, allSameDirection } = this.props;
         const amountRemaining = (holding, i) => {
             const remaining = holding.amount - this.props.values.actions[i].recipients.reduce((sum, a) => {
                 return sum + (a.type ? absoluteAmount(a.type, (parseInt(a.amount, 10) || 0)) : 0)
@@ -226,7 +226,7 @@ class AmendOptions extends React.Component {
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
             { actions.map((field, i) => {
-                const action = amendActions[i];
+                const action = field.data.value;
                 const increase = actionAmountDirection(action);
 
 
@@ -244,16 +244,23 @@ class AmendOptions extends React.Component {
                         increase={increase}
                         allSameDirection={allSameDirection}
                         error={getError(i)}
-
                         holdings={this.props.holdings.map(amountRemaining).filter(h => h.index !== i)} />
                 </div>
                 <hr/>
                 </div>
             }) }
 
-             { false && <div className="button-row">
-                <Button bsStyle="info" onClick={() => actions.addField({userDefined: true, recipients: [{_keyIndex: keyIndex++}]})} >Add Shareholding</Button>
-            </div> }
+            <div className="button-row">
+                <Button bsStyle="info" onClick={() => this.props.show('selectCreateHoldingChange', {
+                            ...this.props.transactionViewData,
+                             formName: 'amend',
+                             field: `actions[${actions.length}].data`,
+                             noEffectiveDate: true,
+                             afterClose: { // open this transactionView again
+                                 showTransactionView: {key: 'editTransaction', data: {...this.props.transactionViewData}}
+                             }
+                         })}>Add Shareholding</Button>
+            </div>
              <div className="button-row">
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
@@ -269,9 +276,9 @@ const validateAmend = (values, props) => {
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
         let sum = 0;
-        const inferAmount = props.amendActions[i] ? props.amendActions[i].inferAmount: false;
-        const amount = props.amendActions[i] ? props.amendActions[i].afterAmount - props.amendActions[i].beforeAmount : 0;
-        const startAmount = props.amendActions[i] ? props.amendActions[i].beforeAmount || 0 : 0;
+        const inferAmount = action.data ? action.data.inferAmount: false;
+        const amount = action.data ? action.data.afterAmount - action.data.beforeAmount : 0;
+        const startAmount = action.data ? action.data.beforeAmount || 0 : 0;
         //const selectedRecipients = {};
         errors.recipients = action.recipients.map((recipient, j) => {
             const errors = {};
@@ -347,9 +354,8 @@ const amendFields = [
     'actions[].recipients[].isInverse',
     'actions[].recipients[].inverse',
     'actions[].recipients[]._keyIndex',
-    'actions[].userDefined',
-    'actions[].holding.newHolding',
-    'actions[].holding.holding',
+    'actions[].data',
+
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -368,7 +374,7 @@ const collectAmendActions = (actions) => actions.filter(isAmendable);
 export function formatSubmit(values, actionSet) {
     actionSet = actionSet || {data: {actions: []}};
     const amendActions = collectAmendActions(actionSet.data.actions);
-    const amends = [...(amendActions.map(a => ({...a})))];
+    const amends = [...(values.actions.map(a => ({...a.data})))];
     const otherActions = actionSet.data.actions.filter(a => !isAmendable(a))
     const pendingActions = [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}];
 
@@ -462,8 +468,6 @@ export default function Amend(context, submit, props){
     const allButOneIncrease = amendActions.length > 2 && !allSameDirection && allSameDirectionSum === amendActions.length -1;
     const allButOneDecrease = amendActions.length > 2 && !allSameDirection && allSameDirectionSum === 1;
 
-
-
     const amountValues = amendActions.reduce((acc, action, i) => {
         const dir = (action.afterAmount > action.beforeAmount || !action.beforeHolders);
         acc[dir][action.amount] = (acc[dir][action.amount] || []).concat({...action, index: i});
@@ -476,7 +480,7 @@ export default function Amend(context, submit, props){
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{amount:  a.inferAmount ? 'All' : a.amount, effectiveDate, _keyIndex: keyIndex++, type: a.transactionType || a.transactionMethod}]
+                recipients: [{amount:  a.inferAmount ? 'All' : a.amount, effectiveDate, _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
             };
         }
         // else if one exact opposite transaction, then set that
@@ -506,10 +510,7 @@ export default function Amend(context, submit, props){
         }]};
     }).filter(identity), identity, identity, x => false)};
 
-
-    if(!initialValues.actions.length){
-        initialValues.actions = [{userDefined: true, recipients: [{_keyIndex: keyIndex++, holders: [{}]}]}];
-    }
+    initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
 
     const holdings = amendActions.reduce((acc, a, i) => {
         const increase = actionAmountDirection(a);
@@ -522,7 +523,7 @@ export default function Amend(context, submit, props){
 
     return <div className="resolve">
             <AmendOptionsConnected
-            amendActions={amendActions}
+            //amendActions={amendActions}
             effectiveDate={effectiveDate}
             totalAmount={totalAmount}
             allSameDirection={allSameDirection}

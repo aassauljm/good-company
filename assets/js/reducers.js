@@ -29,8 +29,10 @@ import {
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE
      } from './actionTypes';
 
-import { BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
-STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH } from 'redux-form/lib/actionTypes';
+import {
+    BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
+    STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH
+    } from 'redux-form/lib/actionTypes';
 
 import {reducer as formReducer} from 'redux-form';
 import validator from 'validator'

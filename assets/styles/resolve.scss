@@ -21,6 +21,9 @@
     }
     .row-separated{
         margin-bottom:40px;
+        .col-md-5:first-child{
+            text-align: right;
+        }
     }
 }
 

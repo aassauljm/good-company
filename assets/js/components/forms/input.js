@@ -254,7 +254,7 @@ class InputBase extends React.Component {
           }
 
 
-          return <input {...elementProps}  value={elementProps.value||''} className={classNames(this.props.className, className)} ref="input" key="input" />;
+          return <input {...elementProps}  value={elementProps.value === undefined ? '' : elementProps.value} className={classNames(this.props.className, className)} ref="input" key="input" />;
         }
   }
 

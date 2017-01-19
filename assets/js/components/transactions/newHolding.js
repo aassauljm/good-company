@@ -54,6 +54,7 @@ export class NewHoldingTransactionView extends React.Component {
                     initialValues={{persons: [{}]}}
                     personOptions={personOptions}
                     noEffectiveDate={this.props.transactionViewData.noEffectiveDate}
+                    noDocuments={this.props.transactionViewData.noDocuments}
                     showTransactionView={(key, index) => this.props.show(key, {
                         ...this.props.transactionViewData,
                         formName: 'newHolding',
@@ -71,7 +72,7 @@ export class NewHoldingTransactionView extends React.Component {
     render() {
         return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.handleClose} backdrop={'static'}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>New Holding</TransactionView.Title>
+                <TransactionView.Title>New Shareholding</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody(this.props.transactionViewData.companyState) }

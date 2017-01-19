@@ -26,6 +26,7 @@ import { ResolveAmbiguityTransactionView  } from './transactions/resolve';
 import { EditTransactionView } from './transactions/editTransaction';
 import { DeleteCompanyTransactionView  } from './transactions/deleteCompany';
 import { ResetHistoryTransactionView  } from './transactions/resetHistory';
+import { SelectCreateHoldingChangeTransactionView   } from './transactions/selectCreateHoldingChange';
 import { ChangeRegisteredOfficeTransactionView, ChangeAddressForServiceTransactionView  } from './transactions/changeAddress';
 import { VotingShareholdersTransactionView  } from './transactions/selectVotingShareholders';
 import { ShareClassCreateTransactionView, ShareClassEditTransactionView, ShareClassManageTransactionView } from './shareClasses';
@@ -170,6 +171,9 @@ export const TransactionViewSwitch = (props) => {
 
             case 'contactDetails':
                 return <ContactDetailsTransactionView {...props} />
+
+            case 'selectCreateHoldingChange':
+                return <SelectCreateHoldingChangeTransactionView {...props} />
 
             default:
                 return false;

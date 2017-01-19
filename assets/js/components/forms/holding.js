@@ -191,7 +191,7 @@ export class HoldingNoParcels extends React.Component {
         </div> }
         { this.warnings(this.props.values)  }
 
-        <Documents documents={this.props.fields.documents}/>
+        { !this.props.noDocuments && <Documents documents={this.props.fields.documents}/> }
         </form>
     }
 }

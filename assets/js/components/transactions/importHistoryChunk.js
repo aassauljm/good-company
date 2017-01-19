@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/lib/Button';
 import { Link } from 'react-router'
 import STRINGS from '../../strings'
 import { asyncConnect } from 'redux-connect';
+import { reduxForm, destroy } from 'redux-form';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import TransactionView from '../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
@@ -71,7 +72,7 @@ function TransactionSummaries(props) {
         })}
         <div className="button-row">
         <Button bsStyle="primary" onClick={props.handleConfirm}>Confirm Transactions</Button>
-         { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
+         <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button>
         </div>
     </div>
 }
@@ -157,6 +158,8 @@ PAGES[LOADING] = function() {
                                                         invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
+        destroyForm: (args) => dispatch(destroy(args))
+
     }
 })
 export class ImportHistoryChunkTransactionView extends React.Component {
@@ -216,6 +219,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
 
     handleEdit(actionSet, pendingActions) {
         const otherActions = pendingActions.filter(p => p !== actionSet);
+        this.props.destroyForm('amend');
         this.props.show('editTransaction', {...this.props.transactionViewData,
             startId: pendingActions[0].id,
             endId: pendingActions[pendingActions.length-1].previous_id,
@@ -226,6 +230,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
     }
 
     handleAddNew(pendingActions) {
+        this.props.destroyForm('amend');
         this.props.show('editTransaction', {...this.props.transactionViewData,
             startId: pendingActions[0].id,
             endId: pendingActions[pendingActions.length-1].previous_id,
@@ -236,6 +241,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
 
     handleResolve() {
         const pendingActions = collectPreviousYearsActions(this.props.pendingHistory.data || []);
+        this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
             {
                 ...this.props.transactionViewData,

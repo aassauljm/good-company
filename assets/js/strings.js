@@ -20,7 +20,7 @@ export default {
     ultimateHoldingCompany: 'Ultimate Holding Company',
     entityType: 'Entity Type',
     companyStatus: 'Company Status',
-    holdingName: 'Holding Name',
+    holdingName: 'Shareholding Name',
     appointment: 'Appointment Date',
     cessation: 'Cessation of Directorship Date',
     shareRegister: {
