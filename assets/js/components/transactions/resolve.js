@@ -425,11 +425,11 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             // if we are doing a yeary by year import, we have greater flexibility for importing
             edit = () => {
                 const otherActions = this.props.transactionViewData.editTransactionData.pendingActions.filter(p => p.id !== context.actionSet.id);
+                // gross
                 this.props.destroyForm('amend');
                 this.props.show('editTransaction', {...this.props.transactionViewData.editTransactionData, actionSet: context.actionSet, otherActions});
             }
         }
-
         return <div className="resolve">
             { basicSummary(context, this.props.transactionViewData.companyState)}
             <hr/>

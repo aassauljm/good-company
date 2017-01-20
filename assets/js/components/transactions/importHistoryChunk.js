@@ -71,7 +71,7 @@ function TransactionSummaries(props) {
             </div>
         })}
         <div className="button-row">
-        <Button onClick={() => props.end({cancalled: true})}>Cancel</Button>
+        <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
         <Button bsStyle="primary" onClick={props.handleConfirm}>Confirm Transactions</Button>
          <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button>
         </div>
@@ -125,7 +125,7 @@ PAGES[EXPLAINATION] = function() {
     if(this.props.pendingHistory._status === 'complete'){
         const pendingYearActions = collectPreviousYearsActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
-            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleAddNew={this.handleAddNew} handleEdit={this.handleEdit} />
+            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleAddNew={this.handleAddNew} handleEdit={this.handleEdit} end={this.props.end}/>
         }
     }
     return false;

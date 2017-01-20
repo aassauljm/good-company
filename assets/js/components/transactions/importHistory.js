@@ -174,7 +174,8 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     handleResolve() {
-        this.props.show('resolveAmbiguity', {...this.props.transactionViewData, error: this.props.importHistory.error, afterClose: { // open this transactionView again
+        this.props.show('resolveAmbiguity', {...this.props.transactionViewData,
+            error: this.props.importHistory.error, afterClose: { // open this transactionView again
                             showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}}});
     }
 
