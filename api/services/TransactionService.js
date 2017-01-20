@@ -1401,6 +1401,9 @@ export function performInverseTransaction(data, company, rootState){
 
         })
         .then(function(transactions){
+            if(!transactions.length && data.actions.every(a => a.IGNORABLE)){
+                throw sails.config.exceptions.NoValidTransactions()
+            }
             const tran = Transaction.buildDeep({
                     type: data.transactionType || Transaction.types.COMPOUND,
                     data: _.omit(data, 'actions', 'transactionType', 'effectiveDate'),
@@ -1428,6 +1431,9 @@ export function performInverseTransaction(data, company, rootState){
         })
          .then(function(){
             return prevState;
+         })
+         .catch(sails.config.exceptions.NoValidTransactions, () => {
+            return rootState;
          })
 }
 

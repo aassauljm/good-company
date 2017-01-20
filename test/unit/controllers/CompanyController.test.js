@@ -460,7 +460,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(29);
+                    res.body.length.should.be.equal(22);
                     done();
                 })
             .catch(done)
@@ -616,7 +616,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(36);
+                    res.body.length.should.be.equal(29);
                     done();
                 })
             .catch(done)
@@ -870,7 +870,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
                     res.body.filter(f=> f.data.transactionType === 'INFERRED_NEW_DIRECTOR').length.should.be.equal(0);
-                    res.body[res.body.length-4].data.transactionType.should.be.equal('INCORPORATION');
+                    res.body[res.body.length-1].data.transactionType.should.be.equal('INCORPORATION');
                     done();
                 })
                 .catch(done)

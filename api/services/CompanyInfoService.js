@@ -16,7 +16,6 @@ export function fetchNameHistory(companies){
         })
         .then(response => response.json())
         .catch((e) => {
-            console.log(e);
             return [];
         })
 }

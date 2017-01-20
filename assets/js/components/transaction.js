@@ -212,11 +212,11 @@ export const TransactionRenderMap = {
     [TransactionTypes.ISSUE]: BasicLoop,
 
     [TransactionTypes.HOLDER_CHANGE]: (props) => {
-        return holderChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}})
+        return props.subTransactions ? BasicLoop(props) : holderChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}})
     },
 
     [TransactionTypes.UPDATE_DIRECTOR]: (props) => {
-        return directorChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+        return  props.subTransactions ? BasicLoop(props) : directorChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
     },
 
     [TransactionTypes.ISSUE_TO]: HoldingChange,

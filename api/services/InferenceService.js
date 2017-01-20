@@ -480,7 +480,7 @@ module.exports = {
         // http://www.business.govt.nz/companies/app/ui/pages/companies/1951111/21005885/entityFilingRequirement
 
         return docs.reduce((acc, doc) => {
-            const holderChanges = []
+            const holderChanges = [];
             const standardActions = (doc.actions || []).reduce((acc, action) => {
                 if(action.transactionType === Transaction.types.HOLDER_CHANGE){
                     const changedPerson = Person.build(action.afterHolder);
@@ -501,6 +501,7 @@ module.exports = {
                 }
                 return acc;
             }, []);
+
             if(holderChanges.length){
                 acc.push({
                     ...doc,
@@ -508,10 +509,12 @@ module.exports = {
                     actions: holderChanges
                 })
             }
-            acc.push({
-                ...doc,
-                actions: standardActions
-            });
+            if(standardActions.length){
+                acc.push({
+                    ...doc,
+                    actions: standardActions
+                });
+            }
             return acc;
         }, []);
     },
