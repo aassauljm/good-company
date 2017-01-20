@@ -455,14 +455,14 @@ export  class TemplateView extends React.Component {
 
     buildRenderObject(values) {
         let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
-
         return {
             formName: TemplateMap[this.props.params.name].schema.formName,
-            values: {...values, filename: filename}
+            values: {...values, filename}
         };
     }
 
     submit(values) {
+        let filename;
         this.props.renderTemplate(this.buildRenderObject(values))
             .then((response) => {
                 const disposition = response.response.headers.get('Content-Disposition')
@@ -475,7 +475,6 @@ export  class TemplateView extends React.Component {
     }
 
     emailDocument(values) {
-        let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
         this.props.showEmailDocument(this.buildRenderObject(values));
     }
 

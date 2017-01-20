@@ -75,17 +75,11 @@ module.exports = {
             },
             body: JSON.stringify(req.body.renderData)
         })
-        .then((fileResponse) => {
-            let file = '';
-            fileResponse.body
-                .on('data', function (chunk) {
-                    file += chunk;
-                })
-                .on('end', function () {
-                    MailService.sendTemplate(req.body.recipients, file, req.body.renderData.filename)
-                        .then(() => {
-                            res.ok({message: ['Template sent']});
-                        });
+        .then(fileResponse => fileResponse.buffer())
+        .then(buff => {
+            return MailService.sendTemplate(req.body.recipients, buff, req.body.renderData.filename)
+                .then(() => {
+                    res.ok({message: ['Template sent']});
                 });
         })
         .catch(error => {

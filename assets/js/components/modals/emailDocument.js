@@ -56,7 +56,7 @@ class EmailListForm extends React.Component {
         return (
             <form>
                 {recipients.map((recipient, index) => <Recipient fields={recipient} key={index} remove={() => { recipients.removeField(index) }} />)}
-                
+
                 <div className='button-row'>
                     <Button onClick={() => { recipients.addField({}) }}>Add Recipient</Button>
                 </div>
@@ -67,7 +67,7 @@ class EmailListForm extends React.Component {
     }
 }
 
-@connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ}),
+@connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ, sendDocument: state.sendDocument}),
 {
     hide: () => hideEmailDocument(),
     send: (recipients, renderData) => sendDocument(recipients, renderData),
@@ -81,6 +81,9 @@ export default class EmailDocument extends React.Component {
     }
 
     send(values) {
+        if(this.props.sendDocument._status === 'fetching'){
+            return;
+        }
         this.props.send(values.recipients, this.props.renderData)
             .then(() => {
                 this.props.addNotification({

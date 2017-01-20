@@ -55,6 +55,7 @@ module.exports = {
         form.append('template', template);
         form.append('subject', subject);
         form.append('recipients', JSON.stringify(recipients));
+
         form.append('file', file, filename);
 
         return fetch(sails.config.ACCOUNT_URL + '/mail/send-documents', {
