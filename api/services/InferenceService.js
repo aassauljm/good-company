@@ -20,13 +20,15 @@ module.exports = {
                 // TODO, read previous share update doc
                 //http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720672
                 function getMatchingDocument(index, matchValue){
-                    const MAX_DISTANCE = 24;
-                    for(let i=0, j=index-1, neg=-1; i<MAX_DISTANCE; i++, j+=i*neg, neg*=-1){
-                        const k = Math.min(Math.max(0, j), actionSets.length-1);
-                        if(k === index) continue;
-
-                        if(actionSets[k].totalShares === matchValue){
-                            return actionSets[k];
+                    const MAX_DISTANCE = 12;
+                    for(let i = 1; i < MAX_DISTANCE; i++){
+                        const max = Math.min(Math.max(0, index+i), actionSets.length-1);
+                        const min = Math.min(Math.max(0, index-i), actionSets.length-1);
+                        if(actionSets[max].totalShares === matchValue){
+                            return actionSets[max];
+                        }
+                        if(actionSets[min].totalShares === matchValue){
+                            return actionSets[min];
                         }
                     }
                     return null;
