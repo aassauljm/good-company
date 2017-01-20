@@ -48,22 +48,18 @@ module.exports = {
     massSendCataLexMailWithAttachment: function(template, recipients, subject, file, filename) {
         sails.log.info(`Mass Sending Mail with Document to ${recipients.length} recipients`);
 
-        const formData = new FormData();
+        let form = new FormData();
 
         form.append('client_id', sails.config.OAUTH_CLIENT_ID);
         form.append('client_secret', sails.config.OAUTH_CLIENT_SECRET);
-        body.append('template', template);
-        body.append('subject', subject);
-        body.append('recipients', recipients);
-        body.append('file', file, filename);
+        form.append('template', template);
+        form.append('subject', subject);
+        form.append('recipients', JSON.stringify(recipients));
+        form.append('file', file, filename);
 
-        return fetch(sails.config.renderServiceUrl, {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: formData
+        return fetch(sails.config.ACCOUNT_URL + '/mail/send-documents', {
+            method: 'POST',
+            body: form
         });
     },
     signup: function(user) {

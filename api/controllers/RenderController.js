@@ -73,18 +73,18 @@ module.exports = {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(req.body)
+            body: JSON.stringify(req.body.renderData)
         })
         .then((fileResponse) => {
-            let file;
+            let file = '';
             fileResponse.body
                 .on('data', function (chunk) {
                     file += chunk;
                 })
                 .on('end', function () {
-                    MailService.sendTemplate(req.body.recipients, file, req.body.templateData.filename)
+                    MailService.sendTemplate(req.body.recipients, file, req.body.renderData.filename)
                         .then(() => {
-                            res.end('done');
+                            res.ok({message: ['Template sent']});
                         });
                 });
         })
