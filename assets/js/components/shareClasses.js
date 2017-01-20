@@ -130,18 +130,7 @@ export class ShareClassForm extends React.Component {
             submitting
         } = this.props;
         const referenceUrl = 'https://browser.catalex.nz/open_article/instrument/DLM320143';
-
-
-
-        /*const changeVotingRight = (key) => (event) => {
-            if(key === "1(a)"){
-            const value = !fields.votingRights[key].value;
-                if(value){
-                    decisionRights.map(d => fields.decisionMakingRights[d].onChange(value));
-                }
-            }
-            return fields.votingRights[key].onChange(event);
-        }*/
+        const constitutionDocument = this.props.companyState && this.props.companyState.docList.documents.find(d => d.filename === 'Adoption Of Constitution');
 
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
@@ -175,11 +164,15 @@ export class ShareClassForm extends React.Component {
                 fields.rights.addField();    // pushes empty child field onto the end of the array
             }}>Add Custom Right</ButtonInput></div></div>
 
-
-
             <div className="form-group">
                 <label>{ STRINGS.shareClasses.transferRestrictionQuestion }</label>
-                { this.props.companyState && <div><em>Note: This company { this.props.companyState.constitutionFiled ? 'has' : 'does not have'} a constitution</em></div> }
+                { this.props.companyState && <div>
+                    <em>Note: This company { this.props.companyState.constitutionFiled ? 'has' : 'does not have'} a constitution. </em>
+                    { constitutionDocument &&
+                        <Link target="_blank" rel="noopener noreferrer" className="external-link" to={constitutionDocument.sourceUrl}>
+                            View here <Glyphicon glyph="new-window"/>
+                        </Link> }
+                </div> }
             </div>
 
              <SelectBoolean {...fields.transferRestriction} bsStyle={fieldStyle(fields.transferRestriction)}
