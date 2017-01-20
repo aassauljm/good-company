@@ -101,7 +101,7 @@ export class SelectHistoricPersonTransactionView extends React.Component {
              return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
         return <div >
-            { persons.map((p, i) => <Holder key={i} person={p} selectPerson={this.props.selectPerson} />) }
+            { persons.data.map((p, i) => <Holder key={i} person={p} selectPerson={this.props.selectPerson} />) }
         </div>
     }
 
