@@ -522,13 +522,15 @@ export function hideEmailDocument() {
     }
 }
 
-export function sendDocument(recipients, templateData) {
+export function sendDocument(recipients, renderData) {
+    renderData = {...renderData, goodCompaniesTemplate: true };
+
     return {
         types: [SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE],
         callAPI: () => fetch('/api/send_template', {
             method: 'POST',
             headers: json_headers,
-            body: JSON.stringify({ recipients, templateData }),
+            body: JSON.stringify({ recipients, renderData }),
             credentials: 'same-origin'
         })
     };

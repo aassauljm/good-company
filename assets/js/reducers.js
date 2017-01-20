@@ -434,7 +434,7 @@ function modals(state = {}, action) {
         case END_LOADING:
             return {...state, loading: {...action.data, showing: false}}
         case SHOW_EMAIL_DOCUMENT:
-            return {...state, emailDocument: {templateData: action.data, showing: true}}
+            return {...state, emailDocument: {renderData: action.data, showing: true}}
         case HIDE_EMAIL_DOCUMENT:
             return {...state, emailDocument: {showing: false}}
 
