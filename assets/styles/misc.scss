@@ -25,6 +25,9 @@ p.form-control-static{
 .form-group.has-feedback.has-group .form-control-feedback{
     right:36px;
 }
+.form-group.has-feedback.has-group.has-two-controls .form-control-feedback{
+    right:75px;
+}
 .form-horizontal .form-group.has-feedback.has-group .form-control-feedback{
     right:50px;
 }

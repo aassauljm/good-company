@@ -60,7 +60,7 @@ export class EditTransactionView extends React.Component {
             orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => new Date(x.data.date), -1).thenBy(x => x.data.orderIndex).thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
             orderedActions[0].id = this.props.transactionViewData.startId;
             orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
-
+            debugger
             this.props.updateAction({pendingActions: orderedActions})
             .then(() => {
                 this.handleClose();

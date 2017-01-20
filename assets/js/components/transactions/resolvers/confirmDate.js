@@ -51,7 +51,7 @@ class DateConfirmationForm extends React.Component {
                 <div className="text-center">
                 <p><strong>Please confirm the effective date of this transaction:</strong></p>
                     <div className="col-md-6 col-md-offset-3">
-                     <DateInput {...this.formFieldProps(['actions', i, 'effectiveDate'])} label=""/>
+                     <DateInput {...this.formFieldProps(['actions', i, 'effectiveDate'])} label="" time={true}/>
                      </div>
                 </div>
                 </div>

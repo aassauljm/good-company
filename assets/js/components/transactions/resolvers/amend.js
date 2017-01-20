@@ -117,7 +117,7 @@ class Recipient extends React.Component {
         return  <Panel title={title}>
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
-                <DateInput {...this.formFieldProps('effectiveDate')} disabled={!!this.props.isInverse.value}/>
+                <DateInput {...this.formFieldProps('effectiveDate')} disabled={!!this.props.isInverse.value} time={true}/>
                 <div className="input-group-pair input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={!!this.props.isInverse.value}
@@ -378,7 +378,8 @@ export function formatSubmit(values, actionSet) {
     const otherActions = actionSet.data.actions.filter(a => !isAmendable(a))
     const pendingActions = [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}];
 
-    const transactions = [];
+    const nonTransfers = {};
+    const transfers = []
 
     values.actions.map((a, i) => {
         a.recipients.map((r, j) => {
@@ -393,15 +394,23 @@ export function formatSubmit(values, actionSet) {
                     const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
                     const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
                         transactionType: inverseTransfer(r.type),  amount: amount, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true}
-                    transactions.push([result, inverse])
+                    transfers.push([result, inverse])
                 }
                 else{
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
                         transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
-                    transactions.push([result]);
+                    nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
+                    nonTransfers[r.effectiveDate].push(result);
                 }
             }
         });
+    });
+
+
+    const transactions = transfers;
+
+    Object.keys(nonTransfers).map(date => {
+        transactions.push(nonTransfers[date]);
     });
 
     // sort by date
@@ -451,7 +460,7 @@ export default function Amend(props){
 
     const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
-    const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).startOf('day').toDate() : null;
+    const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
 
     const identity = x => x;
 
@@ -478,7 +487,7 @@ export default function Amend(props){
 
     let initialValues = {actions: calculateReciprocals(amendActions.map((a, i) => {
         // if all same direction, set amount;
-        const effectiveDate = moment(a.effectiveDate || actionSet.data.effectiveDate).startOf('day').toDate();
+        const effectiveDate = moment(a.effectiveDate || actionSet.data.effectiveDate).toDate();
         let amount, holding;
         if(allSameDirection){
             return {

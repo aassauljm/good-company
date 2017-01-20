@@ -14,7 +14,11 @@ export default class DateInput extends React.Component {
         if(this.props.format){
             readFormats.unshift(this.props.format);
         }
-         return <Input {...this.props} groupClassName='has-group'>
+        let groupName = 'has-group';
+        if(this.props.time){
+            groupName += ' has-two-controls';
+        }
+         return <Input {...this.props} groupClassName={groupName}>
 
             <DateTimePicker
             onChange={(date, string) => this.props.format ? this.props.onChange(string) :  this.props.onChange(date)}

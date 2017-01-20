@@ -51,6 +51,7 @@ const submitSkipRestart = (props) => skipOrRestart({allowSkip: true, ...props});
 
 function AddressDifference(props){
     const { context, submit, reset } = props;
+    const { companyState, shareClassMap } = context;
 
     function skip(){
         const id = context.action.id;
@@ -86,6 +87,7 @@ function AddressDifference(props){
 
 function AnnualReturnHoldingDifference(props){
     const { context, submit, reset } = props;
+    const { companyState, shareClassMap } = context;
     function skip(){
         return submit({
             pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
@@ -105,6 +107,7 @@ function AnnualReturnHoldingDifference(props){
 
 function DirectorNotFound(props){
     const { context, submit, reset, edit } = props;
+    const { companyState, shareClassMap } = context;
 
     function skip(){
         return submit({
@@ -130,6 +133,7 @@ function DirectorNotFound(props){
 
 function HolderNotFound(props){
     const { context, submit, reset } = props;
+    const { companyState, shareClassMap } = context;
     function startOver(){
         return reset();
     }
@@ -192,6 +196,7 @@ function HolderNotFound(props){
 function MultipleHoldings(props){
     const { context, submit } = props;
     let { possibleMatches } = context;
+    const { companyState, shareClassMap } = context;
     function handleSelect(holding){
         const updatedActions = {...context.actionSet.data};
         updatedActions.actions = updatedActions.actions.map(a => {
@@ -225,7 +230,8 @@ function MultipleHoldings(props){
 }
 
 function HoldingNotFound(props){
-    const { context, submit } = props;
+    const { context, submit, edit } = props;
+    const { companyState, shareClassMap } = context;
     let possibleMatches = context.companyState.holdingList.holdings.filter(h => {
         return h.parcels.reduce((sum, p) => sum + p.amount, 0) === context.action.afterAmount;
     });
@@ -286,6 +292,10 @@ function HoldingNotFound(props){
          <div className="row">
          { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }
          </div>
+         { edit && <div className="button-row">
+           <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>
+        </div> }
+
     </div>
 }
 
