@@ -70,7 +70,7 @@ class EmailListForm extends React.Component {
 @connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ}),
 {
     hide: () => hideEmailDocument(),
-    send: (recipients, templateData) => sendDocument(recipients, templateData),
+    send: (recipients, renderData) => sendDocument(recipients, renderData),
     addNotification: (data) => addNotification(data)
 })
 export default class EmailDocument extends React.Component {
@@ -81,7 +81,7 @@ export default class EmailDocument extends React.Component {
     }
 
     send(values) {
-        this.props.send(values.recipients, this.props.templateData)
+        this.props.send(values.recipients, this.props.renderData)
             .then(() => {
                 this.props.addNotification({
                     message: 'Document sent'
