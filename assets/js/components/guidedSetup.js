@@ -20,6 +20,13 @@ import { requestAlerts } from './alerts';
 
 const DEFAULT_OBJ = {};
 
+const BASE_GUIDED_SETUP_PAGES = [
+'votingShareholders',
+'manageShareClasses',
+'applyShareClasses',
+'importHistory']
+
+
 @connect(state => ({alerts: state.resources['/alerts'] ||  DEFAULT_OBJ}))
 export class NextCompanyControls extends React.Component {
 
@@ -138,13 +145,15 @@ export class GuidedSetup extends React.Component {
             end: (data) => {
                 const after = ((this.props.transactionViews[this.props.transactionViews.showing] || {}).data || {}).afterClose;
                 this.props.dispatch(endContextualTransactionView(this.props.companyId, this.props.transactionViews.showing, data));
-
                 if(after){
                     if(after.showTransactionView){
                         this.props.dispatch(showContextualTransactionView(this.props.companyId, after.showTransactionView.key, after.showTransactionView.data));
                     }
                 }
-
+                // perhaps check if the current modal is the any of the base guidedSetup types:  if so, then redirect
+                if(data && data.cancelled && BASE_GUIDED_SETUP_PAGES.indexOf(this.props.transactionViews.showing) >= 0){
+                    this.props.dispatch(push(`/company/view/${this.props.companyId}`));
+                }
             }
         }
 

@@ -75,7 +75,7 @@ export class EditTransactionView extends React.Component {
     }
 
     handleClose() {
-        this.props.end();
+        this.props.end({cancelled: true});
     }
 
     render() {

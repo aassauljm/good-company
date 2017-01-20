@@ -71,6 +71,7 @@ function TransactionSummaries(props) {
             </div>
         })}
         <div className="button-row">
+        <Button onClick={() => props.end({cancalled: true})}>Cancel</Button>
         <Button bsStyle="primary" onClick={props.handleConfirm}>Confirm Transactions</Button>
          <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button>
         </div>
@@ -204,6 +205,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
                 if(!action.response.complete){
                     this.props.next({index: EXPLAINATION});
                 }
+
                 else{
                     this.props.end();
                 }

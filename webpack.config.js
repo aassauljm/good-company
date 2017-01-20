@@ -47,7 +47,8 @@ if(!DEV){
 }
 else{
     plugins.push(new WebpackNotifierPlugin({
-            title: 'Good Companies'
+            title: 'Good Companies',
+            alwaysNotify: true
     }))
 }
 

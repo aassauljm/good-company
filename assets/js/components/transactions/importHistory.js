@@ -84,6 +84,7 @@ FOOTERS[INTRODUCTION] = function(){
     if(this.props.pendingHistory._status === 'complete'){
         return <div>
              <div className="button-row">
+                {  <Button onClick={() => this.props.end({cancelled: true})} >Cancel</Button> }
                 { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStart} bsStyle="primary">Yes, all changes have been notified</Button> }
                 { !this.props.transactionViewData.companyState.extensive && <Button onClick={this.handleStartYearByYear} bsStyle="primary">No, there are changes that have not been notified</Button> }
                 </div>

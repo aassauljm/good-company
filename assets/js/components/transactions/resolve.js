@@ -381,6 +381,9 @@ const PAGES = {
         },
         destroyForm: (args) => {
             return dispatch(destroy(args))
+        },
+        cancel: (args) => {
+            dispatch(push(`/company/view/${ownProps.transactionViewData.companyId}`))
         }
     }
 })
@@ -437,7 +440,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
               </TransactionView.Body>
               <TransactionView.Footer>
             <div className="button-row">
-            <Button onClick={this.handleClose} >Cancel</Button>
+            <Button onClick={this.props.cancel} >Cancel</Button>
             </div>
               </TransactionView.Footer>
             </TransactionView>

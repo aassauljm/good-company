@@ -151,7 +151,7 @@ export class ApplyShareClassesTransactionView extends React.Component {
               </TransactionView.Body>
               <TransactionView.Footer>
                 <Button onClick={() => this.props.show('manageShareClasses')} bsStyle="success">Manage Share Classes</Button>
-                <Button onClick={this.props.end} >Cancel</Button>
+                <Button onClick={() => this.props.end({cancelled: true})} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary" className="submit">{ 'Submit' }</Button>
               </TransactionView.Footer>
             </TransactionView>

@@ -130,7 +130,7 @@ export class ShareClassForm extends React.Component {
             submitting
         } = this.props;
         const referenceUrl = 'https://browser.catalex.nz/open_article/instrument/DLM320143';
-        const constitutionDocument = this.props.companyState && this.props.companyState.docList.documents.find(d => d.filename === 'Adoption Of Constitution');
+        const constitutionDocument = this.props.companyState && this.props.companyState.docList && this.props.companyState.docList.documents.find(d => d.filename === 'Adoption Of Constitution');
 
         return <form onSubmit={handleSubmit(this.submit)}>
             <fieldset>
@@ -210,7 +210,7 @@ export class ShareClassForm extends React.Component {
             { !this.props.noDocuments && <Documents documents={fields.documents} /> }
             </fieldset>
             <div className="button-row">
-                { this.props.end &&  <ButtonInput onClick={this.props.end}>Cancel</ButtonInput> }
+                { this.props.end &&  <ButtonInput onClick={() => this.props.end({cancelled: true})}>Cancel</ButtonInput> }
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
                 <ButtonInput type="submit" bsStyle="primary" className="submit-new" disabled={submitting || invalid}>{ this.props.edit ? 'Update': 'Create'}</ButtonInput>
             </div>
@@ -333,7 +333,7 @@ export class ShareClassesTable extends React.Component {
             </div> }
 
             { this.props.transactionViewButton && <div className="button-row">
-               { this.props.end && <Button onClick={this.props.end}>Cancel</Button> }
+               { this.props.end && <Button onClick={() => this.props.end({cancelled: true})}>Cancel</Button> }
                <Button bsStyle="primary" onClick={this.props.createTransactionView}>Create New Share Class</Button>
                { !!data.length && <Button bsStyle="success" onClick={this.props.end}>Finished Creating Share Classes</Button> }
             </div> }
