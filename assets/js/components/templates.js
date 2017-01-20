@@ -9,7 +9,7 @@ import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
-import { renderTemplate } from '../actions';
+import { renderTemplate, showEmailDocument } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
@@ -163,12 +163,27 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex) {
 
 @injectContext
 export class RenderForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.emailDocument = ::this.emailDocument;
+    }
+
+    emailDocument() {
+        if (this.props.valid) {
+            this.props.emailDocument(this.props.values);
+        }
+    }
+
     controls() {
-        return <div className="button-row form-controls">
+        return (
+            <div className="button-row form-controls">
                 <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
                 <Button type="submit" bsStyle="primary" >Generate Document <Glyphicon glyph='download'/></Button>
+                <Button bsStyle="info" disabled={!this.props.valid} onClick={this.emailDocument}>Email Document <Glyphicon glyph='envelope'/></Button>
             </div>
+        );
     }
+
     render() {
         const { fields, schema, handleSubmit, onSubmit } = this.props;
 
@@ -427,19 +442,28 @@ function makeContext(companyState) {
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
 }, {
-    renderTemplate: (args) => renderTemplate(args)
+    renderTemplate: (args) => renderTemplate(args),
+    showEmailDocument: (args) => showEmailDocument(args)
 })
 export  class TemplateView extends React.Component {
 
     constructor(props){
         super(props);
         this.submit = ::this.submit;
+        this.emailDocument = ::this.emailDocument;
     }
 
+    buildRenderObject(values) {
+        let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
+        return {
+            formName: TemplateMap[this.props.params.name].schema.formName,
+            values: {...values, filename}
+        };
+    }
 
     submit(values) {
-        let filename = values.filename || TemplateMap[this.props.params.name].schema.filename;
-        this.props.renderTemplate({formName: TemplateMap[this.props.params.name].schema.formName, values: {...values, filename: filename}})
+        let filename;
+        this.props.renderTemplate(this.buildRenderObject(values))
             .then((response) => {
                 const disposition = response.response.headers.get('Content-Disposition')
                 filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');
@@ -448,6 +472,10 @@ export  class TemplateView extends React.Component {
             .then(blob => {
                 saveAs(blob, filename);
             })
+    }
+
+    emailDocument(values) {
+        this.props.showEmailDocument(this.buildRenderObject(values));
     }
 
     renderBody() {
@@ -460,7 +488,7 @@ export  class TemplateView extends React.Component {
                 companyState = {company: this.props.companyState || {}, ...this.props.companyState};
             }
             const values = template.getInitialValues(state || companyState)
-            return <template.form onSubmit={this.submit} initialValues={values} context={makeContext(this.props.companyState)} />
+            return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={makeContext(this.props.companyState)} />
         }
         return <div>Not Found</div>
     }

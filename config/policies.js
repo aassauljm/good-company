@@ -85,6 +85,7 @@ module.exports.policies = {
     },
     RenderController: {
         renderTemplate: simpleAuth,
+        sendTemplate: simpleAuth,
         echo: ['passport','sessionAuth']
     },
     EventController: {

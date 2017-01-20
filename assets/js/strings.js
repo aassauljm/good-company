@@ -216,5 +216,9 @@ export default {
     },
     deadlines: {
         annualReturn: "Annual Return",
+    },
+    emailRecipients: {
+        name: "Name",
+        email: "Email"
     }
 }

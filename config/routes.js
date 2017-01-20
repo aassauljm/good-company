@@ -291,6 +291,11 @@ module.exports.routes = {
         action: 'renderTemplate',
     },
 
+    'POST /api/send_template': {
+        controller: 'RenderController',
+        action: 'sendTemplate',
+    },
+
     'GET /echo_file': {
         controller: 'RenderController',
         'action': 'echo'

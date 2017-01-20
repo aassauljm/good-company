@@ -2,6 +2,7 @@
 
 import pdf from 'html-pdf';
 import fetch from "isomorphic-fetch";
+import FormData from 'form-data';
 const actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 function binaryParser(res, callback) {
@@ -63,6 +64,27 @@ module.exports = {
         .catch(e => {
             res.serverError(e);
         })
+    },
+
+    sendTemplate: function(req, res) {
+        fetch(sails.config.renderServiceUrl, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(req.body.renderData)
+        })
+        .then(fileResponse => fileResponse.buffer())
+        .then(buff => {
+            return MailService.sendTemplate(req.body.recipients, buff, req.body.renderData.filename)
+                .then(() => {
+                    res.ok({message: ['Template sent']});
+                });
+        })
+        .catch(error => {
+            res.serverError(error);
+        });
     },
 
 
