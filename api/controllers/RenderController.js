@@ -3,6 +3,11 @@
 import pdf from 'html-pdf';
 import fetch from "isomorphic-fetch";
 import FormData from 'form-data';
+import Promise from 'bluebird';
+import fs from 'fs';
+
+
+const tmp = require('tmp');
 const actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
 function binaryParser(res, callback) {
@@ -75,17 +80,23 @@ module.exports = {
             },
             body: JSON.stringify(req.body.renderData)
         })
-        .then(fileResponse => fileResponse.buffer())
-        .then(buff => {
+        .then(fileResponse => {
             const sender = {
                 name: req.user.username,
                 email: req.user.email
             };
-
-            return MailService.sendTemplate(req.body.recipients, buff, req.body.renderData.filename, sender)
-                .then(() => {
-                    res.ok({message: ['Template sent']});
+            return tmp.file((err, path, fd, cb) => {
+                console.log(err, path, fd)
+                const file = fs.createWriteStream(path);
+                fileResponse.body.pipe(file);
+                file.on('finish', () => {
+                    return MailService.sendTemplate(req.body.recipients, fs.createReadStream(path), req.body.renderData.filename, sender)
+                        .then(() => {
+                            res.ok({message: ['Template sent']});
+                        })
+                        .then(() => cb())
                 });
+            })
         })
         .catch(error => {
             res.serverError(error);

@@ -3,6 +3,9 @@ import Promise from 'bluebird';
 import fetch from "isomorphic-fetch";
 import FormData from 'form-data';
 
+
+import fs from 'fs'
+
 let _transport;
 
 module.exports = {
@@ -58,13 +61,18 @@ module.exports = {
         form.append('sender_name', sender.name);
         form.append('sender_email', sender.email);
 
-        form.append('file', file, filename);
+        //form.append('files', file, filename);
+        form.append('files', file, {
+            filename: filename,
+            knownLength: file.length
+          })
+
 
         return fetch(sails.config.ACCOUNT_URL + '/mail/send-documents', {
             method: 'POST',
             header: {
                 'Accept': '*/*',
-                'Content-Type': 'multipart/form-data'
+                'Ccntent-type': 'multipart/form-data'
             },
             body: form
         });
