@@ -823,24 +823,37 @@ export function performInverseDetailsChange(data, companyState, previousState, e
 };
 
 
-export const validateInverseNewDirector = Promise.method(function(data, companyState){
-    const director = _.find(companyState.dataValues.directorList.dataValues.directors, (d)=> {
-        return d.person.isEqual(data, {skipAddress: true});
-    })
-    if(!director){
-        throw new sails.config.exceptions.InvalidInverseOperation('Could not find expected new director')
-    }
-});
 
 export function performInverseNewDirector(data, companyState, previousState, effectiveDate){
-    return validateInverseNewDirector(data, companyState)
-    .then(function(){
-        return companyState.dataValues.directorList.buildNext()
-    })
+    return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
-        dl.dataValues.directors = _.reject(dl.dataValues.directors, (d) => {
-            return d.person.isEqual(data, {skipAddress: true});
+        // Dangerous, might be multiple, so should take the 'closest'
+        let directors = _.reject(dl.dataValues.directors, (d) => {
+            return d.person.isEqual(data);
         });
+
+        if(directors.length === dl.dataValues.directors.length){
+            directors = _.reject(dl.dataValues.directors, (d) => {
+                return d.person.isEqual(data, {skipAddress: true});
+            });
+        }
+
+        if(directors.length < dl.dataValues.directors.length -1){
+            throw new sails.config.exceptions.InvalidInverseOperation('Could not add new director', {
+                action: data,
+                importErrorType: sails.config.enums.MULTIPLE_DIRECTORS_FOUND,
+                companyState: companyState
+            });
+        }
+        if(directors.length === dl.dataValues.directors.length){
+            throw new sails.config.exceptions.InvalidInverseOperation('Could not add new director', {
+                action: data,
+                importErrorType: sails.config.enums.DIRECTOR_NOT_FOUND,
+                companyState: companyState
+            });
+        }
+
+        dl.dataValues.directors = directors;
         companyState.dataValues.directorList = dl;
 
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});

@@ -23,6 +23,7 @@ import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, 
 import { InvalidIssue } from './resolvers/unknownShareChanges'
 
 import { Shareholder } from '../shareholders';
+import { Director } from '../directors';
 
 
 function skipOrRestart(props){
@@ -119,9 +120,78 @@ function DirectorNotFound(props){
     }
 
     return <div>
-         <p className="instructions">Sorry, we could find the director "{context.action.afterName}" referenced in the document linked above.</p>
+         <p className="instructions">Sorry, we could not find the director "{context.action.afterName || context.action.name}" referenced in the document linked above.</p>
         { context.action.transactionType === TransactionTypes.UPDATE_DIRECTOR &&
                 <p className="instructions">It is possible that this directorship has ceased, please consider editing the date of this transaction.</p> }
+        <div className="button-row">
+            <Button onClick={skip} className="btn-primary">Skip Validation</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            { edit &&  <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>}
+        </div>
+    </div>
+}
+
+function MultipleDirectors(props){
+    const { context, submit, reset, edit } = props;
+    const { companyState, shareClassMap } = context;
+
+    function skip(){
+        return submit({
+            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+        })
+    }
+    function startOver(){
+        return reset();
+    }
+
+    function selectPerson(person){
+        const id = context.action.id;
+        const index = context.actionSet.data.actions.findIndex(a => a.id === id);
+        const actions = [...context.actionSet.data.actions];
+        const action = {...context.actionSet.data.actions[index]};
+        if(action.transactionType === TransactionTypes.UPDATE_DIRECTOR){
+            action.afterHolder = {...action.afterHolder, personId: person.personId}
+            action.beforeHolder = {...action.beforeHolder, personId: person.personId}
+        }
+        else{
+            action.name = person.person.name;
+            action.address = person.person.address;
+            action.personId = person.person.personId;
+        }
+        actions[index] = action;
+        const data = {...context.actionSet.data, actions: actions}
+        return submit({
+            pendingActions: [{
+                id: context.actionSet.id,
+                data: {...data},
+                previous_id: context.actionSet.previous_id}]
+        });
+    }
+
+    const directorsEven = props.context.companyState.directorList.directors.filter((h, i) => !(i % 2));
+
+    const directorsOdd= props.context.companyState.directorList.directors.filter((h, i) => !!(i % 2));
+
+    return <div>
+         <p className="instructions">Sorry, we could not find the director "{context.action.afterName || context.action.name}" referenced in the document linked above.  Please select them from list below.</p>
+
+          <div className="row">
+            <div className="col-md-6">
+            { directorsEven .map((h, i) => {
+                return <div key={i} className="actionable" onClick={() => selectPerson(h)}>
+                    <Director director={h} />
+                </div>
+                })}
+            </div>
+
+            <div  className="col-md-6">
+            {directorsOdd.map((h, i) => {
+                return <div key={i} className="actionable" onClick={() => selectPerson(h)}>
+                     <Director director={h} />
+                </div>
+                })}
+            </div>
+        </div>
         <div className="button-row">
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>
             <Button onClick={startOver} className="btn-danger">Restart Import</Button>
@@ -166,6 +236,9 @@ function HolderNotFound(props){
     const holders = Object.keys(holdersObj).map(k => holdersObj[k]);
     holders.sort((a, b) => a.name.localeCompare(b.name));
 
+    const holdersOdd = holders.filter((h, i) => !(i % 2));
+    const holdersEven = holders.filter((h, i) => !!(i % 2));
+
     return <div>
             { holderChange(context) }
          <div className="col-md-12">
@@ -174,13 +247,21 @@ function HolderNotFound(props){
              </div>
         </div>
 
-         { holders.map((h, i) => {
-            return <div key={i} className="col-md-6">
-                <div className="actionable" onClick={() => selectPerson(h)}>
+            <div className="col-md-6">
+            { holdersEven.map((h, i) => {
+                return <div key={i} className="actionable" onClick={() => selectPerson(h)}>
                     <Shareholder shareholder={h} />
                 </div>
+                })}
             </div>
-         })}
+
+            <div  className="col-md-6">
+            { holdersOdd.map((h, i) => {
+                return <div key={i} className="actionable" onClick={() => selectPerson(h)}>
+                    <Shareholder shareholder={h} />
+                </div>
+                })}
+            </div>
 
         <div className="row">
             <div className="col-md-12">
@@ -357,6 +438,7 @@ const PAGES = {
     [ImportErrorTypes.HOLDING_NOT_FOUND]: HoldingNotFound,
     [ImportErrorTypes.ANNUAL_RETURN_HOLDING_DIFFERENCE]: AnnualReturnHoldingDifference,
     [ImportErrorTypes.DIRECTOR_NOT_FOUND]: DirectorNotFound,
+    [ImportErrorTypes.MULTIPLE_DIRECTORS_FOUND]: MultipleDirectors,
     [ImportErrorTypes.ANNUAL_RETURN_SHARE_COUNT_DIFFERENCE]: submitSkipRestart,
 
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,

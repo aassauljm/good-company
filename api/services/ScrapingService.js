@@ -391,15 +391,28 @@ const EXTRACT_DOCUMENT_MAP = {
             }
             return Transaction.types.NEW_DIRECTOR;
         }
-        return {actions: [
+        const results = {actions: [
             ...$('#amendmentConfirm').map((i, el)=>{
             return {
-                transactionType: Transaction.types.UPDATE_DIRECTOR,
+                transactionType: transactionType($(el)),
                 beforeName: cleanString($(el).find('.before .directorName').text()),
                 beforeAddress: cleanString($(el).find('.before .directorAddress').text()),
                 afterName: cleanString($(el).find('.after .directorName').text()),
                 afterAddress: cleanString($(el).find('.after .directorAddress').text())
-        }}).get()]};
+            }}).get(),
+            /*...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
+            return {
+                transactionType: transactionType($(el)),
+                name: cleanString($(el).find('.directorName').text()),
+                address: cleanString($(el).find('.directorAddress').text()),
+                effectiveDate: moment(cleanString(cleanString($(el).find('.directorAppointmentDate, .directorCessationDate').text())), 'DD/MM/YYYY'),
+            }}).get(),*/
+            ]};
+        // Currently ignoring new and remove, and instead using the directorship history
+        if(results.actions.length && results.actions[0].effectiveDate){
+            results.effectiveDate = results.actions[0].effectiveDate;
+        }
+        return results;
     },
 
     [DOCUMENT_TYPES.INCORPORATION]: ($) => {

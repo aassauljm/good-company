@@ -397,7 +397,7 @@ module.exports = {
                 obj = _.cloneDeep(obj);
 
                 // if people have the same name in company, then damn it, give them same address
-                if(obj.directorList && obj.directorList.directors && obj.directorList.directors.length){
+                /*if(obj.directorList && obj.directorList.directors && obj.directorList.directors.length){
                     const names = {};
                     (obj.holdingList.holdings || []).map(holding => {
                         (holding.holders || []).map(h => {
@@ -409,7 +409,7 @@ module.exports = {
                             p.address = d.person.address;
                         })
                     });
-                }
+                }*/
 
                 return Promise.each(obj.holdingList.holdings || [], function(holding){
                     return Promise.map(holding.holders || [], function(holder){

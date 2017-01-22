@@ -869,7 +869,7 @@ describe('Company Controller', function() {
         it('Gets history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.filter(f=> f.data.transactionType === 'INFERRED_NEW_DIRECTOR').length.should.be.equal(0);
+                    res.body.filter(f=> f.data.transactionType === 'INFERRED_NEW_DIRECTOR').length.should.be.equal(1);
                     res.body[res.body.length-1].data.transactionType.should.be.equal('INCORPORATION');
                     done();
                 })
@@ -977,14 +977,58 @@ describe('Company Controller', function() {
                 .expect(500)
                 .then((res) => {
                     context = res.body.context;
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    context.importErrorType.should.be.equal('UNKNOWN_AMEND');
                     done();
                     // TODO, resolve this crazy doc
                 });
         });
     });
 
+   describe('Directors with same name (1717353)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/1717353')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Gets current stats, confirms holders are not merged', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    Object.keys(res.body.currentCompanyState.holdingList.holdings.find(h => h.name === 'Allocation 3').holders.reduce((acc, h) => {
+                        acc[h.person.personId] = true;
+                        return acc;
+                    }, {})).length.should.be.equal(3)
+                    done();
+                });
+        });
+        it('Checked history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then((res) => {
+                    const newDirs = res.body.reduce((sum, f) => sum + (f.data.actions||[]).filter(f => f.transactionType === Transaction.types.NEW_DIRECTOR).length, 0);
+                    newDirs.should.be.equal(4);
+                    done();
+                });
+        });
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(500)
+                .then((res) => {
+                    context = res.body.context;
+                    context.importErrorType.should.be.equal('MULTIPLE_DIRECTORS_FOUND');
+                    done();
+                    // TODO, resolve this crazy doc
+                });
+        });
 
-
+    });
 
 });

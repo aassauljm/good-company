@@ -376,7 +376,8 @@ module.exports = {
             if(doesNotContain(docs, action) && doesNotContain(results, action)){
                 results.push({
                     actions: [action],
-                    // maybe infered transaction type
+                    // maybe infered transaction type,
+                    transactionType: Transaction.types.INFERRED_NEW_DIRECTOR,
                     effectiveDate: moment.max(date, incorporationDate).toDate()
                 });
             }

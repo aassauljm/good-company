@@ -22,20 +22,33 @@ export function companiesOfficeDocumentUrl(companyState, documentId){
     return `http://www.business.govt.nz/companies/app/ui/pages/companies/${companyNumber}/${documentId}/entityFilingRequirement`;
 }
 
+export function companiesOfficeUrl(companyState, documentId){
+    const companyNumber = companyState.companyNumber;
+    return `http://www.business.govt.nz/companies/app/ui/pages/companies/${companyNumber}`;
+}
+
 
 export function sourceInfo(companyState, actionSet){
     return <div className="summary outline no-border">
         <div className="outline-header">
             <div className="outline-title">Source Information</div>
         </div>
-            <div className="row">
+        { actionSet.data.date && <div className="row">
             <div className="col-md-6 summary-label">Registration Date & Time</div>
             <div className="col-md-6">{stringDateToFormattedStringTime(actionSet.data.date)}</div>
-        </div>
-        <div className="row">
+        </div> }
+        { actionSet.data.documentId && <div className="row">
             <div className="col-md-6 summary-label">Source Document</div>
             <div className="col-md-6"><Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeDocumentUrl(companyState, actionSet.data.documentId)}>Companies Office <Glyphicon glyph="new-window"/></Link></div>
-        </div>
+        </div> }
+        { actionSet.data.transactionType && actionSet.data.transactionType.startsWith('INFERRED_') && <div className="row">
+            <div className="col-md-6 summary-label">Inferred from Records</div>
+            <div className="col-md-6"><Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeUrl(companyState)}>Companies Office <Glyphicon glyph="new-window"/></Link></div>
+        </div> }
+        { actionSet.data.transactionType && actionSet.data.transactionType.startsWith('INFERRED_') && <div className="row">
+            <div className="col-md-6 summary-label">Inferred Date</div>
+            <div className="col-md-6">{stringDateToFormattedStringTime(actionSet.data.effectiveDate)}</div>
+        </div> }
     </div>
 
 }
