@@ -77,7 +77,12 @@ module.exports = {
         })
         .then(fileResponse => fileResponse.buffer())
         .then(buff => {
-            return MailService.sendTemplate(req.body.recipients, buff, req.body.renderData.filename)
+            const sender = {
+                name: req.user.username,
+                email: req.user.email
+            };
+
+            return MailService.sendTemplate(req.body.recipients, buff, req.body.renderData.filename, sender)
                 .then(() => {
                     res.ok({message: ['Template sent']});
                 });

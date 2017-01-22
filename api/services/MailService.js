@@ -45,8 +45,8 @@ module.exports = {
               body: form
         })
     },
-    massSendCataLexMailWithAttachment: function(template, recipients, subject, file, filename) {
-        sails.log.info(`Mass Sending Mail with Document to ${recipients.length} recipients`);
+    massSendCataLexMailWithAttachment: function(template, recipients, subject, file, filename, sender) {
+        sails.log.info(`Mass Sending Mail with Document to ${recipients.length} recipients from ${sender.name} (${sender.email})`);
 
         let form = new FormData();
 
@@ -55,11 +55,17 @@ module.exports = {
         form.append('template', template);
         form.append('subject', subject);
         form.append('recipients', JSON.stringify(recipients));
+        form.append('sender_name', sender.name);
+        form.append('sender_email', sender.email);
 
         form.append('file', file, filename);
 
         return fetch(sails.config.ACCOUNT_URL + '/mail/send-documents', {
             method: 'POST',
+            header: {
+                'Accept': '*/*',
+                'Content-Type': 'multipart/form-data'
+            },
             body: form
         });
     },
@@ -79,8 +85,8 @@ module.exports = {
                                            {name: user.username, successCount, totalCount, link: sails.config.APP_URL})
         }
     },
-    sendTemplate: function(recipients, file, filename) {
-        return MailService.massSendCataLexMailWithAttachment('emails.goodcompanies.attach-files', recipients, 'Files from Good Companies', file, filename);
+    sendTemplate: function(recipients, file, filename, sender) {
+        return MailService.massSendCataLexMailWithAttachment('emails.goodcompanies.attach-files', recipients, 'Files from Good Companies', file, filename, sender);
     }
 };
 
