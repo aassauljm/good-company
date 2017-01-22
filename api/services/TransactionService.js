@@ -828,6 +828,7 @@ export function performInverseNewDirector(data, companyState, previousState, eff
     return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
         // Dangerous, might be multiple, so should take the 'closest'
+
         let directors = _.reject(dl.dataValues.directors, (d) => {
             return d.person.isEqual(data);
         });
