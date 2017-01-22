@@ -62,6 +62,10 @@ module.exports = {
 
         return fetch(sails.config.ACCOUNT_URL + '/mail/send-documents', {
             method: 'POST',
+            header: {
+                'Accept': '*/*',
+                'Content-Type': 'multipart/form-data'
+            },
             body: form
         });
     },
