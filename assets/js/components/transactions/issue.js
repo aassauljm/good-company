@@ -181,7 +181,7 @@ export class Issue extends React.Component {
     render() {
         return <form className="form" >
         <fieldset>
-            <DateInput {...this.formFieldProps('effectiveDate')} />
+            <DateInput {...this.formFieldProps('effectiveDate')} time={true}/>
             <WorkingDays field={this.props.fields.noticeDate} source={this.props.fields.effectiveDate.value} days={10} label="Notice must be given to the Registrar by" export={() => {
                 return {
                     url: `${window.location.protocol}//${window.location.host}/company/view/${this.props.companyId}`,

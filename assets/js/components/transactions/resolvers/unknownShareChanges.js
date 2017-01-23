@@ -43,7 +43,7 @@ class UnknownChange extends React.Component {
         return <form onSubmit={this.props.handleSubmit}>
 
 
-            <DateInput {...this.formFieldProps('effectiveDate')} />
+            <DateInput {...this.formFieldProps('effectiveDate')} time={true}/>
             <Input type="number" {...this.formFieldProps('amount')} />
 
 

@@ -210,6 +210,7 @@ export const TransactionRenderMap = {
 
     [TransactionTypes.COMPOUND]: BasicLoop,
     [TransactionTypes.ISSUE]: BasicLoop,
+    [TransactionTypes.HOLDING_TRANSFER]: BasicLoop,
 
     [TransactionTypes.HOLDER_CHANGE]: (props) => {
         return props.subTransactions ? BasicLoop(props) : holderChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}})

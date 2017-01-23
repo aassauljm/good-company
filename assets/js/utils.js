@@ -248,7 +248,7 @@ export function personList(companyState){
 }
 
 export function personOptionsFromState(companyState, filter = x => true){
-    return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId}>{p.name}</option>);
+    return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId+''}>{p.name}</option>);
 }
 
 export  function holdingOptionsFromState(companyState) {

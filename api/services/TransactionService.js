@@ -440,7 +440,7 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
 
 export function performHoldingTransfer(data, companyState, previousState, effectiveDate){
     const normalizedData = _.cloneDeep(data)
-    let current, holdingId, amount, transactions = [];
+    let current, holdingId, amount, shareClass, transactions = [];
     return Promise.resolve(companyState.dataValues.holdingList ? companyState.dataValues.holdingList.buildNext() :  HoldingList.build({}))
         .then(holdingList => {
             companyState.dataValues.holdingList = holdingList;
@@ -460,33 +460,38 @@ export function performHoldingTransfer(data, companyState, previousState, effect
             holdingId = current.dataValues.holdingId;
             // transfer to this one, from newly created on
             amount = current.dataValues.parcels.reduce((sum, p) => sum + p.amount, 0);
-            return performNewAllocation({
-                ...data,
-                transactionType: Transaction.types.TRANSFER_TO,
-                transactionMethod: Transaction.types.AMEND,
-                holders: data.afterHolders,
-                beforeAmount: 0,
-                amount: amount,
-                afterAmount: amount,
-                votingShareholder: data.afterVotingShareholder,
-                name: data.afterName
-                // do name, share class, votingShareholder
-                //shareclass
-            }, companyState, previousState, effectiveDate)
-        })
-        .then((transaction) => {
-            transactions.push(transaction);
+            shareClass = current.dataValues.parcels[0].shareClass;
             return performAmend({
                 ...data,
+                holders: null,
                 transactionType: Transaction.types.TRANSFER_FROM,
                 transactionMethod: Transaction.types.AMEND,
                 beforeHolders: data.beforeHolders,
                 afterHolders: data.beforeHolders,
                 beforeAmount: amount,
                 amount: amount,
-                afterAmount: 0
-                //shareclass
+                afterAmount: 0,
+                shareClass,
             }, companyState, previousState, effectiveDate);
+
+        })
+        .then((transaction) => {
+            transactions.push(transaction);
+            return performNewAllocation({
+                ...data,
+                transactionType: Transaction.types.TRANSFER_TO,
+                transactionMethod: Transaction.types.AMEND,
+                holders: data.afterHolders,
+                beforeHolders:null,
+                afterHolders:null,
+                beforeAmount: 0,
+                amount: amount,
+                afterAmount: amount,
+                votingShareholder: data.afterVotingShareholder,
+                name: data.afterName,
+                shareClass,
+            }, companyState, previousState, effectiveDate)
+
         })
         .then((transaction) => {
             transactions.push(transaction);
@@ -648,7 +653,6 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
                 importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
             })
         }
-
 
         let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: parcels},
           data, companyState, {
@@ -992,8 +996,6 @@ export const performAmend = Promise.method(function(data, companyState, previous
             const difference = data.afterAmount - data.beforeAmount;
             const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
             const newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
-
-
             const transactionType  = data.transactionType;
             let matches;
             transaction = Transaction.build({type: transactionType,
@@ -1046,9 +1048,14 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
                 return {votingShareholder: true}
             }
         }
+        const parcel = {amount: data.amount || 0, shareClass: data.shareClass};
+        if(data.amount){
+            nextState.subtractUnallocatedParcels(parcel);
+        }
         const holding = Holding.buildDeep({
-            holders: personData.map(p => ({person: p, ...votingShareholder(p)})), transaction: transaction, name: data.name,
-            parcels: [{amount: data.amount || 0, shareClass: data.shareClass}]});
+            holders: personData.map(p => ({person: p, ...votingShareholder(p)})), name: data.name,
+            parcels: [parcel]});
+        holding.dataValues.transaction = transaction;
         nextState.dataValues.holdingList.dataValues.holdings.push(holding);
         return transaction;
     });
@@ -1800,6 +1807,7 @@ export function performAll(data, company, state, isReplay){
                 state = _state;
             })
             .catch(e => {
+                sails.log.error(e);
                 if(isReplay){
                     throw sails.config.exceptions.FutureTransactionException('There is a conflict with a scheduled transaction', {
                         actionSet: doc

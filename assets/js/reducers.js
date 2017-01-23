@@ -225,7 +225,7 @@ function contextualTransactionViews(state = {}, action){
         case END_CONTEXTUAL_TRANSACTION_VIEW:
         case NEXT_CONTEXTUAL_TRANSACTION_VIEW:
         case PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW:
-            return {...state, [action.context]: ((state)  => {
+            return {...state, [action.contextKey]: ((state)  => {
                 switch(action.type){
                     case SHOW_CONTEXTUAL_TRANSACTION_VIEW:
                         return {...state, showing: action.transactionView, [action.transactionView]: {index: (action.data||{}).index || 0, data: action.data}};
@@ -239,7 +239,7 @@ function contextualTransactionViews(state = {}, action){
                     default:
                         return state;
                 }
-                })(state[action.context])};
+                })(state[action.contextKey])};
         case RESET_TRANSACTION_VIEWS:
             return {} ;
         default:

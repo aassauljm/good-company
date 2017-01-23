@@ -142,7 +142,7 @@ export class Decrease extends React.Component {
 
     render() {
         return <form className="form" >
-            <DateInput {...this.formFieldProps('effectiveDate')} />
+            <DateInput {...this.formFieldProps('effectiveDate')} time={true}/>
         <fieldset>
             <legend>{ this.props.parcelHeading }</legend>
              { this.props.fields.parcels.map((p, i) => {

@@ -22,7 +22,7 @@ export class CompanyDetails extends React.Component {
     render() {
         return <form className="form" >
         <fieldset>
-            <DateInput {...this.formFieldProps('effectiveDate')} />
+            <DateInput {...this.formFieldProps('effectiveDate')} time={true}/>
             <Input type="text" {...this.formFieldProps('companyName')} />
             <Input type="text" {...this.formFieldProps('nzbn')} />
             <Input type="text" {...this.formFieldProps('companyNumber')} />

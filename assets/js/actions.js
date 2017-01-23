@@ -442,27 +442,27 @@ export function previousTransactionView(transactionView){
 }
 
 
-export function showContextualTransactionView(context, transactionView, data){
+export function showContextualTransactionView(contextKey, transactionView, data){
     return {
-        type: SHOW_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
+        type: SHOW_CONTEXTUAL_TRANSACTION_VIEW, contextKey, transactionView, data
     }
 }
 
-export function endContextualTransactionView(context, transactionView, data={}){
+export function endContextualTransactionView(contextKey, transactionView, data={}){
     return {
-        type: END_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
+        type: END_CONTEXTUAL_TRANSACTION_VIEW, contextKey, transactionView, data
     }
 }
 
-export function nextContextualTransactionView(context, transactionView, data){
+export function nextContextualTransactionView(contextKey, transactionView, data){
     return {
-        type: NEXT_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
+        type: NEXT_CONTEXTUAL_TRANSACTION_VIEW, contextKey, transactionView, data
     }
 }
 
-export function previousContextualTransactionView(context, transactionView, data){
+export function previousContextualTransactionView(contextKey, transactionView, data){
     return {
-        type: PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW, context, transactionView, data
+        type: PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW, contextKey, transactionView, data
     }
 }
 

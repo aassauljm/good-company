@@ -233,8 +233,8 @@ export class Shareholdings extends React.Component {
 
         holdings.sort((a, b) => (a.name||'').localeCompare(b.name));
 
-        const holderCount =  Object.keys(this.props.companyState.holders).length;
-        const classCount = Object.keys(shareClassMap).length;
+        const holderCount =  Object.keys(this.props.companyState.holders || {}).length;
+        const classCount = Object.keys(shareClassMap || {}).length;
 
         return <LawBrowserContainer lawLinks={shareholdingLawLinks()}>
 

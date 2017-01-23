@@ -36,7 +36,7 @@ class AddressForm extends React.Component {
                 <Input type="text" {...this.formFieldProps('newAddress')} label="New Address" />
                 <DateInput {...this.formFieldProps('noticeDate')} label="Date of Notice to Registrar" />
                 <WorkingDayNotice field={this.props.fields.minNoticeDate} source={this.props.fields.noticeDate.value} days={5} label="Earliest Change Date"/>
-                <DateInput {...this.formFieldProps('effectiveDate')} />
+                <DateInput {...this.formFieldProps('effectiveDate')} time={true}/>
                 <Documents documents={this.props.fields.documents}/>
         </form>
     }

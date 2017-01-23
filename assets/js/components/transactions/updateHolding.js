@@ -43,6 +43,7 @@ export class UpdateHoldingTransactionView extends React.Component {
 
     renderBody(){
         const personOptions = personOptionsFromState(this.props.transactionViewData.companyState);
+
         return <div className="row">
             <div className="col-md-6 col-md-offset-3">
                 <HoldingNoParcelsConnected

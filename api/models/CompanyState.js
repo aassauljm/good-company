@@ -395,7 +395,6 @@ module.exports = {
                 // obj.directors.persons
                 // TODO, start with list of people from db, will be short, and find them in js
                 obj = _.cloneDeep(obj);
-
                 // if people have the same name in company, then damn it, give them same address
                 /*if(obj.directorList && obj.directorList.directors && obj.directorList.directors.length){
                     const names = {};

@@ -516,7 +516,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         return <div className="resolve">
             { basicSummary(context, this.props.transactionViewData.companyState)}
             <hr/>
-            { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, ...this.props}) }
+            { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', ...this.props}) }
         </div>
     }
 

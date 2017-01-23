@@ -138,7 +138,7 @@ export class HoldingNoParcels extends React.Component {
         console.log(this.props)
         return <form className="form" >
         <fieldset>
-            { !this.props.noEffectiveDate && <DateInput {...this.formFieldProps([ 'effectiveDate'])} /> }
+            { !this.props.noEffectiveDate && <DateInput {...this.formFieldProps([ 'effectiveDate'])} time={true}/> }
             <Input type='text' {...this.formFieldProps([ 'holdingName'])} />
             { this.props.fields.persons.map((p, i) =>{
 
@@ -249,7 +249,6 @@ export function newHoldingFormatAction(values){
 
 export function updateHoldingFormatAction(values, oldHolding, beforeHolders){
     // if only changing meta data, then HOLDING_CHANGE
-
     const action = {
         transactionType: TransactionTypes.HOLDING_CHANGE,
         afterHolders: values.persons,
@@ -280,7 +279,7 @@ export function holdingTransferFormatAction(values, oldHolding, beforeHolders){
 export function updateHoldingSubmit(values, oldHolding){
     // One or two transactions to process here.
     // first, check for holder changes
-    //debugger
+
     const beforeHolders = oldHolding.holders.map(p =>
             ({name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber}));
     if(holdersChanged(values, oldHolding)){

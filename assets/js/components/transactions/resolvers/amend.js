@@ -257,7 +257,7 @@ class AmendOptions extends React.Component {
                          field: `actions[${actions.length}].data`,
                          noEffectiveDate: true,
                          afterClose: { // open this transactionView again
-                             showTransactionView: {key: 'editTransaction', data: {...this.props.transactionViewData}}
+                             showTransactionView: {key: this.props.viewName, data: {...this.props.transactionViewData}}
                          }
                      })}}>Add Shareholding</Button>
             </div>
@@ -531,6 +531,9 @@ export default function Amend(props){
         acc.push(values);
         return acc;
     }, []);
+
+
+
     return <div className="resolve">
             <AmendOptionsConnected
             //amendActions={amendActions}
@@ -543,6 +546,7 @@ export default function Amend(props){
             initialValues={initialValues}
             show={props.show}
             transactionViewData={props.transactionViewData}
+            viewName={props.viewName}
             destroyReduxForm={props.destroyForm}
             />
         </div>

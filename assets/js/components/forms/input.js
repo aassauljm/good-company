@@ -216,11 +216,13 @@ class InputBase extends React.Component {
         case 'select':
             const children = React.Children.toArray(this.props.children);
             if(children.length > DROPLIST_THRESHOLD && !this.props.forceSelect){
+                const valueMap = {};
                 return <DropdownList {...elementProps} valueField='value' textField='text'
                     data={ children.filter(c => c.props.value).map(c => ({value: c.props.value, text: Array.isArray(c.props.children) ? c.props.children.join('') : c.props.children }))}
                     caseSensitive={false}
                     filter={'contains'}
-                    {...elementProps} />
+                    {...elementProps}
+                     />
             }
             else{
                 return (
