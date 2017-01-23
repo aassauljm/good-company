@@ -17,6 +17,11 @@
     .transaction-value{
          @extend .col-md-6;
     }
+
+    h5{
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 }
 
 .transaction-terse-date{

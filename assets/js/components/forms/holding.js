@@ -135,7 +135,6 @@ export class HoldingNoParcels extends React.Component {
     }
 
     render() {
-        console.log(this.props)
         return <form className="form" >
         <fieldset>
             { !this.props.noEffectiveDate && <DateInput {...this.formFieldProps([ 'effectiveDate'])} time={true}/> }
@@ -228,7 +227,7 @@ export function holdersChanged(values, oldHolding){
     let newPerson = false;
     const existing = oldHolding.holders.map((p) => p.person.personId.toString());
     const matches = values.persons.every(p => {
-        return existing.indexOf(p.personId) >= 0;
+        return existing.indexOf(p.personId+'') >= 0;
     })
     return !matches || existing.length !== values.persons.length;
 }
@@ -272,7 +271,8 @@ export function holdingTransferFormatActionSet(values, oldHolding, beforeHolders
                     transactionType: TransactionTypes.TRANSFER_FROM,
                     transactionMethod: TransactionTypes.AMEND,
                     holdingId: oldHolding.holdingId,
-                    beforeHolders: oldHolding.beforeHolders,
+                    beforeHolders: beforeHolders,
+                    afterHolders: beforeHolders,
                     amount: p.amount,
                     beforeAmount:  p.amount,
                     afterAmount: 0,
@@ -304,7 +304,7 @@ export function updateHoldingSubmit(values, oldHolding){
         return [
             ...holdingTransferFormatActionSet(values, oldHolding, beforeHolders),
         {
-            transactionType: TransactionTypes.INFERRED_INTRA_ALLOCATION_TRANSFER,
+            transactionType: TransactionTypes.COMPOUND_REMOVALS,
             effectiveDate: values.effectiveDate,
             actions: [{
                 transactionType: TransactionTypes.REMOVE_ALLOCATION,

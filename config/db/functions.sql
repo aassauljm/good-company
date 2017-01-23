@@ -224,10 +224,10 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION company_state_history_json(companyStateId integer)
     RETURNS SETOF JSON
     AS $$
-WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
-    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = $1
+WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId", "generation") as (
+    SELECT t.id, t."previousCompanyStateId", t."transactionId", 0 as "generation" FROM company_state as t where t.id = $1
     UNION ALL
-    SELECT t.id, t."previousCompanyStateId", t."transactionId"
+    SELECT t.id, t."previousCompanyStateId", t."transactionId", "generation" + 1
     FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
@@ -240,7 +240,7 @@ SELECT row_to_json(q) from (
         (SELECT array_to_json(array_agg(row_to_json(d.*))) from t_d_j j left outer join document d on j.document_id = d.id where t.id = j.transaction_id) as "documents"
         from prev_company_states pt
     inner join transaction t on pt."transactionId" = t.id
-    ORDER BY t."effectiveDate" DESC) as q;
+    ORDER BY pt.generation ASC) as q;
 $$ LANGUAGE SQL;
 
 
@@ -487,10 +487,10 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION transaction_summary(companyStateId integer)
     RETURNS JSON
     AS $$
-WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
-    SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = $1
+WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId", "generation") as (
+    SELECT t.id, t."previousCompanyStateId", t."transactionId", 0 as generation FROM company_state as t where t.id = $1
     UNION ALL
-    SELECT t.id, t."previousCompanyStateId", t."transactionId"
+    SELECT t.id, t."previousCompanyStateId", t."transactionId", generation + 1
     FROM company_state t, prev_company_states tt
     WHERE t.id = tt."previousCompanyStateId"
 )
@@ -499,7 +499,7 @@ SELECT array_to_json(array_agg(row_to_json(q))) from (
     (select count(*) from transaction tt where t.id = tt."parentTransactionId") as "actionCount"
     from prev_company_states pt
     inner join transaction t on pt."transactionId" = t.id
-    ORDER BY t."effectiveDate" DESC) as q;
+    ORDER BY pt.generation ASC) as q;
 $$ LANGUAGE SQL;
 
 

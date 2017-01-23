@@ -66,7 +66,7 @@ function oneOfMatchingSchema(fieldProps, values){
     })[0];
 }
 
-let keyIndex=0;
+let keyIndex=1;
 
 function renderList(fieldProps, componentProps){
 
@@ -439,6 +439,29 @@ function makeContext(companyState) {
     }
 }
 
+function jsonStringToValues(string){
+
+    try{
+        const obj = JSON.parse(string);
+        const recurse = (obj) => {
+            if(Array.isArray(obj)){
+                obj.map(recurse)
+            }
+            else if(obj === Object(obj)){
+                obj._keyIndex = keyIndex++;
+                Object.keys(obj).map(k => recurse(obj[k]))
+            }
+            return obj;
+        }
+        return recurse(obj);
+    }
+    catch(e){
+        return {};
+    }
+
+}
+
+
 @connect((state, ownProps) => {
     return {...state.resources['renderTemplate']}
 }, {
@@ -479,7 +502,7 @@ export  class TemplateView extends React.Component {
     }
 
     renderBody() {
-        let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...JSON.parse(this.props.location.query.json)};
+        let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...jsonStringToValues(this.props.location.query.json)};
         let values;
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];

@@ -135,6 +135,11 @@ export function directorChange(context, companyState, showType) {
         </div>
 }
 
+export function directionString(action) {
+    return actionAmountDirection(action) ? 'Increased by a' : 'Decreased by a';
+}
+
+
 export function beforeAndAfterSummary(context, companyState, showType){
     let { action = {}, actionSet } = context;
     const increase = actionAmountDirection(action);
@@ -165,7 +170,9 @@ export function beforeAndAfterSummary(context, companyState, showType){
                 </div>
                 <div className="col-md-2">
                     <div className="text-center">
-                    { showType && <h5>{ STRINGS.transactionTypes[action.transactionType || action.type] }</h5> }
+                    { showType && <div>
+                    <h5 className="transaction-direction">{ directionString(action.transactionType || action.type) }</h5>
+                    <h5>'{ STRINGS.transactionTypes[action.transactionType || action.type] }'</h5></div> }
                         <Glyphicon glyph="arrow-right" className="big-arrow" />
                         <p><span className="shares">{ shareChange }</span></p>
                     </div>

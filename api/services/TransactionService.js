@@ -439,6 +439,7 @@ export function performInverseHoldingTransfer(data, companyState, previousState,
 }
 
 export function performHoldingTransfer(data, companyState, previousState, effectiveDate){
+    throw sails.config.exceptions.InvalidOperation('Holding transfers are deprecated');
     const normalizedData = _.cloneDeep(data)
     let current, holdingId, amount, shareClass, transactions = [];
     return Promise.resolve(companyState.dataValues.holdingList ? companyState.dataValues.holdingList.buildNext() :  HoldingList.build({}))
@@ -639,10 +640,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
         let parcels = null;
-        if(data.inferAmount){
-
-        }
-        else{
+        if(!data.inferAmount){
             parcels = [{amount: data.amount, shareClass: data.shareClass}];
         }
 
@@ -1053,7 +1051,7 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
             nextState.subtractUnallocatedParcels(parcel);
         }
         const holding = Holding.buildDeep({
-            holders: personData.map(p => ({person: p, ...votingShareholder(p)})), name: data.name,
+            holders: personData.map(p => ({person: p, data: votingShareholder(p) })), name: data.name,
             parcels: [parcel]});
         holding.dataValues.transaction = transaction;
         nextState.dataValues.holdingList.dataValues.holdings.push(holding);

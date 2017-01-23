@@ -27,11 +27,11 @@ const TEMPLATABLE = {
                 },
                 transaction: {
                     amount: transferee.data.amount,
-                    shareClass: renderShareClass(transferee.data.shareClass, shareClassMap),
+                    shareClass: transferee.data.shareClass ? renderShareClass(transferee.data.shareClass, shareClassMap) : '',
                     effectiveDateString: stringDateToFormattedString(data.effectiveDate),
-                    transferees: (transferee.data.holders || transferee.data.afterHolders)
+                    transferees: (transferee.data.holders || transferee.data.afterHolders || [])
                         .map(h => ({companyNumber: h.companyNumber || '', name: h.name, address: h.address})),
-                    transferors: (transferor.data.holders || transferor.data.afterHolders)
+                    transferors: (transferor.data.holders || transferor.data.afterHolders || [])
                         .map(h => ({companyNumber: h.companyNumber || '', name: h.name, address: h.address}))
                 }
             }
@@ -252,10 +252,10 @@ export class TransactionViewBody extends React.Component {
             <div className="button-row">
                { template && <Link to={{pathname: `/company/view/${this.props.companyId}/templates/${template.url}`,
                     query: {json: JSON.stringify(template.format(transaction, this.props.companyState))}}}
-                    className="btn btn-primary">Transfer Share Form</Link> }
+                    className="btn btn-primary">Share Transfer Form</Link> }
                 { this.props.cancel &&  <Button bsStyle="danger" onClick={() => this.props.cancel(transaction.id) }>Cancel Transaction</Button>}
             </div>
-
+            <hr/>
             { transaction.documents && transaction.documents.map((d, i) => {
                 return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
             }) }
