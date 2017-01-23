@@ -71,7 +71,61 @@ module.exports = {
         })
     },
 
+    sendTemplatexxx: function(req, res) {
+        fetch(sails.config.renderServiceUrl, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(req.body.renderData)
+        })
+        .then(buff => {
+            const sender = {
+                name: req.user.username,
+                email: req.user.email
+            };
+
+            return MailService.sendTemplate(req.body.recipients, buff, req.body.renderData.filename, sender)
+                .then(() => {
+                    res.ok({message: ['Template sent']});
+                });
+        })
+        .catch(error => {
+            res.serverError(error);
+        });
+    },
     sendTemplate: function(req, res) {
+        let filename;
+        fetch(sails.config.renderServiceUrl, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(req.body.renderData)
+        })
+        .then(fileResponse => {
+            const disposition = fileResponse.headers.get('Content-Disposition')
+            filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');
+            return fileResponse.buffer()
+        })
+        .then(buff => {
+            const sender = {
+                name: req.user.username,
+                email: req.user.email
+            };
+
+            return MailService.sendTemplate(req.body.recipients, buff, filename, sender)
+                .then(() => {
+                    res.ok({message: ['Template sent']});
+                });
+        })
+        .catch(error => {
+            res.serverError(error);
+        });
+    },
+    sendTemplatexxx: function(req, res) {
         fetch(sails.config.renderServiceUrl, {
               method: 'POST',
               headers: {
