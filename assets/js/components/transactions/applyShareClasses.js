@@ -94,6 +94,9 @@ export class ApplyShareClassesTransactionView extends React.Component {
     }
 
     submit(values) {
+        if(this.props.transactions._status === 'fetching'){
+            return false;
+        }
         const holdings = [];
         Object.keys(values).map(k => {
             holdings.push({
@@ -109,11 +112,6 @@ export class ApplyShareClassesTransactionView extends React.Component {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
             })
-            .then(() => {
-                //this.props.show('importHistory', {companyState: this.props.transactionViewData.companyState, companyId: this.props.transactionViewData.companyId});
-                //this.props.dispatch(push(`/company/view/${this.props.transactionViewData.companyId}/new_transaction`));
-            })
-
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
             });

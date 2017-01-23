@@ -70,8 +70,8 @@ module.exports = {
             res.serverError(e);
         })
     },
-
     sendTemplate: function(req, res) {
+        let filename;
         fetch(sails.config.renderServiceUrl, {
               method: 'POST',
               headers: {
@@ -81,29 +81,25 @@ module.exports = {
             body: JSON.stringify(req.body.renderData)
         })
         .then(fileResponse => {
+            const disposition = fileResponse.headers.get('Content-Disposition')
+            filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)[1].replace(/"/g, '');
+            return fileResponse.buffer()
+        })
+        .then(buff => {
             const sender = {
                 name: req.user.username,
                 email: req.user.email
             };
-            return tmp.file((err, path, fd, cb) => {
-                console.log(err, path, fd)
-                const file = fs.createWriteStream(path);
-                fileResponse.body.pipe(file);
-                file.on('finish', () => {
-                    return MailService.sendTemplate(req.body.recipients, fs.createReadStream(path), req.body.renderData.filename, sender)
-                        .then(() => {
-                            res.ok({message: ['Template sent']});
-                        })
-                        .then(() => cb())
+
+            return MailService.sendTemplate(req.body.recipients, buff, filename, sender)
+                .then(() => {
+                    res.ok({message: ['Template sent']});
                 });
-            })
         })
         .catch(error => {
             res.serverError(error);
         });
     },
-
-
     echo: function(req, res) {
         const args = actionUtil.parseValues(req)
         res.attachment(args.filename)

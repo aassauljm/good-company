@@ -102,7 +102,7 @@ function renderSuggestion(suggestion, { value, valueBeforeUpDown }) {
         return (
             <div>
                 <h5 className="list-group-item-heading">{suggestion.companyName}</h5>
-                { (suggestion.notes || []).map((s, i) => <p key={i} className="list-group-item-text"><em>{value}</em></p> ) }
+                { (suggestion.notes || []).map((s, i) => <p key={i} className="list-group-item-text"><em>{ s }</em></p> ) }
             </div>
         );
     }
