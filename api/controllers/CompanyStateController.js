@@ -241,7 +241,7 @@ var transactions = {
                 return transactionMessages(args.transactions, state.companyName);
             })
             .then(function(messages){
-                return {messages, transactionId: transaction.transactionId}
+                return {messages, transactionId: transaction.id}
             })
     },
 

@@ -152,6 +152,7 @@ export class PendingTransactions extends React.Component {
     render() {
         return <div className="container">
             <div className="row">
+                   <div className="col-xs-12">
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -164,6 +165,7 @@ export class PendingTransactions extends React.Component {
                         data={{transactions: ((this.props.companyState || {}).futureTransactions || []).map(t => ({transaction: t}))}}
                         show={(id) => this.show(id)} /> }
                 </div>
+            </div>
             </div>
             </div>
         </div>

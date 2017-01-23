@@ -52,10 +52,13 @@ export class UpdateDirectorTransactionView extends React.Component {
                                     'compound',
                                     this.props.transactionViewData.companyId,
                                     {transactions: transactions, documents: values.documents} ))
-                .then(() => {
+                .then((results) => {
                     this.handleClose({reload: true});
                     this.props.dispatch(addNotification({message: 'Directorship Updated.'}));
                     const key = this.props.transactionViewData.companyId;
+                    if(results.response.transactionId){
+                        this.props.navigate(`/company/view/${key}/transactions/${results.response.transactionId}`);
+                    }
                 })
                 .catch((err) => {
                     this.props.dispatch(addNotification({message: err.message, error: true}));

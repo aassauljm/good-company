@@ -111,10 +111,15 @@ export class CompanyDetailsTransactionView extends React.Component {
                                 'compound',
                                 this.props.transactionViewData.companyId,
                                 {transactions: [transaction], documents: values.documents} ))
-            .then(() => {
+            .then((results) => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Updated Company Details'}));
                 const key = this.props.transactionViewData.companyId;
+                if(results.response.transactionId){
+                    this.props.navigate(`/company/view/${key}/transactions/${results.response.transactionId}`);
+                }
+
+
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));

@@ -211,7 +211,15 @@ export const TransactionRenderMap = {
     },
 
     [TransactionTypes.COMPOUND]: BasicLoop,
+
     [TransactionTypes.ISSUE]: BasicLoop,
+    [TransactionTypes.CONSOLIDATION]: BasicLoop,
+    [TransactionTypes.REDEMPTION]: BasicLoop,
+    [TransactionTypes.CONVERSION]: BasicLoop,
+    [TransactionTypes.SUBDIVISION]: BasicLoop,
+    [TransactionTypes.ACQUISITION]: BasicLoop,
+    [TransactionTypes.PURCHASE]: BasicLoop,
+
     [TransactionTypes.HOLDING_TRANSFER]: BasicLoop,
 
     [TransactionTypes.HOLDER_CHANGE]: (props) => {
@@ -228,8 +236,8 @@ export const TransactionRenderMap = {
     [TransactionTypes.ACQUISITION_FROM]: HoldingChange,
     [TransactionTypes.PURCHASE_FROM]: HoldingChange,
     [TransactionTypes.REDEMPTION_FROM]: HoldingChange,
-    [TransactionTypes.CONVERSION_TO]: HoldingChange,
     [TransactionTypes.CONSOLIDATION_FROM]: HoldingChange,
+
     [TransactionTypes.TRANSFER]: BasicLoop,
     [TransactionTypes.TRANSFER_TO]: HoldingChange,
     [TransactionTypes.TRANSFER_FROM]: HoldingChange

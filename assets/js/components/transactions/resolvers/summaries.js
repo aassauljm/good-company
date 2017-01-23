@@ -14,7 +14,11 @@ export function actionAmountDirection(action={}){
         return false
     }
 
-    return action.afterAmount >= action.beforeAmount || !action.beforeHolders;
+    if(action.afterAmount !== undefined && action.beforeAmount !== undefined){
+        return action.afterAmount >= action.beforeAmount
+    }
+
+    return !action.beforeHolders;
 }
 
 export function companiesOfficeDocumentUrl(companyState, documentId){

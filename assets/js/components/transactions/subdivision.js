@@ -76,10 +76,14 @@ export class SubdivisionTransactionView extends React.Component {
         this.props.dispatch(companyTransaction('compound',
                                 this.props.transactionViewData.companyId,
                                 {actions: holdings}))
-            .then(() => {
+            .then((results) => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share subdivided.'}));
                 const key = this.props.transactionViewData.companyId;
+                if(results.response.transactionId){
+                    this.props.navigate(`/company/view/${key}/transactions/${results.response.transactionId}`);
+                }
+
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));

@@ -82,10 +82,11 @@ const validate = (data, props) => {
                 classes[p.shareClass] = true;
                 if(h.holding){
                     const matchedParcels = props.holdingMap[h.holding].filter(sP => {
-                        if(sP.shareClass === shareClass && amount > sP.amount){
+                        const thisShareClass = sP.shareClass || '';
+                        if(thisShareClass === shareClass && amount > sP.amount){
                             errors.amount = (errors.amount || []).concat(['Insufficient shares in source holding.']);
                         }
-                        return sP.shareClass === shareClass;
+                        return thisShareClass === shareClass;
                     });
                     if(!matchedParcels.length){
                         errors.shareClass = (errors.shareClass || []).concat(['Source does not have any parcels of this share class.']);
@@ -181,13 +182,17 @@ export class Decrease extends React.Component {
 export function createFormatSubmit(options){
     return function formatSubmit(values, companyState){
         const actions = [], results = []
-        const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
-            acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
-                acc[parcel.shareClass || ''] = parcel.amount;
+        const holdings = companyState.holdingList.holdings.reduce((acc, holding) => {
+            acc.amounts[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
+                acc[parcel.shareClass || undefined] = parcel.amount;
                 return acc;
             }, {})
+
+            acc.persons[`${holding.holdingId}`] = holding.holders.map(p => ({
+                name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber
+            }))
             return acc;
-        }, {})
+        }, {amounts: {}, persons: {}})
         values.parcels.map(p => {
             const amount = parseInt(p.amount, 10);
             const shareClass = parseInt(p.shareClass, 10) || null;
@@ -200,16 +205,22 @@ export function createFormatSubmit(options){
         });
         values.holdings.map(h => {
             h.parcels.map(p => {
+                const beforeAmount = h.newHolding ? 0 : (holdings.amounts[h.holding] || {})[p.shareClass] || 0;
                 const amount = parseInt(p.amount, 10);
                 const shareClass = parseInt(p.shareClass, 10) || null;
+                const persons = holdings.persons[h.holding];
                 actions.push({
                     holdingId: parseInt(h.holding, 10) || null,
                     shareClass: shareClass,
                     amount: amount,
-                    beforeAmount: amounts[h.holding][p.shareClass || ''] || 0,
-                    afterAmount: (amounts[h.holding][p.shareClass || ''] || 0) - amount,
+                    beforeAmount: beforeAmount,
+                    afterAmount: beforeAmount - amount,
                     transactionType: options.fromTransaction,
-                    transactionMethod: 'AMEND'
+                    afterHolders: persons,
+                    beforeHolders: persons,
+                    transactionMethod: 'AMEND',
+                    approvalDocuments: values.approvalDocuments,
+                    noticeDate: values.noticeDate
                 });
             });
         });
@@ -273,10 +284,13 @@ export class DecreaseTransactionView extends React.Component {
                                     this.props.transactionViewData.companyId,
                                     {transactions: transactions, documents: values.documents} ))
 
-            .then(() => {
+            .then((results) => {
                 this.handleClose({reload: true});
                 this.props.dispatch(addNotification({message: this.props.successMessage}));
                 const key = this.props.transactionViewData.companyId;
+                if(results.response.transactionId){
+                    this.props.navigate(`/company/view/${key}/transactions/${results.response.transactionId}`);
+                }
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
