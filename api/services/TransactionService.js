@@ -1862,15 +1862,22 @@ export function performAllInsertByEffectiveDate(data, company){
 export function performFilterOutTransactions(transactionIds, company){
     const date = new Date()
     let state, futureTransactions;
-
+    // can only filter out from the future
     return company.getDatedCompanyState(date)
         .then(_state => {
             state = _state;
             return company.getTransactionsAfter(state.id)
         })
         .then(_transactions => {
+            // better remove other transactions from the same meta set (usually compound removes)
+            const transactionSets = {};
             futureTransactions = _transactions;
-            futureTransactions = futureTransactions.filter(f => transactionIds.indexOf(f.id) === -1);
+            futureTransactions.map(t => {
+                if(transactionIds.indexOf(t.id) >= 0 && t.data && t.data.transactionSetId){
+                    transactionSets[t.data.transactionSetId] = true;
+                }
+            })
+            futureTransactions = futureTransactions.filter(f => transactionIds.indexOf(f.id) === -1 && !transactionSets[f.data.transactionSetId]);
             if(futureTransactions.length){
                 return performAll(transactionsToActions(futureTransactions), company, state, true)
             }else{

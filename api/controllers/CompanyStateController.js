@@ -117,7 +117,7 @@ function createActivityLog(user, company, messages){
     if(!Array.isArray(messages)){
         messages = [messages];
     }
-    messages = messages.filter(m => m);
+    messages = messages.filter(m => m && m.message);
     return ActivityLog.bulkCreate(messages.map(m => {
         return {
             userId: user.id,
@@ -222,6 +222,7 @@ var transactions = {
         if(args.documents){
             args.transactions.map(t => t.documents = args.documents);
         }
+
         return TransactionService.performAllInsertByEffectiveDate(args.transactions, company)
             .then((_state) => {
                 state = _state;

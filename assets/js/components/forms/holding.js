@@ -12,6 +12,8 @@ import { Documents } from './documents';
 import Panel from '../panel';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import StaticField from './staticField';
+import uuidV4 from 'uuid/v4';
+
 
 const CREATE_NEW_SHAREHOLDING = 'create-new';
 const CREATE_NEW_PERSON = 'create-new';
@@ -297,15 +299,16 @@ export function holdingTransferFormatActionSet(values, oldHolding, beforeHolders
 export function updateHoldingSubmit(values, oldHolding){
     // One or two transactions to process here.
     // first, check for holder changes
-
+    const id = uuidV4();
     const beforeHolders = oldHolding.holders.map(p =>
             ({name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber}));
     if(holdersChanged(values, oldHolding)){
         return [
-            ...holdingTransferFormatActionSet(values, oldHolding, beforeHolders),
+            ...holdingTransferFormatActionSet(values, oldHolding, beforeHolders).map(h => ({...h, transactionSetId: id})),
         {
             transactionType: TransactionTypes.COMPOUND_REMOVALS,
             effectiveDate: values.effectiveDate,
+            transactionSetId: id,
             actions: [{
                 transactionType: TransactionTypes.REMOVE_ALLOCATION,
                 effectiveDate: values.effectiveDate,

@@ -247,13 +247,17 @@ export class Issue extends React.Component {
 
 export function issueFormatSubmit(values, companyState){
     const actions = [], results = [], newHoldings = [];
-    const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
-        acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
+    const holdings = companyState.holdingList.holdings.reduce((acc, holding) => {
+        acc.amounts[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
             acc[parcel.shareClass || undefined] = parcel.amount;
             return acc;
         }, {})
+
+        acc.persons[`${holding.holdingId}`] = holding.holders.map(p => ({
+            name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber
+        }))
         return acc;
-    }, {})
+    }, {amounts: {}, persons: {}})
     values.parcels.map(p => {
         const amount = parseInt(p.amount, 10);
         const shareClass = parseInt(p.shareClass, 10) || null;
@@ -266,46 +270,32 @@ export function issueFormatSubmit(values, companyState){
     });
     values.holdings.map(h => {
         h.parcels.map(p => {
+            const beforeAmount = h.newHolding ? 0 : (holdings.amounts[h.holding] || {})[p.shareClass] || 0;
             const amount = parseInt(p.amount, 10);
             const shareClass = parseInt(p.shareClass, 10) || null;
+            const persons = holdings.persons[h.holding];
             actions.push({
                 holdingId: parseInt(h.holding, 10) || null,
-                holders: (h.newHolding || {}).persons,
-                afterHolders: (h.holding || {}).persons,
-                beforeolders: (h.holding || {}).persons,
+                holders: h.newHolding ? h.newHolding.persons : null,
+                afterHolders: persons,
+                beforeHolders: persons,
                 shareClass: shareClass,
                 amount: amount,
-                beforeAmount: (amounts[h.holding] || {})[p.shareClass] || 0,
-                afterAmount: ((amounts[h.holding] || {})[p.shareClass] || 0) + amount,
+                beforeAmount: beforeAmount,
+                afterAmount: beforeAmount + amount,
                 transactionType: 'ISSUE_TO',
-                transactionMethod: 'AMEND',
+                transactionMethod: h.newHolding ? 'NEW_ALLOCATION' :'AMEND',
                 approvalDocuments: values.approvalDocuments,
                 noticeDate: values.noticeDate
             });
-            if(h.newHolding){
-                newHoldings.push({
-                    holders: h.newHolding.persons,
-                    effectiveDate: values.effectiveDate,
-                    name: h.newHolding.name,
-                    transactionType: 'NEW_ALLOCATION',
-                    effectiveDate: values.effectiveDate
-                })
-            }
         });
     });
 
-    if(newHoldings.length){
-        results.push({
-            effectiveDate: values.effectiveDate,
-            actions: newHoldings
-        });
-    }
     results.push({
         effectiveDate: values.effectiveDate,
         transactionType: 'ISSUE',
         actions: actions
     })
-
     return results;
 }
 

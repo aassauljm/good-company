@@ -218,6 +218,7 @@ export class Shareholdings extends React.Component {
     }
 
     editHolding(holding) {
+        this.props.destroyForm('holding');
         this.props.showTransactionView('updateHolding', {
             companyId: this.props.companyId,
             companyState: this.props.companyState,

@@ -43,7 +43,7 @@ const TEMPLATABLE = {
 
 const BaseTransaction = (props) => {
     return <div className="transaction-summary">
-        <CommonInfo {...props} />
+        { !props.noSummary && <CommonInfo {...props} /> }
         { props.children }
     </div>
 }
@@ -82,7 +82,7 @@ const BasicLoop = (props) => {
            { (props.subTransactions || []).map((t, i) => {
                 const Comp = TransactionRenderMap[t.type];
                 if(Comp){
-                    return <Comp key={i} {...t} parentTransaction={props} />
+                    return <Comp key={i} {...t} parentTransaction={props} noSummary={true}/>
                 }
             }).filter(f => f) }
         </BaseTransaction>
@@ -300,7 +300,7 @@ export class TransactionView extends React.Component {
 }
 
 @connect(undefined, {
-    deleteTransaction: (companyId, id) => deleteResource(`/company/${companyId}/transactions/${id}`, {
+    deleteTransaction: (companyId, ids) => deleteResource(`/company/${companyId}/transactions/${ids}`, {
         confirmation: {
             title: 'Confirm Deletion',
             description: 'Please confirm the cancellation of this transaction',

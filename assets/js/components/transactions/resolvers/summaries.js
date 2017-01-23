@@ -171,7 +171,7 @@ export function beforeAndAfterSummary(context, companyState, showType){
                 <div className="col-md-2">
                     <div className="text-center">
                     { showType && <div>
-                    <h5 className="transaction-direction">{ directionString(action.transactionType || action.type) }</h5>
+                    <h5 className="transaction-direction">{ directionString(action) }</h5>
                     <h5>'{ STRINGS.transactionTypes[action.transactionType || action.type] }'</h5></div> }
                         <Glyphicon glyph="arrow-right" className="big-arrow" />
                         <p><span className="shares">{ shareChange }</span></p>

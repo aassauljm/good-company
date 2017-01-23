@@ -24,7 +24,10 @@ import { push } from 'react-router-redux'
 import Header from './header';
 import { CompanyAlertsWidget } from './companyAlerts';
 import moment from 'moment';
+import { destroy as destroyForm } from 'redux-form';
 import { CompanyHOCFromRoute, CompanyDatedHOCFromRoute } from '../hoc/resources';
+
+
 const DEFAULT_OBJ = {};
 
 
@@ -66,6 +69,7 @@ export class CompanyDated extends React.Component {
 (dispatch, ownProps) => ({
     showTransactionView: (key, data) => { dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)); dispatch(showTransactionView(key, data)) },
     toggleWidget: (path, args) => dispatch(toggleWidget(path, args)),
+    destroyForm: (args) => dispatch(destroyForm(args)),
     push: (url) => dispatch(push(url))
 }))
 export class CompanyView extends React.Component {
@@ -90,6 +94,7 @@ export class CompanyView extends React.Component {
                         companyId: this.key(),
                         push: this.props.push,
                         baseUrl: this.props.baseUrl,
+                        destroyForm: this.props.destroyForm,
                         showTransactionView: (key, data) => this.props.showTransactionView(key, data)
                 });
         }
