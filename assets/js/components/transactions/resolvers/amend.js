@@ -220,6 +220,13 @@ class AmendOptions extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
+        const holdings = this.props.values.actions.map((r, i) => {
+            const a = r.data;
+            const increase = actionAmountDirection(a);
+            const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
+            return {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i, amount: a.afterAmount - a.beforeAmount};
+        });
+
         return <form onSubmit={this.props.handleSubmit}>
             <div className="button-row">
                 <Button  onClick={this.props.resetForm}>Reset</Button>
@@ -242,7 +249,7 @@ class AmendOptions extends React.Component {
                         increase={increase}
                         allSameDirection={allSameDirection}
                         error={getError(i)}
-                        holdings={this.props.holdings.map(amountRemaining).filter(h => h.index !== i)} />
+                        holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
                 </div>
                 <hr/>
                 </div>
@@ -523,24 +530,13 @@ export default function Amend(props){
 
     initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
 
-    const holdings = amendActions.reduce((acc, a, i) => {
-        const increase = actionAmountDirection(a);
-        const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
-        let values;
-        values = {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i, amount: a.afterAmount - a.beforeAmount};
-        acc.push(values);
-        return acc;
-    }, []);
-
-
-
     return <div className="resolve">
             <AmendOptionsConnected
             //amendActions={amendActions}
             effectiveDate={effectiveDate}
             totalAmount={totalAmount}
             allSameDirection={allSameDirection}
-            holdings={holdings}
+            //holdings={holdings}
             shareClassMap={shareClassMap}
             onSubmit={handleSubmit}
             initialValues={initialValues}

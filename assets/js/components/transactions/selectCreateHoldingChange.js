@@ -21,13 +21,25 @@ import StaticField from '../forms/staticField';
 
 // turns a holding/newHolding + before and after amounts into an action
 function valuesToAction(values, companyState){
+    const holdings = companyState.holdingList.holdings.reduce((acc, holding) => {
+        acc.amounts[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
+            acc[parcel.shareClass || undefined] = parcel.amount;
+            return acc;
+        }, {})
+
+        acc.persons[`${holding.holdingId}`] = holding.holders.map(p => ({
+            name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber
+        }))
+        return acc;
+    }, {amounts: {}, persons: {}});
+    const persons = values.newHolding ? values.newHolding.persons : holdings.persons[values.holding];
     return {
         transactionType: values.newHolding ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND,
-        beforeAmount: values.newHolding ? values.beforeAmount : 0,
-        afterAmount: values.newHolding ? values.afterAmount : 0,
-        holders: values.newHolding ? values.newHolding.persons : values.holding.persons,
-        beforeHolders: values.newHolding ? values.newHolding.persons : values.holding.persons,
-        afterHolders: values.newHolding ? values.newHolding.persons : values.holding.persons,
+        beforeAmount: !values.newHolding ? values.beforeAmount : 0,
+        afterAmount: !values.newHolding ? values.afterAmount : 0,
+        holders: values.newHolding ? persons : null,
+        beforeHolders: persons,
+        afterHolders: persons,
         holdingId: values.newHolding ? null : values.holding.holdingId,
         transactionType: values.newHolding ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND,
         isNewHolding: !!values.newHolding
