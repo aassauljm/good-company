@@ -178,7 +178,7 @@ export class RenderForm extends React.Component {
         return (
             <div className="button-row form-controls">
                 <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
-                <Button type="submit" bsStyle="primary" >Generate Document <Glyphicon glyph='download'/></Button>
+                <Button type="submit" bsStyle="primary" >Download Document <Glyphicon glyph='download'/></Button>
                 <Button bsStyle="info" disabled={!this.props.valid} onClick={this.emailDocument}>Email Document <Glyphicon glyph='envelope'/></Button>
             </div>
         );
