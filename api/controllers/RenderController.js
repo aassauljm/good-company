@@ -70,31 +70,6 @@ module.exports = {
             res.serverError(e);
         })
     },
-
-    sendTemplatexxx: function(req, res) {
-        fetch(sails.config.renderServiceUrl, {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(req.body.renderData)
-        })
-        .then(buff => {
-            const sender = {
-                name: req.user.username,
-                email: req.user.email
-            };
-
-            return MailService.sendTemplate(req.body.recipients, buff, req.body.renderData.filename, sender)
-                .then(() => {
-                    res.ok({message: ['Template sent']});
-                });
-        })
-        .catch(error => {
-            res.serverError(error);
-        });
-    },
     sendTemplate: function(req, res) {
         let filename;
         fetch(sails.config.renderServiceUrl, {
@@ -125,39 +100,6 @@ module.exports = {
             res.serverError(error);
         });
     },
-    sendTemplatexxx: function(req, res) {
-        fetch(sails.config.renderServiceUrl, {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(req.body.renderData)
-        })
-        .then(fileResponse => {
-            const sender = {
-                name: req.user.username,
-                email: req.user.email
-            };
-            return tmp.file((err, path, fd, cb) => {
-                console.log(err, path, fd)
-                const file = fs.createWriteStream(path);
-                fileResponse.body.pipe(file);
-                file.on('finish', () => {
-                    return MailService.sendTemplate(req.body.recipients, fs.createReadStream(path), req.body.renderData.filename, sender)
-                        .then(() => {
-                            res.ok({message: ['Template sent']});
-                        })
-                        .then(() => cb())
-                });
-            })
-        })
-        .catch(error => {
-            res.serverError(error);
-        });
-    },
-
-
     echo: function(req, res) {
         const args = actionUtil.parseValues(req)
         res.attachment(args.filename)
