@@ -512,6 +512,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
                 this.props.show('editTransaction', {...this.props.transactionViewData.editTransactionData, actionSet: context.actionSet, otherActions});
             }
         }
+
         return <div className="resolve">
             { basicSummary(context, this.props.transactionViewData.companyState)}
             <hr/>

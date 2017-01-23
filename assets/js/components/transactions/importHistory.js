@@ -11,6 +11,8 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import TransactionView from '../forms/transactionView';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
 import Loading from '../loading'
+import { reduxForm, destroy } from 'redux-form';
+
 
 function companiesOfficeDocumentUrl(companyState, documentId){
     const companyNumber = companyState.companyNumber;
@@ -121,6 +123,7 @@ FOOTERS[AMBIGUITY] = function(){
                                                         invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
+        destroyForm: (args) => dispatch(destroy(args))
     }
 })
 export class ImportHistoryTransactionView extends React.Component {
@@ -174,6 +177,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     handleResolve() {
+        this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity', {...this.props.transactionViewData,
             error: this.props.importHistory.error, afterClose: { // open this transactionView again
                             showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}}});

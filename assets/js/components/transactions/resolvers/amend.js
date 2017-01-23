@@ -250,7 +250,7 @@ class AmendOptions extends React.Component {
 
             <div className="button-row">
                 <Button bsStyle="info" onClick={() => {
-                    this.props.destroyForm('selectCreateHoldingChange');
+                    this.props.destroyReduxForm('selectCreateHoldingChange');
                     this.props.show('selectCreateHoldingChange', {
                         ...this.props.transactionViewData,
                          formName: 'amend',
@@ -531,7 +531,6 @@ export default function Amend(props){
         acc.push(values);
         return acc;
     }, []);
-
     return <div className="resolve">
             <AmendOptionsConnected
             //amendActions={amendActions}
@@ -544,6 +543,7 @@ export default function Amend(props){
             initialValues={initialValues}
             show={props.show}
             transactionViewData={props.transactionViewData}
+            destroyReduxForm={props.destroyForm}
             />
         </div>
 }
