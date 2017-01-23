@@ -90,7 +90,7 @@ module.exports = {
         }
     },
     sendTemplate: function(recipients, file, filename, sender) {
-        return MailService.massSendCataLexMailWithAttachment('emails.goodcompanies.attach-files', recipients, 'Files from Good Companies', file, filename, sender);
+        return MailService.massSendCataLexMailWithAttachment('emails.goodcompanies.attach-files', recipients, 'Document from Good Companies', file, filename, sender);
     }
 };
 
