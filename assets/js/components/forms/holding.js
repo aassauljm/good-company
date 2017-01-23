@@ -262,18 +262,36 @@ export function updateHoldingFormatAction(values, oldHolding, beforeHolders){
     return action;
 }
 
-export function holdingTransferFormatAction(values, oldHolding, beforeHolders){
-    const action = {
-        transactionType: TransactionTypes.HOLDING_TRANSFER,
-        afterHolders: values.persons,
-        beforeHolders: beforeHolders,
-        afterName: values.holdingName,
-        beforeName: oldHolding.name,
-        holdingId: oldHolding.holdingId,
-        afterVotingShareholder: values.votingShareholder,
-        beforeVotingShareholder: values.previousVotingShareholder,
-    }
-    return action;
+export function holdingTransferFormatActionSet(values, oldHolding, beforeHolders){
+    return oldHolding.parcels.map(p => {
+        return {
+            transactionType: TransactionTypes.TRANSFER,
+            effectiveDate: values.effectiveDate,
+            actions: [
+                {
+                    transactionType: TransactionTypes.TRANSFER_FROM,
+                    transactionMethod: TransactionTypes.AMEND,
+                    holdingId: oldHolding.holdingId,
+                    beforeHolders: oldHolding.beforeHolders,
+                    amount: p.amount,
+                    beforeAmount:  p.amount,
+                    afterAmount: 0,
+                    shareClass: p.shareClass
+                },{
+                    transactionType: TransactionTypes.TRANSFER_TO,
+                    transactionMethod: TransactionTypes.NEW_ALLOCATION,
+                    name: values.holdingName,
+                    holders: values.persons,
+                    amount: p.amount,
+                    beforeAmount: 0,
+                    votingShareholder: values.votingShareholder,
+                    afterAmount: p.amount,
+                    shareClass: p.shareClass
+                }
+
+            ]
+        };
+    });
 }
 
 export function updateHoldingSubmit(values, oldHolding){
@@ -283,11 +301,9 @@ export function updateHoldingSubmit(values, oldHolding){
     const beforeHolders = oldHolding.holders.map(p =>
             ({name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber}));
     if(holdersChanged(values, oldHolding)){
-        return [{
-            transactionType: TransactionTypes.HOLDING_TRANSFER,
-            effectiveDate: values.effectiveDate,
-            actions: [holdingTransferFormatAction(values, oldHolding, beforeHolders)]
-        },{
+        return [
+            ...holdingTransferFormatActionSet(values, oldHolding, beforeHolders),
+        {
             transactionType: TransactionTypes.INFERRED_INTRA_ALLOCATION_TRANSFER,
             effectiveDate: values.effectiveDate,
             actions: [{
