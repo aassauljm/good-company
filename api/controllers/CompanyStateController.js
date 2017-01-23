@@ -223,6 +223,9 @@ var transactions = {
         date = date || args.transactions[0].actions[0].effectiveDate || new Date();
         args.transactions.map(t => {
             t.effectiveDate = t.effectiveDate || date;
+            t.actions.map(a => {
+                a.confirmationUnneeded = true;
+            })
         });
         // TODO directorUpdate and holderchange should generate in same set
         if(args.documents){

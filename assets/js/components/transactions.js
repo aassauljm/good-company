@@ -117,6 +117,7 @@ export class CompanyTransactions extends React.Component {
     render() {
         return <div className="container">
             <div className="row">
+            <div className="col-xs-12">
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -126,6 +127,7 @@ export class CompanyTransactions extends React.Component {
                 <div className="widget-body">
                     { this.props.children ? this.renderChildren() : <TransactionsTable {...this.props}  show={(id) => this.show(id)} /> }
                 </div>
+            </div>
             </div>
             </div>
         </div>
