@@ -183,6 +183,9 @@ var transactions = {
         .then(() => {
             return {message: `Shares issued`}
         })
+        .then(function(messages){
+            return {messages}
+        })
     },
 
 
@@ -209,11 +212,14 @@ var transactions = {
         .then(function(){
             return {message: `Details updated for ${name}.`}
         })
+        .then(function(messages){
+            return {messages}
+        })
     },
 
     compound: function(args, company){
         // TODO, validate different pairings
-        let state, date = args.transactions[0].effectiveDate;
+        let state, date = args.transactions[0].effectiveDate, transaction;
         date = date || args.transactions[0].actions[0].effectiveDate || new Date();
         args.transactions.map(t => {
             t.effectiveDate = t.effectiveDate || date;
@@ -224,14 +230,18 @@ var transactions = {
         }
 
         return TransactionService.performAllInsertByEffectiveDate(args.transactions, company)
-            .then((_state) => {
-                state = _state;
+            .then((results) => {
+                state = results.companyState;
+                transaction = results.transaction;
                 if(args.documents){
                     return Promise.all(args.documents.map(d => d.update({date: date})));
                 }
             })
             .then(() => {
                 return transactionMessages(args.transactions, state.companyName);
+            })
+            .then(function(messages){
+                return {messages, transactionId: transaction.transactionId}
             })
     },
 
@@ -282,6 +292,10 @@ var transactions = {
             .then(function(){
                 return {message: `Entry created for ${companyState.companyName} Interest Register.`}
             })
+            .then(function(messages){
+                return {messages}
+            })
+
     },
 
     createShareClass: function(data, company){
@@ -354,6 +368,9 @@ var transactions = {
         .then(function(){
             return {message: `Share Class created for ${companyState.companyName}`}
         })
+        .then(function(messages){
+            return {messages}
+        })
     },
 
     updateShareClass: function(data, company){
@@ -384,7 +401,9 @@ var transactions = {
             .then(function(){
                 return {message: `Share Class updated for ${companyState.companyName}`};
             })
-
+            .then(function(messages){
+                return {messages}
+            })
     },
 
 }
@@ -444,7 +463,10 @@ const selfManagedTransactions = {
                 return {
                     message: `Share Classes applied for ${companyName}`
                 }
-            });
+            })
+            .then(function(messages){
+                return {messages}
+            })
     },
 
     createThenApplyShareClassAllHoldings: function(data, company){
@@ -568,11 +590,12 @@ function createTransaction(req, res, type){
             .then((results) => {
                 return selfManagedTransactions[type] ? selfManagedTransactions[type](args, company) : results;
             })
-            .then((messages) => {
+            .then(({messages, transactionId}) => {
                 return createActivityLog(req.user, company, messages)
                     .then(() => ({
                         message: messages,
-                        documentIds:  (args.documents || []).map(d => d.id)
+                        documentIds:  (args.documents || []).map(d => d.id),
+                        transactionId: transactionId
                     }))
             })
             .then((result) => {
@@ -615,7 +638,6 @@ function deleteTransactions(req, res) {
                     message: messages
                 }))
         })
-
         .then((result) => {
             res.json(result);
         })

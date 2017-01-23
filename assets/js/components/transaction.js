@@ -20,6 +20,7 @@ const TEMPLATABLE = {
             const shareClassMap = generateShareClassMap(state);
             const transferee = data.subTransactions.find(s => s.type === TransactionTypes.TRANSFER_TO);
             const transferor = data.subTransactions.find(s => s.type === TransactionTypes.TRANSFER_FROM);
+
             const result = {
                 company: {
                     companyName: state.companyName,
@@ -67,7 +68,8 @@ const CommonInfo = (props) => {
                     { props.data && props.data.documentId && props.companyState && <div  className="transaction-row">
                         <div className="transaction-label">Source Document</div>
                         <div className="transaction-value">
-                            <Link target="_blank" rel="noopener noreferrer" className="external-link" to={companiesOfficeDocumentUrl(props.companyState, props.data.documentId)}>{ props.data.label} <Glyphicon glyph="new-window"/></Link>
+                            <Link target="_blank" rel="noopener noreferrer" className="external-link"
+                                to={companiesOfficeDocumentUrl(props.companyState, props.data.documentId)}>{ props.data.label} <Glyphicon glyph="new-window"/></Link>
                         </div>
                         </div> }
 
@@ -82,14 +84,14 @@ const BasicLoop = (props) => {
            { (props.subTransactions || []).map((t, i) => {
                 const Comp = TransactionRenderMap[t.type];
                 if(Comp){
-                    return <Comp key={i} {...t} parentTransaction={props} noSummary={true}/>
+                    return <Comp key={i} {...t} parentTransaction={props} companyState={props.companyState} shareClassMap={props.shareClassMap} noSummary={true}/>
                 }
             }).filter(f => f) }
         </BaseTransaction>
 }
 
 const HoldingChange = (props) => {
-    return beforeAndAfterSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    return beforeAndAfterSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}, shareClassMap: props.shareClassMap}, props.companyState, true)
 }
 
 
@@ -260,7 +262,7 @@ export class TransactionViewBody extends React.Component {
                 return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
             }) }
 
-            { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState}) }
+            { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState, shareClassMap: this.props.shareClassMap}) }
 
             <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div>
             { this.state.showingData && <pre>{JSON.stringify(transaction, null, 4)}</pre> }
@@ -291,7 +293,8 @@ export class TransactionView extends React.Component {
             })
         });
         if(transaction){
-            return <TransactionViewBody transaction={transaction} companyState={this.props.companyState} companyId={this.props.companyId} />
+            const shareClassMap = generateShareClassMap(this.props.companyState);
+            return <TransactionViewBody transaction={transaction} companyState={this.props.companyState} companyId={this.props.companyId} shareClassMap={shareClassMap}/>
         }
         else{
             return <div className="loading"></div>

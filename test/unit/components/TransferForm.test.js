@@ -30,9 +30,9 @@ describe('Transfer form', () => {
     const holdingMap = {1: [{amount: 1, shareClass: null}], 2: [{amount: 2, shareClass: 2},{amount: 1, shareClass: 4}], 3: [{amount: 3, shareClass: 3}]}
     const companyState = {
         holdingList: {holdings: [
-            {holdingId: 1, parcels: [{amount: 1}]},
-            {holdingId: 2, parcels: [{amount: 2, shareClass: 2},{amount: 1, shareClass: 4}]},
-            {holdingId: 3, parcels: [{amount: 3, shareClass: 3}]},
+            {holdingId: 1, parcels: [{amount: 1}], holders: []},
+            {holdingId: 2, parcels: [{amount: 2, shareClass: 2},{amount: 1, shareClass: 4}], holders: []},
+            {holdingId: 3, parcels: [{amount: 3, shareClass: 3}], holders: []},
             ]}
     };
 

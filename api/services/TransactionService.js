@@ -667,7 +667,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             data.shareClass = holding.dataValues.parcels[0].shareClass;
         }
         companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-        let sum = _.sum(holding.parcels, (p) => {
+        let sum = _.sum(holding.dataValues.parcels, (p) => {
             return p.amount;
         });
         if(sum !== data.amount){
@@ -1833,7 +1833,7 @@ export function transactionsToActions(transactions){
 export function performAllInsertByEffectiveDate(data, company){
     const date = data[0].effectiveDate;
     let state, futureTransactions;
-
+    let completedTransaction;
     return company.getDatedCompanyState(date)
         .then(_state => {
             state = _state;
@@ -1842,9 +1842,9 @@ export function performAllInsertByEffectiveDate(data, company){
         .then(_transactions => {
             futureTransactions = _transactions;
             return performAll(data, company, state)
-
         })
         .then((state) => {
+            completedTransaction = state.dataValues.transaction;
             const implicit = createImplicitTransactions(state, data, date);
             if(implicit.length){
                 return performAll(implicit, company, state)
@@ -1857,6 +1857,9 @@ export function performAllInsertByEffectiveDate(data, company){
             }
             return state;
         })
+        .then(state => {
+            return {companyState: state, transaction: completedTransaction}
+        });
 }
 
 export function performFilterOutTransactions(transactionIds, company){
@@ -1896,7 +1899,8 @@ export function createImplicitTransactions(state, transactions, effectiveDate){
             if(!holding.hasNonEmptyParcels()){
                 acc.push({
                     transactionType: Transaction.types.REMOVE_ALLOCATION,
-                    holdingId: holding.holdingId
+                    holdingId: holding.holdingId,
+                    holders: holding.holders.map(h => h.holderInfo())
                 });
             }
             return acc;

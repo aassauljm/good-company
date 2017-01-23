@@ -139,7 +139,7 @@ export function createHoldingMap(companyState){
 export function transferFormatSubmit(values, companyState){
     const actions = [], results = [], holders = [];
     const amounts = companyState.holdingList.holdings.reduce((acc, holding) => {
-        holders[`${holding.holdingId}`] = holding.holders;
+        holders[`${holding.holdingId}`] = holding.holders.map(h => h.person);
         acc[`${holding.holdingId}`] = holding.parcels.reduce((acc, parcel) => {
             acc[parcel.shareClass || undefined] = parcel.amount;
             return acc;

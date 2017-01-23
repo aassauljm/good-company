@@ -64,7 +64,8 @@ const UnknownIssueConnected = reduxForm({
 
 
 
-export const InvalidIssue  = (context, submit) => {
+export const InvalidIssue  = (props) => {
+    const { context, submit } = props;
     const handleSubmit = (values) => {
         const actionSet = context.actionSet;
         const amount = parseInt(values.amount, 10);

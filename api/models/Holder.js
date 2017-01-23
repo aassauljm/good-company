@@ -63,6 +63,10 @@ module.exports = {
             },
             buildFull: function(attr){
                 return Holder.build(attr, {include: [{model: Person, as: 'person'}]});
+            },
+            holderInfo: function(){
+                const person = this.dataValues.person;
+                return {personId: person.personId, name: person.name, address: person.address, companyNumber: person.companyNumber};
             }
         },
         hooks: {}

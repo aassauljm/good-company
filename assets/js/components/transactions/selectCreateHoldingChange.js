@@ -1,6 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../utils';
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime,
+        renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../forms/input';
@@ -19,7 +20,7 @@ import { change } from 'redux-form';
 import StaticField from '../forms/staticField';
 
 // turns a holding/newHolding + before and after amounts into an action
-function valuesToAction(values){
+function valuesToAction(values, companyState){
     return {
         transactionType: values.newHolding ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND,
         beforeAmount: values.newHolding ? values.beforeAmount : 0,
@@ -72,7 +73,7 @@ export class SelectCreateHoldingChangeTransactionView extends React.Component {
                         }})}
                     strings={STRINGS}
                     shareOptions={this.props.shareOptions}
-                    holdingOptions={this.props.holdingOptions}/>
+                    holdingOptions={holdingOptionsFromState(this.props.transactionViewData.companyState)} />
 
 
                     { !isNew && <Input className="amount" type="number" {...this.formFieldProps('beforeAmount')} label={'Before Amount'} /> }
@@ -86,7 +87,7 @@ export class SelectCreateHoldingChangeTransactionView extends React.Component {
 
     handleSubmit() {
         if(this.props.transactionViewData.afterClose){
-            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, valuesToAction(this.props.values)));
+            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, valuesToAction(this.props.values, this.props.transactionViewData.companyState)));
             this.props.end(this.props.values);
             return;
         }

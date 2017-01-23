@@ -305,7 +305,7 @@ export function updateHoldingSubmit(values, oldHolding){
     if(holdersChanged(values, oldHolding)){
         return [
             ...holdingTransferFormatActionSet(values, oldHolding, beforeHolders).map(h => ({...h, transactionSetId: id})),
-        {
+        /*{
             transactionType: TransactionTypes.COMPOUND_REMOVALS,
             effectiveDate: values.effectiveDate,
             transactionSetId: id,
@@ -315,7 +315,7 @@ export function updateHoldingSubmit(values, oldHolding){
                 holders: beforeHolders,
                 holdingId: oldHolding.holdingId,
             }]
-        }]
+        }*/]
     }
     return [{
         transactionType: TransactionTypes.HOLDING_CHANGE,
