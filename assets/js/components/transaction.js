@@ -111,6 +111,12 @@ const amendFrom = props =>
             <span className="transaction-terse-description"> - { props.inferAmount ? 'All' : numberWithCommas(props.amount) } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
     </span>;
 
+const shareChange = props =>
+            <span className="transaction-terse">
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { numberWithCommas(props.amount) } shares</span>
+    </span>;
+
 
 export const TransactionTerseRenderMap = {
     [TransactionTypes.ANNUAL_RETURN]: (props) => {
@@ -151,6 +157,14 @@ export const TransactionTerseRenderMap = {
     },
     [TransactionTypes.TRANSFER_TO]: amendTo,
     [TransactionTypes.ISSUE_TO]: amendTo,
+    [TransactionTypes.ISSUE]: shareChange,
+    [TransactionTypes.CONSOLIDATION]: shareChange,
+    [TransactionTypes.REDEMPTION]:shareChange,
+    [TransactionTypes.CONVERSION]: shareChange,
+    [TransactionTypes.SUBDIVISION]: shareChange,
+    [TransactionTypes.ACQUISITION]: shareChange,
+    [TransactionTypes.PURCHASE]: shareChange,
+
     [TransactionTypes.SUBDIVISION_TO]: amendTo,
     [TransactionTypes.CONVERSION_TO]: amendTo,
     [TransactionTypes.NEW_ALLOCATION]: amendTo,

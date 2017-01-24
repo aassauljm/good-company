@@ -21,10 +21,8 @@ function companiesOfficeDocumentUrl(companyState, documentId){
     return `http://www.business.govt.nz/companies/app/ui/pages/companies/${companyNumber}/${documentId}/entityFilingRequirement`;
 }
 
-function collectPreviousYearsActions(pendingHistory){
-    const index = pendingHistory.findIndex(p => p.data.transactionType === TransactionTypes.ANNUAL_RETURN);
-    const slice = index > -1 ? pendingHistory.slice(0, index + 1) : pendingHistory;
-    return slice.filter(p => p.data.actions && p.data.actions.length);
+function collectChunkedActions(pendingHistory){
+    return pendingHistory;
 }
 
 
@@ -39,14 +37,13 @@ const PAGES = [];
 
 function TransactionSummaries(props) {
     const pendingActions = [...props.pendingActions];
-    pendingActions.reverse();
     return <div>
     <p>If any entry has an Edit button, you can make date and detail corrections.  Once all entries are correct, click 'Confirm Transactions' to move onto the next year.</p>
-    <h5 className="text-center">Summary for the period beginning on { stringDateToFormattedString(props.pendingActions[props.pendingActions.length-1].data.effectiveDate) }  </h5>
+
         <hr/>
         { pendingActions.map((p, i) => {
             const actions = p.data.actions.filter(a => a.transactionType);
-            if(!actions.length || isInternalTransaction(p.data.transactionType)){
+            if(!actions.length || isNonDisplayedTransaction(p.data.transactionType)){
                 return false;
             }
             const editable = isEditable(p.data);
@@ -105,9 +102,10 @@ function isEditable(data){
     return actions.some(a => editableTypes[a.transactionType]);
 }
 
-function isInternalTransaction(transactionType){
+function isNonDisplayedTransaction(transactionType){
     return {
         [TransactionTypes.COMPOUND_REMOVALS]: true,
+        [TransactionTypes.ANNUAL_RETURN]: true,
     }[transactionType]
 }
 
@@ -123,7 +121,7 @@ PAGES[EXPLAINATION] = function() {
             </div>
     }
     if(this.props.pendingHistory._status === 'complete'){
-        const pendingYearActions = collectPreviousYearsActions(this.props.pendingHistory.data);
+        const pendingYearActions = collectChunkedActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
             return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleAddNew={this.handleAddNew} handleEdit={this.handleEdit} end={this.props.end}/>
         }
@@ -148,13 +146,13 @@ PAGES[LOADING] = function() {
 @connect((state, ownProps) => {
     return {
         pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {},
-        importHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until_ar`] || {},
+        importHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history`] || {},
         companyState: state.resources[`/company/${ownProps.transactionViewData.companyId}`] || {},
     };
 }, (dispatch, ownProps) => {
     return {
         requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
-        performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until_ar`,
+        performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history`,
                                                      {}, {
                                                         invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
                                                      })),
@@ -242,7 +240,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
     }
 
     handleResolve() {
-        const pendingActions = collectPreviousYearsActions(this.props.pendingHistory.data || []);
+        const pendingActions = collectChunkedActions(this.props.pendingHistory.data || []);
         this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
             {

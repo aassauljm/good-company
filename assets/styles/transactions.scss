@@ -37,7 +37,9 @@
 .transaction-terse + .transaction-terse{
     margin-top:4px;
 }
-
+.transaction-table{
+    padding: 6px;
+}
 @media (min-width: $screen-md-min) {
     .transaction-table{
         display: table;

@@ -131,8 +131,7 @@ export const TransactionViewSwitch = (props) => {
                 return <NewDirectorPersonTransactionView {...props} />
 
             case 'importHistory':
-                return <ImportHistoryTransactionView {...props} />
-
+                //return <ImportHistoryTransactionView {...props} />
             case 'importHistoryChunk':
                 return <ImportHistoryChunkTransactionView {...props} />
 

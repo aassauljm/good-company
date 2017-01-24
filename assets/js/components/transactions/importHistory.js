@@ -126,7 +126,7 @@ FOOTERS[AMBIGUITY] = function(){
         destroyForm: (args) => dispatch(destroy(args))
     }
 })
-export class ImportHistoryTransactionView extends React.Component {
+export class ImportHistoryQuestionTransactionView extends React.Component {
 
     constructor(props){
         super(props);

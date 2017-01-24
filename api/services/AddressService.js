@@ -21,7 +21,8 @@ const hackSuffixReplace = {
     '\\sCircle(\\W)': ' Cr$1',
     '\\sPlace(\\W)': ' Pl$1',
     '\\sDrive(\\W)': ' Drv$1',
-    '\\sDve(\\W)': ' Drv$1'
+    '\\sDve(\\W)': ' Drv$1',
+    '\\sLevel(\\W)': ' L$1',
 }
 
 const hackCardinalReplace = {

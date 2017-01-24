@@ -69,20 +69,14 @@ module.exports = {
                                         case Transaction.types.ISSUE:
                                             a.inferredType = true;
                                             a.transactionType = Transaction.types.ISSUE_TO;
-                                            a.confirmationUnneeded = true;
-                                            a.effectiveDate = d.effectiveDate = match.effectiveDate;
                                             break;
                                         case Transaction.types.CONVERSION:
                                             a.inferredType = true;
                                             a.transactionType = Transaction.types.CONVERSION_TO;
-                                            a.confirmationUnneeded = true;
-                                            a.effectiveDate = d.effectiveDate = match.effectiveDate;
                                             break;
                                         case Transaction.types.SUBDIVISION:
                                             a.inferredType = true;
                                             a.transactionType = Transaction.types.SUBDIVISION_TO;
-                                            a.confirmationUnneeded = true;
-                                            a.effectiveDate = d.effectiveDate = match.effectiveDate;
                                             break;
                                     }
                                 });
@@ -104,26 +98,19 @@ module.exports = {
                                         case Transaction.types.PURCHASE:
                                             a.inferredType = true;
                                             a.transactionType = Transaction.types.PURCHASE_FROM;
-                                            a.confirmationUnneeded = true;
-                                            a.effectiveDate = d.effectiveDate = match.effectiveDate;
+                                            a.confirmationNeeded = true;
                                             break;
                                         case Transaction.types.ACQUISITION:
                                             a.inferredType = true;
                                             a.transactionType = Transaction.types.ACQUISITION_FROM;
-                                            a.confirmationUnneeded = true;
-                                            a.effectiveDate = d.effectiveDate = match.effectiveDate;
                                             break;
                                         case Transaction.types.CONSOLIDATION:
                                             a.inferredType = true;
                                             a.transactionType = Transaction.types.CONSOLIDATION_FROM;
-                                            a.confirmationUnneeded = true;
-                                            a.effectiveDate = d.effectiveDate = match.effectiveDate;
                                             break;
                                         case Transaction.types.REDEMPTION:
                                             a.inferredType = true;
                                             a.transactionType = Transaction.types.REDEMPTION_FROM;
-                                            a.confirmationUnneeded = true;
-                                            a.effectiveDate = d.effectiveDate = match.effectiveDate;
                                             break;
                                     }
                                 });

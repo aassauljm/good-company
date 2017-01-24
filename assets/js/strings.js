@@ -113,7 +113,7 @@ export default {
         USER_FIELDS_CHANGE: 'Update Contact Details',
         INFERRED_REMOVE_DIRECTOR: 'Remove Director',
         ADDRESS_CHANGE: 'Address Change',
-        UPDATE_DIRECTOR: 'Update Director',
+        UPDATE_DIRECTOR: 'Update Director'
     },
     amendTypes: {
         ISSUE_TO: 'Issue',
@@ -140,7 +140,8 @@ export default {
         PURCHASE_FROM: 'Purchase',
         REDEMPTION_FROM: 'Redemption',
         ACQUISITION_FROM: 'Acquisition',
-        CONSOLIDATION_FROM: 'Consolidation'
+        CONSOLIDATION_FROM: 'Consolidation',
+        CANCELLATION_FROM: 'Cancellation',
     },
     transfer: {
         from: 'From',

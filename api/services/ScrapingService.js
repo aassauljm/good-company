@@ -856,8 +856,6 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                return $(el).find('img').length || $(el).find('tr:empty').length;
             }).filter(f => f.length);
 
-
-            console.log(chunks.map(c => $(c).text()))
             result.actions = chunks.reduce(function(acc, segment, j){
                 let amendAllocRegex = /^\s*Amended Share Parcel\(s\)\s*$/;
                 let newAllocRegex = /^\s*New Share Parcel\(s\)\s*$/;
@@ -887,9 +885,9 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                         result.amount = Math.abs(result.afterAmount - result.beforeAmount);
                     }
                     else{
-                        //ttp://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/1109509/2636770/entityFilingRequirement
+                        //http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/1109509/2636770/entityFilingRequirement
                         // For now, ignore this case
-                        return;
+                        return acc;
                     }
                     while(index < segment.length){
                         if(cleanString($(segment[index]).text())){
@@ -1280,7 +1278,7 @@ const ScrapingService = {
                 if(attempts > 5){
                     //throw new Error(`Cannot get document ${url}`);
                     sails.log.error(`Cannot get document ${url}`);
-                    return {text: ''};
+                    return {text: '', error: 'FAILED_FETCH'};
                 }
                 return ScrapingService.fetchDocument(companyNumber, documentId, attempts+1)
             })
@@ -1409,7 +1407,7 @@ const ScrapingService = {
     },
 
     getCachedDocumentSummary: function(data, document){
-        let text;
+        let result;
         return Promise.resolve()
             .then(() => fs.readFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, 'utf-8'))
             .then((text) => {
@@ -1418,13 +1416,13 @@ const ScrapingService = {
             .catch(() => {
                 return ScrapingService.fetchDocument(data.companyNumber, document.documentId)
                     .then((data) => {
-                        text = data.text;
-                        if(sails.config.CACHE_DIR){
+                        result = {...data, documentId: document.documentId}
+                        if(sails.config.CACHE_DIR && !data.error){
                             return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, text, 'utf-8');
                         }
                     })
                     .then(data => {
-                        return {text: text, documentId: document.documentId}
+                        return result;
                     });
             })
     },
