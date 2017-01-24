@@ -131,6 +131,39 @@ module.exports = {
         }, []);
     },
 
+    flagTreasuryTransactions: function(actionSets, companyNumber) {
+        actionSets.map(actionSet => {
+            (actionSet.actions || []).map(action => {
+                const holders = action.holders || action.afterHolders;
+                // if a holder is the company, then transfers are actually acquisitions/reissues
+                if(holders && holders.find(h => companyNumber && h.companyNumber === companyNumber)){
+
+                    if(action.transactionType === Transaction.types.TRANSFER_TO){
+                        action.transactionType = Transaction.types.TRANSFER_TO_ACQUISITION;
+                        // find and modify inverse actions
+                        actionSet.actions.map(otherActions => {
+                            if(otherActions.transactionType === Transaction.types.TRANSFER_FROM){
+                                action.transactionType = Transaction.types.TRANSFER_FROM_ACQUISITION;
+                            }
+                        })
+                    }
+
+                    if(action.transactionType === Transaction.types.TRANSFER_FROM){
+                        action.transactionType = Transaction.types.TRANSFER_FROM_RESISSUE;
+                         // find and modify inverse actions
+                        actionSet.actions.map(otherActions => {
+                            if(otherActions.transactionType === Transaction.types.TRANSFER_TO){
+                                action.transactionType = Transaction.types.TRANSFER_TO_RESISSUE;
+                            }
+                        })
+                    }
+                }
+            })
+        })
+        return actionSets;
+    },
+
+
      insertIntermediateActions: function (docs){
         //  split removeAllocations into amend to zero, then removeAllocation.
         function splitAmends(docs){
@@ -520,7 +553,7 @@ module.exports = {
     },
 
 
-    segmentAndSortActions: function(docs){
+    segmentAndSortActions: function(docs, companyNumber){
         // split group actions by date
 
         const TRANSACTION_ORDER = {
@@ -541,7 +574,7 @@ module.exports = {
 
         // before sort, fine amend types
         docs = InferenceService.inferAmendTypes(docs);
-
+        docs = InferenceService.flagTreasuryTransactions(docs, companyNumber);
 
 
         docs = docs.reduce((acc, doc) =>{

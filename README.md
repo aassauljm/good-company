@@ -52,3 +52,17 @@ node_modules/kue/bin/kue-dashboard -p 3050
 
 # Metro Realty Limited
 # Project Manager Holdings
+
+
+
+
+
+
+# acquisition or a redemption
+
+
+
+
+# if party receiving is same as company, the acquisition.    - ORDER COULD BE redemptions,
+
+# if allocation goes down, unbalanced, COULD be a redemption (because notification is optional) or COULD be a cancellation

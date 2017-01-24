@@ -1474,7 +1474,7 @@ const ScrapingService = {
         })
         .then(function(extraActions){
             processedDocs = extraActions;
-            processedDocs = InferenceService.segmentAndSortActions(processedDocs);
+            processedDocs = InferenceService.segmentAndSortActions(processedDocs, data.companyNumber);
             sails.log.verbose('Processed ' + processedDocs.length + ' documents');
             return processedDocs;
         });
