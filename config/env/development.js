@@ -36,7 +36,8 @@ module.exports = {
         inspect: false
     },
     serverRender: false,
-    renderServiceUrl: 'http://localhost:5668/render', //'https://convert.catalex.nz'
+    // renderServiceUrl: 'http://localhost:5668/render', //'https://convert.catalex.nz'
+    renderServiceUrl: 'https://test.oddity.catalex.nz/render',
     companyInfoServiceUrl: 'http://localhost:5670',
     GOOD_COMPANIES_LOGIN_URL: 'http://localhost:5667/auth/catalex/login',
     USERS_LOGIN_URL: 'http://localhost:8000/good-companies-login',
