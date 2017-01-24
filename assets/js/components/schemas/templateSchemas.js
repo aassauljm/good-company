@@ -1,5 +1,5 @@
 import { mergeSchemas, resolveReferences } from '../jsonSchema';
-import definitionsSchema from './definitions.json';
+const definitionsSchema = require('good-companies-templates/schemas/definitions.json');
 
 let templateSchemas = {
     transfer:                     require('good-companies-templates/schemas/transfer.json'),
