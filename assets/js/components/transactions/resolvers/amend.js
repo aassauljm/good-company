@@ -46,6 +46,12 @@ function decreaseOptions(){
 // other cancellation_from its own
 //
 
+function optionalNotification(type){
+    return {
+        [TransactionTypes.CANCELLATION_FROM]: true,
+        [TransactionTypes.REDEMPTION_FROM]: true
+    }[type]
+}
 
 function findHolding(companyState, action, existing){
     // same names, forget addresses for nwo
@@ -100,10 +106,14 @@ function validTransactionType(type){
         TransactionTypes.TRANSFER_TO,
         TransactionTypes.CONVERSION_TO,
         TransactionTypes.TRANSFER_FROM,
-        //TransactionTypes.PURCHASE_FROM,
+        TransactionTypes.PURCHASE_FROM,
         TransactionTypes.REDEMPTION_FROM,
         TransactionTypes.ACQUISITION_FROM,
-        TransactionTypes.CONSOLIDATION_FROM
+        TransactionTypes.CONSOLIDATION_FROM,
+        TransactionTypes.CANCELLATION_FROM,
+
+
+
         ].indexOf(type) >= 0 ? type : '';
 }
 
@@ -143,6 +153,10 @@ class Recipient extends React.Component {
                     label={null}/>
                 </div>
 
+                { optionalNotification(this.props.type.value) && <div className="input-row">
+
+                    <Input type="checkbox" {...this.formFieldProps('notified', STRINGS.amend) } />
+                    </div>}
 
                 { isTransfer(this.props.type.value) &&
                     <div className="input-row">
@@ -174,7 +188,7 @@ function Recipients(props){
                     </div>
                 }
                 return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
-                        <Recipient {...r} key={i}
+                        <Recipient {...r}
                         index={i}
                         increase={props.increase}
                         allSameDirection={props.allSameDirection}
@@ -190,6 +204,7 @@ function Recipients(props){
                 </div>
             }) }
             </Shuffle>
+
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
             { <div className="button-row">
@@ -365,6 +380,7 @@ const amendFields = [
     'actions[].recipients[].holding',
     'actions[].recipients[].isInverse',
     'actions[].recipients[].inverse',
+    'actions[].recipients[].notified',
     'actions[].recipients[]._keyIndex',
     'actions[].data',
 
@@ -393,6 +409,8 @@ export function formatSubmit(values, actionSet) {
     const nonTransfers = {};
     const transfers = []
 
+
+
     values.actions.map((a, i) => {
         a.recipients.map((r, j) => {
             if(!r.isInverse){
@@ -413,6 +431,16 @@ export function formatSubmit(values, actionSet) {
                         transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
                     nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
                     nonTransfers[r.effectiveDate].push(result);
+                    if(optionalNotification(r.type) && !r.notified){
+                        if(r.type === TransactionTypes.CANCELLATION_FROM){
+                            nonTransfers[r.effectiveDate].push({
+                                transactionType: TransactionTypes.CANCELLATION,
+                                unnotified: true,
+                                amount: amount,
+                                effectiveDate: r.effectiveDate,
+                            });
+                        }
+                    }
                 }
             }
         });
@@ -434,18 +462,20 @@ export function formatSubmit(values, actionSet) {
 
     transactions.map((sets, i) => {
         sets.map(action => {
-            //look up original action
-            const original = amends[action._holding];
-            action.afterAmount = amends[action._holding].afterAmount;
-            action.beforeAmount = action.afterAmount + (isIncrease(action.transactionType) ? -action.amount : action.amount);
-            original.afterAmount = action.beforeAmount;
-            if(action.beforeAmount === 0 && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
-                newAllocations[action._holding] = action;
+            if(action._holding !== undefined){
+                //look up original action
+                const original = amends[action._holding];
+                action.afterAmount = amends[action._holding].afterAmount;
+                action.beforeAmount = action.afterAmount + (isIncrease(action.transactionType) ? -action.amount : action.amount);
+                original.afterAmount = action.beforeAmount;
+                if(action.beforeAmount === 0 && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
+                    newAllocations[action._holding] = action;
+                }
+                else{
+                    delete action.holders;
+                }
+                delete action._holding;
             }
-            else{
-                delete action.holders;
-            }
-            delete action._holding;
         });
 
 

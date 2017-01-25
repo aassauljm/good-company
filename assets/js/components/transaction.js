@@ -173,6 +173,7 @@ export const TransactionTerseRenderMap = {
     [TransactionTypes.CONSOLIDATION_FROM]: amendFrom,
     [TransactionTypes.REDEMPTION_FROM]: amendFrom,
     [TransactionTypes.ACQUISITION_FROM]: amendFrom,
+    [TransactionTypes.CANCELLATION_FROM]: amendFrom,
 
     [TransactionTypes.AMEND]: (props) => actionAmountDirection(props) ? amendTo(props) : amendFrom(props),
 

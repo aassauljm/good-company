@@ -206,7 +206,8 @@ export function performInverseDecreaseShares(data, companyState, previousState, 
     return validateInverseDecreaseShares(data, companyState)
         .then(() => {
             const match = companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            const transaction = Transaction.build({type: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
+            const transaction = Transaction.build({type: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate});
+            console.log("DECREASED SHARES")
             return transaction;
         })
 }
@@ -215,6 +216,7 @@ export const performInversePurchase = performInverseDecreaseShares;
 export const performInverseRedemption = performInverseDecreaseShares;
 export const performInverseConsolidation = performInverseDecreaseShares;
 export const performInverseAcquisition = performInverseDecreaseShares;
+export const performInverseCancellation = performInverseDecreaseShares;
 
 export  function performInverseAmend(data, companyState, previousState, effectiveDate, userId){
     let transaction, holding, prevHolding;
@@ -945,6 +947,7 @@ export function performDecreaseShares(data, nextState, previousState, effectiveD
 export const performAcquisition = performDecreaseShares;
 export const performConsolidation = performDecreaseShares;
 export const performRedemption = performDecreaseShares;
+export const performCancellation = performDecreaseShares;
 export const performPurchase = performDecreaseShares;
 
 
@@ -1367,6 +1370,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.CONSOLIDATION]:  TransactionService.performInverseConsolidation,
         [Transaction.types.PURCHASE]:  TransactionService.performInversePurchase,
         [Transaction.types.REDEMPTION]:  TransactionService.performInverseRedemption,
+        [Transaction.types.CANCELLATION]:  TransactionService.performInverseCancellation,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
         [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
         [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
@@ -1451,6 +1455,13 @@ export function performInverseTransaction(data, company, rootState){
             }
         })
          .then(function(){
+            return prevState;
+         })
+         .then(() => {
+            return prevState.stats()
+                .then(s => console.log(s))
+         })
+         .then(() => {
             return prevState;
          })
          .catch(sails.config.exceptions.NoValidTransactions, () => {
@@ -1702,6 +1713,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.PURCHASE]:               TransactionService.performPurchase,
         [Transaction.types.CONSOLIDATION]:          TransactionService.performConsolidation,
         [Transaction.types.REDEMPTION]:             TransactionService.performRedemption,
+        [Transaction.types.CANCELLATION]:           TransactionService.performCancellation,
         [Transaction.types.AMEND]:                  TransactionService.performAmend,
         [Transaction.types.NAME_CHANGE]:            TransactionService.performNameChange,
         [Transaction.types.DETAILS]:                TransactionService.performDetailsChange,

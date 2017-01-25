@@ -89,6 +89,8 @@ export default {
         CONVERSION: 'Conversion/Subdivision',
         SUBDIVISION: 'Subdivison',
         SUBDIVISION_TO: 'Subdivison To',
+        CANCELLATION_FROM: 'Cancellation From',
+        CANCELLATION: 'Cancellation',
         ACQUISITION: 'Acquisition',
         ANNUAL_RETURN: 'Annual Return',
         INFERRED_NEW_DIRECTOR: 'New Director',
@@ -123,6 +125,7 @@ export default {
         ACQUISITION_FROM: 'Acquisition',
         CONSOLIDATION_FROM: 'Consolidation',
         PURCHASE_FROM: 'Purchase',
+        CANCELLATION_FROM: 'Cancellation',
 
         TRANSFER_TO: 'Transfer',
         TRANSFER_FROM: 'Transfer',
@@ -214,6 +217,9 @@ export default {
             '-P2W': '2 weeks',
             '-P30D': '30 days'
         }
+    },
+    amend: {
+        notified: 'The Companies Register been notified of the change of the total share amount'
     },
     deadlines: {
         annualReturn: "Annual Return",

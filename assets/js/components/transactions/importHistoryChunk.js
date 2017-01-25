@@ -47,9 +47,14 @@ function TransactionSummaries(props) {
                 return false;
             }
             const editable = isEditable(p.data);
+            const required = requiresEdit(p.data);
+            let className = "panel panel-default"
+            if(required){
+                className = "panel panel-danger"
+            }
             return <div key={i}>
-                <div  className="panel panel-default">
-                        <div className="panel-body transaction-table">
+                <div  className={className}>
+                        <div className="panel-heading transaction-table">
                         <div className="col-md-2 transaction-terse-date">
                             { stringDateToFormattedString(p.data.effectiveDate) }
                         </div>
@@ -74,6 +79,18 @@ function TransactionSummaries(props) {
         </div>
     </div>
 }
+
+function requiresEdit(data){
+    const actions = data.actions;
+
+    const requiredTypes = {
+        [TransactionTypes.AMEND]: true,
+        [TransactionTypes.NEW_ALLOCATION]: true,
+        [TransactionTypes.REMOVE_ALLOCATION]: true
+    };
+    return actions.some(a => requiredTypes[a.transactionType]);
+}
+
 
 function isEditable(data){
     const actions = data.actions;
@@ -134,9 +151,14 @@ PAGES[LOADING] = function() {
         return <div>
             <p className="text-center">Importing Transactions</p>
                 <Loading />
-            </div>
+        </div>
     }
-    return false;
+    else if(this.props.importHistory._status === 'complete'){
+       return <div>
+        <p>All Companies Office documents have successfully been imported.</p>
+        </div>
+    }
+
 };
 
 

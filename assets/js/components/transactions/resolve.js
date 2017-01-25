@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, updateResource, showTransactionView, addNotification } from '../../actions';
+import { requestResource, updateResource, showTransactionView, addNotification, showLoading, endLoading } from '../../actions';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -465,8 +465,10 @@ const PAGES = {
             })
         },
         resetAction: (args) => {
+            dispatch(showLoading({message: 'Resetting History'}));
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
             .then(() => {
+                dispatch(endLoading());
                 dispatch(destroy('amend'));
                 ownProps.end();
             })

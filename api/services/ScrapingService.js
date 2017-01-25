@@ -1418,7 +1418,7 @@ const ScrapingService = {
                     .then((data) => {
                         result = {...data, documentId: document.documentId}
                         if(sails.config.CACHE_DIR && !data.error){
-                            return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, text, 'utf-8');
+                            return fs.writeFileAsync(`${sails.config.CACHE_DIR}/${document.documentId}.html`, data.text, 'utf-8');
                         }
                     })
                     .then(data => {

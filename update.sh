@@ -2,6 +2,7 @@
 #pm2 start app.js -f -n good_company -x -- --prod
 
 git pull
+npm install
 npm update
 rm serviceIsLive.flag
 pm2 stop gc.prod.config.json
