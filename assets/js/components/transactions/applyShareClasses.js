@@ -134,17 +134,18 @@ export class ApplyShareClassesTransactionView extends React.Component {
         if(this.props.transactions._status === 'fetching'){
             return false;
         }
-        const holdings = [];
-        Object.keys(values).map(k => {
-            holdings.push({
-                holdingId: parseInt(k, 10),
-                shareClass: parseInt(values[k], 10) || undefined,
+        const companyState = this.props.transactionViewData.companyState;
+        const holdings = companyState.holdingList.holdings;
+        const actions = values.holdings.map((h, i) => {
+            return {
+                holdingId: holdings[i].holdingId,
+                parcels: h.parcels.map(p => ({amount: parseInt(p.amount), shareClass: parseInt(p.shareClass)})),
                 transactionType: TransactionTypes.APPLY_SHARE_CLASS
-            });
+            }
         });
         this.props.dispatch(companyTransaction('apply_share_classes',
                                 this.props.transactionViewData.companyId,
-                                {actions: holdings}, {skipConfirmation: true}))
+                                {actions: actions}, {skipConfirmation: true}))
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Share classes applied.'}));
@@ -162,11 +163,12 @@ export class ApplyShareClassesTransactionView extends React.Component {
         const options = shareClasses.map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         })
-        const defaultShareClass = shareClasses[shareClasses.length-1];
+        const defaultShareClass = shareClasses[shareClasses.length-1].id;
+
         const initialValues = {holdings: companyState.holdingList.holdings.map((value, key) => {
             return {parcels: value.parcels.map(p => ({shareClass: (p.shareClass || defaultShareClass) + '', amount: p.amount })) }
         })};
-        console.log(initialValues)
+
         return <ShareClassSelectConnected
             ref="form"
             holdings={companyState.holdingList.holdings}
