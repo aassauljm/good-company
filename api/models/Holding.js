@@ -114,11 +114,19 @@ module.exports = {
                 if(!other.parcels){
                     return false;
                 }
-                const otherSorted = _.sortBy(other.parcels, 'amount');
-                const thisSorted = _.sortBy(this.dataValues.parcels, 'amount');
-                return _.all(thisSorted, (p, i) => {
-                    return Parcel.match(p, otherSorted[i]) && p.amount === otherSorted[i].amount;
+                // can be a subset
+                const thisClasses = this.dataValues.parcels.reduce((acc, p) => {
+                    acc[p.shareClass || null] = p.amount;
+                    acc[null] = p.amount;
+                    return acc;
+                }, {});
+                other.parcels.every(p => {
+                    return !p.amount || p.amount === thisClasses[p.shareClass || null]
                 })
+                return other.parcels.every(p => !p.amount || p.amount === thisClasses[p.shareClass || null])
+            },
+            getParcelByShareClass: function(shareClass){
+                return _.find(this.dataValues.parcels, p => Parcel.match(p, {shareClass}))
             },
             hasNonEmptyParcels: function(){
                 return _.sum(this.dataValues.parcels, 'amount') > 0;

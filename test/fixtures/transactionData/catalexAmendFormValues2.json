@@ -3,9 +3,9 @@
         "data": {
             "actions": [
                 {
-                    "afterAmount": 1111,
+                   "parcels": [{ "afterAmount": 1111,
                     "amount": 1111,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
@@ -22,9 +22,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 4999,
+                    "parcels": [{"afterAmount": 4999,
                     "amount": 4999,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -41,9 +41,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 4999,
+                    "parcels": [{"afterAmount": 4999,
                     "amount": 4999,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -60,9 +60,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 1,
+                    "parcels": [{"afterAmount": 1,
                     "amount": 1,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -74,9 +74,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 1,
+                    "parcels": [{"afterAmount": 1,
                     "amount": 1,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -158,7 +158,7 @@
                     "id": "af9bf828-bc18-4017-914f-2bfba3e6d611"
                 },
                 {
-                    "afterAmount": 0,
+                   "parcels": [{ "afterAmount": 0,
                     "afterHolders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -167,7 +167,7 @@
                         }
                     ],
                     "amount": 5000,
-                    "beforeAmount": 5000,
+                    "beforeAmount": 5000}],
                     "beforeHolders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -187,7 +187,9 @@
                     "transactionType": "AMEND"
                 },
                 {
-                    "afterAmount": 0,
+                    "parcels": [{"afterAmount": 0,
+                    "amount": 5000,
+                    "beforeAmount": 5000}],
                     "afterHolders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -195,8 +197,6 @@
                             "name": "BLOY CONSULTING LIMITED"
                         }
                     ],
-                    "amount": 5000,
-                    "beforeAmount": 5000,
                     "beforeHolders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",

@@ -810,7 +810,7 @@ WITH transaction_history as (
     INNER JOIN transaction t on t.id = ph."transactionId"
     ORDER BY generation
 )
-
+-- TODO, shareClass and amount now in data-> parcels
 SELECT *,
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq

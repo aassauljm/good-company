@@ -388,7 +388,7 @@ describe('Company Controller', function() {
             req.get(`/api/company/${companyId}/pending_history`)
                 .then(response => {
                     let doc = response.body.filter(a => a.data && a.data.documentId === "4510995" && a.data.transactionType !== 'COMPOUND_REMOVALS')[0];
-                    doc.data.actions[1].amount.should.be.equal(4000000);
+                    doc.data.actions[1].parcels[0].amount.should.be.equal(4000000);
                     done();
                 })
             .catch(done)

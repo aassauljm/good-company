@@ -136,58 +136,6 @@ var transactions = {
                 return {message: `Company seeded`}
             })
     },
-    issue: function(args, company){
-        const classes = {};
-        ((args.holdingList || {}).holdings || []).map((h) => {
-            (h.parcels || []).map(p => {
-                classes[p.shareClass] = (classes[p.shareClass] || 0) + p.amount;
-            });
-        });
-        const sets = [];
-        Object.keys(classes)
-            .map(c => {
-                // ugly, think of better way to have empty key turned into undefined
-                const cInt =  c !== 'undefined' ? parseInt(c, 10) : undefined;
-                const actions = [];
-                const date = args.effectiveDate || new Date();
-                actions.push({
-                    amount: classes[c],
-                    shareClass: cInt,
-                    effectiveDate: date,
-                    transactionType: Transaction.types.ISSUE
-                });
-                ((args.holdingList || {}).holdings || []).map((h) => {
-                    h.parcels.filter(p => p.shareClass === cInt).map(p => {
-                        actions.push({
-                            transactionType: Transaction.types.ISSUE_TO,
-                            transactionMethod: Transaction.types.AMEND,
-                            holders: h.holders,
-                            shareClass: cInt,
-                            amount: p.amount,
-                            effectiveDate: date,
-                            beforeAmount: p.beforeAmount,
-                            afterAmount: p.afterAmount
-                        })
-                    })
-                })
-                sets.push({
-                    effectiveDate: date,
-                    actions: actions
-                });
-            });
-
-        if(!sets.length){
-            throw new sails.config.exceptions.ValidationException('Parcels are required')
-        }
-        return TransactionService.performAllInsertByEffectiveDate(sets, company)
-        .then(() => {
-            return {message: `Shares issued`}
-        })
-        .then(function(messages){
-            return {messages}
-        })
-    },
-
 
     details: function(args, company){
         let name;

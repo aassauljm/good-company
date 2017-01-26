@@ -39,16 +39,17 @@ describe('Share Register', function() {
             const transactions = [
                 {
                     actions: [{
-                        transactionType: Transaction.types.ISSUE_UNALLOCATED,
-                        amount: 100,
-                        shareClass: 1
+                        transactionType: Transaction.types.ISSUE,
+                        parcels: [{
+                            amount: 100,
+                            shareClass: 1}]
                     }, {
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.ISSUE_TO,
-                        amount: 100,
+                         parcels: [{amount: 100,
                         beforeAmount: 0,
                         afterAmount: 100,
-                        shareClass: 1,
+                        shareClass: 1}],
                         holders: [{
                             name: 'mike'
                         }]
@@ -59,20 +60,20 @@ describe('Share Register', function() {
                     actions:[{
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.TRANSFER_FROM,
-                        amount: 1,
+                         parcels: [{amount: 1,
                         shareClass: 1,
                         beforeAmount: 101,
-                        afterAmount: 100,
+                        afterAmount: 100}],
                         holders: [{
                             name: 'mike'
                         }]
                     },{
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.TRANSFER_TO,
-                        amount: 1,
+                         parcels: [{amount: 1,
                         shareClass: 1,
                         beforeAmount: 0,
-                        afterAmount: 1,
+                        afterAmount: 1}],
                         holders: [{
                             name: 'mike'
                         },{
@@ -85,10 +86,10 @@ describe('Share Register', function() {
                     actions:[{
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.TRANSFER_FROM,
-                        amount: 1,
+                         parcels: [{amount: 1,
                         shareClass: 2,
                         beforeAmount: 2,
-                        afterAmount: 1,
+                        afterAmount: 1}],
                         holders: [{
                             name: 'mike'
                         },{
@@ -97,10 +98,10 @@ describe('Share Register', function() {
                     },{
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.TRANSFER_TO,
-                        amount: 1,
+                         parcels: [{amount: 1,
                         shareClass: 2,
                         beforeAmount: 0,
-                        afterAmount: 1,
+                        afterAmount: 1}],
                         holders: [{
                             name: 'mike'
                         }]

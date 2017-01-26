@@ -542,6 +542,22 @@ module.exports = {
         }, []);
     },
 
+    sharesToParcels: function(docs){
+
+        return docs.map(d => {
+            if(d.actions){
+                return {...d, actions: d.actions.map(a => {
+                    const {amount, beforeAmount, afterAmount, shareClass, ...rest} = a;
+                    if(amount !== undefined){
+                        return {...rest, parcels: [{amount, beforeAmount, afterAmount, shareClass}]};
+                    }
+                    return a;
+                })}
+            }
+            return d;
+        });
+    },
+
     extraActions: function(data, docs){
         // These are INFERED actions
         docs = docs.concat(InferenceService.inferDirectorshipActions(data, docs));
@@ -575,6 +591,7 @@ module.exports = {
         // before sort, fine amend types
         docs = InferenceService.inferAmendTypes(docs);
         docs = InferenceService.flagTreasuryTransactions(docs, companyNumber);
+        docs = InferenceService.sharesToParcels(docs);
 
 
         docs = docs.reduce((acc, doc) =>{
