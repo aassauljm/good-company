@@ -802,12 +802,17 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 FROM (
 
 WITH transaction_history as (
-    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as "shareClass", ph."hId",
+    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate",  ph."hId", (tt.parcels->>'amount')::int as "amount", (tt.parcels->>'shareClass')::int as "shareClass",
     (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
     "holdingId",
     generation
     FROM person_holdings ph
     INNER JOIN transaction t on t.id = ph."transactionId"
+    LEFT OUTER JOIN (
+    select q.id,  jsonb_array_elements(data->'parcels') as parcels from (
+    select id, data from transaction
+    ) q) tt on t.id = tt.id
+
     ORDER BY generation
 )
 -- TODO, shareClass and amount now in data-> parcels

@@ -973,6 +973,7 @@ export const performAmend = Promise.method(function(data, companyState, previous
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
 
+            const transactionType  = data.transactionType;
             transaction = Transaction.build({type: transactionType,
                 data: data, effectiveDate: effectiveDate});
             let increase;
@@ -992,7 +993,6 @@ export const performAmend = Promise.method(function(data, companyState, previous
                 parcels.map(parcel => companyState.subtractUnallocatedParcels(parcel));
                 companyState.combineHoldings([newHolding], null, transaction);
             }
-            const transactionType  = data.transactionType;
             return transaction;
         })
 });

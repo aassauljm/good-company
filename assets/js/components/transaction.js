@@ -27,8 +27,7 @@ const TEMPLATABLE = {
                     companyNumber: state.companyNumber
                 },
                 transaction: {
-                    amount: transferee.data.amount,
-                    shareClass: transferee.data.shareClass ? renderShareClass(transferee.data.shareClass, shareClassMap) : '',
+                    parcels: transferee.data.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass ? renderShareClass(p.shareClass, shareClassMap) : ''})),
                     effectiveDateString: stringDateToFormattedString(data.effectiveDate),
                     transferees: (transferee.data.holders || transferee.data.afterHolders || [])
                         .map(h => ({companyNumber: h.companyNumber || '', name: h.name, address: h.address})),

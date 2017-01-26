@@ -19,7 +19,7 @@ module.exports = {
             type: Sequelize.ENUM.apply(null, _.values(types))
         },
         data: {
-            type: Sequelize.JSON
+            type: Sequelize.JSONB
         },
         effectiveDate: {
             type: Sequelize.DATE
