@@ -220,8 +220,7 @@ describe('CompanyState Model', function() {
                     as: 'unallocatedParcels'
                 }]})
                 .then(function(state){
-                    state.totalAllocatedShares().should.eventually.become(10);
-                    state.totalUnallocatedShares().should.eventually.become(100)
+                    state.totalAllocatedShares().should.eventually.become(10)
                         .notify(done)
 
                 })

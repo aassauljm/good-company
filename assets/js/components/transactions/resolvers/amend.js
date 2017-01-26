@@ -133,7 +133,7 @@ class Recipient extends React.Component {
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
                 <DateInput {...this.formFieldProps('effectiveDate')} disabled={!!this.props.isInverse.value} time={true}/>
-                <div className="input-group-pair input-row">
+                <div className="input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={!!this.props.isInverse.value}
                     label={false}>
@@ -143,15 +143,17 @@ class Recipient extends React.Component {
                             {  !this.props.increase &&<optgroup label="Decreases">{ decreaseOptions() } </optgroup> }
                             {  !this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
                     </Input>
-                    <Input
+
+                </div>
+
+                 {/*}                   <Input
                     className="amount"
                     type={this.props.amount.value === 'All' ? "text" : "number"}
                     {...this.formFieldProps('amount')}
                     placeholder={'Number of Shares'}
                     value={ this.props.amount.value }
                     disabled={!!this.props.isInverse.value || this.props.amount.value === 'All'}
-                    label={null}/>
-                </div>
+                    label={null}/> */ }
 
                 { optionalNotification(this.props.type.value) && <div className="input-row">
 
@@ -375,7 +377,8 @@ const validateAmend = (values, props) => {
 
 const amendFields = [
     'actions[].recipients[].type',
-    'actions[].recipients[].amount',
+    'actions[].recipients[].parcels[].amount',
+    'actions[].recipients[].parcels[].shareClass',
     'actions[].recipients[].effectiveDate',
     'actions[].recipients[].holding',
     'actions[].recipients[].isInverse',
@@ -415,20 +418,20 @@ export function formatSubmit(values, actionSet) {
         a.recipients.map((r, j) => {
             if(!r.isInverse){
                 let method = TransactionTypes.AMEND;
-                const amount = parseInt(r.amount, 0) || 0;
+                const parcels = r.parcels.map(p => ({amount: parseInt(p.amount, 10), shareClass: parseInt(p.shareClass, 10) || null}))
                 const holders = amends[i].afterHolders || amends[i].holders;
                 if(isTransfer(r.type)){
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
-                    const holdingIndex = parseInt(r.holding, 10)
+                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
+                    const holdingIndex = parseInt(r.holding, 10);
                     const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
                     const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
-                        transactionType: inverseTransfer(r.type),  amount: amount, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true}
+                        transactionType: inverseTransfer(r.type), parcels, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true}
                     transfers.push([result, inverse])
                 }
                 else{
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
+                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
                     nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
                     nonTransfers[r.effectiveDate].push(result);
                     if(optionalNotification(r.type) && !r.notified){
@@ -436,7 +439,7 @@ export function formatSubmit(values, actionSet) {
                             nonTransfers[r.effectiveDate].push({
                                 transactionType: TransactionTypes.CANCELLATION,
                                 unnotified: true,
-                                amount: amount,
+                                parcels,
                                 effectiveDate: r.effectiveDate,
                             });
                         }
@@ -460,15 +463,24 @@ export function formatSubmit(values, actionSet) {
 
     const newAllocations = {};
 
+    const parcelIndexByClass = (parcels, shareClass) => {
+        return parcels.findIndex(p => !shareClass && !p.shareClass || shareClass === p.shareClass);
+    }
+
+
     transactions.map((sets, i) => {
         sets.map(action => {
-            if(action._holding !== undefined){
+            if(action._holding !== undefined && amends[action._holding].parcels){
                 //look up original action
                 const original = amends[action._holding];
-                action.afterAmount = amends[action._holding].afterAmount;
-                action.beforeAmount = action.afterAmount + (isIncrease(action.transactionType) ? -action.amount : action.amount);
-                original.afterAmount = action.beforeAmount;
-                if(action.beforeAmount === 0 && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
+
+                action.parcels.map(p => {
+                    const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
+                    p.afterAmount = original.parcels[parcelIndex].afterAmount;
+                    p.beforeAmount = p.afterAmount + (isIncrease(action.transactionType) ? -p.amount : p.amount);
+                    original.parcels[parcelIndex].afterAmount = p.beforeAmount;
+                });
+                if(action.parcels.every(p => p.beforeAmount === 0) && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
                     newAllocations[action._holding] = action;
                 }
                 else{

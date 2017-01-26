@@ -548,7 +548,7 @@ module.exports = {
             if(d.actions){
                 return {...d, actions: d.actions.map(a => {
                     const {amount, beforeAmount, afterAmount, shareClass, ...rest} = a;
-                    if(amount !== undefined){
+                    if(amount !== undefined || a.unknownAmount){
                         return {...rest, parcels: [{amount, beforeAmount, afterAmount, shareClass}]};
                     }
                     return a;

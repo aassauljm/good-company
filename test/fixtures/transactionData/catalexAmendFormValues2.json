@@ -233,12 +233,12 @@
                 "recipients": [
                     {
                         "_keyIndex": 0,
-                        "amount": 1110,
+                        "parcels":[{"amount": 1110}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "type": "ISSUE_TO"
                     },
                     {
-                        "amount": 1,
+                        "parcels":[{"amount": 1}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "holding": "6",
                         "type": "TRANSFER_TO"
@@ -249,7 +249,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 1,
-                        "amount": 4999,
+                        "parcels":[{"amount": 4999}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "holding": "6",
                         "type": "TRANSFER_TO"
@@ -260,7 +260,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 2,
-                        "amount": 4999,
+                        "parcels":[{"amount": 4999}],
                         "effectiveDate": "2014-09-03T12:00:00.000Z",
                         "holding": "5",
                         "type": "TRANSFER_TO"
@@ -271,7 +271,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 3,
-                        "amount": 1,
+                        "parcels":[{"amount": 1}],
                         "effectiveDate": "2014-08-31T12:00:00.000Z",
                         "holding": "5",
                         "type": "TRANSFER_TO"
@@ -282,7 +282,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 4,
-                        "amount": 1,
+                        "parcels":[{"amount": 1}],
                         "effectiveDate": "2014-09-01T12:00:00.000Z",
                         "holding": "6",
                         "type": "TRANSFER_TO"
@@ -293,7 +293,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 56,
-                        "amount": 1,
+                        "parcels":[{"amount": 1}],
                         "effectiveDate": "2014-08-31T12:00:00.000Z",
                         "holding": "3",
                         "isInverse": true,
@@ -301,7 +301,7 @@
                     },
                     {
                         "_keyIndex": 55,
-                        "amount": 4999,
+                        "parcels":[{"amount": 4999}],
                         "effectiveDate": "2014-09-03T12:00:00.000Z",
                         "holding": "2",
                         "isInverse": true,
@@ -313,7 +313,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 57,
-                        "amount": 1,
+                        "parcels":[{"amount": 1}],
                         "effectiveDate": "2014-09-01T12:00:00.000Z",
                         "holding": "4",
                         "isInverse": true,
@@ -321,7 +321,7 @@
                     },
                     {
                         "_keyIndex": 54,
-                        "amount": 4999,
+                        "parcels":[{"amount": 4999}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "holding": "1",
                         "isInverse": true,
@@ -329,12 +329,12 @@
                     },
                     {
                         "_keyIndex": 0,
-                        "amount": 1,
+                        "parcels":[{"amount": 1}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "type": "ISSUE_TO"
                     },
                     {
-                        "amount": 1,
+                        "parcels":[{"amount": 1}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "holding": "0",
                         "type": "TRANSFER_FROM",

@@ -952,6 +952,7 @@ export function validateAmend(data, companyState){
     holding.dataValues.parcels.map(parcel => {
         data.parcels.map(newParcel => {
             if(Parcel.match(parcel, newParcel) && parcel.amount !== newParcel.beforeAmount){
+            console.log(newParcel, parcel)
                 throw new sails.config.exceptions.InvalidInverseOperation('Before amount does not match, amend')
             }
         })

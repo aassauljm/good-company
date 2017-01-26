@@ -47,8 +47,8 @@ describe('Share Register', function() {
                         transactionMethod: Transaction.types.AMEND,
                         transactionType: Transaction.types.ISSUE_TO,
                          parcels: [{amount: 100,
-                        beforeAmount: 0,
-                        afterAmount: 100,
+                        beforeAmount: 1,
+                        afterAmount: 101,
                         shareClass: 1}],
                         holders: [{
                             name: 'mike'

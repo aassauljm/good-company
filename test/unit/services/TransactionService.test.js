@@ -244,8 +244,8 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}, {name: 'cindy'}],
                             beforeHolders: [{name: 'mike'}, {name: 'cindy'}],
-                            beforeAmount: 0,
-                            afterAmount: 1
+                            parcels:[{beforeAmount: 0,
+                            afterAmount: 1, amount: 0}]
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
@@ -257,8 +257,8 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}],
                             beforeHolders: [{name: 'mike'}],
-                            beforeAmount: -1,
-                            afterAmount: 1
+                            parcels:[{beforeAmount: -1,
+                            afterAmount: 1}]
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
@@ -270,8 +270,8 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}],
                             beforeHolders: [{name: 'mike'}],
-                            beforeAmount: 0,
-                            afterAmount: 2
+                            parcels:[{beforeAmount: 0,
+                            afterAmount: 2}]
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.rejected;
                     });
             });
@@ -285,8 +285,8 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}],
                             beforeHolders: [{name: 'mike'}],
-                            beforeAmount: 0,
-                            afterAmount: 1
+                            parcels:[{beforeAmount: 0,
+                            afterAmount: 1}]
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){
@@ -587,9 +587,9 @@ describe('Transaction Service', function() {
                         holdingId2 = companyState.getMatchingHolding({holders: [{name: 'mike'}, {name: 'mary'}]}).holdingId;
                         return TransactionService.performAmend({
                                 holdingId: holdingId1,
-                                amount: 1,
+                                parcels:[{amount: 1,
                                 beforeAmount: 2,
-                                afterAmount: 1,
+                                afterAmount: 1}],
                                 transactionType: Transaction.types.TRANSFER_FROM,
                                 transactionMethod: Transaction.types.AMEND
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
@@ -597,9 +597,9 @@ describe('Transaction Service', function() {
                     .then(function(){
                         return TransactionService.performAmend({
                             holdingId: holdingId2,
-                            amount: 1,
+                            parcels: [{amount: 1,
                             beforeAmount: 3,
-                            afterAmount: 4,
+                            afterAmount: 4}],
                             transactionType: Transaction.types.TRANSFER_TO,
                             transactionMethod: Transaction.types.AMEND
                         }, nextState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
@@ -632,9 +632,9 @@ describe('Transaction Service', function() {
                         personId = companyState.getMatchingHolding({holders: [{name: 'sarah'}], parcels: [{amount: 1}]}).holders[0].person.personId;
                         return TransactionService.performAmend({
                                 holdingId: holdingId,
-                                amount: 1,
+                                parcels: [{amount: 1,
                                 beforeAmount: 1,
-                                afterAmount: 0,
+                                afterAmount: 0}],
                                 transactionType: Transaction.types.REDEMPTION_FROM,
                                 transactionMethod: Transaction.types.AMEND
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
