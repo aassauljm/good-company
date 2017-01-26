@@ -235,7 +235,7 @@ describe('Company Controller', function() {
                         return acc;
                     }, {});
                     holdings = _.reduce(res.body.currentCompanyState.holdingList.holdings, (acc, holding, key) => {
-                        acc[holding.name] = holding.holdingId;
+                        acc[holding.name] = {id: holding.holdingId, amount: holding.parcels.reduce((sum, p) => sum + p.amount, 0)}
                         return acc;
                     }, {});
                     done();
@@ -247,23 +247,27 @@ describe('Company Controller', function() {
             req.post('/api/transaction/apply_share_classes/'+companyId)
                 .send({actions: [{
                         transactionType: 'APPLY_SHARE_CLASS',
-                        shareClass: classes['Class A'],
-                        holdingId: holdings['Allocation 1']
+                        parcels: [{shareClass: classes['Class A'], amount: holdings['Allocation 1'].amount}],
+                        holdingId: holdings['Allocation 1'].id,
+
                     },{
                         transactionType: 'APPLY_SHARE_CLASS',
-                        shareClass: classes['Class B'],
-                        holdingId: holdings['Allocation 2']
+                        holdingId: holdings['Allocation 2'].id,
+                        parcels: [{shareClass: classes['Class B'], amount: holdings['Allocation 2'].amount}],
                     },{
                         transactionType: 'APPLY_SHARE_CLASS',
-                        shareClass: classes['Class B'],
-                        holdingId: holdings['Allocation 3']
+                        parcels: [{shareClass: classes['Class B'], amount: holdings['Allocation 3'].amount}],
+                        holdingId: holdings['Allocation 3'].id,
                     }]
                 })
                 .expect(200)
                 .then(function(res){
                     done();
                 })
-                .catch(done)
+                .catch(e => {
+                    console.log(e)
+                    done(e)
+                })
             });
 
 
@@ -523,36 +527,7 @@ describe('Company Controller', function() {
                 })
             .catch(done)
         });
-        /*it('Submits resolution (transfer/amend order, part 2)', function(done){
-            return fs.readFileAsync('test/fixtures/transactionData/catalexResolveHoldingAmend2.json', 'utf8')
-                .then(function(text){
-                    var json = JSON.parse(text);
-                    json.pendingActions.map(function(p){
-                        p.id = context.actionSet.id;
-                        p.previous_id = context.actionSet.previous_id;
-                    });
-                    return req.put('/api/company/'+companyId+'/update_pending_history')
-                        .send(json)
-                        .expect(200)
-                })
-                .then(function(){
-                     return req.post('/api/company/'+companyId+'/import_pending_history')
-                        .expect(200)
-                })
-                .then(function(){
-                    return req.get('/api/company/'+companyId+'/share_register')
-                })
-                .then(function(res){
-                    res.body.shareRegister[0].issueHistory.length.should.be.at.least(0);
-                    res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
-                    res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
-                     res.body.shareRegister.map(s => {
-                        should.equal(s.shareClass, null);
-                    })
-                    done();
-                })
-            .catch(done)
-        });*/
+
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
@@ -578,9 +553,7 @@ describe('Company Controller', function() {
                         acc[item.name] = item.id;
                         return acc;
                     }, {});
-                    holdings = _.map(res.body.currentCompanyState.holdingList.holdings, (holding, key) => {
-                        return holding.holdingId;
-                    });
+                    holdings = res.body.currentCompanyState.holdingList.holdings;
                     done();
                 })
                 .catch(done);
@@ -591,15 +564,17 @@ describe('Company Controller', function() {
             req.post('/api/transaction/apply_share_classes/'+companyId)
                 .send({actions: holdings.map(h => ({
                         transactionType: 'APPLY_SHARE_CLASS',
-                        shareClass: classes['Class A'],
-                        holdingId: h
+                        parcels: h.parcels.map(p => ({shareClass: classes['Class A'], amount: p.amount})),
+                        holdingId: h.holdingId
                     }))
                 })
                 .expect(200)
                 .then(function(res){
                     done();
                 })
-                .catch(done)
+                .catch(e => {
+                    done(e)
+                })
         });
 
         it('check seed in history', function(done){

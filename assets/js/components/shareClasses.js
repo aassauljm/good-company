@@ -201,8 +201,6 @@ export class ShareClassForm extends React.Component {
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.limitations.removeField(i)}><Glyphicon glyph='trash'/></button>}  />
             }) }
 
-
-
             { fields.transferRestriction.value &&  <div className="form-group"><div className="button-row"><ButtonInput onClick={() => {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div></div> }

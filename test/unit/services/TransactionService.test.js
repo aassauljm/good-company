@@ -559,7 +559,7 @@ describe('Transaction Service', function() {
                         return TransactionService.performApplyShareClass({
                             transactionType: Transaction.types.APPLY_SHARE_CLASS,
                             holdingId: holdingId,
-                            shareClass: 1,
+                            parcels:[{shareClass: 1, amount: holding.parcels[0].amount}]
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){
