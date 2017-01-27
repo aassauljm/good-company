@@ -637,13 +637,12 @@ describe('Company Controller', function() {
 
             .catch(done)
         });
-        return;
-        /// TODO
+
 
         it('check transaction history', function(done){
             req.get('/api/company/'+companyId+'/transactions')
                 .then(function(res){
-                    res.body.transactions.length.should.be.equal(39);
+                    res.body.transactions.length.should.be.equal(32);
                     done();
                 })
             .catch(done)
@@ -660,7 +659,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(29);
+                    res.body.length.should.be.equal(22);
                     done();
                 })
                 .catch(done)

@@ -14,8 +14,8 @@ export function actionAmountDirection(action={}){
         return false
     }
 
-    if(action.afterAmount !== undefined && action.beforeAmount !== undefined){
-        return action.afterAmount >= action.beforeAmount
+    if(action.parcels[0].afterAmount !== undefined && action.parcels[0].beforeAmount !== undefined){
+        return action.parcels[0].afterAmount >= action.parcels[0].beforeAmount
     }
 
     return !action.beforeHolders;
@@ -147,27 +147,34 @@ export function directionString(action) {
 export function beforeAndAfterSummary(context, companyState, showType){
     let { action = {}, actionSet } = context;
     const increase = actionAmountDirection(action);
-    const beforeCount = action.beforeAmount || 0;
-    const afterCount = action.afterAmount !== undefined ? action.afterAmount : action.amount;
-    let beforeShares = beforeCount ? `${numberWithCommas(beforeCount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares` : 'No Shares';
-    let afterShares = afterCount ? `${numberWithCommas(afterCount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares` : 'No Shares';
-    let shareChange =  `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, context.shareClassMap)} Shares ${ increase ? 'Added' : 'Removed'}`;
-    if(action.inferAmount && action.beforeAmountLookup && !action.beforeAmount){
-        beforeShares = 'Unknown Number of Shares';
-        shareChange = 'Shares Removed'
-    }
-    if(action.inferAmount && action.afterAmountLookup && !action.afterAmount){
-        afterShares = 'Unknown Number of Shares';
-        shareChange = 'Shares Added'
-    }
-    if(!action.afterAmount && !action.amount && !action.beforeAmount){
-        shareChange = 'Start and End with No Shares'
-    }
+    const beforeSharesList = [];
+    const afterSharesList = []
+    const shareChanges = action.parcels.map(p => {
+        const beforeCount = p.beforeAmount || 0;
+        const afterCount = p.afterAmount !== undefined ? p.afterAmount : p.amount;
+        let beforeShares = beforeCount ? `${numberWithCommas(beforeCount)} ${renderShareClass(p.shareClass, context.shareClassMap)} Shares` : 'No Shares';
+        let afterShares = afterCount ? `${numberWithCommas(afterCount)} ${renderShareClass(p.shareClass, context.shareClassMap)} Shares` : 'No Shares';
+        let shareChange =  `${numberWithCommas(p.amount)} ${renderShareClass(p.shareClass, context.shareClassMap)} Shares ${ increase ? 'Added' : 'Removed'}`;
+        if(action.inferAmount && action.beforeAmountLookup && !p.beforeAmount){
+            beforeShares = 'Unknown Number of Shares';
+            shareChange = 'Shares Removed'
+        }
+        if(action.inferAmount && action.afterAmountLookup && !p.afterAmount){
+            afterShares = 'Unknown Number of Shares';
+            shareChange = 'Shares Added'
+        }
+        if(!p.afterAmount && !p.amount && !p.beforeAmount){
+             shareChange = 'Start and End with No Shares'
+        }
+        beforeSharesList.push(beforeShares);
+        afterSharesList.push(afterShares);
+        return shareChange;
+    })
 
     return <div className="row row-separated">
                 <div className="col-md-5">
                     <div className="shareholding action-description ">
-                     <div className="shares">{  beforeShares }</div>
+                    { beforeSharesList.map((s, i) => <div key={i} className="shares">{s}</div> )}
                         { (action.beforeHolders || action.holders || []).map(renderHolders) }
                     </div>
 
@@ -178,12 +185,12 @@ export function beforeAndAfterSummary(context, companyState, showType){
                     <h5 className="transaction-direction">{ directionString(action) }</h5>
                     <h5>'{ STRINGS.transactionTypes[action.transactionType || action.type] }'</h5></div> }
                         <Glyphicon glyph="arrow-right" className="big-arrow" />
-                        <p><span className="shares">{ shareChange }</span></p>
+                        { shareChanges.map((shareChange, i) => <p key={i}><span className="shares">{ shareChange }</span></p>)}
                     </div>
                 </div>
                 <div className="col-md-5">
                     <div className="shareholding action-description ">
-                         <div className="shares">{ afterShares }</div>
+                        { afterSharesList.map((s, i) => <div key={i} className="shares">{s}</div> )}
                         { (action.afterHolders || action.holders || []).map(renderHolders) }
                     </div>
                 </div>
