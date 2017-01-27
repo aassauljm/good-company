@@ -285,8 +285,7 @@ describe('Transaction Service', function() {
                             transactionType: Transaction.types.ISSUE_TO,
                             afterHolders: [{name: 'mike'}],
                             beforeHolders: [{name: 'mike'}],
-                            parcels:[{beforeAmount: 0,
-                            afterAmount: 1}]
+                            parcels:[{beforeAmount: 0, afterAmount: 1, amount: 1}]
                         }, companyState, rootStateMultiple, new Date(), USER_ID).should.eventually.be.fulfilled;
                     })
                     .then(function(){

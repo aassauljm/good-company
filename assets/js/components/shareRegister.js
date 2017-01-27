@@ -54,33 +54,33 @@ function transferRecipients(siblings){
 // all the same
 function renderChange(action, shareClassMap){
     const date = stringDateToFormattedString(action.effectiveDate);
-    return `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
+    return `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderTransferTo(action, shareClassMap){
     const date = stringDateToFormattedString(action.effectiveDate);
-    return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
+    return  `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderTransferFrom(action, shareClassMap){
     const date = stringDateToFormattedString(action.effectiveDate);
-    return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
+    return  `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderChangeFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)}`
 }
 
 function renderConversionFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.beforeAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${numberWithCommas(action.data.afterAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.beforeAmount)} ${renderShareClass(action.shareClass, shareClassMap)} to ${numberWithCommas(action.afterAmount)} ${renderShareClass(action.shareClass, shareClassMap)}`
 }
 
 function renderTransferToFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
 }
 
 function renderTransferFromFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${transferRecipients(action.siblings)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} to ${transferRecipients(action.siblings)}`
 }
 
 /*function renderHoldingChange(action, shareClassMap){
@@ -93,11 +93,11 @@ function renderTransferFromFull(action, shareClassMap){
 }*/
 
 function renderAmbigiousChangeFull(action, shareClassMap){
-    if(action.type === TransactionTypes.NEW_ALLOCATION || action.data.afterAmount > action.data.beforeAmount){
-        return `Ambiguous increase of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`;
+    if(action.type === TransactionTypes.NEW_ALLOCATION || action.afterAmount > action.beforeAmount){
+        return `Ambiguous increase of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)}`;
     }
     else{
-        return `Ambiguous decrease of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+        return `Ambiguous decrease of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)}`
     }
 }
 

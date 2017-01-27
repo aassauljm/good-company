@@ -128,6 +128,9 @@ module.exports = {
             getParcelByShareClass: function(shareClass){
                 return _.find(this.dataValues.parcels, p => Parcel.match(p, {shareClass}))
             },
+            getParcelByAmount: function(amount){
+                return _.find(this.dataValues.parcels, p => p.amount === amount)
+            },
             hasNonEmptyParcels: function(){
                 return _.sum(this.dataValues.parcels, 'amount') > 0;
             },

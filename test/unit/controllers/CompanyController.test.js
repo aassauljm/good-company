@@ -623,10 +623,13 @@ describe('Company Controller', function() {
         it('check share register', function(done){
             req.get('/api/company/'+companyId+'/share_register')
                 .then(function(res){
+                    //console.log(JSON.stringify(res.body.shareRegister, null, 4))
                     res.body.shareRegister[0].issueHistory.length.should.be.at.least(0);
                     res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
                     res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
                     res.body.shareRegister.map(s => {
+                        //if(!s.shareClass)
+                        //console.log(s)
                         should.equal(s.shareClass, classes['Class A']);
                     });
                     done();
@@ -635,6 +638,7 @@ describe('Company Controller', function() {
             .catch(done)
         });
         return;
+        /// TODO
 
         it('check transaction history', function(done){
             req.get('/api/company/'+companyId+'/transactions')

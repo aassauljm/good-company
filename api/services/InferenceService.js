@@ -283,7 +283,7 @@ module.exports = {
         //results = splitMultiTransfers(results);
 
         return results;
-    },
+},
 
     splitHoldingTransfers: function(docs) {
         // holding transfers are now deprecated
@@ -330,8 +330,8 @@ module.exports = {
                         newAlloc.inferAmount = true
                         newAlloc.afterAmountLookup = {beforeHolders: action.beforeHolders};
                     }
-                    acc.push(newAlloc);
                     acc.push(amend);
+                    acc.push(newAlloc);
 
                 }
                 else{
@@ -591,7 +591,7 @@ module.exports = {
         // before sort, fine amend types
         docs = InferenceService.inferAmendTypes(docs);
         docs = InferenceService.flagTreasuryTransactions(docs, companyNumber);
-        docs = InferenceService.sharesToParcels(docs);
+
 
 
         docs = docs.reduce((acc, doc) =>{
@@ -630,6 +630,7 @@ module.exports = {
 
         // AFTER SORT
         docs = InferenceService.insertIntermediateActions(docs);
+        docs = InferenceService.sharesToParcels(docs);
         // Add ids
 
         docs.map(p => {
