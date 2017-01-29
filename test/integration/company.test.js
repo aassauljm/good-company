@@ -13,52 +13,47 @@ import { prepareApp, waitFor } from './helpers';
 import { LoginForm } from "../../assets/js/components/login.js";
 import { Modals } from "../../assets/js/components/transactionViews.js";
 import { ShareClasses } from "../../assets/js/components/shareClasses.js";
-import Search from '../../assets/js/components/search.js';
+import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js';
 import chai from 'chai';
+
+
 const should = chai.should();
 
 
-describe.skip('Company Integration Tests', () => {
+describe('Company Integration Tests', () => {
     before('render', prepareApp);
 
     it('Imports Company', function(done){
-        let search;
-        const dom = this.dom,
-            form = findRenderedComponentWithType(this.tree, LoginForm),
-            input = findRenderedDOMComponentWithTag(form.refs.identifier, 'input'),
-            password = findRenderedDOMComponentWithTag(form.refs.password, 'input'),
-            submit = findRenderedDOMComponentWithTag(form, 'button');
-        input.value = 'integrate@email.com';
-        Simulate.change(input);
-        password.value = 'testtest';
-        Simulate.change(password);
-        Simulate.click(submit);
-        waitFor('Waiting for login confirmation', 'a[href="/logout"]', dom)
-            .then(() => {
-                return waitFor('Waiting for user info', '.username.nav-link', dom);
-            })
+        let search, dom = this.dom;
+        waitFor('Waiting for login confirmation', 'div.welcome-back', dom)
             .then(() => {
                 return waitFor('Companies page to load', '.auto-suggest', dom);
             })
             .then(() => {
-                search = findRenderedComponentWithType(this.tree, Search);
+                search = findRenderedComponentWithType(this.tree, ConnectedPlaceholderSearch);
                 const input = findRenderedDOMComponentWithTag(search, 'input');
-                input.value = 'integration_test'
+                Simulate.focus(input);
+                input.value = 'PROJECT MANAGER HOLDINGS LIMITED'
                 Simulate.change(input);
-                //return waitFor('Drop down results to appear', '.suggest-container', dom);
+                return waitFor('Drop down results to appear', '.suggest-container > *', dom);
             })
             .then(() => {
-                // Click 2nd item
-                //Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[1]);
-                // Import
-                //Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[0]);
+                const item = findRenderedDOMComponentWithClass(search, 'list-group-item-heading');
+                Simulate.click(item);
+                return waitFor('Selection to be made', 'button.import-company', dom);
                 // Can take some time
                 //return waitFor('Company page to load', '.company', dom, 10000);
+            })
+            .then((button) => {
+                Simulate.click(button);
+                return waitFor('Selection to be made', 'a.view-company', dom, 10000);
             })
             .then(() => {
                 done();
             })
-            .catch(done);
+            .catch((e) => {
+                done(e);
+            });
    });
     /*it('Sets up shares', function(done){
         const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-classes');

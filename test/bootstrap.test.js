@@ -16,7 +16,7 @@ var events = require("events"),
 EventEmitter = events.EventEmitter;
 EventEmitter.defaultMaxListeners = 30;
 Error.stackTraceLimit = Infinity;
-var setFetch = require("../assets/js/utils").setFetch;
+var Utils = require("../assets/js/utils");
 var _fetch = require('isomorphic-fetch');
 var nodemailer = require('nodemailer');
 var stubTransport = require('nodemailer-stub-transport');
@@ -69,11 +69,10 @@ function stubs(){
         return Promise.resolve(results);
     }
 
-
-
     var cookie;
+
     // This function will allow cookie authentication to persist on the server side
-    setFetch(function(url, args){
+    Utils.setFetch(function(url, args){
         url =  window.location.protocol + '//' +window.location.host + url;
         return _fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
             .then(function(r){
@@ -83,6 +82,10 @@ function stubs(){
                 return r;
             })
     })
+
+
+
+
     global.__DEV__ = false;
 }
 

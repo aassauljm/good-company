@@ -84,7 +84,7 @@ export class ImportSingle extends React.Component {
                 </dl>
                 <div className="button-row">
                     <Button  onClick={() => this.setState({'company': null, finished: null, error: null})} >Cancel</Button>
-                    <Button bsStyle="primary" onClick={this.importCompany} >Import this Company</Button>
+                    <Button bsStyle="primary" className="import-company" onClick={this.importCompany} >Import this Company</Button>
                 </div>
         </div>
     }
@@ -140,7 +140,7 @@ export class ImportSingle extends React.Component {
         <p><strong>{this.state.company.companyName}</strong> has been imported.</p>
                 <div className="button-row">
                     <Button  onClick={() => this.setState({'company': null, finished: null, error: null})} >Import Another Company</Button>
-                    <Link to={`/company/view/${this.state.finished}`} className="btn btn-primary">View Company</Link>
+                    <Link to={`/company/view/${this.state.finished}`} className="btn btn-primary view-company ">View Company</Link>
                 </div>
         </div>
     }

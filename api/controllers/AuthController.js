@@ -69,6 +69,10 @@ _.merge(exports, {
                         res.status(302).set('Location', url);
                     }
                     sails.log.info('user', user.toJSON(), 'authenticated successfully');
+
+                    if(req.param('noRedirect')){
+                        return  res.json({success: true})
+                    }
                     return res.redirect('/')
                 })
             });
