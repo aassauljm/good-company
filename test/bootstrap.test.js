@@ -20,9 +20,13 @@ var Utils = require("../assets/js/utils");
 var _fetch = require('isomorphic-fetch');
 var nodemailer = require('nodemailer');
 var stubTransport = require('nodemailer-stub-transport');
+var LawBrowserContainer = require('../assets/js/components/lawBrowserContainer');
+
 var sails;
 
 function stubs(){
+    // lawbrowser links screw up in the testing tree
+    LawBrowserContainer.default.prototype.forceNoLawLinks = true;
 
     ScrapingService.fetch = function(companyNumber){
         return fs.readFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', 'utf8');

@@ -287,6 +287,7 @@ var transactions = {
         .then(function(r){
             shareClasses = r;
             const attributes = {name: data.name, properties: _.omit(data, 'name', 'documents')}
+            sails.log.info('Creating share class')
             return ShareClass.create(attributes, {include: [{model: Document, as: 'documents'}]})
         })
         .then(function(shareClass){

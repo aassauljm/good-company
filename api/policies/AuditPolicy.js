@@ -4,17 +4,21 @@ var url = require('url');
 
 module.exports = function(req, res, next) {
     var ipAddress = req.headers['x-forwarded-for'] || (req.connection && req.connection.remoteAddress);
-    req.requestId = fnv.hash(new Date().valueOf() + ipAddress, 128).str();
+    var url = sanitizeRequestUrl(req);
+    req.requestId = fnv.hash(new Date().valueOf() + ipAddress + url, 128).str();
 
     var create = sails.models.requestlog.create({
         id: req.requestId,
         ipAddress: ipAddress,
-        url: sanitizeRequestUrl(req),
+        url: url,
         method: req.method,
         body: _.omit(req.body, 'password'),
         model: req.options.modelIdentity,
         userId: (req.user || {}).id
     });
+
+
+
     if (req.waitForRequestLog) {
         create.then(() => {
             next();

@@ -161,6 +161,7 @@ export class GuidedSetup extends React.Component {
             props.transactionViewData = {...props.transactionViewData, companyState: this.props.companyState, companyId: this.props.companyId};
         }
         const showNext = this.props.location.query.show_next;
+
         return <div className="transactionViews">
             <div>
                 <div className="container">
@@ -183,7 +184,7 @@ export class GuidedSetup extends React.Component {
                     </div>
                     </div>
                 </div>
-                { this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
+                { !!this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
             </div>
             { showNext && <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={this.state.warningCount !== 0}/> }
         </div>

@@ -196,7 +196,7 @@ export class CompanyView extends React.Component {
         }
         return <div className="company">
 
-                <div className="company-page">
+                <div className={current ? "company-page company-loaded" : "company-page"}>
                     <div className="container-fluid page-top">
                         <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} baseUrl={this.props.baseUrl} date={this.props.date}/>
                         </div>
