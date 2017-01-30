@@ -210,18 +210,10 @@ function transactionRows(row, shareClassMap){
     results.sort((a, b) => a.generation - b.generation);
     let total = row.last_amount;
     return results.map((r, i) =>{
-        const _total = total
-        //if(increaseTypes.indexOf(r.type) >= 0){
-        if(r.data.beforeAmount < r.data.afterAmount){
-            total -= r.data.amount;
-        }
-        else{
-            total += r.data.amount;
-        }
         return <tr key={i}>
             <td className="date">{ stringDateToFormattedString(r.effectiveDate) }</td>
             <td className="description">{ renderActionFull(r, shareClassMap) } </td>
-            {/* <td className="total">{ numberWithCommas(_total) }</td> */ }
+             <td className="total">{ numberWithCommas(r.afterAmount) }</td>
             </tr>
     });
 }
@@ -376,15 +368,16 @@ export class ShareRegisterDocument extends React.Component {
         return <div>
             <h3>Transaction History</h3>
             { shareRegister.map((s, i) => {
-                return <div key={i}><h5>{s.name} { s.holdingName && `(${s.holdingName})` } - {renderShareClass(s.shareClass, shareClassMap)} Shares</h5>
-                 <table className="table share-register transaction-history">
+                const title = `${s.name} ${ s.holdingName && `(${s.holdingName})` } - ${renderShareClass(s.shareClass, shareClassMap)} Shares`;
+                return <table key={i} className="table share-register transaction-history">
                         <thead>
+                            <tr><th colSpan="2">{ title }</th><th className="total">Total</th></tr>
                         </thead>
                         <tbody>
                             { transactionRows(s, shareClassMap) }
                         </tbody>
                     </table>
-                    </div>
+
             })}
             </div>
     }

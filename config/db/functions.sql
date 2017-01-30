@@ -856,8 +856,9 @@ SELECT *,
     AND qq."holdingId" = q."holdingId"
       AND (data->>amount::text)::int != 0
     AND  type = ANY(ARRAY['AMEND', 'REMOVE_ALLOCATION', 'NEW_ALLOCATION']::enum_transaction_type[]) )
-
     AS "ambiguousChanges"
+
+
 
 FROM
 

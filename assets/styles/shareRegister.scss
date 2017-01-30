@@ -21,6 +21,10 @@
             width:20%;
         }
     }
+    td.total, th.total{
+        text-align: right;
+    }
+
     td.share-register-amount, td.share-register-last_amount{
         text-align: right;
     }
