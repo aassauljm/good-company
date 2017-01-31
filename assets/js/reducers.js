@@ -426,7 +426,7 @@ function processResource(state, action) {
 }
 
 
-function modals(state = {}, action) {
+function modals(state = {}, action) {console.log(action)
     switch(action.type){
         case SHOW_CONFIRMATION:
             return {...state, confirmation: {...action.data, showing: true}}
@@ -474,9 +474,6 @@ function modals(state = {}, action) {
 const normalizeNumber = (value) => {
     return value ? value.replace(/[^\d]/g, '') : value
 }
-
-
-
 
 
 export const form = formReducer.plugin({
