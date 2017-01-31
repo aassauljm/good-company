@@ -283,6 +283,16 @@ module.exports = {
 
                     }]
                 },
+                shareClasses: function(){
+                    return [{
+                        model: ShareClasses,
+                        as: 'shareClasses',
+                        include: [{
+                            model: ShareClass,
+                            as: 'shareClasses'
+                        }]
+                    }]
+                },
                 iRegister: function(){
                     return [{
                         model: InterestsRegister,
@@ -620,6 +630,7 @@ module.exports = {
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.iRegister())
                                 .concat(CompanyState.includes.holdingList())
+                                .concat(CompanyState.includes.shareClasses())
                             });
                     })
                     .then((next) => {

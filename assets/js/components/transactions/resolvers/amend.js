@@ -146,7 +146,11 @@ class Recipient extends React.Component {
                     </Input>
 
                 </div>
-                { this.props.parcels.map((p, i) => <ParcelWithRemove  key={i} {...p} />) }
+                <div className="row">{ this.props.parcels.map((p, i) =>{
+                    const remove = this.props.parcels.length > 1 && (() => this.props.parcels.removeField(i));
+                    const add = this.props.parcels.length < this.props.shareOptions.length && (() => this.props.parcels.addField({}));
+                    return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove}/>
+                }) }</div>
                  {/*}                   <Input
                     className="amount"
                     type={this.props.amount.value === 'All' ? "text" : "number"}
@@ -197,6 +201,7 @@ function Recipients(props){
                         allSameDirection={props.allSameDirection}
                         holdings={props.holdings}
                         remove={() => props.recipients.removeField(i)}
+                        shareOptions={ props.shareOptions }
                         >
                         </Recipient>
                         { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
@@ -212,7 +217,7 @@ function Recipients(props){
 
             { <div className="button-row">
                 <Button type="button" onClick={() => {
-                    props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate})    // pushes empty child field onto the end of the array
+                    props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate, parcels:[{}]})    // pushes empty child field onto the end of the array
                 }}>
                 Add Transaction
                 </Button>
@@ -272,6 +277,7 @@ class AmendOptions extends React.Component {
                         increase={increase}
                         allSameDirection={allSameDirection}
                         error={getError(i)}
+                        shareOptions={this.props.shareOptions}
                         holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
                 </div>
                 <hr/>
@@ -546,7 +552,7 @@ export default function Amend(props){
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{amount:  a.inferAmount ? 'All' : a.amount, effectiveDate, _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
+                recipients: [{parcels: [{amount:  a.inferAmount ? 'All' : a.amount, effectiveDate}], _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
             };
         }
         // else if one exact opposite transaction, then set that
@@ -554,7 +560,7 @@ export default function Amend(props){
         if(amountValues[increase][a.amount] && amountValues[increase][a.amount].length === 1 &&
            amountValues[!increase][a.amount] && amountValues[!increase][a.amount].length === 1){
             return {recipients: [{
-                amount:   a.inferAmount ? 'All' :  a.amount,
+                parcels: [{amount:   a.inferAmount ? 'All' :  a.amount}],
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
                 holding: amountValues[!increase][a.amount][0].index+'',
                 effectiveDate,
@@ -572,11 +578,16 @@ export default function Amend(props){
         }*/
 
         return {recipients: [{
-            amount:  a.inferAmount ? 'All' : a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
+            parcels: [{amount:  a.inferAmount ? 'All' : a.amount}], type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
         }]};
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
+
+    const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
+        return <option key={i} value={s.id}>{s.name}</option>
+    });
+
 
     return <div className="resolve">
             <AmendOptionsConnected
@@ -586,6 +597,8 @@ export default function Amend(props){
             allSameDirection={allSameDirection}
             //holdings={holdings}
             shareClassMap={shareClassMap}
+            shareOptions={shareOptions}
+
             onSubmit={handleSubmit}
             initialValues={initialValues}
             show={props.show}

@@ -371,7 +371,8 @@ function HoldingNotFound(props){
             </div>
          </div>
          <div className="row">
-         { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }
+         <div className="col-md-6">{ possibleMatches.filter((f, i) => i % 2 === 0).map((m, i) => <div key={i}><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }</div>
+         <div className="col-md-6">{ possibleMatches.filter((f, i) => i % 2 === 1).map((m, i) => <div key={i}><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }</div>
          </div>
          { edit && <div className="button-row">
            <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>
@@ -494,6 +495,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
         const action = context.action;
         context.shareClassMap = generateShareClassMap(context.companyState);
+        debugger
         if(!action || !PAGES[context.importErrorType]){
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}

@@ -1595,6 +1595,8 @@ export function performInverseAllPendingUntil(company, endCondition){
                         return e.context.companyState.fullPopulateJSON()
                             .then(function(fullState) {
                                 e.context.companyState = fullState;
+                                console.log('HI')
+                                console.log(fullState.shareClasses)
                                 throw e;
                             })
                     }
