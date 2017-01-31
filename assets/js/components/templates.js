@@ -258,6 +258,7 @@ export  class TemplateView extends React.Component {
             const template = TemplateMap[this.props.params.name];
             const context = makeContext(this.props.companyState);
             const values = template.getInitialValues(state || {}, context);
+            console.log(values)
             return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={context} />
         }
         return <div>Not Found</div>

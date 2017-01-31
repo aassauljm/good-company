@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';
 import DateInput from '../../forms/dateInput';
+import { ParcelWithRemove } from '../../forms/parcel';
 import { HoldingSelectWithNew, HoldingWithRemove } from '../../forms/holding';
 import STRINGS from '../../../strings'
 import { asyncConnect } from 'redux-connect';
@@ -145,7 +146,7 @@ class Recipient extends React.Component {
                     </Input>
 
                 </div>
-
+                { this.props.parcels.map((p, i) => <ParcelWithRemove  key={i} {...p} />) }
                  {/*}                   <Input
                     className="amount"
                     type={this.props.amount.value === 'All' ? "text" : "number"}
