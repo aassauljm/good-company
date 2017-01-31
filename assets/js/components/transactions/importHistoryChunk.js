@@ -75,7 +75,7 @@ function TransactionSummaries(props) {
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
         <Button bsStyle="primary" onClick={props.handleConfirm}>Confirm Transactions</Button>
-         <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button>
+         { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
     </div>
 }
@@ -141,6 +141,11 @@ PAGES[EXPLAINATION] = function() {
         const pendingYearActions = collectChunkedActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
             return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleAddNew={this.handleAddNew} handleEdit={this.handleEdit} end={this.props.end}/>
+        }
+        else{
+           return <div>
+                <p>All Companies Office documents have successfully been imported.</p>
+            </div>
         }
     }
     return false;
@@ -269,7 +274,7 @@ export class ImportHistoryChunkTransactionView extends React.Component {
                 ...this.props.transactionViewData,
                 error: this.props.importHistory.error,
                  //open this transactionView again
-                afterClose: { showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
+                afterClose: { showTransactionView: {key: 'importHistoryChunk', data: {...this.props.transactionViewData, index: CONTINUE}}},
                 editTransactionData: {
                     startId: pendingActions[0].id,
                     endId: pendingActions[pendingActions.length-1].previous_id,
