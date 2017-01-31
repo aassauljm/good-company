@@ -163,7 +163,7 @@ export class ApplyShareClassesTransactionView extends React.Component {
         const options = shareClasses.map((s, i) => {
             return <option key={i} value={s.id}>{s.name}</option>
         })
-        const defaultShareClass = shareClasses[shareClasses.length-1].id;
+        const defaultShareClass = (shareClasses[shareClasses.length-1] || {}).id;
 
         const initialValues = {holdings: companyState.holdingList.holdings.map((value, key) => {
             return {parcels: value.parcels.map(p => ({shareClass: (p.shareClass || defaultShareClass) + '', amount: p.amount })) }
