@@ -16,7 +16,8 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
-import { getDefaultValues, componentType, addItem, inputSelectSource, inputSource, oneOfMatchingSchema, getValidate, getKey, getFields } from 'json-schemer';
+import { getDefaultValues, componentType, addItem, injectContext, getValidate, getKey, getFields } from 'json-schemer';
+import deepmerge from 'deepmerge';
 
 function createLawLinks(list){
     return <div>
@@ -26,13 +27,12 @@ function createLawLinks(list){
     </div>
 }
 
-function renderList(fieldProps, componentProps){
-
+function renderList(fieldProps, componentProps) {
     return <fieldset className="list">
         { fieldProps.title && <legend>{fieldProps.title}</legend>}
-        <Shuffle scale={false}>
+        {/*<Shuffle scale={false}>*/}
         { componentProps.map((c, i) => {
-            return <div className="list-item" key={c._keyIndex.value}>
+            return <div className="list-item" key={c._keyIndex.value || i}>
                           <div className="text-right"><div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
                     { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
@@ -46,7 +46,7 @@ function renderList(fieldProps, componentProps){
                 </div>
             </div>;
         }) }
-        </Shuffle>
+        {/*</Shuffle>*/}
              <div className="button-row">
                 <Button onClick={() => {
                     componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: getKey()});
@@ -161,74 +161,6 @@ export class RenderForm extends React.Component {
 
 }
 
-function injectContext(FormComponent) {
-    class Injector extends React.Component {
-        render() {
-            const fields = injectContext(this.props.schema.properties, this.props.fields, this.props.context);
-            return <FormComponent {...this.props} fields={fields} />
-        }
-    }
-
-    function interceptChangesAndInject(schemaProperties, key, fields, context){
-        if (inputSelectSource(schemaProperties) && fields[key]) {
-            const source = inputSource(schemaProperties);
-            const onChange = fields[key][source].onChange;
-            fields[key][source].onChange = (event) => {
-                onChange(event);
-                const result = context[inputSelectSource(schemaProperties)].find(f => f[source] === event);
-                result && Object.keys(result).map(k => {
-                    if(k !== source && fields[key][k]){
-                        fields[key][k].onChange(result[k]);
-                    }
-                });
-            }
-            if(context[inputSelectSource(schemaProperties)]){
-                fields[key][source].comboData = context[inputSelectSource(schemaProperties)].map(f => f[source]);
-            }
-        }
-    }
-
-    function injectContext(schemaProperties, fields, context) {
-        function loop(schemaProperties, fields) {
-            fields && Object.keys(schemaProperties).map(key => {
-                if (schemaProperties[key].type === 'object') {
-                    loop(schemaProperties[key].properties, fields[key]);
-                    if (schemaProperties[key].oneOf) {
-                        schemaProperties[key].oneOf.map(oneOf => {
-                            loop(oneOf.properties, fields[key]);
-                        });
-                    }
-                } else if (schemaProperties[key].type === 'array') {
-                    if (schemaProperties[key].items.type === "object") {
-                        fields[key] && fields[key].map(f => {
-                            loop(schemaProperties[key].items.properties, f);
-                        })
-                        fields[key] && fields[key].map((field, index) => {
-                            interceptChangesAndInject(schemaProperties[key].items,  index, fields[key], context);
-                        });
-                        if(schemaProperties[key].items.oneOf) {
-                            fields[key].map(f => {
-                                let values = Object.keys(f).reduce((acc, k) => { acc[k] = f[k].value; return acc;}, {});
-                                let result = oneOfMatchingSchema(schemaProperties[key].items, values);
-                                if(result){
-                                     loop(result.properties, f);
-                                }
-                            });
-                        }
-                    }
-                }
-                interceptChangesAndInject(schemaProperties[key], key, fields, context)
-            });
-
-            return fields;
-        }
-
-        return loop(schemaProperties, fields);
-    }
-
-    return Injector;
-}
-
 
 const CreateForm = (schema, name) => {
     @reduxForm({
@@ -245,13 +177,17 @@ const CreateForm = (schema, name) => {
     return Form;
 }
 
+const arrayMerge = (destinationArray, sourceArray, options) => {
+    return sourceArray;
+}
+
 export const TemplateMap = Object.keys(templateSchemas).reduce((acc, k) => {
     acc[k] = {
         form: CreateForm(templateSchemas[k], k),
         title: templateSchemas[k].title,
         schema: templateSchemas[k],
         icon: templateSchemas[k]['x-icon'],
-        getInitialValues: (values) => getDefaultValues(templateSchemas[k], values),
+        getInitialValues: (values, context) => deepmerge(getDefaultValues(templateSchemas[k], context), values, { arrayMerge: arrayMerge })
     }
     return acc;
 }, {})
@@ -334,12 +270,10 @@ export  class TemplateView extends React.Component {
         let values;
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
-            let companyState = {};
-            if(this.props.companyState){
-                companyState = {company: this.props.companyState || {}, ...this.props.companyState};
-            }
-            const values = template.getInitialValues(state || companyState)
-            return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={makeContext(this.props.companyState)} />
+            const context = makeContext(this.props.companyState);
+            debugger;
+            const values = template.getInitialValues(state || {}, context);
+            return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={context} />
         }
         return <div>Not Found</div>
     }
