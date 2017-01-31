@@ -19,7 +19,7 @@ import { enums as TransactionTypes } from '../../../../config/enums/transactions
 function renderHolders(holding){
     return <ul>
         { holding.holders.map((h, i) => {
-            return <li key={i}>{ h.person.name } </li>
+            return <li key={i}>{ h.person.name }</li>
         })}
     </ul>
 }
@@ -53,7 +53,7 @@ export class ShareClassSelect extends React.Component {
     }
 
     render() {
-        return <table className="table table-striped">
+        return <table className="table table-striped apply-share-classes">
             <thead>
             <tr><th>Name</th><th>Shareholders</th><th>Total Shares</th><th className="text-center">Share Classes</th></tr>
             </thead>

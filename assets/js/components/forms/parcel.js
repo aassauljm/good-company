@@ -10,7 +10,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 @formFieldProps()
 export class ParcelWithRemove extends React.Component {
     render() {
-        let className = 'col-xs-12';
+        let className = 'col-xs-12 parcel-row';
         if(this.props.remove){
             className += ' input-group-with-remove';
         }

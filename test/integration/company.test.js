@@ -1,4 +1,7 @@
 "use strict";
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require("fs"));
+const cheerio = require('cheerio');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
@@ -15,7 +18,9 @@ import { Modals } from "../../assets/js/components/transactionViews.js";
 import { ShareClassesTable  } from "../../assets/js/components/shareClasses.js";
 import { CompanyAlertsWidget } from "../../assets/js/components/companyAlerts.js";
 import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js';
+import { ShareClassSelect } from '../../assets/js/components/transactions/applyShareClasses.js';
 import chai from 'chai';
+
 
 
 const should = chai.should();
@@ -108,7 +113,7 @@ describe('Company Integration Tests', () => {
                 return waitFor('New share class page to load', '.share-class-name', this.dom)
             })
             .then(el => {
-                el.value = 'Privileged';
+                el.value = 'Preference';
                 Simulate.change(el);
                 Simulate.submit(findRenderedDOMComponentWithClass(this.tree, 'share-class-form'));
                 return waitFor('Share class page to load again again', () => this.dom.querySelectorAll('.share-class-table tr').length === 3, this.dom, 5000)
@@ -122,40 +127,69 @@ describe('Company Integration Tests', () => {
             })
             .catch(e => {
                 done(e);
-
             });
     });
 
-    /*it('Applies share classes', function(done){
-        let modal;
-        const linkNode = findRenderedDOMComponentWithClass(this.tree, 'new-transaction');
-        Simulate.click(linkNode, {button: 0});
-        return waitFor('Transaction page to load', '.apply-share-classes', this.dom)
-            .then(el => {
-                Simulate.click(el);
-                modal = findRenderedComponentWithType(this.tree, Modal)._modal;
-                const selects = scryRenderedDOMComponentsWithTag(modal, 'select');
+    it('Applies share classes', function(done){
+        let shareClassData;
+        const shareClassMap = {};
+        return fs.readFileAsync('test/fixtures/transactionData/projectManagerHoldingsTwoShareClasses.json', 'utf8')
+            .then(data => {
+                shareClassData = JSON.parse(data).reduce((acc, item) => {
+                    acc[JSON.stringify(item.holders)] = item.parcels;
+                    return acc;
+                }, {});
 
-                const shareClassMap = {};
-                _.map(selects[0].children, option => {
-                     shareClassMap[option.innerHTML] = option.value;
+                return waitFor('Transaction page to load', '.apply-share-classes', this.dom)
+            })
+            .then(el => {
+                const shareClassSelect = findRenderedComponentWithType(this.tree, ShareClassSelect);
+                const tbody = findRenderedDOMComponentWithTag(shareClassSelect, 'tbody');
+                const rows = tbody.querySelectorAll('tr');
+                [].map.call(rows, (row, i) => {
+                    const names = [].map.call(row.querySelectorAll('td:nth-child(2) li'), l => cheerio(l.outerHTML).text());
+                    const nameString = JSON.stringify(names);
+                    const classes = shareClassData[nameString];
+
+                    const select = row.querySelector('select');
+                    const addNew = row.querySelector('.add-parcel');
+                    _.map(select.children, option => {
+                         shareClassMap[option.innerHTML] = option.value;
+                    });
+                    Object.keys(classes).map((shareClass, i) => {
+                        if(i < Object.keys(classes).length -1){
+                            Simulate.click(addNew, {button: 0});
+                        }
+                        const parcelRow = row.querySelectorAll(`.parcel-row`)[i]
+                        const select = parcelRow.querySelector('select');
+                        select.value = shareClassMap[shareClass];
+                        const input =  parcelRow.querySelector('input[type=number]');
+                        //console.log(select, input)
+                        input.value = classes[shareClass]+'';
+                        Simulate.change(select);
+                        Simulate.change(input);
+                        Simulate.blur(select);
+                        Simulate.blur(input);
+                    });
                 })
-                selects.map((s, i) => {
-                    s.value = shareClassMap[i % 2 ? 'Class A': 'Class B'];
-                    Simulate.change(s);
-                });
-                Simulate.click(findRenderedDOMComponentWithClass(modal, 'submit'));
-                return waitFor('Modal to close', () => !scryRenderedComponentsWithType(this.tree, Modal).length, null, 10000);
+                done();
+                return waitFor('Validation to complete', () => !this.dom.querySelectorAll('.has-error').length, null, 1000)
             })
             .then(() => {
-                return waitFor('Company data to reload', '.return-company-page', this.dom);
+                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'submit'));
+
+                return waitFor('Apply share classes to close', () => !scryRenderedComponentsWithType(this.tree, ShareClassSelect).length, null, 5000);
             })
-            .then((el) => {
-                Simulate.click(el, {button: 0});
+
+            .then(() => {
                 done();
-            });
+            })
+            .catch((e) => {
+                done(e)
+            })
     });
 
+/*
     it('It goes to share register', function(done){
         let modal;
         const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-register');
