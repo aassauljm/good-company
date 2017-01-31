@@ -18,7 +18,7 @@ export default class DateInput extends React.Component {
         if(this.props.time){
             groupName += ' has-two-controls';
         }
-         return <Input {...this.props} groupClassName={groupName}>
+         return <Input {...this.props} groupClassName={groupName} >
 
             <DateTimePicker
             onChange={(date, string) => this.props.format ? this.props.onChange(string) :  this.props.onChange(date)}
@@ -27,6 +27,7 @@ export default class DateInput extends React.Component {
             onClick={(e) => {
                 e.preventDefault();
             }}
+            ref={'date'}
             time={!!this.props.time}
             value={this.props.value ? new Date(this.props.value): null }
             onToggle={(open) => {
@@ -42,6 +43,15 @@ export default class DateInput extends React.Component {
             onBlur={() => {
                 this.props.onBlur && this.props.onBlur(this.props.value)
             }}
+
+            onFocus={(event) => {
+               if(event.target.tagName === 'INPUT' && !this.props.value){
+                    this.refs.date && this.refs.date.getControlledInstance() &&this.refs.date.getControlledInstance().open("calendar");
+                }
+                this.props.onFocus(event)
+            }}
+
+
             format={this.props.format || format} />
           </Input>
     }

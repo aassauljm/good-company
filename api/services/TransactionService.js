@@ -207,7 +207,6 @@ export function performInverseDecreaseShares(data, companyState, previousState, 
         .then(() => {
             const match = companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
             const transaction = Transaction.build({type: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate});
-            console.log("DECREASED SHARES")
             return transaction;
         })
 }
@@ -1080,13 +1079,20 @@ export  function performApplyShareClass(data, nextState, companyState, effective
         if(index < 0){
             throw new sails.config.exceptions.InvalidOperation('Cannot find holding to apply share class to')
         }
+        if(holdingList.dataValues.holdings[index].parcels.length > 1 || holdingList.dataValues.holdings[index].parcels[0].shareClass){
+            throw new sails.config.exceptions.InvalidOperation('Share classes are all ready applied for this shareholding')
+        }
+        const sum = holdingList.dataValues.holdings[index].parcels.reduce((sum, p) => sum + p.amount, 0);
+        const newSum = data.parcels.reduce((sum, p) => sum + p.amount, 0);
+        if(sum != newSum){
+            throw new sails.config.exceptions.InvalidOperation('Apply share class totals do not match expected totals')
+        }
+
        return holdingList.dataValues.holdings[index].buildNext()
     })
     .then(newHolding => {
         holdingList.dataValues.holdings[index] = newHolding;
-        newHolding.dataValues.parcels = newHolding.dataValues.parcels.map(p => {
-            return p.replace({shareClass: data.shareClass});
-        });
+        newHolding.dataValues.parcels = data.parcels.map(p => Parcel.build(p));
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     });
 };
@@ -1456,10 +1462,6 @@ export function performInverseTransaction(data, company, rootState){
         })
          .then(function(){
             return prevState;
-         })
-         .then(() => {
-            return prevState.stats()
-                .then(s => console.log(s))
          })
          .then(() => {
             return prevState;
