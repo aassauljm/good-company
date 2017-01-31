@@ -2,8 +2,8 @@
     {
         "holders": ["Brent Murray James WESTLAND", "Cheryl Joy WESTLAND", "Jason Brent WESTLAND"],
         "parcels": {
-            "Ordinary": 9950000,
-            "Preference": 40000
+            "Ordinary": 9450000,
+            "Preference": 90000
         }
     },
     {
@@ -39,7 +39,7 @@
     {
         "holders": ["Geoffrey A. CUMMING"],
         "parcels": {
-            "Ordinary": 9900000,
+            "Ordinary": 990000,
             "Preference": 190000
         }
     },

@@ -426,7 +426,7 @@ function processResource(state, action) {
 }
 
 
-function modals(state = {}, action) {console.log(action)
+function modals(state = {}, action) {
     switch(action.type){
         case SHOW_CONFIRMATION:
             return {...state, confirmation: {...action.data, showing: true}}

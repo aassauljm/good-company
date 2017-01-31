@@ -19,6 +19,7 @@ import { ShareClassesTable  } from "../../assets/js/components/shareClasses.js";
 import { CompanyAlertsWidget } from "../../assets/js/components/companyAlerts.js";
 import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js';
 import { ShareClassSelect } from '../../assets/js/components/transactions/applyShareClasses.js';
+import { ImportHistoryChunkTransactionView} from '../../assets/js/components/transactions/importHistoryChunk.js';
 import chai from 'chai';
 
 
@@ -164,7 +165,7 @@ describe('Company Integration Tests', () => {
                         parcelCount++;
                     });
                 })
-                return waitFor('Parcels to render', () => this.dom.querySelectorAll('.parcel-row').length === parcelCount, null, 1000)
+                return waitFor('Parcels to render', () => this.dom.querySelectorAll('.parcel-row').length === parcelCount, this.dom, 1000)
             })
             .then(() => {
                 const shareClassSelect = findRenderedComponentWithType(this.tree, ShareClassSelect);
@@ -180,14 +181,9 @@ describe('Company Integration Tests', () => {
                     Object.keys(classes).map((shareClass, i) => {
                         const parcelRow = row.querySelectorAll(`.parcel-row`)[i]
                         const select = parcelRow.querySelector('select');
-                        select.value = shareClassMap[shareClass];
-                        const input =  parcelRow.querySelector('input[type=number]');
-                        console.log(classes[shareClass]+'');
-                        input.value = classes[shareClass]+'';
-                        Simulate.change(select);
-                        //Simulate.blur(select);
-                        Simulate.change(input);
-                       // Simulate.blur(input);
+                        const input =  parcelRow.querySelector('input');
+                        Simulate.change(select, { target: {value: shareClassMap[shareClass]} });
+                        Simulate.change(input, { target: {value: classes[shareClass]+''} });
                     });
                 })
                 return waitFor('Validation to complete', () => !this.dom.querySelectorAll('.has-error').length, null, 1000)
@@ -195,14 +191,14 @@ describe('Company Integration Tests', () => {
 
             .then(() => {
                 Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'submit'));
-                return waitFor('Apply share classes to close', () => !scryRenderedComponentsWithType(this.tree, ShareClassSelect).length, null, 5000);
+                return waitFor('For import chunk page to display', () => scryRenderedComponentsWithType(this.tree,  ImportHistoryChunkTransactionView ).length, this.dom, 5000);
             })
 
             .then(() => {
                 done();
             })
             .catch((e) => {
-                console.log(this.dom.innerHTML);
+                console.log(e);
                 done(e)
             })
     });

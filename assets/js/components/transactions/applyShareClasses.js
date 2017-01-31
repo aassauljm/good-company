@@ -152,6 +152,7 @@ export class ApplyShareClassesTransactionView extends React.Component {
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
+                console.log(err)
             });
     }
 

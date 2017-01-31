@@ -20,7 +20,6 @@ export class ParcelWithRemove extends React.Component {
         if(!this.props.remove && !this.props.add){
             className += ' input-group-pair'
         }
-        console.log('parcel', this.props.amount.value, this.props.shareClass.value)
         return <div className={className}>
                     <div>
                         <Input className="amount" type="number" {...this.formFieldProps('amount')} placeholder={'Amount'} label={null}/>
