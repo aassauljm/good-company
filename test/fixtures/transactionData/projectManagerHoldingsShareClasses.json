@@ -1,0 +1,97 @@
+[
+    {
+        "holders": ["WESTLAND Jason Brent", "WESTLAND Brent Murray James", "WESTLAND Cheryl Joy"],
+        "parcels": {
+            "Ordinary $0.01": 9450000,
+            "Ordinary $2.00": 50000,
+            "Preference": 40000
+        }
+    },
+    {
+        "holders": ["NICHOLSON Robert Craig"],
+        "parcels": {
+            "Ordinary $0.01": 80000,
+        }
+    },
+    {
+        "holders": ["DE JONG Remko Arjan", "DE JONG Reinier Simon", "JUBY Mathew Duncan"],
+        "parcels": {
+            "Ordinary $0.01": 100000,
+        }
+    },
+    {
+        "holders": ["LO Chi Kin"],
+        "parcels": {
+            "Ordinary $0.01": 100000,
+        }
+    },
+    {
+        "holders": ["HADDLETON John David Guy", "HADDLETON John David Guy"],
+        "parcels": {
+            "Ordinary $2.00": 50000,
+        }
+    },
+    {
+        "holders": ["HUNT Herbert Dennis", "HUNT Janet"],
+        "parcels": {
+            "Ordinary $2.00": 50000,
+        }
+    },
+    {
+        "holders": ["CUMMING Geoffrey A"],
+        "parcels": {
+            "Ordinary $0.01": 9500000,
+            "Ordinary $2.00": 40000,
+            "Preference": 190000
+        }
+    },
+    {
+        "holders": ["Jacon Investments Limited"],
+        "parcels": {
+            "Ordinary $0.01": 375000,
+            "Ordinary $2.00": 25000,
+            "Preference": 100000
+        }
+    },
+    {
+        "holders": ["Hirvi Limited"],
+        "parcels": {
+            "Ordinary $0.01": 375000,
+            "Ordinary $2.00": 25000,
+            "Preference": 100000
+        }
+    },
+    {
+        "holders": ["CUMMING James B"],
+        "parcels": {
+            "Ordinary $2.00": 150000,
+            "Preference": 40000
+        }
+    },
+    {
+        "holders": ["NORRIE Wayne Stephen", "NORRIE Catherine Patricia", "MORAN Scott"],
+        "parcels": {
+            "Ordinary $0.01": 100000,
+        }
+    },
+    {
+        "holders": ["Latitude 35 Holdings Limited"],
+        "parcels": {
+            "Ordinary $0.01": 55000,
+            "Preference": 20000
+        }
+    },
+    {
+        "holders": ["LOCK David George"],
+        "parcels": {
+            "Ordinary $0.01": 25000,
+            "Preference": 10000
+        }
+    },
+    {
+        "holders": ["Caniwi Capital Partners Limited"],
+        "parcels": {
+            "Preference": 80000
+        }
+    }
+]

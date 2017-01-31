@@ -1,0 +1,93 @@
+[
+    {
+        "holders": ["Brent Murray James WESTLAND", "Cheryl Joy WESTLAND", "Jason Brent WESTLAND"],
+        "parcels": {
+            "Ordinary": 9950000,
+            "Preference": 40000
+        }
+    },
+    {
+        "holders": ["Robert Craig NICHOLSON"],
+        "parcels": {
+            "Ordinary": 80000
+        }
+    },
+    {
+        "holders": ["Mathew Duncan JUBY", "Reinier Simon DE JONG", "Remko Arjan DE JONG"],
+        "parcels": {
+            "Ordinary": 100000
+        }
+    },
+    {
+        "holders": ["Chi Kin LO"],
+        "parcels": {
+            "Ordinary": 100000
+        }
+    },
+    {
+        "holders": ["John David Guy HADDLETON", "Susan Mary HADDLETON"],
+        "parcels": {
+            "Ordinary": 50000
+        }
+    },
+    {
+        "holders": ["Herbert Dennis HUNT", "Janet HUNT"],
+        "parcels": {
+            "Ordinary": 50000
+        }
+    },
+    {
+        "holders": ["Geoffrey A. CUMMING"],
+        "parcels": {
+            "Ordinary": 9900000,
+            "Preference": 190000
+        }
+    },
+    {
+        "holders": ["JACON INVESTMENTS LIMITED"],
+        "parcels": {
+            "Ordinary": 400000,
+            "Preference": 100000
+        }
+    },
+    {
+        "holders": ["HIRVI LIMITED"],
+        "parcels": {
+            "Ordinary": 400000,
+            "Preference": 100000
+        }
+    },
+    {
+        "holders": ["James B. CUMMING"],
+        "parcels": {
+            "Ordinary": 150000,
+            "Preference": 40000
+        }
+    },
+    {
+        "holders": ["Catherine Patricia NORRIE", "Scott MORAN", "Wayne Stephen NORRIE"],
+        "parcels": {
+            "Ordinary": 100000
+        }
+    },
+    {
+        "holders": ["LATITUDE 35 HOLDINGS LIMITED"],
+        "parcels": {
+            "Ordinary": 55000,
+            "Preference": 20000
+        }
+    },
+    {
+        "holders": ["David George LOCK"],
+        "parcels": {
+            "Ordinary": 25000,
+            "Preference": 10000
+        }
+    },
+    {
+        "holders": ["CANIWI CAPITAL PARTNERS LIMITED"],
+        "parcels": {
+            "Preference": 80000
+        }
+    }
+]
