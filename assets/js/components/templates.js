@@ -16,7 +16,7 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
-import { getDefaultValues, componentType, addItem, injectContext, getValidate, getKey, getFields } from 'json-schemer';
+import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults } from 'json-schemer';
 import deepmerge from 'deepmerge';
 
 function createLawLinks(list){
@@ -30,7 +30,7 @@ function createLawLinks(list){
 function renderList(fieldProps, componentProps) {
     return <fieldset className="list">
         { fieldProps.title && <legend>{fieldProps.title}</legend>}
-        {/*<Shuffle scale={false}>*/}
+        <Shuffle scale={false}>
         { componentProps.map((c, i) => {
             return <div className="list-item" key={c._keyIndex.value || i}>
                           <div className="text-right"><div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
@@ -46,7 +46,7 @@ function renderList(fieldProps, componentProps) {
                 </div>
             </div>;
         }) }
-        {/*</Shuffle>*/}
+        </Shuffle>
              <div className="button-row">
                 <Button onClick={() => {
                     componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: getKey()});
@@ -177,17 +177,13 @@ const CreateForm = (schema, name) => {
     return Form;
 }
 
-const arrayMerge = (destinationArray, sourceArray, options) => {
-    return sourceArray;
-}
-
 export const TemplateMap = Object.keys(templateSchemas).reduce((acc, k) => {
     acc[k] = {
         form: CreateForm(templateSchemas[k], k),
         title: templateSchemas[k].title,
         schema: templateSchemas[k],
         icon: templateSchemas[k]['x-icon'],
-        getInitialValues: (values, context) => deepmerge(getDefaultValues(templateSchemas[k], context), values, { arrayMerge: arrayMerge })
+        getInitialValues: (values, context) => setDefaults(templateSchemas[k], context, values)
     }
     return acc;
 }, {})
@@ -203,26 +199,13 @@ function makeContext(companyState) {
     }
 }
 
-function jsonStringToValues(string){
-
-    try{
-        const obj = JSON.parse(string);
-        const recurse = (obj) => {
-            if(Array.isArray(obj)){
-                obj.map(recurse)
-            }
-            else if(obj === Object(obj)){
-                obj._keyIndex = getKey();
-                Object.keys(obj).map(k => recurse(obj[k]))
-            }
-            return obj;
-        }
-        return recurse(obj);
+function jsonStringToValues(string) {
+    try {
+        return JSON.parse(string);
     }
-    catch(e){
+    catch(e) {
         return {};
     }
-
 }
 
 
@@ -271,7 +254,6 @@ export  class TemplateView extends React.Component {
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
             const context = makeContext(this.props.companyState);
-            debugger;
             const values = template.getInitialValues(state || {}, context);
             return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={context} />
         }
