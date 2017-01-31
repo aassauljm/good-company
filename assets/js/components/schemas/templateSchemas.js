@@ -1,5 +1,6 @@
-import { mergeSchemas, resolveReferences } from '../jsonSchema';
-const definitionsSchema = require('good-companies-templates/schemas/definitions.json');
+import { resolveReferences } from 'json-schemer';
+import merge from 'deepmerge';
+import definitionsSchema from 'good-companies-templates/schemas/definitions.json';
 
 let templateSchemas = {
     transfer:                     require('good-companies-templates/schemas/transfer.json'),
@@ -13,7 +14,7 @@ let templateSchemas = {
 }
 
 Object.keys(templateSchemas).map((key) => {
-    templateSchemas[key] = resolveReferences(mergeSchemas(templateSchemas[key], definitionsSchema));
+    templateSchemas[key] = resolveReferences(merge(definitionsSchema, templateSchemas[key]));
 });
 
 export default templateSchemas;

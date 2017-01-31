@@ -16,7 +16,8 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
-
+import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults } from 'json-schemer';
+import deepmerge from 'deepmerge';
 
 function createLawLinks(list){
     return <div>
@@ -26,55 +27,12 @@ function createLawLinks(list){
     </div>
 }
 
-function getIn(obj, fields){
-    return fields.reduce((obj, f) => {
-        return obj ? obj[f] : null
-    }, obj);
-}
-
-function componentType(fieldProps){
-    return getIn(fieldProps, ['x-hints', "form", "inputComponent"])
-}
-
-function oneOfField(fieldProps){
-    return getIn(fieldProps, ['x-hints', "form", "selector"])
-}
-
-function addItem(fieldProps){
-    return getIn(fieldProps, ['x-hints', "form", "addItem"]) || 'Add Item';
-}
-
-function inputSelectSource(fieldProps){
-    return getIn(fieldProps, ['x-hints', "form", "selectFromSource"]);
-}
-
-function inputSourceTitle(fieldProps){
-    return getIn(fieldProps, ['x-hints', "form", "inputTitle"]);
-}
-
-function inputSource(fieldProps){
-    return getIn(fieldProps, ['x-hints', "form", "source"]);
-}
-
-function oneOfMatchingSchema(fieldProps, values){
-    const field = oneOfField(fieldProps);
-    if(!field || !fieldProps.oneOf){
-        return false;
-    }
-    return fieldProps.oneOf.filter(f => {
-        return f.properties[field].enum[0] === values[field];
-    })[0];
-}
-
-let keyIndex=1;
-
-function renderList(fieldProps, componentProps){
-
+function renderList(fieldProps, componentProps) {
     return <fieldset className="list">
         { fieldProps.title && <legend>{fieldProps.title}</legend>}
         <Shuffle scale={false}>
         { componentProps.map((c, i) => {
-            return <div className="list-item" key={c._keyIndex.value}>
+            return <div className="list-item" key={c._keyIndex.value || i}>
                           <div className="text-right"><div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
                     { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
                     { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
@@ -91,7 +49,7 @@ function renderList(fieldProps, componentProps){
         </Shuffle>
              <div className="button-row">
                 <Button onClick={() => {
-                    componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: keyIndex++});
+                    componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: getKey()});
                     } } >{ addItem(fieldProps.items) } </Button>
             </div>
         </fieldset>
@@ -203,204 +161,6 @@ export class RenderForm extends React.Component {
 
 }
 
-function getFields(schema) {
-    const fields = [];
-    function loop(props, path){
-        Object.keys(props).map(key => {
-            if(props[key].type === 'object'){
-                loop(props[key].properties, path + key + '.');
-                if(props[key].oneOf){
-                    props[key].oneOf.map(oneOf => {
-                        loop(oneOf.properties, path+key + '.');
-                    });
-                }
-            }
-            else if (props[key].type === 'array'){
-                fields.push(path + key + '[]._keyIndex');
-                if(props[key].items.type === "object"){
-                    loop(props[key].items.properties, path+key + '[].');
-                    if(props[key].items.oneOf){
-                        props[key].items.oneOf.map(oneOf => {
-                            loop(oneOf.properties, path+key + '[].');
-                        })
-                    }
-                }
-                else{
-                    fields.push(path + key + '[]');
-                }
-            }
-            else{
-                fields.push(path + key);
-            }
-        });
-    }
-    loop(schema.properties, '');
-    return fields;
-}
-
-function injectContext(FormComponent) {
-    class Injector extends React.Component {
-        render() {
-            const fields = injectContext(this.props.schema.properties, this.props.fields, this.props.context);
-            return <FormComponent {...this.props} fields={fields} />
-        }
-    }
-
-    function interceptChangesAndInject(schemaProperties, key, fields, context){
-        if (inputSelectSource(schemaProperties) && fields[key]) {
-            const source = inputSource(schemaProperties);
-            const onChange = fields[key][source].onChange;
-            fields[key][source].onChange = (event) => {
-                onChange(event);
-                const result = context[inputSelectSource(schemaProperties)].find(f => f[source] === event);
-                result && Object.keys(result).map(k => {
-                    if(k !== source && fields[key][k]){
-                        fields[key][k].onChange(result[k]);
-                    }
-                });
-            }
-            if(context[inputSelectSource(schemaProperties)]){
-                fields[key][source].comboData = context[inputSelectSource(schemaProperties)].map(f => f[source]);
-            }
-        }
-    }
-
-    function injectContext(schemaProperties, fields, context) {
-        function loop(schemaProperties, fields) {
-            fields && Object.keys(schemaProperties).map(key => {
-                if (schemaProperties[key].type === 'object') {
-                    loop(schemaProperties[key].properties, fields[key]);
-                    if (schemaProperties[key].oneOf) {
-                        schemaProperties[key].oneOf.map(oneOf => {
-                            loop(oneOf.properties, fields[key]);
-                        });
-                    }
-                } else if (schemaProperties[key].type === 'array') {
-                    if (schemaProperties[key].items.type === "object") {
-                        fields[key] && fields[key].map(f => {
-                            loop(schemaProperties[key].items.properties, f);
-                        })
-                        fields[key] && fields[key].map((field, index) => {
-                            interceptChangesAndInject(schemaProperties[key].items,  index, fields[key], context);
-                        });
-                        if(schemaProperties[key].items.oneOf) {
-                            fields[key].map(f => {
-                                let values = Object.keys(f).reduce((acc, k) => { acc[k] = f[k].value; return acc;}, {});
-                                let result = oneOfMatchingSchema(schemaProperties[key].items, values);
-                                if(result){
-                                     loop(result.properties, f);
-                                }
-                            });
-                        }
-                    }
-                }
-                interceptChangesAndInject(schemaProperties[key], key, fields, context)
-            });
-
-            return fields;
-        }
-
-        return loop(schemaProperties, fields);
-    }
-
-    return Injector;
-}
-
-
-function getValidate(schema){
-    return (values) => {
-        let globalErrors = [];
-        function loop(props, values, required){
-            return Object.keys(props).reduce((acc, key) => {
-                if(props[key].type === 'object'){
-                    const matching = oneOfMatchingSchema(props[key], values[key]);
-                    let required = props[key].required || [];
-                    let properties = props[key].properties
-                    if(matching && matching.required){
-                        required = required.concat(matching.required);
-                    }
-                    if(matching && matching.properties){
-                        properties = {...properties, ...matching.properties}
-                    }
-                    acc[key] = loop(properties, values[key], required)
-                }
-                if(props[key].type === 'array'){
-                    acc[key] = values[key].map(v => {
-                        let required = props[key].items.required || [];
-                        const matching = oneOfMatchingSchema(props[key].items, v);
-                        let properties = props[key].items.properties
-                        if(matching && matching.required){
-                            required = required.concat(matching.required);
-                        }
-                        if(matching && matching.properties){
-                            properties = {...properties, ...matching.properties}
-                        }
-                        return loop(properties, v,  required);
-                    });
-                    if(props[key].minItems && (!values[key] || values[key].length < props[key].minItems)){
-                        globalErrors.push([`At least ${props[key].minItems} '${props[key].title}' required.`]);
-                    }
-                }
-                if(required.indexOf(key) >= 0 && (!values || values[key] === undefined || values[key] === null || values[key] === '')){
-                    acc[key] = ['Required.']
-                }
-                return acc;
-            }, {})
-        }
-        const errors = loop(schema.properties, values, schema.required || []);
-        if(globalErrors.length){
-            errors._error = globalErrors;
-        }
-        return errors;
-    }
-}
-
-// Appears to not be populating default on list items
-function getDefaultValues(schema, defaults){
-    if(!defaults){
-        defaults = {};
-    }
-    const fields = {};
-    function loop(props, fields, suppliedDefaults){
-        Object.keys(props).map(key => {
-            if(suppliedDefaults[key]){
-                fields[key] = suppliedDefaults[key];
-            }
-            else if(props[key].default){
-                fields[key] = props[key].default;
-            }
-
-            if(props[key].type === 'object'){
-                let obj = fields[key] || {};
-                loop(props[key].properties, obj, suppliedDefaults[key] || {});
-                fields[key] = obj;
-            }
-            else if(props[key].type === 'array'){
-                if(props[key].items.type === "object"){
-                    let obj = fields[key] || [];
-
-                    loop(props[key].items.properties, obj, {...(suppliedDefaults[key] || {}), _keyIndex: keyIndex++});
-                    if(props[key].items.oneOf){
-                        obj.map(o => props[key].items.oneOf.map(oneOf => {
-                            loop(oneOf.properties, o, suppliedDefaults[key] || {});
-                        }))
-                    }
-                    fields[key] = obj;
-                }
-            }
-            if(props[key].oneOf){
-                let obj = fields[key] || {};
-                props[key].oneOf.map(o => {
-                    loop(o.properties, obj, suppliedDefaults[key] || {});
-                })
-                fields[key]  = obj;
-            }
-        });
-        return fields;
-    }
-    return loop(schema.properties, fields, defaults);
-}
-
 
 
 
@@ -426,7 +186,7 @@ export const TemplateMap = Object.keys(templateSchemas).reduce((acc, k) => {
         title: templateSchemas[k].title,
         schema: templateSchemas[k],
         icon: templateSchemas[k]['x-icon'],
-        getInitialValues: (values) => getDefaultValues(templateSchemas[k], values),
+        getInitialValues: (values, context) => setDefaults(templateSchemas[k], context, values)
     }
     return acc;
 }, {})
@@ -442,23 +202,11 @@ function makeContext(companyState) {
     }
 }
 
-function jsonStringToValues(string){
-
-    try{
-        const obj = JSON.parse(string);
-        const recurse = (obj) => {
-            if(Array.isArray(obj)){
-                obj.map(recurse)
-            }
-            else if(obj === Object(obj)){
-                obj._keyIndex = keyIndex++;
-                Object.keys(obj).map(k => recurse(obj[k]))
-            }
-            return obj;
-        }
-        return recurse(obj);
+function jsonStringToValues(string) {
+    try {
+        return JSON.parse(string);
     }
-    catch(e){
+    catch(e) {
         return {};
     }
 }
@@ -508,12 +256,9 @@ export  class TemplateView extends React.Component {
         let values;
         if(TemplateMap[this.props.params.name]){
             const template = TemplateMap[this.props.params.name];
-            let companyState = {};
-            if(this.props.companyState){
-                companyState = {company: this.props.companyState || {}, ...this.props.companyState};
-            }
-            const values = template.getInitialValues(state || companyState)
-            return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={makeContext(this.props.companyState)} />
+            const context = makeContext(this.props.companyState);
+            const values = template.getInitialValues(state || {}, context);
+            return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={context} />
         }
         return <div>Not Found</div>
     }

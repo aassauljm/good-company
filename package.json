@@ -90,6 +90,7 @@
     "isomorphic-fetch": "^2.1.1",
     "jsdom": "^8.0.4",
     "json-loader": "^0.5.4",
+    "json-schemer": "github:joshgagnon/json-schemer",
     "kue": "^0.11.1",
     "less": "^2.5.3",
     "less-loader": "^2.2.1",
