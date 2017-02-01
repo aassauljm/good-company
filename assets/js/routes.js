@@ -96,7 +96,6 @@ export default (store) => {
         function checkAuth() {
             const { login: { loggedIn, loginUrl }} = store.getState();
             if (!loggedIn) {
-                console.log('NOT LOGGED IN', store.getState())
                 replace({pathname: '/login', query:  {next: nextState.location.pathname}});
                 cb();
             }

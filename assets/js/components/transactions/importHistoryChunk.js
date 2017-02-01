@@ -37,6 +37,8 @@ const PAGES = [];
 
 function TransactionSummaries(props) {
     const pendingActions = [...props.pendingActions];
+    let showConfirm = true;
+
     return <div>
     <p>If any entry has an Edit button, you can make date and detail corrections.  Once all entries are correct, click 'Confirm Transactions' to move onto the next year.</p>
 
@@ -48,33 +50,37 @@ function TransactionSummaries(props) {
             }
             const editable = isEditable(p.data);
             const required = requiresEdit(p.data);
+            if(required){
+                showConfirm = false;
+            }
             let className = "panel panel-default"
             if(required){
                 className = "panel panel-danger"
             }
             return <div key={i}>
-                <div  className={className}>
-                        <div className="panel-heading transaction-table">
-                        <div className="col-md-2 transaction-terse-date">
-                            { stringDateToFormattedString(p.data.effectiveDate) }
+                        <div  className={className}>
+                            <div className="panel-heading">
+                                <div className="row transaction-table">
+                                    <div className="transaction-terse-date col-md-2">
+                                        { stringDateToFormattedString(p.data.effectiveDate) }
+                                    </div>
+                                    <div className="col-md-8">
+                                    { actions.map((action, i) => {
+                                        const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
+                                            return  Terse && <Terse {...action} key={i}/>
+                                        }) }
+                                        { /* JSON.stringify(actions) */}
+                                    </div>
+                                    <div className="col-md-1">{ editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div> }</div>
+                                    <div className="col-md-1"> { showConfirm &&  <div className="button-row"><Button bsStyle="primary" onClick={null}>Confirm</Button></div> }</div>
+                                </div>
+                            </div>
+                            </div>
                         </div>
-                        <div className="col-md-11">
-                        { actions.map((action, i) => {
-                            const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
-                                return  Terse && <Terse {...action} key={i}/>
-                            }) }
-                            { /* JSON.stringify(actions) */}
-                        </div>
-                        <div className="col-md-1">
-                        { editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div> }
-                        </div>
-                </div>
-                </div>
-            </div>
         })}
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
-        <Button bsStyle="primary" onClick={props.handleConfirm}>Confirm Transactions</Button>
+        <Button bsStyle="primary" className="submit-import" onClick={props.handleConfirm}>Confirm Transactions</Button>
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
     </div>

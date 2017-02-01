@@ -300,7 +300,8 @@ var transactions = {
             }
         })
         .then(function(){
-            companyState.set('s_classes_id', shareClasses.id);
+            companyState.s_classes_id = companyState.dataValues.s_classes_id = shareClasses.id;
+            companyState.shareClasses = companyState.dataValues.shareClasses = shareClasses;
             return companyState.save();
         })
         .then(function(){

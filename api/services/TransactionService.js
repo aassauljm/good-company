@@ -104,9 +104,27 @@ export function validateInverseAmend(amend, companyState){
         })
     }
 
-    const holding = companyState.getMatchingHolding({holders: amend.afterHolders,
+    let holding = companyState.getMatchingHolding({
+        holders: amend.afterHolders,
         holdingId: amend.holdingId,
         parcels: amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true})
+    if(!holding){
+        holding = companyState.getMatchingHolding({
+            holders: amend.afterHolders,
+            holdingId: amend.holdingId
+        },  {ignoreCompanyNumber: true});
+
+        if(holding.sumOfParcels() === _.sum(amend.parcels, 'afterAmount')){
+            throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
+                action: amend,
+                companyState: companyState,
+                importErrorType: sails.config.enums.UNKNOWN_AMEND
+            })
+        }
+    }
+
+
+
     if(!holding){
         throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found',{
             action: amend,
@@ -300,7 +318,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                         },
                         data, previousState, {
                             multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
-                            none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND
+                            none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND,
+                            shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
                         });
                 }
                 else{
@@ -310,7 +329,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                         },
                         data, companyState, {
                             multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
-                            none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND
+                            none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND,
+                            shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
                         });
                 }
 
@@ -390,6 +410,18 @@ function findHolding(holding, action, companyState, errors={}){
     if(!current.length){
         current = companyState.getMatchingHoldings(holding, {ignoreCompanyNumber: true});
     }
+    if(!current.length){
+        const holding = companyState.getMatchingHolding({...holding, parcels: null},  {ignoreCompanyNumber: true});
+        if(holding.sumOfParcels() === _.sum(holding.parcels, 'amount')){
+            throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
+                action: amend,
+                companyState: companyState,
+                importErrorType: sails.config.enums.UNKNOWN_AMEND
+            })
+        }
+    }
+
+
     if(!current.length){
          throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
             action: action,
@@ -666,7 +698,8 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
         let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: data.parcels},
           data, companyState, {
             multiple: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
-            none: sails.config.enums.HOLDING_NOT_FOUND
+            none: sails.config.enums.HOLDING_NOT_FOUND,
+            shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
           });
 
         if(data.inferAmount){
@@ -1595,8 +1628,6 @@ export function performInverseAllPendingUntil(company, endCondition){
                         return e.context.companyState.fullPopulateJSON()
                             .then(function(fullState) {
                                 e.context.companyState = fullState;
-                                console.log('HI')
-                                console.log(fullState.shareClasses)
                                 throw e;
                             })
                     }

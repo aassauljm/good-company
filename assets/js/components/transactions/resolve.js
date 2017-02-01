@@ -495,7 +495,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
         const action = context.action;
         context.shareClassMap = generateShareClassMap(context.companyState);
-        debugger
+
         if(!action || !PAGES[context.importErrorType]){
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}

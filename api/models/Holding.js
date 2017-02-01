@@ -132,7 +132,10 @@ module.exports = {
                 return _.find(this.dataValues.parcels, p => p.amount === amount)
             },
             hasNonEmptyParcels: function(){
-                return _.sum(this.dataValues.parcels, 'amount') > 0;
+                return this.sumOfParcels() > 0;
+            },
+            sumOfParcels: function(){
+                return _.sum(this.dataValues.parcels, 'amount');
             },
             combineParcels: function(holding){
                 var newParcels = [];
