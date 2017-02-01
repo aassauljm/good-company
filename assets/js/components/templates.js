@@ -196,11 +196,13 @@ export const TemplateMap = Object.keys(templateSchemas).reduce((acc, k) => {
 
 
 function makeContext(companyState) {
-    if(!companyState){
+    if (!companyState) {
         return {};
     }
+
     return {
-        'company.name':companyState.companyName,
+        'company.constitutionFiled': companyState.constitutionFiled,
+        'company.name': companyState.companyName,
         'company.number': companyState.companyNumber,
         'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
         'company.shareholders': personList(companyState),
