@@ -311,15 +311,44 @@ export function validateAmend(values, props) {
     const formErrors = {};
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
-        let sum = 0;
+        
         const inferAmount = action.data ? action.data.inferAmount: false;
-        const amount = action.data ? action.data.afterAmount - action.data.beforeAmount : 0;
-        const startAmount = action.data ? action.data.beforeAmount || 0 : 0;
-        //const selectedRecipients = {};
+        const amounts = (action.data.parcels || []).reduce((acc, parcel) => {
+            acc[parcel.shareClass || null] = {amount: parcel.afterAmount - parcel.beforeAmount, sum: 0, startAmount: parcel.beforeAmount || 0}
+            return acc;
+        }, {});
+
         errors.recipients = action.recipients.map((recipient, j) => {
-            const errors = {};
-            const amount = parseInt(recipient.amount, 10) || 0;
-            const inferred = recipient.amount === 'All';
+            const errors = {parcels: []};
+            const inferred = recipient.parcels.length === 1 && recipient.parcels[0].amount === 'All';
+
+            const actionAmounts = recipient.parcels.reduce((acc, parcel, i) => {
+                errors.parcels[i] = {};
+                if(acc[parcel.shareClass || null]){
+                    errors.parcels[i].shareClass = ['Duplidate Share Class.']
+                }
+                const amount = parseInt(parcel.amount, 10) || 0;
+                if(!amount && !inferred){
+                    errors.parcels[i].amount = ['Required.']
+                }
+                else if(amount <= 0 && !inferred){
+                    errors.parcels[i].amount = ['Must be greater than 0.'];
+                }
+                const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
+
+                console.log(sourceParcel, amounts)
+
+                if(recipient.type){
+                    sourceParcel.sum += absoluteAmount(recipient.type, amount);
+                }
+                if((sourceParcel.sum + sourceParcel.startAmount) < 0){
+                    errors.parcels[i].amount = ['Share count goes below 0.'];
+                }
+                acc[parcel.shareClass || null] = amount;
+                return acc;
+            }, {});
+
+
             if(!recipient.effectiveDate){
                 errors.effectiveDate = ['Required.'];
             }
@@ -330,12 +359,7 @@ export function validateAmend(values, props) {
                 errors.effectiveDate = errors.effectiveDate || [];
                 errors.effectiveDate.push('Effective date cannot be before previous transaction.')
             }
-            if(!amount && !inferred){
-                errors.amount = ['Required.'];
-            }
-            else if(amount <= 0 && !inferred){
-                errors.amount = ['Must be greater than 0.'];
-            }
+
             if(!recipient.type){
                 errors.type = ['Required.'];
             }
@@ -343,12 +367,6 @@ export function validateAmend(values, props) {
                 if(!recipient.holding){
                     errors.holding = ['Transfer shareholding required.'];
                 }
-            }
-            if(recipient.type){
-                sum += absoluteAmount(recipient.type, amount);
-            }
-            if((sum + startAmount)  < 0){
-                errors.amount = ['Share count goes below 0.'];
             }
             return errors;
         });
@@ -358,19 +376,22 @@ export function validateAmend(values, props) {
             formErrors.actions[i] = ['Required.'];
         }
 
-        if(!inferAmount && sum !== amount){
-            formErrors.actions = formErrors.actions || [];
-            const diff = sum - amount;
-            if(diff < 0){
-                formErrors.actions[i] = formErrors.actions[i] || [];
-                formErrors.actions[i].push(`${-diff} shares left to allocate.`);
-            }
-            else if(diff > 0){
-                formErrors.actions[i] = formErrors.actions[i] || [];
-                formErrors.actions[i].push(`${diff} shares over allocated.`);
-            }
-        }
+        (action.data.parcels || []).map((parcel, i) => {
+            const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
 
+            if(!inferAmount && sourceParcel.sum !== sourceParcel.amount){
+                formErrors.actions = formErrors.actions || [];
+                const diff = sum - amount;
+                if(diff < 0){
+                    formErrors.actions[i] = formErrors.actions[i] || [];
+                    formErrors.actions[i].push(`${-diff} shares left to allocate.`);
+                }
+                else if(diff > 0){
+                    formErrors.actions[i] = formErrors.actions[i] || [];
+                    formErrors.actions[i].push(`${diff} shares over allocated.`);
+                }
+            }
+        });
 
         return errors;
     });

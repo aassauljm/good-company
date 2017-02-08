@@ -5,22 +5,35 @@ import moment from 'moment';
 import { formatSubmit, validateAmend } from '../../../assets/js/components/transactions/resolvers/amend';
 import isValid from 'redux-form/lib/isValid'
 
-describe('Amend validate', () => {
-    it('confirms valid amend form values report as valid', function(done){
-        return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues.json', 'utf8')
-            .then(data => {
-                data = JSON.parse(data);
-                data.values.actions.map((a, i) => {
-                    a.recipients.map((r) => {
-                        r.effectiveDate = moment(r.effectiveDate).toDate()
-                    });
-                    a.data = data.actionSet.data.actions[i];
+function valuesAndActionsFromJSON(path){
+    return fs.readFileAsync(path, 'utf8')
+        .then(data => {
+            data = JSON.parse(data);
+            data.values.actions.map((a, i) => {
+                a.recipients.map((r) => {
+                    r.effectiveDate = moment(r.effectiveDate).toDate()
                 });
+                a.data = data.actionSet.data.actions[i];
+            });
+            return data;
+        })
+}
+
+
+describe('Amend validate', () => {
+    it('confirms invalid amend form values report as invalid', function(){
+        return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValuesInvalid1.json')
+            .then(data => {
                 const errors = validateAmend(data.values, {});
-                console.log(JSON.stringify(errors, null, 4));
+                isValid(errors).should.be.equal(false);
+            });
+        });
+
+    it('confirms valid amend form values report as valid', function(){
+        return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValues.json')
+            .then(data => {
+                const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(true);
-                done();
-                //errors.should
         });
 
     });
@@ -29,18 +42,9 @@ describe('Amend validate', () => {
 
 describe('Amend submit', () => {
 
-
-
     it('confirms that submitted form is segmented by date and holding', function(done) {
-        return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues.json', 'utf8')
+        return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValues.json')
             .then(data => {
-                data = JSON.parse(data);
-                data.values.actions.map((a, i) => {
-                    a.recipients.map((r) => {
-                        r.effectiveDate = moment(r.effectiveDate).toDate()
-                    })
-                    a.data = data.actionSet.data.actions[i]
-                })
                 const results = formatSubmit(data.values, data.actionSet);
 
                 results.length.should.be.equal(6);
@@ -69,15 +73,8 @@ describe('Amend submit', () => {
 
 
     it('confirms that submitted form is segmented by date and holding, again', function(done) {
-        return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues2.json', 'utf8')
+        return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValues2.json')
             .then(data => {
-                data = JSON.parse(data);
-                data.values.actions.map((a, i) => {
-                    a.recipients.map((r) => {
-                        r.effectiveDate = moment(r.effectiveDate).toDate()
-                    })
-                    a.data = data.actionSet.data.actions[i]
-                })
                 const results = formatSubmit(data.values, data.actionSet);
 
                 results.length.should.be.equal(7);
