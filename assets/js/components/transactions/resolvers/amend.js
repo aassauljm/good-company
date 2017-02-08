@@ -311,7 +311,6 @@ export function validateAmend(values, props) {
     const formErrors = {};
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
-        
         const inferAmount = action.data ? action.data.inferAmount: false;
         const amounts = (action.data.parcels || []).reduce((acc, parcel) => {
             acc[parcel.shareClass || null] = {amount: parcel.afterAmount - parcel.beforeAmount, sum: 0, startAmount: parcel.beforeAmount || 0}
@@ -324,8 +323,8 @@ export function validateAmend(values, props) {
 
             const actionAmounts = recipient.parcels.reduce((acc, parcel, i) => {
                 errors.parcels[i] = {};
-                if(acc[parcel.shareClass || null]){
-                    errors.parcels[i].shareClass = ['Duplidate Share Class.']
+                if(acc[parcel.shareClass || null] !== undefined){
+                    errors.parcels[i].shareClass = ['Duplicate Share Class.']
                 }
                 const amount = parseInt(parcel.amount, 10) || 0;
                 if(!amount && !inferred){
@@ -335,8 +334,6 @@ export function validateAmend(values, props) {
                     errors.parcels[i].amount = ['Must be greater than 0.'];
                 }
                 const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
-
-                console.log(sourceParcel, amounts)
 
                 if(recipient.type){
                     sourceParcel.sum += absoluteAmount(recipient.type, amount);
@@ -381,7 +378,7 @@ export function validateAmend(values, props) {
 
             if(!inferAmount && sourceParcel.sum !== sourceParcel.amount){
                 formErrors.actions = formErrors.actions || [];
-                const diff = sum - amount;
+                const diff = sourceParcel.sum - sourceParcel.amount;
                 if(diff < 0){
                     formErrors.actions[i] = formErrors.actions[i] || [];
                     formErrors.actions[i].push(`${-diff} shares left to allocate.`);
@@ -425,7 +422,7 @@ const AmendOptionsConnected = reduxForm({
 
 const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0; // && !action.inferAmount;
 
-const collectAmendActions = (actions) => actions.filter(isAmendable);
+export function collectAmendActions(actions){ return  actions.filter(isAmendable) };
 
 
 export function formatSubmit(values, actionSet) {
