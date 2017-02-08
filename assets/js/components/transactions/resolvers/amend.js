@@ -373,7 +373,7 @@ export function validateAmend(values, props) {
             formErrors.actions[i] = ['Required.'];
         }
 
-        (action.data.parcels || []).map((parcel, i) => {
+        (action.data.parcels || []).map((parcel, j) => {
             const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
 
             if(!inferAmount && sourceParcel.sum !== sourceParcel.amount){
@@ -658,7 +658,7 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
                     type: setValue(inverseType),
                     holding: setValue(inverseHolding),
                     parcels: recipient.parcels,
-                    _keyIndex: setValue(keyIndex++)
+                    _keyIndex: setValue('inverse-' + getValue(recipient.keyIndex))
                 });
 
                 // better sort reciprocals

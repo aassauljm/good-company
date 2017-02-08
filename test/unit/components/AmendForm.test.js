@@ -28,7 +28,7 @@ describe('Amend validate', () => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
                 errors.actions[6].recipients[1].parcels[0].amount[0].should.be.equal("Share count goes below 0.");
-                errors._error.actions[0][0].should.be.equal("1 shares left to allocate.");
+                errors._error.actions[6][0].should.be.equal("1 shares left to allocate.");
             });
         });
     it('confirms invalid amend form values report as invalid, duplicate share class', function(){
@@ -46,16 +46,16 @@ describe('Amend validate', () => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
                 errors.actions[4].recipients[0].parcels[0].amount[0].should.be.equal("Required.");
-                errors._error.actions[0][0].should.be.equal("1 shares left to allocate.");
+                errors._error.actions[4][0].should.be.equal("1 shares left to allocate.");
             });
-        });  
+        });
 
     it('confirms invalid amend form values report as invalid, under allocated', function(){
         return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValuesInvalid4.json')
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
-                errors._error.actions[0][0].should.be.equal("1 shares over allocated.");
+                errors._error.actions[3][0].should.be.equal("1 shares over allocated.");
             });
         });
 

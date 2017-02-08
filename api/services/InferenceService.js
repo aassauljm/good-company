@@ -631,6 +631,8 @@ module.exports = {
         // AFTER SORT
         docs = InferenceService.insertIntermediateActions(docs);
         docs = InferenceService.sharesToParcels(docs);
+        // filter out inert docs
+        docs = docs.filter(d => d.actions && d.actions.some(a => a.transactionType));
         // Add ids
 
         docs.map(p => {

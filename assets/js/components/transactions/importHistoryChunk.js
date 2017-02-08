@@ -50,9 +50,8 @@ function TransactionSummaries(props) {
             }
             const editable = isEditable(p.data);
             const required = requiresEdit(p.data);
-            if(required){
-                showConfirm = false;
-            }
+            const showConfirm = ~required;
+
             let className = "panel panel-default"
             if(required){
                 className = "panel panel-danger"
@@ -72,7 +71,7 @@ function TransactionSummaries(props) {
                                         { /* JSON.stringify(actions) */}
                                     </div>
                                     <div className="col-md-1">{ editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div> }</div>
-                                    <div className="col-md-1"> { showConfirm &&  <div className="button-row"><Button bsStyle="primary" onClick={null}>Confirm</Button></div> }</div>
+                                    <div className="col-md-1"> { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={null}>Confirm</Button></div> }</div>
                                 </div>
                             </div>
                             </div>
