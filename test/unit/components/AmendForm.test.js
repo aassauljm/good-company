@@ -88,7 +88,6 @@ describe('Amend submit', () => {
 
                 results.length.should.be.equal(6);
 
-                //results[0].data.actions.length.should.be.equal(7);
                 results[1].data.actions.length.should.be.equal(2);
                 results[1].data.actions[0].transactionType.should.be.equal('TRANSFER_TO');
                 results[2].data.actions[0].transactionType.should.be.equal('ISSUE_TO');
@@ -115,8 +114,6 @@ describe('Amend submit', () => {
         return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValues2.json')
             .then(data => {
                 const results = formatSubmit(data.values, data.actionSet);
-
-               // results.length.should.be.equal(7);
                 let lastDate = new Date(results[0].data.effectiveDate)
                 for(var i=1;i<results.length;i++){
                     const thisDate = new Date(results[i].data.effectiveDate);
