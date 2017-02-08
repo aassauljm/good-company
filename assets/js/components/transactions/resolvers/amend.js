@@ -657,7 +657,7 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
                     isInverse: setValue(true),
                     type: setValue(inverseType),
                     holding: setValue(inverseHolding),
-                    amount: recipient.amount,
+                    parcels: recipient.parcels,
                     _keyIndex: setValue(keyIndex++)
                 });
 
