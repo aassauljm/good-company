@@ -2,9 +2,35 @@ var Promise = require('bluebird');
 
 var fs = Promise.promisifyAll(require("fs"));
 import moment from 'moment';
-import { formatSubmit } from '../../../assets/js/components/transactions/resolvers/amend';
+import { formatSubmit, validateAmend } from '../../../assets/js/components/transactions/resolvers/amend';
+import isValid from 'redux-form/lib/isValid'
+
+describe('Amend validate', () => {
+    it('confirms valid amend form values report as valid', function(done){
+        return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues.json', 'utf8')
+            .then(data => {
+                data = JSON.parse(data);
+                data.values.actions.map((a, i) => {
+                    a.recipients.map((r) => {
+                        r.effectiveDate = moment(r.effectiveDate).toDate()
+                    });
+                    a.data = data.actionSet.data.actions[i];
+                });
+                const errors = validateAmend(data.values, {});
+                console.log(JSON.stringify(errors, null, 4));
+                isValid(errors).should.be.equal(true);
+                done();
+                //errors.should
+        });
+
+    });
+});
+
 
 describe('Amend submit', () => {
+
+
+
     it('confirms that submitted form is segmented by date and holding', function(done) {
         return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues.json', 'utf8')
             .then(data => {
@@ -39,7 +65,9 @@ describe('Amend submit', () => {
                 done();
             })
             .catch(done);
-    })
+    });
+
+
     it('confirms that submitted form is segmented by date and holding, again', function(done) {
         return fs.readFileAsync('test/fixtures/transactionData/catalexAmendFormValues2.json', 'utf8')
             .then(data => {
@@ -73,5 +101,6 @@ describe('Amend submit', () => {
                 done();
             })
             .catch(done);
-    })
+    });
+
 });

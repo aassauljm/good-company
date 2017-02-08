@@ -306,7 +306,7 @@ class AmendOptions extends React.Component {
 }
 
 
-const validateAmend = (values, props) => {
+export function validateAmend(values, props) {
     const errors = {};
     const formErrors = {};
     errors.actions = values.actions.map((action, i) => {
@@ -357,8 +357,6 @@ const validateAmend = (values, props) => {
             formErrors.actions = formErrors.actions || [];
             formErrors.actions[i] = ['Required.'];
         }
-
-
 
         if(!inferAmount && sum !== amount){
             formErrors.actions = formErrors.actions || [];
