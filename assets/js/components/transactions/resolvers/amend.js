@@ -125,6 +125,7 @@ class Recipient extends React.Component {
         const title =  `Transaction #${this.props.index+1}`;
         const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
         const holdings = this.props.holdings;
+
         const renderOption = (h, i) => {
             return h.remaining ?
                 <option key={i} value={h.value}>{h.label} - {numberWithCommas(Math.abs(h.remaining))} {h.remaining < 0 ? 'over allocated' : 'under allocated'}</option> :
@@ -151,14 +152,6 @@ class Recipient extends React.Component {
                     const add = this.props.parcels.length < this.props.shareOptions.length && (() => this.props.parcels.addField({}));
                     return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove}/>
                 }) }</div>
-                 {/*}                   <Input
-                    className="amount"
-                    type={this.props.amount.value === 'All' ? "text" : "number"}
-                    {...this.formFieldProps('amount')}
-                    placeholder={'Number of Shares'}
-                    value={ this.props.amount.value }
-                    disabled={!!this.props.isInverse.value || this.props.amount.value === 'All'}
-                    label={null}/> */ }
 
                 { optionalNotification(this.props.type.value) && <div className="input-row">
 
@@ -218,7 +211,13 @@ function Recipients(props){
 
             { <div className="button-row">
                 <Button type="button" onClick={() => {
-                    props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate, parcels:[{}]})    // pushes empty child field onto the end of the array
+                    const remaining = props.data.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.recipients.reduce((sum, r) => {
+                        return sum + absoluteAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
+                    }, 0);
+                    props.recipients.addField({
+                        _keyIndex: keyIndex++, effectiveDate: props.effectiveDate,
+                        parcels:[{shareClass: props.defaultShareClass, amount: remaining}]
+                    })    // pushes empty child field onto the end of the array
                 }}>
                 Add Transaction
                 </Button>
@@ -241,8 +240,8 @@ class AmendOptions extends React.Component {
 
         const { shareClassMap, fields: { actions }, allSameDirection } = this.props;
         const amountRemaining = (holding, i) => {
-            const remaining = holding.amount - this.props.values.actions[i].recipients.reduce((sum, a) => {
-                return sum + (a.type ? absoluteAmount(a.type, (parseInt(a.amount, 10) || 0)) : 0)
+            const remaining = holding.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - this.props.values.actions[i].recipients.reduce((sum, a) => {
+                return sum + (a.type ? absoluteAmount(a.type, a.parcels.reduce((sum, p) => sum + (parseInt(p.amount, 10) || 0), 0)) : 0)
             }, 0);
             return {...holding, remaining: remaining}
         }
@@ -253,7 +252,7 @@ class AmendOptions extends React.Component {
             const a = r.data;
             const increase = actionAmountDirection(a);
             const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
-            return {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i, amount: a.afterAmount - a.beforeAmount};
+            return {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i, parcels: a.parcels};
         });
 
         return <form onSubmit={this.props.handleSubmit}>
@@ -275,11 +274,13 @@ class AmendOptions extends React.Component {
                     <Recipients
                         effectiveDate={this.props.effectiveDate}
                         recipients={actions[i].recipients}
+                        data={actions[i].data}
                         increase={increase}
                         allSameDirection={allSameDirection}
                         error={getError(i)}
                         shareClassMap={shareClassMap}
                         shareOptions={this.props.shareOptions}
+                        defaultShareClass={this.props.defaultShareClass}
                         holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
                 </div>
                 <hr/>
@@ -474,7 +475,6 @@ export function formatSubmit(values, actionSet) {
         });
     });
 
-
     const transactions = transfers;
 
     Object.keys(nonTransfers).map(date => {
@@ -489,21 +489,24 @@ export function formatSubmit(values, actionSet) {
     const newAllocations = {};
 
     const parcelIndexByClass = (parcels, shareClass) => {
-        return parcels.findIndex(p => !shareClass && !p.shareClass || shareClass === p.shareClass);
+        return parcels.findIndex(p =>  !p.shareClass || shareClass === p.shareClass);
     }
 
 
-    transactions.map((sets, i) => {
-        sets.map(action => {
+    transactions.map((actions, i) => {
+        actions.map(action => {
             if(action._holding !== undefined && amends[action._holding].parcels){
                 //look up original action
                 const original = amends[action._holding];
 
-                action.parcels.map(p => {
+                action.parcels = action.parcels.map(p => {
+                    p = {...p}
                     const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
                     p.afterAmount = original.parcels[parcelIndex].afterAmount;
                     p.beforeAmount = p.afterAmount + (isIncrease(action.transactionType) ? -p.amount : p.amount);
+                    original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
                     original.parcels[parcelIndex].afterAmount = p.beforeAmount;
+                    return p;
                 });
                 if(action.parcels.every(p => p.beforeAmount === 0) && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
                     newAllocations[action._holding] = action;
@@ -536,11 +539,15 @@ export function formatSubmit(values, actionSet) {
 export default function Amend(props){
     const { context, submit } = props;
     const { actionSet, companyState } = context;
-    const shareClassMap = generateShareClassMap(companyState);
     const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
     const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
-
+    const shareClassMap = generateShareClassMap(companyState);
+    const shareClasses = ((companyState.shareClasses || {}).shareClasses || []);
+    const shareOptions = shareClasses.map((s, i) => {
+        return <option key={i} value={s.id}>{s.name}</option>
+    });
+    const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
     const identity = x => x;
 
     const handleSubmit = (values) => {
@@ -572,7 +579,7 @@ export default function Amend(props){
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount})),
+                recipients: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
                 effectiveDate,  _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
             };
         }
@@ -582,7 +589,7 @@ export default function Amend(props){
         if(a.parcels.every(p => amountValues[increase][p.amount] && amountValues[increase][p.amount].length === 1 &&
            amountValues[!increase][p.amount] && amountValues[!increase][p.amount].length === 1)){
             return {recipients: [{
-                parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount})),
+                parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
                 holding: amountValues[!increase][a.parcels[0].amount][0].index+'',
                 effectiveDate,
@@ -600,27 +607,23 @@ export default function Amend(props){
         }*/
 
         return {recipients: [{
-            parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount})), type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
+            parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
+            type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
         }]};
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
 
-    const shareOptions = ((companyState.shareClasses || {}).shareClasses || []).map((s, i) => {
-        return <option key={i} value={s.id}>{s.name}</option>
-    });
 
 
     return <div className="resolve">
             <AmendOptionsConnected
-            //amendActions={amendActions}
             effectiveDate={effectiveDate}
             totalAmount={totalAmount}
             allSameDirection={allSameDirection}
-            //holdings={holdings}
             shareClassMap={shareClassMap}
             shareOptions={shareOptions}
-
+            defaultShareClass={defaultShareClass}
             onSubmit={handleSubmit}
             initialValues={initialValues}
             show={props.show}

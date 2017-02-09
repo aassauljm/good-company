@@ -104,6 +104,18 @@ describe('Amend submit', () => {
                         return sum + (a.transactionMethod === 'NEW_ALLOCATION' ? 1 : 0)
                     }, sum)
                 }, 0).should.be.equal(5);
+
+                results.map(r => {
+                    r.data.actions.map(a => {
+                        if(a.transactionMethod === 'NEW_ALLOCATION'){
+                            a.parcels.map(p => {
+                                p.beforeAmount.should.be.below(p.afterAmount)
+                            })
+                        }
+                    })
+                })
+
+
                 done();
             })
             .catch(done);
@@ -130,7 +142,6 @@ describe('Amend submit', () => {
                         return sum + (a.transactionType === 'ISSUE_TO' ? 1 : 0)
                     }, sum)
                 }, 0).should.be.equal(2);
-
                 done();
             })
             .catch(done);

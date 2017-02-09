@@ -107,12 +107,13 @@ export function validateInverseAmend(amend, companyState){
     let holding = companyState.getMatchingHolding({
         holders: amend.afterHolders,
         holdingId: amend.holdingId,
-        parcels: amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true})
+        parcels: amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true});
+
     if(!holding){
         holding = companyState.getMatchingHolding({
             holders: amend.afterHolders,
             holdingId: amend.holdingId
-        },  {ignoreCompanyNumber: true});
+        }, {ignoreCompanyNumber: true});
 
         if(holding && holding.sumOfParcels() === _.sum(amend.parcels, 'afterAmount')){
             throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{

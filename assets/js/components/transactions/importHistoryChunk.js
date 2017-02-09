@@ -83,7 +83,7 @@ function TransactionSummaries(props) {
         </Shuffle>
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
-        <Button bsStyle="primary" className="submit-import" onClick={props.handleConfirm}>Confirm All Transactions</Button>
+        <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions</Button>
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
     </div>
@@ -151,7 +151,7 @@ PAGES[EXPLAINATION] = function() {
         if(pendingYearActions.length){
             return <TransactionSummaries
                 pendingActions={pendingYearActions}
-                handleConfirm={this.handleStart}
+                handleStart={this.handleStart}
                 handleAddNew={this.handleAddNew}
                 handleEdit={this.handleEdit}
                 end={this.props.end}

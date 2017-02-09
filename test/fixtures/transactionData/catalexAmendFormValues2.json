@@ -159,6 +159,8 @@
                 },
                 {
                    "parcels": [{ "afterAmount": 0,
+                    "amount": 5000,
+                    "beforeAmount": 5000}],
                     "afterHolders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -166,8 +168,6 @@
                             "name": "NOT THE ROCKPOOL LIMITED"
                         }
                     ],
-                    "amount": 5000,
-                    "beforeAmount": 5000}],
                     "beforeHolders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
