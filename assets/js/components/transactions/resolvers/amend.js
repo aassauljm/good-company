@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime,
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap,
     renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState } from '../../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -189,7 +189,8 @@ function Recipients(props){
             { props.recipients.map((r, i) => {
                 const show = !r.isInverse.value;
                 if(!show){
-                    const title = `Transfer of ${r.amount.value || 0} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
+                    const parcels = r.parcels.map(p => `${p.amount.value} ${renderShareClass(p.shareClass.value, props.shareClassMap)}`).join(', ');
+                    const title = `Transfer of ${parcels} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
                     return <div className="list-item" key={r._keyIndex.value}>
                         <Panel title={title} />
                     </div>
@@ -277,6 +278,7 @@ class AmendOptions extends React.Component {
                         increase={increase}
                         allSameDirection={allSameDirection}
                         error={getError(i)}
+                        shareClassMap={shareClassMap}
                         shareOptions={this.props.shareOptions}
                         holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
                 </div>
@@ -381,11 +383,11 @@ export function validateAmend(values, props) {
                 const diff = sourceParcel.sum - sourceParcel.amount;
                 if(diff < 0){
                     formErrors.actions[i] = formErrors.actions[i] || [];
-                    formErrors.actions[i].push(`${-diff} shares left to allocate.`);
+                    formErrors.actions[i].push(`${numberWithCommas(-diff)} shares left to allocate.`);
                 }
                 else if(diff > 0){
                     formErrors.actions[i] = formErrors.actions[i] || [];
-                    formErrors.actions[i].push(`${diff} shares over allocated.`);
+                    formErrors.actions[i].push(`${numberWithCommas(diff)} shares over allocated.`);
                 }
             }
         });
@@ -533,8 +535,8 @@ export function formatSubmit(values, actionSet) {
 
 export default function Amend(props){
     const { context, submit } = props;
-    const { actionSet, companyState, shareClassMap } = context;
-
+    const { actionSet, companyState } = context;
+    const shareClassMap = generateShareClassMap(companyState);
     const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
     const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
@@ -558,7 +560,9 @@ export default function Amend(props){
 
     const amountValues = amendActions.reduce((acc, action, i) => {
         const dir = (action.afterAmount > action.beforeAmount || !action.beforeHolders);
-        acc[dir][action.amount] = (acc[dir][action.amount] || []).concat({...action, index: i});
+        action.parcels.map(parcel => {
+            acc[dir][parcel.amount] = (acc[dir][parcel.amount] || []).concat({...action, index: i});
+        });
         return acc;
     }, {true: {}, false: {}});
 
@@ -568,17 +572,19 @@ export default function Amend(props){
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{parcels: [{amount:  a.inferAmount ? 'All' : a.amount, effectiveDate}], _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
+                recipients: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount})),
+                effectiveDate,  _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
             };
         }
         // else if one exact opposite transaction, then set that
         const increase =  actionAmountDirection(a);
-        if(amountValues[increase][a.amount] && amountValues[increase][a.amount].length === 1 &&
-           amountValues[!increase][a.amount] && amountValues[!increase][a.amount].length === 1){
+
+        if(a.parcels.every(p => amountValues[increase][p.amount] && amountValues[increase][p.amount].length === 1 &&
+           amountValues[!increase][p.amount] && amountValues[!increase][p.amount].length === 1)){
             return {recipients: [{
-                parcels: [{amount:   a.inferAmount ? 'All' :  a.amount}],
+                parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount})),
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
-                holding: amountValues[!increase][a.amount][0].index+'',
+                holding: amountValues[!increase][a.parcels[0].amount][0].index+'',
                 effectiveDate,
                 isInverse: !increase,
                 _keyIndex: keyIndex++
@@ -594,7 +600,7 @@ export default function Amend(props){
         }*/
 
         return {recipients: [{
-            parcels: [{amount:  a.inferAmount ? 'All' : a.amount}], type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
+            parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount})), type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
         }]};
     }).filter(identity), identity, identity, x => false)};
 
@@ -649,16 +655,18 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
                 const inverseType = inverseTransfer(getValue(recipient.type))
                 const inverseHolding = i.toString();
                 // does the reciprocal any fields that have been touched?
+
                 actions[holdingIndex].recipients = actions[holdingIndex].recipients.filter(r => {
-                    return getTouched(r.amount) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse);
+                    return r.parcels.some(p => getTouched(p.amount) || getTouched(p.shareClass)) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse);
                 });
+
                 actions[holdingIndex].recipients.push({
                     effectiveDate: recipient.effectiveDate,
                     isInverse: setValue(true),
                     type: setValue(inverseType),
                     holding: setValue(inverseHolding),
-                    parcels: recipient.parcels,
-                    _keyIndex: setValue('inverse-' + getValue(recipient.keyIndex))
+                    parcels: recipient.parcels.map(p => ({amount: setValue(getValue(p.amount)), shareClass: setValue(getValue(p.shareClass))})),
+                    _keyIndex: setValue('inverse-' + getValue(recipient._keyIndex))
                 });
 
                 // better sort reciprocals

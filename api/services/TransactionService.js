@@ -114,7 +114,7 @@ export function validateInverseAmend(amend, companyState){
             holdingId: amend.holdingId
         },  {ignoreCompanyNumber: true});
 
-        if(holding.sumOfParcels() === _.sum(amend.parcels, 'afterAmount')){
+        if(holding && holding.sumOfParcels() === _.sum(amend.parcels, 'afterAmount')){
             throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
                 action: amend,
                 companyState: companyState,

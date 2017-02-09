@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, createResource, addNotification } from '../../actions';
+import { requestResource, createResource, updateResource, addNotification } from '../../actions';
 import { pureRender, stringDateToFormattedString } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -14,7 +14,7 @@ import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import Loading from '../loading'
 import { TransactionTerseRenderMap } from '../transaction';
-
+import Shuffle from 'react-shuffle';
 
 function companiesOfficeDocumentUrl(companyState, documentId){
     const companyNumber = companyState.companyNumber;
@@ -36,27 +36,31 @@ const PAGES = [];
 
 
 function TransactionSummaries(props) {
-    const pendingActions = [...props.pendingActions];
-    let showConfirm = true;
+    const pendingActions = props.pendingActions.filter(p => {
+        const actions = p.data.actions.filter(a => a.transactionType);
+        if(!actions.length || isNonDisplayedTransaction(p.data.transactionType)){
+            return false;
+        }
+        if(actions.every(a => a.userConfirmed)){
+            return false;
+        }
+        return true;
+    });
 
     return <div>
-    <p>If any entry has an Edit button, you can make date and detail corrections.  Once all entries are correct, click 'Confirm Transactions' to move onto the next year.</p>
-
+        <p>Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.</p>
         <hr/>
-        { pendingActions.map((p, i) => {
-            const actions = p.data.actions.filter(a => a.transactionType);
-            if(!actions.length || isNonDisplayedTransaction(p.data.transactionType)){
-                return false;
-            }
-            const editable = isEditable(p.data);
-            const required = requiresEdit(p.data);
-            const showConfirm = ~required;
+        <Shuffle >
+            { pendingActions.map((p, i) => {
+                const editable = isEditable(p.data);
+                const required = requiresEdit(p.data);
+                const showConfirm = !required;
 
-            let className = "panel panel-default"
-            if(required){
-                className = "panel panel-danger"
-            }
-            return <div key={i}>
+                let className = "panel panel-default"
+                if(required){
+                    className = "panel panel-danger"
+                }
+                return <div key={p.id}>
                         <div  className={className}>
                             <div className="panel-heading">
                                 <div className="row transaction-table">
@@ -64,22 +68,22 @@ function TransactionSummaries(props) {
                                         { stringDateToFormattedString(p.data.effectiveDate) }
                                     </div>
                                     <div className="col-md-8">
-                                    { actions.map((action, i) => {
+                                    { p.data.actions.map((action, i) => {
                                         const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
                                             return  Terse && <Terse {...action} key={i}/>
                                         }) }
-                                        { /* JSON.stringify(actions) */}
                                     </div>
                                     <div className="col-md-1">{ editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div> }</div>
-                                    <div className="col-md-1"> { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={null}>Confirm</Button></div> }</div>
+                                    <div className="col-md-1"> { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p, pendingActions.slice(0, i) ) }>Confirm</Button></div> }</div>
                                 </div>
                             </div>
                             </div>
                         </div>
-        })}
+            }) }
+        </Shuffle>
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
-        <Button bsStyle="primary" className="submit-import" onClick={props.handleConfirm}>Confirm Transactions</Button>
+        <Button bsStyle="primary" className="submit-import" onClick={props.handleConfirm}>Confirm All Transactions</Button>
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
     </div>
@@ -145,7 +149,14 @@ PAGES[EXPLAINATION] = function() {
     if(this.props.pendingHistory._status === 'complete'){
         const pendingYearActions = collectChunkedActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
-            return <TransactionSummaries pendingActions={pendingYearActions} handleConfirm={this.handleStart} handleAddNew={this.handleAddNew} handleEdit={this.handleEdit} end={this.props.end}/>
+            return <TransactionSummaries
+                pendingActions={pendingYearActions}
+                handleConfirm={this.handleStart}
+                handleAddNew={this.handleAddNew}
+                handleEdit={this.handleEdit}
+                end={this.props.end}
+                handleConfirm={this.handleConfirm}
+                />
         }
         else{
            return <div>
@@ -188,9 +199,21 @@ PAGES[LOADING] = function() {
                                                      {}, {
                                                         invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
                                                      })),
+        performImportUntil: (id) => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until`,
+                                                     {id}, {
+                                                        invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
+                                                     })),
         addNotification: (args) => dispatch(addNotification(args)),
-        destroyForm: (args) => dispatch(destroy(args))
-
+        destroyForm: (args) => dispatch(destroy(args)),
+        updateAction: (args) => {
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
+                invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
+            }))
+            .then(() => {
+                dispatch(destroy('amend'));
+                ownProps.end();
+            })
+        },
     }
 })
 export class ImportHistoryChunkTransactionView extends React.Component {
@@ -201,7 +224,8 @@ export class ImportHistoryChunkTransactionView extends React.Component {
         this.handleStartYearByYear = ::this.handleStartYearByYear;
         this.handleResolve = ::this.handleResolve;
         this.handleEdit = ::this.handleEdit;
-        this.handleAddNew = ::this.handleAddNew
+        this.handleAddNew = ::this.handleAddNew;
+        this.handleConfirm = ::this.handleConfirm;
     };
 
     fetch() {
@@ -239,6 +263,21 @@ export class ImportHistoryChunkTransactionView extends React.Component {
                 else{
                     this.props.end();
                 }
+            })
+            .catch(e => {
+                this.handleResolve();
+            })
+    }
+
+    handleImportUntil(id) {
+        this.props.performImportUntil(id)
+            .then(action => {
+                /*if(!action.response.complete){
+                    this.props.next({index: EXPLAINATION});
+                }
+                else{
+                    this.props.end();
+                }*/
             })
             .catch(e => {
                 this.handleResolve();
@@ -289,10 +328,34 @@ export class ImportHistoryChunkTransactionView extends React.Component {
         });
     }
 
+    handleConfirm(transaction, previousTransactions, confirmState=true) {
+
+        const pendingAction = {...transaction};
+        const id = !previousTransactions.length ? pendingAction.id : null;
+
+        pendingAction.data.actions = pendingAction.data.actions.map((a) => {
+            return {userConfirmed: confirmState, ...a}
+        });
+
+        this.props.updateAction({
+            pendingActions: [pendingAction]
+        })
+        .then(() => {
+            if(id){
+                return this.handleImportUntil(id);
+            }
+        });
+    }
+
+
+    toggleUserConfirmed() {
+        debugger
+    }
+
     render() {
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>Import Company History</TransactionView.Title>
+                <TransactionView.Title>{ STRINGS.importCompanyHistory } </TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody() }

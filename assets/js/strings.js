@@ -227,5 +227,6 @@ export default {
     emailRecipients: {
         name: "Name",
         email: "Email"
-    }
+    },
+    importCompanyHistory: "Reconcile Company History"
 }
