@@ -413,7 +413,7 @@ function findHolding(holding, action, companyState, errors={}){
     }
     if(!current.length){
         const holding = companyState.getMatchingHolding({...holding, parcels: null},  {ignoreCompanyNumber: true});
-        if(holding.sumOfParcels() === _.sum(holding.parcels, 'amount')){
+        if(holding && holding.sumOfParcels() === _.sum(holding.parcels, 'amount')){
             throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
                 action: amend,
                 companyState: companyState,
