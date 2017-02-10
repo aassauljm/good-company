@@ -19,7 +19,7 @@ import { ShareClassesTable  } from "../../assets/js/components/shareClasses.js";
 import { CompanyAlertsWidget } from "../../assets/js/components/companyAlerts.js";
 import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js';
 import { ShareClassSelect } from '../../assets/js/components/transactions/applyShareClasses.js';
-import { ImportHistoryChunkTransactionView } from '../../assets/js/components/transactions/importHistoryChunk.js';
+import { ImportHistoryTransactionView } from '../../assets/js/components/transactions/importHistory.js';
 import Amend from '../../assets/js/components/transactions/resolvers/amend';
 import chai from 'chai';
 

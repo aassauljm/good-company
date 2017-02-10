@@ -461,8 +461,8 @@ const PAGES = {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
             }))
             .then(() => {
-                dispatch(destroy('amend'));
                 ownProps.end();
+                dispatch(destroy('amend'));
             })
         },
         resetAction: (args) => {
@@ -470,8 +470,8 @@ const PAGES = {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
             .then(() => {
                 dispatch(endLoading());
-                dispatch(destroy('amend'));
                 ownProps.end();
+                dispatch(destroy('amend'));
             })
         },
         destroyForm: (args) => {
@@ -512,8 +512,8 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             edit = () => {
                 const otherActions = this.props.transactionViewData.editTransactionData.pendingActions.filter(p => p.id !== context.actionSet.id);
                 // gross
-                this.props.destroyForm('amend');
                 this.props.show('editTransaction', {...this.props.transactionViewData.editTransactionData, actionSet: context.actionSet, otherActions});
+                this.props.destroyForm('amend');
             }
         }
 
