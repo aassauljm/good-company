@@ -112,9 +112,6 @@ function validTransactionType(type){
         TransactionTypes.ACQUISITION_FROM,
         TransactionTypes.CONSOLIDATION_FROM,
         TransactionTypes.CANCELLATION_FROM,
-
-
-
         ].indexOf(type) >= 0 ? type : '';
 }
 
@@ -237,7 +234,6 @@ class AmendOptions extends React.Component {
         </div>
     }
     render() {
-
         const { shareClassMap, fields: { actions }, allSameDirection } = this.props;
         const amountRemaining = (holding, i) => {
             const remaining = holding.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - this.props.values.actions[i].recipients.reduce((sum, a) => {

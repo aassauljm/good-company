@@ -201,7 +201,7 @@ module.exports = {
                 let rootState;
                 pendingActions.map((pa, i) => {
                     pa.originalId = pa.id;
-                    pa.id = uuid.v4();
+                    pa.data.id = pa.id = uuid.v4();
                     (pa.actions || []).map(a => a.id = uuid.v4())
                     if(i >= 1){
                         pendingActions[i-1].previous_id = pa.id;

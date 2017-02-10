@@ -65,7 +65,7 @@ module.exports = {
         filename: DEV ? "[name].js" : "[name].[hash].js",
         path: __dirname + "/.tmp/public/js"
     },
-    devtool: DEV ? 'inline-source-map' : null,
+    devtool: DEV ? 'source-map' : null,
     module: {
         loaders: [
         {

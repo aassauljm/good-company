@@ -440,7 +440,9 @@ module.exports = {
         })
         .then(_state => {
             companyName = _state.get('companyName');
-            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => actionSet.id === targetId ));
+            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => {
+                return actionSet.id === targetId;
+            }));
         })
         .then(() => {
             return company.getPendingActions()
