@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
-import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString, companyListToOptions, personList } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString, companyListToOptions, personList, votingShareholderList } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import STRINGS from '../strings';
@@ -16,7 +16,7 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
-import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults } from 'json-schemer';
+import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel } from 'json-schemer';
 import deepmerge from 'deepmerge';
 
 function createLawLinks(list){
@@ -56,6 +56,12 @@ function renderList(fieldProps, componentProps) {
 }
 
 function renderField(fieldProps, componentProps, index){
+    // debugger;
+
+    if (fieldDisplayLevel(fieldProps) == 'hidden') {
+        return false;
+    }
+
     let title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
 
 
@@ -197,8 +203,11 @@ function makeContext(companyState) {
         return {};
     }
     return {
+        'company.name':companyState.companyName,
+        'company.number': companyState.companyNumber,
         'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
-        'company.shareholders': personList(companyState)
+        'company.shareholders': personList(companyState),
+        'company.votingShareholders': votingShareholderList(companyState)
     }
 }
 
