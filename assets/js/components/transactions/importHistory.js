@@ -52,10 +52,10 @@ function TransactionSummaries(props) {
         <hr/>
         <Shuffle >
             { pendingActions.map((p, i) => {
-                const editable = isEditable(p.data);
                 const required = requiresEdit(p.data);
-                const showConfirm = !required;
-
+                const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed);
+                const showConfirm = !required && !showUnconfirm;
+                const editable = isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed);
                 let className = "panel panel-default"
                 if(required){
                     className = "panel panel-danger"
@@ -73,8 +73,14 @@ function TransactionSummaries(props) {
                                             return  Terse && <Terse {...action} key={i}/>
                                         }) }
                                     </div>
-                                    <div className="col-md-1">{ editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div> }</div>
-                                    <div className="col-md-1"> { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p, pendingActions.slice(0, i) ) }>Confirm</Button></div> }</div>
+                                    <div className="col-md-1">{
+                                        editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div>
+                                    }</div>
+                                    <div className="col-md-1">
+                                        { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button></div> }
+                                        { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button></div> }
+
+                                    </div>
                                 </div>
                             </div>
                             </div>
@@ -332,16 +338,15 @@ export class ImportHistoryTransactionView extends React.Component {
         });
     }
 
-    handleConfirm(transaction, previousTransactions, confirmState=true) {
+    handleConfirm(transaction, confirmState=true) {
         const pendingAction = {...transaction};
-        const isFirst = !previousTransactions.length;
-
+        const pendingActions = collectActions(this.props.pendingHistory.data || []);
+        const index = pendingActions.findIndex(p => p.id === transaction.id);
         pendingAction.data.actions = pendingAction.data.actions.map((a) => {
-            return {userConfirmed: confirmState, ...a}
+            return {...a, userConfirmed: confirmState}
         });
-
         this.props.updateAction({
-            pendingActions: [...previousTransactions, pendingAction]
+            pendingActions: [...(pendingActions.slice(0, index)), pendingAction]
         })
     }
 
