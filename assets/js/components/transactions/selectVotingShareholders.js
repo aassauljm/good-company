@@ -146,7 +146,8 @@ export class VotingShareholdersTransactionView extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'} lawLinks={votingShareholdingLawLinks()}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" className="voter-select"
+            onHide={this.props.end} backdrop={'static'} lawLinks={votingShareholdingLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Select Voting Shareholders</TransactionView.Title>
               </TransactionView.Header>
@@ -154,7 +155,7 @@ export class VotingShareholdersTransactionView extends React.Component {
                 { this.renderBody(this.props.transactionViewData.companyState) }
               </TransactionView.Body>
               <TransactionView.Footer>
-                <Button onClick={this.props.end} >Cancel</Button>
+                <Button onClick={() => this.props.end({cancelled: true})} >Cancel</Button>
                  <Button onClick={::this.handleNext} bsStyle="primary" className="submit">Apply</Button>
               </TransactionView.Footer>
             </TransactionView>

@@ -15,9 +15,9 @@
                         ],
                         "documentId": "19941799",
                         "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
-                        "beforeAmount": 0,
+                        "parcels":[{"beforeAmount": 0,
                         "afterAmount": 5000,
-                        "amount": 5000
+                        "amount": 5000}]
                     },
                     {
                         "transactionType": "TRANSFER_FROM",
@@ -38,9 +38,9 @@
                         ],
                         "documentId": "19941799",
                         "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
-                        "beforeAmount": 5000,
+                        "parcels":[{"beforeAmount": 5000,
                         "afterAmount": 0,
-                        "amount": 5000
+                        "amount": 5000}]
                     }
                 ],
                 "date": "2014-07-31T17:48:00.000Z",
@@ -55,7 +55,6 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 5000,
                         "afterHolders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -63,8 +62,9 @@
                                 "name": "Tamina Kelly CUNNINGHAM-ADAMS"
                             }
                         ],
+                        "parcels":[{"afterAmount": 5000,
                         "amount": 4500,
-                        "beforeAmount": 500,
+                        "beforeAmount": 500}],
                         "beforeHolders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -89,7 +89,6 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 5000,
                         "afterHolders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -97,8 +96,9 @@
                                 "name": "BLOY CONSULTING LIMITED"
                             }
                         ],
+                        "parcels":[{"afterAmount": 5000,
                         "amount": 4500,
-                        "beforeAmount": 500,
+                        "beforeAmount": 500}],
                         "beforeHolders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -135,9 +135,9 @@
                         ],
                         "documentId": "19941799",
                         "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
-                        "beforeAmount": 0,
+                        "parcels":[{"beforeAmount": 0,
                         "afterAmount": 500,
-                        "amount": 500
+                        "amount": 500}]
                     },
                     {
                         "transactionType": "TRANSFER_FROM",
@@ -158,9 +158,9 @@
                         ],
                         "documentId": "19941799",
                         "id": "a1e6e352-e162-4513-a43a-ccb3474d5e5d",
-                        "beforeAmount": 500,
+                        "parcels":[{"beforeAmount": 500,
                         "afterAmount": 0,
-                        "amount": 500
+                        "amount": 500}]
                     }
                 ],
                 "date": "2014-07-31T17:48:00.000Z",

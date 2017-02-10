@@ -430,6 +430,45 @@ module.exports = {
         })
     },
 
+    importPendingHistoryUntil: function(req, res){
+        let company, companyName;
+        const targetId = actionUtil.parseValues(req).target;
+        Company.findById(req.params.id)
+        .then(function(_company){
+            company  = _company;
+            return company.getNowCompanyState()
+        })
+        .then(_state => {
+            companyName = _state.get('companyName');
+            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => {
+                return actionSet.id === targetId;
+            }));
+        })
+        .then(() => {
+            return company.getPendingActions()
+        })
+        .then(pA => {
+            if(!pA.length){
+                res.json({complete: true});
+                return ActivityLog.create({
+                    type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                    userId: req.user.id,
+                    companyId: company.id,
+                    description: `Completed ${companyName} History Import`,
+                    data: {companyId: company.id}
+                });
+            }
+            else{
+                return res.json({complete: false})
+            }
+        })
+        .catch(function(e){
+            if(e.context){
+                e.context.CHUNK_IMPORT = true;
+            }
+            return res.serverError(e)
+        })
+    },
 
     updatePendingHistory: function(req, res){
         const args = actionUtil.parseValues(req);

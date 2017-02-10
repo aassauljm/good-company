@@ -178,10 +178,6 @@ export function numberWithCommas(x) {
 
 export function stringDateToFormattedString(date){
     return moment(date).format('D MMM YYYY')
-    //use moment
-    //const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    //const d = new Date(date);
-    //return [d.getDate() , MONTHS[d.getMonth()] , d.getFullYear()].join(' ');
 }
 
 

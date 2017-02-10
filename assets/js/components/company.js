@@ -147,6 +147,13 @@ export class CompanyView extends React.Component {
                         companyId={this.props.params.id}
                         baseUrl={this.props.baseUrl}
                      />
+                     <RecentCompanyActivityWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'recentActivity'], expanded) }
+                        expanded={(this.props.widgets.recentActivity || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                        baseUrl={this.props.baseUrl}
+                     />
                 </div>
                  <div className="col-md-6">
                      <ShareholdingsWidget
@@ -171,13 +178,6 @@ export class CompanyView extends React.Component {
                         companyId={this.props.params.id}
                         baseUrl={this.props.baseUrl}
                      />
-                 <RecentCompanyActivityWidget
-                    toggle={(expanded) => this.props.toggleWidget([this.key(), 'recentActivity'], expanded) }
-                    expanded={(this.props.widgets.recentActivity || {}).expanded}
-                    companyState={current}
-                    companyId={this.props.params.id}
-                    baseUrl={this.props.baseUrl}
-                 />
 
                 </div>
 
@@ -196,7 +196,7 @@ export class CompanyView extends React.Component {
         }
         return <div className="company">
 
-                <div className="company-page">
+                <div className={current ? "company-page company-loaded" : "company-page"}>
                     <div className="container-fluid page-top">
                         <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} baseUrl={this.props.baseUrl} date={this.props.date}/>
                         </div>

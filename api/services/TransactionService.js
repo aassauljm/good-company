@@ -1,3 +1,5 @@
+
+"use strict"
 const _ = require('lodash');
 const moment = require('moment');
 const Promise = require('bluebird');
@@ -8,7 +10,7 @@ const uuid = require('node-uuid')
 export function validateAnnualReturn(data, companyState){
     const state = companyState.toJSON();
     let throwDirectors, throwTotal, allocatedEqual;
-    return companyState.stats()
+    return companyState.stats(true)
         .then((stats) => {
             if(stats.totalShares !== data.totalShares){
                 sails.log.error('stats: ', stats, data.totalShares)
@@ -102,114 +104,177 @@ export function validateInverseAmend(amend, companyState){
         })
     }
 
-    const parcels = amend.inferAmount ? null : [{amount: amend.afterAmount, shareClass: amend.shareClass}]
-
-    const holding = companyState.getMatchingHolding({holders: amend.afterHolders,
+    let holding = companyState.getMatchingHolding({
+        holders: amend.afterHolders,
         holdingId: amend.holdingId,
-        parcels: parcels},  {ignoreCompanyNumber: true});
+        parcels: amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true});
+
     if(!holding){
-        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found, documentId',{
+        holding = companyState.getMatchingHolding({
+            holders: amend.afterHolders,
+            holdingId: amend.holdingId
+        }, {ignoreCompanyNumber: true});
+
+        if(holding && holding.sumOfParcels() === _.sum(amend.parcels, 'afterAmount')){
+            throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
+                action: amend,
+                companyState: companyState,
+                importErrorType: sails.config.enums.UNKNOWN_AMEND
+            })
+        }
+    }
+
+
+
+    if(!holding){
+        throw new sails.config.exceptions.InvalidInverseOperation('Matching Holding not found',{
             action: amend,
             companyState: companyState,
             importErrorType: sails.config.enums.HOLDING_NOT_FOUND
         })
     }
-    const sum = _.sum(holding.dataValues.parcels, (p) =>{
-        return p.amount;
-    });
-    if(!Number.isSafeInteger(sum)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number, documentId')
-    }
-    if(!amend.inferAmount && (amend.beforeAmount < 0 || amend.afterAmount < 0)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ')
-    }
-    if(amend.afterAmount && (sum !== amend.afterAmount)){
-        throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
-    }
-    // If holders have changed too
-    /*if(!holding.holdersMatch({holders: amend.beforeHolders}, true)){
-        throw new sails.config.exceptions.InvalidInverseOperation('Holding transfer and Amend ordering required.', {
-            action: amend,
-            importErrorType: sails.config.enums.AMEND_TRANSFER_ORDER,
-            companyState: companyState
-        });
-    }*/
 
+    !amend.inferAmount && amend.parcels.map(newParcel => {
+        if(!amend.inferAmount && (newParcel.beforeAmount < 0 || newParcel.afterAmount < 0)){
+            throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ')
+        }
+        if(Math.abs(newParcel.beforeAmount - newParcel.afterAmount) !== newParcel.amount){
+            throw new sails.config.exceptions.InvalidOperation('Amount is incorrect')
+        }
+        if(!Number.isSafeInteger(newParcel.amount)){
+            throw new sails.config.exceptions.InvalidOperation('Unsafe number')
+        }
+    })
+    const parcels = amend.inferAmount ? null : amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}));
+    if(!amend.inferAmount){
+        holding.dataValues.parcels.map(parcel => {
+            amend.parcels.map(newParcel => {
+                if(Parcel.match(parcel, newParcel) && parcel.amount !== newParcel.afterAmount){
+                    throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, amend')
+                }
+
+            })
+        });
+    }
     return Promise.resolve(holding);
 }
 
 
 
-export function validateInverseIssue(data, companyState){
-    return companyState.stats()
+export function validateInverseChangeShares(data, companyState){
+    return companyState.stats(true)
         .then((stats) =>{
-            if(!Number.isInteger(data.amount) || data.amount <= 0){
-                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )', {
+            data.parcels.map((newParcel) => {
+                if(!Number.isInteger(newParcel.amount) || newParcel.amount <= 0){
+                    throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )', {
+                            action: data,
+                            importErrorType: sails.config.enums.INVALID_ISSUE,
+                            companyState: companyState
+                        });
+                }
+                if(!Number.isSafeInteger(newParcel.amount)){
+                    throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
+                }
+                const shareStats = !newParcel.shareClass ? {amount: stats.totalShares}: (stats.shareCountByClass[newParcel.shareClass || null] || {amount: 0});
+
+                if(shareStats.amount !== newParcel.afterAmount && newParcel.afterAmount !== undefined){
+                    throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue', {
                         action: data,
-                        importErrorType: sails.config.enums.INVALID_ISSUE,
+                        importErrorType: sails.config.enums.INVERSE_INCREASE_SUM_MISMATCH,
                         companyState: companyState
                     });
-            }
-            if(!Number.isSafeInteger(data.amount)){
-                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
-            }
-            if(stats.totalShares !== data.toAmount && data.toAmount !== undefined){
-                sails.log.error(stats)
-                sails.log.error(data)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue', {
-                    action: data,
-                    importErrorType: sails.config.enums.INVERSE_INCREASE_SUM_MISMATCH,
-                    companyState: companyState
-                });
-            }
-            if(data.fromAmount + data.amount !== data.toAmount && data.toAmount !== undefined){
-                throw new sails.config.exceptions.InvalidInverseOperation('Issue amount sums to not add up')
-            }
+                }
+
+            });
         })
 }
 
-export function validateInverseDecreaseShares(data, companyState){
-    return companyState.stats()
+export function validateChangeShares(data, companyState){
+    return companyState.stats(true)
         .then((stats) =>{
-            if(!Number.isInteger(data.amount) || data.amount <= 0){
-                throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )')
-            }
-            if(!Number.isSafeInteger(data.amount)){
-                throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
-            }
-            if(stats.totalShares !== data.toAmount && data.toAmount !== undefined){
-                sails.log.error(stats)
-                sails.log.error(data)
-                throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, decrease', {
-                    action: data,
-                    importErrorType: sails.config.enums.INVERSE_DECREASE_SUM_MISMATCH,
-                    companyState: companyState
-                });
-            }
-            if(data.fromAmount - data.amount !== data.toAmount && data.toAmount !== undefined){
-                throw new sails.config.exceptions.InvalidInverseOperation('Decrease amount sums to not add up')
-            }
+            data.parcels.map((newParcel) => {
+                if(!Number.isInteger(newParcel.amount) || newParcel.amount <= 0){
+                    throw new sails.config.exceptions.InvalidInverseOperation('Amount must be natural number ( n >=0 )', {
+                            action: data,
+                            importErrorType: sails.config.enums.INVALID_ISSUE,
+                            companyState: companyState
+                        });
+                }
+                const shareStats = stats.shareCountByClass[newParcel.shareClass || null] || {amount: 0};
+                if(!Number.isSafeInteger(newParcel.amount)){
+                    throw new sails.config.exceptions.InvalidInverseOperation('Unsafe number')
+                }
+
+                if(shareStats.amount !== newParcel.beforeAmount && newParcel.beforeAmount !== undefined){
+                     throw new sails.config.exceptions.InvalidOperation('Issue amount does not match current value')
+                }
+
+                /*if(newParcel.beforeAmount + newParcel.amount !== newParcel.afterAmount && newParcel.afterAmount !== undefined){
+                    throw new sails.config.exceptions.InvalidOperation('Change amount sums to not add up')
+                }*/
+            });
         })
 }
 
-export function performInverseIssueUnallocated(data, companyState, previousState, effectiveDate){
-    return validateInverseIssue(data, companyState)
+
+
+export function performDecreaseShares(data, companyState, previousState, effectiveDate){
+    return validateChangeShares(data, companyState)
         .then(() => {
-            const match = companyState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            const transaction = Transaction.build({type: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate})
+            data = {...data};
+            data.parcels = data.parcels.map(newParcel => {
+                const match = companyState.subtractUnallocatedParcels({amount: newParcel.amount, shareClass: newParcel.shareClass});
+                return {...newParcel, shareClass: match.shareClass};
+            });
+            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate})
+            return transaction;
+        })
+}
+
+
+export function performIncreaseShares(data, companyState, previousState, effectiveDate){
+    return validateChangeShares(data, companyState)
+        .then(() => {
+            data = {...data};
+            data.parcels = data.parcels.map(newParcel => {
+                const match = companyState.combineUnallocatedParcels({amount: newParcel.amount, shareClass: newParcel.shareClass});
+                return {...newParcel, shareClass: match.shareClass};
+            });
+            const transaction = Transaction.build({type: data.transactionType, data, effectiveDate});
+            return transaction;
+        })
+}
+
+export function performInverseIncreaseShares(data, companyState, previousState, effectiveDate){
+    return validateInverseChangeShares(data, companyState)
+        .then(() => {
+            data = {...data};
+            data.parcels = data.parcels.map(newParcel => {
+                const match = companyState.subtractUnallocatedParcels({amount: newParcel.amount, shareClass: newParcel.shareClass});
+                return {...newParcel, shareClass: match.shareClass};
+            });
+            const transaction = Transaction.build({type: data.transactionType, data, effectiveDate})
             return transaction;
         })
 }
 
 
 export function performInverseDecreaseShares(data, companyState, previousState, effectiveDate){
-    return validateInverseDecreaseShares(data, companyState)
+    return validateInverseChangeShares(data, companyState)
         .then(() => {
-            const match = companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            const transaction = Transaction.build({type: data.transactionType, data: {...data, shareClass: match.shareClass}, effectiveDate: effectiveDate});
+            data = {...data};
+            data.parcels = data.parcels.map(newParcel => {
+                const match = companyState.combineUnallocatedParcels({amount: newParcel.amount, shareClass: newParcel.shareClass});
+                return {...newParcel, shareClass: match.shareClass};
+            });
+            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate});
             return transaction;
         })
 }
+
+
+export const performInverseIssue = performInverseIncreaseShares;
+export const performInverseConversion = performInverseIncreaseShares;
 
 export const performInversePurchase = performInverseDecreaseShares;
 export const performInverseRedemption = performInverseDecreaseShares;
@@ -217,8 +282,20 @@ export const performInverseConsolidation = performInverseDecreaseShares;
 export const performInverseAcquisition = performInverseDecreaseShares;
 export const performInverseCancellation = performInverseDecreaseShares;
 
+
+
+export const performIssue = performIncreaseShares;
+export const performConversion= performIncreaseShares;
+
+export const performAcquisition = performDecreaseShares;
+export const performConsolidation = performDecreaseShares;
+export const performRedemption = performDecreaseShares;
+export const performCancellation = performDecreaseShares;
+export const performPurchase = performDecreaseShares;
+
+
 export  function performInverseAmend(data, companyState, previousState, effectiveDate, userId){
-    let transaction, holding, prevHolding;
+    let transaction, holding, prevHolding, afterParcels;
     data = _.cloneDeep(data);
     return Promise.resolve({})
         .then(() => {
@@ -236,21 +313,29 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 // note: prevousState
                 let inverseHolding;
                 if(data.beforeAmountLookup){
-                    inverseHolding = findHolding({holders: data.beforeAmountLookup.afterHolders, holdingId: data.beforeAmountLookup.holdingId},
-                                 data, previousState, {
-                                multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
-                                none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND
+                    inverseHolding = findHolding({
+                            holders: data.beforeAmountLookup.afterHolders,
+                            holdingId: data.beforeAmountLookup.holdingId
+                        },
+                        data, previousState, {
+                            multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
+                            none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND,
+                            shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
                         });
                 }
                 else{
-                    inverseHolding = findHolding({holders: data.afterAmountLookup.beforeHolders, holdingId: data.afterAmountLookup.holdingId},
-                                 data, companyState, {
-                                multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
-                                none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND
+                    inverseHolding = findHolding({
+                            holders: data.afterAmountLookup.beforeHolders,
+                            holdingId: data.afterAmountLookup.holdingId
+                        },
+                        data, companyState, {
+                            multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
+                            none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND,
+                            shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
                         });
                 }
-                data.amount = inverseHolding.dataValues.parcels[0].amount;
-                data.beforeAmount = data.amount;
+
+                data.parcels = inverseHolding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}))
                 data.inferAmount = false;
             }
             if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !data.confirmationUnneeded){
@@ -260,33 +345,41 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                     importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
                 })
             }
+            afterParcels = data.parcels.map(p => ({shareClass: p.shareClass, amount: p.afterAmount}));
 
-            const difference = data.afterAmount - data.beforeAmount;
-            const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
-            const newHolding = {holders: data.afterHolders, holdingId: data.holdingId, parcels: [parcel]};
 
-            if(!data.shareClass){
-                data.shareClass = parcel.shareClass =  holding.dataValues.parcels[0].shareClass;
-            }
-
-            if(difference < 0){
-                const match = companyState.subtractUnallocatedParcels(parcel);
-                if(!parcel.shareClass){
-                    data.shareClass = parcel.shareClass = match.shareClass;
+            let increase;
+            data.parcels.map((newParcel, i) => {
+                const difference = newParcel.afterAmount - newParcel.beforeAmount;
+                let match;
+                increase = difference > 0;
+                if(increase){
+                    companyState.combineUnallocatedParcels(newParcel)
                 }
-                companyState.combineHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
+                else{
+                    match = companyState.subtractUnallocatedParcels(newParcel)
+                    if(!newParcel.shareClass){
+                        newParcel.shareClass = match.shareClass;
+                    }
+                }
+                if(!newParcel.shareClass && holding.getParcelByAmount(afterParcels[i].amount)){
+                    newParcel.shareClass = holding.getParcelByAmount(afterParcels[i].amount).shareClass;
+                }
+            });
+
+            const newHolding = {holders: data.afterHolders, holdingId: data.holdingId, parcels: data.parcels};
+            if(increase){
+                companyState.subtractHoldings([newHolding], afterParcels);
             }
             else{
-                companyState.subtractHoldings([newHolding], [{amount: data.afterAmount, shareClass: parcel.shareClass}]);
-                companyState.combineUnallocatedParcels(parcel);
+                companyState.combineHoldings([newHolding], afterParcels);
             }
-            const current = companyState.getMatchingHolding({holders: data.afterHolders,
-                    parcels: [{amount: data.beforeAmount, shareClass: parcel.shareClass}]},
-                                                            {ignoreCompanyNumber: true});
+
+
         })
         .then(() => {
             const transactionType  = data.transactionType;
-            transaction = Transaction.build({type: transactionType,  data: data, effectiveDate: effectiveDate});
+            transaction = Transaction.build({type: transactionType,  data, effectiveDate: effectiveDate});
             return transaction.save();
         })
         .then(() => {
@@ -294,14 +387,14 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                 prevHolding = previousState.getHoldingBy({holdingId: holding.holdingId});
             }
             // if we inferred shareClass from unallocatedParcels, lets assign it here (mutate it)
-            if(data.shareClass && !_.find(prevHolding.parcels, p => p.shareClass)){
-                return Promise.all(prevHolding.dataValues.parcels.map(p => p.replace({shareClass: data.shareClass})).map(p => p.save()));
-            }
+            //if(data.shareClass && !_.find(prevHolding.parcels, p => p.shareClass)){
+            //    return Promise.all(prevHolding.dataValues.parcels.map(p => p.replace({shareClass: data.shareClass})).map(p => p.save()));
+            //}
         })
         .then(parcels => {
-            if(parcels){
-                prevHolding.setParcels(parcels);
-            }
+            //if(parcels){
+             //   prevHolding.setParcels(parcels);
+            //}
             if(previousState){
                 prevHolding.set('transactionId', transaction.id);
                 return prevHolding.save();
@@ -318,6 +411,18 @@ function findHolding(holding, action, companyState, errors={}){
     if(!current.length){
         current = companyState.getMatchingHoldings(holding, {ignoreCompanyNumber: true});
     }
+    if(!current.length){
+        const holding = companyState.getMatchingHolding({...holding, parcels: null},  {ignoreCompanyNumber: true});
+        if(holding.sumOfParcels() === _.sum(holding.parcels, 'amount')){
+            throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
+                action: amend,
+                companyState: companyState,
+                importErrorType: sails.config.enums.UNKNOWN_AMEND
+            })
+        }
+    }
+
+
     if(!current.length){
          throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
             action: action,
@@ -385,6 +490,14 @@ function inverseFindHolding(data, companyState){
 }
 
 
+export function performInverseHoldingTransfer(data, companyState, previousState, effectiveDate){
+    throw sails.config.exceptions.InvalidInverseOperation('Holding transfers are deprecated');
+}
+
+export function performHoldingTransfer(data, companyState, previousState, effectiveDate){
+    throw sails.config.exceptions.InvalidOperation('Holding transfers are deprecated');
+}
+
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);
      let current;
@@ -436,73 +549,6 @@ export function performInverseHoldingChange(data, companyState, previousState, e
 };
 
 
-
-export function performInverseHoldingTransfer(data, companyState, previousState, effectiveDate){
-    throw sails.config.exceptions.InvalidInverseOperation('Holding transfers are deprecated');
-}
-
-export function performHoldingTransfer(data, companyState, previousState, effectiveDate){
-    throw sails.config.exceptions.InvalidOperation('Holding transfers are deprecated');
-    const normalizedData = _.cloneDeep(data)
-    let current, holdingId, amount, shareClass, transactions = [];
-    return Promise.resolve(companyState.dataValues.holdingList ? companyState.dataValues.holdingList.buildNext() :  HoldingList.build({}))
-        .then(holdingList => {
-            companyState.dataValues.holdingList = holdingList;
-            companyState.dataValues.h_list_id = null;
-            return Promise.all([Promise.all(normalizedData.afterHolders.map(h => {
-                AddressService.normalizeAddress(h.address)
-                    .then(address => h.address = address)
-
-            })), Promise.all(normalizedData.beforeHolders.map(h => {
-                AddressService.normalizeAddress(h.address)
-                    .then(address => h.address = address)
-            }))])
-        })
-        .then(() => {
-            // resolve ambiguities
-            current = inverseFindHolding(normalizedData, companyState);
-            holdingId = current.dataValues.holdingId;
-            // transfer to this one, from newly created on
-            amount = current.dataValues.parcels.reduce((sum, p) => sum + p.amount, 0);
-            shareClass = current.dataValues.parcels[0].shareClass;
-            return performAmend({
-                ...data,
-                holders: null,
-                transactionType: Transaction.types.TRANSFER_FROM,
-                transactionMethod: Transaction.types.AMEND,
-                beforeHolders: data.beforeHolders,
-                afterHolders: data.beforeHolders,
-                beforeAmount: amount,
-                amount: amount,
-                afterAmount: 0,
-                shareClass,
-            }, companyState, previousState, effectiveDate);
-
-        })
-        .then((transaction) => {
-            transactions.push(transaction);
-            return performNewAllocation({
-                ...data,
-                transactionType: Transaction.types.TRANSFER_TO,
-                transactionMethod: Transaction.types.AMEND,
-                holders: data.afterHolders,
-                beforeHolders:null,
-                afterHolders:null,
-                beforeAmount: 0,
-                amount: amount,
-                afterAmount: amount,
-                votingShareholder: data.afterVotingShareholder,
-                name: data.afterName,
-                shareClass,
-            }, companyState, previousState, effectiveDate)
-
-        })
-        .then((transaction) => {
-            transactions.push(transaction);
-            return transactions;
-        })
-}
-
 export function performHoldingChange(data, companyState, previousState, effectiveDate, userId){
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     const normalizedData = _.cloneDeep(data);
@@ -520,7 +566,6 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             })), Promise.all(normalizedData.beforeHolders.map(h => {
                 AddressService.normalizeAddress(h.address)
                     .then(address => h.address = address)
-
             }))])
         })
         .then(() => {
@@ -630,7 +675,7 @@ export const performHolderChange = function(data, companyState, previousState, e
 
 
 export  function performInverseNewAllocation(data, companyState, previousState, effectiveDate){
-    if(data.transactionType === Transaction.types.NEW_ALLOCATION && data.amount){
+    if(data.transactionType === Transaction.types.NEW_ALLOCATION){
         throw new sails.config.exceptions.AmbiguousInverseOperation('Amend type unknown',{
             action: data,
             importErrorType: sails.config.enums.UNKNOWN_AMEND
@@ -642,10 +687,6 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
     .then(function(holdingList){
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
-        let parcels = null;
-        if(!data.inferAmount){
-            parcels = [{amount: data.amount, shareClass: data.shareClass}];
-        }
 
         if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !data.confirmationUnneeded){
             throw new sails.config.exceptions.AmbiguousInverseOperation('Confirmation Required',{
@@ -655,29 +696,32 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             })
         }
 
-        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: parcels},
+        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: data.parcels},
           data, companyState, {
             multiple: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
-            none: sails.config.enums.HOLDING_NOT_FOUND
+            none: sails.config.enums.HOLDING_NOT_FOUND,
+            shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
           });
 
         if(data.inferAmount){
             data = {...data}
-            data.amount = holding.dataValues.parcels[0].amount;
+            data.parcels = holding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}));
             data.inferAmount = false;
         }
-        if(!data.shareClass){
-            data.shareClass = holding.dataValues.parcels[0].shareClass;
-        }
-        companyState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-        let sum = _.sum(holding.dataValues.parcels, (p) => {
-            return p.amount;
+        data.parcels.map(newParcel => {
+            const parcel = holding.getParcelByShareClass(newParcel.shareClass);
+            if(!newParcel.shareClass){
+                newParcel.shareClass = parcel.shareClass;
+            }
+            companyState.combineUnallocatedParcels({amount: newParcel.amount, shareClass: newParcel.shareClass});
+            if(parcel.amount !== newParcel.amount){
+                throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation');
+            }
         });
-        if(sum !== data.amount){
-            throw new sails.config.exceptions.InvalidInverseOperation('Allocation total does not match, new allocation');
-        }
+
         holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+
         return transaction.save()
             .then((transaction) => {
                 if(previousState){
@@ -688,8 +732,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
             .then(() => {
                 return transaction;
             });
-    });
-
+        });
 };
 
 export function performInverseRemoveAllocation(data, companyState, previousState, effectiveDate){
@@ -702,7 +745,7 @@ export function performInverseRemoveAllocation(data, companyState, previousState
     .then(function(personData){
         const holding = Holding.buildDeep({
                 holders: personData.map(p => ({person: p})), holderId: data.holderId,
-                parcels: [{amount: 0, shareClass: data.shareClass}]});
+                parcels: []});
         companyState.dataValues.holdingList.dataValues.holdings.push(holding);
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     })
@@ -913,107 +956,76 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
         });
 };
 
-export const validateIssueUnallocated = Promise.method(function(data){
-    if(!Number.isInteger(data.amount) || data.amount <= 0){
-        throw new sails.config.exceptions.InvalidOperation('Amount must be natural number ( n >=0 )')
-    }
-    if(!Number.isSafeInteger(data.amount)){
-        throw new sails.config.exceptions.InvalidOperation('Unsafe number')
-    }
-});
-
-export const validateDecreaseShares = validateIssueUnallocated;
-
-
-export function performIssueUnallocated(data, nextState, previousState, effectiveDate){
-    return validateIssueUnallocated(data, nextState)
-        .then(() => {
-            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
-            nextState.combineUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            return transaction;
-        })
-}
-
-export function performDecreaseShares(data, nextState, previousState, effectiveDate){
-    return validateDecreaseShares(data, nextState)
-        .then(() => {
-            const transaction = Transaction.build({type: data.transactionType, data: data, effectiveDate: effectiveDate})
-            nextState.subtractUnallocatedParcels({amount: data.amount, shareClass: data.shareClass});
-            return transaction;
-        })
-}
-
-export const performAcquisition = performDecreaseShares;
-export const performConsolidation = performDecreaseShares;
-export const performRedemption = performDecreaseShares;
-export const performCancellation = performDecreaseShares;
-export const performPurchase = performDecreaseShares;
-
 
 export function validateAmend(data, companyState){
     if(!data.holdingId && !(data.holders && data.holders.length)){
         throw new sails.config.exceptions.InvalidOperation('Holders required')
     }
-    const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId},
+
+    const parcels =  data.parcels.map(p => ({amount: p.beforeAmount, shareClass: p.shareClass}));;
+    const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId, parcels},
                                                     {ignoreCompanyNumber: true});
 
     if(!holding){
         throw new sails.config.exceptions.InvalidOperation('Matching Holding not found')
     }
-    const sum = _.sum(holding.dataValues.parcels, (p) => {
-        if(!Number.isInteger(p.amount)){
-            throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer')
+
+    data.parcels.map(newParcel => {
+        if(!data.inferAmount && (newParcel.beforeAmount < 0 || newParcel.afterAmount < 0)){
+            throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ')
         }
-        return p.amount;
+        if(Math.abs(newParcel.beforeAmount - newParcel.afterAmount) !== newParcel.amount){
+            throw new sails.config.exceptions.InvalidOperation('Amount is incorrect')
+        }
+        if(!Number.isSafeInteger(newParcel.amount)){
+            throw new sails.config.exceptions.InvalidOperation('Unsafe number')
+        }
+
+    })
+
+    holding.dataValues.parcels.map(parcel => {
+        data.parcels.map(newParcel => {
+            if(Parcel.match(parcel, newParcel) && parcel.amount !== newParcel.beforeAmount){
+                throw new sails.config.exceptions.InvalidInverseOperation('Before amount does not match, amend')
+            }
+        })
     });
 
-      // if there is a holdingId, its not validatting before and after amount, so...
-    const diff = (data.afterAmount - data.beforeAmount);
-    data.beforeAmount = sum;
-    data.afterAmount = sum + diff;
-
-
-    if(Math.abs(data.beforeAmount - data.afterAmount) !== data.amount){
-        throw new sails.config.exceptions.InvalidOperation('Amount is incorrect')
-    }
-
-    if(data.amount && !Number.isInteger(data.amount)){
-        throw new sails.config.exceptions.InvalidOperation('Amount is not valid integer')
-    }
-    if(!Number.isSafeInteger(sum)){
-        throw new sails.config.exceptions.InvalidOperation('Unsafe number')
-    }
     return Promise.resolve(holding);
 }
 
 export const performAmend = Promise.method(function(data, companyState, previousState, effectiveDate){
     let transaction, holding;
     return validateAmend(data, companyState)
-        .then(() => {
+        .then((_holding) => {
+            holding = _holding;
             return companyState.dataValues.holdingList.buildNext()
         })
         .then(holdingList => {
+            data = {...data}
             companyState.dataValues.holdingList = holdingList;
             companyState.dataValues.h_list_id = null;
-            const difference = data.afterAmount - data.beforeAmount;
-            const parcel = {amount: Math.abs(difference), shareClass: data.shareClass};
-            const newHolding = {holders: data.holders, parcels: [parcel], holdingId: data.holdingId};
-            const transactionType  = data.transactionType;
-            let matches;
-            transaction = Transaction.build({type: transactionType,
-                data: {...data, amount: parcel.amount}, effectiveDate: effectiveDate});
 
-            if(difference < 0){
-                companyState.combineUnallocatedParcels(parcel);
-                matches = companyState.subtractHoldings([newHolding], null, transaction);
+            const transactionType  = data.transactionType;
+            transaction = Transaction.build({type: transactionType,
+                data: data, effectiveDate: effectiveDate});
+            let increase;
+            const parcels = data.parcels.map(newParcel => {
+                const difference = newParcel.afterAmount - newParcel.beforeAmount;
+                increase = difference > 0;
+                return  {amount: Math.abs(difference), shareClass: newParcel.shareClass};
+            });
+
+            const newHolding = {holders: data.holders, parcels: parcels, holdingId: data.holdingId};
+
+            if(!increase){
+                parcels.map(parcel => companyState.combineUnallocatedParcels(parcel));
+               companyState.subtractHoldings([newHolding], null, transaction);
             }
             else{
-                companyState.subtractUnallocatedParcels(parcel);
-                matches = companyState.combineHoldings([newHolding], null, transaction);
+                parcels.map(parcel => companyState.subtractUnallocatedParcels(parcel));
+                companyState.combineHoldings([newHolding], null, transaction);
             }
-            matches.map(m => {
-
-            })
             return transaction;
         })
 });
@@ -1050,13 +1062,15 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
                 return {votingShareholder: true}
             }
         }
-        const parcel = {amount: data.amount || 0, shareClass: data.shareClass};
-        if(data.amount){
-            nextState.subtractUnallocatedParcels(parcel);
-        }
+        const parcels = data.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}));
+
+        parcels.map(newParcel => {
+            nextState.subtractUnallocatedParcels(newParcel)
+        });
         const holding = Holding.buildDeep({
             holders: personData.map(p => ({person: p, data: votingShareholder(p) })), name: data.name,
-            parcels: [parcel]});
+            parcels: parcels
+        });
         holding.dataValues.transaction = transaction;
         nextState.dataValues.holdingList.dataValues.holdings.push(holding);
         return transaction;
@@ -1289,38 +1303,6 @@ export function addDocuments(state, documents){
         })
 }
 
-
-/*
-export function removeActions(state, actionSet){
-    let currentActions = [];
-    if(!actionSet.id){
-        throw new sails.config.exceptions.InvalidOperation('Action to be added to history has no id');
-    }
-
-    return state.getHistoricActions()
-        .then(function(hA){
-            if(!hA){
-                return Actions.build({})
-            }
-            currentActions = hA.dataValues.actions;
-            return hA.buildNext();
-        })
-        .then(function(hA){
-            const length = (hA.dataValues.actions || []).length;
-            hA.dataValues.actions = _.reject(currentActions, {id: actionSet.id});
-            //if(length === A.dataValues.actions.length){
-            //    throw new sails.config.exceptions.InvalidOperation('Action to be removed not found');
-            //}
-            return hA.save()
-        })
-        .then(function(hA){
-            state.set('historic_action_id', hA.id)
-            state.dataValues.historicActions = hA;
-            return state;
-        })
-}
-*/
-
 export function addActions(state, actionSet, company){
     return state.getHistoricActions()
         .then(function(hA){
@@ -1355,23 +1337,14 @@ export function addActions(state, actionSet, company){
 
 export function performInverseTransaction(data, company, rootState){
 
-    /*const checkValidTransaction = (data) => {
-        const INVALID_ACTIONS = [Transaction.types.HOLDING_CHANGE];
-        data.actions.map(d => {
-            if(INVALID_ACTIONS.indexOf(action.transactionType)){
-                throw sails.config.exceptions.AmbiguousInverseOperation()
-            }
-        })
-    }*/
-
     const PERFORM_ACTION_MAP = {
         [Transaction.types.SEED]:  TransactionService.performInverseSeed,
         [Transaction.types.AMEND]:  TransactionService.performInverseAmend,
         [Transaction.types.HOLDING_CHANGE]:  TransactionService.performInverseHoldingChange,
         [Transaction.types.HOLDING_TRANSFER]:  TransactionService.performInverseHoldingTransfer,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
-        [Transaction.types.ISSUE]:  TransactionService.performInverseIssueUnallocated,
-        [Transaction.types.CONVERSION]:  TransactionService.performInverseIssueUnallocated,
+        [Transaction.types.ISSUE]:  TransactionService.performInverseIssue,
+        [Transaction.types.CONVERSION]:  TransactionService.performInverseConversion,
         [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
         [Transaction.types.CONSOLIDATION]:  TransactionService.performInverseConsolidation,
         [Transaction.types.PURCHASE]:  TransactionService.performInversePurchase,
@@ -1393,8 +1366,6 @@ export function performInverseTransaction(data, company, rootState){
         return Promise.resolve(rootState);
     }
     let prevState, currentRoot, transactions;
-
-    //checkValidTransaction(data);
 
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then(function(_rootState){
@@ -1710,7 +1681,7 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
 export function performTransaction(data, company, companyState){
 
     const PERFORM_ACTION_MAP = {
-        [Transaction.types.ISSUE]:                  TransactionService.performIssueUnallocated,
+        [Transaction.types.ISSUE]:                  TransactionService.performIssue,
         [Transaction.types.ACQUISITION]:            TransactionService.performAcquisition,
         [Transaction.types.PURCHASE]:               TransactionService.performPurchase,
         [Transaction.types.CONSOLIDATION]:          TransactionService.performConsolidation,

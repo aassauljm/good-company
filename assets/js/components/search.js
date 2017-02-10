@@ -201,7 +201,6 @@ export class SearchWidget extends React.Component {
            suggestions.length === 0 && fields.input.value){
             noSuggestions = true;
         }
-
         const inputProps = {
             placeholder: this.props.placeholder || 'Type to find or import a company',
             value: fields.input.value || '',

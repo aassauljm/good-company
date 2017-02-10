@@ -1,4 +1,7 @@
 "use strict";
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require("fs"));
+const cheerio = require('cheerio');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
@@ -12,126 +15,213 @@ import {
 import { prepareApp, waitFor } from './helpers';
 import { LoginForm } from "../../assets/js/components/login.js";
 import { Modals } from "../../assets/js/components/transactionViews.js";
-import { ShareClasses } from "../../assets/js/components/shareClasses.js";
-import Search from '../../assets/js/components/search.js';
+import { ShareClassesTable  } from "../../assets/js/components/shareClasses.js";
+import { CompanyAlertsWidget } from "../../assets/js/components/companyAlerts.js";
+import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js';
+import { ShareClassSelect } from '../../assets/js/components/transactions/applyShareClasses.js';
+import { ImportHistoryTransactionView } from '../../assets/js/components/transactions/importHistory.js';
+import Amend from '../../assets/js/components/transactions/resolvers/amend';
 import chai from 'chai';
+
+
+
 const should = chai.should();
 
 
-describe.skip('Company Integration Tests', () => {
+const navigateClick = (el) => {
+    Simulate.click(el, {button: 0});
+}
+
+
+describe('Company Integration Tests', () => {
+
     before('render', prepareApp);
 
-    it('Imports Company', function(done){
-        let search;
-        const dom = this.dom,
-            form = findRenderedComponentWithType(this.tree, LoginForm),
-            input = findRenderedDOMComponentWithTag(form.refs.identifier, 'input'),
-            password = findRenderedDOMComponentWithTag(form.refs.password, 'input'),
-            submit = findRenderedDOMComponentWithTag(form, 'button');
-        input.value = 'integrate@email.com';
-        Simulate.change(input);
-        password.value = 'testtest';
-        Simulate.change(password);
-        Simulate.click(submit);
-        waitFor('Waiting for login confirmation', 'a[href="/logout"]', dom)
-            .then(() => {
-                return waitFor('Waiting for user info', '.username.nav-link', dom);
-            })
-            .then(() => {
-                return waitFor('Companies page to load', '.auto-suggest', dom);
-            })
-            .then(() => {
-                search = findRenderedComponentWithType(this.tree, Search);
-                const input = findRenderedDOMComponentWithTag(search, 'input');
-                input.value = 'integration_test'
-                Simulate.change(input);
-                //return waitFor('Drop down results to appear', '.suggest-container', dom);
-            })
-            .then(() => {
-                // Click 2nd item
-                //Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[1]);
-                // Import
-                //Simulate.click(scryRenderedDOMComponentsWithTag(findRenderedComponentWithType(modal, Modal.Body), 'button')[0]);
-                // Can take some time
-                //return waitFor('Company page to load', '.company', dom, 10000);
-            })
-            .then(() => {
-                done();
-            })
-            .catch(done);
-   });
-    /*it('Sets up shares', function(done){
-        const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-classes');
-        Simulate.click(linkNode, {button: 0});
-        return waitFor('Share class page to load', '.create-new', this.dom)
-            .then(el => {
-                Simulate.click(el, {button: 0});
-                return waitFor('New share class page to load', '.share-class-name', this.dom)
-            })
-            .then(el => {
-                el.value = 'Class A';
-                Simulate.change(el);
-                Simulate.submit(findRenderedDOMComponentWithTag(this.tree, 'form'));
-                return waitFor('Share class page to load again', '.create-new', this.dom)
-            })
-            .then(el => {
-                Simulate.click(el, {button: 0});
-                return waitFor('New share class page to load', '.share-class-name', this.dom)
-            })
-            .then(el => {
-                el.value = 'Class B';
-                Simulate.change(el);
-                Simulate.submit(findRenderedDOMComponentWithTag(this.tree, 'form'));
-                return waitFor('Share class page to load again again', '.create-new', this.dom)
-            })
-            .then(el => {
-                const table = findRenderedComponentWithType(this.tree, ShareClasses);
-                const rows = scryRenderedDOMComponentsWithTag(table, 'tr');
-                rows.length.should.be.equal(3);
-                Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'return-company-page'), {button: 0});
-                done();
-            })
-    });*/
-
-    /*it('Applies share classes', function(done){
-        let modal;
-        const linkNode = findRenderedDOMComponentWithClass(this.tree, 'new-transaction');
-        Simulate.click(linkNode, {button: 0});
-        return waitFor('Transaction page to load', '.apply-share-classes', this.dom)
-            .then(el => {
-                Simulate.click(el);
-                modal = findRenderedComponentWithType(this.tree, Modal)._modal;
-                const selects = scryRenderedDOMComponentsWithTag(modal, 'select');
-
-                const shareClassMap = {};
-                _.map(selects[0].children, option => {
-                     shareClassMap[option.innerHTML] = option.value;
+    describe('Import ', () => {
+        it('Imports Company', function(done){
+            let search, dom = this.dom;
+            waitFor('Waiting for login confirmation', 'div.welcome-back', dom)
+                .then(() => {
+                    return waitFor('Companies page to load', '.auto-suggest', dom);
                 })
-                selects.map((s, i) => {
-                    s.value = shareClassMap[i % 2 ? 'Class A': 'Class B'];
-                    Simulate.change(s);
+                .then(() => {
+                    search = findRenderedComponentWithType(this.tree, ConnectedPlaceholderSearch);
+                    const input = findRenderedDOMComponentWithTag(search, 'input');
+                    Simulate.focus(input);
+                    input.value = 'PROJECT MANAGER HOLDINGS LIMITED'
+                    Simulate.change(input);
+                    return waitFor('Drop down results to appear', '.suggest-container > *', dom);
+                })
+                .then(() => {
+                    const item = findRenderedDOMComponentWithClass(search, 'list-group-item-heading');
+                    Simulate.click(item);
+                    return waitFor('Selection to be made', 'button.import-company', dom);
+                })
+                .then((button) => {
+                    Simulate.click(button);
+                    return waitFor('Selection to be made', 'a.view-company', dom, 10000);
+                })
+                .then((el) => {
+                    navigateClick(el);
+                    return waitFor('Company to load', '.company-page.company-loaded', dom, 5000)
+                })
+                .then(() => {
+                    done();
+                })
+                .catch((e) => {
+                    done(e);
                 });
-                Simulate.click(findRenderedDOMComponentWithClass(modal, 'submit'));
-                return waitFor('Modal to close', () => !scryRenderedComponentsWithType(this.tree, Modal).length, null, 10000);
-            })
-            .then(() => {
-                return waitFor('Company data to reload', '.return-company-page', this.dom);
-            })
-            .then((el) => {
-                Simulate.click(el, {button: 0});
-                done();
-            });
-    });
+       });
 
-    it('It goes to share register', function(done){
-        let modal;
-        const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-register');
-        Simulate.click(linkNode, {button: 0});
-        return waitFor('Share register', () => this.dom.querySelectorAll('table.share-register tbody tr').length)
-            .then(length => {
-                length.should.be.equal(40)
+
+        it('sets up shareholdings', function(done){
+            let dom = this.dom;
+            const alerts = findRenderedComponentWithType(this.tree, CompanyAlertsWidget);
+            const setup = findRenderedDOMComponentWithClass(alerts, 'guided-setup-link');
+            navigateClick(setup);
+
+            return waitFor('Voter selection to be visible', '.voter-select .btn-primary', this.dom, 10000)
+             .then(button => {
+                Simulate.click(button);
+                return waitFor('Share class page to load', '.create-new', this.dom, 5000)
+             })
+             .then(() => {
                 done();
-            });
-    });*/
+             })
+             .catch(e => {
+                done(e);
+             });
+
+       });
+
+
+        it('Sets up shares', function(done){
+            const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-classes');
+            Simulate.click(linkNode, {button: 0});
+            return waitFor('Share class page to load', '.create-new', this.dom)
+                .then(el => {
+                    Simulate.click(el, {button: 0});
+                    return waitFor('New share class page to load', '.share-class-name', this.dom)
+                })
+                .then(el => {
+                    el.value = 'Ordinary';
+                    Simulate.change(el);
+                    Simulate.submit(findRenderedDOMComponentWithClass(this.tree, 'share-class-form'));
+                    return waitFor('Share class page to load again', () => this.dom.querySelectorAll('.share-class-table tr').length === 2, null, 5000)
+                })
+                .then(() => {
+                    const el = findRenderedDOMComponentWithClass(this.tree, 'create-new');
+                    Simulate.click(el, {button: 0});
+                    return waitFor('New share class page to load', '.share-class-name', this.dom)
+                })
+                .then(el => {
+                    el.value = 'Preference';
+                    Simulate.change(el);
+                    Simulate.submit(findRenderedDOMComponentWithClass(this.tree, 'share-class-form'));
+                    return waitFor('Share class page to load again again', () => this.dom.querySelectorAll('.share-class-table tr').length === 3, null, 5000)
+                })
+                .then(el => {
+                    const table = findRenderedComponentWithType(this.tree, ShareClassesTable);
+                    const rows = scryRenderedDOMComponentsWithTag(table, 'tr');
+                    rows.length.should.be.equal(3);
+                    Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'btn-success'), {button: 0});
+                    done();
+                })
+                .catch(e => {
+                    console.log(e);
+                    done(e);
+                });
+        });
+
+        it('Applies share classes', function(done){
+            let shareClassData, classes;
+            const shareClassMap = {};
+            return fs.readFileAsync('test/fixtures/transactionData/projectManagerHoldingsTwoShareClasses.json', 'utf8')
+                .then(data => {
+                    shareClassData = JSON.parse(data).reduce((acc, item) => {
+                        acc[JSON.stringify(item.holders)] = item.parcels;
+                        return acc;
+                    }, {});
+
+                    return waitFor('Transaction page to load', '.apply-share-classes', this.dom)
+                })
+                .then(el => {
+                    const shareClassSelect = findRenderedComponentWithType(this.tree, ShareClassSelect);
+                    const tbody = findRenderedDOMComponentWithTag(shareClassSelect, 'tbody');
+                    const rows = tbody.querySelectorAll('tr');
+                    let parcelCount = 0;
+                    [].map.call(rows, (row, i) => {
+                        const names = [].map.call(row.querySelectorAll('td:nth-child(2) li'), l => cheerio(l.outerHTML).text());
+                        const nameString = JSON.stringify(names);
+                        classes = shareClassData[nameString];
+
+                        const select = row.querySelector('select');
+                        const addNew = row.querySelector('.add-parcel');
+                        _.map(select.children, option => {
+                             shareClassMap[option.innerHTML] = option.value;
+                        });
+                        Object.keys(classes).map((shareClass, i) => {
+                            if(i < Object.keys(classes).length -1){
+                                Simulate.click(addNew, {button: 0});
+                            }
+                            parcelCount++;
+                        });
+                    })
+                    return waitFor('Parcels to render', () => this.dom.querySelectorAll('.parcel-row').length === parcelCount, null, 1000)
+                })
+                .then(() => {
+                    const shareClassSelect = findRenderedComponentWithType(this.tree, ShareClassSelect);
+                    const tbody = findRenderedDOMComponentWithTag(shareClassSelect, 'tbody');
+                    const rows = tbody.querySelectorAll('tr');
+                    [].map.call(rows, (row, i) => {
+                        const names = [].map.call(row.querySelectorAll('td:nth-child(2) li'), l => cheerio(l.outerHTML).text());
+                        const nameString = JSON.stringify(names);
+                        classes = shareClassData[nameString];
+
+                        const select = row.querySelector('select');
+                        const addNew = row.querySelector('.add-parcel');
+                        Object.keys(classes).map((shareClass, i) => {
+                            const parcelRow = row.querySelectorAll(`.parcel-row`)[i]
+                            const select = parcelRow.querySelector('select');
+                            const input =  parcelRow.querySelector('input');
+                            Simulate.change(select, { target: {value: shareClassMap[shareClass]} });
+                            Simulate.change(input, { target: {value: classes[shareClass]+''} });
+                        });
+                    })
+                    return waitFor('Validation to complete', () => !this.dom.querySelectorAll('.has-error').length, null, 1000)
+                })
+
+                .then(() => {
+                    Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'submit'));
+                    return waitFor('For import chunk page to display', () => this.dom.querySelectorAll('.submit-import').length, null, 10000);
+                })
+
+                .then(() => {
+                    done();
+                })
+                .catch(e => {
+                    done(e);
+                });
+
+        });
+
+
+        it('Imports chunks', function(done){
+            let modal;
+            const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
+            Simulate.click(button, {button: 0});
+            return waitFor('Amend Screen', () => this.dom.querySelectorAll('.resolve').length, null, 10000)
+                .then(() => {
+                    done();
+                })
+                .catch(e => {
+                    console.log(e);
+                    console.log(this.dom.innerHTML)
+                    done(e);
+                });
+
+        });
+
+    });
 
 });

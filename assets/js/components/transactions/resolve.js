@@ -371,7 +371,8 @@ function HoldingNotFound(props){
             </div>
          </div>
          <div className="row">
-         { possibleMatches.map((m, i) => <div key={i} className="col-md-6"><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }
+         <div className="col-md-6">{ possibleMatches.filter((f, i) => i % 2 === 0).map((m, i) => <div key={i}><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }</div>
+         <div className="col-md-6">{ possibleMatches.filter((f, i) => i % 2 === 1).map((m, i) => <div key={i}><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }</div>
          </div>
          { edit && <div className="button-row">
            <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>
@@ -460,8 +461,8 @@ const PAGES = {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
             }))
             .then(() => {
-                dispatch(destroy('amend'));
                 ownProps.end();
+                dispatch(destroy('amend'));
             })
         },
         resetAction: (args) => {
@@ -469,8 +470,8 @@ const PAGES = {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
             .then(() => {
                 dispatch(endLoading());
-                dispatch(destroy('amend'));
                 ownProps.end();
+                dispatch(destroy('amend'));
             })
         },
         destroyForm: (args) => {
@@ -494,6 +495,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
         const action = context.action;
         context.shareClassMap = generateShareClassMap(context.companyState);
+
         if(!action || !PAGES[context.importErrorType]){
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}
@@ -510,8 +512,8 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             edit = () => {
                 const otherActions = this.props.transactionViewData.editTransactionData.pendingActions.filter(p => p.id !== context.actionSet.id);
                 // gross
-                this.props.destroyForm('amend');
                 this.props.show('editTransaction', {...this.props.transactionViewData.editTransactionData, actionSet: context.actionSet, otherActions});
+                this.props.destroyForm('amend');
             }
         }
 

@@ -802,12 +802,22 @@ SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
 FROM (
 
 WITH transaction_history as (
-    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate", (data->>'shareClass')::int as "shareClass", ph."hId",
+    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate",  ph."hId",
+    (tt.parcels->>'amount')::int as "amount",
+    (tt.parcels->>'shareClass')::int as "shareClass",
+    (tt.parcels->>'beforeAmount')::int as "beforeAmount",
+    (tt.parcels->>'afterAmount')::int as "afterAmount",
+
     (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
     "holdingId",
     generation
     FROM person_holdings ph
     INNER JOIN transaction t on t.id = ph."transactionId"
+    LEFT OUTER JOIN (
+    select q.id,  jsonb_array_elements(data->'parcels') as parcels from (
+    select id, data from transaction
+    ) q) tt on t.id = tt.id
+
     ORDER BY generation
 )
 
@@ -846,8 +856,9 @@ SELECT *,
     AND qq."holdingId" = q."holdingId"
       AND (data->>amount::text)::int != 0
     AND  type = ANY(ARRAY['AMEND', 'REMOVE_ALLOCATION', 'NEW_ALLOCATION']::enum_transaction_type[]) )
-
     AS "ambiguousChanges"
+
+
 
 FROM
 
@@ -873,7 +884,7 @@ FROM
     left outer join "holder" hj on h.id = hj."holdingId"
     left outer join person ppp on hj."holderId" = ppp.id
     join company_persons($1) p on p."personId" = ppp."personId"
-    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2
+    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2  and pp is not null
      WINDOW wnd AS (
        PARTITION BY p."personId", h."holdingId", pp."shareClass" ORDER BY generation asc
      )) as q

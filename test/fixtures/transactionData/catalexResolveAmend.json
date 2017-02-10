@@ -4,9 +4,9 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 1111,
+                        "parcels": [{"afterAmount": 1111,
                         "amount": 1111,
-                        "beforeAmount": 0,
+                        "beforeAmount": 0}],
                         "holders": [
                             {
                                 "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
@@ -35,9 +35,10 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 4999,
+                        "parcels": [{
+                            "afterAmount": 4999,
                         "amount": 4999,
-                        "beforeAmount": 0,
+                        "beforeAmount": 0}],
                         "holders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -54,7 +55,9 @@
                         "transactionType": "TRANSFER_TO"
                     },
                     {
-                        "afterAmount": 0,
+                        "parcels": [{"afterAmount": 0,
+                        "amount": 4999,
+                        "beforeAmount": 4999}],
                         "afterHolders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -62,8 +65,6 @@
                                 "name": "NOT THE ROCKPOOL LIMITED"
                             }
                         ],
-                        "amount": 4999,
-                        "beforeAmount": 4999,
                         "beforeHolders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -88,9 +89,9 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 4999,
+                        "parcels": [{"afterAmount": 4999,
                         "amount": 4999,
-                        "beforeAmount": 0,
+                        "beforeAmount": 0}],
                         "holders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -109,7 +110,9 @@
                         "transactionType": "TRANSFER_TO"
                     },
                     {
-                        "afterAmount": 0,
+                        "parcels": [{"afterAmount": 0,
+                        "amount": 4999,
+                        "beforeAmount": 4999}],
                         "afterHolders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -117,8 +120,6 @@
                                 "name": "BLOY CONSULTING LIMITED"
                             }
                         ],
-                        "amount": 4999,
-                        "beforeAmount": 4999,
                         "beforeHolders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -146,8 +147,8 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 1,
-                        "amount": 1,
+                        "parcels": [{"afterAmount": 1,
+                        "amount": 1}],
                         "beforeAmount": 0,
                         "holders": [
                             {
@@ -162,7 +163,6 @@
                         "transactionType": "TRANSFER_TO"
                     },
                     {
-                        "afterAmount": 4999,
                         "afterHolders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -170,8 +170,9 @@
                                 "name": "NOT THE ROCKPOOL LIMITED"
                             }
                         ],
-                        "amount": 1,
-                        "beforeAmount": 5000,
+                        "parcels": [{"amount": 1,
+                        "afterAmount": 4999,
+                        "beforeAmount": 5000}],
                         "beforeHolders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -196,9 +197,9 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 1,
+                        "parcels": [{"afterAmount": 1,
                         "amount": 1,
-                        "beforeAmount": 0,
+                        "beforeAmount": 0}],
                         "holders": [
                             {
                                 "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -211,7 +212,9 @@
                         "transactionType": "TRANSFER_TO"
                     },
                     {
-                        "afterAmount": 4999,
+                        "parcels": [{"afterAmount": 4999,
+                        "amount": 1,
+                        "beforeAmount": 5000}],
                         "afterHolders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -219,8 +222,6 @@
                                 "name": "BLOY CONSULTING LIMITED"
                             }
                         ],
-                        "amount": 1,
-                        "beforeAmount": 5000,
                         "beforeHolders": [
                             {
                                 "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",

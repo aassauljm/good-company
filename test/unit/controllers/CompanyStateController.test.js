@@ -81,51 +81,43 @@ describe('CompanyStateController', function() {
                 })
         });
     });
-    describe('Invalid Issue CompanyState', function() {
-        it('Try invalid Issue post, no parcels or holders', function(done) {
-            req.post('/api/transaction/issue/'+companyId)
-                .send({holdingList: {holdings: [{
-                    holders: [],
-                    parcels: []
-                }]}})
-                .expect(400, done)
-        });
-        it('Try invalid Issue post, no holders', function(done) {
-            req.post('/api/transaction/issue/'+companyId)
-                .send({holdingList: {holdings: [{
-                    holders: [],
-                    parcels: [{amount: 10, beforeAmount: 0, afterAmount: 10}]
-                }]}})
-                .expect(400, done)
-        });
-        it('Try invalid Issue post, negative amount', function(done) {
-            req.post('/api/transaction/issue/'+companyId)
-                .send({holdingList: {holdings: [{
-                    holders: [{name: 'Negato'}],
-                    parcels: [{amount: -10, beforeAmount: 0, afterAmount: -10}]
-                }]}})
-                .expect(400, done)
-        });
-        it('Try invalid Issue post, zero amount', function(done) {
-            req.post('/api/transaction/issue/'+companyId)
-                .send({holdingList: {holdings: [{
-                    holders: [{name: 'Nillema'}],
-                    parcels: [{amount: 0, beforeAmount: 0, afterAmount: 0}]
-                }]}})
+
+
+
+    describe('Allocation Removal', function(){
+        it('should be rejected for being non empty', function(done) {
+           req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [{
+                    actions: [{ transactionType: Transaction.types.REMOVE_ALLOCATION, holders: [{name: 'Gary'}, {name: 'Busey'}] }]}
+                    ]})
                 .expect(400, done)
         });
     });
 
     describe('Issue CompanyState', function() {
         it('Try Valid Issue Post', function(done) {
-            req.post('/api/transaction/issue/'+companyId)
-                .send({holdingList: {holdings: [{
-                    holders: [{name: 'Gary'}, {name: 'Busey'}],
-                    parcels: [
-                    {amount: 100, shareClass: 2, beforeAmount: 1, afterAmount:101},
-                    {amount: 2, shareClass: 1, beforeAmount: 1111, afterAmount:1113},
-                    {amount: 1, shareClass: 3, beforeAmount: 0, afterAmount:1}]
-                }]}})
+            req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [{
+                    transactionType: Transaction.types.ISSUE,
+
+                    actions: [{
+                        transactionType: Transaction.types.ISSUE,
+                        parcels: [{amount: 100, shareClass: 2, beforeAmount: 1, afterAmount:101},
+                        {amount: 2, shareClass: 1, beforeAmount: 1111, afterAmount:1113},
+                        {amount: 1, shareClass: 3, beforeAmount: 0, afterAmount:1}]
+                    },
+                    {
+                        transactionType: Transaction.types.ISSUE_TO,
+                        transactionMethod: Transaction.types.AMEND,
+
+                        holders: [{name: 'Gary'}, {name: 'Busey'}],
+                        parcels: [
+                        {amount: 100, shareClass: 2, beforeAmount: 1, afterAmount:101},
+                        {amount: 2, shareClass: 1, beforeAmount: 1111, afterAmount:1113},
+                        {amount: 1, shareClass: 3, beforeAmount: 0, afterAmount:1}]
+                    }
+                    ]}]})
+
                 .expect(200, done)
         });
         it('Get Updated Info', function(done) {
@@ -136,12 +128,12 @@ describe('CompanyStateController', function() {
                     res.body.currentCompanyState.totalAllocatedShares.should.be.equal(1225)
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
-                            type: 'COMPOUND'
+                            type: 'ISSUE'
                         },
                         holdingList: {holdings: [
                             {
                                 holders: [{person: {name: 'Busey'}}, {person: {name: 'Gary'}}],
-                                parcels: [{amount: 1113, shareClass: 1}, {amount: 101, shareClass: 2},{amount: 1, shareClass: 3}, {amount: 10, shareClass: 4}]
+                                parcels: [{amount: 1113, shareClass: 1}, {amount: 101, shareClass: 2},{amount: 10, shareClass: 4}, {amount: 1, shareClass: 3}]
                             }
                         ]}
                     })
@@ -162,7 +154,7 @@ describe('CompanyStateController', function() {
 
     describe('Get Previous Version', function(){
         it('should get and compare seed version', function(done){
-            req.get('/api/company/'+companyId+'/history/3')
+            req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
                     _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
@@ -171,14 +163,29 @@ describe('CompanyStateController', function() {
     });
 
     describe('Another Issue CompanyState', function(){
+
         it('Try Valid Issue Post', function(done) {
-            req.post('/api/transaction/issue/'+companyId)
-                .send({holdingList: {holdings: [{
-                    holders: [{name: 'Busey'}, {name: 'Gary'}],
-                    parcels: [{amount: 1100, shareClass: 2, beforeAmount: 101, afterAmount:1201}]
-                }]}})
+            req.post('/api/transaction/compound/'+companyId)
+                .send({transactions: [{
+                    transactionType: Transaction.types.ISSUE,
+
+                    actions: [{
+                        transactionType: Transaction.types.ISSUE,
+                        parcels: [{amount: 1100, shareClass: 2, beforeAmount: 101, afterAmount:1201}]
+                    },
+                    {
+                        transactionType: Transaction.types.ISSUE_TO,
+                        transactionMethod: Transaction.types.AMEND,
+
+                        holders: [{name: 'Gary'}, {name: 'Busey'}],
+                        parcels: [
+                        {amount: 1100, shareClass: 2, beforeAmount: 101, afterAmount:1201}]
+                    }
+                    ]}]})
+
                 .expect(200, done)
         });
+
         it('Get Updated Info', function(done) {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
@@ -186,7 +193,7 @@ describe('CompanyStateController', function() {
                     res.body.currentCompanyState.totalAllocatedShares.should.be.equal(2325);
                     res.body.currentCompanyState.should.containSubset({
                         transaction: {
-                            type: 'COMPOUND'
+                            type: 'ISSUE'
                         },
                         holdingList: { holdings: [
                             {
@@ -202,7 +209,7 @@ describe('CompanyStateController', function() {
 
     describe('Get Previous Versions Again', function(){
         it('should get and compare seed version', function(done){
-            req.get('/api/company/'+companyId+'/history/4')
+            req.get('/api/company/'+companyId+'/history/2')
                 .then(function(res){
                     _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
                     done();
@@ -233,16 +240,6 @@ describe('CompanyStateController', function() {
             });
     });
 
-    describe('Allocation Removal', function(){
-        it('should be rejected for being non empty', function(done) {
-           req.post('/api/transaction/compound/'+companyId)
-                .send({transactions: [{
-                    actions: [{ transactionType: Transaction.types.REMOVE_ALLOCATION, holders: [{name: 'Gary'}, {name: 'Busey'}] }]}
-                    ]})
-                .expect(400, done)
-        });
-    });
-
     describe('Transfer shares', function(){
         let holdingId, currentAmount;
         it('Gets info for holding', function(done) {
@@ -258,26 +255,27 @@ describe('CompanyStateController', function() {
             req.post('/api/transaction/compound/'+companyId)
                 .send({transactions: [
                     {
-                        actions: [{
-                            transactionType: Transaction.types.NEW_ALLOCATION,
-                            holders: [{name: 'Jim'}]
-                        },
+                        actions: [
                         {
                             transactionType: Transaction.types.TRANSFER_FROM,
                             transactionMethod: Transaction.types.AMEND,
-                            amount: 1,
-                            beforeAmount: currentAmount,
-                            afterAmount: currentAmount - 1,
-                            shareClass: 1,
+                            parcels: [{
+                                amount: 1,
+                                beforeAmount: currentAmount,
+                                afterAmount: currentAmount - 1,
+                                shareClass: 1
+                            }],
                             holdingId: holdingId
                         },
                         {
                             transactionType: Transaction.types.TRANSFER_TO,
-                            transactionMethod: Transaction.types.AMEND,
-                            amount: 1,
-                            beforeAmount: 0,
-                            afterAmount: 1,
-                            shareClass: 1,
+                            transactionMethod: Transaction.types.NEW_ALLOCATION,
+                            parcels: [{
+                                amount: 1,
+                                beforeAmount: 0,
+                                afterAmount: 1,
+                                shareClass: 1,
+                            }],
                             holders: [{name: 'Jim'}]
                         }]
                     }
@@ -315,19 +313,22 @@ describe('CompanyStateController', function() {
                         {
                             transactionType: Transaction.types.TRANSFER_TO,
                             transactionMethod: Transaction.types.AMEND,
-                            amount: 1,
-                            beforeAmount: currentAmount-1,
-                            afterAmount: currentAmount,
-                            shareClass: 1,
+                            parcels: [{
+                                amount: 1,
+                                beforeAmount: currentAmount-1,
+                                afterAmount: currentAmount,
+                                shareClass: 1
+                            }],
                             holdingId: holdingId
                         },
                         {
                             transactionType: Transaction.types.TRANSFER_FROM,
                             transactionMethod: Transaction.types.AMEND,
-                            amount: 1,
-                            beforeAmount: 1,
-                            afterAmount: 0,
-                            shareClass: 1,
+                            parcels: [{amount: 1,
+                                beforeAmount: 1,
+                                afterAmount: 0,
+                                shareClass: 1
+                            }],
                             holders: [{name: 'Jim'}]
                         }]
                     }
@@ -382,7 +383,8 @@ describe('Future Transactions', function(){
         req.post('/api/transaction/seed/'+companyId)
             .send({holdingList: {holdings: [{
                 holders: [{person: {name: 'Gary'}}, {person: {name: 'Busey'}}],
-                parcels: [{amount: 1111, shareClass: 1},
+                parcels: [
+                    {amount: 1111, shareClass: 1},
                     {amount: 1, shareClass: 2},
                     {amount: 10, shareClass: 4}]
             }]}})
@@ -489,20 +491,19 @@ describe('Future Transactions', function(){
                         {
                             "actions": [
                                 {
-                                    "amount": 1,
+                                    parcels: [{"amount": 1, shareClass: 1}],
                                     "effectiveDate": date,
                                     "shareClass": null,
                                     "transactionType": "ISSUE"
                                 },
                                 {
-                                    "afterAmount": 1,
+                                    parcels: [{"afterAmount": 1112, "beforeAmount": 1111,
                                     "amount": 1,
+                                    "shareClass": 1}],
                                     "effectiveDate": date,
                                     "approvalDocuments": [],
-                                    "beforeAmount": 0,
                                     holders: [{name: 'Gary'}, {name: 'Busey'}],
                                     "minNotice": null,
-                                    "shareClass": null,
                                     "transactionMethod": "AMEND",
                                     "transactionType": "ISSUE_TO"
                                 }

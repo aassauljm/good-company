@@ -1,3 +1,5 @@
+"use strict";
+
 export const relationNameToModelMap = {
     'directors': 'person',
     'holders': 'person',

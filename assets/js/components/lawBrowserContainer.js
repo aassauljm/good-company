@@ -2,7 +2,7 @@
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux';
 import STRINGS from '../strings';
-import AutoAffix from 'react-overlays/lib/AutoAffix'
+import { AutoAffix } from './forms/autoAffix'
 
 
 class Law extends React.Component {
@@ -36,22 +36,23 @@ class Law extends React.Component {
     }
 }
 
-class AffixedLaw extends React.Component {
+export class AffixedLaw extends React.Component {
     render() {
         return <AutoAffix viewportOffsetTop={15} {...this.props}>
             <div>
                 <Law>
-                    { this.props.children}
+                    { this.props.children }
                 </Law>
             </div>
         </AutoAffix>
     }
 }
 
+
 export default class LawBrowserContainer extends React.Component {
 
     render(){
-        if(!this.props.lawLinks){
+        if(!this.props.lawLinks || this.forceNoLawLinks){
             return <div className="container">
             <div className="row">
                 <div className="col-xs-12">

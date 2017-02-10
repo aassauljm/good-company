@@ -3,9 +3,9 @@
         "data": {
             "actions": [
                 {
-                    "afterAmount": 1111,
+                    "parcels": [{"afterAmount": 1111,
                     "amount": 1111,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
@@ -22,9 +22,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 4999,
+                    "parcels": [{"afterAmount": 4999,
                     "amount": 4999,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -41,9 +41,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 4999,
+                    "parcels": [{"afterAmount": 4999,
                     "amount": 4999,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -60,9 +60,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 1,
+                    "parcels": [{"afterAmount": 1,
                     "amount": 1,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -74,9 +74,9 @@
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
-                    "afterAmount": 1,
+                    "parcels": [{"afterAmount": 1,
                     "amount": 1,
-                    "beforeAmount": 0,
+                    "beforeAmount": 0}],
                     "holders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -158,7 +158,9 @@
                     "id": "af9bf828-bc18-4017-914f-2bfba3e6d611"
                 },
                 {
-                    "afterAmount": 0,
+                    "parcels": [{"afterAmount": 0,
+                    "amount": 5000,
+                    "beforeAmount": 5000}],
                     "afterHolders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -166,8 +168,6 @@
                             "name": "NOT THE ROCKPOOL LIMITED"
                         }
                     ],
-                    "amount": 5000,
-                    "beforeAmount": 5000,
                     "beforeHolders": [
                         {
                             "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
@@ -187,7 +187,9 @@
                     "transactionType": "AMEND"
                 },
                 {
-                    "afterAmount": 0,
+                    "parcels": [{"afterAmount": 0,
+                    "amount": 5000,
+                    "beforeAmount": 5000}],
                     "afterHolders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -195,8 +197,6 @@
                             "name": "BLOY CONSULTING LIMITED"
                         }
                     ],
-                    "amount": 5000,
-                    "beforeAmount": 5000,
                     "beforeHolders": [
                         {
                             "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
@@ -233,7 +233,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 0,
-                        "amount": 1111,
+                        "parcels": [{"amount": 1111}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "type": "ISSUE_TO"
                     }
@@ -243,7 +243,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 1,
-                        "amount": 4999,
+                        "parcels": [{"amount": 4999}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "holding": "6",
                         "type": "TRANSFER_TO"
@@ -254,7 +254,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 2,
-                        "amount": 4999,
+                        "parcels": [{"amount": 4999}],
                         "effectiveDate": "2014-09-03T12:00:00.000Z",
                         "holding": "5",
                         "type": "TRANSFER_TO"
@@ -265,7 +265,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 3,
-                        "amount": 1,
+                        "parcels": [{"amount": 1}],
                         "effectiveDate": "2014-08-31T12:00:00.000Z",
                         "holding": "5",
                         "type": "TRANSFER_TO"
@@ -276,7 +276,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 4,
-                        "amount": 1,
+                        "parcels": [{"amount": 1}],
                         "effectiveDate": "2014-09-01T12:00:00.000Z",
                         "holding": "6",
                         "type": "TRANSFER_TO"
@@ -287,7 +287,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 56,
-                        "amount": 1,
+                        "parcels": [{"amount": 1}],
                         "effectiveDate": "2014-08-31T12:00:00.000Z",
                         "holding": "3",
                         "isInverse": true,
@@ -295,7 +295,7 @@
                     },
                     {
                         "_keyIndex": 55,
-                        "amount": 4999,
+                        "parcels": [{"amount": 4999}],
                         "effectiveDate": "2014-09-03T12:00:00.000Z",
                         "holding": "2",
                         "isInverse": true,
@@ -307,7 +307,7 @@
                 "recipients": [
                     {
                         "_keyIndex": 57,
-                        "amount": 1,
+                        "parcels": [{"amount": 1}],
                         "effectiveDate": "2014-09-01T12:00:00.000Z",
                         "holding": "4",
                         "isInverse": true,
@@ -315,7 +315,7 @@
                     },
                     {
                         "_keyIndex": 54,
-                        "amount": 4999,
+                        "parcels": [{"amount": 4999}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "holding": "1",
                         "isInverse": true,

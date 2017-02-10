@@ -27,8 +27,7 @@ const TEMPLATABLE = {
                     companyNumber: state.companyNumber
                 },
                 transaction: {
-                    amount: transferee.data.amount,
-                    shareClass: transferee.data.shareClass ? renderShareClass(transferee.data.shareClass, shareClassMap) : '',
+                    parcels: transferee.data.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass ? renderShareClass(p.shareClass, shareClassMap) : ''})),
                     effectiveDateString: stringDateToFormattedString(data.effectiveDate),
                     transferees: (transferee.data.holders || transferee.data.afterHolders || [])
                         .map(h => ({companyNumber: h.companyNumber || '', name: h.name, address: h.address})),
@@ -99,22 +98,23 @@ const HoldingChange = (props) => {
 //const TerseHolders = (action) => joinAnd(h.holders.map(h => h.person), {prop: 'name'})
 
 
+
 const amendTo =  props =>
     <span className="transaction-terse">
             { STRINGS.amendTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { props.inferAmount ? 'All' : numberWithCommas(props.amount) } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            <span className="transaction-terse-description"> - { props.parcels.map(p => `${props.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  props.shareClassMap)}`).join(', ') } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
     </span>;
 
 const amendFrom = props =>
             <span className="transaction-terse">
             { STRINGS.amendTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { props.inferAmount ? 'All' : numberWithCommas(props.amount) } shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
+            <span className="transaction-terse-description"> - {  props.parcels.map(p => `${props.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  props.shareClassMap)}`).join(', ')} shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
     </span>;
 
 const shareChange = props =>
             <span className="transaction-terse">
             { STRINGS.transactionTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { numberWithCommas(props.amount) } shares</span>
+            <span className="transaction-terse-description"> - { props.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') } </span>
     </span>;
 
 

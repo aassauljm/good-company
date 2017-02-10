@@ -476,9 +476,6 @@ const normalizeNumber = (value) => {
 }
 
 
-
-
-
 export const form = formReducer.plugin({
     amend: (state, action) => {
         switch(action.type) {
