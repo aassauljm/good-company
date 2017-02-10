@@ -91,7 +91,10 @@ function TransactionSummaries(props) {
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
         { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }
         {  !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
-        <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions</Button>
+
+        { pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions</Button> }
+        { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete reconciliation</Button> }
+
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
     </div>
@@ -275,7 +278,7 @@ export class ImportHistoryTransactionView extends React.Component {
                 }
             })
             .catch(e => {
-                this.handleResolve(this.props.importHistory.error);
+                this.handleResolve(this.props.importHistory.error, EXPLAINATION);
             })
     }
 
@@ -320,7 +323,7 @@ export class ImportHistoryTransactionView extends React.Component {
         });
     }
 
-    handleResolve(error) {
+    handleResolve(error, afterIndex) {
         const pendingActions = collectActions(this.props.pendingHistory.data || []);
         this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
@@ -328,7 +331,7 @@ export class ImportHistoryTransactionView extends React.Component {
                 ...this.props.transactionViewData,
                 error: error,
                  //open this transactionView again
-                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
+                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: afterIndex}}},
                 editTransactionData: {
                     startId: pendingActions[0].id,
                     endId: pendingActions[pendingActions.length-1].previous_id,
