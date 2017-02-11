@@ -449,10 +449,10 @@ const PAGES = {
 }
 
 
-
+const DEFAULT_OBJ = {};
 
 @connect((state, ownProps) => {
-    return {};
+    return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
@@ -517,11 +517,14 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             }
         }
 
-        return <div className="resolve">
-            { basicSummary(context, this.props.transactionViewData.companyState)}
-            <hr/>
-            { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', ...this.props}) }
-        </div>
+        if(this.props.updating._status !== 'fetching'){
+            return <div className="resolve">
+                { basicSummary(context, this.props.transactionViewData.companyState)}
+                <hr/>
+                { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', ...this.props}) }
+            </div>
+        }
+
     }
 
     render() {

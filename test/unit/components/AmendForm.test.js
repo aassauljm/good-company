@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 
 var fs = Promise.promisifyAll(require("fs"));
 import moment from 'moment';
-import { formatSubmit, validateAmend, collectAmendActions } from '../../../assets/js/components/transactions/resolvers/amend';
+import { formatInitialState, formatSubmit, validateAmend, collectAmendActions } from '../../../assets/js/components/transactions/resolvers/amend';
 import isValid from 'redux-form/lib/isValid'
 
 function valuesAndActionsFromJSON(path){
@@ -20,6 +20,16 @@ function valuesAndActionsFromJSON(path){
         })
 }
 
+describe('Amend format', () => {
+    it('matches transferees together', function(){
+            return fs.readFileAsync('test/fixtures/transactionData/projectManagerTransferAllButOne.json', 'utf8')
+            .then(data => {
+                const values = formatInitialState(collectAmendActions(JSON.parse(data).data.actions));
+                //TODO, format
+                //isValid(validateAmend(values, {})).should.be.equal(true);
+            });
+        });
+});
 
 describe('Amend validate', () => {
     it('confirms invalid amend form values report as invalid, overallocated', function(){

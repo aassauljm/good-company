@@ -28,8 +28,10 @@ const TRANSACTION_ORDER = {
     [TransactionTypes.COMPOUND_REMOVALS]: 1
 }
 
+const DEFAULT_OBJ = {};
+
 @connect((state, ownProps) => {
-    return {};
+    return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
@@ -65,11 +67,14 @@ export class EditTransactionView extends React.Component {
                 this.handleClose();
             })
         }
-        if(hasAmend || !actionSet){
-            return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
-        }
-        else{
-            return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
+        console.log(this.props.updating)
+        if(this.props.updating._status !== 'fetching'){
+            if(hasAmend || !actionSet){
+                return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
+            }
+            else{
+                return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
+            }
         }
     }
 

@@ -120,7 +120,7 @@ function validTransactionType(type){
 class Recipient extends React.Component {
     render(){
         const title =  `Transaction #${this.props.index+1}`;
-        const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
+        const options = this.props.increase ? increaseOptions() : decreaseOptions();
         const holdings = this.props.holdings;
 
         const renderOption = (h, i) => {
@@ -174,34 +174,35 @@ class Recipient extends React.Component {
 
 
 function Recipients(props){
+
     return <div className="col-md-6 col-md-offset-3">
             <Shuffle>
-            { props.recipients.map((r, i) => {
-                const show = !r.isInverse.value;
-                if(!show){
-                    const parcels = r.parcels.map(p => `${p.amount.value} ${renderShareClass(p.shareClass.value, props.shareClassMap)}`).join(', ');
-                    const title = `Transfer of ${parcels} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
-                    return <div className="list-item" key={r._keyIndex.value}>
-                        <Panel title={title} />
+                { props.recipients.map((r, i) => {
+                    const show = !r.isInverse.value;
+                    if(!show){
+                        const parcels = r.parcels.map(p => `${p.amount.value} ${renderShareClass(p.shareClass.value, props.shareClassMap)}`).join(', ');
+                        const title = `Transfer of ${parcels} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
+                        return <div className="list-item" key={r._keyIndex.value}>
+                            <Panel title={title} />
+                        </div>
+                    }
+                    return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
+                            <Recipient {...r}
+                            index={i}
+                            increase={props.increase}
+                            allSameDirection={props.allSameDirection}
+                            holdings={props.holdings}
+                            remove={() => props.recipients.removeField(i)}
+                            shareOptions={ props.shareOptions }
+                            >
+                            </Recipient>
+                            { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
+                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
+                                <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
+                                { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
+                            </div> }
                     </div>
-                }
-                return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
-                        <Recipient {...r}
-                        index={i}
-                        increase={props.increase}
-                        allSameDirection={props.allSameDirection}
-                        holdings={props.holdings}
-                        remove={() => props.recipients.removeField(i)}
-                        shareOptions={ props.shareOptions }
-                        >
-                        </Recipient>
-                        { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
-                            { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                            <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
-                            { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                        </div> }
-                </div>
-            }) }
+                }) }
             </Shuffle>
 
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
@@ -234,7 +235,7 @@ class AmendOptions extends React.Component {
         </div>
     }
     render() {
-        const { shareClassMap, fields: { actions }, allSameDirection } = this.props;
+        const { shareClassMap, fields: { actions } } = this.props;
         const amountRemaining = (holding, i) => {
             const remaining = holding.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - this.props.values.actions[i].recipients.reduce((sum, a) => {
                 return sum + (a.type ? absoluteAmount(a.type, a.parcels.reduce((sum, p) => sum + (parseInt(p.amount, 10) || 0), 0)) : 0)
@@ -256,6 +257,7 @@ class AmendOptions extends React.Component {
                 <Button  onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
+            <hr/>
             { actions.map((field, i) => {
                 const action = field.data.value;
                 const increase = actionAmountDirection(action);
@@ -272,7 +274,6 @@ class AmendOptions extends React.Component {
                         recipients={actions[i].recipients}
                         data={actions[i].data}
                         increase={increase}
-                        allSameDirection={allSameDirection}
                         error={getError(i)}
                         shareClassMap={shareClassMap}
                         shareOptions={this.props.shareOptions}
@@ -393,7 +394,6 @@ export function validateAmend(values, props) {
     });
 
     errors._error = Object.keys(formErrors).length ? formErrors: null;
-
     return errors;
 }
 
@@ -408,7 +408,6 @@ const amendFields = [
     'actions[].recipients[].notified',
     'actions[].recipients[]._keyIndex',
     'actions[].data',
-
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -433,8 +432,6 @@ export function formatSubmit(values, actionSet) {
 
     const nonTransfers = {};
     const transfers = []
-
-
 
     values.actions.map((a, i) => {
         a.recipients.map((r, j) => {
@@ -513,8 +510,6 @@ export function formatSubmit(values, actionSet) {
                 delete action._holding;
             }
         });
-
-
     });
     // put new allocation types where needed
     Object.keys(newAllocations).map(k => {
@@ -531,28 +526,8 @@ export function formatSubmit(values, actionSet) {
     return pendingActions;
 }
 
-
-export default function Amend(props){
-    const { context, submit } = props;
-    const { actionSet, companyState } = context;
-    const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
-    const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
-    const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
-    const shareClassMap = generateShareClassMap(companyState);
-    const shareClasses = ((companyState.shareClasses || {}).shareClasses || []);
-    const shareOptions = shareClasses.map((s, i) => {
-        return <option key={i} value={s.id}>{s.name}</option>
-    });
-    const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
+export function formatInitialState(amendActions, defaultDate, defaultShareClass){
     const identity = x => x;
-
-    const handleSubmit = (values) => {
-        const pendingActions = formatSubmit(values, actionSet);
-        submit({
-            pendingActions: pendingActions
-        })
-    }
-
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
         return acc + (actionAmountDirection(action) ? 1 : 0)
     }, 0);
@@ -571,7 +546,7 @@ export default function Amend(props){
 
     let initialValues = {actions: calculateReciprocals(amendActions.map((a, i) => {
         // if all same direction, set amount;
-        const effectiveDate = moment(a.effectiveDate || actionSet.data.effectiveDate).toDate();
+        const effectiveDate = moment(a.effectiveDate || defaultDate).toDate();
         let amount, holding;
         if(allSameDirection){
             return {
@@ -594,13 +569,20 @@ export default function Amend(props){
             }]};
         }
 
-        /*if(allButOneIncrease){
-            holding = amountValues[increase][Object.keys(amountValues[increase])[0]][0].index+'';
+        if(allButOneIncrease){
+            // if all but one increase, then we know the other party in the transaction
+            // inverse will be created
+            if(!increase){
+                //return;
+            }
+            //holding = amountValues[increase][Object.keys(amountValues[increase])[0]][0].index+'';
         }
 
         if(allButOneDecrease){
-            holding = amountValues[increase][Object.keys(amountValues[!increase])[0]][0].index+'';
-        }*/
+
+            //holding = amountValues[increase][Object.keys(amountValues[!increase])[0]][0].index+'';
+        }
+
 
         return {recipients: [{
             parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
@@ -609,19 +591,38 @@ export default function Amend(props){
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
+    return initialValues;
+}
 
 
+export default function Amend(props){
+    const { context, submit } = props;
+    const { actionSet, companyState } = context;
+    const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
+    const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
+    const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
+    const shareClassMap = generateShareClassMap(companyState);
+    const shareClasses = ((companyState.shareClasses || {}).shareClasses || []);
+    const shareOptions = shareClasses.map((s, i) => {
+        return <option key={i} value={s.id}>{s.name}</option>
+    });
+    const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
+    const handleSubmit = (values) => {
+        const pendingActions = formatSubmit(values, actionSet);
+        submit({
+            pendingActions: pendingActions
+        })
+    }
 
     return <div className="resolve">
             <AmendOptionsConnected
             effectiveDate={effectiveDate}
             totalAmount={totalAmount}
-            allSameDirection={allSameDirection}
             shareClassMap={shareClassMap}
             shareOptions={shareOptions}
             defaultShareClass={defaultShareClass}
             onSubmit={handleSubmit}
-            initialValues={initialValues}
+            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass)}
             show={props.show}
             transactionViewData={props.transactionViewData}
             viewName={props.viewName}
