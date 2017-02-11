@@ -22,6 +22,7 @@ import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
 import { InvalidIssue } from './resolvers/unknownShareChanges'
 import { Shareholder } from '../shareholders';
+import Loading from '../loading';
 import firstBy from 'thenby';
 
 const TRANSACTION_ORDER = {
@@ -67,7 +68,6 @@ export class EditTransactionView extends React.Component {
                 this.handleClose();
             })
         }
-        console.log(this.props.updating)
         if(this.props.updating._status !== 'fetching'){
             if(hasAmend || !actionSet){
                 return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
@@ -75,6 +75,9 @@ export class EditTransactionView extends React.Component {
             else{
                 return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
             }
+        }
+        else{
+            return <Loading />
         }
     }
 

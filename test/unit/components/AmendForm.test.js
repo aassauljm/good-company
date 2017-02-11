@@ -21,12 +21,27 @@ function valuesAndActionsFromJSON(path){
 }
 
 describe('Amend format', () => {
-    it('matches transferees together', function(){
+    it('matches a pair transferees together', function(){
+            return fs.readFileAsync('test/fixtures/transactionData/projectManagerTransferSimple.json', 'utf8')
+            .then(data => {
+                const values = formatInitialState(collectAmendActions(JSON.parse(data).data.actions));
+                isValid(validateAmend(values, {})).should.be.equal(true);
+            });
+        });
+
+    it('matches transferees together, increases', function(){
             return fs.readFileAsync('test/fixtures/transactionData/projectManagerTransferAllButOne.json', 'utf8')
             .then(data => {
                 const values = formatInitialState(collectAmendActions(JSON.parse(data).data.actions));
-                //TODO, format
-                //isValid(validateAmend(values, {})).should.be.equal(true);
+                isValid(validateAmend(values, {})).should.be.equal(true);
+            });
+        });
+
+    it('matches transferees together, decreases', function(){
+            return fs.readFileAsync('test/fixtures/transactionData/projectManagerTransferAllButOneDecrease.json', 'utf8')
+            .then(data => {
+                const values = formatInitialState(collectAmendActions(JSON.parse(data).data.actions));
+                isValid(validateAmend(values, {})).should.be.equal(true);
             });
         });
 });

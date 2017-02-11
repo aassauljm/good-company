@@ -228,5 +228,6 @@ export default {
         name: "Name",
         email: "Email"
     },
-    importCompanyHistory: "Reconcile Company History"
+    importCompanyHistory: "Reconcile Company History",
+    resetCompanyHistory: "Undo Company Reconciliation"
 }

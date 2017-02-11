@@ -537,7 +537,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass)
     const allButOneDecrease = amendActions.length > 2 && !allSameDirection && allSameDirectionSum === 1;
 
     const amountValues = amendActions.reduce((acc, action, i) => {
-        const dir = (action.afterAmount > action.beforeAmount || !action.beforeHolders);
+        const dir = (action.parcels[0].afterAmount > action.parcels[0].beforeAmount || !action.beforeHolders);
         action.parcels.map(parcel => {
             acc[dir][parcel.amount] = (acc[dir][parcel.amount] || []).concat({...action, index: i});
         });
@@ -556,7 +556,6 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass)
         }
         // else if one exact opposite transaction, then set that
         const increase =  actionAmountDirection(a);
-
         if(a.parcels.every(p => amountValues[increase][p.amount] && amountValues[increase][p.amount].length === 1 &&
            amountValues[!increase][p.amount] && amountValues[!increase][p.amount].length === 1)){
             return {recipients: [{
@@ -568,29 +567,29 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass)
                 _keyIndex: keyIndex++
             }]};
         }
-
+        let inverse;
         if(allButOneIncrease){
             // if all but one increase, then we know the other party in the transaction
             // inverse will be created
-            if(!increase){
-                //return;
-            }
-            //holding = amountValues[increase][Object.keys(amountValues[increase])[0]][0].index+'';
+            holding = amountValues[!increase][Object.keys(amountValues[!increase])[0]][0].index+'';
+            inverse = holding && !increase;
         }
 
         if(allButOneDecrease){
 
-            //holding = amountValues[increase][Object.keys(amountValues[!increase])[0]][0].index+'';
+            holding = amountValues[!increase][Object.keys(amountValues[!increase])[0]][0].index+'';
+            inverse = holding && increase;
         }
 
 
         return {recipients: [{
             parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
-            type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
+            type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding, isInverse: inverse
         }]};
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
+
     return initialValues;
 }
 
