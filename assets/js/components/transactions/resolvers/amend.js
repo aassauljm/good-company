@@ -127,13 +127,15 @@ class Recipient extends React.Component {
                 <option key={i} value={h.value}>{h.label} - {numberWithCommas(Math.abs(h.remaining))} {h.remaining < 0 ? 'over allocated' : 'under allocated'}</option> :
                 <option key={i} value={h.value}>{h.label} - shares balanced</option>
         }
+
+        const disabled = !!this.props.isInverse.value || this.props.allDisabled;
         return  <Panel title={title}>
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
-                <DateInput {...this.formFieldProps('effectiveDate')} disabled={!!this.props.isInverse.value} time={true}/>
+                <DateInput {...this.formFieldProps('effectiveDate')} disabled={disabled} time={true}/>
                 <div className="input-row">
                     <Input type="select" {...this.formFieldProps('type')}
-                    disabled={!!this.props.isInverse.value}
+                    disabled={disabled}
                     label={false}>
                         <option value="" disabled></option>
                             {  this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
@@ -146,10 +148,10 @@ class Recipient extends React.Component {
                 <div className="row">{ this.props.parcels.map((p, i) =>{
                     const remove = this.props.parcels.length > 1 && (() => this.props.parcels.removeField(i));
                     const add = this.props.parcels.length < this.props.shareOptions.length && (() => this.props.parcels.addField({}));
-                    return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove} forceShareClass={true}/>
+                    return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove} forceShareClass={true} allDisabled={this.props.allDisabled}/>
                 }) }</div>
 
-                { optionalNotification(this.props.type.value) && <div className="input-row">
+                { false && optionalNotification(this.props.type.value) && <div className="input-row">
 
                     <Input type="checkbox" {...this.formFieldProps('notified', STRINGS.amend) } />
                     </div>}
@@ -157,7 +159,7 @@ class Recipient extends React.Component {
                 { isTransfer(this.props.type.value) &&
                     <div className="input-row">
                         <Input type="select" {...this.formFieldProps('holding')}
-                            disabled={!!this.props.isInverse.value}
+                            disabled={disabled}
                             label={this.props.type.value === TransactionTypes.TRANSFER_TO ? 'Transfer From' : 'Transfer To'}>
                             <option value="" disabled></option>
                             {  this.props.increase && <optgroup label="Suggested">{ holdings.filter(h => !h.increase).map(renderOption) }</optgroup> }
@@ -193,12 +195,13 @@ function Recipients(props){
                             holdings={props.holdings}
                             remove={() => props.recipients.removeField(i)}
                             shareOptions={ props.shareOptions }
+                            allDisabled={props.allDisabled}
                             >
                             </Recipient>
                             { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
-                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                                <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
-                                { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
+                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) } disabled={props.allDisabled}><Glyphicon glyph="arrow-up" /></button> }
+                                <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) } disabled={props.allDisabled}><Glyphicon glyph="remove" /></button>
+                                { i < props.recipients.length - 1  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i + 1) } disabled={props.allDisabled}><Glyphicon glyph="arrow-down" /></button> }
                             </div> }
                     </div>
                 }) }
@@ -207,13 +210,13 @@ function Recipients(props){
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
             { <div className="button-row">
-                <Button type="button" onClick={() => {
+                <Button type="button" disabled={props.allDisabled} onClick={() => {
                     const remaining = props.data.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.recipients.reduce((sum, r) => {
                         return sum + signedAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
                     }, 0);
                     props.recipients.addField({
                         _keyIndex: keyIndex++, effectiveDate: props.effectiveDate,
-                        parcels:[{shareClass: props.defaultShareClass, amount: remaining}]
+                        parcels:[{shareClass: props.defaultShareClass, amount: Math.abs(remaining)}]
                     })    // pushes empty child field onto the end of the array
                 }}>
                 Add Transaction
@@ -225,13 +228,22 @@ function Recipients(props){
 
 class AmendActionSummary extends React.Component {
     render() {
-        return <div classname="amend-summary">
-            { this.props.action.parcels.map((p, i) => {
-                const parcelString = `${p.amount} ${renderShareClass(p.shareClass, this.props.shareClassMap)}`;
-                return <div key={i} className="parcel-row">{ parcelString }</div>
+        return <div className="amend-summary panel panel-default">
+            <div className="panel-heading">
+            <div className="parcels">{ this.props.action.parcels.map((p, i) => {
+                const direction = actionAmountDirection(this.props.action)
+                const diffClassName = direction ? 'diff increase number': 'diff decrease number';
+                return <div key={i} className="parcel-row">
+                    <span className="number">{ numberWithCommas(p.afterAmount) }</span>
+                    <span className={diffClassName}>{ numberWithCommas(p.amount) }</span>
+                    <span className="share-class">{ renderShareClass(p.shareClass, this.props.shareClassMap) } Shares</span>
+                </div>
             })}
-
-            { renderHolders(this.props.action.afterHolders || this.props.action.holders) }
+            </div>
+            <div className="original-date"><label>Original Date</label> { stringDateToFormattedStringTime(this.props.action.effectiveDate) }</div>
+            <div className="holders">{ (this.props.action.afterHolders || this.props.action.holders).map(renderHolders) }</div>
+        </div>
+        { this.props.allDisabled && <div className="disabled-overlay"><span className="fa fa-times"/></div>}
         </div>
     }
 }
@@ -286,20 +298,26 @@ class AmendOptions extends React.Component {
             { actions.map((field, i) => {
                 const action = field.data.value;
                 const increase = actionAmountDirection(action);
-
+                let className = "row ";
+                const allDisabled = field.userSkip.value;
+                if(allDisabled){
+                    className += 'disabled ';
+                }
                 return <div  key={i} >
-                    <div className="row">
+                    <div className={className}>
                         <div className="col-md-6">
-                            <AmendActionSummary action={action} shareClassMap={this.props.shareClassMap} companyState={this.props.companyState } />
-
+                            <AmendActionSummary action={action} shareClassMap={this.props.shareClassMap} companyState={this.props.companyState } allDisabled={allDisabled}/>
                             { this.renderAfterParcels(field) }
+                              <div className="button-row">
+                                    { !field.userSkip.value && <Button bsStyle="danger" onClick={() => field.userSkip.onChange(!field.userSkip.value) }>Ignore Transaction</Button> }
+                                    { field.userSkip.value && <Button bsStyle="info" onClick={() => field.userSkip.onChange(!field.userSkip.value) }>Reinstate Transaction</Button> }
+                              </div>
 
                         </div>
                         <div className="col-md-6">
-                            <div className="text-center">
-                                <p><strong>This change is comprised of:</strong></p>
-                            </div>
-                            <Recipients
+
+                            { !allDisabled && <Recipients
+                                allDisabled={allDisabled}
                                 effectiveDate={this.props.effectiveDate}
                                 recipients={actions[i].recipients}
                                 data={actions[i].data}
@@ -308,7 +326,10 @@ class AmendOptions extends React.Component {
                                 shareClassMap={shareClassMap}
                                 shareOptions={this.props.shareOptions}
                                 defaultShareClass={this.props.defaultShareClass}
-                                holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
+                                holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} /> }
+                             { allDisabled && <div className="alert alert-warning">
+                                Ignoring this transaction may result in subsequent mismatches with the Companies Register documents.
+                             </div> }
                         </div>
                     </div>
                     <hr/>
@@ -343,6 +364,9 @@ export function validateAmend(values, props) {
     const formErrors = {};
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
+        if(action.userSkip){
+            return errors;
+        }
         const expectedSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0);
 
         const expectedAfterSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount), 0);
@@ -469,7 +493,8 @@ const amendFields = [
     'actions[].recipients[]._keyIndex',
     'actions[].data',
     'actions[].afterParcels[].amount',
-    'actions[].afterParcels[].shareClass'
+    'actions[].afterParcels[].shareClass',
+    'actions[].userSkip'
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -496,7 +521,8 @@ export function formatSubmit(values, actionSet) {
     const transfers = []
 
     values.actions.map((a, i) => {
-        a.recipients.map((r, j) => {
+
+        !a.userSkip && a.recipients.map((r, j) => {
             if(!r.isInverse){
                 let method = TransactionTypes.AMEND;
                 const parcels = r.parcels.map(p => ({amount: parseInt(p.amount, 10), shareClass: parseInt(p.shareClass, 10) || null}))
@@ -661,7 +687,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({
-        ...a, data: amendActions[i],
+        ...a, data: amendActions[i], userSkip: amendActions[i].userSkip,
         afterParcels: guessAmendAfterAmounts(amendActions[i], defaultShareClass, companyState)
     }))
     return initialValues;
@@ -712,11 +738,13 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
     if(!actions){
         return null;
     }
+
     // removal all reciprocals
     actions = actions.map(action => {
         const recipients = action.recipients.filter(r => !getValue(r.isInverse));
         return {...action, recipients}
     });
+
     // re add them
     actions.map((action, i) => {
         (action.recipients || []).map((recipient, j) => {
@@ -731,9 +759,9 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
                 const inverseHolding = i.toString();
                 // does the reciprocal any fields that have been touched?
 
-                actions[holdingIndex].recipients = actions[holdingIndex].recipients.filter(r => {
+                /*actions[holdingIndex].recipients = actions[holdingIndex].recipients.filter(r => {
                     return r.parcels.some(p => getTouched(p.amount) || getTouched(p.shareClass)) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse);
-                });
+                });*/
 
                 actions[holdingIndex].recipients.push({
                     effectiveDate: recipient.effectiveDate,
@@ -750,7 +778,6 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
                 });
             }
         })
-        return {...action}
     });
     return actions;
 }

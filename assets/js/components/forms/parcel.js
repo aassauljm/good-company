@@ -22,22 +22,22 @@ export class ParcelWithRemove extends React.Component {
         }
         return <div className={className}>
                     <div>
-                        <Input className="amount" type="number" {...this.formFieldProps('amount')} placeholder={'Amount'} label={null}/>
+                        <Input className="amount" type="number" {...this.formFieldProps('amount')} placeholder={'Amount'} label={null} disabled={this.props.allDisabled} />
                     </div>
                     <div >
-                        <Input  className="shareClass" type="select" {...this.formFieldProps('shareClass')}  label={null}>
+                        <Input  className="shareClass" type="select" {...this.formFieldProps('shareClass')}  label={null}  disabled={this.props.allDisabled}>
                             {!this.props.forceShareClass && <option value='undefined' className="default">No Share Class</option> }
                             { this.props.shareOptions }
                         </Input>
                     </div>
                     { this.props.remove && <div className="remove-button">
-                        <button className="btn btn-default remove-parcel" onClick={(e) => {
+                        <button className="btn btn-default remove-parcel"  disabled={this.props.allDisabled} onClick={(e) => {
                             e.preventDefault();
                             this.props.remove()
                         }}><Glyphicon glyph='trash'/></button>
                     </div> }
                     { this.props.add && <div className="add-button">
-                        <button className="btn btn-default add-parcel" onClick={(e) => {
+                        <button className="btn btn-default add-parcel"  disabled={this.props.allDisabled} onClick={(e) => {
                             e.preventDefault();
                             this.props.add()
                         }}><Glyphicon glyph='plus'/></button>
