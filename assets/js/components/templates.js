@@ -1,10 +1,9 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { pureRender, numberWithCommas, stringDateToFormattedString, fieldStyle, fieldHelp, formatString, companyListToOptions, personList, votingShareholderList } from '../utils';
+import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
-import STRINGS from '../strings';
 import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
@@ -17,7 +16,6 @@ import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
 import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel } from 'json-schemer';
-import deepmerge from 'deepmerge';
 
 function createLawLinks(list){
     return <div>
@@ -27,38 +25,80 @@ function createLawLinks(list){
     </div>
 }
 
+function RenderListItemControls({ visible, showUpArrow, showDownArrow }) {
+    if (visible) {
+        return false;
+    }
+
+    return (
+        <div className="text-right">
+            <div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
+                { showUpArrow &&
+                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }>
+                        <Glyphicon glyph="arrow-up"/>
+                    </button>
+                }
+                { showDownArrow &&
+                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i + 1) }>
+                        <Glyphicon glyph="arrow-down"/>
+                    </button>
+                }
+                <button type="button" className="btn btn-default" onClick={() => componentProps.removeField(i) }>
+                    <Glyphicon glyph="remove"/>
+                </button>
+            </div>
+        </div>
+    );
+}
+
 function renderList(fieldProps, componentProps) {
-    return <fieldset className="list">
-        { fieldProps.title && <legend>{fieldProps.title}</legend>}
-        <Shuffle scale={false}>
-        { componentProps.map((c, i) => {
-            return <div className="list-item" key={c._keyIndex.value || i}>
-                          <div className="text-right"><div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
-                    { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                    { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                    <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
-                    </div></div>
-                 <div className="list-form-set">{ renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }</div>
-                 <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block">
-                    { i > 0  && <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                    <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }><Glyphicon glyph="remove" /></button>
-                    { i < componentProps.length - 1  && <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                </div>
-            </div>;
-        }) }
-        </Shuffle>
+    return (
+        <fieldset className="list">
+            { fieldProps.title && <legend>{fieldProps.title}</legend>}
+            <Shuffle scale={false}>
+                { componentProps.map((c, i) => {
+                    return (
+                        <div className="list-item" key={c._keyIndex.value || i}>
+
+                            <RenderListItemControls
+                                visible={componentProps.length <= 1}
+                                showUpArrow={i > 0}
+                                showDownArrow={i + 1 !== componentProps.length} />
+
+                            <div className="list-form-set">
+                                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }
+                            </div>
+
+                            <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block">
+                                { i > 0  &&
+                                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }>
+                                        <Glyphicon glyph="arrow-up" />
+                                    </button>
+                                }
+                                <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }>
+                                    <Glyphicon glyph="remove" />
+                                </button>
+                                { i < componentProps.length - 1  &&
+                                    <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }>
+                                        <Glyphicon glyph="arrow-down" />
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    );
+                }) }
+            </Shuffle>
              <div className="button-row">
                 <Button onClick={() => {
                     componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: getKey()});
                     } } >{ addItem(fieldProps.items) } </Button>
             </div>
         </fieldset>
+    );
 }
 
 function renderField(fieldProps, componentProps, index){
-    // debugger;
-
-    if (fieldDisplayLevel(fieldProps) == 'hidden') {
+    if (fieldDisplayLevel(fieldProps) === 'hidden') {
         return false;
     }
 
