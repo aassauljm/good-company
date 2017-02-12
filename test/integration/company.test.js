@@ -12,7 +12,7 @@ import {
   scryRenderedComponentsWithType,
   Simulate
 } from 'react-addons-test-utils';
-import { prepareApp, waitFor } from './helpers';
+import { prepareApp, destroyApp, waitFor } from './helpers';
 import { LoginForm } from "../../assets/js/components/login.js";
 import { Modals } from "../../assets/js/components/transactionViews.js";
 import { ShareClassesTable  } from "../../assets/js/components/shareClasses.js";
@@ -36,6 +36,7 @@ const navigateClick = (el) => {
 describe('Company Integration Tests', () => {
 
     before('render', prepareApp);
+    after('cleanup', destroyApp)
 
     describe('Import ', () => {
         it('Imports Company', function(done){

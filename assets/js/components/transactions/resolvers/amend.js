@@ -84,7 +84,7 @@ function inverseTransfer(type){
     return type === TransactionTypes.TRANSFER_FROM ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM;
 }
 
-function absoluteAmount(type, amount){
+function signedAmount(type, amount){
     if(!type){
         return amount;
     }
@@ -210,7 +210,7 @@ function Recipients(props){
             { <div className="button-row">
                 <Button type="button" onClick={() => {
                     const remaining = props.data.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.recipients.reduce((sum, r) => {
-                        return sum + absoluteAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
+                        return sum + signedAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
                     }, 0);
                     props.recipients.addField({
                         _keyIndex: keyIndex++, effectiveDate: props.effectiveDate,
@@ -234,11 +234,28 @@ class AmendOptions extends React.Component {
 
         </div>
     }
+
+    renderAfterParcels(field) {
+        const parcels = field.afterParcels;
+        return this.props.shareOptions.length > 1 &&
+             <div className="row">
+             <div className="col-md-6 col-md-offset-3">
+                <Panel title="Share counts after all transactions">
+                    { parcels.map((p, i) =>{
+                        const remove = parcels.length > 1 && (() => parcels.removeField(i));
+                        const add = parcels.length < this.props.shareOptions.length && (() => parcels.addField({}));
+                        return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove} forceShareClass={true}/>
+                    }) }
+                </Panel>
+            </div>
+            </div>
+    }
+
     render() {
         const { shareClassMap, fields: { actions } } = this.props;
         const amountRemaining = (holding, i) => {
             const remaining = holding.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - this.props.values.actions[i].recipients.reduce((sum, a) => {
-                return sum + (a.type ? absoluteAmount(a.type, a.parcels.reduce((sum, p) => sum + (parseInt(p.amount, 10) || 0), 0)) : 0)
+                return sum + (a.type ? signedAmount(a.type, a.parcels.reduce((sum, p) => sum + (parseInt(p.amount, 10) || 0), 0)) : 0)
             }, 0);
             return {...holding, remaining: remaining}
         }
@@ -265,6 +282,8 @@ class AmendOptions extends React.Component {
 
                 return <div  key={i}>
                     { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
+
+                    { this.renderAfterParcels(field) }
 
                 <div className="row">
                     <div className="text-center">
@@ -313,14 +332,41 @@ export function validateAmend(values, props) {
     const formErrors = {};
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
-        const inferAmount = action.data ? action.data.inferAmount: false;
-        const amounts = (action.data.parcels || []).reduce((acc, parcel) => {
-            acc[parcel.shareClass || null] = {amount: parcel.afterAmount - parcel.beforeAmount, sum: 0, startAmount: parcel.beforeAmount || 0}
-            acc['merged'].amount += parcel.afterAmount - parcel.beforeAmount
-            return acc;
-        }, {merged: {amount: 0, sum: 0}});
+        const expectedSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0);
 
-        errors.recipients = action.recipients.map((recipient, j) => {
+        const expectedAfterSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount), 0);
+        const inferAmount = action.data ? action.data.inferAmount: false;
+        const amounts = (action.afterParcels || []).reduce((acc, parcel) => {
+            acc[parcel.shareClass || null] = {amount: parseInt(parcel.amount, 10) || 0, sum: 0}
+            return acc;
+        }, {[null]: {amount: expectedAfterSum, sum: 0}});
+
+        let totalSum = 0;
+
+        const shareClassExists = {};
+        let afterParcelSum = 0;
+        errors.afterParcels = (action.afterParcels || []).map((p, i) => {
+            const errors = {};
+            if(!p.shareClass){
+                errors.shareClass = ['Required.']
+            }
+            if(shareClassExists[p.shareClass]){
+                errors.shareClass = ['Duplicate Share Class.']
+            }
+            afterParcelSum += parseInt(p.amount, 10) || 0;
+            let diff = afterParcelSum - expectedAfterSum
+            if(diff > 0){
+                errors.amount = [`${numberWithCommas(diff)} shares over allocated.`]
+            }
+            else if(diff < 0 && i === action.afterParcels.length-1){
+                errors.amount = [`${numberWithCommas(-diff)} shares under allocated.`]
+            }
+            shareClassExists[p.shareClass] = true;
+            return errors;
+        })
+
+        // must go in newest to oldest, to reverse twice
+        errors.recipients = action.recipients.slice(0).reverse().map((recipient, j) => {
             const errors = {parcels: []};
             const inferred = recipient.parcels.length === 1 && recipient.parcels[0].amount === 'All';
 
@@ -336,18 +382,20 @@ export function validateAmend(values, props) {
                 else if(amount <= 0 && !inferred){
                     errors.parcels[i].amount = ['Must be greater than 0.'];
                 }
-                const sourceParcel = (amounts['merged' || parcel.shareClass] || amounts[null] || {});
+                const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
 
                 if(recipient.type){
-                    sourceParcel.sum += absoluteAmount(recipient.type, amount);
+                    const absAmount = signedAmount(recipient.type, amount)
+                    sourceParcel.sum += absAmount;
+                    totalSum += absAmount;
                 }
-                if((sourceParcel.sum + sourceParcel.startAmount) < 0){
-                    errors.parcels[i].amount = ['Share count goes below 0.'];
+                if((sourceParcel.amount - sourceParcel.sum ) < 0){
+                    errors.parcels[i].amount = ['Share count for this class goes below 0.'];
                 }
+
                 acc[parcel.shareClass || null] = amount;
                 return acc;
             }, {});
-
 
             if(!recipient.effectiveDate){
                 errors.effectiveDate = ['Required.'];
@@ -355,7 +403,7 @@ export function validateAmend(values, props) {
             if(props.effectiveDate && recipient.effectiveDate && recipient.effectiveDate > props.effectiveDate){
                 errors.effectiveDate = ['Effective date must be on or before the date of the document.'];
             }
-            if(j > 0 && recipient.effectiveDate < action.recipients[j-1].effectiveDate){
+            if(j < action.recipients.length-1 && recipient.effectiveDate < action.recipients[j+1].effectiveDate){
                 errors.effectiveDate = errors.effectiveDate || [];
                 errors.effectiveDate.push('Effective date cannot be before previous transaction.')
             }
@@ -369,29 +417,25 @@ export function validateAmend(values, props) {
                 }
             }
             return errors;
-        });
+        }).reverse();
 
         if(!action.recipients.length){
             formErrors.actions = formErrors.actions || [];
             formErrors.actions[i] = ['At least 1 transaction required.'];
         }
 
-        (action.data.parcels || []).map((parcel, j) => {
-            const sourceParcel = (amounts['merged' || parcel.shareClass] || amounts[null]);
-
-            if(!inferAmount && sourceParcel.sum !== sourceParcel.amount){
-                formErrors.actions = formErrors.actions || [];
-                const diff = sourceParcel.sum - sourceParcel.amount;
-                if(diff < 0){
-                    formErrors.actions[i] = formErrors.actions[i] || [];
-                    formErrors.actions[i].push(`${numberWithCommas(-diff)} shares left to allocate.`);
-                }
-                else if(diff > 0){
-                    formErrors.actions[i] = formErrors.actions[i] || [];
-                    formErrors.actions[i].push(`${numberWithCommas(diff)} shares over allocated.`);
-                }
+        if(!inferAmount && totalSum !== expectedSum){
+            const diff = totalSum - expectedSum;
+            formErrors.actions = formErrors.actions || [];
+            if(diff < 0){
+                formErrors.actions[i] = formErrors.actions[i] || [];
+                formErrors.actions[i].push(`${numberWithCommas(-diff)} shares left to allocate.`);
             }
-        });
+            else if(diff > 0){
+                formErrors.actions[i] = formErrors.actions[i] || [];
+                formErrors.actions[i].push(`${numberWithCommas(diff)} shares over allocated.`);
+            }
+        }
 
         return errors;
     });
@@ -413,9 +457,8 @@ const amendFields = [
     'actions[].recipients[].notified',
     'actions[].recipients[]._keyIndex',
     'actions[].data',
-    'actions[].parcels[].beforeAmount',
-    'actions[].parcels[].afterAmount',
-    'actions[].parcels[].shareClass'
+    'actions[].afterParcels[].amount',
+    'actions[].afterParcels[].shareClass'
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -506,8 +549,8 @@ export function formatSubmit(values, actionSet) {
                     // if share class has changed.....
                     p.afterAmount = original.parcels[parcelIndex].afterAmount;
                     p.beforeAmount = p.afterAmount + (isIncrease(action.transactionType) ? -p.amount : p.amount);
-                    //original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
-                    //original.parcels[parcelIndex].afterAmount = p.beforeAmount;
+                    original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
+                    original.parcels[parcelIndex].afterAmount = p.beforeAmount;
                     return p;
                 });
                 if(action.parcels.every(p => p.beforeAmount === 0) && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
@@ -597,8 +640,10 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass)
         }]};
     }).filter(identity), identity, identity, x => false)};
 
-    initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
-
+    initialValues.actions = initialValues.actions.map((a, i) => ({
+        ...a, data: amendActions[i],
+        afterParcels: amendActions[i].parcels.map(parcel => ({amount: parcel.afterAmount, shareClass:  parcel.shareClass || defaultShareClass}))
+    }))
     return initialValues;
 }
 

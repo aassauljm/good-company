@@ -52,7 +52,6 @@ describe('Amend validate', () => {
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
-                errors.actions[6].recipients[1].parcels[0].amount[0].should.be.equal("Share count goes below 0.");
                 errors._error.actions[6][0].should.be.equal("1 shares left to allocate.");
             });
         });
@@ -80,6 +79,7 @@ describe('Amend validate', () => {
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
+                errors.actions[3].recipients[0].parcels[0].amount[0].should.be.equal("Share count for this class goes below 0.");
                 errors._error.actions[3][0].should.be.equal("1 shares over allocated.");
             });
         });
@@ -139,8 +139,6 @@ describe('Amend submit', () => {
                         }
                     })
                 })
-
-
                 done();
             })
             .catch(done);
@@ -162,6 +160,7 @@ describe('Amend submit', () => {
                         return sum + (a.transactionMethod === 'NEW_ALLOCATION' ? 1 : 0)
                     }, sum)
                 }, 0).should.be.equal(5);
+
                 results.reduce((sum, r) => {
                     return r.data.actions.reduce((sum, a) => {
                         return sum + (a.transactionType === 'ISSUE_TO' ? 1 : 0)
