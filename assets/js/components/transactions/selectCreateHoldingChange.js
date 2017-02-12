@@ -49,7 +49,7 @@ function valuesToAction(values, companyState){
 
 @reduxForm({
     form: 'holdingSelectWithNew',
-    fields: ['holding', 'newHolding', 'beforeAmount', 'afterAmount'],
+    fields: ['holding', 'newHolding', 'parcels[].amount', 'parcels[].shareClass'],
     validate: (values) => {
         if(!values.holding && !values.newHolding){
             return {holding: ['Required']}

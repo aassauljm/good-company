@@ -685,7 +685,7 @@ export default function Amend(props){
             defaultShareClass={defaultShareClass}
             onSubmit={handleSubmit}
             cancel={props.cancel}
-            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass, companyState)}
+            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass, props.resolving ? companyState : {})}
             show={props.show}
             transactionViewData={props.transactionViewData}
             viewName={props.viewName}
