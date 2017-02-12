@@ -473,7 +473,7 @@ const DEFAULT_OBJ = {};
             })
         },
         resetAction: (args) => {
-            dispatch(showLoading({message: 'Resetting History'}));
+            dispatch(showLoading({message: 'Resetting Company Reconciliation'}));
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
             .then(() => {
                 dispatch(endLoading());

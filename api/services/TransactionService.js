@@ -24,7 +24,7 @@ export function validateAnnualReturn(data, companyState){
             const holdingToString = (holdings) =>{
                 return _.sortByAll(holdings.map((holding)=>{
                     return  {holders: _.sortBy(holding.holders.map((p)=>_.pick(p.person ? p.person : p, 'name')), 'name'), parcels: holding.parcels.map((p)=>_.pick(p, 'amount'))};
-                }), (holding) => -holding.parcels[0].amount, (holding) => holding.holders[0].name);
+                }), (holding) => -holding.parcels.reduce((sum,p) => sum+p.amount, 0), (holding) => holding.holders[0].name);
 
             }
 

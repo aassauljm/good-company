@@ -49,7 +49,7 @@ export class ResetHistoryTransactionView extends React.Component {
               </TransactionView.Body>
               <TransactionView.Footer>
                 <Button onClick={this.handleClose}>Cancel</Button>
-                <Button onClick={this.handleReset} bsStyle="danger">Reset Company History</Button>
+                <Button onClick={this.handleReset} bsStyle="danger">Reset Company Reconciliation</Button>
               </TransactionView.Footer>
             </TransactionView>
     }

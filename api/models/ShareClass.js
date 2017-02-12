@@ -40,7 +40,9 @@ module.exports = {
         freezeTableName: false,
         tableName: 'share_class',
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            IMMUTABLE: true
+        },
         hooks: {}
     }
 };

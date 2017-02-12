@@ -641,11 +641,11 @@ module.exports = {
                                 }
                                 function set(obj){
                                     setNew(obj);
-                                    if(!options.newRecords && obj.dataValues.id){
+                                    if((!options.newRecords || obj.IMMUTABLE) && obj.dataValues.id){
                                         obj.isNewRecord = false;
                                         obj._changed = {};
                                     }
-                                    else if(options.newRecords){
+                                    else if(options.newRecords && !obj.IMMUTABLE){
                                         delete obj.dataValues.id;
                                     }
                                 }
