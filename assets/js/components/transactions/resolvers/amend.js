@@ -67,7 +67,7 @@ function findHolding(companyState, action, existing = []){
         const sum2 = p2.reduce((sum, p) => sum+p.amount, 0);
         return sum1 === sum2;
     }
-    return companyState.holdingList.holdings.filter(h => {
+    return companyState.holdingList && companyState.holdingList.holdings.filter(h => {
         return personsMatch(action.afterHolders || action.holders, h.holders.map(h => h.person)) &&
                 parcelsMatch(action.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass})), h.parcels) &&
                 existing.indexOf(h) < 0
