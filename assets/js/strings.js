@@ -70,7 +70,6 @@ export default {
         SEED: 'Import from Companies Register',
         INCORPORATION: 'Incorporation',
         ISSUE: 'Issue',
-        ISSUE_UNALLOCATED: 'Issue',
         ISSUE_TO: 'Issue To',
         AMEND: 'Amend',
         COMPOUND: 'Compound Transaction',
@@ -227,5 +226,7 @@ export default {
     emailRecipients: {
         name: "Name",
         email: "Email"
-    }
+    },
+    importCompanyHistory: "Reconcile Company History",
+    resetCompanyHistory: "Undo Company Reconciliation"
 }

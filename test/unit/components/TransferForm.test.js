@@ -123,19 +123,23 @@ describe('Transfer form', () => {
                 actions: [
                     {
                         holdingId: 3,
-                        shareClass: 3,
-                        amount: 1,
-                        beforeAmount: 3,
-                        afterAmount: 2,
+                        parcels: [{
+                            shareClass: 3,
+                            amount: 1,
+                            beforeAmount: 3,
+                            afterAmount: 2
+                        }],
                         transactionType: 'TRANSFER_FROM',
                         transactionMethod: 'AMEND'
                     },
                     {
                         holdingId: 2,
-                        shareClass: 3,
-                        amount: 1,
-                        beforeAmount: 0,
-                        afterAmount: 1,
+                        parcels: [{
+                            shareClass: 3,
+                            amount: 1,
+                            beforeAmount: 0,
+                            afterAmount: 1
+                        }],
                         transactionType: 'TRANSFER_TO',
                         transactionMethod: 'AMEND'
                     }
@@ -161,19 +165,23 @@ describe('Transfer form', () => {
                 actions: [
                     {
                         holdingId: 3,
-                        shareClass: 3,
-                        amount: 1,
-                        beforeAmount: 3,
-                        afterAmount: 2,
+                        parcels: [{
+                            shareClass: 3,
+                            amount: 1,
+                            beforeAmount: 3,
+                            afterAmount: 2
+                        }],
                         transactionType: 'TRANSFER_FROM',
                         transactionMethod: 'AMEND'
                     },
                     {
                         holders: [{name: 'new guy'}],
-                        shareClass: 3,
-                        amount: 1,
-                        beforeAmount: 0,
-                        afterAmount: 1,
+                        parcels: [{
+                            shareClass: 3,
+                            amount: 1,
+                            beforeAmount: 0,
+                            afterAmount: 1
+                        }],
                         transactionType: 'TRANSFER_TO',
                         transactionMethod: 'AMEND'
                     }

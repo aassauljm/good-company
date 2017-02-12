@@ -68,7 +68,7 @@ class SpecifyVotingHolders extends React.Component {
 class ResolveAllWarnings extends React.Component {
     render(){
         return  <div>
-        <Link to={`/company/view/${this.props.companyId}/guided_setup`} onClick={this.props.resetTransactionViews} className="text-success alert-entry">
+        <Link to={`/company/view/${this.props.companyId}/guided_setup`} onClick={this.props.resetTransactionViews} className="text-success alert-entry guided-setup-link">
         <Glyphicon glyph="forward" className="big-icon"/>
         { this.props.companyName ? `Set up share register for ${this.props.companyName}.` : "Click here to set up the company's share register." } </Link>
         </div>
@@ -202,7 +202,7 @@ export class CompanyAlertsBase extends React.Component {
         const guide = warn.shareClassWarning || warn.historyWarning || warn.applyShareClassWarning || warn.votingShareholderWarning;
         const deadlines = renderDeadlines(this.props.companyState.deadlines, this.props.showTypes, this.props.companyId)
         const pendingUpdates = this.props.companyState.hasPendingUpdates;
-        return <ul>
+        return <ul className="company-alerts">
                 { pendingUpdates && <li><AlertWarnings.PendingUpdate companyId={this.props.companyId} /></li> }
                 { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetTransactionViews={this.props.resetTransactionViews}/></li>}
                 { deadlines }
@@ -222,7 +222,7 @@ export class CompanyAlertsWidget extends React.Component {
         if(!hasAlerts(this.props.companyState, ['danger', 'warning'])){
             return false;
         }
-        return <div className="widget">
+        return <div className="widget company-alerts-widget">
             <div className="widget-header">
                 <div className="widget-title">
                     Notifications

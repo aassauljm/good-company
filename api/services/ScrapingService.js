@@ -110,9 +110,9 @@ function divAfterParent($, query, regex){
 
 function parseIssue($, dateRegexP = 'Date of Issue:'){
     let fields = [
-        ['fromAmount', 'Previous Number of Shares:', Number],
+        ['beforeAmount', 'Previous Number of Shares:', Number],
         ['byAmount', 'Increased Shares by:', Number],
-        ['toAmount', 'New Number of Shares:', Number],
+        ['afterAmount', 'New Number of Shares:', Number],
         ['amount', 'Number of Increased Shares:', Number],
         ['effectiveDate', dateRegexP, date => moment(date, 'DD MMM YYYY').toDate()]
     ];
@@ -124,9 +124,9 @@ function parseIssue($, dateRegexP = 'Date of Issue:'){
 
 function parseAcquisition($, dateRegexP = 'Date of Acquistion:'){
     let fields = [
-        ['fromAmount', 'Previous Number of Shares:', Number],
+        ['beforeAmount', 'Previous Number of Shares:', Number],
         ['byAmount', 'Decreased Shares by:', Number],
-        ['toAmount', 'New Number of Shares:', Number],
+        ['afterAmount', 'New Number of Shares:', Number],
         ['amount', 'Number of Decreased Shares:', Number],
         ['effectiveDate', dateRegexP, date => moment(date, 'DD MMM YYYY').toDate()]
     ];
@@ -472,8 +472,8 @@ const EXTRACT_DOCUMENT_MAP = {
         if(holdings.length){
             const total = toInt(holdings[0]);
             result.actions.push({
-                fromAmount: 0,
-                toAmount: total,
+                beforeAmount: 0,
+                afterAmount: total,
                 byAmount: total,
                 amount: total,
                 transactionType: Transaction.types.ISSUE
@@ -714,8 +714,8 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         }
 
         const issueAction = {
-            fromAmount: 0,
-            toAmount: total,
+            beforeAmount: 0,
+            afterAmount: total,
             byAmount: total,
             amount: total,
             transactionType: Transaction.types.ISSUE
@@ -738,7 +738,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
 
         // See bad total http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/1760468/2646112/entityFilingRequirement
         if(issuedTotal > issueAction.amount){
-            issueAction.toAmount = issueAction.byAmount = issueAction.amount = issuedTotal;
+            issueAction.afterAmount = issueAction.byAmount = issueAction.amount = issuedTotal;
         }
 
 
@@ -1126,9 +1126,9 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         const registeredDate = match(/Registration Date:/);
         const regString = cleanString(registeredDate.text().replace('Registration Date:', ''));
         result.registrationDate = moment(regString, 'DD MMM YYYY').toDate();
-        result.toAmount = toInt(cleanString(match(/\s*Total Number of Company Shares\s*/).parent().next().text()));
+        result.afterAmount = toInt(cleanString(match(/\s*Total Number of Company Shares\s*/).parent().next().text()));
         result.amount = toInt(cleanString(match(/\s*Total Number of Shares Issued\s*/).parent().next().text()));
-        result.fromAmount = result.toAmount - result.amount;
+        result.beforeAmount = result.afterAmount - result.amount;
         result.increase = true;
         result.effectiveDate = moment(cleanString(match(/\s*Date of Issue\s*/).parent().next().text()), 'DD MMM YYYY').toDate();
         return {actions: [result], totalShares: result.increase ? -result.amount : result.amount};

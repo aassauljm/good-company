@@ -283,6 +283,16 @@ module.exports = {
 
                     }]
                 },
+                shareClasses: function(){
+                    return [{
+                        model: ShareClasses,
+                        as: 'shareClasses',
+                        include: [{
+                            model: ShareClass,
+                            as: 'shareClasses'
+                        }]
+                    }]
+                },
                 iRegister: function(){
                     return [{
                         model: InterestsRegister,
@@ -595,12 +605,13 @@ module.exports = {
                         });
                     })
             },
-            totalUnallocatedShares: function() {
+            groupUnallocatedShares: function() {
                 return Promise.resolve(this.isNewRecord || this.dataValues.unallocatedParcels ? this.dataValues.unallocatedParcels : this.getUnallocatedParcels())
                     .then(function(parcels) {
-                        return _.sum(parcels, function(p) {
-                            return p.amount;
-                        });
+                        return _.reduce(parcels, function(acc, p) {
+                            acc[p.shareClass] ={amount: p.amount}
+                            return acc;
+                        }, {});
                     })
             },
 
@@ -619,6 +630,7 @@ module.exports = {
                                 .concat(CompanyState.includes.directorList())
                                 .concat(CompanyState.includes.iRegister())
                                 .concat(CompanyState.includes.holdingList())
+                                .concat(CompanyState.includes.shareClasses())
                             });
                     })
                     .then((next) => {
@@ -865,6 +877,7 @@ module.exports = {
             },
 
             getMatchingHoldings: function(holding,  options={}){
+
                 return _.filter(this.dataValues.holdingList.dataValues.holdings, function(h){
                     if(holding.holdingId){
                         return holding.holdingId === h.holdingId
@@ -951,23 +964,31 @@ module.exports = {
                 return this.combineUnallocatedParcels(parcel, true);
             },
 
-            stats: function(){
+            stats: function(combineUnallocated){
                 let stats = {};
 
                 return Promise.join(this.totalAllocatedShares(),
-                                    this.totalUnallocatedShares(),
+                                    this.groupUnallocatedShares(),
                                     this.groupTotals(),
                                     this.getTransactionSummary(),
                                     this.getDeadlines(),
+                                    this.getUnallocatedParcels(),
                         function(total,
-                                 totalUnallocated,
+                                 unallocated,
                                 countByClass,
                                 transactionSummary,
-                                deadlines
+                                deadlines,
+                                unallocatedParcels,
                                 ){
-                        stats.totalUnallocatedShares = totalUnallocated;
+                        stats.totalUnallocatedShares = _.sum(Object.keys(unallocated).map(k =>  unallocated[k]), 'amount');
                         stats.totalAllocatedShares = total;
                         stats.shareCountByClass = countByClass;
+                        if(combineUnallocated){
+                            Object.keys(unallocated).map(k => {
+                                stats.shareCountByClass[k] = stats.shareCountByClass[k] || {amount: 0}
+                                stats.shareCountByClass[k].amount += unallocated[k].amount;
+                            })
+                        }
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
                         stats.transactions = transactionSummary[0].transaction_summary;
                         stats.deadlines = deadlines;
@@ -1016,7 +1037,14 @@ module.exports = {
                                 },{
                                     model: Person,
                                     as: 'person'
-                                }, 'name', 'ASC']
+                                }, 'name', 'ASC'],
+                                [{
+                                    model: Holding,
+                                    as: 'holdings'
+                                },{
+                                    model: Parcel,
+                                    as: 'parcels'
+                                }, 'amount', 'DESC']
                             ]
                         }),
                         this.getUnallocatedParcels(),

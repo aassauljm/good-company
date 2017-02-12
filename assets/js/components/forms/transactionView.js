@@ -7,7 +7,7 @@ export default class GCTransactionView extends React.Component {
     render() {
         if(this.props.lawLinks){
             return <LawBrowserContainer lawLinks={this.props.lawLinks}>
-                <div className="widget">
+                <div className={(this.props.className || '') + " widget"}>
                     { this.props.children }
                 </div>
             </LawBrowserContainer>

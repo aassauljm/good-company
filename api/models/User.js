@@ -20,9 +20,8 @@ module.exports = {
         },
         email: {
             type: Sequelize.TEXT,
-            unique: true,
             index: true,
-                allowNull: false,
+            allowNull: false,
             validate: {
                 isEmail: true,
             }

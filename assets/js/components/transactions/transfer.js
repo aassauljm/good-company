@@ -145,18 +145,23 @@ export function transferFormatSubmit(values, companyState){
             return acc;
         }, {})
         return acc;
-    }, {})
-    values.parcels.map(p => {
-        const amount = parseInt(p.amount, 10);
-        const shareClass = parseInt(p.shareClass, 10) || null;
-        const fromHoldingId = parseInt(values.from, 10)
+    }, {});
+    //values.parcels.map(p => {
+
+
+        const fromHoldingId = parseInt(values.from, 10);
         actions.push({
             holdingId: fromHoldingId,
             holders: holders[values.from],
-            shareClass: shareClass,
-            amount: amount,
-            beforeAmount: amounts[values.from][p.shareClass],
-            afterAmount: (amounts[values.from][p.shareClass]) - amount,
+                parcels: values.parcels.map(p => {
+                    const shareClass = parseInt(p.shareClass, 10) || null;
+                    const amount = parseInt(p.amount, 10);
+                    return {
+                shareClass: shareClass,
+                amount: amount,
+                beforeAmount: amounts[values.from][p.shareClass],
+                afterAmount: (amounts[values.from][p.shareClass]) - amount
+            }}),
             transactionType: 'TRANSFER_FROM',
             transactionMethod: 'AMEND'
         });
@@ -165,10 +170,16 @@ export function transferFormatSubmit(values, companyState){
             actions.push({
                 holdingId: toHoldingId,
                 holders: holders[values.to],
-                shareClass: shareClass,
-                amount: amount,
-                beforeAmount: amounts[values.to][p.shareClass] || 0,
-                afterAmount: (amounts[values.to][p.shareClass] || 0) + amount,
+                parcels: values.parcels.map(p => {
+                    const shareClass = parseInt(p.shareClass, 10) || null;
+                    const amount = parseInt(p.amount, 10);
+                    return {
+                        shareClass: shareClass,
+                        amount: amount,
+                        beforeAmount: amounts[values.to][p.shareClass] || 0,
+                        afterAmount: (amounts[values.to][p.shareClass] || 0) + amount
+                    }
+                }),
                 transactionType: 'TRANSFER_TO',
                 transactionMethod: 'AMEND'
             });
@@ -176,15 +187,20 @@ export function transferFormatSubmit(values, companyState){
         else{
             actions.push({
                 holders: values.newHolding.persons,
-                shareClass: shareClass,
-                amount: amount,
-                beforeAmount: 0,
-                afterAmount: amount,
+                parcels: values.parcels.map(p => {
+                    const shareClass = parseInt(p.shareClass, 10) || null;
+                    const amount = parseInt(p.amount, 10);
+                    return {
+                        shareClass: shareClass,
+                        amount: amount,
+                        beforeAmount: 0,
+                        afterAmount: amount
+                    }}),
                 transactionType: 'TRANSFER_TO',
                 transactionMethod: 'AMEND'
             });
         }
-    });
+    //});
     if(values.newHolding){
         results.push({
             effectiveDate: values.effectiveDate,

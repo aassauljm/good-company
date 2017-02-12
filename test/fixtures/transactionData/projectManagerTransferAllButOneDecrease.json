@@ -1,0 +1,188 @@
+{
+    "id": "4a58b0db-4914-42b7-bf93-2c09c814692b",
+    "data": {
+      "id": "4a58b0db-4914-42b7-bf93-2c09c814692b",
+      "date": "2015-03-23T21:51:00.000Z",
+      "label": "Particulars of Shareholding",
+      "actions": [
+        {
+          "id": "6059a45f-19b4-49fc-ab20-6d45bbfb47e8",
+          "holders": [
+            {
+              "name": "David George LOCK",
+              "address": "16 Kahikatea Close, Campbells Bay, Auckland, 0630, New Zealand",
+              "companyNumber": null
+            }
+          ]
+        },
+        {
+          "id": "20829b4b-20ed-411e-878b-3b7622b0bef7",
+          "beforeHolders": [
+            {
+              "name": "David George LOCK",
+              "address": "16 Kahikatea Close, Campbells Bay, Auckland, 0630, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "David George LOCK",
+              "address": "16 Kahikatea Close, Campbells Bay, Auckland, 0630, New Zealand",
+              "companyNumber": null
+            }
+          ],
+
+          "parcels": [
+            {
+              "amount": 25000,
+              "beforeAmount": 25000,
+              "afterAmount": 0
+            }
+          ],
+          "inferredType": true,
+          "transactionType": "TRANSFER_FROM",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "id": "a7ac2a88-da23-4442-8fb5-cecf2016bab0",
+          "parcels": [
+            {
+              "amount": 120000,
+              "beforeAmount": 80000,
+              "afterAmount": 200000
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Robert Craig NICHOLSON",
+              "address": "18 Boyd Avenue, Mangere Bridge, Auckland, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Robert Craig NICHOLSON",
+              "address": "18 Boyd Avenue, Mangere Bridge, Auckland, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "transactionType": "TRANSFER_TO",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "id": "af791705-4265-41aa-b6ec-d48ac4af00ce",
+          "parcels": [
+            {
+              "amount": 40000,
+              "beforeAmount": 990000,
+              "afterAmount": 950000
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Geoffrey A. CUMMING",
+              "address": "Suite 507, 600 Princeton Way, Sw, Calgary, Alberta, T2P 5N4, Canada",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Geoffrey A. CUMMING",
+              "address": "Suite 507, 600 Princeton Way, Sw, Calgary, Alberta, T2P 5N4, Canada",
+              "companyNumber": null
+            }
+          ],
+          "transactionType": "TRANSFER_FROM",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "id": "ebdc31aa-892f-4abf-900b-be6c21f363e2",
+          "parcels": [
+            {
+              "amount": 25000,
+              "beforeAmount": 400000,
+              "afterAmount": 375000
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "JACON INVESTMENTS LIMITED",
+              "address": "120 Seaview Road, Whangamata, Whangamata, 3620, New Zealand",
+              "companyNumber": "969041"
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "JACON INVESTMENTS LIMITED",
+              "address": "120 Seaview Road, Whangamata, Whangamata, 3620, New Zealand",
+              "companyNumber": "969041"
+            }
+          ],
+          "transactionType": "TRANSFER_FROM",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "id": "324f7476-a824-40dc-95b5-5676ca5e8399",
+          "parcels": [
+            {
+              "amount": 25000,
+              "beforeAmount": 400000,
+              "afterAmount": 375000
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "HIRVI LIMITED",
+              "address": "17 Lewin Road, Epsom, Auckland, Null, 1023, New Zealand",
+              "companyNumber": "4955819"
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "HIRVI LIMITED",
+              "address": "17 Lewin Road, Epsom, Auckland, Null, 1023, New Zealand",
+              "companyNumber": "4955819"
+            }
+          ],
+          "transactionType": "TRANSFER_FROM",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "id": "48e7d8e8-0092-4b47-b764-c9c82b77e94f",
+          "parcels": [
+            {
+              "amount": 5000,
+              "beforeAmount": 55000,
+              "afterAmount": 50000
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "LATITUDE 35 HOLDINGS LIMITED",
+              "address": "9 Sylvia Rd, St Heliers, Auckland, Null, New Zealand",
+              "companyNumber": "1025634"
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "LATITUDE 35 HOLDINGS LIMITED",
+              "address": "9 Sylvia Rd, St Heliers, Auckland, Null, New Zealand",
+              "companyNumber": "1025634"
+            }
+          ],
+          "transactionType": "TRANSFER_FROM",
+          "transactionMethod": "AMEND"
+        }
+      ],
+      "documentId": "20815790",
+      "totalShares": 0,
+      "documentType": "Particulars of Shareholding",
+      "effectiveDate": "2015-03-23T21:51:00.000Z"
+    },
+    "previous_id": "4f495b43-a0c4-46e9-bace-fb3d74f3fa83"
+  }

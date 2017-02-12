@@ -1,11 +1,12 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime,
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap,
     renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState } from '../../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';
 import DateInput from '../../forms/dateInput';
+import { ParcelWithRemove } from '../../forms/parcel';
 import { HoldingSelectWithNew, HoldingWithRemove } from '../../forms/holding';
 import STRINGS from '../../../strings'
 import { asyncConnect } from 'redux-connect';
@@ -111,9 +112,6 @@ function validTransactionType(type){
         TransactionTypes.ACQUISITION_FROM,
         TransactionTypes.CONSOLIDATION_FROM,
         TransactionTypes.CANCELLATION_FROM,
-
-
-
         ].indexOf(type) >= 0 ? type : '';
 }
 
@@ -122,8 +120,9 @@ function validTransactionType(type){
 class Recipient extends React.Component {
     render(){
         const title =  `Transaction #${this.props.index+1}`;
-        const options = this.props.increase ? increaseOptions(!this.props.allSameDirection) : decreaseOptions(!this.props.allSameDirection);
+        const options = this.props.increase ? increaseOptions() : decreaseOptions();
         const holdings = this.props.holdings;
+
         const renderOption = (h, i) => {
             return h.remaining ?
                 <option key={i} value={h.value}>{h.label} - {numberWithCommas(Math.abs(h.remaining))} {h.remaining < 0 ? 'over allocated' : 'under allocated'}</option> :
@@ -133,7 +132,7 @@ class Recipient extends React.Component {
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
                 <DateInput {...this.formFieldProps('effectiveDate')} disabled={!!this.props.isInverse.value} time={true}/>
-                <div className="input-group-pair input-row">
+                <div className="input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={!!this.props.isInverse.value}
                     label={false}>
@@ -143,15 +142,13 @@ class Recipient extends React.Component {
                             {  !this.props.increase &&<optgroup label="Decreases">{ decreaseOptions() } </optgroup> }
                             {  !this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
                     </Input>
-                    <Input
-                    className="amount"
-                    type={this.props.amount.value === 'All' ? "text" : "number"}
-                    {...this.formFieldProps('amount')}
-                    placeholder={'Number of Shares'}
-                    value={ this.props.amount.value }
-                    disabled={!!this.props.isInverse.value || this.props.amount.value === 'All'}
-                    label={null}/>
+
                 </div>
+                <div className="row">{ this.props.parcels.map((p, i) =>{
+                    const remove = this.props.parcels.length > 1 && (() => this.props.parcels.removeField(i));
+                    const add = this.props.parcels.length < this.props.shareOptions.length && (() => this.props.parcels.addField({}));
+                    return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove}/>
+                }) }</div>
 
                 { optionalNotification(this.props.type.value) && <div className="input-row">
 
@@ -177,39 +174,48 @@ class Recipient extends React.Component {
 
 
 function Recipients(props){
+
     return <div className="col-md-6 col-md-offset-3">
             <Shuffle>
-            { props.recipients.map((r, i) => {
-                const show = !r.isInverse.value;
-                if(!show){
-                    const title = `Transfer of ${r.amount.value || 0} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
-                    return <div className="list-item" key={r._keyIndex.value}>
-                        <Panel title={title} />
+                { props.recipients.map((r, i) => {
+                    const show = !r.isInverse.value;
+                    if(!show){
+                        const parcels = r.parcels.map(p => `${p.amount.value} ${renderShareClass(p.shareClass.value, props.shareClassMap)}`).join(', ');
+                        const title = `Transfer of ${parcels} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
+                        return <div className="list-item" key={r._keyIndex.value}>
+                            <Panel title={title} />
+                        </div>
+                    }
+                    return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
+                            <Recipient {...r}
+                            index={i}
+                            increase={props.increase}
+                            allSameDirection={props.allSameDirection}
+                            holdings={props.holdings}
+                            remove={() => props.recipients.removeField(i)}
+                            shareOptions={ props.shareOptions }
+                            >
+                            </Recipient>
+                            { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
+                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
+                                <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
+                                { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
+                            </div> }
                     </div>
-                }
-                return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
-                        <Recipient {...r}
-                        index={i}
-                        increase={props.increase}
-                        allSameDirection={props.allSameDirection}
-                        holdings={props.holdings}
-                        remove={() => props.recipients.removeField(i)}
-                        >
-                        </Recipient>
-                        { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
-                            { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.recipients.swapFields(i, i - 1) }><Glyphicon glyph="arrow-up" /></button> }
-                            <button type="button" className="btn btn-default"onClick={() => props.recipients.removeField(i) }><Glyphicon glyph="remove" /></button>
-                            { i < props.recipients.length - 1  && <button type="button" className="btn btn-default"onClick={() => props.recipients.swapFields(i, i + 1) }><Glyphicon glyph="arrow-down" /></button> }
-                        </div> }
-                </div>
-            }) }
+                }) }
             </Shuffle>
 
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
             { <div className="button-row">
                 <Button type="button" onClick={() => {
-                    props.recipients.addField({_keyIndex: keyIndex++, effectiveDate: props.effectiveDate})    // pushes empty child field onto the end of the array
+                    const remaining = props.data.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.recipients.reduce((sum, r) => {
+                        return sum + absoluteAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
+                    }, 0);
+                    props.recipients.addField({
+                        _keyIndex: keyIndex++, effectiveDate: props.effectiveDate,
+                        parcels:[{shareClass: props.defaultShareClass, amount: remaining}]
+                    })    // pushes empty child field onto the end of the array
                 }}>
                 Add Transaction
                 </Button>
@@ -229,11 +235,10 @@ class AmendOptions extends React.Component {
         </div>
     }
     render() {
-
-        const { shareClassMap, fields: { actions }, allSameDirection } = this.props;
+        const { shareClassMap, fields: { actions } } = this.props;
         const amountRemaining = (holding, i) => {
-            const remaining = holding.amount - this.props.values.actions[i].recipients.reduce((sum, a) => {
-                return sum + (a.type ? absoluteAmount(a.type, (parseInt(a.amount, 10) || 0)) : 0)
+            const remaining = holding.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - this.props.values.actions[i].recipients.reduce((sum, a) => {
+                return sum + (a.type ? absoluteAmount(a.type, a.parcels.reduce((sum, p) => sum + (parseInt(p.amount, 10) || 0), 0)) : 0)
             }, 0);
             return {...holding, remaining: remaining}
         }
@@ -244,14 +249,16 @@ class AmendOptions extends React.Component {
             const a = r.data;
             const increase = actionAmountDirection(a);
             const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
-            return {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i, amount: a.afterAmount - a.beforeAmount};
+            return {value: `${i}`, label: `#${i+1} - ${names}`, increase: increase, index: i, parcels: a.parcels};
         });
 
         return <form onSubmit={this.props.handleSubmit}>
             <div className="button-row">
+            <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
                 <Button  onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
+            <hr/>
             { actions.map((field, i) => {
                 const action = field.data.value;
                 const increase = actionAmountDirection(action);
@@ -266,9 +273,12 @@ class AmendOptions extends React.Component {
                     <Recipients
                         effectiveDate={this.props.effectiveDate}
                         recipients={actions[i].recipients}
+                        data={actions[i].data}
                         increase={increase}
-                        allSameDirection={allSameDirection}
                         error={getError(i)}
+                        shareClassMap={shareClassMap}
+                        shareOptions={this.props.shareOptions}
+                        defaultShareClass={this.props.defaultShareClass}
                         holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
                 </div>
                 <hr/>
@@ -289,6 +299,7 @@ class AmendOptions extends React.Component {
                      })}}>Add Shareholding</Button>
             </div>
              <div className="button-row">
+             <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
@@ -297,20 +308,46 @@ class AmendOptions extends React.Component {
 }
 
 
-const validateAmend = (values, props) => {
+export function validateAmend(values, props) {
     const errors = {};
     const formErrors = {};
     errors.actions = values.actions.map((action, i) => {
         const errors = {};
-        let sum = 0;
         const inferAmount = action.data ? action.data.inferAmount: false;
-        const amount = action.data ? action.data.afterAmount - action.data.beforeAmount : 0;
-        const startAmount = action.data ? action.data.beforeAmount || 0 : 0;
-        //const selectedRecipients = {};
+        const amounts = (action.data.parcels || []).reduce((acc, parcel) => {
+            acc[parcel.shareClass || null] = {amount: parcel.afterAmount - parcel.beforeAmount, sum: 0, startAmount: parcel.beforeAmount || 0}
+            return acc;
+        }, {});
+
         errors.recipients = action.recipients.map((recipient, j) => {
-            const errors = {};
-            const amount = parseInt(recipient.amount, 10) || 0;
-            const inferred = recipient.amount === 'All';
+            const errors = {parcels: []};
+            const inferred = recipient.parcels.length === 1 && recipient.parcels[0].amount === 'All';
+
+            const actionAmounts = recipient.parcels.reduce((acc, parcel, i) => {
+                errors.parcels[i] = {};
+                if(acc[parcel.shareClass || null] !== undefined){
+                    errors.parcels[i].shareClass = ['Duplicate Share Class.']
+                }
+                const amount = parseInt(parcel.amount, 10) || 0;
+                if(!amount && !inferred){
+                    errors.parcels[i].amount = ['Required.']
+                }
+                else if(amount <= 0 && !inferred){
+                    errors.parcels[i].amount = ['Must be greater than 0.'];
+                }
+                const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
+
+                if(recipient.type){
+                    sourceParcel.sum += absoluteAmount(recipient.type, amount);
+                }
+                if((sourceParcel.sum + sourceParcel.startAmount) < 0){
+                    errors.parcels[i].amount = ['Share count goes below 0.'];
+                }
+                acc[parcel.shareClass || null] = amount;
+                return acc;
+            }, {});
+
+
             if(!recipient.effectiveDate){
                 errors.effectiveDate = ['Required.'];
             }
@@ -321,12 +358,7 @@ const validateAmend = (values, props) => {
                 errors.effectiveDate = errors.effectiveDate || [];
                 errors.effectiveDate.push('Effective date cannot be before previous transaction.')
             }
-            if(!amount && !inferred){
-                errors.amount = ['Required.'];
-            }
-            else if(amount <= 0 && !inferred){
-                errors.amount = ['Must be greater than 0.'];
-            }
+
             if(!recipient.type){
                 errors.type = ['Required.'];
             }
@@ -334,12 +366,6 @@ const validateAmend = (values, props) => {
                 if(!recipient.holding){
                     errors.holding = ['Transfer shareholding required.'];
                 }
-            }
-            if(recipient.type){
-                sum += absoluteAmount(recipient.type, amount);
-            }
-            if((sum + startAmount)  < 0){
-                errors.amount = ['Share count goes below 0.'];
             }
             return errors;
         });
@@ -349,33 +375,34 @@ const validateAmend = (values, props) => {
             formErrors.actions[i] = ['Required.'];
         }
 
+        (action.data.parcels || []).map((parcel, j) => {
+            const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
 
-
-        if(!inferAmount && sum !== amount){
-            formErrors.actions = formErrors.actions || [];
-            const diff = sum - amount;
-            if(diff < 0){
-                formErrors.actions[i] = formErrors.actions[i] || [];
-                formErrors.actions[i].push(`${-diff} shares left to allocate.`);
+            if(!inferAmount && sourceParcel.sum !== sourceParcel.amount){
+                formErrors.actions = formErrors.actions || [];
+                const diff = sourceParcel.sum - sourceParcel.amount;
+                if(diff < 0){
+                    formErrors.actions[i] = formErrors.actions[i] || [];
+                    formErrors.actions[i].push(`${numberWithCommas(-diff)} shares left to allocate.`);
+                }
+                else if(diff > 0){
+                    formErrors.actions[i] = formErrors.actions[i] || [];
+                    formErrors.actions[i].push(`${numberWithCommas(diff)} shares over allocated.`);
+                }
             }
-            else if(diff > 0){
-                formErrors.actions[i] = formErrors.actions[i] || [];
-                formErrors.actions[i].push(`${diff} shares over allocated.`);
-            }
-        }
-
+        });
 
         return errors;
     });
 
     errors._error = Object.keys(formErrors).length ? formErrors: null;
-
     return errors;
 }
 
 const amendFields = [
     'actions[].recipients[].type',
-    'actions[].recipients[].amount',
+    'actions[].recipients[].parcels[].amount',
+    'actions[].recipients[].parcels[].shareClass',
     'actions[].recipients[].effectiveDate',
     'actions[].recipients[].holding',
     'actions[].recipients[].isInverse',
@@ -383,7 +410,6 @@ const amendFields = [
     'actions[].recipients[].notified',
     'actions[].recipients[]._keyIndex',
     'actions[].data',
-
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -396,7 +422,7 @@ const AmendOptionsConnected = reduxForm({
 
 const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0; // && !action.inferAmount;
 
-const collectAmendActions = (actions) => actions.filter(isAmendable);
+export function collectAmendActions(actions){ return  actions.filter(isAmendable) };
 
 
 export function formatSubmit(values, actionSet) {
@@ -409,26 +435,24 @@ export function formatSubmit(values, actionSet) {
     const nonTransfers = {};
     const transfers = []
 
-
-
     values.actions.map((a, i) => {
         a.recipients.map((r, j) => {
             if(!r.isInverse){
                 let method = TransactionTypes.AMEND;
-                const amount = parseInt(r.amount, 0) || 0;
+                const parcels = r.parcels.map(p => ({amount: parseInt(p.amount, 10), shareClass: parseInt(p.shareClass, 10) || null}))
                 const holders = amends[i].afterHolders || amends[i].holders;
                 if(isTransfer(r.type)){
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
-                    const holdingIndex = parseInt(r.holding, 10)
+                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
+                    const holdingIndex = parseInt(r.holding, 10);
                     const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
                     const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
-                        transactionType: inverseTransfer(r.type),  amount: amount, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true}
+                        transactionType: inverseTransfer(r.type), parcels, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true}
                     transfers.push([result, inverse])
                 }
                 else{
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, amount: amount, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
+                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
                     nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
                     nonTransfers[r.effectiveDate].push(result);
                     if(optionalNotification(r.type) && !r.notified){
@@ -436,7 +460,7 @@ export function formatSubmit(values, actionSet) {
                             nonTransfers[r.effectiveDate].push({
                                 transactionType: TransactionTypes.CANCELLATION,
                                 unnotified: true,
-                                amount: amount,
+                                parcels,
                                 effectiveDate: r.effectiveDate,
                             });
                         }
@@ -445,7 +469,6 @@ export function formatSubmit(values, actionSet) {
             }
         });
     });
-
 
     const transactions = transfers;
 
@@ -460,15 +483,27 @@ export function formatSubmit(values, actionSet) {
 
     const newAllocations = {};
 
-    transactions.map((sets, i) => {
-        sets.map(action => {
-            if(action._holding !== undefined){
+    const parcelIndexByClass = (parcels, shareClass) => {
+        return parcels.findIndex(p =>  !p.shareClass || shareClass === p.shareClass);
+    }
+
+
+    transactions.map((actions, i) => {
+        actions.map(action => {
+            if(action._holding !== undefined && amends[action._holding].parcels){
                 //look up original action
                 const original = amends[action._holding];
-                action.afterAmount = amends[action._holding].afterAmount;
-                action.beforeAmount = action.afterAmount + (isIncrease(action.transactionType) ? -action.amount : action.amount);
-                original.afterAmount = action.beforeAmount;
-                if(action.beforeAmount === 0 && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
+
+                action.parcels = action.parcels.map(p => {
+                    p = {...p}
+                    const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
+                    p.afterAmount = original.parcels[parcelIndex].afterAmount;
+                    p.beforeAmount = p.afterAmount + (isIncrease(action.transactionType) ? -p.amount : p.amount);
+                    original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
+                    original.parcels[parcelIndex].afterAmount = p.beforeAmount;
+                    return p;
+                });
+                if(action.parcels.every(p => p.beforeAmount === 0) && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
                     newAllocations[action._holding] = action;
                 }
                 else{
@@ -477,8 +512,6 @@ export function formatSubmit(values, actionSet) {
                 delete action._holding;
             }
         });
-
-
     });
     // put new allocation types where needed
     Object.keys(newAllocations).map(k => {
@@ -495,24 +528,8 @@ export function formatSubmit(values, actionSet) {
     return pendingActions;
 }
 
-
-export default function Amend(props){
-    const { context, submit } = props;
-    const { actionSet, companyState, shareClassMap } = context;
-
-    const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
-    const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
-    const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
-
+export function formatInitialState(amendActions, defaultDate, defaultShareClass){
     const identity = x => x;
-
-    const handleSubmit = (values) => {
-        const pendingActions = formatSubmit(values, actionSet);
-        submit({
-            pendingActions: pendingActions
-        })
-    }
-
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
         return acc + (actionAmountDirection(action) ? 1 : 0)
     }, 0);
@@ -522,59 +539,92 @@ export default function Amend(props){
     const allButOneDecrease = amendActions.length > 2 && !allSameDirection && allSameDirectionSum === 1;
 
     const amountValues = amendActions.reduce((acc, action, i) => {
-        const dir = (action.afterAmount > action.beforeAmount || !action.beforeHolders);
-        acc[dir][action.amount] = (acc[dir][action.amount] || []).concat({...action, index: i});
+        const dir = (action.parcels[0].afterAmount > action.parcels[0].beforeAmount || !action.beforeHolders);
+        action.parcels.map(parcel => {
+            acc[dir][parcel.amount] = (acc[dir][parcel.amount] || []).concat({...action, index: i});
+        });
         return acc;
     }, {true: {}, false: {}});
 
     let initialValues = {actions: calculateReciprocals(amendActions.map((a, i) => {
         // if all same direction, set amount;
-        const effectiveDate = moment(a.effectiveDate || actionSet.data.effectiveDate).toDate();
+        const effectiveDate = moment(a.effectiveDate || defaultDate).toDate();
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{amount:  a.inferAmount ? 'All' : a.amount, effectiveDate, _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
+                recipients: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
+                effectiveDate,  _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
             };
         }
         // else if one exact opposite transaction, then set that
         const increase =  actionAmountDirection(a);
-        if(amountValues[increase][a.amount] && amountValues[increase][a.amount].length === 1 &&
-           amountValues[!increase][a.amount] && amountValues[!increase][a.amount].length === 1){
+        if(a.parcels.every(p => amountValues[increase][p.amount] && amountValues[increase][p.amount].length === 1 &&
+           amountValues[!increase][p.amount] && amountValues[!increase][p.amount].length === 1)){
             return {recipients: [{
-                amount:   a.inferAmount ? 'All' :  a.amount,
+                parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
-                holding: amountValues[!increase][a.amount][0].index+'',
+                holding: amountValues[!increase][a.parcels[0].amount][0].index+'',
                 effectiveDate,
                 isInverse: !increase,
                 _keyIndex: keyIndex++
             }]};
         }
-
-        /*if(allButOneIncrease){
-            holding = amountValues[increase][Object.keys(amountValues[increase])[0]][0].index+'';
+        let inverse;
+        if(allButOneIncrease){
+            // if all but one increase, then we know the other party in the transaction
+            // inverse will be created
+            holding = amountValues[!increase][Object.keys(amountValues[!increase])[0]][0].index+'';
+            inverse = holding && !increase;
         }
 
         if(allButOneDecrease){
-            holding = amountValues[increase][Object.keys(amountValues[!increase])[0]][0].index+'';
-        }*/
+
+            holding = amountValues[!increase][Object.keys(amountValues[!increase])[0]][0].index+'';
+            inverse = holding && increase;
+        }
+
 
         return {recipients: [{
-            amount:  a.inferAmount ? 'All' : a.amount, type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding
+            parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
+            type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding, isInverse: inverse
         }]};
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({...a, data: amendActions[i]}))
 
+    return initialValues;
+}
+
+
+export default function Amend(props){
+    const { context, submit } = props;
+    const { actionSet, companyState } = context;
+    const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
+    const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
+    const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
+    const shareClassMap = generateShareClassMap(companyState);
+    const shareClasses = ((companyState.shareClasses || {}).shareClasses || []);
+    const shareOptions = shareClasses.map((s, i) => {
+        return <option key={i} value={s.id}>{s.name}</option>
+    });
+    const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
+    const handleSubmit = (values) => {
+        const pendingActions = formatSubmit(values, actionSet);
+        submit({
+            pendingActions: pendingActions
+        })
+    }
+
     return <div className="resolve">
             <AmendOptionsConnected
-            //amendActions={amendActions}
             effectiveDate={effectiveDate}
             totalAmount={totalAmount}
-            allSameDirection={allSameDirection}
-            //holdings={holdings}
             shareClassMap={shareClassMap}
+            shareOptions={shareOptions}
+            defaultShareClass={defaultShareClass}
             onSubmit={handleSubmit}
-            initialValues={initialValues}
+            cancel={props.cancel}
+            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass)}
             show={props.show}
             transactionViewData={props.transactionViewData}
             viewName={props.viewName}
@@ -607,16 +657,18 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
                 const inverseType = inverseTransfer(getValue(recipient.type))
                 const inverseHolding = i.toString();
                 // does the reciprocal any fields that have been touched?
+
                 actions[holdingIndex].recipients = actions[holdingIndex].recipients.filter(r => {
-                    return getTouched(r.amount) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse);
+                    return r.parcels.some(p => getTouched(p.amount) || getTouched(p.shareClass)) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse);
                 });
+
                 actions[holdingIndex].recipients.push({
                     effectiveDate: recipient.effectiveDate,
                     isInverse: setValue(true),
                     type: setValue(inverseType),
                     holding: setValue(inverseHolding),
-                    amount: recipient.amount,
-                    _keyIndex: setValue(keyIndex++)
+                    parcels: recipient.parcels.map(p => ({amount: setValue(getValue(p.amount)), shareClass: setValue(getValue(p.shareClass))})),
+                    _keyIndex: setValue('inverse-' + getValue(recipient._keyIndex))
                 });
 
                 // better sort reciprocals

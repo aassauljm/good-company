@@ -17,15 +17,15 @@
             "data": {
                 "actions": [
                     {
-                        "afterAmount": 1500100,
+                        "parcels": [{"afterAmount": 1500100,
+                        "amount": 1500000,
+                        "beforeAmount": 100}],
                         "afterHolders": [
                             {
                                 "address": "3900 Steve Reynolds Boulevard, Norcross, Ga. 30093,United States Of America",
                                 "name": "LARSON-JUHL INTERNATIONAL LLC"
                             }
                         ],
-                        "amount": 1500000,
-                        "beforeAmount": 100,
                         "beforeHolders": [
                             {
                                 "address": "3900 Steve Reynolds Boulevard, Norcross, Ga. 30093,United States Of America",

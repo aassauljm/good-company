@@ -1,0 +1,76 @@
+  {
+    "id": "334f83d9-1441-454b-bc6e-1ca6c1e19b5a",
+    "data": {
+      "id": "334f83d9-1441-454b-bc6e-1ca6c1e19b5a",
+      "date": "2015-03-23T21:51:00.000Z",
+      "label": "Particulars of Shareholding",
+      "actions": [
+        {
+          "id": "b729be3f-122b-4f6e-aae1-db1345618988",
+          "parcels": [
+            {
+              "amount": 25000,
+              "shareClass": 10001,
+              "afterAmount": 400000,
+              "beforeAmount": 375000
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "HIRVI LIMITED",
+              "address": "17 Lewin Road, Epsom, Auckland, Null, 1023, New Zealand",
+              "companyNumber": "4955819"
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "HIRVI LIMITED",
+              "address": "17 Lewin Road, Epsom, Auckland, Null, 1023, New Zealand",
+              "companyNumber": "4955819"
+            }
+          ],
+          "effectiveDate": "2015-03-23T21:51:00.000Z",
+          "userConfirmed": true,
+          "transactionType": "TRANSFER_TO",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "id": "c40db7ce-9438-490d-b87c-5d7d22ad994f",
+          "parcels": [
+            {
+              "amount": 25000,
+              "shareClass": 10001,
+              "afterAmount": 170000,
+              "beforeAmount": 195000
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Robert Craig NICHOLSON",
+              "address": "18 Boyd Avenue, Mangere Bridge, Auckland, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Robert Craig NICHOLSON",
+              "address": "18 Boyd Avenue, Mangere Bridge, Auckland, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "effectiveDate": "2015-03-23T21:51:00.000Z",
+          "userConfirmed": true,
+          "transactionType": "TRANSFER_FROM",
+          "transactionMethod": "AMEND"
+        }
+      ],
+      "documentId": "20815790",
+      "orderIndex": 3,
+      "totalShares": null,
+      "documentType": "Particulars of Shareholding",
+      "effectiveDate": "2015-03-23T21:51:00.000Z"
+    },
+    "previous_id": "079bf15e-a787-4e66-b05c-5347483aaedc"
+  }

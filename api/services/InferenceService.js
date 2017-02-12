@@ -283,7 +283,7 @@ module.exports = {
         //results = splitMultiTransfers(results);
 
         return results;
-    },
+},
 
     splitHoldingTransfers: function(docs) {
         // holding transfers are now deprecated
@@ -330,8 +330,8 @@ module.exports = {
                         newAlloc.inferAmount = true
                         newAlloc.afterAmountLookup = {beforeHolders: action.beforeHolders};
                     }
-                    acc.push(newAlloc);
                     acc.push(amend);
+                    acc.push(newAlloc);
 
                 }
                 else{
@@ -542,6 +542,22 @@ module.exports = {
         }, []);
     },
 
+    sharesToParcels: function(docs){
+
+        return docs.map(d => {
+            if(d.actions){
+                return {...d, actions: d.actions.map(a => {
+                    const {amount, beforeAmount, afterAmount, shareClass, ...rest} = a;
+                    if(amount !== undefined || a.unknownAmount){
+                        return {...rest, parcels: [{amount, beforeAmount, afterAmount, shareClass}]};
+                    }
+                    return a;
+                })}
+            }
+            return d;
+        });
+    },
+
     extraActions: function(data, docs){
         // These are INFERED actions
         docs = docs.concat(InferenceService.inferDirectorshipActions(data, docs));
@@ -575,6 +591,7 @@ module.exports = {
         // before sort, fine amend types
         docs = InferenceService.inferAmendTypes(docs);
         docs = InferenceService.flagTreasuryTransactions(docs, companyNumber);
+
 
 
         docs = docs.reduce((acc, doc) =>{
@@ -613,6 +630,9 @@ module.exports = {
 
         // AFTER SORT
         docs = InferenceService.insertIntermediateActions(docs);
+        docs = InferenceService.sharesToParcels(docs);
+        // filter out inert docs
+        docs = docs.filter(d => d.actions && d.actions.some(a => a.transactionType));
         // Add ids
 
         docs.map(p => {

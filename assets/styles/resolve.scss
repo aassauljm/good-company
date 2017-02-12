@@ -21,9 +21,12 @@
     }
     .row-separated{
         margin-bottom:40px;
-        .col-md-5:first-child{
-            text-align: right;
+        @media (min-width:$screen-md-min){
+            .col-md-5:first-child{
+                text-align: right;
+            }
         }
+
     }
 }
 
@@ -42,6 +45,7 @@
     }
 
     .list-controls.btn-group-vertical{
+        width:30px;
         .btn{
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
@@ -49,4 +53,6 @@
             padding: 17px 8px;
         }
     }
+
+
 }

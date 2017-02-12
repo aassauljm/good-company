@@ -54,33 +54,33 @@ function transferRecipients(siblings){
 // all the same
 function renderChange(action, shareClassMap){
     const date = stringDateToFormattedString(action.effectiveDate);
-    return `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
+    return `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderTransferTo(action, shareClassMap){
     const date = stringDateToFormattedString(action.effectiveDate);
-    return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
+    return  `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderTransferFrom(action, shareClassMap){
     const date = stringDateToFormattedString(action.effectiveDate);
-    return  `${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} on ${date}`
+    return  `${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} on ${date}`
 }
 
 function renderChangeFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)}`
 }
 
 function renderConversionFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.beforeAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${numberWithCommas(action.data.afterAmount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.beforeAmount)} ${renderShareClass(action.shareClass, shareClassMap)} to ${numberWithCommas(action.afterAmount)} ${renderShareClass(action.shareClass, shareClassMap)}`
 }
 
 function renderTransferToFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} from ${transferSenders(action.siblings)}`
 }
 
 function renderTransferFromFull(action, shareClassMap){
-    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)} to ${transferRecipients(action.siblings)}`
+    return `${STRINGS.transactionVerbs[action.type]} of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)} to ${transferRecipients(action.siblings)}`
 }
 
 /*function renderHoldingChange(action, shareClassMap){
@@ -93,11 +93,11 @@ function renderTransferFromFull(action, shareClassMap){
 }*/
 
 function renderAmbigiousChangeFull(action, shareClassMap){
-    if(action.type === TransactionTypes.NEW_ALLOCATION || action.data.afterAmount > action.data.beforeAmount){
-        return `Ambiguous increase of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`;
+    if(action.type === TransactionTypes.NEW_ALLOCATION || action.afterAmount > action.beforeAmount){
+        return `Ambiguous increase of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)}`;
     }
     else{
-        return `Ambiguous decrease of ${numberWithCommas(action.data.amount)} ${renderShareClass(action.data.shareClass, shareClassMap)}`
+        return `Ambiguous decrease of ${numberWithCommas(action.amount)} ${renderShareClass(action.shareClass, shareClassMap)}`
     }
 }
 
@@ -210,18 +210,10 @@ function transactionRows(row, shareClassMap){
     results.sort((a, b) => a.generation - b.generation);
     let total = row.last_amount;
     return results.map((r, i) =>{
-        const _total = total
-        //if(increaseTypes.indexOf(r.type) >= 0){
-        if(r.data.beforeAmount < r.data.afterAmount){
-            total -= r.data.amount;
-        }
-        else{
-            total += r.data.amount;
-        }
         return <tr key={i}>
             <td className="date">{ stringDateToFormattedString(r.effectiveDate) }</td>
             <td className="description">{ renderActionFull(r, shareClassMap) } </td>
-            {/* <td className="total">{ numberWithCommas(_total) }</td> */ }
+             <td className="total">{ numberWithCommas(r.afterAmount) }</td>
             </tr>
     });
 }
@@ -376,15 +368,16 @@ export class ShareRegisterDocument extends React.Component {
         return <div>
             <h3>Transaction History</h3>
             { shareRegister.map((s, i) => {
-                return <div key={i}><h5>{s.name} { s.holdingName && `(${s.holdingName})` } - {renderShareClass(s.shareClass, shareClassMap)} Shares</h5>
-                 <table className="table share-register transaction-history">
+                const title = `${s.name} ${ s.holdingName && `(${s.holdingName})` } - ${renderShareClass(s.shareClass, shareClassMap)} Shares`;
+                return <table key={i} className="table share-register transaction-history">
                         <thead>
+                            <tr><th colSpan="2">{ title }</th><th className="total">Total</th></tr>
                         </thead>
                         <tbody>
                             { transactionRows(s, shareClassMap) }
                         </tbody>
                     </table>
-                    </div>
+
             })}
             </div>
     }

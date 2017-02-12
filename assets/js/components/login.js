@@ -14,6 +14,7 @@ import { replace } from 'react-router-redux'
 @pureRender
 export class LoginWithCatalex extends React.Component {
     static propTypes = { login: React.PropTypes.object };
+
     componentDidMount() {
         this.nav()
     }

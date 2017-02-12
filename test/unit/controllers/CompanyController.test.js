@@ -14,6 +14,7 @@ var login = function(req){
         })
 }
 
+exports.login = login;
 
 describe('Company Controller', function() {
 
@@ -388,7 +389,7 @@ describe('Company Controller', function() {
             req.get(`/api/company/${companyId}/pending_history`)
                 .then(response => {
                     let doc = response.body.filter(a => a.data && a.data.documentId === "4510995" && a.data.transactionType !== 'COMPOUND_REMOVALS')[0];
-                    doc.data.actions[1].amount.should.be.equal(4000000);
+                    doc.data.actions[1].parcels[0].amount.should.be.equal(4000000);
                     done();
                 })
             .catch(done)
@@ -623,10 +624,13 @@ describe('Company Controller', function() {
         it('check share register', function(done){
             req.get('/api/company/'+companyId+'/share_register')
                 .then(function(res){
+                    //console.log(JSON.stringify(res.body.shareRegister, null, 4))
                     res.body.shareRegister[0].issueHistory.length.should.be.at.least(0);
                     res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
                     res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
                     res.body.shareRegister.map(s => {
+                        //if(!s.shareClass)
+                        //console.log(s)
                         should.equal(s.shareClass, classes['Class A']);
                     });
                     done();
@@ -634,12 +638,12 @@ describe('Company Controller', function() {
 
             .catch(done)
         });
-        return;
+
 
         it('check transaction history', function(done){
             req.get('/api/company/'+companyId+'/transactions')
                 .then(function(res){
-                    res.body.transactions.length.should.be.equal(39);
+                    res.body.transactions.length.should.be.equal(32);
                     done();
                 })
             .catch(done)
@@ -656,7 +660,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(29);
+                    res.body.length.should.be.equal(22);
                     done();
                 })
                 .catch(done)
@@ -1003,7 +1007,24 @@ describe('Company Controller', function() {
                     // TODO, resolve this crazy doc
                 });
         });
-
     });
+
+  /* describe('PROJECT MANAGER HOLDINGS (2118589)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/2118589')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+
+    }); */
 
 });

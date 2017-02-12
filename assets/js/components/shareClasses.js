@@ -132,7 +132,7 @@ export class ShareClassForm extends React.Component {
         const referenceUrl = 'https://browser.catalex.nz/open_article/instrument/DLM320143';
         const constitutionDocument = this.props.companyState && this.props.companyState.docList && this.props.companyState.docList.documents.find(d => d.filename === 'Adoption Of Constitution');
 
-        return <form onSubmit={handleSubmit(this.submit)}>
+        return <form onSubmit={handleSubmit(this.submit)} className="share-class-form">
             <fieldset>
             {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 37">Learn more about share classes</LawBrowserLink></div> */ }
             <Input type="text" {...fields.name} bsStyle={fieldStyle(fields.name)} help={fieldHelp(fields.name)} label="Share Class Name" className="share-class-name" hasFeedback />
@@ -310,7 +310,7 @@ export class ShareClassesTable extends React.Component {
 
     renderList(data) {
         return <div>
-            <table className="table table-hover table-striped">
+            <table className="table table-hover table-striped share-class-table">
                 <thead>
                 <tr>{ ShareClassesTable.fields.map((f, i) => {
                     return <th key={i}>{STRINGS.shareClasses[f]._ || STRINGS.shareClasses[f]}</th>
@@ -332,7 +332,7 @@ export class ShareClassesTable extends React.Component {
 
             { this.props.transactionViewButton && <div className="button-row">
                { this.props.end && <Button onClick={() => this.props.end({cancelled: true})}>Cancel</Button> }
-               <Button bsStyle="primary" onClick={this.props.createTransactionView}>Create New Share Class</Button>
+               <Button bsStyle="primary" className="create-new" onClick={this.props.createTransactionView}>Create New Share Class</Button>
                { !!data.length && <Button bsStyle="success" onClick={this.props.end}>Finished Creating Share Classes</Button> }
             </div> }
 
@@ -346,7 +346,7 @@ export class ShareClassesTable extends React.Component {
     render() {
         const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
         return <LawBrowserContainer lawLinks={shareClassLawLinks()}>
-            <div className="widget">
+            <div className="widget share-classes">
                 <div className="widget-header">
                     <div className="widget-title">
                         Share Classes

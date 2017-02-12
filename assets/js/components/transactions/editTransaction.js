@@ -22,14 +22,17 @@ import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
 import { InvalidIssue } from './resolvers/unknownShareChanges'
 import { Shareholder } from '../shareholders';
+import Loading from '../loading';
 import firstBy from 'thenby';
 
 const TRANSACTION_ORDER = {
     [TransactionTypes.COMPOUND_REMOVALS]: 1
 }
 
+const DEFAULT_OBJ = {};
+
 @connect((state, ownProps) => {
-    return {};
+    return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
@@ -65,11 +68,16 @@ export class EditTransactionView extends React.Component {
                 this.handleClose();
             })
         }
-        if(hasAmend || !actionSet){
-            return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
+        if(this.props.updating._status !== 'fetching'){
+            if(hasAmend || !actionSet){
+                return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction', cancel: () =>  this.props.end({cancelled: true}) })
+            }
+            else{
+                return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction', cancel: () =>  this.props.end({cancelled: true})})
+            }
         }
         else{
-            return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
+            return <Loading />
         }
     }
 
@@ -86,11 +94,6 @@ export class EditTransactionView extends React.Component {
                 { this.props.transactionViewData.actionSet && basicSummary(this.props.transactionViewData, this.props.transactionViewData.companyState) }
                 { this.renderBody() }
               </TransactionView.Body>
-              <TransactionView.Footer>
-            <div className="button-row">
-            <Button onClick={() =>  this.props.end({cancelled: true})} >Cancel</Button>
-            </div>
-              </TransactionView.Footer>
             </TransactionView>
     }
 }

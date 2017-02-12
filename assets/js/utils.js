@@ -178,10 +178,6 @@ export function numberWithCommas(x) {
 
 export function stringDateToFormattedString(date){
     return moment(date).format('D MMM YYYY')
-    //use moment
-    //const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    //const d = new Date(date);
-    //return [d.getDate() , MONTHS[d.getMonth()] , d.getFullYear()].join(' ');
 }
 
 
@@ -309,11 +305,16 @@ export function isNaturalPerson(person){
 
 export function generateShareClassMap(companyState){
     if(companyState && companyState.shareClasses && companyState.shareClasses.shareClasses){
-        return companyState.shareClasses.shareClasses.reduce((acc, s) => {
+        const results = companyState.shareClasses.shareClasses.reduce((acc, s) => {
             acc[s.id] = s;
             return acc;
         }, {});
+        if(companyState.shareClasses.shareClasses.length === 1){
+            results[undefined] = companyState.shareClasses.shareClasses[0];
+        }
+        return results;
     }
+
     return {};
 }
 
