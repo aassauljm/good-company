@@ -465,7 +465,7 @@ const DEFAULT_OBJ = {};
         addNotification: (args) => dispatch(addNotification(args)),
         updateAction: (args) => {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
-                invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
+                invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
             .then(() => {
                 ownProps.end();
