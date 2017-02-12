@@ -25,35 +25,57 @@ function createLawLinks(list){
     </div>
 }
 
-function RenderListItemControls({ componentProps, minItems, index }) {
+function MoveUpButton({ onclick }) {
+    return(
+        <button type="button" className="btn btn-default" onClick={onclick}>
+            <Glyphicon glyph="arrow-up"/>
+        </button>
+    );
+}
+
+function MoveDownButton({ onclick }) {
+    return (
+        <button type="button" className="btn btn-default" onClick={onclick}>
+            <Glyphicon glyph="arrow-down"/>
+        </button>
+    );
+}
+
+function RemoveButton({ onclick }) {
+    return (
+        <button type="button" className="btn btn-default" onClick={onclick}>
+            <Glyphicon glyph="remove"/>
+        </button>
+    );
+}
+
+function ListItemControls({ componentProps, minItems, index }) {
     const showRemoveButton = componentProps.length > minItems;
-    const showUpArrow = index > 0;
-    const showDownArrow = index + 1 !== componentProps.length;
+    const showUpButton = index > 0;
+    const showDownButton = index + 1 !== componentProps.length;
 
     // If no controls will be displayed, don't render the controls container either
-    if (!(showRemoveButton || showUpArrow || showDownArrow)) {
+    if (!(showRemoveButton || showUpButton || showDownButton)) {
         return false;
     }
 
+    const removeItem = () => componentProps.removeField(index);
+    const moveItemUp = () => componentProps.swapFields(index, index - 1);
+    const moveItemDown = () => componentProps.swapFields(index, index + 1);
 
     return (
-        <div className="text-right">
-            <div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
-                { showUpArrow &&
-                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(index, index - 1) }>
-                        <Glyphicon glyph="arrow-up"/>
-                    </button>
-                }
-                { showDownArrow &&
-                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(index, index + 1) }>
-                        <Glyphicon glyph="arrow-down"/>
-                    </button>
-                }
-                { showRemoveButton &&
-                    <button type="button" className="btn btn-default" onClick={() => componentProps.removeField(index) }>
-                        <Glyphicon glyph="remove"/>
-                    </button>
-                }
+        <div>
+            <div className="text-right">
+                <div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
+                    { showUpButton && <MoveUpButton index={index} onclick={moveItemUp} /> }
+                    { showDownButton && <MoveDownButton index={index} onclick={moveItemDown} /> }
+                    { showRemoveButton && <RemoveButton index={index} onclick={removeItem} /> }
+                </div>
+            </div>
+            <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block" style={{zIndex: 100}}>
+                { showUpButton && <MoveUpButton index={index} onclick={moveItemUp} /> }
+                { showRemoveButton && <RemoveButton index={index} onclick={removeItem} /> }
+                { showDownButton && <MoveDownButton index={index} onclick={moveItemDown} /> }
             </div>
         </div>
     );
@@ -67,36 +89,19 @@ function renderList(fieldProps, componentProps) {
                 { componentProps.map((c, i) => {
                     return (
                         <div className="list-item" key={c._keyIndex.value || i}>
-
-                            <RenderListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} />
+                            <ListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} />
 
                             <div className="list-form-set">
                                 { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }
-                            </div>
-
-                            <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block">
-                                { i > 0  &&
-                                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }>
-                                        <Glyphicon glyph="arrow-up" />
-                                    </button>
-                                }
-                                <button type="button" className="btn btn-default"onClick={() => componentProps.removeField(i) }>
-                                    <Glyphicon glyph="remove" />
-                                </button>
-                                { i < componentProps.length - 1  &&
-                                    <button type="button" className="btn btn-default"onClick={() => componentProps.swapFields(i, i + 1) }>
-                                        <Glyphicon glyph="arrow-down" />
-                                    </button>
-                                }
                             </div>
                         </div>
                     );
                 }) }
             </Shuffle>
              <div className="button-row">
-                <Button onClick={() => {
-                    componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: getKey()});
-                    } } >{ addItem(fieldProps.items) } </Button>
+                <Button onClick={() => {componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: getKey()});
+                    } } >{ addItem(fieldProps.items) }
+                </Button>
             </div>
         </fieldset>
     );
