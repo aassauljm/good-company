@@ -174,7 +174,7 @@ class Recipient extends React.Component {
 
 function Recipients(props){
 
-    return <div className="col-md-6 col-md-offset-3">
+    return <div className="">
             <Shuffle>
                 { props.recipients.map((r, i) => {
                     const show = !r.isInverse.value;
@@ -223,6 +223,18 @@ function Recipients(props){
 }
 
 
+class AmendActionSummary extends React.Component {
+    render() {
+        return <div classname="amend-summary">
+            { this.props.action.parcels.map((p, i) => {
+                const parcelString = `${p.amount} ${renderShareClass(p.shareClass, this.props.shareClassMap)}`;
+                return <div key={i} className="parcel-row">{ parcelString }</div>
+            })}
+
+            { renderHolders(this.props.action.afterHolders || this.props.action.holders) }
+        </div>
+    }
+}
 
 class AmendOptions extends React.Component {
     renderTransfer(action, actions) {
@@ -237,8 +249,6 @@ class AmendOptions extends React.Component {
     renderAfterParcels(field) {
         const parcels = field.afterParcels;
         return this.props.shareOptions.length > 1 &&
-             <div className="row">
-             <div className="col-md-6 col-md-offset-3">
                 <Panel title="Share counts after all transactions">
                     { parcels.map((p, i) =>{
                         const remove = parcels.length > 1 && (() => parcels.removeField(i));
@@ -246,8 +256,6 @@ class AmendOptions extends React.Component {
                         return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove} forceShareClass={true}/>
                     }) }
                 </Panel>
-            </div>
-            </div>
     }
 
     render() {
@@ -279,27 +287,31 @@ class AmendOptions extends React.Component {
                 const action = field.data.value;
                 const increase = actionAmountDirection(action);
 
-                return <div  key={i}>
-                    { beforeAndAfterSummary({action: action, shareClassMap: this.props.shareClassMap}, this.props.companyState) }
+                return <div  key={i} >
+                    <div className="row">
+                        <div className="col-md-6">
+                            <AmendActionSummary action={action} shareClassMap={this.props.shareClassMap} companyState={this.props.companyState } />
 
-                    { this.renderAfterParcels(field) }
+                            { this.renderAfterParcels(field) }
 
-                <div className="row">
-                    <div className="text-center">
-                        <p><strong>This change is comprised of:</strong></p>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="text-center">
+                                <p><strong>This change is comprised of:</strong></p>
+                            </div>
+                            <Recipients
+                                effectiveDate={this.props.effectiveDate}
+                                recipients={actions[i].recipients}
+                                data={actions[i].data}
+                                increase={increase}
+                                error={getError(i)}
+                                shareClassMap={shareClassMap}
+                                shareOptions={this.props.shareOptions}
+                                defaultShareClass={this.props.defaultShareClass}
+                                holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
+                        </div>
                     </div>
-                    <Recipients
-                        effectiveDate={this.props.effectiveDate}
-                        recipients={actions[i].recipients}
-                        data={actions[i].data}
-                        increase={increase}
-                        error={getError(i)}
-                        shareClassMap={shareClassMap}
-                        shareOptions={this.props.shareOptions}
-                        defaultShareClass={this.props.defaultShareClass}
-                        holdings={holdings.map(amountRemaining).filter(h => h.index !== i)} />
-                </div>
-                <hr/>
+                    <hr/>
                 </div>
             }) }
 

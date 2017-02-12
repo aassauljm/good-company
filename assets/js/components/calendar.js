@@ -85,7 +85,7 @@ class Day extends React.Component {
                 <div>{ title.map((t, i) => <div key={i} className="tooltip-entry">{t}</div>)}</div>
             </Tooltip>;
             return  <OverlayTrigger placement="top" overlay={tooltip} hover={true}>
-                    { day }
+                { day }
             </OverlayTrigger>
         }
         return day;
