@@ -228,7 +228,7 @@ PAGES[LOADING] = function() {
         destroyForm: (args) => dispatch(destroy(args)),
         updateAction: (args) => {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
-                invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
+                invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
             .then((r) => {
                 dispatch(destroy('amend'));
