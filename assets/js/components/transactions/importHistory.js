@@ -55,7 +55,7 @@ function TransactionSummaries(props) {
                 const required = requiresEdit(p.data);
                 const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed);
                 const showConfirm = !required && !showUnconfirm;
-                const editable = true; //isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed);
+                const editable = isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed);
                 let className = "panel panel-default"
                 if(required){
                     className = "panel panel-danger"
@@ -119,6 +119,15 @@ function isEditable(data){
     }
 
     const editableTypes = {
+        [TransactionTypes.ISSUE]: true,
+        [TransactionTypes.CONVERSION]: true,
+        [TransactionTypes.REDEMPTION]: true,
+        [TransactionTypes.PURCHASE]: true,
+        [TransactionTypes.ACQUISITION]: true,
+        [TransactionTypes.CANCELLATION]: true,
+        [TransactionTypes.CONSOLIDATION]: true,
+        [TransactionTypes.CONVERSION]: true,
+        [TransactionTypes.SUBDIVISION]: true,
         [TransactionTypes.ISSUE_TO]: true,
         [TransactionTypes.AMEND]: true,
         [TransactionTypes.NEW_ALLOCATION]: true,
@@ -273,13 +282,12 @@ export class ImportHistoryTransactionView extends React.Component {
                 if(!action.response.complete){
                     this.props.next({index: EXPLAINATION});
                 }
-
                 else{
                     this.props.end();
                 }
             })
             .catch(e => {
-                this.handleResolve(this.props.importHistory.error, EXPLAINATION);
+                this.handleResolve(this.props.importHistory.error, CONTINUE);
             })
     }
 

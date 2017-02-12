@@ -412,10 +412,10 @@ function findHolding(holding, action, companyState, errors={}){
         current = companyState.getMatchingHoldings(holding, {ignoreCompanyNumber: true});
     }
     if(!current.length){
-        const holding = companyState.getMatchingHolding({...holding, parcels: null},  {ignoreCompanyNumber: true});
-        if(holding && holding.sumOfParcels() === _.sum(holding.parcels, 'amount')){
+        const candidate = companyState.getMatchingHolding({...holding, parcels: null},  {ignoreCompanyNumber: true});
+        if(candidate && candidate.sumOfParcels() === _.sum(holding.parcels, 'amount')){
             throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
-                action: amend,
+                action: action,
                 companyState: companyState,
                 importErrorType: sails.config.enums.UNKNOWN_AMEND
             })
@@ -695,7 +695,6 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
                 importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
             })
         }
-
         let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: data.parcels},
           data, companyState, {
             multiple: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
@@ -1377,7 +1376,7 @@ export function performInverseTransaction(data, company, rootState){
         .then(function(_prevState){
             prevState = _prevState;
             // loop over actions,
-            return Promise.reduce(data.actions, function(arr, action){
+            return Promise.reduce(data.actions.filter(a => !a.userSkip), function(arr, action){
                 sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;

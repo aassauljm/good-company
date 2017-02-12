@@ -41,12 +41,14 @@ class DateConfirmationForm extends React.Component {
                     { TransactionRenderMap[action.transactionType]({...action,  data: action, effectiveDate: action.effectiveDate || actionSet.effectiveDate, parentTransaction: actionSet, companyState: this.props.companyState}) }
 
                 <div className="row">
-                <div className="text-center">
-                <p><strong>Please confirm the effective date of this transaction:</strong></p>
-                    <div className="col-md-6 col-md-offset-3">
-                     <DateInput {...this.formFieldProps(['actions', i, 'effectiveDate'])} label="" time={true}/>
-                     </div>
-                </div>
+                    <div className="text-center">
+                        <p><strong>Please confirm the effective date of this transaction:</strong></p>
+                        <div className="col-md-6 col-md-offset-3">
+                            <DateInput {...this.formFieldProps(['actions', i, 'effectiveDate'])} label="" time={true}/>
+                        </div>
+
+
+                    </div>
                 </div>
                 <hr/>
                 </div>
@@ -61,7 +63,8 @@ class DateConfirmationForm extends React.Component {
     }
 }
 const dateConfirmationFields = [
-    'actions[].effectiveDate'
+    'actions[].effectiveDate',
+    'actions[].userSkip'
 ];
 
 const DateConfirmationFormConnected = reduxForm({

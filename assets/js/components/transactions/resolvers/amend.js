@@ -17,7 +17,7 @@ import { enums as TransactionTypes } from '../../../../../config/enums/transacti
 import { Holding } from '../../shareholdings';
 import { reduxForm } from 'redux-form';
 import Panel from '../../panel';
-import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './summaries'
+import { beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './summaries'
 import moment from 'moment';
 import Shuffle from 'react-shuffle';
 import { showContextualTransactionView } from '../../../actions';
@@ -147,7 +147,7 @@ class Recipient extends React.Component {
                 <div className="row">{ this.props.parcels.map((p, i) =>{
                     const remove = this.props.parcels.length > 1 && (() => this.props.parcels.removeField(i));
                     const add = this.props.parcels.length < this.props.shareOptions.length && (() => this.props.parcels.addField({}));
-                    return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove}/>
+                    return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove} forceShareClass={true}/>
                 }) }</div>
 
                 { optionalNotification(this.props.type.value) && <div className="input-row">
@@ -316,8 +316,9 @@ export function validateAmend(values, props) {
         const inferAmount = action.data ? action.data.inferAmount: false;
         const amounts = (action.data.parcels || []).reduce((acc, parcel) => {
             acc[parcel.shareClass || null] = {amount: parcel.afterAmount - parcel.beforeAmount, sum: 0, startAmount: parcel.beforeAmount || 0}
+            acc['merged'].amount += parcel.afterAmount - parcel.beforeAmount
             return acc;
-        }, {});
+        }, {merged: {amount: 0, sum: 0}});
 
         errors.recipients = action.recipients.map((recipient, j) => {
             const errors = {parcels: []};
@@ -335,7 +336,7 @@ export function validateAmend(values, props) {
                 else if(amount <= 0 && !inferred){
                     errors.parcels[i].amount = ['Must be greater than 0.'];
                 }
-                const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
+                const sourceParcel = (amounts['merged' || parcel.shareClass] || amounts[null] || {});
 
                 if(recipient.type){
                     sourceParcel.sum += absoluteAmount(recipient.type, amount);
@@ -372,11 +373,11 @@ export function validateAmend(values, props) {
 
         if(!action.recipients.length){
             formErrors.actions = formErrors.actions || [];
-            formErrors.actions[i] = ['Required.'];
+            formErrors.actions[i] = ['At least 1 transaction required.'];
         }
 
         (action.data.parcels || []).map((parcel, j) => {
-            const sourceParcel = (amounts[parcel.shareClass] || amounts[null]);
+            const sourceParcel = (amounts['merged' || parcel.shareClass] || amounts[null]);
 
             if(!inferAmount && sourceParcel.sum !== sourceParcel.amount){
                 formErrors.actions = formErrors.actions || [];
@@ -403,6 +404,8 @@ const amendFields = [
     'actions[].recipients[].type',
     'actions[].recipients[].parcels[].amount',
     'actions[].recipients[].parcels[].shareClass',
+    'actions[].recipients[].parcels[].beforeAmount',
+    'actions[].recipients[].parcels[].afterAmount',
     'actions[].recipients[].effectiveDate',
     'actions[].recipients[].holding',
     'actions[].recipients[].isInverse',
@@ -410,6 +413,9 @@ const amendFields = [
     'actions[].recipients[].notified',
     'actions[].recipients[]._keyIndex',
     'actions[].data',
+    'actions[].parcels[].beforeAmount',
+    'actions[].parcels[].afterAmount',
+    'actions[].parcels[].shareClass'
 ];
 
 const AmendOptionsConnected = reduxForm({
@@ -497,10 +503,11 @@ export function formatSubmit(values, actionSet) {
                 action.parcels = action.parcels.map(p => {
                     p = {...p}
                     const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
+                    // if share class has changed.....
                     p.afterAmount = original.parcels[parcelIndex].afterAmount;
                     p.beforeAmount = p.afterAmount + (isIncrease(action.transactionType) ? -p.amount : p.amount);
-                    original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
-                    original.parcels[parcelIndex].afterAmount = p.beforeAmount;
+                    //original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
+                    //original.parcels[parcelIndex].afterAmount = p.beforeAmount;
                     return p;
                 });
                 if(action.parcels.every(p => p.beforeAmount === 0) && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {

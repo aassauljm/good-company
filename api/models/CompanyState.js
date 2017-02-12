@@ -877,7 +877,6 @@ module.exports = {
             },
 
             getMatchingHoldings: function(holding,  options={}){
-
                 return _.filter(this.dataValues.holdingList.dataValues.holdings, function(h){
                     if(holding.holdingId){
                         return holding.holdingId === h.holdingId
