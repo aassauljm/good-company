@@ -25,27 +25,35 @@ function createLawLinks(list){
     </div>
 }
 
-function RenderListItemControls({ visible, showUpArrow, showDownArrow }) {
-    if (visible) {
+function RenderListItemControls({ componentProps, minItems, index }) {
+    const showRemoveButton = componentProps.length > minItems;
+    const showUpArrow = index > 0;
+    const showDownArrow = index + 1 !== componentProps.length;
+
+    // If no controls will be displayed, don't render the controls container either
+    if (!(showRemoveButton || showUpArrow || showDownArrow)) {
         return false;
     }
+
 
     return (
         <div className="text-right">
             <div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
                 { showUpArrow &&
-                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i - 1) }>
+                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(index, index - 1) }>
                         <Glyphicon glyph="arrow-up"/>
                     </button>
                 }
                 { showDownArrow &&
-                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(i, i + 1) }>
+                    <button type="button" className="btn btn-default" onClick={() => componentProps.swapFields(index, index + 1) }>
                         <Glyphicon glyph="arrow-down"/>
                     </button>
                 }
-                <button type="button" className="btn btn-default" onClick={() => componentProps.removeField(i) }>
-                    <Glyphicon glyph="remove"/>
-                </button>
+                { showRemoveButton &&
+                    <button type="button" className="btn btn-default" onClick={() => componentProps.removeField(index) }>
+                        <Glyphicon glyph="remove"/>
+                    </button>
+                }
             </div>
         </div>
     );
@@ -60,10 +68,7 @@ function renderList(fieldProps, componentProps) {
                     return (
                         <div className="list-item" key={c._keyIndex.value || i}>
 
-                            <RenderListItemControls
-                                visible={componentProps.length <= 1}
-                                showUpArrow={i > 0}
-                                showDownArrow={i + 1 !== componentProps.length} />
+                            <RenderListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} />
 
                             <div className="list-form-set">
                                 { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }
