@@ -56,7 +56,7 @@ const CommonInfo = (props) => {
 
                     <div className="transaction-row">
                         <div className="transaction-label">{ STRINGS.transactionTypes._ }</div>
-                        <div className="transaction-value">{ STRINGS.transactionTypes[props.type] }</div>
+                        <div className="transaction-value">{ STRINGS.transactionTypes[props.type || props.transactionType] }</div>
                     </div>
 
                     <div className="transaction-row">

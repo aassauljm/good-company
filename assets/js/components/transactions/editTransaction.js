@@ -70,10 +70,10 @@ export class EditTransactionView extends React.Component {
         }
         if(this.props.updating._status !== 'fetching'){
             if(hasAmend || !actionSet){
-                return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
+                return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction', cancel: () =>  this.props.end({cancelled: true}) })
             }
             else{
-                return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction'})
+                return DateConfirmation({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction', cancel: () =>  this.props.end({cancelled: true})})
             }
         }
         else{
@@ -94,11 +94,6 @@ export class EditTransactionView extends React.Component {
                 { this.props.transactionViewData.actionSet && basicSummary(this.props.transactionViewData, this.props.transactionViewData.companyState) }
                 { this.renderBody() }
               </TransactionView.Body>
-              <TransactionView.Footer>
-            <div className="button-row">
-            <Button onClick={() =>  this.props.end({cancelled: true})} >Cancel</Button>
-            </div>
-              </TransactionView.Footer>
             </TransactionView>
     }
 }

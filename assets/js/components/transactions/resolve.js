@@ -41,7 +41,7 @@ function skipOrRestart(props){
         { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
         <div className="button-row">
             { allowSkip && <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
         </div>
     </div>
 }
@@ -79,8 +79,9 @@ function AddressDifference(props){
          <p>Found: "{ context.companyState[context.action.field] }"</p>
          </div>
         <div className="button-row">
+            <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             { <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
         </div>
     </div>
 }
@@ -100,8 +101,9 @@ function AnnualReturnHoldingDifference(props){
     return <div>
          <p className="instructions">Sorry, the Shareholdings described in the Annual Return linked above do not match our records.</p>
         <div className="button-row">
+            <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
         </div>
     </div>
 }
@@ -124,8 +126,9 @@ function DirectorNotFound(props){
         { context.action.transactionType === TransactionTypes.UPDATE_DIRECTOR &&
                 <p className="instructions">It is possible that this directorship has ceased, please consider editing the date of this transaction.</p> }
         <div className="button-row">
+            <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
             { edit &&  <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>}
         </div>
     </div>
@@ -193,8 +196,9 @@ function MultipleDirectors(props){
             </div>
         </div>
         <div className="button-row">
+        <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
             { edit &&  <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>}
         </div>
     </div>
@@ -266,7 +270,8 @@ function HolderNotFound(props){
         <div className="row">
             <div className="col-md-12">
             <div className="button-row">
-                <Button onClick={startOver} className="btn-danger">Restart Import</Button>
+                <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
+                <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
             </div>
             </div>
         </div>
@@ -375,6 +380,7 @@ function HoldingNotFound(props){
          <div className="col-md-6">{ possibleMatches.filter((f, i) => i % 2 === 1).map((m, i) => <div key={i}><Holding holding={m} total={companyState.totalShares} select={handleSelect} shareClassMap={shareClassMap}/></div>) }</div>
          </div>
          { edit && <div className="button-row">
+         <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
            <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>
         </div> }
 
@@ -502,7 +508,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
                     <hr/>
                     <div><p>An unknown problem occured while importing.  Please Restart the import process.</p></div>
                     <div className="button-row">
-                        <Button onClick={this.props.resetAction} className="btn-danger">Restart Import</Button>
+                        <Button onClick={this.props.resetAction} className="btn-danger">Restart Reconciliation</Button>
                     </div>
                 </div>
         }
@@ -538,11 +544,6 @@ export class ResolveAmbiguityTransactionView extends React.Component {
               <TransactionView.Body>
                 { this.renderBody() }
               </TransactionView.Body>
-              <TransactionView.Footer>
-            <div className="button-row">
-            <Button onClick={this.props.cancel} >Cancel</Button>
-            </div>
-              </TransactionView.Footer>
             </TransactionView>
     }
 }

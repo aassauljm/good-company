@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, createResource, updateResource, addNotification } from '../../actions';
-import { pureRender, stringDateToFormattedString } from '../../utils';
+import { pureRender, stringDateToFormattedString, generateShareClassMap } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import { Link } from 'react-router'
@@ -55,7 +55,7 @@ function TransactionSummaries(props) {
                 const required = requiresEdit(p.data);
                 const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed);
                 const showConfirm = !required && !showUnconfirm;
-                const editable = isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed);
+                const editable = true; //isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed);
                 let className = "panel panel-default"
                 if(required){
                     className = "panel panel-danger"
@@ -70,7 +70,7 @@ function TransactionSummaries(props) {
                                     <div className="col-md-8">
                                     { p.data.actions.map((action, i) => {
                                         const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
-                                            return  Terse && <Terse {...action} key={i}/>
+                                            return  Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
                                         }) }
                                     </div>
                                     <div className="col-md-1">{
@@ -90,10 +90,10 @@ function TransactionSummaries(props) {
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
         { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }
-        {  !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
+        { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
 
-        { pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions</Button> }
-        { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete reconciliation</Button> }
+        { pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
+        { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
 
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
@@ -161,6 +161,7 @@ PAGES[EXPLAINATION] = function() {
         const pendingYearActions = collectActions(this.props.pendingHistory.data);
         if(pendingYearActions.length){
             return <TransactionSummaries
+                shareClassMap={generateShareClassMap(this.props.transactionViewData.companyState) }
                 pendingActions={pendingYearActions}
                 handleStart={this.handleStart}
                 handleAddNew={this.handleAddNew}

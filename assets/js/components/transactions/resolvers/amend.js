@@ -254,6 +254,7 @@ class AmendOptions extends React.Component {
 
         return <form onSubmit={this.props.handleSubmit}>
             <div className="button-row">
+            <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
                 <Button  onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
@@ -298,6 +299,7 @@ class AmendOptions extends React.Component {
                      })}}>Add Shareholding</Button>
             </div>
              <div className="button-row">
+             <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
@@ -621,6 +623,7 @@ export default function Amend(props){
             shareOptions={shareOptions}
             defaultShareClass={defaultShareClass}
             onSubmit={handleSubmit}
+            cancel={props.cancel}
             initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass)}
             show={props.show}
             transactionViewData={props.transactionViewData}

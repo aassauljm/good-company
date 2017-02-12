@@ -31,11 +31,6 @@ class DateConfirmationForm extends React.Component {
         }
 
         return <form onSubmit={this.props.handleSubmit}>
-            { /* <div className="button-row">
-                <Button onClick={this.props.resetForm}>Reset</Button>
-                <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
-            </div>
-                    */ }
                     <hr/>
             { actions.map((field, i) => {
                 const action = amendActions[i];
@@ -58,6 +53,7 @@ class DateConfirmationForm extends React.Component {
             }) }
 
             <div className="button-row">
+                <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
              <Button onClick={this.props.resetForm}>Reset</Button>
                 <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
             </div>
@@ -115,6 +111,7 @@ export function DateConfirmation(props){
             amendActions={actions }
             actionSet={actionSet.data}
             effectiveDate={moment(actionSet.data.effectiveDate).startOf('day').toDate()}
+            cancel={props.cancel}
             companyState={companyState}
             shareClassMap={shareClassMap}
             onSubmit={handleSubmit}
