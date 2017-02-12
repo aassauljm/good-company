@@ -97,8 +97,8 @@ module.exports = {
                     return false;
                 }
                 var clean = function(list){
-                    // because of captials here: http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720700/entityFilingRequirement
-                    // we will now do case insensitive
+                    // because of capitals here: http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720700/entityFilingRequirement
+                    // we will do case insensitive tests
                     return _.sortBy(list.map(function(s){
                         return _.pick(_.pick(s.get ? s.get() : s, 'name', ignoreCompanyNumber ? null : 'companyNumber'), _.identity);
                     }), 'name');

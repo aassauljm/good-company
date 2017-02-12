@@ -250,7 +250,7 @@ module.exports = {
                             transaction: null,
                             transactionId: null,
                             pending_historic_action_id: pendingActions[0].id,
-                            previousCompanyStateId: null}, {newRecords: true})
+                            previousCompanyStateId: null}, {newRecords: false})
                     })
                     .then(function(_newRoot){
                         newRoot = _newRoot

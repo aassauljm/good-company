@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 
 var fs = Promise.promisifyAll(require("fs"));
 import moment from 'moment';
-import { formatInitialState, formatSubmit, validateAmend, collectAmendActions } from '../../../assets/js/components/transactions/resolvers/amend';
+import { formatInitialState, formatSubmit, validateAmend, collectAmendActions,  guessAmendAfterAmounts } from '../../../assets/js/components/transactions/resolvers/amend';
 import isValid from 'redux-form/lib/isValid'
 
 function valuesAndActionsFromJSON(path){
@@ -45,6 +45,18 @@ describe('Amend format', () => {
             });
         });
 });
+
+describe('Amend matches up share class from company state', () => {
+    it('find each holding from company state, sets after parcels', function(){
+            return fs.readFileAsync('test/fixtures/transactionData/projectManagerHoldingsDefineSharesError.json', 'utf8')
+            .then(data => {
+                data = JSON.parse(data);
+                const values = formatInitialState(collectAmendActions(data.context.actionSet.data.actions), null, null, data.context.companyState);
+                values.actions[1].afterParcels.length.should.be.equal(2);
+            });
+        });
+});
+
 
 describe('Amend validate', () => {
     it('confirms invalid amend form values report as invalid, overallocated', function(){

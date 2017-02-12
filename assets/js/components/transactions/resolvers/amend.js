@@ -54,8 +54,8 @@ function optionalNotification(type){
     }[type]
 }
 
-function findHolding(companyState, action, existing){
-    // same names, forget addresses for nwo
+function findHolding(companyState, action, existing = []){
+    // same names, forget addresses for now
     function personsMatch(h1, h2){
         const h2Names = h2.map(h => h.name.toLowerCase());
         return h1.every(p => h2Names.indexOf(p.name.toLowerCase()) >= 0)
@@ -67,10 +67,9 @@ function findHolding(companyState, action, existing){
         const sum2 = p2.reduce((sum, p) => sum+p.amount, 0);
         return sum1 === sum2;
     }
-
     return companyState.holdingList.holdings.filter(h => {
-        return personsMatch(action.afterHolders || action.holders, h.holders) &&
-                parcelsMatch([{amount: action.afterAmount || action.amount, shareClass: action.shareClass}], h.parcels) &&
+        return personsMatch(action.afterHolders || action.holders, h.holders.map(h => h.person)) &&
+                parcelsMatch(action.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass})), h.parcels) &&
                 existing.indexOf(h) < 0
     })[0];
 }
@@ -569,8 +568,6 @@ export function formatSubmit(values, actionSet) {
         delete newAllocations[k].afterHolders;
         delete newAllocations[k].beforeHolders;
     });
-
-
     transactions.map((t, orderIndex) => {
         pendingActions.push({id: actionSet.id, data: {...actionSet.data, orderIndex: orderIndex, effectiveDate: t[0].effectiveDate, totalShares: null, actions: t}, previous_id: actionSet.previous_id});
     });
@@ -578,7 +575,18 @@ export function formatSubmit(values, actionSet) {
     return pendingActions;
 }
 
-export function formatInitialState(amendActions, defaultDate, defaultShareClass){
+
+export function guessAmendAfterAmounts(action, defaultShareClass, companyState){
+    const holding = companyState && findHolding(companyState, action);
+    if(holding){
+        return holding.parcels.map(parcel => ({amount: parcel.amount, shareClass: parcel.shareClass + ''}))
+    }
+    return action.parcels.map(parcel => ({amount: parcel.afterAmount, shareClass:  (parcel.shareClass || defaultShareClass) + ''}))
+}
+
+
+
+export function formatInitialState(amendActions, defaultDate, defaultShareClass, companyState){
     const identity = x => x;
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
         return acc + (actionAmountDirection(action) ? 1 : 0)
@@ -602,7 +610,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass)
         let amount, holding;
         if(allSameDirection){
             return {
-                recipients: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
+                recipients: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
                 effectiveDate,  _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
             };
         }
@@ -611,7 +619,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass)
         if(a.parcels.every(p => amountValues[increase][p.amount] && amountValues[increase][p.amount].length === 1 &&
            amountValues[!increase][p.amount] && amountValues[!increase][p.amount].length === 1)){
             return {recipients: [{
-                parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
+                parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
                 type: increase ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM,
                 holding: amountValues[!increase][a.parcels[0].amount][0].index+'',
                 effectiveDate,
@@ -635,14 +643,14 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass)
 
 
         return {recipients: [{
-            parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: parcel.shareClass || defaultShareClass})),
+            parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
             type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding, isInverse: inverse
         }]};
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({
         ...a, data: amendActions[i],
-        afterParcels: amendActions[i].parcels.map(parcel => ({amount: parcel.afterAmount, shareClass:  parcel.shareClass || defaultShareClass}))
+        afterParcels: guessAmendAfterAmounts(amendActions[i], defaultShareClass, companyState)
     }))
     return initialValues;
 }
@@ -652,6 +660,7 @@ export default function Amend(props){
     const { context, submit } = props;
     const { actionSet, companyState } = context;
     const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
+
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
     const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;
     const shareClassMap = generateShareClassMap(companyState);
@@ -676,7 +685,7 @@ export default function Amend(props){
             defaultShareClass={defaultShareClass}
             onSubmit={handleSubmit}
             cancel={props.cancel}
-            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass)}
+            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass, companyState)}
             show={props.show}
             transactionViewData={props.transactionViewData}
             viewName={props.viewName}
