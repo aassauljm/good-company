@@ -1,0 +1,2504 @@
+{
+  "message": "Transaction must specify share classes",
+  "context": {
+    "action": {
+      "id": "990b5275-f2d8-4c15-8c21-0fa80d174956",
+      "parcels": [
+        {
+          "amount": 40000,
+          "afterAmount": 190000,
+          "beforeAmount": 150000
+        }
+      ],
+      "afterHolders": [
+        {
+          "name": "James B. CUMMING",
+          "address": "Suite 2304, 78 Harrison Garden Blvd, Toronto, Ontario, M2N 7E2, Canada",
+          "companyNumber": null
+        }
+      ],
+      "inferredType": true,
+      "beforeHolders": [
+        {
+          "name": "James B. CUMMING",
+          "address": "Suite 2304, 78 Harrison Garden Blvd, Toronto, Ontario, M2N 7E2, Canada",
+          "companyNumber": null
+        }
+      ],
+      "transactionType": "ISSUE_TO",
+      "transactionMethod": "AMEND",
+      "documentId": "22895734"
+    },
+    "companyState": {
+      "id": 10011,
+      "companyName": "PROJECT MANAGER HOLDINGS LIMITED",
+      "companyNumber": "2118589",
+      "nzbn": "9429032797404",
+      "incorporationDate": "2008-05-19T12:00:00.000Z",
+      "companyStatus": "Registered",
+      "entityType": "NZ Limited Company",
+      "constitutionFiled": true,
+      "arFilingMonth": "April",
+      "fraReportingMonth": null,
+      "registeredCompanyAddress": "Kanu Jeram Chartered Accountant Ltd, 112 Kitchener Road, Milford, Auckland, New Zealand",
+      "addressForShareRegister": "",
+      "addressForService": "Kanu Jeram Chartered Accountant Ltd, 112 Kitchener Road, Milford, Auckland, New Zealand",
+      "ultimateHoldingCompany": false,
+      "extensive": false,
+      "contactFields": null,
+      "reportingFields": null,
+      "warnings": {
+        "pendingHistory": true,
+        "extensiveWarning": false,
+        "shareClassWarning": false,
+        "applyShareClassWarning": false,
+        "missingVotingShareholders": false,
+        "treasuryStockOverAllocated": false
+      },
+      "createdAt": "2017-02-12T07:17:26.140Z",
+      "updatedAt": "2017-02-12T07:17:41.268Z",
+      "transactionId": null,
+      "h_list_id": 10007,
+      "previousCompanyStateId": null,
+      "director_list_id": 10004,
+      "register_id": null,
+      "doc_list_id": 10006,
+      "s_classes_id": 10004,
+      "historic_action_id": "a50b8736-cdfe-4e59-a6d8-6429d1cb8e39",
+      "pending_historic_action_id": "a50b8736-cdfe-4e59-a6d8-6429d1cb8e39",
+      "h_person_list_id": null,
+      "holdingList": {
+        "id": 10007,
+        "createdAt": "2017-02-12T07:17:39.579Z",
+        "updatedAt": "2017-02-12T07:17:39.705Z",
+        "holdings": [
+          {
+            "id": 10071,
+            "name": "Allocation 1",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.459Z",
+            "updatedAt": "2017-02-12T07:17:39.971Z",
+            "transactionId": 10040,
+            "holdingId": 10027,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.212Z",
+              "updatedAt": "2017-02-12T07:17:41.212Z",
+              "h_j_id": 10071,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10086,
+                "amount": 9450000,
+                "createdAt": "2017-02-12T07:17:37.576Z",
+                "updatedAt": "2017-02-12T07:17:40.869Z",
+                "shareClass": 10001
+              },
+              {
+                "id": 10087,
+                "amount": 90000,
+                "createdAt": "2017-02-12T07:17:37.577Z",
+                "updatedAt": "2017-02-12T07:17:40.871Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10111,
+                "data": {
+                  "votingShareholder": true
+                },
+                "createdAt": "2017-02-12T07:17:26.920Z",
+                "updatedAt": "2017-02-12T07:17:40.873Z",
+                "holdingId": 10071,
+                "holderId": 10086,
+                "person": {
+                  "id": 10086,
+                  "name": "Brent Murray James WESTLAND",
+                  "companyNumber": null,
+                  "address": "36 Margaret Henry Crescent, Albany, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:25.992Z",
+                  "updatedAt": "2017-02-12T07:17:40.880Z",
+                  "transactionId": null,
+                  "personId": 10003,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10112,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:26.919Z",
+                "updatedAt": "2017-02-12T07:17:40.874Z",
+                "holdingId": 10071,
+                "holderId": 10087,
+                "person": {
+                  "id": 10087,
+                  "name": "Cheryl Joy WESTLAND",
+                  "companyNumber": null,
+                  "address": "36 Margaret Henry Crescent, Albany, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:25.990Z",
+                  "updatedAt": "2017-02-12T07:17:40.884Z",
+                  "transactionId": null,
+                  "personId": 10002,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10113,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:26.917Z",
+                "updatedAt": "2017-02-12T07:17:40.876Z",
+                "holdingId": 10071,
+                "holderId": 10088,
+                "person": {
+                  "id": 10088,
+                  "name": "Jason Brent WESTLAND",
+                  "companyNumber": null,
+                  "address": "36 Margaret Henry Crescent, Oteha, North Shore City, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:25.987Z",
+                  "updatedAt": "2017-02-12T07:17:40.887Z",
+                  "transactionId": null,
+                  "personId": 10001,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": {
+              "id": 10040,
+              "type": "HOLDING_CHANGE",
+              "data": {
+                "holdingId": 10027,
+                "afterHolders": [
+                  {
+                    "name": "Brent Murray James WESTLAND",
+                    "address": "36 Margaret Henry Crescent, Albany, Auckland, New Zealand",
+                    "personId": 10003,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Cheryl Joy WESTLAND",
+                    "address": "36 Margaret Henry Crescent, Albany, Auckland, New Zealand",
+                    "personId": 10002,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Jason Brent WESTLAND",
+                    "address": "36 Margaret Henry Crescent, Oteha, North Shore City, New Zealand",
+                    "personId": 10001,
+                    "companyNumber": null
+                  }
+                ],
+                "beforeHolders": [
+                  {
+                    "name": "Brent Murray James WESTLAND",
+                    "address": "36 Margaret Henry Crescent, Albany, Auckland, New Zealand",
+                    "personId": 10003,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Cheryl Joy WESTLAND",
+                    "address": "36 Margaret Henry Crescent, Albany, Auckland, New Zealand",
+                    "personId": 10002,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Jason Brent WESTLAND",
+                    "address": "36 Margaret Henry Crescent, Oteha, North Shore City, New Zealand",
+                    "personId": 10001,
+                    "companyNumber": null
+                  }
+                ],
+                "effectiveDate": "2017-02-12T07:17:31.777Z",
+                "transactionType": "HOLDING_CHANGE",
+                "confirmationUnneeded": true,
+                "afterVotingShareholder": {
+                  "name": "Brent Murray James WESTLAND",
+                  "address": "36 Margaret Henry Crescent, Albany, Auckland, New Zealand",
+                  "personId": 10003,
+                  "companyNumber": null
+                },
+                "beforeVotingShareholder": null
+              },
+              "effectiveDate": "2017-02-12T07:17:31.777Z",
+              "createdAt": "2017-02-12T07:17:31.971Z",
+              "updatedAt": "2017-02-12T07:17:40.001Z",
+              "parentTransactionId": 10007
+            }
+          },
+          {
+            "id": 10062,
+            "name": "Allocation 10",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.471Z",
+            "updatedAt": "2017-02-12T07:57:35.263Z",
+            "transactionId": 10691,
+            "holdingId": 10036,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.033Z",
+              "updatedAt": "2017-02-12T07:17:41.033Z",
+              "h_j_id": 10062,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10071,
+                "amount": 80000,
+                "createdAt": "2017-02-12T07:17:37.452Z",
+                "updatedAt": "2017-02-12T07:17:40.444Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10102,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.116Z",
+                "updatedAt": "2017-02-12T07:17:40.446Z",
+                "holdingId": 10062,
+                "holderId": 10077,
+                "person": {
+                  "id": 10077,
+                  "name": "CANIWI CAPITAL PARTNERS LIMITED",
+                  "companyNumber": "2176196",
+                  "address": "Level 16, 2 Hunter Street, Wellington Central, Wellington, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.082Z",
+                  "updatedAt": "2017-02-12T07:17:40.450Z",
+                  "transactionId": null,
+                  "personId": 10016,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10072,
+            "name": "Allocation 8",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.469Z",
+            "updatedAt": "2017-02-12T07:17:39.975Z",
+            "transactionId": 10041,
+            "holdingId": 10034,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.220Z",
+              "updatedAt": "2017-02-12T07:17:41.220Z",
+              "h_j_id": 10072,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10088,
+                "amount": 100000,
+                "createdAt": "2017-02-12T07:17:37.592Z",
+                "updatedAt": "2017-02-12T07:17:40.908Z",
+                "shareClass": 10001
+              }
+            ],
+            "holders": [
+              {
+                "id": 10114,
+                "data": {
+                  "votingShareholder": true
+                },
+                "createdAt": "2017-02-12T07:17:27.073Z",
+                "updatedAt": "2017-02-12T07:17:40.909Z",
+                "holdingId": 10072,
+                "holderId": 10089,
+                "person": {
+                  "id": 10089,
+                  "name": "Catherine Patricia NORRIE",
+                  "companyNumber": null,
+                  "address": "57 Paremata Road, Paremata, Porirua, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.069Z",
+                  "updatedAt": "2017-02-12T07:17:40.917Z",
+                  "transactionId": null,
+                  "personId": 10013,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10115,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.060Z",
+                "updatedAt": "2017-02-12T07:17:40.911Z",
+                "holdingId": 10072,
+                "holderId": 10090,
+                "person": {
+                  "id": 10090,
+                  "name": "Scott MORAN",
+                  "companyNumber": null,
+                  "address": "64 Majoribanks Street, Mount Victoria, Wellignton, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.067Z",
+                  "updatedAt": "2017-02-12T07:17:40.920Z",
+                  "transactionId": null,
+                  "personId": 10012,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10116,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.074Z",
+                "updatedAt": "2017-02-12T07:17:40.913Z",
+                "holdingId": 10072,
+                "holderId": 10091,
+                "person": {
+                  "id": 10091,
+                  "name": "Wayne Stephen NORRIE",
+                  "companyNumber": null,
+                  "address": "57 Paremata Road, Paremata, Porirua, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.071Z",
+                  "updatedAt": "2017-02-12T07:17:40.927Z",
+                  "transactionId": null,
+                  "personId": 10014,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": {
+              "id": 10041,
+              "type": "HOLDING_CHANGE",
+              "data": {
+                "holdingId": 10034,
+                "afterHolders": [
+                  {
+                    "name": "Catherine Patricia NORRIE",
+                    "address": "57 Paremata Road, Paremata, Porirua, New Zealand",
+                    "personId": 10013,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Scott MORAN",
+                    "address": "64 Majoribanks Street, Mount Victoria, Wellignton, New Zealand",
+                    "personId": 10012,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Wayne Stephen NORRIE",
+                    "address": "57 Paremata Road, Paremata, Porirua, New Zealand",
+                    "personId": 10014,
+                    "companyNumber": null
+                  }
+                ],
+                "beforeHolders": [
+                  {
+                    "name": "Catherine Patricia NORRIE",
+                    "address": "57 Paremata Road, Paremata, Porirua, New Zealand",
+                    "personId": 10013,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Scott MORAN",
+                    "address": "64 Majoribanks Street, Mount Victoria, Wellignton, New Zealand",
+                    "personId": 10012,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Wayne Stephen NORRIE",
+                    "address": "57 Paremata Road, Paremata, Porirua, New Zealand",
+                    "personId": 10014,
+                    "companyNumber": null
+                  }
+                ],
+                "effectiveDate": "2017-02-12T07:17:31.777Z",
+                "transactionType": "HOLDING_CHANGE",
+                "confirmationUnneeded": true,
+                "afterVotingShareholder": {
+                  "name": "Catherine Patricia NORRIE",
+                  "address": "57 Paremata Road, Paremata, Porirua, New Zealand",
+                  "personId": 10013,
+                  "companyNumber": null
+                },
+                "beforeVotingShareholder": null
+              },
+              "effectiveDate": "2017-02-12T07:17:31.777Z",
+              "createdAt": "2017-02-12T07:17:31.983Z",
+              "updatedAt": "2017-02-12T07:17:40.004Z",
+              "parentTransactionId": 10007
+            }
+          },
+          {
+            "id": 10063,
+            "name": "Allocation 6",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.466Z",
+            "updatedAt": "2017-02-12T07:17:39.976Z",
+            "transactionId": null,
+            "holdingId": 10032,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.047Z",
+              "updatedAt": "2017-02-12T07:17:41.047Z",
+              "h_j_id": 10063,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10072,
+                "amount": 100000,
+                "createdAt": "2017-02-12T07:17:37.463Z",
+                "updatedAt": "2017-02-12T07:17:40.460Z",
+                "shareClass": 10001
+              }
+            ],
+            "holders": [
+              {
+                "id": 10103,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.019Z",
+                "updatedAt": "2017-02-12T07:17:40.462Z",
+                "holdingId": 10063,
+                "holderId": 10078,
+                "person": {
+                  "id": 10078,
+                  "name": "Chi Kin LO",
+                  "companyNumber": null,
+                  "address": "15 Joy Street, Albany Heights, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.046Z",
+                  "updatedAt": "2017-02-12T07:17:40.466Z",
+                  "transactionId": null,
+                  "personId": 10008,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10064,
+            "name": "Allocation 14",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.476Z",
+            "updatedAt": "2017-02-12T07:17:39.978Z",
+            "transactionId": null,
+            "holdingId": 10040,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.057Z",
+              "updatedAt": "2017-02-12T07:17:41.057Z",
+              "h_j_id": 10064,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10073,
+                "amount": 25000,
+                "createdAt": "2017-02-12T07:17:37.470Z",
+                "updatedAt": "2017-02-12T07:17:40.476Z",
+                "shareClass": 10001
+              },
+              {
+                "id": 10074,
+                "amount": 10000,
+                "createdAt": "2017-02-12T07:17:37.471Z",
+                "updatedAt": "2017-02-12T07:17:40.478Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10104,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.199Z",
+                "updatedAt": "2017-02-12T07:17:40.479Z",
+                "holdingId": 10064,
+                "holderId": 10079,
+                "person": {
+                  "id": 10079,
+                  "name": "David George LOCK",
+                  "companyNumber": null,
+                  "address": "16 Kahikatea Close, Campbells Bay, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.110Z",
+                  "updatedAt": "2017-02-12T07:17:40.483Z",
+                  "transactionId": null,
+                  "personId": 10022,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10065,
+            "name": "Allocation 2",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.460Z",
+            "updatedAt": "2017-02-12T07:17:39.980Z",
+            "transactionId": null,
+            "holdingId": 10028,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.066Z",
+              "updatedAt": "2017-02-12T07:17:41.066Z",
+              "h_j_id": 10065,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10075,
+                "amount": 990000,
+                "createdAt": "2017-02-12T07:17:37.478Z",
+                "updatedAt": "2017-02-12T07:17:40.496Z",
+                "shareClass": 10001
+              },
+              {
+                "id": 10076,
+                "amount": 190000,
+                "createdAt": "2017-02-12T07:17:37.479Z",
+                "updatedAt": "2017-02-12T07:17:40.497Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10105,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:26.960Z",
+                "updatedAt": "2017-02-12T07:17:40.499Z",
+                "holdingId": 10065,
+                "holderId": 10080,
+                "person": {
+                  "id": 10080,
+                  "name": "Geoffrey A. CUMMING",
+                  "companyNumber": null,
+                  "address": "Suite 507, 600 Princeton Way, Sw, Calgary, Alberta, T2P 5N4, Canada",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.000Z",
+                  "updatedAt": "2017-02-12T07:17:40.503Z",
+                  "transactionId": null,
+                  "personId": 10004,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10066,
+            "name": "Allocation 4",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.463Z",
+            "updatedAt": "2017-02-12T07:17:39.981Z",
+            "transactionId": null,
+            "holdingId": 10030,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.074Z",
+              "updatedAt": "2017-02-12T07:17:41.074Z",
+              "h_j_id": 10066,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10077,
+                "amount": 400000,
+                "createdAt": "2017-02-12T07:17:37.485Z",
+                "updatedAt": "2017-02-12T07:17:40.517Z",
+                "shareClass": 10001
+              },
+              {
+                "id": 10078,
+                "amount": 100000,
+                "createdAt": "2017-02-12T07:17:37.486Z",
+                "updatedAt": "2017-02-12T07:17:40.518Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10106,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:26.989Z",
+                "updatedAt": "2017-02-12T07:17:40.520Z",
+                "holdingId": 10066,
+                "holderId": 10081,
+                "person": {
+                  "id": 10081,
+                  "name": "HIRVI LIMITED",
+                  "companyNumber": "4955819",
+                  "address": "17 Lewin Road, Epsom, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.011Z",
+                  "updatedAt": "2017-02-12T07:17:40.524Z",
+                  "transactionId": null,
+                  "personId": 10006,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10073,
+            "name": "Allocation 13",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.475Z",
+            "updatedAt": "2017-02-12T07:17:39.983Z",
+            "transactionId": 10042,
+            "holdingId": 10039,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.229Z",
+              "updatedAt": "2017-02-12T07:17:41.229Z",
+              "h_j_id": 10073,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10089,
+                "amount": 50000,
+                "createdAt": "2017-02-12T07:17:37.602Z",
+                "updatedAt": "2017-02-12T07:17:40.944Z",
+                "shareClass": 10001
+              }
+            ],
+            "holders": [
+              {
+                "id": 10117,
+                "data": {
+                  "votingShareholder": true
+                },
+                "createdAt": "2017-02-12T07:17:27.167Z",
+                "updatedAt": "2017-02-12T07:17:40.946Z",
+                "holdingId": 10073,
+                "holderId": 10092,
+                "person": {
+                  "id": 10092,
+                  "name": "Herbert Dennis HUNT",
+                  "companyNumber": null,
+                  "address": "411 Walnut Street Green Cove Springs, Fl, 32043, United States of America",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.105Z",
+                  "updatedAt": "2017-02-12T07:17:40.952Z",
+                  "transactionId": null,
+                  "personId": 10021,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10118,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.165Z",
+                "updatedAt": "2017-02-12T07:17:40.948Z",
+                "holdingId": 10073,
+                "holderId": 10093,
+                "person": {
+                  "id": 10093,
+                  "name": "Janet HUNT",
+                  "companyNumber": null,
+                  "address": "411 Walnut Street Green Cove Springs, Fl, 32043, United States of America",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.103Z",
+                  "updatedAt": "2017-02-12T07:17:40.956Z",
+                  "transactionId": null,
+                  "personId": 10020,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": {
+              "id": 10042,
+              "type": "HOLDING_CHANGE",
+              "data": {
+                "holdingId": 10039,
+                "afterHolders": [
+                  {
+                    "name": "Herbert Dennis HUNT",
+                    "address": "411 Walnut Street Green Cove Springs, Fl, 32043, United States of America",
+                    "personId": 10021,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Janet HUNT",
+                    "address": "411 Walnut Street Green Cove Springs, Fl, 32043, United States of America",
+                    "personId": 10020,
+                    "companyNumber": null
+                  }
+                ],
+                "beforeHolders": [
+                  {
+                    "name": "Herbert Dennis HUNT",
+                    "address": "411 Walnut Street Green Cove Springs, Fl, 32043, United States of America",
+                    "personId": 10021,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Janet HUNT",
+                    "address": "411 Walnut Street Green Cove Springs, Fl, 32043, United States of America",
+                    "personId": 10020,
+                    "companyNumber": null
+                  }
+                ],
+                "effectiveDate": "2017-02-12T07:17:31.777Z",
+                "transactionType": "HOLDING_CHANGE",
+                "confirmationUnneeded": true,
+                "afterVotingShareholder": {
+                  "name": "Herbert Dennis HUNT",
+                  "address": "411 Walnut Street Green Cove Springs, Fl, 32043, United States of America",
+                  "personId": 10021,
+                  "companyNumber": null
+                },
+                "beforeVotingShareholder": null
+              },
+              "effectiveDate": "2017-02-12T07:17:31.777Z",
+              "createdAt": "2017-02-12T07:17:31.992Z",
+              "updatedAt": "2017-02-12T07:17:40.007Z",
+              "parentTransactionId": 10007
+            }
+          },
+          {
+            "id": 10067,
+            "name": "Allocation 3",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.461Z",
+            "updatedAt": "2017-02-12T07:17:39.984Z",
+            "transactionId": null,
+            "holdingId": 10029,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.083Z",
+              "updatedAt": "2017-02-12T07:17:41.083Z",
+              "h_j_id": 10067,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10079,
+                "amount": 400000,
+                "createdAt": "2017-02-12T07:17:37.493Z",
+                "updatedAt": "2017-02-12T07:17:40.540Z",
+                "shareClass": 10001
+              },
+              {
+                "id": 10080,
+                "amount": 100000,
+                "createdAt": "2017-02-12T07:17:37.493Z",
+                "updatedAt": "2017-02-12T07:17:40.542Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10107,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:26.975Z",
+                "updatedAt": "2017-02-12T07:17:40.543Z",
+                "holdingId": 10067,
+                "holderId": 10082,
+                "person": {
+                  "id": 10082,
+                  "name": "JACON INVESTMENTS LIMITED",
+                  "companyNumber": "969041",
+                  "address": "Andrew Clements, 4 Staffa Street, Parnell, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.006Z",
+                  "updatedAt": "2017-02-12T07:17:40.547Z",
+                  "transactionId": null,
+                  "personId": 10005,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10068,
+            "name": "Allocation 5",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.464Z",
+            "updatedAt": "2017-02-12T07:17:39.986Z",
+            "transactionId": null,
+            "holdingId": 10031,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.091Z",
+              "updatedAt": "2017-02-12T07:17:41.091Z",
+              "h_j_id": 10068,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10081,
+                "amount": 150000,
+                "createdAt": "2017-02-12T07:17:37.499Z",
+                "updatedAt": "2017-02-12T07:17:40.560Z",
+                "shareClass": 10001
+              },
+              {
+                "id": 10082,
+                "amount": 40000,
+                "createdAt": "2017-02-12T07:17:37.500Z",
+                "updatedAt": "2017-02-12T07:17:40.562Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10108,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.004Z",
+                "updatedAt": "2017-02-12T07:17:40.563Z",
+                "holdingId": 10068,
+                "holderId": 10083,
+                "person": {
+                  "id": 10083,
+                  "name": "James B. CUMMING",
+                  "companyNumber": null,
+                  "address": "Suite 78 Harrison Garden Blvd, Toronto, Ontario, M2N 7E2, Canada",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.040Z",
+                  "updatedAt": "2017-02-12T07:17:40.568Z",
+                  "transactionId": null,
+                  "personId": 10007,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10074,
+            "name": "Allocation 12",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.474Z",
+            "updatedAt": "2017-02-12T07:17:39.987Z",
+            "transactionId": 10043,
+            "holdingId": 10038,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.237Z",
+              "updatedAt": "2017-02-12T07:17:41.237Z",
+              "h_j_id": 10074,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10090,
+                "amount": 50000,
+                "createdAt": "2017-02-12T07:17:37.610Z",
+                "updatedAt": "2017-02-12T07:17:40.971Z",
+                "shareClass": 10001
+              }
+            ],
+            "holders": [
+              {
+                "id": 10119,
+                "data": {
+                  "votingShareholder": true
+                },
+                "createdAt": "2017-02-12T07:17:27.144Z",
+                "updatedAt": "2017-02-12T07:17:40.973Z",
+                "holdingId": 10074,
+                "holderId": 10094,
+                "person": {
+                  "id": 10094,
+                  "name": "John David Guy HADDLETON",
+                  "companyNumber": null,
+                  "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.094Z",
+                  "updatedAt": "2017-02-12T07:17:40.978Z",
+                  "transactionId": null,
+                  "personId": 10018,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10120,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.145Z",
+                "updatedAt": "2017-02-12T07:17:40.974Z",
+                "holdingId": 10074,
+                "holderId": 10095,
+                "person": {
+                  "id": 10095,
+                  "name": "Susan Mary HADDLETON",
+                  "companyNumber": null,
+                  "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.097Z",
+                  "updatedAt": "2017-02-12T07:17:40.982Z",
+                  "transactionId": null,
+                  "personId": 10019,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": {
+              "id": 10043,
+              "type": "HOLDING_CHANGE",
+              "data": {
+                "holdingId": 10038,
+                "afterHolders": [
+                  {
+                    "name": "John David Guy HADDLETON",
+                    "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+                    "personId": 10018,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Susan Mary HADDLETON",
+                    "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+                    "personId": 10019,
+                    "companyNumber": null
+                  }
+                ],
+                "beforeHolders": [
+                  {
+                    "name": "John David Guy HADDLETON",
+                    "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+                    "personId": 10018,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Susan Mary HADDLETON",
+                    "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+                    "personId": 10019,
+                    "companyNumber": null
+                  }
+                ],
+                "effectiveDate": "2017-02-12T07:17:31.777Z",
+                "transactionType": "HOLDING_CHANGE",
+                "confirmationUnneeded": true,
+                "afterVotingShareholder": {
+                  "name": "John David Guy HADDLETON",
+                  "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+                  "personId": 10018
+                },
+                "beforeVotingShareholder": null
+              },
+              "effectiveDate": "2017-02-12T07:17:31.777Z",
+              "createdAt": "2017-02-12T07:17:31.988Z",
+              "updatedAt": "2017-02-12T07:17:40.010Z",
+              "parentTransactionId": 10007
+            }
+          },
+          {
+            "id": 10069,
+            "name": "Allocation 11",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.472Z",
+            "updatedAt": "2017-02-12T07:17:39.989Z",
+            "transactionId": null,
+            "holdingId": 10037,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.100Z",
+              "updatedAt": "2017-02-12T07:17:41.100Z",
+              "h_j_id": 10069,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10083,
+                "amount": 55000,
+                "createdAt": "2017-02-12T07:17:37.506Z",
+                "updatedAt": "2017-02-12T07:17:40.584Z",
+                "shareClass": 10001
+              },
+              {
+                "id": 10084,
+                "amount": 20000,
+                "createdAt": "2017-02-12T07:17:37.506Z",
+                "updatedAt": "2017-02-12T07:17:40.586Z",
+                "shareClass": 10002
+              }
+            ],
+            "holders": [
+              {
+                "id": 10109,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.130Z",
+                "updatedAt": "2017-02-12T07:17:40.587Z",
+                "holdingId": 10069,
+                "holderId": 10084,
+                "person": {
+                  "id": 10084,
+                  "name": "LATITUDE 35 HOLDINGS LIMITED",
+                  "companyNumber": "1025634",
+                  "address": "9 Sylvia Rd, St Heliers, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.088Z",
+                  "updatedAt": "2017-02-12T07:17:40.592Z",
+                  "transactionId": null,
+                  "personId": 10017,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          },
+          {
+            "id": 10075,
+            "name": "Allocation 7",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.467Z",
+            "updatedAt": "2017-02-12T07:17:39.990Z",
+            "transactionId": 10044,
+            "holdingId": 10033,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.246Z",
+              "updatedAt": "2017-02-12T07:17:41.246Z",
+              "h_j_id": 10075,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10091,
+                "amount": 100000,
+                "createdAt": "2017-02-12T07:17:37.618Z",
+                "updatedAt": "2017-02-12T07:17:40.996Z",
+                "shareClass": 10001
+              }
+            ],
+            "holders": [
+              {
+                "id": 10121,
+                "data": {
+                  "votingShareholder": true
+                },
+                "createdAt": "2017-02-12T07:17:27.035Z",
+                "updatedAt": "2017-02-12T07:17:40.997Z",
+                "holdingId": 10075,
+                "holderId": 10096,
+                "person": {
+                  "id": 10096,
+                  "name": "Mathew Duncan JUBY",
+                  "companyNumber": null,
+                  "address": "313 Marshall Crescent, Thames, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.059Z",
+                  "updatedAt": "2017-02-12T07:17:41.004Z",
+                  "transactionId": null,
+                  "personId": 10011,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10122,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.034Z",
+                "updatedAt": "2017-02-12T07:17:40.999Z",
+                "holdingId": 10075,
+                "holderId": 10097,
+                "person": {
+                  "id": 10097,
+                  "name": "Reinier Simon DE JONG",
+                  "companyNumber": null,
+                  "address": "Hallet Road, Otakiri Rd2, Whakatane, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.057Z",
+                  "updatedAt": "2017-02-12T07:17:41.007Z",
+                  "transactionId": null,
+                  "personId": 10010,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              },
+              {
+                "id": 10123,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.033Z",
+                "updatedAt": "2017-02-12T07:17:41.000Z",
+                "holdingId": 10075,
+                "holderId": 10098,
+                "person": {
+                  "id": 10098,
+                  "name": "Remko Arjan DE JONG",
+                  "companyNumber": null,
+                  "address": "5 Maungarei Road, Remuera, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.055Z",
+                  "updatedAt": "2017-02-12T07:17:41.011Z",
+                  "transactionId": null,
+                  "personId": 10009,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": {
+              "id": 10044,
+              "type": "HOLDING_CHANGE",
+              "data": {
+                "holdingId": 10033,
+                "afterHolders": [
+                  {
+                    "name": "Mathew Duncan JUBY",
+                    "address": "313 Marshall Crescent, Thames, New Zealand",
+                    "personId": 10011,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Reinier Simon DE JONG",
+                    "address": "Hallet Road, Otakiri Rd2, Whakatane, New Zealand",
+                    "personId": 10010,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Remko Arjan DE JONG",
+                    "address": "5 Maungarei Road, Remuera, Auckland, New Zealand",
+                    "personId": 10009,
+                    "companyNumber": null
+                  }
+                ],
+                "beforeHolders": [
+                  {
+                    "name": "Mathew Duncan JUBY",
+                    "address": "313 Marshall Crescent, Thames, New Zealand",
+                    "personId": 10011,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Reinier Simon DE JONG",
+                    "address": "Hallet Road, Otakiri Rd2, Whakatane, New Zealand",
+                    "personId": 10010,
+                    "companyNumber": null
+                  },
+                  {
+                    "name": "Remko Arjan DE JONG",
+                    "address": "5 Maungarei Road, Remuera, Auckland, New Zealand",
+                    "personId": 10009,
+                    "companyNumber": null
+                  }
+                ],
+                "effectiveDate": "2017-02-12T07:17:31.777Z",
+                "transactionType": "HOLDING_CHANGE",
+                "confirmationUnneeded": true,
+                "afterVotingShareholder": {
+                  "name": "Mathew Duncan JUBY",
+                  "address": "313 Marshall Crescent, Thames, New Zealand",
+                  "personId": 10011,
+                  "companyNumber": null
+                },
+                "beforeVotingShareholder": null
+              },
+              "effectiveDate": "2017-02-12T07:17:31.777Z",
+              "createdAt": "2017-02-12T07:17:31.978Z",
+              "updatedAt": "2017-02-12T07:17:40.013Z",
+              "parentTransactionId": 10007
+            }
+          },
+          {
+            "id": 10070,
+            "name": "Allocation 9",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.470Z",
+            "updatedAt": "2017-02-12T07:17:39.992Z",
+            "transactionId": null,
+            "holdingId": 10035,
+            "h_list_j": {
+              "createdAt": "2017-02-12T07:17:41.108Z",
+              "updatedAt": "2017-02-12T07:17:41.108Z",
+              "h_j_id": 10070,
+              "holdings_id": 10007
+            },
+            "parcels": [
+              {
+                "id": 10085,
+                "amount": 80000,
+                "createdAt": "2017-02-12T07:17:37.513Z",
+                "updatedAt": "2017-02-12T07:17:40.606Z",
+                "shareClass": 10001
+              }
+            ],
+            "holders": [
+              {
+                "id": 10110,
+                "data": {},
+                "createdAt": "2017-02-12T07:17:27.101Z",
+                "updatedAt": "2017-02-12T07:17:40.607Z",
+                "holdingId": 10070,
+                "holderId": 10085,
+                "person": {
+                  "id": 10085,
+                  "name": "Robert Craig NICHOLSON",
+                  "companyNumber": null,
+                  "address": "18 Boyd Avenue, Mangere Bridge, Auckland, New Zealand",
+                  "attr": null,
+                  "createdAt": "2017-02-12T07:17:26.076Z",
+                  "updatedAt": "2017-02-12T07:17:40.611Z",
+                  "transactionId": null,
+                  "personId": 10015,
+                  "ownerId": 15,
+                  "createdById": 15,
+                  "transaction": null
+                }
+              }
+            ],
+            "transaction": null
+          }
+        ]
+      },
+      "unallocatedParcels": [],
+      "transaction": null,
+      "docList": {
+        "id": 10006,
+        "createdAt": "2017-02-12T07:17:33.743Z",
+        "updatedAt": "2017-02-12T07:17:39.700Z",
+        "documents": [
+          {
+            "id": 10155,
+            "filename": "Transactions",
+            "type": "Directory",
+            "sourceUrl": null,
+            "date": null,
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.123Z",
+            "updatedAt": "2017-02-12T07:17:39.725Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": null
+          },
+          {
+            "id": 10154,
+            "filename": "Companies Office Documents",
+            "type": "Directory",
+            "sourceUrl": null,
+            "date": null,
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.123Z",
+            "updatedAt": "2017-02-12T07:17:39.724Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": null
+          },
+          {
+            "id": 10156,
+            "filename": "Amendment of Constitution",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/23091021/entityFilingRequirement",
+            "date": "2016-07-14T22:40:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.174Z",
+            "updatedAt": "2017-02-12T07:17:39.727Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10157,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/22895734/entityFilingRequirement",
+            "date": "2016-06-07T22:18:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.175Z",
+            "updatedAt": "2017-02-12T07:17:39.728Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10158,
+            "filename": "Update Shares",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/22895733/entityFilingRequirement",
+            "date": "2016-06-07T22:17:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.176Z",
+            "updatedAt": "2017-02-12T07:17:39.730Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10159,
+            "filename": "Annual Return Filed",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/22666037/entityFilingRequirement",
+            "date": "2016-04-26T03:26:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.178Z",
+            "updatedAt": "2017-02-12T07:17:39.731Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10160,
+            "filename": "Particulars of ultimate holding company",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/22665669/entityFilingRequirement",
+            "date": "2016-04-26T03:01:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.179Z",
+            "updatedAt": "2017-02-12T07:17:39.733Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10161,
+            "filename": "File Annual Return",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/20927489/entityFilingRequirement",
+            "date": "2015-04-17T00:27:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.180Z",
+            "updatedAt": "2017-02-12T07:17:39.734Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10162,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/20815790/entityFilingRequirement",
+            "date": "2015-03-23T21:51:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.182Z",
+            "updatedAt": "2017-02-12T07:17:39.736Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10163,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/20077593/entityFilingRequirement",
+            "date": "2014-08-31T22:05:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.183Z",
+            "updatedAt": "2017-02-12T07:17:39.737Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10164,
+            "filename": "Update Shares",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/20077592/entityFilingRequirement",
+            "date": "2014-08-31T22:05:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.185Z",
+            "updatedAt": "2017-02-12T07:17:39.739Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10165,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/20071355/entityFilingRequirement",
+            "date": "2014-08-29T01:49:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.186Z",
+            "updatedAt": "2017-02-12T07:17:39.740Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10166,
+            "filename": "Particulars of Director",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/20022484/entityFilingRequirement",
+            "date": "2014-08-18T22:33:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.187Z",
+            "updatedAt": "2017-02-12T07:17:39.742Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10167,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19771950/entityFilingRequirement",
+            "date": "2014-06-23T05:05:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.189Z",
+            "updatedAt": "2017-02-12T07:17:39.743Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10168,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19722390/entityFilingRequirement",
+            "date": "2014-06-10T22:45:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.190Z",
+            "updatedAt": "2017-02-12T07:17:39.745Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10169,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19722376/entityFilingRequirement",
+            "date": "2014-06-10T22:43:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.191Z",
+            "updatedAt": "2017-02-12T07:17:39.747Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10170,
+            "filename": "Update Shares",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19722375/entityFilingRequirement",
+            "date": "2014-06-10T22:43:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.193Z",
+            "updatedAt": "2017-02-12T07:17:39.749Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10171,
+            "filename": "Revocation and Adoption of Constitution",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19675372/entityFilingRequirement",
+            "date": "2014-05-30T03:25:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.215Z",
+            "updatedAt": "2017-02-12T07:17:39.750Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10172,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19675349/entityFilingRequirement",
+            "date": "2014-05-30T03:21:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.217Z",
+            "updatedAt": "2017-02-12T07:17:39.752Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10174,
+            "filename": "Update Shares",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19675185/entityFilingRequirement",
+            "date": "2014-05-30T03:07:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.220Z",
+            "updatedAt": "2017-02-12T07:17:39.755Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10173,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19675186/entityFilingRequirement",
+            "date": "2014-05-30T03:07:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.218Z",
+            "updatedAt": "2017-02-12T07:17:39.753Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10175,
+            "filename": "Change of Company Name",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19621981/entityFilingRequirement",
+            "date": "2014-05-19T02:46:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.221Z",
+            "updatedAt": "2017-02-12T07:17:39.756Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10176,
+            "filename": "Particulars of Director",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19590942/entityFilingRequirement",
+            "date": "2014-05-12T02:18:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.222Z",
+            "updatedAt": "2017-02-12T07:17:39.758Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10177,
+            "filename": "Director Consent",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19590940/entityFilingRequirement",
+            "date": "2014-05-12T02:18:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.223Z",
+            "updatedAt": "2017-02-12T07:17:39.760Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10178,
+            "filename": "Particulars of Director",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19588296/entityFilingRequirement",
+            "date": "2014-05-11T21:22:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.225Z",
+            "updatedAt": "2017-02-12T07:17:39.762Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10179,
+            "filename": "Director Consent",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19588297/entityFilingRequirement",
+            "date": "2014-05-11T21:22:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.226Z",
+            "updatedAt": "2017-02-12T07:17:39.763Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10180,
+            "filename": "Particulars of Director",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19577137/entityFilingRequirement",
+            "date": "2014-05-11T21:21:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.227Z",
+            "updatedAt": "2017-02-12T07:17:39.765Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10181,
+            "filename": "Director Consent",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19588168/entityFilingRequirement",
+            "date": "2014-05-11T21:21:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.229Z",
+            "updatedAt": "2017-02-12T07:17:39.767Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10182,
+            "filename": "File Annual Return",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/19447521/entityFilingRequirement",
+            "date": "2014-04-07T23:11:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.230Z",
+            "updatedAt": "2017-02-12T07:17:39.769Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10183,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/18189840/entityFilingRequirement",
+            "date": "2013-05-27T23:14:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.232Z",
+            "updatedAt": "2017-02-12T07:17:39.770Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10184,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/18189659/entityFilingRequirement",
+            "date": "2013-05-27T23:00:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.233Z",
+            "updatedAt": "2017-02-12T07:17:39.772Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10185,
+            "filename": "File Annual Return",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/18005799/entityFilingRequirement",
+            "date": "2013-04-16T03:24:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.234Z",
+            "updatedAt": "2017-02-12T07:17:39.773Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10186,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/17240339/entityFilingRequirement",
+            "date": "2012-09-18T21:32:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.235Z",
+            "updatedAt": "2017-02-12T07:17:39.775Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10187,
+            "filename": "File Annual Return",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/16537938/entityFilingRequirement",
+            "date": "2012-04-08T01:03:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.237Z",
+            "updatedAt": "2017-02-12T07:17:39.777Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10188,
+            "filename": "Particulars of Company Address",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/16537937/entityFilingRequirement",
+            "date": "2012-04-08T01:01:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.238Z",
+            "updatedAt": "2017-02-12T07:17:39.778Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10189,
+            "filename": "Particulars of Shareholding",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/15191008/entityFilingRequirement",
+            "date": "2011-05-19T22:35:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.239Z",
+            "updatedAt": "2017-02-12T07:17:39.780Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10190,
+            "filename": "Particulars of Director",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/15190958/entityFilingRequirement",
+            "date": "2011-05-19T22:32:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.240Z",
+            "updatedAt": "2017-02-12T07:17:39.781Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10191,
+            "filename": "File Annual Return",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/15014420/entityFilingRequirement",
+            "date": "2011-04-13T02:30:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.242Z",
+            "updatedAt": "2017-02-12T07:17:39.783Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10192,
+            "filename": "Online Annual Return",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/639041/entityFilingRequirement",
+            "date": "2010-04-01T21:39:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.243Z",
+            "updatedAt": "2017-02-12T07:17:39.784Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10193,
+            "filename": "Online Annual Return",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/6091540/entityFilingRequirement",
+            "date": "2009-04-04T00:47:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.244Z",
+            "updatedAt": "2017-02-12T07:17:39.786Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10194,
+            "filename": "Adoption/Amendment Of Constitution",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7054411/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.245Z",
+            "updatedAt": "2017-02-12T07:17:39.788Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10195,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059452/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.247Z",
+            "updatedAt": "2017-02-12T07:17:39.793Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10196,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059453/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.248Z",
+            "updatedAt": "2017-02-12T07:17:39.795Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10197,
+            "filename": "Consent Of Director",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059472/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.250Z",
+            "updatedAt": "2017-02-12T07:17:39.796Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10198,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059475/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.251Z",
+            "updatedAt": "2017-02-12T07:17:39.798Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10199,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059477/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.252Z",
+            "updatedAt": "2017-02-12T07:17:39.799Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10200,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059494/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.254Z",
+            "updatedAt": "2017-02-12T07:17:39.801Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10201,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059496/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.255Z",
+            "updatedAt": "2017-02-12T07:17:39.803Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10202,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059498/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.256Z",
+            "updatedAt": "2017-02-12T07:17:39.805Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10203,
+            "filename": "Consent Of Shareholder",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7059614/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.257Z",
+            "updatedAt": "2017-02-12T07:17:39.806Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          },
+          {
+            "id": 10204,
+            "filename": "Application To Incorporate A Company",
+            "type": "Companies Office",
+            "sourceUrl": "http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/2118589/7070589/entityFilingRequirement",
+            "date": "2008-05-19T20:38:00.000Z",
+            "userUploaded": null,
+            "deleted": null,
+            "createdAt": "2017-02-12T07:17:26.259Z",
+            "updatedAt": "2017-02-12T07:17:39.808Z",
+            "ownerId": 15,
+            "createdById": 15,
+            "dataId": null,
+            "previewId": null,
+            "directoryId": 10001
+          }
+        ]
+      },
+      "directorList": {
+        "id": 10004,
+        "createdAt": "2017-02-12T07:17:26.156Z",
+        "updatedAt": "2017-02-12T07:17:39.703Z",
+        "directors": [
+          {
+            "id": 10010,
+            "appointment": "2014-05-07T12:00:00.000Z",
+            "consentUrl": "https://www.companiesoffice.govt.nz/companies/app/service/services/documents/A59B4CE2D658FD0145914509BA614B3A",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.422Z",
+            "updatedAt": "2017-02-12T07:17:39.947Z",
+            "personId": 10074,
+            "directorId": 10025,
+            "person": {
+              "id": 10074,
+              "name": "Herbert Dennis HUNT",
+              "companyNumber": null,
+              "address": "411 Walnut Street, Number Green Cove Springs, Florida, 32043, United States of America",
+              "attr": null,
+              "createdAt": "2017-02-12T07:17:26.117Z",
+              "updatedAt": "2017-02-12T07:17:39.953Z",
+              "transactionId": null,
+              "personId": 10023,
+              "ownerId": 15,
+              "createdById": 15
+            }
+          },
+          {
+            "id": 10011,
+            "appointment": "2008-05-19T12:00:00.000Z",
+            "consentUrl": null,
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.423Z",
+            "updatedAt": "2017-02-12T07:17:39.948Z",
+            "personId": 10075,
+            "directorId": 10026,
+            "person": {
+              "id": 10075,
+              "name": "Jason Brent WESTLAND",
+              "companyNumber": null,
+              "address": "36 Margaret Henry Crescent, Oteha, North Shore City, New Zealand",
+              "attr": null,
+              "createdAt": "2017-02-12T07:17:25.987Z",
+              "updatedAt": "2017-02-12T07:17:39.956Z",
+              "transactionId": null,
+              "personId": 10001,
+              "ownerId": 15,
+              "createdById": 15
+            }
+          },
+          {
+            "id": 10012,
+            "appointment": "2014-05-07T12:00:00.000Z",
+            "consentUrl": "https://www.companiesoffice.govt.nz/companies/app/service/services/documents/3BA2E6684E3EB1997355C71F95C5C897",
+            "data": null,
+            "createdAt": "2017-02-12T07:17:26.420Z",
+            "updatedAt": "2017-02-12T07:17:39.950Z",
+            "personId": 10076,
+            "directorId": 10024,
+            "person": {
+              "id": 10076,
+              "name": "John David Guy HADDLETON",
+              "companyNumber": null,
+              "address": "25a Park Avenue, Takapuna, Auckland, New Zealand",
+              "attr": null,
+              "createdAt": "2017-02-12T07:17:26.094Z",
+              "updatedAt": "2017-02-12T07:17:39.960Z",
+              "transactionId": null,
+              "personId": 10018,
+              "ownerId": 15,
+              "createdById": 15
+            }
+          }
+        ]
+      },
+      "shareClasses": {
+        "id": 10004,
+        "createdAt": "2017-02-12T07:17:33.712Z",
+        "updatedAt": "2017-02-12T07:17:39.708Z",
+        "shareClasses": [
+          {
+            "id": 10005,
+            "name": "Ordinary",
+            "properties": {
+              "json": null,
+              "userId": 15,
+              "votingRights": {},
+              "rights": [],
+              "decisionMakingRights": {},
+              "limitations": []
+            },
+            "createdAt": "2017-02-12T07:17:32.866Z",
+            "updatedAt": "2017-02-12T07:17:40.050Z",
+            "s_c_j": {
+              "createdAt": "2017-02-12T07:17:40.638Z",
+              "updatedAt": "2017-02-12T07:17:40.638Z",
+              "s_class_id": 10005,
+              "s_classes_id": 10004
+            }
+          },
+          {
+            "id": 10006,
+            "name": "Preference",
+            "properties": {
+              "json": null,
+              "userId": 15,
+              "votingRights": {},
+              "rights": [],
+              "decisionMakingRights": {},
+              "limitations": []
+            },
+            "createdAt": "2017-02-12T07:17:33.719Z",
+            "updatedAt": "2017-02-12T07:17:40.051Z",
+            "s_c_j": {
+              "createdAt": "2017-02-12T07:17:40.646Z",
+              "updatedAt": "2017-02-12T07:17:40.646Z",
+              "s_class_id": 10006,
+              "s_classes_id": 10004
+            }
+          }
+        ]
+      },
+      "totalUnallocatedShares": 0,
+      "totalAllocatedShares": 12580000,
+      "shareCountByClass": {
+        "10001": {
+          "id": null,
+          "amount": 11950000,
+          "shareClass": 10001
+        },
+        "10002": {
+          "id": null,
+          "amount": 630000,
+          "shareClass": 10002
+        }
+      },
+      "totalShares": 12580000,
+      "transactions": null,
+      "deadlines": {
+        "annualReturn": {
+          "arFilingMonth": "April",
+          "lastFiling": "2016-04-26T03:26:00Z",
+          "filedThisYear": false,
+          "seconds": -6616943.610212,
+          "overdue": false,
+          "dueDate": "2017-04-30T10:59:59Z"
+        }
+      }
+    },
+    "importErrorType": "UNKNOWN_AMEND",
+    "actionSet": {
+      "id": "a50b8736-cdfe-4e59-a6d8-6429d1cb8e39",
+      "data": {
+        "id": "a50b8736-cdfe-4e59-a6d8-6429d1cb8e39",
+        "date": "2016-06-07T22:18:00.000Z",
+        "label": "Particulars of Shareholding",
+        "actions": [
+          {
+            "id": "efa2679a-00b7-4792-a96a-5c3acc50b963",
+            "holders": [
+              {
+                "name": "CANIWI CAPITAL PARTNERS LIMITED",
+                "address": "Level 16, 2 Hunter Street, Wellington Central, Wellington, 6011, New Zealand",
+                "companyNumber": "2176196"
+              }
+            ]
+          },
+          {
+            "id": "fb1f8c7f-877b-4731-a9ac-f9bbbf0ca2e8",
+            "holders": [
+              {
+                "name": "CANIWI CAPITAL PARTNERS LIMITED",
+                "address": "Level 16, 2 Hunter Street, Wellington Central, Wellington, 6011, New Zealand",
+                "companyNumber": "2176196"
+              }
+            ],
+            "parcels": [
+              {
+                "amount": 80000,
+                "afterAmount": 80000,
+                "beforeAmount": 0
+              }
+            ],
+            "inferredType": true,
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "NEW_ALLOCATION"
+          },
+          {
+            "id": "990b5275-f2d8-4c15-8c21-0fa80d174956",
+            "parcels": [
+              {
+                "amount": 40000,
+                "afterAmount": 190000,
+                "beforeAmount": 150000
+              }
+            ],
+            "afterHolders": [
+              {
+                "name": "James B. CUMMING",
+                "address": "Suite 2304, 78 Harrison Garden Blvd, Toronto, Ontario, M2N 7E2, Canada",
+                "companyNumber": null
+              }
+            ],
+            "inferredType": true,
+            "beforeHolders": [
+              {
+                "name": "James B. CUMMING",
+                "address": "Suite 2304, 78 Harrison Garden Blvd, Toronto, Ontario, M2N 7E2, Canada",
+                "companyNumber": null
+              }
+            ],
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "AMEND"
+          },
+          {
+            "id": "66d79a37-d6c5-4917-87fe-6a0bb8aa20ea",
+            "parcels": [
+              {
+                "amount": 40000,
+                "afterAmount": 9540000,
+                "beforeAmount": 9500000
+              }
+            ],
+            "afterHolders": [
+              {
+                "name": "Brent Murray James WESTLAND",
+                "address": "36 Margaret Henry Crescent, Albany, Auckland, 0632, New Zealand",
+                "companyNumber": null
+              },
+              {
+                "name": "Cheryl Joy WESTLAND",
+                "address": "36 Margaret Henry Crescent, Albany, Auckland, 0632, New Zealand",
+                "companyNumber": null
+              },
+              {
+                "name": "Jason Brent WESTLAND",
+                "address": "36 Margaret Henry Crescent, Oteha, North Shore City, 0632, New Zealand",
+                "companyNumber": null
+              }
+            ],
+            "inferredType": true,
+            "beforeHolders": [
+              {
+                "name": "Brent Murray James WESTLAND",
+                "address": "36 Margaret Henry Crescent, Albany, Auckland, 0632, New Zealand",
+                "companyNumber": null
+              },
+              {
+                "name": "Cheryl Joy WESTLAND",
+                "address": "36 Margaret Henry Crescent, Albany, Auckland, 0632, New Zealand",
+                "companyNumber": null
+              },
+              {
+                "name": "Jason Brent WESTLAND",
+                "address": "36 Margaret Henry Crescent, Oteha, North Shore City, 0632, New Zealand",
+                "companyNumber": null
+              }
+            ],
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "AMEND"
+          },
+          {
+            "id": "e814e35c-7673-433b-b1c7-f84d3a840e61",
+            "parcels": [
+              {
+                "amount": 190000,
+                "afterAmount": 1180000,
+                "beforeAmount": 990000
+              }
+            ],
+            "afterHolders": [
+              {
+                "name": "Geoffrey A. CUMMING",
+                "address": "Suite 507, 600 Princeton Way, Sw, Calgary, Alberta, T2P 5N4, Canada",
+                "companyNumber": null
+              }
+            ],
+            "inferredType": true,
+            "beforeHolders": [
+              {
+                "name": "Geoffrey A. CUMMING",
+                "address": "Suite 507, 600 Princeton Way, Sw, Calgary, Alberta, T2P 5N4, Canada",
+                "companyNumber": null
+              }
+            ],
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "AMEND"
+          },
+          {
+            "id": "274c779d-9676-454d-bb2e-d8da5883392e",
+            "parcels": [
+              {
+                "amount": 100000,
+                "afterAmount": 500000,
+                "beforeAmount": 400000
+              }
+            ],
+            "afterHolders": [
+              {
+                "name": "JACON INVESTMENTS LIMITED",
+                "address": "120 Seaview Road, Whangamata, Whangamata, 3620, New Zealand",
+                "companyNumber": "969041"
+              }
+            ],
+            "inferredType": true,
+            "beforeHolders": [
+              {
+                "name": "JACON INVESTMENTS LIMITED",
+                "address": "120 Seaview Road, Whangamata, Whangamata, 3620, New Zealand",
+                "companyNumber": "969041"
+              }
+            ],
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "AMEND"
+          },
+          {
+            "id": "5079b3ae-e70b-410f-ae16-3eed95fff0e8",
+            "parcels": [
+              {
+                "amount": 100000,
+                "afterAmount": 500000,
+                "beforeAmount": 400000
+              }
+            ],
+            "afterHolders": [
+              {
+                "name": "HIRVI LIMITED",
+                "address": "17 Lewin Road, Epsom, Auckland, Null, 1023, New Zealand",
+                "companyNumber": "4955819"
+              }
+            ],
+            "inferredType": true,
+            "beforeHolders": [
+              {
+                "name": "HIRVI LIMITED",
+                "address": "17 Lewin Road, Epsom, Auckland, Null, 1023, New Zealand",
+                "companyNumber": "4955819"
+              }
+            ],
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "AMEND"
+          },
+          {
+            "id": "9fb064f8-6371-4d53-bd95-ec81fbc54172",
+            "parcels": [
+              {
+                "amount": 20000,
+                "afterAmount": 75000,
+                "beforeAmount": 55000
+              }
+            ],
+            "afterHolders": [
+              {
+                "name": "LATITUDE 35 HOLDINGS LIMITED",
+                "address": "9 Sylvia Rd, St Heliers, Auckland, Null, New Zealand",
+                "companyNumber": "1025634"
+              }
+            ],
+            "inferredType": true,
+            "beforeHolders": [
+              {
+                "name": "LATITUDE 35 HOLDINGS LIMITED",
+                "address": "9 Sylvia Rd, St Heliers, Auckland, Null, New Zealand",
+                "companyNumber": "1025634"
+              }
+            ],
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "AMEND"
+          },
+          {
+            "id": "22b8ac01-a015-47df-bf46-d7c14a66d351",
+            "parcels": [
+              {
+                "amount": 10000,
+                "afterAmount": 35000,
+                "beforeAmount": 25000
+              }
+            ],
+            "afterHolders": [
+              {
+                "name": "David George LOCK",
+                "address": "16 Kahikatea Close, Campbells Bay, Auckland, 0630, New Zealand",
+                "companyNumber": null
+              }
+            ],
+            "inferredType": true,
+            "beforeHolders": [
+              {
+                "name": "David George LOCK",
+                "address": "16 Kahikatea Close, Campbells Bay, Auckland, 0630, New Zealand",
+                "companyNumber": null
+              }
+            ],
+            "transactionType": "ISSUE_TO",
+            "transactionMethod": "AMEND"
+          }
+        ],
+        "documentId": "22895734",
+        "totalShares": 580000,
+        "documentType": "Particulars of Shareholding",
+        "effectiveDate": "2016-06-07T22:18:00.000Z"
+      },
+      "previous_id": "1ebcfe0f-0142-4769-870c-28149b3841b6"
+    }
+  }
+}

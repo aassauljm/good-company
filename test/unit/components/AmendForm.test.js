@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 
 var fs = Promise.promisifyAll(require("fs"));
 import moment from 'moment';
-import { formatInitialState, formatSubmit, validateAmend, collectAmendActions } from '../../../assets/js/components/transactions/resolvers/amend';
+import { formatInitialState, formatSubmit, validateAmend, collectAmendActions,  guessAmendAfterAmounts } from '../../../assets/js/components/transactions/resolvers/amend';
 import isValid from 'redux-form/lib/isValid'
 
 function valuesAndActionsFromJSON(path){
@@ -46,13 +46,24 @@ describe('Amend format', () => {
         });
 });
 
+describe('Amend matches up share class from company state', () => {
+    it('find each holding from company state, sets after parcels', function(){
+            return fs.readFileAsync('test/fixtures/transactionData/projectManagerHoldingsDefineSharesError.json', 'utf8')
+            .then(data => {
+                data = JSON.parse(data);
+                const values = formatInitialState(collectAmendActions(data.context.actionSet.data.actions), null, null, data.context.companyState);
+                values.actions[1].afterParcels.length.should.be.equal(2);
+            });
+        });
+});
+
+
 describe('Amend validate', () => {
     it('confirms invalid amend form values report as invalid, overallocated', function(){
         return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValuesInvalid1.json')
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
-                errors.actions[6].recipients[1].parcels[0].amount[0].should.be.equal("Share count goes below 0.");
                 errors._error.actions[6][0].should.be.equal("1 shares left to allocate.");
             });
         });
@@ -80,6 +91,7 @@ describe('Amend validate', () => {
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
+                errors.actions[3].recipients[0].parcels[0].amount[0].should.be.equal("Share count for this class goes below 0.");
                 errors._error.actions[3][0].should.be.equal("1 shares over allocated.");
             });
         });
@@ -139,8 +151,6 @@ describe('Amend submit', () => {
                         }
                     })
                 })
-
-
                 done();
             })
             .catch(done);
@@ -162,6 +172,7 @@ describe('Amend submit', () => {
                         return sum + (a.transactionMethod === 'NEW_ALLOCATION' ? 1 : 0)
                     }, sum)
                 }, 0).should.be.equal(5);
+
                 results.reduce((sum, r) => {
                     return r.data.actions.reduce((sum, a) => {
                         return sum + (a.transactionType === 'ISSUE_TO' ? 1 : 0)

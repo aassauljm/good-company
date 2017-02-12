@@ -304,6 +304,7 @@
                 ]
             },
             {
+                "afterParcels": [{"amount": 0}],
                 "recipients": [
                     {
                         "_keyIndex": 57,

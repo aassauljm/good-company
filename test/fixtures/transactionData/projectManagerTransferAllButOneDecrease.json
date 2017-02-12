@@ -34,6 +34,7 @@
 
           "parcels": [
             {
+              "shareClass": 1,
               "amount": 25000,
               "beforeAmount": 25000,
               "afterAmount": 0
@@ -47,6 +48,7 @@
           "id": "a7ac2a88-da23-4442-8fb5-cecf2016bab0",
           "parcels": [
             {
+              "shareClass": 1,
               "amount": 120000,
               "beforeAmount": 80000,
               "afterAmount": 200000
@@ -74,6 +76,7 @@
           "id": "af791705-4265-41aa-b6ec-d48ac4af00ce",
           "parcels": [
             {
+              "shareClass": 1,
               "amount": 40000,
               "beforeAmount": 990000,
               "afterAmount": 950000
@@ -101,6 +104,7 @@
           "id": "ebdc31aa-892f-4abf-900b-be6c21f363e2",
           "parcels": [
             {
+              "shareClass": 1,
               "amount": 25000,
               "beforeAmount": 400000,
               "afterAmount": 375000
@@ -128,6 +132,7 @@
           "id": "324f7476-a824-40dc-95b5-5676ca5e8399",
           "parcels": [
             {
+              "shareClass": 1,
               "amount": 25000,
               "beforeAmount": 400000,
               "afterAmount": 375000
@@ -155,6 +160,7 @@
           "id": "48e7d8e8-0092-4b47-b764-c9c82b77e94f",
           "parcels": [
             {
+              "shareClass": 1,
               "amount": 5000,
               "beforeAmount": 55000,
               "afterAmount": 50000

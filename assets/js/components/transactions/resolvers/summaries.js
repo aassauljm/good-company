@@ -149,7 +149,7 @@ export function beforeAndAfterSummary(context, companyState, showType){
     const increase = actionAmountDirection(action);
     const beforeSharesList = [];
     const afterSharesList = []
-    const shareChanges = action.parcels.map(p => {
+    const shareChanges = action.parcels.map((p, i) => {
         const beforeCount = p.beforeAmount || 0;
         const afterCount = p.afterAmount !== undefined ? p.afterAmount : p.amount;
         let beforeShares = beforeCount ? `${numberWithCommas(beforeCount)} ${renderShareClass(p.shareClass, context.shareClassMap)} Shares` : 'No Shares';
@@ -168,8 +168,17 @@ export function beforeAndAfterSummary(context, companyState, showType){
         }
         beforeSharesList.push(beforeShares);
         afterSharesList.push(afterShares);
+
+        // if now than one parcel, and its the end, add totals
+
         return shareChange;
-    })
+    });
+
+
+        /*if(i > 0 && i === action.parcels.length-1){
+            beforeSharesList.push(beforeShares);
+        } */
+
 
     return <div className="row row-separated">
                 <div className="col-md-5">

@@ -77,6 +77,10 @@ export function prepareApp(url = '/'){
     });
 }
 
+export function destroyApp(){
+    ReactDOM.unmountComponentAtNode(document);
+}
+
 export function simpleStore(){
     return compose(
                  applyMiddleware(thunkMiddleware)

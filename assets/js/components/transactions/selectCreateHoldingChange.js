@@ -35,8 +35,8 @@ function valuesToAction(values, companyState){
     const persons = values.newHolding ? values.newHolding.persons : holdings.persons[values.holding];
     return {
         transactionType: values.newHolding ? TransactionTypes.NEW_ALLOCATION : TransactionTypes.AMEND,
-        beforeAmount: !values.newHolding ? values.beforeAmount : 0,
-        afterAmount: !values.newHolding ? values.afterAmount : 0,
+        //beforeAmount: !values.newHolding ? values.beforeAmount : 0,
+        //afterAmount: !values.newHolding ? values.afterAmount : 0,
         holders: values.newHolding ? persons : null,
         beforeHolders: persons,
         afterHolders: persons,
@@ -49,7 +49,7 @@ function valuesToAction(values, companyState){
 
 @reduxForm({
     form: 'holdingSelectWithNew',
-    fields: ['holding', 'newHolding', 'beforeAmount', 'afterAmount'],
+    fields: ['holding', 'newHolding', 'parcels[].amount', 'parcels[].shareClass'],
     validate: (values) => {
         if(!values.holding && !values.newHolding){
             return {holding: ['Required']}
@@ -88,11 +88,11 @@ export class SelectCreateHoldingChangeTransactionView extends React.Component {
                     holdingOptions={holdingOptionsFromState(this.props.transactionViewData.companyState)} />
 
 
-                    { !isNew && <Input className="amount" type="number" {...this.formFieldProps('beforeAmount')} label={'Before Amount'} /> }
-                    { !isNew && <Input className="amount" type="number" {...this.formFieldProps('afterAmount')} label={'After Amount'} /> }
+                    { false && !isNew && <Input className="amount" type="number" {...this.formFieldProps('beforeAmount')} label={'Before Amount'} /> }
+                    { false && !isNew && <Input className="amount" type="number" {...this.formFieldProps('afterAmount')} label={'After Amount'} /> }
 
-                    { isNew && <StaticField type="static"  className="amount"  {...this.formFieldProps('beforeAmount')} value={0} label={'Before Amount'} /> }
-                    { isNew && <StaticField type="static"  className="amount" {...this.formFieldProps('afterAmount')}  value={0} label={'After Amount'} /> }
+                    {  false && isNew && <StaticField type="static"  className="amount"  {...this.formFieldProps('beforeAmount')} value={0} label={'Before Amount'} /> }
+                    {  false && isNew && <StaticField type="static"  className="amount" {...this.formFieldProps('afterAmount')}  value={0} label={'After Amount'} /> }
             </div>
         </div>
     }

@@ -17,6 +17,7 @@ import HoldingTransfer from './resolvers/holdingTransfer';
 import Amend from './resolvers/amend';
 import { DateConfirmation } from './resolvers/confirmDate';
 import { Holding } from '../shareholdings';
+import Loading from '../loading';
 import { reduxForm, destroy } from 'redux-form';
 import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
@@ -500,7 +501,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
     renderBody() {
         const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
         const action = context.action;
-        context.shareClassMap = generateShareClassMap(context.companyState);
+        context.shareClassMap = generateShareClassMap(this.props.transactionViewData.companyState);
 
         if(!action || !PAGES[context.importErrorType]){
             return <div className="resolve">
@@ -527,10 +528,12 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}
                 <hr/>
-                { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', ...this.props}) }
+                { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, ...this.props}) }
             </div>
         }
-
+        else{
+            return <Loading />
+        }
     }
 
     render() {
@@ -539,7 +542,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         }
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>Import History - More Information Required</TransactionView.Title>
+                <TransactionView.Title>{ STRINGS.importCompanyHistory } - More Information Required</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody() }
