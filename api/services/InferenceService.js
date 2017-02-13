@@ -16,6 +16,7 @@ module.exports = {
         return _.reduce(actionSets, (acc, d, i) => {
 
             const needsInference = _.any(d.actions, a => types.indexOf(a.transactionType) >= 0);
+
             if(needsInference){
                 // TODO, read previous share update doc
                 //http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720672
@@ -39,7 +40,8 @@ module.exports = {
 
                 // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
-                    // totalShares = zero SHOULD mean transfers.  Hopefully.
+                    // totalShares = zero SHOULD mean transfers.
+
                     d.actions.map(a => {
                         a.transactionMethod = a.transactionType;
                         if(a.transactionType === Transaction.types.NEW_ALLOCATION){
@@ -57,39 +59,45 @@ module.exports = {
                     })
                     acc.push(d);
                 }
+
+                // if we find a match, then move all the transactions into that
                 else if(d.totalShares > 0 && allocationsDown === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
-                    d.actions.map(a => {
-                        a.transactionMethod = a.transactionType;
-                        if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
-                           a.transactionType === Transaction.types.AMEND){
-                            if(match){
-                                match.actions.map(m => {
+                    if(match){
+                        const newActions = d.actions.filter((a, i) => {
+                            a.transactionMethod = a.transactionType;
+                            if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
+                               a.transactionType === Transaction.types.AMEND){
+                                    match.actions.map(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.ISSUE:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.ISSUE_TO;
-                                            break;
+                                            return true;
                                         case Transaction.types.CONVERSION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.CONVERSION_TO;
-                                            break;
+                                            return true;
                                         case Transaction.types.SUBDIVISION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.SUBDIVISION_TO;
-                                            break;
+                                            return true;
                                     }
                                 });
                             }
-
+                        });
+                        d.actions = d.actions.filter(a => newActions.indexOf(a) === -1)
+                        if(newActions.length){
+                            newActions.map(a => {
+                                a.inferredType = true;
+                                a.effectiveDate = m.effectiveDate;
+                            });
+                            match.actions = match.actions.concat(newActions)
                         }
-                    });
+                    }
                     acc.push(d);
                 }
 
                 else if(d.totalShares < 0 && allocationsUp === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
-                    d.actions.map(a => {
+                    d.actions.map((a, i) => {
                         if(a.transactionType === Transaction.types.AMEND || a.transactionType === Transaction.types.REMOVE_ALLOCATION){
                             a.transactionMethod = a.transactionType;
                             if(match){
