@@ -1687,7 +1687,9 @@ function validateTransactionSet(data, companyState){
 
             (action.parcels || []).map(p => {
                 shareClasses[p.shareClass] = shareClasses[p.shareClass] || 0;
-                shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+                if(p.afterAmount !== undefined && p.beforeAmount !== undefined){
+                    shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+                }
             });
         }
     });

@@ -57,7 +57,7 @@ export class Search extends React.Component {
     }
 
     setAndClose(value) {
-        this.setState({show: false, value: value})
+        this.setState({show: false, value: ''})
     }
 
     results() {

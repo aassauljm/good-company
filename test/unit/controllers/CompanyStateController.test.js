@@ -491,9 +491,9 @@ describe('Future Transactions', function(){
                         {
                             "actions": [
                                 {
-                                    parcels: [{"amount": 1, shareClass: 1}],
+                                    parcels: [{"amount": 1, shareClass: 1, beforeAmount: 1111, afterAmount: 1112}],
                                     "effectiveDate": date,
-                                    "shareClass": null,
+                                    "shareClass": 1,
                                     "transactionType": "ISSUE"
                                 },
                                 {
