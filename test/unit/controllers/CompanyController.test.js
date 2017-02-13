@@ -592,7 +592,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(29);
+                    res.body.length.should.be.equal(25);
                     done();
                 })
             .catch(done)
@@ -660,7 +660,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(22);
+                    res.body.length.should.be.equal(18);
                     done();
                 })
                 .catch(done)

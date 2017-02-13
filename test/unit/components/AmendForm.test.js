@@ -11,7 +11,7 @@ function valuesAndActionsFromJSON(path){
             data = JSON.parse(data);
             data.actionSet.data.actions = collectAmendActions(data.actionSet.data.actions)
             data.values.actions.map((a, i) => {
-                a.recipients.map((r) => {
+                a.subActions.map((r) => {
                     r.effectiveDate = moment(r.effectiveDate).toDate()
                 });
                 a.data = data.actionSet.data.actions[i];
@@ -72,7 +72,7 @@ describe('Amend validate', () => {
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
-                errors.actions[1].recipients[0].parcels[1].shareClass[0].should.be.equal("Duplicate Share Class.");
+                errors.actions[1].subActions[0].parcels[1].shareClass[0].should.be.equal("Duplicate Share Class.");
 
             });
         });
@@ -81,7 +81,7 @@ describe('Amend validate', () => {
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
-                errors.actions[4].recipients[0].parcels[0].amount[0].should.be.equal("Required.");
+                errors.actions[4].subActions[0].parcels[0].amount[0].should.be.equal("Required.");
                 errors._error.actions[4][0].should.be.equal("1 shares left to allocate.");
             });
         });
@@ -91,7 +91,7 @@ describe('Amend validate', () => {
             .then(data => {
                 const errors = validateAmend(data.values, {});
                 isValid(errors).should.be.equal(false);
-                errors.actions[3].recipients[0].parcels[0].amount[0].should.be.equal("Share count for this class goes below 0.");
+                errors.actions[3].subActions[0].parcels[0].amount[0].should.be.equal("Share count for this class goes below 0.");
                 errors._error.actions[3][0].should.be.equal("1 shares over allocated.");
             });
         });

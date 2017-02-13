@@ -69,9 +69,9 @@ function TransactionSummaries(props) {
                                     </div>
                                     <div className="col-md-8">
                                     { p.data.actions.map((action, i) => {
-                                        const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
-                                            return  Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
-                                        }) }
+                                        const Terse =  TransactionTerseRenderMap[action.transactionType];
+                                        return  Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
+                                    }) }
                                     </div>
                                     <div className="col-md-1">{
                                         editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div>
@@ -108,7 +108,7 @@ function requiresEdit(data){
         [TransactionTypes.NEW_ALLOCATION]: true,
         [TransactionTypes.REMOVE_ALLOCATION]: true
     };
-    return actions.some(a => requiredTypes[a.transactionType]);
+    return actions.some(a => requiredTypes[a.transactionType]) || (data.totalShares !== undefined && data.totalShares !== 0);
 }
 
 
@@ -345,6 +345,7 @@ export class ImportHistoryTransactionView extends React.Component {
                     startId: pendingActions[0].id,
                     endId: pendingActions[pendingActions.length-1].previous_id,
                     pendingActions,
+                    // other actions
                     afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
                 }
         });

@@ -464,7 +464,8 @@ const EXTRACT_DOCUMENT_MAP = {
                     addressForShareRegister:  matchMultline(/Address for share register/).join(', ')|| null,
                     addressForService:  matchMultline(/Address for service/).join(', ') || null
                 },
-                transactionType: Transaction.types.DETAILS_MASS
+                transactionType: Transaction.types.DETAILS_MASS,
+                totalShares: 0
             }]
         }
         const holdings = matchMultline(/Total Number of Company Shares/);
@@ -673,6 +674,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         const result = {
             transactionType: Transaction.types.INCORPORATION,
             effectiveDate: date,
+            totalShares: 0,
             actions: [{
                 fields:{
                     companyNumber: companyNumber,
@@ -720,7 +722,8 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             afterAmount: total,
             byAmount: total,
             amount: total,
-            transactionType: Transaction.types.ISSUE
+            transactionType: Transaction.types.ISSUE,
+            effectiveDate: date
         };
 
         result.actions.push(issueAction);
