@@ -1341,6 +1341,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.HOLDING_TRANSFER]:  TransactionService.performInverseHoldingTransfer,
         [Transaction.types.HOLDER_CHANGE]:  TransactionService.performInverseHolderChange,
         [Transaction.types.ISSUE]:  TransactionService.performInverseIssue,
+        [Transaction.types.SUBDIVISION]:  TransactionService.performInverseIssue,
         [Transaction.types.CONVERSION]:  TransactionService.performInverseConversion,
         [Transaction.types.ACQUISITION]:  TransactionService.performInverseAcquisition,
         [Transaction.types.CONSOLIDATION]:  TransactionService.performInverseConsolidation,
@@ -1362,8 +1363,8 @@ export function performInverseTransaction(data, company, rootState){
     if(!data || !data.actions || data.userSkip){
         return Promise.resolve(rootState);
     }
+    validateTransactionSet(data, rootState);
     let prevState, currentRoot, transactions;
-
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then(function(_rootState){
             currentRoot = _rootState;
@@ -1674,6 +1675,31 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
 }
 
 
+function validateTransactionSet(data, companyState){
+    const shareClasses = {};
+    data.actions.map(action => {
+        if(!action.userSkip){
+            const DIRECTIONS = {
+                [Transaction.types.ISSUE]: -1,
+                [Transaction.types.SUBDIVISION]: -1,
+                [Transaction.types.CONVERSION]: -1
+            };
+
+            (action.parcels || []).map(p => {
+                shareClasses[p.shareClass] = shareClasses[p.shareClass] || 0;
+                shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+            });
+        }
+    });
+    if(!Object.keys(shareClasses).every(shareClass => shareClasses[shareClass] === 0)){
+        console.log(shareClasses)
+        throw new sails.config.exceptions.InvalidInverseOperation('Total share count is unbalanced', {
+            importErrorType: sails.config.enums.UNBALANCED_TRANSACTION,
+            companyState: companyState
+        });
+    }
+}
+
 
 export function performTransaction(data, company, companyState){
 
@@ -1715,6 +1741,7 @@ export function performTransaction(data, company, companyState){
     if(!data.id){
         data.id = uuid.v4();
     }
+    validateTransactionSet(data, companyState);
     let nextState, current, transactions;
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
