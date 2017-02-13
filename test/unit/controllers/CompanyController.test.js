@@ -163,7 +163,7 @@ describe('Company Controller', function() {
         });
     });
 
-    describe('Test import and previous state', function(){
+    describe('Test import and previous state (3523392)', function(){
         var req, companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -465,7 +465,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(22);
+                    res.body.length.should.be.equal(18);
                     done();
                 })
             .catch(done)

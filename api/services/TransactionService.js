@@ -1694,6 +1694,7 @@ function validateTransactionSet(data, companyState){
         }
     });
     if(!Object.keys(shareClasses).every(shareClass => shareClasses[shareClass] === 0)){
+        console.log(JSON.stringify(data, null, 4))
         console.log(shareClasses)
         throw new sails.config.exceptions.InvalidInverseOperation('Total share count is unbalanced', {
             importErrorType: sails.config.enums.UNBALANCED_TRANSACTION,

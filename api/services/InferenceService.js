@@ -65,10 +65,10 @@ module.exports = {
                     const match = getMatchingDocument(i, -d.totalShares);
                     if(match){
                         const newActions = d.actions.filter((a, i) => {
-                            a.transactionMethod = a.transactionType;
                             if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
                                a.transactionType === Transaction.types.AMEND){
-                                    match.actions.map(m => {
+                                a.transactionMethod = a.transactionType;
+                                return match.actions.some(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.ISSUE:
                                             a.transactionType = Transaction.types.ISSUE_TO;
@@ -87,9 +87,11 @@ module.exports = {
                         if(newActions.length){
                             newActions.map(a => {
                                 a.inferredType = true;
-                                a.effectiveDate = m.effectiveDate;
+                                a.effectiveDate = match.actions[0].effectiveDate || match.effectiveDate;
                             });
-                            match.actions = match.actions.concat(newActions)
+
+                            match.actions = match.actions.concat(newActions);
+                            match.totalShares = 0;
                         }
                     }
                     acc.push(d);
@@ -97,40 +99,46 @@ module.exports = {
 
                 else if(d.totalShares < 0 && allocationsUp === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
-                    d.actions.map((a, i) => {
-                        if(a.transactionType === Transaction.types.AMEND || a.transactionType === Transaction.types.REMOVE_ALLOCATION){
-                            a.transactionMethod = a.transactionType;
-                            if(match){
-                                match.actions.map(m => {
+                    if(match){
+                        const newActions = d.actions.filter((a, i) => {
+                            if(a.transactionType === Transaction.types.AMEND || a.transactionType === Transaction.types.REMOVE_ALLOCATION){
+                                a.transactionMethod = a.transactionType;
+                                return match.actions.some(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.PURCHASE:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.PURCHASE_FROM;
-                                            a.confirmationNeeded = true;
-                                            break;
+                                            return true;
                                         case Transaction.types.ACQUISITION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.ACQUISITION_FROM;
-                                            break;
+                                            return true;
                                         case Transaction.types.CONSOLIDATION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.CONSOLIDATION_FROM;
-                                            break;
+                                            return true;
                                         case Transaction.types.REDEMPTION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.REDEMPTION_FROM;
-                                            break;
+                                            return true;
                                     }
                                 });
                             }
+                        });
+                        d.actions = d.actions.filter(a => newActions.indexOf(a) === -1)
+                        if(newActions.length){
+                            newActions.map(a => {
+                                a.inferredType = true;
+                                 a.effectiveDate = match.actions[0].effectiveDate || match.effectiveDate;
+                            });
+                            match.actions = match.actions.concat(newActions);
+                            match.totalShares = 0;
                         }
-                    });
+                    }
                     acc.push(d);
                 }
+
                 else{
                     acc.push(d);
                 }
             }
+
             else{
                 acc.push(d);
             }

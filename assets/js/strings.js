@@ -129,8 +129,9 @@ export default {
         TRANSFER_TO: 'Transfer',
         TRANSFER_FROM: 'Transfer',
         AMEND: 'Unknown Change',
-        NEW_ALLOCATION: 'Unknown Increase'
-
+        NEW_ALLOCATION: 'Unknown Increase',
+        AMEND_UP: 'Unknown Increase',
+        AMEND_DOWN: 'Unknown Decrease'
     },
     transactionVerbs: {
         ISSUE_TO: 'Issue',
