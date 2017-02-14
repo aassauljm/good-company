@@ -25,16 +25,13 @@ import { showContextualTransactionView } from '../../../actions';
 let keyIndex = 0;
 
 
-function increaseOptions(){
-    return [
+const INCREASE_OPTIONS = [
         <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
-         <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_TO]}</option>,
+        <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_TO]}</option>,
         <option key={3} value={TransactionTypes.CONVERSION_TO}>{STRINGS.transactionVerbs[TransactionTypes.CONVERSION_TO]}</option>
     ];
-};
 
-function decreaseOptions(){
-    return [
+const DECREASE_OPTIONS = [
         <option key={0} value={TransactionTypes.TRANSFER_FROM}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_FROM]}</option>,
         <option key={2} value={TransactionTypes.REDEMPTION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.REDEMPTION_FROM]}</option>,
         <option key={3} value={TransactionTypes.ACQUISITION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.ACQUISITION_FROM]}</option>,
@@ -42,8 +39,8 @@ function decreaseOptions(){
 
         <option key={5} value={TransactionTypes.CANCELLATION_FROM}>{STRINGS.transactionVerbs[TransactionTypes.CANCELLATION_FROM]}</option>,
         <option key={6} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>
-    ];
-};
+];
+
 
 const UNREPORTED_TRANSACTION = 'UNREPORTED_TRANSACTION';
 
@@ -143,7 +140,7 @@ function validTransactionType(type){
 class SubAction extends React.Component {
     render(){
         const title =  `Transaction #${this.props.index+1}`;
-        const options = this.props.increase ? increaseOptions() : decreaseOptions();
+        const options = this.props.increase ? INCREASE_OPTIONS : DECREASE_OPTIONS;
         const holdings = this.props.holdings;
 
         const renderOption = (h, i) => {
@@ -164,10 +161,10 @@ class SubAction extends React.Component {
                     disabled={disabled}
                     label={false}>
                         <option value="" disabled></option>
-                            {  this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
-                            {  this.props.increase && <optgroup label="Decreases">{ decreaseOptions() } </optgroup> }
-                            {  !this.props.increase &&<optgroup label="Decreases">{ decreaseOptions() } </optgroup> }
-                            {  !this.props.increase && <optgroup label="Increases">{ increaseOptions() }</optgroup> }
+                            {  this.props.increase && <optgroup label="Increases">{ INCREASE_OPTIONS }</optgroup> }
+                            {  this.props.increase && <optgroup label="Decreases">{ DECREASE_OPTIONS } </optgroup> }
+                            {  !this.props.increase &&<optgroup label="Decreases">{ DECREASE_OPTIONS } </optgroup> }
+                            {  !this.props.increase && <optgroup label="Increases">{ INCREASE_OPTIONS }</optgroup> }
                     </Input>
 
                 </div>
