@@ -49,7 +49,7 @@ const UNREPORTED_TRANSACTION = 'UNREPORTED_TRANSACTION';
 
 const EXTERNAL_TYPES = [
     TransactionTypes.ISSUE,
-    TransactionTypes.CONSOLIDATION,
+    TransactionTypes.CONVERSION,
     TransactionTypes.SUBDIVISION,
     TransactionTypes.REDEMPTION,
     TransactionTypes.ACQUISITION,
@@ -60,7 +60,7 @@ const EXTERNAL_TYPES = [
 
 const TRANSACTION_MAPPING = {
     [TransactionTypes.ISSUE]: TransactionTypes.ISSUE_TO,
-    [TransactionTypes.CONSOLIDATION]: TransactionTypes.CONSOLIDATION_TO,
+    [TransactionTypes.CONVERSION]: TransactionTypes.CONVERSION_TO,
     [TransactionTypes.SUBDIVISION]: TransactionTypes.SUBDIVISION_TO,
     [TransactionTypes.REDEMPTION]: TransactionTypes.REDEMPTION_FROM,
     [TransactionTypes.ACQUISITION]: TransactionTypes.ACQUISITION_FROM,
@@ -193,7 +193,7 @@ class SubAction extends React.Component {
                 { !!this.props.type.value && !isTransfer(this.props.type.value)  &&  <div className="input-row">
                         <Input type="select" {...this.formFieldProps('targetActionSet')}
                             disabled={disabled}
-                            label={`${STRINGS.transactionTypes[this.props.type.value]} Transaction`}>
+                            label={`${STRINGS.amendTypes[this.props.type.value]} Transaction`}>
                             <option value="" disabled></option>
                             { this.props.externalActionSets[this.props.type.value] || [] }
                         </Input>
@@ -575,7 +575,7 @@ export function formatSubmit(values, actionSet, externalActions) {
                 else{
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
                         transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
-                    if(r.targetActionSet && r.targetActionSet !== UNREPORTED_TRANSACTION){
+                    if(r.targetActionSet && r.targetActionSet !== UNREPORTED_TRANSACTION && actionSet.id !== r.targetActionSet){
                         const target = externalActions.find(a => a.id === r.targetActionSet);
                         transplantActions.push({targetActionSet: r.targetActionSet, action: {...result, isTransplant: true, effectiveDate: target.effectiveDate}});
                     }
@@ -665,7 +665,7 @@ export function guessAmendAfterAmounts(action, defaultShareClass, companyState){
 
 
 
-export function formatInitialState(amendActions, defaultDate, defaultShareClass, companyState){
+export function formatInitialState(amendActions, defaultDate, defaultShareClass, companyState, actionSetId){
     const identity = x => x;
     const allSameDirectionSum = amendActions.reduce((acc, action) => {
         return acc + (actionAmountDirection(action) ? 1 : 0)
@@ -690,6 +690,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
         if(allSameDirection){
             return {
                 subActions: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
+                targetActionSet: actionSetId,
                 effectiveDate,  _keyIndex: keyIndex++, type: validTransactionType(a.transactionType || a.transactionMethod)}]
             };
         }
@@ -722,13 +723,16 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
 
 
         return {subActions: [{
+            targetActionSet: actionSetId,
             parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
             type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyIndex++, holding, isInverse: inverse
         }]};
     }).filter(identity), identity, identity, x => false)};
 
     initialValues.actions = initialValues.actions.map((a, i) => ({
-        ...a, data: amendActions[i], userSkip: amendActions[i].userSkip,
+        ...a,
+        data: amendActions[i],
+        userSkip: amendActions[i].userSkip,
         afterParcels: guessAmendAfterAmounts(amendActions[i], defaultShareClass, companyState)
     }))
     return initialValues;
@@ -737,12 +741,12 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
 function generateExternalActionSetOptions(actionSets){
     const grouped = {};
     actionSets.map((set, i) => {
-        set.data.actions.map(action => {
-            if(EXTERNAL_TYPES.indexOf(action.transactionType) >= 0 && getTotalShares(set.data) !== 0){
+        set.data.actions.map((action, j) => {
+            if(EXTERNAL_TYPES.indexOf(action.transactionType) >= 0){
                 const mappedType = TRANSACTION_MAPPING[action.transactionType]
                 grouped[mappedType] = grouped[mappedType] || [];
                 grouped[mappedType].push(
-                    <option value={set.id} key={i}>
+                    <option value={set.id} key={`${i}-${j}`}>
                         { stringDateToFormattedString(set.data.effectiveDate)} - { `${STRINGS.transactionTypes[action.transactionType]} of ${ action.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') }` }
                     </option>);
             }
@@ -756,7 +760,7 @@ function generateExternalActionSetOptions(actionSets){
             <option value={UNREPORTED_TRANSACTION} key={type}>
                { STRINGS.amend[UNREPORTED_TRANSACTION]}
             </option>);
-    })
+    });
     return grouped;
 }
 
@@ -773,7 +777,7 @@ export default function Amend(props){
     const shareOptions = shareClasses.map((s, i) => {
         return <option key={i} value={s.id}>{s.name}</option>
     });
-    const externalActionSets = generateExternalActionSetOptions(otherActions);
+    const externalActionSets = generateExternalActionSetOptions([actionSet, ...otherActions]);
     const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
 
     const handleSubmit = (values) => {
@@ -790,7 +794,7 @@ export default function Amend(props){
             defaultShareClass={defaultShareClass}
             onSubmit={handleSubmit}
             cancel={props.cancel}
-            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass, props.resolving ? companyState : {})}
+            initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass, props.resolving ? companyState : {}, actionSet.id)}
             show={props.show}
             transactionViewData={props.transactionViewData}
             viewName={props.viewName}

@@ -42,7 +42,7 @@ function TransactionSummaries(props) {
         if(!actions.length || isNonDisplayedTransaction(p.data.transactionType)){
             return false;
         }
-        if(!props.showConfirmed && actions.every(a => a.userConfirmed)){
+        if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
             return false;
         }
         return true;
@@ -56,7 +56,7 @@ function TransactionSummaries(props) {
                 const required = requiresEdit(p.data);
                 const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed);
                 const showConfirm = !required && !showUnconfirm;
-                const editable = isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed);
+                const editable = (isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed)) || required;
                 let className = "panel panel-default"
                 if(required){
                     className = "panel panel-danger"
