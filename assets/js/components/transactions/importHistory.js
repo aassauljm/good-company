@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, createResource, updateResource, addNotification } from '../../actions';
-import { pureRender, stringDateToFormattedString, generateShareClassMap } from '../../utils';
+import { pureRender, stringDateToFormattedString, generateShareClassMap, getTotalShares } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import { Link } from 'react-router'
@@ -36,7 +36,8 @@ const PAGES = [];
 
 
 function TransactionSummaries(props) {
-    const pendingActions = props.pendingActions.filter(p => {
+    const pendingActions = props.pendingActions.filter((p, i) => {
+        p.numberId = i;
         const actions = p.data.actions.filter(a => a.transactionType);
         if(!actions.length || isNonDisplayedTransaction(p.data.transactionType)){
             return false;
@@ -46,8 +47,8 @@ function TransactionSummaries(props) {
         }
         return true;
     });
-
-    return <div>
+    const className = props.loading ? 'button-loading' : '';
+    return <div className={className}>
         <p>Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.</p>
         <hr/>
         <Shuffle >
@@ -60,7 +61,7 @@ function TransactionSummaries(props) {
                 if(required){
                     className = "panel panel-danger"
                 }
-                return <div key={p.id}>
+                return <div key={p.numberId}>
                         <div  className={className}>
                             <div className="panel-heading">
                                 <div className="row transaction-table">
@@ -69,8 +70,8 @@ function TransactionSummaries(props) {
                                     </div>
                                     <div className="col-md-8">
                                     { p.data.actions.map((action, i) => {
-                                        const Terse =  TransactionTerseRenderMap[action.transactionType];
-                                        return  Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
+                                        const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
+                                        return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
                                     }) }
                                     </div>
                                     <div className="col-md-1">{
@@ -92,7 +93,7 @@ function TransactionSummaries(props) {
         { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }
         { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
 
-        { pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
+        { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
         { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
 
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
@@ -108,7 +109,8 @@ function requiresEdit(data){
         [TransactionTypes.NEW_ALLOCATION]: true,
         [TransactionTypes.REMOVE_ALLOCATION]: true
     };
-    return actions.some(a => requiredTypes[a.transactionType]) || (data.totalShares !== undefined && data.totalShares !== 0);
+
+    return actions.some(a => requiredTypes[a.transactionType]) || getTotalShares(data) !== 0;
 }
 
 
@@ -156,7 +158,7 @@ function isNonDisplayedTransaction(transactionType){
 }
 
 PAGES[EXPLAINATION] = function() {
-    if(this.props.pendingHistory._status === 'fetching'){
+    if(this.state.pendingHistory._status === 'fetching'){
         return  <Loading />
     }
 
@@ -166,8 +168,8 @@ PAGES[EXPLAINATION] = function() {
         <p>We are currently working on tools to enable the creation of a complete share register for an extensive shareholding.</p>
             </div>
     }
-    if(this.props.pendingHistory._status === 'complete'){
-        const pendingYearActions = collectActions(this.props.pendingHistory.data);
+    if(this.state.pendingHistory._status === 'complete'){
+        const pendingYearActions = collectActions(this.state.pendingHistory.data);
         if(pendingYearActions.length){
             return <TransactionSummaries
                 shareClassMap={generateShareClassMap(this.props.transactionViewData.companyState) }
@@ -178,6 +180,7 @@ PAGES[EXPLAINATION] = function() {
                 end={this.props.end}
                 handleConfirm={this.handleConfirm}
                 toggleConfirmed={this.toggleConfirmed}
+                loading={this.isLoading()}
                 showConfirmed={this.props.transactionViewData.showConfirmed}
                 />
         }
@@ -211,6 +214,7 @@ PAGES[LOADING] = function() {
         pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {},
         importHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history`] || {},
         importHistoryUntil: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until`] || {},
+        updatePendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || {},
         companyState: state.resources[`/company/${ownProps.transactionViewData.companyId}`] || {},
     };
 }, (dispatch, ownProps) => {
@@ -228,7 +232,7 @@ PAGES[LOADING] = function() {
         destroyForm: (args) => dispatch(destroy(args)),
         updateAction: (args) => {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
-                invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
+                invalidates: [`/company/${ownProps.transactionViewData.companyId}/pending_history`]
             }))
             .then((r) => {
                 dispatch(destroy('amend'));
@@ -249,6 +253,7 @@ export class ImportHistoryTransactionView extends React.Component {
         this.handleAddNew = ::this.handleAddNew;
         this.handleConfirm = ::this.handleConfirm;
         this.toggleConfirmed = ::this.toggleConfirmed;
+        this.state = {pendingHistory: props.pendingHistory};
     };
 
     fetch() {
@@ -265,6 +270,12 @@ export class ImportHistoryTransactionView extends React.Component {
         this.checkContinue();
     };
 
+    componentWillReceiveProps(newProps) {
+        if(newProps.pendingHistory && newProps.pendingHistory.data){
+            this.setState({pendingHistory: newProps.pendingHistory})
+        }
+    }
+
     checkContinue() {
         if(this.props.index === CONTINUE){
             this.handleStart();
@@ -273,6 +284,10 @@ export class ImportHistoryTransactionView extends React.Component {
 
     renderBody() {
         return  PAGES[this.props.index] && PAGES[this.props.index].call(this);
+    }
+
+    isLoading() {
+        return this.props.pendingHistory._status !== 'complete' || this.props.updatePendingHistory._status === 'fetching'
     }
 
     handleStart() {
@@ -333,7 +348,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     handleResolve(error, afterIndex) {
-        const pendingActions = collectActions(this.props.pendingHistory.data || []);
+        const pendingActions = collectActions(this.state.pendingHistory.data || []);
         this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
             {
@@ -352,8 +367,11 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     handleConfirm(transaction, confirmState=true) {
+        if(this.isLoading()){
+            return false;
+        }
         const pendingAction = {...transaction};
-        const pendingActions = collectActions(this.props.pendingHistory.data || []);
+        const pendingActions = collectActions(this.state.pendingHistory.data || []);
         const index = pendingActions.findIndex(p => p.id === transaction.id);
         pendingAction.data.actions = pendingAction.data.actions.map((a) => {
             return {...a, userConfirmed: confirmState}

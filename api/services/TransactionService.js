@@ -1682,7 +1682,16 @@ function validateTransactionSet(data, companyState){
             const DIRECTIONS = {
                 [Transaction.types.ISSUE]: -1,
                 [Transaction.types.SUBDIVISION]: -1,
-                [Transaction.types.CONVERSION]: -1
+                [Transaction.types.CONVERSION]: -1,
+                [Transaction.types.ISSUE]: -1,
+                [Transaction.types.SUBDIVISION]: -1,
+                [Transaction.types.CONVERSION]: -1,
+                [Transaction.types.REDEMPTION]:-1,
+                [Transaction.types.ACQUISITION]: -1,
+                [Transaction.types.CONSOLIDATION]:-1,
+                [Transaction.types.CANCELLATION]:-1,
+                [Transaction.types.PURCHASE]: -1
+
             };
 
             (action.parcels || []).map(p => {
@@ -1694,8 +1703,6 @@ function validateTransactionSet(data, companyState){
         }
     });
     if(!Object.keys(shareClasses).every(shareClass => shareClasses[shareClass] === 0)){
-        console.log(JSON.stringify(data, null, 4))
-        console.log(shareClasses)
         throw new sails.config.exceptions.InvalidInverseOperation('Total share count is unbalanced', {
             importErrorType: sails.config.enums.UNBALANCED_TRANSACTION,
             companyState: companyState

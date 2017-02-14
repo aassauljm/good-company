@@ -1,8 +1,9 @@
 "use strict"
 import React from 'react';
 import LawBrowserContainer from '../lawBrowserContainer'
+import ScrollToTop from '../../hoc/scrollToTop';
 
-
+@ScrollToTop
 export default class GCTransactionView extends React.Component {
     render() {
         if(this.props.lawLinks){

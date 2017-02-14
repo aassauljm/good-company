@@ -71,3 +71,10 @@ table{
 .form-group-indent {
     margin-left: 2em;
 }
+
+
+.button-loading{
+    button{
+        cursor: progress;
+    }
+}

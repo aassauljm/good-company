@@ -121,28 +121,28 @@ describe('Amend submit', () => {
     it('confirms that submitted form is segmented by date and holding', function(done) {
         return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValues.json')
             .then(data => {
-                const results = formatSubmit(data.values, data.actionSet);
+                const { newActions } = formatSubmit(data.values, data.actionSet);
 
-                results.length.should.be.equal(6);
+                newActions.length.should.be.equal(6);
 
-                results[1].data.actions.length.should.be.equal(2);
-                results[1].data.actions[0].transactionType.should.be.equal('TRANSFER_TO');
-                results[2].data.actions[0].transactionType.should.be.equal('ISSUE_TO');
-                results[2].data.actions.length.should.be.equal(1);
-                results[1].data.effectiveDate.should.not.equal(results[2].data.effectiveDate);
-                let lastDate = new Date(results[0].data.effectiveDate)
-                for(var i=1;i<results.length;i++){
-                    const thisDate = new Date(results[i].data.effectiveDate);
+                newActions[1].data.actions.length.should.be.equal(2);
+                newActions[1].data.actions[0].transactionType.should.be.equal('TRANSFER_TO');
+                newActions[2].data.actions[0].transactionType.should.be.equal('ISSUE_TO');
+                newActions[2].data.actions.length.should.be.equal(1);
+                newActions[1].data.effectiveDate.should.not.equal(newActions[2].data.effectiveDate);
+                let lastDate = new Date(newActions[0].data.effectiveDate)
+                for(var i=1;i<newActions.length;i++){
+                    const thisDate = new Date(newActions[i].data.effectiveDate);
                     (thisDate <= lastDate).should.be.equal(true);
                     lastDate = thisDate;
                 }
-                results.reduce((sum, r) => {
+                newActions.reduce((sum, r) => {
                     return r.data.actions.reduce((sum, a) => {
                         return sum + (a.transactionMethod === 'NEW_ALLOCATION' ? 1 : 0)
                     }, sum)
                 }, 0).should.be.equal(5);
 
-                results.map(r => {
+                newActions.map(r => {
                     r.data.actions.map(a => {
                         if(a.transactionMethod === 'NEW_ALLOCATION'){
                             a.parcels.map(p => {
@@ -160,20 +160,20 @@ describe('Amend submit', () => {
     it('confirms that submitted form is segmented by date and holding, again', function(done) {
         return valuesAndActionsFromJSON('test/fixtures/transactionData/catalexAmendFormValues2.json')
             .then(data => {
-                const results = formatSubmit(data.values, data.actionSet);
-                let lastDate = new Date(results[0].data.effectiveDate)
-                for(var i=1;i<results.length;i++){
-                    const thisDate = new Date(results[i].data.effectiveDate);
+                const { newActions } = formatSubmit(data.values, data.actionSet);
+                let lastDate = new Date(newActions[0].data.effectiveDate)
+                for(var i=1;i<newActions.length;i++){
+                    const thisDate = new Date(newActions[i].data.effectiveDate);
                     (thisDate <= lastDate).should.be.equal(true);
                     lastDate = thisDate;
                 }
-                results.reduce((sum, r) => {
+                newActions.reduce((sum, r) => {
                     return r.data.actions.reduce((sum, a) => {
                         return sum + (a.transactionMethod === 'NEW_ALLOCATION' ? 1 : 0)
                     }, sum)
                 }, 0).should.be.equal(5);
 
-                results.reduce((sum, r) => {
+                newActions.reduce((sum, r) => {
                     return r.data.actions.reduce((sum, a) => {
                         return sum + (a.transactionType === 'ISSUE_TO' ? 1 : 0)
                     }, sum)

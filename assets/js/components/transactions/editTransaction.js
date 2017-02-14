@@ -38,7 +38,7 @@ const DEFAULT_OBJ = {};
         addNotification: (args) => dispatch(addNotification(args)),
         updateAction: (args) => {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
-                //invalidates: [`/company/${ownProps.transactionViewData.companyId}/import_pending_history`]
+                invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
         },
         resetAction: (args) => {
@@ -55,12 +55,22 @@ export class EditTransactionView extends React.Component {
     renderBody() {
         const actionSet = this.props.transactionViewData.actionSet;
         const hasAmend = actionSet && actionSet.data.actions.some(action =>[TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0);
-        const updateAction = (newActions) => {
+
+        const updateAction = ({newActions, transplantActions}) => {
+
             const otherActions = this.props.transactionViewData.otherActions;
             const previousAction = this.props.transactionViewData.previousAction;
-            const orderedActions = otherActions.concat(newActions.pendingActions);
+            const orderedActions = otherActions.concat(newActions);
 
-            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => new Date(x.data.date), -1).thenBy(x => x.data.orderIndex).thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
+            transplantActions.map(transplant => {
+                const target = orderedActions.find(s => s.id === transplant.targetActionSet);
+                if(target){
+                    target.data.actions.push(transplant.action);
+                    target.data.orderIndex = transplant.orderIndex;
+                }
+            });
+
+            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => x.data.orderIndex).thenBy(x => new Date(x.data.date), -1).thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
             orderedActions[0].id = this.props.transactionViewData.startId;
             orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
             this.props.updateAction({pendingActions: orderedActions})
@@ -68,6 +78,7 @@ export class EditTransactionView extends React.Component {
                 this.handleClose();
             })
         }
+
         if(this.props.updating._status !== 'fetching'){
             if(hasAmend || !actionSet){
                 return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction', cancel: () =>  this.props.end({cancelled: true}) })

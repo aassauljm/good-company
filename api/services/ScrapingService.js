@@ -465,8 +465,8 @@ const EXTRACT_DOCUMENT_MAP = {
                     addressForService:  matchMultline(/Address for service/).join(', ') || null
                 },
                 transactionType: Transaction.types.DETAILS_MASS,
-                totalShares: 0
-            }]
+            }],
+            totalShares: 0
         }
         const holdings = matchMultline(/Total Number of Company Shares/);
 

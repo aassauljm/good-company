@@ -133,6 +133,7 @@ export default {
         AMEND_UP: 'Unknown Increase',
         AMEND_DOWN: 'Unknown Decrease'
     },
+
     transactionVerbs: {
         ISSUE_TO: 'Issue',
         TRANSFER_TO: 'Transfer',
@@ -219,7 +220,8 @@ export default {
         }
     },
     amend: {
-        notified: 'The Companies Register been notified of the change of the total share amount'
+        notified: 'The Companies Register been notified of the change of the total share amount',
+        UNREPORTED_TRANSACTION: 'Unreported Transaction'
     },
     deadlines: {
         annualReturn: "Annual Return",

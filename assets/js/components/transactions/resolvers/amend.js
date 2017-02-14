@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap,
-    renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState } from '../../../utils';
+    renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState, getTotalShares } from '../../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../../forms/input';
@@ -24,6 +24,7 @@ import { showContextualTransactionView } from '../../../actions';
 
 let keyIndex = 0;
 
+
 function increaseOptions(){
     return [
         <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
@@ -43,6 +44,8 @@ function decreaseOptions(){
         <option key={6} value={TransactionTypes.PURCHASE_FROM}>{STRINGS.transactionVerbs[TransactionTypes.PURCHASE_FROM]}</option>
     ];
 };
+
+const UNREPORTED_TRANSACTION = 'UNREPORTED_TRANSACTION';
 
 const EXTERNAL_TYPES = [
     TransactionTypes.ISSUE,
@@ -135,6 +138,7 @@ function validTransactionType(type){
 }
 
 
+
 @formFieldProps()
 class SubAction extends React.Component {
     render(){
@@ -149,10 +153,12 @@ class SubAction extends React.Component {
         }
 
         const disabled = !!this.props.isInverse.value || this.props.allDisabled;
+        const dateDisabled = !!this.props.type.value && !isTransfer(this.props.type.value) && !!this.props.targetActionSet.value && this.props.targetActionSet.value !== UNREPORTED_TRANSACTION;
+
         return  <Panel title={title}>
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
-                <DateInput {...this.formFieldProps('effectiveDate')} disabled={disabled} time={true}/>
+                <DateInput {...this.formFieldProps('effectiveDate')} disabled={disabled || dateDisabled} time={true}/>
                 <div className="input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     disabled={disabled}
@@ -171,14 +177,6 @@ class SubAction extends React.Component {
                     return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove} forceShareClass={true} allDisabled={this.props.allDisabled}/>
                 }) }</div>
 
-                { false && optionalNotification(this.props.type.value) && <div className="input-row">
-
-                    <Input type="checkbox" {...this.formFieldProps('notified', STRINGS.amend) } />
-                    </div>}
-
-
-
-
                 { isTransfer(this.props.type.value) &&
                     <div className="input-row">
                         <Input type="select" {...this.formFieldProps('holding')}
@@ -193,9 +191,9 @@ class SubAction extends React.Component {
                 </div> }
 
                 { !!this.props.type.value && !isTransfer(this.props.type.value)  &&  <div className="input-row">
-                        <Input type="select" {...this.formFieldProps('holding')}
+                        <Input type="select" {...this.formFieldProps('targetActionSet')}
                             disabled={disabled}
-                            label={'Issue Transaction'}>
+                            label={`${STRINGS.transactionTypes[this.props.type.value]} Transaction`}>
                             <option value="" disabled></option>
                             { this.props.externalActionSets[this.props.type.value] || [] }
                         </Input>
@@ -214,7 +212,7 @@ function SubActions(props){
                 { props.subActions.map((r, i) => {
                     const show = !r.isInverse.value;
                     if(!show){
-                        const parcels = r.parcels.map(p => `${p.amo<subunt.value} ${renderShareClass(p.shareClass.value, props.shareClassMap)}`).join(', ');
+                        const parcels = r.parcels.map(p => `${p.amount.value} ${renderShareClass(p.shareClass.value, props.shareClassMap)}`).join(', ');
                         const title = `Transfer of ${parcels} ${isIncrease(r.type.value) ?  'from' : 'to' } ${(props.holdings.find(h => h.value === r.holding.value) || {}).label}`;
                         return <div className="list-item" key={r._keyIndex.value}>
                             <Panel title={title} />
@@ -248,7 +246,7 @@ function SubActions(props){
                         return sum + signedAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
                     }, 0);
                     props.subActions.addField({
-                        _keyIndex: keyIndex++, effectiveDate: props.effectiveDate,
+                        _keyIndex: keyIndex++, effectiveDate: props.effectiveDate, userCreated: true,
                         parcels:[{shareClass: props.defaultShareClass, amount: Math.abs(remaining)}]
                     })    // pushes empty child field onto the end of the array
                 }}>
@@ -485,6 +483,9 @@ export function validateAmend(values, props) {
                     errors.holding = ['Transfer shareholding required.'];
                 }
             }
+            else if(!recipient.targetActionSet){
+                errors.targetActionSet = ['Original transaction required.'];
+            }
             return errors;
         }).reverse();
 
@@ -522,7 +523,7 @@ const amendFields = [
     'actions[].subActions[].effectiveDate',
     'actions[].subActions[].holding',
     'actions[].subActions[].isInverse',
-    'actions[].subActions[].inverse',
+    'actions[].subActions[].userCreated',
     'actions[].subActions[]._keyIndex',
     'actions[].subActions[].targetActionSet',
     'actions[].afterParcels[].amount',
@@ -544,7 +545,7 @@ const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_AL
 export function collectAmendActions(actions){ return  actions.filter(isAmendable) };
 
 
-export function formatSubmit(values, actionSet) {
+export function formatSubmit(values, actionSet, externalActions) {
     actionSet = actionSet || {data: {actions: []}};
     const amendActions = collectAmendActions(actionSet.data.actions);
     const amends = [...(values.actions.map((a, i) => ({...amendActions[i]})))];
@@ -553,6 +554,7 @@ export function formatSubmit(values, actionSet) {
 
     const nonTransfers = {};
     const transfers = []
+    const transplantActions = [];
 
     values.actions.map((a, i) => {
 
@@ -573,17 +575,16 @@ export function formatSubmit(values, actionSet) {
                 else{
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
                         transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
-                    nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
-                    nonTransfers[r.effectiveDate].push(result);
-                    if(optionalNotification(r.type) && !r.notified){
-                        if(r.type === TransactionTypes.CANCELLATION_FROM){
-                            nonTransfers[r.effectiveDate].push({
-                                transactionType: TransactionTypes.CANCELLATION,
-                                unnotified: true,
-                                parcels,
-                                effectiveDate: r.effectiveDate,
-                            });
-                        }
+                    if(r.targetActionSet && r.targetActionSet !== UNREPORTED_TRANSACTION){
+                        const target = externalActions.find(a => a.id === r.targetActionSet);
+                        transplantActions.push({targetActionSet: r.targetActionSet, action: {...result, isTransplant: true, effectiveDate: target.effectiveDate}});
+                    }
+                    else if(r.targetActionSet && r.targetActionSet === UNREPORTED_TRANSACTION){
+
+                    }
+                    else{
+                        nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
+                        nonTransfers[r.effectiveDate].push(result);
                     }
                 }
             }
@@ -596,6 +597,10 @@ export function formatSubmit(values, actionSet) {
         transactions.push(nonTransfers[date]);
     });
 
+    transplantActions.map(transplant => {
+        transactions.push([transplant]);
+    });
+
     // sort by date
     transactions.sort((a, b) => {
         return b[0].effectiveDate - a[0].effectiveDate
@@ -606,14 +611,11 @@ export function formatSubmit(values, actionSet) {
     const parcelIndexByClass = (parcels, shareClass) => {
         return parcels.findIndex(p =>  !p.shareClass || shareClass === p.shareClass);
     }
-
-
     transactions.map((actions, i) => {
         actions.map(action => {
             if(action._holding !== undefined && amends[action._holding].parcels){
                 //look up original action
                 const original = amends[action._holding];
-
                 action.parcels = action.parcels.map(p => {
                     p = {...p}
                     const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
@@ -640,11 +642,16 @@ export function formatSubmit(values, actionSet) {
         delete newAllocations[k].afterHolders;
         delete newAllocations[k].beforeHolders;
     });
-    transactions.map((t, orderIndex) => {
-        pendingActions.push({id: actionSet.id, data: {...actionSet.data, orderIndex: orderIndex, effectiveDate: t[0].effectiveDate, totalShares: null, actions: t}, previous_id: actionSet.previous_id});
+    transactions.map((actions, orderIndex) => {
+        // add orderIndex to transplants
+        actions.filter(action => action.isTransplant).map(transplant => {
+            transplantActions.find(t => t.action === transplant).orderIndex = orderIndex;
+        });
+        actions = actions.filter(action => !action.isTransplant);
+        pendingActions.push({id: actionSet.id, data: {...actionSet.data, orderIndex: orderIndex, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
     });
 
-    return pendingActions;
+    return { newActions: pendingActions, transplantActions }
 }
 
 
@@ -731,7 +738,7 @@ function generateExternalActionSetOptions(actionSets){
     const grouped = {};
     actionSets.map((set, i) => {
         set.data.actions.map(action => {
-            if(EXTERNAL_TYPES.indexOf(action.transactionType) >= 0 && set.data.totalShares !== 0){
+            if(EXTERNAL_TYPES.indexOf(action.transactionType) >= 0 && getTotalShares(set.data) !== 0){
                 const mappedType = TRANSACTION_MAPPING[action.transactionType]
                 grouped[mappedType] = grouped[mappedType] || [];
                 grouped[mappedType].push(
@@ -740,6 +747,15 @@ function generateExternalActionSetOptions(actionSets){
                     </option>);
             }
         });
+    })
+    EXTERNAL_TYPES.map((type) => {
+        const mappedType = TRANSACTION_MAPPING[type];
+        grouped[mappedType] = grouped[mappedType] || [];
+
+        grouped[mappedType].push(
+            <option value={UNREPORTED_TRANSACTION} key={type}>
+               { STRINGS.amend[UNREPORTED_TRANSACTION]}
+            </option>);
     })
     return grouped;
 }
@@ -759,11 +775,9 @@ export default function Amend(props){
     });
     const externalActionSets = generateExternalActionSetOptions(otherActions);
     const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
+
     const handleSubmit = (values) => {
-        const pendingActions = formatSubmit(values, actionSet);
-        submit({
-            pendingActions: pendingActions
-        })
+        submit(formatSubmit(values, actionSet, otherActions))
     }
 
     return <div className="resolve">
@@ -787,7 +801,7 @@ export default function Amend(props){
 
 
 
-export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=(x) => ({value: x}), getTouched=(x) => x.touched) {
+export function calculateReciprocals(actions, getValue=(x) => x && x.value, setValue=(x) => ({value: x}), getTouched=(x) =>x && x.touched) {
     if(!actions){
         return null;
     }
@@ -812,9 +826,9 @@ export function calculateReciprocals(actions, getValue=(x) => x.value, setValue=
                 const inverseHolding = i.toString();
                 // does the reciprocal any fields that have been touched?
 
-                /*actions[holdingIndex].subActions = actions[holdingIndex].subActions.filter(r => {
-                    return r.parcels.some(p => getTouched(p.amount) || getTouched(p.shareClass)) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse);
-                });*/
+                actions[holdingIndex].subActions = actions[holdingIndex].subActions.filter(r => {
+                    return getValue(r.userCreated) || (r.parcels.some(p => getTouched(p.amount) || getTouched(p.shareClass)) || getTouched(r.effectiveDate) || getTouched(r.type) || getTouched(r.holding) || getValue(r.isInverse));
+                });
 
                 actions[holdingIndex].subActions.push({
                     effectiveDate: recipient.effectiveDate,

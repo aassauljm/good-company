@@ -4,6 +4,7 @@ import isoFetch from 'isomorphic-fetch';
 import STRINGS from './strings'
 import { Link } from 'react-router';
 import moment from 'moment';
+import { enums as TransactionTypes } from '../../config/enums/transactions';
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -16,6 +17,36 @@ export function fieldStyle(field){
         return 'success';
     }
 }
+
+export function getTotalShares(data){
+    const shareClasses = {};
+    data.actions.map(action => {
+        if(!action.userSkip){
+            const DIRECTIONS = {
+                [TransactionTypes.ISSUE]: -1,
+                [TransactionTypes.SUBDIVISION]: -1,
+                [TransactionTypes.CONVERSION]: -1,
+                [TransactionTypes.REDEMPTION]:-1,
+                [TransactionTypes.ACQUISITION]: -1,
+                [TransactionTypes.CONSOLIDATION]:-1,
+                [TransactionTypes.CANCELLATION]:-1,
+                [TransactionTypes.PURCHASE]: -1
+            };
+
+            (action.parcels || []).map(p => {
+                shareClasses[p.shareClass] = shareClasses[p.shareClass] || 0;
+                if(p.afterAmount !== undefined && p.beforeAmount !== undefined){
+                    shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+                }
+                else if(p.amount){
+                    shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) *  p.amount;
+                }
+            });
+        }
+    });
+    return Object.keys(shareClasses).reduce((sum, k) => sum + shareClasses[k], 0);
+}
+
 
 export function companyListToOptions(companies) {
     return [
