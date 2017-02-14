@@ -33,7 +33,7 @@ import {
 
 import {
     BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
-    STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH
+    STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH, ADD_ARRAY_VALUE, REMOVE_ARRAY_VALUE
     } from 'redux-form/lib/actionTypes';
 
 import {reducer as formReducer} from 'redux-form';
@@ -41,7 +41,7 @@ import validator from 'validator'
 import { relationNameToModel } from './schemas';
 import { routerReducer, LOCATION_CHANGE } from 'react-router-redux'
 import { reducer as reduxAsyncConnect } from 'redux-connect'
-import { calculateReciprocals } from './components/transactions/resolvers/amend';
+import { calculateReciprocals } from './components/forms/amend';
 import update from 'immutability-helper';
 
 const initialState = {
@@ -479,10 +479,10 @@ const normalizeNumber = (value) => {
 export const form = formReducer.plugin({
     amend: (state, action) => {
         switch(action.type) {
-            case "redux-form/FOCUS":
-            case "redux-form/BLUR":
-            case "redux-form/REMOVE_ARRAY_VALUE":
-            case "redux-form/ADD_ARRAY_VALUE":
+            case FOCUS:
+            case BLUR:
+            case REMOVE_ARRAY_VALUE:
+            case ADD_ARRAY_VALUE:
                 return { ...state, actions: calculateReciprocals(state.actions)}
             default:
                 return state

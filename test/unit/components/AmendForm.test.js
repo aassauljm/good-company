@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 
 var fs = Promise.promisifyAll(require("fs"));
 import moment from 'moment';
-import { formatInitialState, formatSubmit, validateAmend, collectAmendActions,  guessAmendAfterAmounts } from '../../../assets/js/components/transactions/resolvers/amend';
+import { formatInitialState, formatSubmit, validateAmend, collectAmendActions,  guessAmendAfterAmounts } from '../../../assets/js/components/forms/amend';
 import isValid from 'redux-form/lib/isValid'
 
 function valuesAndActionsFromJSON(path){
@@ -15,6 +15,7 @@ function valuesAndActionsFromJSON(path){
                     r.effectiveDate = moment(r.effectiveDate).toDate()
                 });
                 a.data = data.actionSet.data.actions[i];
+
             });
             return data;
         })
@@ -24,7 +25,8 @@ describe('Amend format', () => {
     it('matches a pair transferees together', function(){
             return fs.readFileAsync('test/fixtures/transactionData/projectManagerTransferSimple.json', 'utf8')
             .then(data => {
-                const values = formatInitialState(collectAmendActions(JSON.parse(data).data.actions));
+                data = JSON.parse(data);
+                const values = formatInitialState(collectAmendActions(data.data.actions), data.data.effectiveDate);
                 isValid(validateAmend(values, {})).should.be.equal(true);
             });
         });
@@ -32,7 +34,8 @@ describe('Amend format', () => {
     it('matches transferees together, increases', function(){
             return fs.readFileAsync('test/fixtures/transactionData/projectManagerTransferAllButOne.json', 'utf8')
             .then(data => {
-                const values = formatInitialState(collectAmendActions(JSON.parse(data).data.actions));
+                data = JSON.parse(data);
+                const values = formatInitialState(collectAmendActions(data.data.actions), data.data.effectiveDate);
                 isValid(validateAmend(values, {})).should.be.equal(true);
             });
         });
@@ -40,7 +43,8 @@ describe('Amend format', () => {
     it('matches transferees together, decreases', function(){
             return fs.readFileAsync('test/fixtures/transactionData/projectManagerTransferAllButOneDecrease.json', 'utf8')
             .then(data => {
-                const values = formatInitialState(collectAmendActions(JSON.parse(data).data.actions));
+                data = JSON.parse(data);
+                const values = formatInitialState(collectAmendActions(data.data.actions), data.data.effectiveDate);
                 isValid(validateAmend(values, {})).should.be.equal(true);
             });
         });

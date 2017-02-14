@@ -235,7 +235,8 @@
                         "_keyIndex": 0,
                         "parcels": [{"amount": 1110, "shareClass": 1}, {"amount": 1, "shareClass": 2}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
-                        "type": "ISSUE_TO"
+                        "type": "ISSUE_TO",
+                        "targetActionSet": "xxx"
                     }
                 ]
             },
