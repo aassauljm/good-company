@@ -140,7 +140,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
             subActions: [{
                 targetActionSet: actionSetId,
                 parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
-                type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyObject.keyIndex++, holding, isInverse: inverse
+                type: validTransactionType(a.transactionType) , effectiveDate, _keyIndex: keyObject.keyIndex++, holding, isInverse: inverse, userSkip: a.userSkip
         }]};
     }).filter(identity).map((a, i) => ({
         ...a,
@@ -153,12 +153,13 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
 }
 
 
-export function formatSubmit(values, actionSet, externalActions = []) {
+export function formatSubmit(values, actionSet, pendingActions = []) {
     actionSet = actionSet || {data: {actions: []}};
     const amendActions = collectAmendActions(actionSet.data.actions);
     const amends = [...(values.actions.map((a, i) => ({...amendActions[i]})))];
-    const otherActions = actionSet.data.actions.filter(a => !isAmendable(a))
-    const pendingActions = [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}];
+    const otherActions = actionSet.data.actions.filter(a => !isAmendable(a));
+
+    const newPendingActions = otherActions.length ? [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}] : [];
 
     const nonTransfers = {};
     const transfers = []
@@ -166,30 +167,37 @@ export function formatSubmit(values, actionSet, externalActions = []) {
 
     values.actions.map((a, i) => {
 
-        !a.userSkip && a.subActions.map((r, j) => {
+        a.subActions.map((r, j) => {
             if(!r.isInverse){
                 let method = TransactionTypes.AMEND;
                 const parcels = r.parcels.map(p => ({amount: parseInt(p.amount, 10), shareClass: parseInt(p.shareClass, 10) || null}))
                 const holders = amends[i].afterHolders || amends[i].holders;
                 if(isTransfer(r.type)){
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
-                    const holdingIndex = values.actions.findIndex(a => a.data.id === r.holding)
-                    const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
-                    const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
-                        transactionType: inverseTransfer(r.type), parcels, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true}
-                    transfers.push([result, inverse])
+                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
+                    const holdingIndex = values.actions.findIndex(a => a.data.id === r.holding);
+                    if(holdingIndex > 0){
+                        const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
+                        const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
+                            transactionType: inverseTransfer(r.type), parcels, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true, userSkip: a.userSkip}
+                        transfers.push([result, inverse])
+                    }
+                    else{
+                        transfers.push([result])
+                    }
                 }
                 else{
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true};
-                    if(r.targetActionSet && r.targetActionSet !== UNREPORTED_TRANSACTION && actionSet.id !== r.targetActionSet && externalActions.length){
-                        const target = externalActions.find(a => a.id === r.targetActionSet);
-                        transplantActions.push({targetActionSet: r.targetActionSet, action: {...result, isTransplant: true, effectiveDate: target.effectiveDate}});
+                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
+                    if(r.targetActionSet && actionSet.id !== r.targetActionSet && pendingActions.length){
+                        const target = pendingActions.find(a => a.id === r.targetActionSet);
+                        transplantActions[r.targetActionSet] = transplantActions[r.targetActionSet]  || [];
+                        transplantActions[r.targetActionSet].push({...result, effectiveDate: target.effectiveDate, targetActionSet: r.targetActionSet});
                     }
-                    else if(r.targetActionSet && r.targetActionSet === UNREPORTED_TRANSACTION){
-
-                    }
+                   /* else if(r.targetActionSet && r.targetActionSet === UNREPORTED_TRANSACTION){
+                        //TODO
+                        transplantActions.push({...result, effectiveDate: target.effectiveDate, targetActionSet: r.targetActionSet});
+                    }*/
                     else{
                         nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
                         nonTransfers[r.effectiveDate].push(result);
@@ -205,8 +213,8 @@ export function formatSubmit(values, actionSet, externalActions = []) {
         transactions.push(nonTransfers[date]);
     });
 
-    transplantActions.map(transplant => {
-        transactions.push([transplant]);
+    Object.keys(transplantActions).map(date => {
+        transactions.push(transplantActions[date]);
     });
 
     // sort by date
@@ -219,6 +227,7 @@ export function formatSubmit(values, actionSet, externalActions = []) {
     const parcelIndexByClass = (parcels, shareClass) => {
         return parcels.findIndex(p =>  !p.shareClass || shareClass === p.shareClass);
     }
+
     transactions.map((actions, i) => {
         actions.map(action => {
             if(action._holding !== undefined && amends[action._holding].parcels){
@@ -244,22 +253,40 @@ export function formatSubmit(values, actionSet, externalActions = []) {
             }
         });
     });
+
+    const actionSetLookup = pendingActions.reduce((acc, actionSet) => {
+        acc[actionSet.data.id] = actionSet;
+        return acc;
+    });
+
+
     // put new allocation types where needed
     Object.keys(newAllocations).map(k => {
         newAllocations[k].transactionMethod = TransactionTypes.NEW_ALLOCATION;
         delete newAllocations[k].afterHolders;
         delete newAllocations[k].beforeHolders;
     });
+
     transactions.map((actions, orderIndex) => {
         // add orderIndex to transplants
-        actions.filter(action => action.isTransplant).map(transplant => {
-            transplantActions.find(t => t.action === transplant).orderIndex = orderIndex;
-        });
-        actions = actions.filter(action => !action.isTransplant);
-        pendingActions.push({id: actionSet.id, data: {...actionSet.data, orderIndex: orderIndex, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
+        if(actions.some(action => action.targetActionSet)){
+            // we will find teh actionSet in the original
+            const existingActionSet = actionSetLookup[actions[0].targetActionSet];
+            if(!existingActionSet){
+                //create new one
+            }
+            else{
+                newPendingActions.push({id: existingActionSet.data.id, data: {...existingActionSet.data, orderIndex: orderIndex, totalShares: null, actions: existingActionSet.data.actions.concat(actions)}, previous_id: actionSet.previous_id});
+            }
+        }
+
+        else{
+            newPendingActions.push({id: actionSet.id, data: {...actionSet.data, orderIndex: orderIndex, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
+        }
     });
 
-    return { newActions: pendingActions, transplantActions }
+
+    return { newActions: newPendingActions }
 }
 
 
@@ -401,7 +428,7 @@ export function calculateReciprocals(actions, getValue=(x) => x && x.value, setV
 
     // re add them
     actions.map((action, i) => {
-        (action.subActions || []).map((recipient, j) => {
+        !getValue(action.userSkip) && (action.subActions || []).map((recipient, j) => {
             if(isTransfer(getValue(recipient.type)) && !getValue(recipient.isInverse)){
                 const holding = getValue(recipient.holding);
 

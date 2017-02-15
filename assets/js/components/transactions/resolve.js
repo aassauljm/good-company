@@ -452,6 +452,7 @@ const PAGES = {
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
     [ImportErrorTypes.CONFIRMATION_REQUIRED]: DateConfirmation,
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
+    [ImportErrorTypes.UNBALANCED_TRANSACTION]: Amend,
     [ImportErrorTypes.INVALID_ISSUE]: InvalidIssue,
 }
 
@@ -503,7 +504,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         const action = context.action;
         context.shareClassMap = generateShareClassMap(this.props.transactionViewData.companyState);
 
-        if(!action || !PAGES[context.importErrorType]){
+        if(!PAGES[context.importErrorType]){
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}
                     <hr/>

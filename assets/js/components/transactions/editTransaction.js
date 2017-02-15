@@ -56,27 +56,30 @@ export class EditTransactionView extends React.Component {
         const actionSet = this.props.transactionViewData.actionSet;
         const hasAmend = actionSet && actionSet.data.actions.some(action =>[TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0);
 
-        const updateAction = ({newActions, transplantActions}) => {
+        const updateAction = ({newActions}) => {
 
-            const otherActions = this.props.transactionViewData.otherActions;
+            const pendingActions = this.props.transactionViewData.pendingActions.map((p, i) => {
+                return {...p, originalIndex: i}
+            });;
             const previousAction = this.props.transactionViewData.previousAction;
-            const orderedActions = otherActions.concat(newActions);
 
-            transplantActions.map(transplant => {
-                const target = orderedActions.find(s => s.id === transplant.targetActionSet);
-                if(target){
-                    target.data.actions.push(transplant.action);
-                    target.data.orderIndex = transplant.orderIndex;
+            // pendingActions are all actions
+            // newActions MAY replace a subset of those actions
+            const orderedActions = pendingActions.reduce((acc, pA) => {
+                const newActionSets = newActions.filter(nA => nA.id === pA.id);
+                if(newActionSets.length){
+                    return acc.concat(newActionSets)
                 }
-            });
+                else{
+                    return acc.concat([pA]);
+                }
+            }, [])
 
-            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => x.data.orderIndex).thenBy(x => new Date(x.data.date), -1).thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
+            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => x.data.orderIndex, -1).thenBy(x => x.originalIndex, -1).thenBy(x => new Date(x.data.date), -1).thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
             orderedActions[0].id = this.props.transactionViewData.startId;
             orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
-            this.props.updateAction({pendingActions: orderedActions})
-            .then(() => {
-                this.handleClose();
-            })
+            this.props.updateAction({pendingActions: orderedActions});
+            this.handleClose();
         }
 
         if(this.props.updating._status !== 'fetching'){

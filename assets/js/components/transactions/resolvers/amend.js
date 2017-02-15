@@ -96,11 +96,12 @@ class SubAction extends React.Component {
     }
 
     renderExternalTarget(disabled){
+
         return <div className="input-row">
                 <Input type="select" {...this.formFieldProps('targetActionSet')}
                     disabled={disabled}
                     label={`${STRINGS.amendTypes[this.props.type.value]} Transaction`}>
-                    <option value="" disabled></option>
+                    <option value=""></option>
                     { this.props.externalActionSets[this.props.type.value] || [] }
                 </Input>
         </div>
@@ -111,8 +112,6 @@ class SubAction extends React.Component {
         const options = this.props.increase ? INCREASE_OPTIONS : DECREASE_OPTIONS;
         const disabled = !!this.props.isInverse.value || this.props.allDisabled;
         const dateDisabled = !!this.props.type.value && !isTransfer(this.props.type.value) && !!this.props.targetActionSet.value && this.props.targetActionSet.value !== UNREPORTED_TRANSACTION;
-
-
         const showExternal = !!this.props.type.value && !isTransfer(this.props.type.value)
         return  <Panel title={title}>
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
@@ -284,8 +283,8 @@ class AmendOptions extends React.Component {
                             <AmendActionSummary action={action} shareClassMap={this.props.shareClassMap} companyState={this.props.companyState } allDisabled={allDisabled}/>
                             { this.renderAfterParcels(field) }
                               <div className="button-row">
-                                    { !field.userSkip.value && <Button bsStyle="danger" onClick={() => field.userSkip.onChange(!field.userSkip.value) }>Ignore Transaction</Button> }
-                                    { field.userSkip.value && <Button bsStyle="info" onClick={() => field.userSkip.onChange(!field.userSkip.value) }>Reinstate Transaction</Button> }
+                                    { !field.userSkip.value && <Button bsStyle="danger" onClick={() => field.userSkip.onChange(!field.userSkip.value) && field.userSkip.onBlur() }>Ignore Transaction</Button> }
+                                    { field.userSkip.value && <Button bsStyle="info" onClick={() => field.userSkip.onChange(!field.userSkip.value)  && field.userSkip.onBlur() }>Reinstate Transaction</Button> }
                               </div>
 
                         </div>
@@ -362,7 +361,7 @@ const AmendOptionsConnected = reduxForm({
 
 
 
-function generateExternalActionSetOptions(actionSets){
+function generateExternalActionSetOptions(actionSets = []){
     const grouped = {};
     actionSets.map((set, i) => {
         set.data.actions.map((action, j) => {
@@ -391,7 +390,7 @@ function generateExternalActionSetOptions(actionSets){
 
 export default function Amend(props){
     const { context, submit } = props;
-    const { actionSet, companyState, otherActions } = context;
+    const { actionSet, companyState, pendingActions } = context;
     const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
 
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
@@ -401,11 +400,11 @@ export default function Amend(props){
     const shareOptions = shareClasses.map((s, i) => {
         return <option key={i} value={s.id}>{s.name}</option>
     });
-    const externalActionSets = generateExternalActionSetOptions([actionSet, ...otherActions]);
+    const externalActionSets = generateExternalActionSetOptions(pendingActions);
     const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
 
     const handleSubmit = (values) => {
-        submit(formatSubmit(values, actionSet, otherActions))
+        submit(formatSubmit(values, actionSet, pendingActions))
     }
 
     return <div className="resolve">

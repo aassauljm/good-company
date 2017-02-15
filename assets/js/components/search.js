@@ -65,7 +65,7 @@ export class Search extends React.Component {
             { this.state.list.map((c, i) => {
                 return <Link key={i} className="result" to={this.props.target ? this.props.target(c.id) : `/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
             }) }
-            { this.state.list.length === 0 && !!this.state.value && <div><div className="no-results">No results</div> <div><Link to='/import' query={{value: this.state.value}} className="result" onClick={this.hide}>Search for '{ this.state.value }' on the Companies Register</Link></div></div> }
+            { this.state.list.length === 0 && !!this.state.value && <div><div className="no-results">No results</div> <div><Link to='/import' query={{value: this.state.value}} className="result" onClick={this.setAndClose}>Search for '{ this.state.value }' on the Companies Register</Link></div></div> }
             </div>
     }
 

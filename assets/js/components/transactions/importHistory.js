@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, createResource, updateResource, addNotification } from '../../actions';
-import { pureRender, stringDateToFormattedString, generateShareClassMap, getTotalShares } from '../../utils';
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap, getTotalShares } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import { Link } from 'react-router'
@@ -66,7 +66,7 @@ function TransactionSummaries(props) {
                             <div className="panel-heading">
                                 <div className="row transaction-table">
                                     <div className="transaction-terse-date col-md-2">
-                                        { stringDateToFormattedString(p.data.effectiveDate) }
+                                        { stringDateToFormattedStringTime(p.data.effectiveDate) }
                                     </div>
                                     <div className="col-md-8">
                                     { p.data.actions.map((action, i) => {
@@ -95,6 +95,7 @@ function TransactionSummaries(props) {
 
         { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
         { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
+        {  <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button> }
 
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
@@ -177,6 +178,7 @@ PAGES[EXPLAINATION] = function() {
                 handleStart={this.handleStart}
                 handleAddNew={this.handleAddNew}
                 handleEdit={this.handleEdit}
+                handleReset={this.handleReset}
                 end={this.props.end}
                 handleConfirm={this.handleConfirm}
                 toggleConfirmed={this.toggleConfirmed}
@@ -230,6 +232,12 @@ PAGES[LOADING] = function() {
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
         destroyForm: (args) => dispatch(destroy(args)),
+        reset: (args) => {
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {loadingMessage: 'Undoing Company Reconciliation'}))
+            .then(() => {
+                dispatch(addNotification({message: 'Company Reconciliation Reset'}));
+            })
+        },
         updateAction: (args) => {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}/pending_history`]
@@ -253,6 +261,7 @@ export class ImportHistoryTransactionView extends React.Component {
         this.handleAddNew = ::this.handleAddNew;
         this.handleConfirm = ::this.handleConfirm;
         this.toggleConfirmed = ::this.toggleConfirmed;
+        this.handleReset = ::this.handleReset;
         this.state = {pendingHistory: props.pendingHistory};
     };
 
@@ -325,14 +334,18 @@ export class ImportHistoryTransactionView extends React.Component {
         this.props.show('importHistory', {...this.props.transactionViewData});
     }
 
+    handleReset() {
+        this.props.reset();
+    }
+
     handleEdit(actionSet, pendingActions) {
-        const otherActions = pendingActions.filter(p => p !== actionSet);
+        //const otherActions = pendingActions.filter(p => p !== actionSet);
         this.props.destroyForm('amend');
         this.props.show('editTransaction', {...this.props.transactionViewData,
             startId: pendingActions[0].id,
             endId: pendingActions[pendingActions.length-1].previous_id,
             actionSet,
-            otherActions,
+            pendingActions,
             afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
         });
     }

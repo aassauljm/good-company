@@ -212,7 +212,7 @@ const EXTRACT_DOCUMENT_MAP = {
         let regex = /^\s*Type of Change:\s*$/;
         result.originaltransactionType = divAfterParent($, '.row .wideLabel label', regex);
         result.transactionType = transactionMap[result.originaltransactionType];
-        result.registrationDate = moment($('.row.wideLabel label').filter(function(){
+        result.effectiveDate = result.registrationDate = moment($('.row.wideLabel label').filter(function(){
                     return $(this).text().match(/Registration Date and Time/);
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate()
         switch(result.transactionType){
@@ -233,7 +233,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 break;
             default:
         }
-        return {actions: [result], totalShares: result.increase ? -result.amount : result.amount };
+        return {actions: [{...result, effectiveDate: result.registrationDate}], totalShares: result.increase ? -result.amount : result.amount, effectiveDate: result.registrationDate };
     },
 
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
@@ -610,7 +610,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate()
         result.unknownAmount = true;
         result.effectiveDate = result.registrationDate;
-        return {actions: [result] }
+        return {actions: [result], effectiveDate: result.effectiveDate }
     }
 }
 

@@ -651,9 +651,10 @@ module.exports = {
         docs = docs.filter(d => d.actions && d.actions.some(a => a.transactionType));
         // Add ids
 
-        docs.map(p => {
+        docs.map((p, i) => {
             p.id = uuid.v4();
-            (p.actions || []).map(a => a.id = uuid.v4())
+            (p.actions || []).map(a => a.id = uuid.v4());
+            p.orderFromSource = i;
         })
         return docs;
     },

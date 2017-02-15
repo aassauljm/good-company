@@ -740,8 +740,11 @@ export function performInverseRemoveAllocation(data, companyState, previousState
         return CompanyState.populatePersonIds(data.holders);
     })
     .then(function(personData){
+        if(!personData.length){
+            throw new sails.config.exceptions.InvalidInverseOperation('Allocation missing holders');
+        }
         const holding = Holding.buildDeep({
-                holders: personData.map(p => ({person: p})), holderId: data.holderId,
+                holders: personData.map(p => ({person: p})), holdingId: data.holdingId,
                 parcels: []});
         companyState.dataValues.holdingList.dataValues.holdings.push(holding);
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -1677,6 +1680,10 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
 
 function validateTransactionSet(data, companyState){
     const shareClasses = {};
+    let defaultShareClass = null;
+    if(companyState.shareClasses && companyState.dataValues.shareClasses.dataValues.shareClasses.length === 1){
+        defaultShareClass = companyState.dataValues.shareClasses.dataValues.shareClasses[0].id;
+    }
     data.actions.map(action => {
         if(!action.userSkip){
             const DIRECTIONS = {
@@ -1691,13 +1698,13 @@ function validateTransactionSet(data, companyState){
                 [Transaction.types.CONSOLIDATION]:-1,
                 [Transaction.types.CANCELLATION]:-1,
                 [Transaction.types.PURCHASE]: -1
-
             };
 
             (action.parcels || []).map(p => {
-                shareClasses[p.shareClass] = shareClasses[p.shareClass] || 0;
+                const shareClass = p.shareClass = p.shareClass || defaultShareClass;
+                shareClasses[shareClass] = shareClasses[shareClass] || 0;
                 if(p.afterAmount !== undefined && p.beforeAmount !== undefined){
-                    shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+                    shareClasses[shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
                 }
             });
         }

@@ -31,6 +31,12 @@
 .transaction-terse-description{
     font-style:italic;
 }
+.transaction-terse-skip{
+    font-weight:bold;
+    color: $brand-danger;
+    margin-right:8px;
+}
+
 .transaction-terse{
     display:block;
     text-overflow: ellipsis;

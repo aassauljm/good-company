@@ -1,247 +1,2923 @@
 {
-    "pendingActions": [
-        {
-            "data": {
-                "actions": [
-                    {
-                        "parcels": [{"afterAmount": 1111,
-                        "amount": 1111,
-                        "beforeAmount": 0}],
-                        "holders": [
-                            {
-                                "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
-                                "companyNumber": null,
-                                "name": "Peter James BLOY"
-                            },
-                            {
-                                "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
-                                "companyNumber": null,
-                                "name": "Priscilla Rose BLOY"
-                            }
-                        ],
-                        "transactionMethod": "NEW_ALLOCATION",
-                        "transactionType": "ISSUE_TO"
-                    }
-                ],
-                "date": "2014-09-04T23:40:00.000Z",
-                "documentId": "20106994",
-                "documentType": "Particulars of Shareholding",
-                "effectiveDate": "2014-09-04T23:40:00.000Z",
-                "label": "Particulars of Shareholding",
-                "totalShares": 1111
-            }
+    "pendingActions": [{
+        "id": "4cfd29e2-2ac8-43af-b1c5-f579635dbc66",
+        "data": {
+            "id": "4cfd29e2-2ac8-43af-b1c5-f579635dbc66",
+            "date": "2016-08-08T04:28:00.000Z",
+            "label": "Annual Return Filed",
+            "actions": [{
+                "id": "0ec61879-03e1-41e0-bf52-72aeebdd1342",
+                "holdings": [{
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }, {
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 41307
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand"
+                    }, {
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 41307
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                    }, {
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 9515
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Joshua Normand GAGNON",
+                        "address": "7a Alva Street, Dunedin Central, Dunedin, 9016, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 4941
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Norman Barry WHITE",
+                        "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 971
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Stephen James ROGERS",
+                        "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 971
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 971
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 9
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 8
+                    }]
+                }],
+                "directors": [{
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "appointment": "2014-06-16T12:00:00.000Z"
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "appointment": "2014-06-16T12:00:00.000Z"
+                }],
+                "totalShares": 100000,
+                "effectiveDate": "2016-08-08T04:28:23.000Z",
+                "transactionType": "ANNUAL_RETURN",
+                "addressForService": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand",
+                "registeredCompanyAddress": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand"
+            }],
+            "documentId": "23197463",
+            "documentType": "Annual Return Filed",
+            "effectiveDate": "2016-08-08T04:28:23.000Z",
+            "transactionType": "ANNUAL_RETURN"
         },
-        {
+        "previous_id": "2c505ca5-fba0-4467-9cd6-df1d5ee45948",
+        "numberId": 0,
+        "2c505ca5-fba0-4467-9cd6-df1d5ee45948": {
+            "id": "2c505ca5-fba0-4467-9cd6-df1d5ee45948",
             "data": {
-                "actions": [
-                    {
+                "id": "2c505ca5-fba0-4467-9cd6-df1d5ee45948",
+                "date": "2016-08-08T04:25:00.000Z",
+                "label": "Particulars of Shareholding",
+                "actions": [{
+                    "id": "e544ecf1-a046-4c27-95aa-320d6b4ed838",
+                    "afterHolder": {
+                        "name": "Joshua Normand GAGNON",
+                        "address": "7a Alva Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                        "companyNumber": null
+                    },
+                    "beforeHolder": {
+                        "name": "Joshua Normand GAGNON",
+                        "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                        "companyNumber": null
+                    },
+                    "userConfirmed": true,
+                    "transactionType": "HOLDER_CHANGE"
+                }],
+                "documentId": "23197440",
+                "totalShares": 0,
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2016-08-08T04:25:00.000Z",
+                "transactionType": "HOLDER_CHANGE"
+            },
+            "previous_id": "25259799-a35a-4179-8f2c-87b36c2afcde",
+            "numberId": 1
+        },
+        "25259799-a35a-4179-8f2c-87b36c2afcde": {
+            "id": "25259799-a35a-4179-8f2c-87b36c2afcde",
+            "data": {
+                "id": "25259799-a35a-4179-8f2c-87b36c2afcde",
+                "date": "2016-06-03T01:30:00.000Z",
+                "label": "Particulars of Shareholding",
+                "actions": [{
+                    "id": "5b3c2a10-5a9f-49d1-8d9d-76efb10736c5",
+                    "parcels": [{
+                        "amount": 1500,
+                        "afterAmount": 41307,
+                        "beforeAmount": 42807
+                    }],
+                    "afterHolders": [{
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "userConfirmed": true,
+                    "transactionType": "TRANSFER_FROM",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "4a2eed85-f146-4a63-999c-284066f2befc",
+                    "parcels": [{
+                        "amount": 1500,
+                        "afterAmount": 41307,
+                        "beforeAmount": 42807
+                    }],
+                    "afterHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "userConfirmed": true,
+                    "transactionType": "TRANSFER_FROM",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "c0f94491-1a5d-46b3-b560-d361b0973db3",
+                    "parcels": [{
+                        "amount": 3000,
+                        "afterAmount": 4941,
+                        "beforeAmount": 1941
+                    }],
+                    "afterHolders": [{
+                        "name": "Joshua Normand GAGNON",
+                        "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Joshua Normand GAGNON",
+                        "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "userConfirmed": true,
+                    "transactionType": "TRANSFER_TO",
+                    "transactionMethod": "AMEND"
+                }],
+                "documentId": "22880567",
+                "totalShares": 0,
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2016-06-03T01:30:00.000Z"
+            },
+            "previous_id": "6588142e-9c16-4b21-a4e1-e04559730bd0",
+            "numberId": 2
+        },
+        "6588142e-9c16-4b21-a4e1-e04559730bd0": {
+            "id": "6588142e-9c16-4b21-a4e1-e04559730bd0",
+            "data": {
+                "id": "6588142e-9c16-4b21-a4e1-e04559730bd0",
+                "date": "2015-08-03T22:13:00.000Z",
+                "label": "File Annual Return",
+                "actions": [{
+                    "id": "8aaeb703-ea62-4008-92a6-d37585805402",
+                    "holdings": [{
+                        "holders": [{
+                            "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                            "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                        }, {
+                            "name": "Megan Jean CUNNINGHAM-ADAMS",
+                            "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                        }],
                         "parcels": [{
-                            "afterAmount": 4999,
-                        "amount": 4999,
-                        "beforeAmount": 0}],
-                        "holders": [
-                            {
-                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
-                                "companyNumber": null,
-                                "name": "Thomas David BLOY"
-                            },
-                            {
-                                "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
-                                "companyNumber": null,
-                                "name": "Peter James BLOY"
-                            }
-                        ],
-                        "transactionMethod": "NEW_ALLOCATION",
-                        "transactionType": "TRANSFER_TO"
+                            "amount": 42807
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Thomas David BLOY",
+                            "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand"
+                        }, {
+                            "name": "Peter James BLOY",
+                            "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 42807
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Peter James BLOY",
+                            "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                        }, {
+                            "name": "Priscilla Rose BLOY",
+                            "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 9515
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Joshua Normand GAGNON",
+                            "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 1941
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Norman Barry WHITE",
+                            "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 971
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Stephen James ROGERS",
+                            "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 971
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                            "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 971
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                            "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 9
+                        }]
+                    }, {
+                        "holders": [{
+                            "name": "Thomas David BLOY",
+                            "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand"
+                        }],
+                        "parcels": [{
+                            "amount": 8
+                        }]
+                    }],
+                    "directors": [{
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "appointment": "2014-06-16T12:00:00.000Z"
+                    }, {
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "appointment": "2014-06-16T12:00:00.000Z"
+                    }],
+                    "totalShares": 100000,
+                    "effectiveDate": "2015-08-03T22:13:06.000Z",
+                    "transactionType": "ANNUAL_RETURN",
+                    "addressForService": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand",
+                    "registeredCompanyAddress": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand"
+                }],
+                "documentId": "21429071",
+                "documentType": "File Annual Return",
+                "effectiveDate": "2015-08-03T22:13:06.000Z",
+                "transactionType": "ANNUAL_RETURN"
+            },
+            "previous_id": "95c14c37-54e0-498a-aa6a-12dc92759cec",
+            "numberId": 3
+        },
+        "95c14c37-54e0-498a-aa6a-12dc92759cec": {
+            "id": "95c14c37-54e0-498a-aa6a-12dc92759cec",
+            "data": {
+                "id": "95c14c37-54e0-498a-aa6a-12dc92759cec",
+                "date": "2015-03-19T01:32:00.000Z",
+                "label": "Update Shares",
+                "actions": [{
+                    "id": "5881d2bc-129e-4166-9779-df63d6a9d7e6",
+                    "parcels": [{
+                        "amount": 89490,
+                        "afterAmount": 100000,
+                        "beforeAmount": 10510
+                    }],
+                    "byAmount": 89490,
+                    "increase": true,
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION",
+                    "registrationDate": "2015-03-19T01:32:38.000Z",
+                    "originaltransactionType": "Conversion/Subdivision of Shares"
+                }, {
+                    "id": "5e6a54f0-8d94-4ccf-bf4a-a9ba4e35bd69",
+                    "parcels": [{
+                        "amount": 8,
+                        "afterAmount": 9,
+                        "beforeAmount": 1
+                    }],
+                    "afterHolders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "761e063f-cfee-49d4-9b80-3881c0037639",
+                    "parcels": [{
+                        "amount": 7,
+                        "afterAmount": 8,
+                        "beforeAmount": 1
+                    }],
+                    "afterHolders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "dfe062e8-7794-41f0-a68b-344618650328",
+                    "parcels": [{
+                        "amount": 38308,
+                        "afterAmount": 42807,
+                        "beforeAmount": 4499
+                    }],
+                    "afterHolders": [{
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "4e054b4e-8720-47d8-b388-01727d65e24c",
+                    "parcels": [{
+                        "amount": 38308,
+                        "afterAmount": 42807,
+                        "beforeAmount": 4499
+                    }],
+                    "afterHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "be4e28c3-5744-412e-a91b-f3c945c529f6",
+                    "parcels": [{
+                        "amount": 8515,
+                        "afterAmount": 9515,
+                        "beforeAmount": 1000
+                    }],
+                    "afterHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "a75339f5-0ad3-47c8-a37a-46e1ac88c183",
+                    "parcels": [{
+                        "amount": 1737,
+                        "afterAmount": 1941,
+                        "beforeAmount": 204
+                    }],
+                    "afterHolders": [{
+                        "name": "Joshua Normand GAGNON",
+                        "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Joshua Normand GAGNON",
+                        "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "8514e852-6c02-4e34-b93f-68146a716ad6",
+                    "parcels": [{
+                        "amount": 869,
+                        "afterAmount": 971,
+                        "beforeAmount": 102
+                    }],
+                    "afterHolders": [{
+                        "name": "Norman Barry WHITE",
+                        "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Norman Barry WHITE",
+                        "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "1774fefd-fbcc-4986-b003-36c81125d7eb",
+                    "parcels": [{
+                        "amount": 869,
+                        "afterAmount": 971,
+                        "beforeAmount": 102
+                    }],
+                    "afterHolders": [{
+                        "name": "Stephen James ROGERS",
+                        "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Stephen James ROGERS",
+                        "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "00852202-b79f-4715-b488-48b1ff928987",
+                    "parcels": [{
+                        "amount": 869,
+                        "afterAmount": 971,
+                        "beforeAmount": 102
+                    }],
+                    "afterHolders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "CONVERSION_TO",
+                    "transactionMethod": "AMEND"
+                }],
+                "documentId": "20794371",
+                "totalShares": 0,
+                "documentType": "Update Shares",
+                "effectiveDate": "2015-03-18T11:00:00.000Z"
+            },
+            "previous_id": "c889946d-dc01-43cf-be39-495e57f2b519",
+            "numberId": 4
+        },
+        "c889946d-dc01-43cf-be39-495e57f2b519": {
+            "id": "c889946d-dc01-43cf-be39-495e57f2b519",
+            "data": {
+                "id": "c889946d-dc01-43cf-be39-495e57f2b519",
+                "date": "2015-03-19T01:14:00.000Z",
+                "label": "Update Shares",
+                "actions": [{
+                    "id": "50b667ff-d3af-44ff-84d5-04f9c6453501",
+                    "parcels": [{
+                        "amount": 306,
+                        "afterAmount": 10510,
+                        "beforeAmount": 10204
+                    }],
+                    "byAmount": 306,
+                    "increase": true,
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "ISSUE",
+                    "registrationDate": "2015-03-19T01:14:26.000Z",
+                    "originaltransactionType": "Issue"
+                }, {
+                    "id": "88565d27-09c2-44b3-9088-cd877886ce6e",
+                    "holders": [{
+                        "name": "Norman Barry WHITE",
+                        "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 102,
+                        "afterAmount": 102,
+                        "beforeAmount": 0
+                    }],
+                    "inferredType": true,
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "ISSUE_TO",
+                    "transactionMethod": "NEW_ALLOCATION"
+                }, {
+                    "id": "a0ba6cc1-33f9-48f3-bf99-638c7e3e842e",
+                    "holders": [{
+                        "name": "Stephen James ROGERS",
+                        "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 102,
+                        "afterAmount": 102,
+                        "beforeAmount": 0
+                    }],
+                    "inferredType": true,
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "ISSUE_TO",
+                    "transactionMethod": "NEW_ALLOCATION"
+                }, {
+                    "id": "1cbd7142-df76-4922-9fb9-cf02e3c0c118",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 102,
+                        "afterAmount": 102,
+                        "beforeAmount": 0
+                    }],
+                    "inferredType": true,
+                    "effectiveDate": "2015-03-18T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "ISSUE_TO",
+                    "transactionMethod": "NEW_ALLOCATION"
+                }],
+                "documentId": "20794227",
+                "totalShares": 0,
+                "documentType": "Update Shares",
+                "effectiveDate": "2015-03-18T11:00:00.000Z"
+            },
+            "previous_id": "dd722d72-da5a-4b58-8b62-2110a55df4f0",
+            "numberId": 5
+        },
+        "dd722d72-da5a-4b58-8b62-2110a55df4f0": {
+            "id": "dd722d72-da5a-4b58-8b62-2110a55df4f0",
+            "data": {
+                "id": "dd722d72-da5a-4b58-8b62-2110a55df4f0",
+                "date": "2015-02-12T22:20:00.000Z",
+                "label": "Particulars of Director",
+                "actions": [{
+                    "id": "f46007db-2c55-4fda-b498-b8db46f56f88",
+                    "afterName": "Thomas David BLOY",
+                    "beforeName": "Thomas David BLOY",
+                    "afterAddress": "19 Halberg Street, Glenfield, Auckland, 0629, NZ",
+                    "beforeAddress": "59 Russell Road, Rd 2, Silverdale, 0992, NZ",
+                    "userConfirmed": true,
+                    "transactionType": "UPDATE_DIRECTOR"
+                }],
+                "documentId": "20642500",
+                "documentType": "Particulars of Director",
+                "effectiveDate": "2015-02-12T22:20:00.000Z"
+            },
+            "previous_id": "db23799b-18d0-412b-9895-8f739f32e67c",
+            "numberId": 6
+        },
+        "db23799b-18d0-412b-9895-8f739f32e67c": {
+            "id": "db23799b-18d0-412b-9895-8f739f32e67c",
+            "data": {
+                "id": "db23799b-18d0-412b-9895-8f739f32e67c",
+                "date": "2014-11-03T00:56:00.000Z",
+                "label": "Update Shares",
+                "actions": [{
+                    "id": "dd4a9fbc-31cc-43c1-9b1a-7d55ae169c96",
+                    "parcels": [{
+                        "amount": 204,
+                        "afterAmount": 10204,
+                        "beforeAmount": 10000
+                    }],
+                    "byAmount": 204,
+                    "increase": true,
+                    "effectiveDate": "2014-11-02T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "ISSUE",
+                    "registrationDate": "2014-11-03T00:56:05.000Z",
+                    "originaltransactionType": "Issue"
+                }, {
+                    "id": "4d81f69a-668b-4f09-9a2c-871a6fa4b40d",
+                    "holders": [{
+                        "name": "Joshua Normand GAGNON",
+                        "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 204,
+                        "afterAmount": 204,
+                        "beforeAmount": 0
+                    }],
+                    "inferredType": true,
+                    "effectiveDate": "2014-11-02T11:00:00.000Z",
+                    "userConfirmed": true,
+                    "transactionType": "ISSUE_TO",
+                    "transactionMethod": "NEW_ALLOCATION"
+                }],
+                "documentId": "20351193",
+                "totalShares": 0,
+                "documentType": "Update Shares",
+                "effectiveDate": "2014-11-02T11:00:00.000Z"
+            },
+            "previous_id": "3597b8c0-f897-4951-9813-5c056a595f13",
+            "numberId": 7
+        },
+        "3597b8c0-f897-4951-9813-5c056a595f13": {
+            "id": "3597b8c0-f897-4951-9813-5c056a595f13",
+            "data": {
+                "id": "3597b8c0-f897-4951-9813-5c056a595f13",
+                "date": "2014-09-04T20:13:00.000Z",
+                "label": "Particulars of Company Address",
+                "actions": [{
+                    "id": "902d2f5f-fd9b-411b-bda2-9e033cbb1a1a",
+                    "field": "addressForService",
+                    "newAddress": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand",
+                    "effectiveDate": "2014-09-14T12:00:00.000Z",
+                    "userConfirmed": true,
+                    "previousAddress": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "transactionType": "ADDRESS_CHANGE"
+                }, {
+                    "id": "dc0b8597-71f3-470c-b454-f3374d8f7693",
+                    "field": "registeredCompanyAddress",
+                    "newAddress": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand",
+                    "effectiveDate": "2014-09-14T12:00:00.000Z",
+                    "userConfirmed": true,
+                    "previousAddress": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "transactionType": "ADDRESS_CHANGE"
+                }],
+                "documentId": "20105080",
+                "documentType": "Particulars of Company Address",
+                "effectiveDate": "2014-09-14T12:00:00.000Z"
+            },
+            "previous_id": "6f272c5f-739d-4319-af79-5c359c50f67e",
+            "numberId": 8
+        },
+        "6f272c5f-739d-4319-af79-5c359c50f67e": {
+            "id": "6f272c5f-739d-4319-af79-5c359c50f67e",
+            "data": {
+                "id": "6f272c5f-739d-4319-af79-5c359c50f67e",
+                "date": "2014-09-10T01:16:00.000Z",
+                "label": "Particulars of Shareholding",
+                "actions": [{
+                    "id": "d145b439-7cbd-4c97-b560-d2f8579dc34a",
+                    "afterHolder": {
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                        "companyNumber": null
                     },
-                    {
-                        "parcels": [{"afterAmount": 0,
-                        "amount": 4999,
-                        "beforeAmount": 4999}],
-                        "afterHolders": [
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": "4479218",
-                                "name": "NOT THE ROCKPOOL LIMITED"
-                            }
-                        ],
-                        "beforeHolders": [
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": "4479218",
-                                "name": "NOT THE ROCKPOOL LIMITED"
-                            }
-                        ],
-                        "transactionMethod": "AMEND",
-                        "transactionType": "TRANSFER_FROM"
-                    }
-                ],
+                    "beforeHolder": {
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    },
+                    "userConfirmed": true,
+                    "transactionType": "HOLDER_CHANGE"
+                }],
+                "documentId": "20127545",
+                "totalShares": 0,
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-09-10T01:16:00.000Z",
+                "transactionType": "HOLDER_CHANGE"
+            },
+            "previous_id": "efe5e08c-b7fa-4961-8a4a-e64bcb1077a7",
+            "numberId": 9
+        },
+        "efe5e08c-b7fa-4961-8a4a-e64bcb1077a7": {
+            "id": "efe5e08c-b7fa-4961-8a4a-e64bcb1077a7",
+            "data": {
+                "id": "efe5e08c-b7fa-4961-8a4a-e64bcb1077a7",
                 "date": "2014-09-04T23:40:00.000Z",
+                "label": "Particulars of Shareholding",
+                "actions": [{
+                    "id": "34bfd344-3919-4412-97df-da1332fea91e",
+                    "holders": [{
+                        "name": "NOT THE ROCKPOOL LIMITED",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": "4479218"
+                    }],
+                    "parcels": [{
+                        "amount": 0,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "REMOVE_ALLOCATION",
+                    "transactionMethod": null,
+                    "beforeAmountLookup": null
+                }, {
+                    "id": "abb78caa-03a4-49f9-bb3c-780a989159e3",
+                    "holders": [{
+                        "name": "BLOY CONSULTING LIMITED",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": "5387329"
+                    }],
+                    "parcels": [{
+                        "amount": 0,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "REMOVE_ALLOCATION",
+                    "transactionMethod": null,
+                    "beforeAmountLookup": null
+                }],
                 "documentId": "20106994",
+                "totalShares": 0,
                 "documentType": "Particulars of Shareholding",
                 "effectiveDate": "2014-09-04T23:40:00.000Z",
-                "label": "Particulars of Shareholding",
-                "totalShares": 1111,
-                "type": "TRANSFER"
-            }
+                "transactionType": "COMPOUND_REMOVALS"
+            },
+            "previous_id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+            "numberId": 10
         },
-        {
+        "9c5da52b-ede5-4320-8cc0-0d091fc90a4c": {
+            "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
             "data": {
-                "actions": [
-                    {
-                        "parcels": [{"afterAmount": 4999,
-                        "amount": 4999,
-                        "beforeAmount": 0}],
-                        "holders": [
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": null,
-                                "name": "Tamina Kelly CUNNINGHAM-ADAMS"
-                            },
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": null,
-                                "name": "Megan Jean CUNNINGHAM-ADAMS"
-                            }
-                        ],
-                        "index": 2,
-                        "recipientIndex": 6,
-                        "transactionMethod": "NEW_ALLOCATION",
-                        "transactionType": "TRANSFER_TO"
-                    },
-                    {
-                        "parcels": [{"afterAmount": 0,
-                        "amount": 4999,
-                        "beforeAmount": 4999}],
-                        "afterHolders": [
-                            {
-                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
-                                "companyNumber": "5387329",
-                                "name": "BLOY CONSULTING LIMITED"
-                            }
-                        ],
-                        "beforeHolders": [
-                            {
-                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
-                                "companyNumber": "5387329",
-                                "name": "BLOY CONSULTING LIMITED"
-                            }
-                        ],
-                        "index": 6,
-                        "recipientIndex": 2,
-                        "transactionMethod": "AMEND",
-                        "transactionType": "TRANSFER_FROM"
-                    }
-                ],
+                "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
                 "date": "2014-09-04T23:40:00.000Z",
-                "documentId": "20106994",
-                "documentType": "Particulars of Shareholding",
-                "effectiveDate": "2014-09-04T23:40:00.000Z",
-                "id": "550cbc46-68f5-4fbd-9f48-8db628d63bcd",
                 "label": "Particulars of Shareholding",
-                "totalShares": 1111,
-                "type": "TRANSFER"
-            }
-        },
-        {
-            "data": {
-                "actions": [
-                    {
-                        "parcels": [{"afterAmount": 1,
-                        "amount": 1}],
-                        "beforeAmount": 0,
-                        "holders": [
-                            {
-                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
-                                "companyNumber": null,
-                                "name": "Thomas David BLOY"
-                            }
-                        ],
-                        "index": 3,
-                        "recipientIndex": 5,
-                        "transactionMethod": "NEW_ALLOCATION",
-                        "transactionType": "TRANSFER_TO"
-                    },
-                    {
-                        "afterHolders": [
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": "4479218",
-                                "name": "NOT THE ROCKPOOL LIMITED"
-                            }
-                        ],
-                        "parcels": [{"amount": 1,
-                        "afterAmount": 4999,
-                        "beforeAmount": 5000}],
-                        "beforeHolders": [
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": "4479218",
-                                "name": "NOT THE ROCKPOOL LIMITED"
-                            }
-                        ],
-                        "transactionMethod": "AMEND",
-                        "transactionType": "TRANSFER_FROM"
-                    }
-                ],
-                "date": "2014-09-04T23:40:00.000Z",
-                "documentId": "20106994",
-                "documentType": "Particulars of Shareholding",
-                "effectiveDate": "2014-09-04T23:40:00.000Z",
-                "label": "Particulars of Shareholding",
-                "totalShares": 1111,
-                "type": "TRANSFER"
-            }
-        },
-        {
-            "data": {
-                "actions": [
-                    {
-                        "parcels": [{"afterAmount": 1,
+                "actions": [{
+                    "id": "430c7f28-fee3-4d65-a559-1bd56b2a9221",
+                    "holders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 1111,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "NEW_ALLOCATION"
+                }, {
+                    "id": "33a100d5-77c2-48ce-9d37-7964403415b1",
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 4999,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "NEW_ALLOCATION"
+                }, {
+                    "id": "bf858027-ac62-49f6-b9ab-212471fc2b91",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 4999,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "NEW_ALLOCATION"
+                }, {
+                    "id": "aa682038-2117-404f-afa1-829e6fa29d14",
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
                         "amount": 1,
-                        "beforeAmount": 0}],
-                        "holders": [
-                            {
-                                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
-                                "companyNumber": null,
-                                "name": "Tamina Kelly CUNNINGHAM-ADAMS"
-                            }
-                        ],
-                        "recipientIndex": 6,
-                        "transactionMethod": "NEW_ALLOCATION",
-                        "transactionType": "TRANSFER_TO"
-                    },
-                    {
-                        "parcels": [{"afterAmount": 4999,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "NEW_ALLOCATION"
+                }, {
+                    "id": "a70ede5c-ed65-4681-a5c2-a9aa6e55e545",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
                         "amount": 1,
-                        "beforeAmount": 5000}],
-                        "afterHolders": [
-                            {
-                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
-                                "companyNumber": "5387329",
-                                "name": "BLOY CONSULTING LIMITED"
-                            }
-                        ],
-                        "beforeHolders": [
-                            {
-                                "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
-                                "companyNumber": "5387329",
-                                "name": "BLOY CONSULTING LIMITED"
-                            }
-                        ],
-                        "recipientIndex": 4,
-                        "transactionMethod": "AMEND",
-                        "transactionType": "TRANSFER_FROM"
-                    }
-                ],
-                "date": "2014-09-04T23:40:00.000Z",
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "NEW_ALLOCATION"
+                }, {
+                    "id": "027cffa1-874c-45b5-8656-edba0340d97e",
+                    "holders": [{
+                        "name": "NOT THE ROCKPOOL LIMITED",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": "4479218"
+                    }]
+                }, {
+                    "id": "db22f0ba-d725-4e1a-8a5f-71ee3c446c20",
+                    "holders": [{
+                        "name": "BLOY CONSULTING LIMITED",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": "5387329"
+                    }]
+                }, {
+                    "id": "8806f2b9-f104-48fd-b8ef-bb21c1327098",
+                    "holders": [{
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }]
+                }, {
+                    "id": "6600812b-f80d-48ef-87c4-4096e5687375",
+                    "holders": [{
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }]
+                }, {
+                    "id": "8408f04a-9d50-437e-9bf0-72d3c8c98987",
+                    "holders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }]
+                }, {
+                    "id": "3ba3f603-b97a-4764-90f8-d3c9ed85788d",
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }]
+                }, {
+                    "id": "bbd38cb6-e08b-4ed9-a766-761979ab091f",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }]
+                }, {
+                    "id": "6794fb77-61de-43f4-8f07-b7685f5abbe2",
+                    "holders": [{
+                        "name": "NOT THE ROCKPOOL LIMITED",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": "4479218"
+                    }],
+                    "parcels": [{
+                        "amount": 5000,
+                        "afterAmount": 5000,
+                        "beforeAmount": 5000
+                    }],
+                    "afterHolders": [{
+                        "name": "NOT THE ROCKPOOL LIMITED",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": "4479218"
+                    }],
+                    "beforeHolders": [{
+                        "name": "NOT THE ROCKPOOL LIMITED",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": "4479218"
+                    }],
+                    "transactionType": "AMEND",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "de387cb6-70fd-4c1b-a26d-b88c0ede7120",
+                    "holders": [{
+                        "name": "BLOY CONSULTING LIMITED",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": "5387329"
+                    }],
+                    "parcels": [{
+                        "amount": 5000,
+                        "afterAmount": 5000,
+                        "beforeAmount": 5000
+                    }],
+                    "afterHolders": [{
+                        "name": "BLOY CONSULTING LIMITED",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": "5387329"
+                    }],
+                    "beforeHolders": [{
+                        "name": "BLOY CONSULTING LIMITED",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": "5387329"
+                    }],
+                    "transactionType": "AMEND",
+                    "transactionMethod": "AMEND"
+                }],
                 "documentId": "20106994",
-                "documentType": "Particulars of Shareholding",
-                "effectiveDate": "2014-09-04T23:40:00.000Z",
-                "label": "Particulars of Shareholding",
                 "totalShares": 1111,
-                "type": "TRANSFER"
-            }
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-09-04T23:40:00.000Z"
+            },
+            "previous_id": "5ab8c74e-a60d-45fa-9225-80a755f9e632",
+            "numberId": 11
+        },
+        "5ab8c74e-a60d-45fa-9225-80a755f9e632": {
+            "id": "5ab8c74e-a60d-45fa-9225-80a755f9e632",
+            "data": {
+                "id": "5ab8c74e-a60d-45fa-9225-80a755f9e632",
+                "date": "2014-09-04T23:44:00.000Z",
+                "label": "Update Shares",
+                "actions": [{
+                    "id": "a90d73a4-686a-4d28-a7f3-0b0baa83735d",
+                    "parcels": [{
+                        "amount": 1111,
+                        "afterAmount": 10000,
+                        "beforeAmount": 11111
+                    }],
+                    "byAmount": 1111,
+                    "increase": false,
+                    "effectiveDate": "2014-09-04T12:00:00.000Z",
+                    "transactionType": "CONSOLIDATION",
+                    "registrationDate": "2014-09-04T23:44:05.000Z",
+                    "originaltransactionType": "Consolidation"
+                }, {
+                    "id": "1a1c5d9a-4bc8-4819-adc8-38a10ad2602e",
+                    "parcels": [{
+                        "amount": 500,
+                        "afterAmount": 4499,
+                        "beforeAmount": 4999
+                    }],
+                    "afterHolders": [{
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2014-09-04T12:00:00.000Z",
+                    "transactionType": "CONSOLIDATION_FROM",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "c72c0d1e-ac23-4e29-b281-9939d8425ed0",
+                    "parcels": [{
+                        "amount": 500,
+                        "afterAmount": 4499,
+                        "beforeAmount": 4999
+                    }],
+                    "afterHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2014-09-04T12:00:00.000Z",
+                    "transactionType": "CONSOLIDATION_FROM",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "f8032c8b-0c67-43a6-b179-9bb6309a8528",
+                    "parcels": [{
+                        "amount": 111,
+                        "afterAmount": 1000,
+                        "beforeAmount": 1111
+                    }],
+                    "afterHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "inferredType": true,
+                    "beforeHolders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }, {
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "effectiveDate": "2014-09-04T12:00:00.000Z",
+                    "transactionType": "CONSOLIDATION_FROM",
+                    "transactionMethod": "AMEND"
+                }],
+                "documentId": "20107034",
+                "totalShares": 0,
+                "documentType": "Update Shares",
+                "effectiveDate": "2014-09-04T12:00:00.000Z"
+            },
+            "previous_id": "366d15c1-17ec-4c60-8a3e-b8234e543bcd",
+            "numberId": 12
+        },
+        "366d15c1-17ec-4c60-8a3e-b8234e543bcd": {
+            "id": "366d15c1-17ec-4c60-8a3e-b8234e543bcd",
+            "data": {
+                "id": "366d15c1-17ec-4c60-8a3e-b8234e543bcd",
+                "date": "2014-09-04T23:40:00.000Z",
+                "label": "Update Shares",
+                "actions": [{
+                    "id": "c1a64fa4-acfd-42cf-98ee-03b940bc11c7",
+                    "parcels": [{
+                        "amount": 1111,
+                        "afterAmount": 11111,
+                        "beforeAmount": 10000
+                    }],
+                    "byAmount": 1111,
+                    "increase": true,
+                    "effectiveDate": "2014-09-04T12:00:00.000Z",
+                    "transactionType": "ISSUE",
+                    "registrationDate": "2014-09-04T23:40:34.000Z",
+                    "originaltransactionType": "Issue"
+                }],
+                "documentId": "20106993",
+                "totalShares": -1111,
+                "documentType": "Update Shares",
+                "effectiveDate": "2014-09-04T12:00:00.000Z"
+            },
+            "previous_id": "75774579-3a11-454f-99a1-647531b560f7",
+            "numberId": 13
+        },
+        "75774579-3a11-454f-99a1-647531b560f7": {
+            "id": "75774579-3a11-454f-99a1-647531b560f7",
+            "data": {
+                "id": "75774579-3a11-454f-99a1-647531b560f7",
+                "date": "2014-07-31T17:48:00.000Z",
+                "label": "Particulars of Shareholding",
+                "actions": [{
+                    "id": "ef3b5296-9fd4-457b-a5db-6b42beb1c95b",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 0,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "afterHolders": null,
+                    "beforeHolders": null,
+                    "unknownAmount": null,
+                    "transactionType": "REMOVE_ALLOCATION",
+                    "transactionMethod": null,
+                    "beforeAmountLookup": null
+                }, {
+                    "id": "215a8ecf-4ed9-4cf7-8e4f-7114920d781b",
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 0,
+                        "afterAmount": 0,
+                        "beforeAmount": 0
+                    }],
+                    "afterHolders": null,
+                    "beforeHolders": null,
+                    "unknownAmount": null,
+                    "transactionType": "REMOVE_ALLOCATION",
+                    "transactionMethod": null,
+                    "beforeAmountLookup": null
+                }],
+                "documentId": "19941799",
+                "totalShares": 0,
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-07-31T17:48:00.000Z",
+                "transactionType": "COMPOUND_REMOVALS"
+            },
+            "previous_id": "e4a213a0-6ed0-4bc9-b6db-7ebdd8f4ffb2",
+            "numberId": 14
+        },
+        "e4a213a0-6ed0-4bc9-b6db-7ebdd8f4ffb2": {
+            "id": "e4a213a0-6ed0-4bc9-b6db-7ebdd8f4ffb2",
+            "data": {
+                "id": "e4a213a0-6ed0-4bc9-b6db-7ebdd8f4ffb2",
+                "date": "2014-07-31T17:48:00.000Z",
+                "label": "Particulars of Shareholding",
+                "actions": [{
+                    "id": "8b3ba621-f220-4fb4-a1e0-b821220f191c",
+                    "holders": [{
+                        "name": "BLOY CONSULTING LIMITED",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": "5387329"
+                    }],
+                    "parcels": [{
+                        "amount": 5000,
+                        "afterAmount": 5000,
+                        "beforeAmount": 0
+                    }],
+                    "afterHolders": null,
+                    "beforeHolders": null,
+                    "transactionType": "NEW_ALLOCATION"
+                }, {
+                    "id": "9051176f-8da0-4573-9928-c61ffc104044",
+                    "holders": [{
+                        "name": "NOT THE ROCKPOOL LIMITED",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": "4479218"
+                    }],
+                    "parcels": [{
+                        "amount": 5000,
+                        "afterAmount": 5000,
+                        "beforeAmount": 0
+                    }],
+                    "afterHolders": null,
+                    "beforeHolders": null,
+                    "transactionType": "NEW_ALLOCATION"
+                }, {
+                    "id": "48fbbe7c-9926-4b05-b13e-c23d1a7538a3",
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }]
+                }, {
+                    "id": "8a7c931f-cc1c-4d8e-a319-57a921c531a4",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }]
+                }, {
+                    "id": "6f8abf52-2bea-451a-acc9-ba8bdc64484e",
+                    "holders": [{
+                        "name": "NOT THE ROCKPOOL LIMITED",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": "4479218"
+                    }]
+                }, {
+                    "id": "90f0de25-7084-4ac6-9165-89fe3d902dba",
+                    "holders": [{
+                        "name": "BLOY CONSULTING LIMITED",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": "5387329"
+                    }]
+                }, {
+                    "id": "6a3d975d-9b73-4b3a-841e-3b2be35384e9",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 500,
+                        "afterAmount": 0,
+                        "beforeAmount": 500
+                    }],
+                    "afterHolders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "beforeHolders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "unknownAmount": null,
+                    "transactionType": "AMEND",
+                    "transactionMethod": "AMEND"
+                }, {
+                    "id": "23811b2a-15c0-4035-84bb-623c7a97d02f",
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "parcels": [{
+                        "amount": 500,
+                        "afterAmount": 0,
+                        "beforeAmount": 500
+                    }],
+                    "afterHolders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "beforeHolders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                        "companyNumber": null
+                    }],
+                    "unknownAmount": null,
+                    "transactionType": "AMEND",
+                    "transactionMethod": "AMEND"
+                }],
+                "documentId": "19941799",
+                "totalShares": 9000,
+                "documentType": "Particulars of Shareholding",
+                "effectiveDate": "2014-07-31T17:48:00.000Z"
+            },
+            "previous_id": "e1074282-33e6-4cb3-8fc5-c30f8a4aecf0",
+            "numberId": 15
+        },
+        "e1074282-33e6-4cb3-8fc5-c30f8a4aecf0": {
+            "id": "e1074282-33e6-4cb3-8fc5-c30f8a4aecf0",
+            "data": {
+                "id": "e1074282-33e6-4cb3-8fc5-c30f8a4aecf0",
+                "date": "2014-07-31T17:48:00.000Z",
+                "label": "Update Shares",
+                "actions": [{
+                    "id": "bae10c5f-ab38-4417-a2e3-fefcc597cd32",
+                    "parcels": [{
+                        "amount": 9000,
+                        "afterAmount": 10000,
+                        "beforeAmount": 1000
+                    }],
+                    "byAmount": 9000,
+                    "increase": true,
+                    "effectiveDate": "2014-07-31T12:00:00.000Z",
+                    "transactionType": "ISSUE",
+                    "registrationDate": "2014-07-31T17:48:28.000Z",
+                    "originaltransactionType": "Issue"
+                }],
+                "documentId": "19941798",
+                "totalShares": -9000,
+                "documentType": "Update Shares",
+                "effectiveDate": "2014-07-31T12:00:00.000Z"
+            },
+            "previous_id": "24f1c773-e8b9-4c42-8228-e3f5e9a51767",
+            "numberId": 16
+        },
+        "24f1c773-e8b9-4c42-8228-e3f5e9a51767": {
+            "id": "24f1c773-e8b9-4c42-8228-e3f5e9a51767",
+            "data": {
+                "id": "24f1c773-e8b9-4c42-8228-e3f5e9a51767",
+                "date": "2014-06-17T03:12:00.000Z",
+                "label": "New Company Incorporation",
+                "actions": [{
+                    "id": "bdd18805-9ad2-483d-a677-b1728e36737a",
+                    "fields": {
+                        "companyName": "CATALEX LIMITED",
+                        "arFilingMonth": "8",
+                        "companyNumber": "5311842",
+                        "companyStatus": "Registered",
+                        "constiutionFiled": "No",
+                        "addressForService": "468 Sandringham Road, Sandringham, Auckland",
+                        "incorporationDate": "2014-06-16T12:00:00.000Z",
+                        "ultimateHoldingCompany": true,
+                        "addressForShareRegister": null,
+                        "registeredCompanyAddress": "468 Sandringham Road, Sandringham, Auckland"
+                    },
+                    "transactionType": "DETAILS_MASS"
+                }, {
+                    "id": "9489782a-db7e-4bf2-a429-e69f7113d4a3",
+                    "parcels": [{
+                        "amount": 1000,
+                        "afterAmount": 1000,
+                        "beforeAmount": 0
+                    }],
+                    "byAmount": 1000,
+                    "transactionType": "ISSUE"
+                }, {
+                    "id": "a421bafd-a9f7-4274-a992-8ceb8a70b8bc",
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, NZ"
+                    }],
+                    "parcels": [{
+                        "amount": 500,
+                        "afterAmount": 500,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "ISSUE_TO",
+                    "transactionMethod": "NEW_ALLOCATION",
+                    "confirmationUnneeded": true
+                }, {
+                    "id": "d4d547e2-9fa7-4e1c-9510-e8d5720017af",
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "59 Russell Road, Rd 2, Silverdale, 0992, NZ"
+                    }],
+                    "parcels": [{
+                        "amount": 500,
+                        "afterAmount": 500,
+                        "beforeAmount": 0
+                    }],
+                    "transactionType": "ISSUE_TO",
+                    "transactionMethod": "NEW_ALLOCATION",
+                    "confirmationUnneeded": true
+                }, {
+                    "id": "385dc781-34ee-43e9-87e8-a0c0b660bee8",
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, NZ",
+                    "transactionType": "NEW_DIRECTOR"
+                }, {
+                    "id": "f8fae67c-701a-4614-8ea1-d8bbfcce68d7",
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, NZ",
+                    "transactionType": "NEW_DIRECTOR"
+                }],
+                "documentId": "19745329",
+                "totalShares": 0,
+                "documentType": "New Company Incorporation",
+                "effectiveDate": "2014-06-17T03:12:00.000Z",
+                "transactionType": "INCORPORATION"
+            },
+            "previous_id": null,
+            "numberId": 17
         }
-    ]
+    }, {
+        "id": "2c505ca5-fba0-4467-9cd6-df1d5ee45948",
+        "data": {
+            "id": "2c505ca5-fba0-4467-9cd6-df1d5ee45948",
+            "date": "2016-08-08T04:25:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "e544ecf1-a046-4c27-95aa-320d6b4ed838",
+                "afterHolder": {
+                    "name": "Joshua Normand GAGNON",
+                    "address": "7a Alva Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                    "companyNumber": null
+                },
+                "beforeHolder": {
+                    "name": "Joshua Normand GAGNON",
+                    "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                    "companyNumber": null
+                },
+                "userConfirmed": true,
+                "transactionType": "HOLDER_CHANGE"
+            }],
+            "documentId": "23197440",
+            "totalShares": 0,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2016-08-08T04:25:00.000Z",
+            "transactionType": "HOLDER_CHANGE"
+        },
+        "previous_id": "25259799-a35a-4179-8f2c-87b36c2afcde",
+        "numberId": 1
+    }, {
+        "id": "25259799-a35a-4179-8f2c-87b36c2afcde",
+        "data": {
+            "id": "25259799-a35a-4179-8f2c-87b36c2afcde",
+            "date": "2016-06-03T01:30:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "5b3c2a10-5a9f-49d1-8d9d-76efb10736c5",
+                "parcels": [{
+                    "amount": 1500,
+                    "afterAmount": 41307,
+                    "beforeAmount": 42807
+                }],
+                "afterHolders": [{
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "userConfirmed": true,
+                "transactionType": "TRANSFER_FROM",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "4a2eed85-f146-4a63-999c-284066f2befc",
+                "parcels": [{
+                    "amount": 1500,
+                    "afterAmount": 41307,
+                    "beforeAmount": 42807
+                }],
+                "afterHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "companyNumber": null
+                }],
+                "userConfirmed": true,
+                "transactionType": "TRANSFER_FROM",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "c0f94491-1a5d-46b3-b560-d361b0973db3",
+                "parcels": [{
+                    "amount": 3000,
+                    "afterAmount": 4941,
+                    "beforeAmount": 1941
+                }],
+                "afterHolders": [{
+                    "name": "Joshua Normand GAGNON",
+                    "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Joshua Normand GAGNON",
+                    "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                    "companyNumber": null
+                }],
+                "userConfirmed": true,
+                "transactionType": "TRANSFER_TO",
+                "transactionMethod": "AMEND"
+            }],
+            "documentId": "22880567",
+            "totalShares": 0,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2016-06-03T01:30:00.000Z"
+        },
+        "previous_id": "6588142e-9c16-4b21-a4e1-e04559730bd0",
+        "numberId": 2
+    }, {
+        "id": "6588142e-9c16-4b21-a4e1-e04559730bd0",
+        "data": {
+            "id": "6588142e-9c16-4b21-a4e1-e04559730bd0",
+            "date": "2015-08-03T22:13:00.000Z",
+            "label": "File Annual Return",
+            "actions": [{
+                "id": "8aaeb703-ea62-4008-92a6-d37585805402",
+                "holdings": [{
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }, {
+                        "name": "Megan Jean CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 42807
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand"
+                    }, {
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 42807
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Peter James BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                    }, {
+                        "name": "Priscilla Rose BLOY",
+                        "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 9515
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Joshua Normand GAGNON",
+                        "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 1941
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Norman Barry WHITE",
+                        "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 971
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Stephen James ROGERS",
+                        "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 971
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 971
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                        "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 9
+                    }]
+                }, {
+                    "holders": [{
+                        "name": "Thomas David BLOY",
+                        "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand"
+                    }],
+                    "parcels": [{
+                        "amount": 8
+                    }]
+                }],
+                "directors": [{
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "appointment": "2014-06-16T12:00:00.000Z"
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "appointment": "2014-06-16T12:00:00.000Z"
+                }],
+                "totalShares": 100000,
+                "effectiveDate": "2015-08-03T22:13:06.000Z",
+                "transactionType": "ANNUAL_RETURN",
+                "addressForService": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand",
+                "registeredCompanyAddress": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand"
+            }],
+            "documentId": "21429071",
+            "documentType": "File Annual Return",
+            "effectiveDate": "2015-08-03T22:13:06.000Z",
+            "transactionType": "ANNUAL_RETURN"
+        },
+        "previous_id": "95c14c37-54e0-498a-aa6a-12dc92759cec",
+        "numberId": 3
+    }, {
+        "id": "95c14c37-54e0-498a-aa6a-12dc92759cec",
+        "data": {
+            "id": "95c14c37-54e0-498a-aa6a-12dc92759cec",
+            "date": "2015-03-19T01:32:00.000Z",
+            "label": "Update Shares",
+            "actions": [{
+                "id": "5881d2bc-129e-4166-9779-df63d6a9d7e6",
+                "parcels": [{
+                    "amount": 89490,
+                    "afterAmount": 100000,
+                    "beforeAmount": 10510
+                }],
+                "byAmount": 89490,
+                "increase": true,
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION",
+                "registrationDate": "2015-03-19T01:32:38.000Z",
+                "originaltransactionType": "Conversion/Subdivision of Shares"
+            }, {
+                "id": "5e6a54f0-8d94-4ccf-bf4a-a9ba4e35bd69",
+                "parcels": [{
+                    "amount": 8,
+                    "afterAmount": 9,
+                    "beforeAmount": 1
+                }],
+                "afterHolders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "761e063f-cfee-49d4-9b80-3881c0037639",
+                "parcels": [{
+                    "amount": 7,
+                    "afterAmount": 8,
+                    "beforeAmount": 1
+                }],
+                "afterHolders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "dfe062e8-7794-41f0-a68b-344618650328",
+                "parcels": [{
+                    "amount": 38308,
+                    "afterAmount": 42807,
+                    "beforeAmount": 4499
+                }],
+                "afterHolders": [{
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "4e054b4e-8720-47d8-b388-01727d65e24c",
+                "parcels": [{
+                    "amount": 38308,
+                    "afterAmount": 42807,
+                    "beforeAmount": 4499
+                }],
+                "afterHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "be4e28c3-5744-412e-a91b-f3c945c529f6",
+                "parcels": [{
+                    "amount": 8515,
+                    "afterAmount": 9515,
+                    "beforeAmount": 1000
+                }],
+                "afterHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Priscilla Rose BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Priscilla Rose BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "a75339f5-0ad3-47c8-a37a-46e1ac88c183",
+                "parcels": [{
+                    "amount": 1737,
+                    "afterAmount": 1941,
+                    "beforeAmount": 204
+                }],
+                "afterHolders": [{
+                    "name": "Joshua Normand GAGNON",
+                    "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Joshua Normand GAGNON",
+                    "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "8514e852-6c02-4e34-b93f-68146a716ad6",
+                "parcels": [{
+                    "amount": 869,
+                    "afterAmount": 971,
+                    "beforeAmount": 102
+                }],
+                "afterHolders": [{
+                    "name": "Norman Barry WHITE",
+                    "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Norman Barry WHITE",
+                    "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "1774fefd-fbcc-4986-b003-36c81125d7eb",
+                "parcels": [{
+                    "amount": 869,
+                    "afterAmount": 971,
+                    "beforeAmount": 102
+                }],
+                "afterHolders": [{
+                    "name": "Stephen James ROGERS",
+                    "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Stephen James ROGERS",
+                    "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "00852202-b79f-4715-b488-48b1ff928987",
+                "parcels": [{
+                    "amount": 869,
+                    "afterAmount": 971,
+                    "beforeAmount": 102
+                }],
+                "afterHolders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "CONVERSION_TO",
+                "transactionMethod": "AMEND"
+            }],
+            "documentId": "20794371",
+            "totalShares": 0,
+            "documentType": "Update Shares",
+            "effectiveDate": "2015-03-18T11:00:00.000Z"
+        },
+        "previous_id": "c889946d-dc01-43cf-be39-495e57f2b519",
+        "numberId": 4
+    }, {
+        "id": "c889946d-dc01-43cf-be39-495e57f2b519",
+        "data": {
+            "id": "c889946d-dc01-43cf-be39-495e57f2b519",
+            "date": "2015-03-19T01:14:00.000Z",
+            "label": "Update Shares",
+            "actions": [{
+                "id": "50b667ff-d3af-44ff-84d5-04f9c6453501",
+                "parcels": [{
+                    "amount": 306,
+                    "afterAmount": 10510,
+                    "beforeAmount": 10204
+                }],
+                "byAmount": 306,
+                "increase": true,
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "ISSUE",
+                "registrationDate": "2015-03-19T01:14:26.000Z",
+                "originaltransactionType": "Issue"
+            }, {
+                "id": "88565d27-09c2-44b3-9088-cd877886ce6e",
+                "holders": [{
+                    "name": "Norman Barry WHITE",
+                    "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 102,
+                    "afterAmount": 102,
+                    "beforeAmount": 0
+                }],
+                "inferredType": true,
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "ISSUE_TO",
+                "transactionMethod": "NEW_ALLOCATION"
+            }, {
+                "id": "a0ba6cc1-33f9-48f3-bf99-638c7e3e842e",
+                "holders": [{
+                    "name": "Stephen James ROGERS",
+                    "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 102,
+                    "afterAmount": 102,
+                    "beforeAmount": 0
+                }],
+                "inferredType": true,
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "ISSUE_TO",
+                "transactionMethod": "NEW_ALLOCATION"
+            }, {
+                "id": "1cbd7142-df76-4922-9fb9-cf02e3c0c118",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 102,
+                    "afterAmount": 102,
+                    "beforeAmount": 0
+                }],
+                "inferredType": true,
+                "effectiveDate": "2015-03-18T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "ISSUE_TO",
+                "transactionMethod": "NEW_ALLOCATION"
+            }],
+            "documentId": "20794227",
+            "totalShares": 0,
+            "documentType": "Update Shares",
+            "effectiveDate": "2015-03-18T11:00:00.000Z"
+        },
+        "previous_id": "dd722d72-da5a-4b58-8b62-2110a55df4f0",
+        "numberId": 5
+    }, {
+        "id": "dd722d72-da5a-4b58-8b62-2110a55df4f0",
+        "data": {
+            "id": "dd722d72-da5a-4b58-8b62-2110a55df4f0",
+            "date": "2015-02-12T22:20:00.000Z",
+            "label": "Particulars of Director",
+            "actions": [{
+                "id": "f46007db-2c55-4fda-b498-b8db46f56f88",
+                "afterName": "Thomas David BLOY",
+                "beforeName": "Thomas David BLOY",
+                "afterAddress": "19 Halberg Street, Glenfield, Auckland, 0629, NZ",
+                "beforeAddress": "59 Russell Road, Rd 2, Silverdale, 0992, NZ",
+                "userConfirmed": true,
+                "transactionType": "UPDATE_DIRECTOR"
+            }],
+            "documentId": "20642500",
+            "documentType": "Particulars of Director",
+            "effectiveDate": "2015-02-12T22:20:00.000Z"
+        },
+        "previous_id": "db23799b-18d0-412b-9895-8f739f32e67c",
+        "numberId": 6
+    }, {
+        "id": "db23799b-18d0-412b-9895-8f739f32e67c",
+        "data": {
+            "id": "db23799b-18d0-412b-9895-8f739f32e67c",
+            "date": "2014-11-03T00:56:00.000Z",
+            "label": "Update Shares",
+            "actions": [{
+                "id": "dd4a9fbc-31cc-43c1-9b1a-7d55ae169c96",
+                "parcels": [{
+                    "amount": 204,
+                    "afterAmount": 10204,
+                    "beforeAmount": 10000
+                }],
+                "byAmount": 204,
+                "increase": true,
+                "effectiveDate": "2014-11-02T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "ISSUE",
+                "registrationDate": "2014-11-03T00:56:05.000Z",
+                "originaltransactionType": "Issue"
+            }, {
+                "id": "4d81f69a-668b-4f09-9a2c-871a6fa4b40d",
+                "holders": [{
+                    "name": "Joshua Normand GAGNON",
+                    "address": "25 Jones Street, Dunedin Central, Dunedin, 9016, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 204,
+                    "afterAmount": 204,
+                    "beforeAmount": 0
+                }],
+                "inferredType": true,
+                "effectiveDate": "2014-11-02T11:00:00.000Z",
+                "userConfirmed": true,
+                "transactionType": "ISSUE_TO",
+                "transactionMethod": "NEW_ALLOCATION"
+            }],
+            "documentId": "20351193",
+            "totalShares": 0,
+            "documentType": "Update Shares",
+            "effectiveDate": "2014-11-02T11:00:00.000Z"
+        },
+        "previous_id": "3597b8c0-f897-4951-9813-5c056a595f13",
+        "numberId": 7
+    }, {
+        "id": "3597b8c0-f897-4951-9813-5c056a595f13",
+        "data": {
+            "id": "3597b8c0-f897-4951-9813-5c056a595f13",
+            "date": "2014-09-04T20:13:00.000Z",
+            "label": "Particulars of Company Address",
+            "actions": [{
+                "id": "902d2f5f-fd9b-411b-bda2-9e033cbb1a1a",
+                "field": "addressForService",
+                "newAddress": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand",
+                "effectiveDate": "2014-09-14T12:00:00.000Z",
+                "userConfirmed": true,
+                "previousAddress": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                "transactionType": "ADDRESS_CHANGE"
+            }, {
+                "id": "dc0b8597-71f3-470c-b454-f3374d8f7693",
+                "field": "registeredCompanyAddress",
+                "newAddress": "Kanu Jeram Chartered Accountant Limited, 112 Kitchener Road, Milford, Auckland, 0620, New Zealand",
+                "effectiveDate": "2014-09-14T12:00:00.000Z",
+                "userConfirmed": true,
+                "previousAddress": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                "transactionType": "ADDRESS_CHANGE"
+            }],
+            "documentId": "20105080",
+            "documentType": "Particulars of Company Address",
+            "effectiveDate": "2014-09-14T12:00:00.000Z"
+        },
+        "previous_id": "6f272c5f-739d-4319-af79-5c359c50f67e",
+        "numberId": 8
+    }, {
+        "id": "6f272c5f-739d-4319-af79-5c359c50f67e",
+        "data": {
+            "id": "6f272c5f-739d-4319-af79-5c359c50f67e",
+            "date": "2014-09-10T01:16:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "d145b439-7cbd-4c97-b560-d2f8579dc34a",
+                "afterHolder": {
+                    "name": "Thomas David BLOY",
+                    "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+                    "companyNumber": null
+                },
+                "beforeHolder": {
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                },
+                "userConfirmed": true,
+                "transactionType": "HOLDER_CHANGE"
+            }],
+            "documentId": "20127545",
+            "totalShares": 0,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-09-10T01:16:00.000Z",
+            "transactionType": "HOLDER_CHANGE"
+        },
+        "previous_id": "efe5e08c-b7fa-4961-8a4a-e64bcb1077a7",
+        "numberId": 9
+    }, {
+        "id": "efe5e08c-b7fa-4961-8a4a-e64bcb1077a7",
+        "data": {
+            "id": "efe5e08c-b7fa-4961-8a4a-e64bcb1077a7",
+            "date": "2014-09-04T23:40:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "34bfd344-3919-4412-97df-da1332fea91e",
+                "holders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }],
+                "parcels": [{
+                    "amount": 0,
+                    "afterAmount": 0,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "REMOVE_ALLOCATION",
+                "transactionMethod": null,
+                "beforeAmountLookup": null
+            }, {
+                "id": "abb78caa-03a4-49f9-bb3c-780a989159e3",
+                "holders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }],
+                "parcels": [{
+                    "amount": 0,
+                    "afterAmount": 0,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "REMOVE_ALLOCATION",
+                "transactionMethod": null,
+                "beforeAmountLookup": null
+            }],
+            "documentId": "20106994",
+            "totalShares": 0,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-09-04T23:40:00.000Z",
+            "transactionType": "COMPOUND_REMOVALS"
+        },
+        "previous_id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+        "numberId": 10
+    }, {
+        "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+        "data": {
+            "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+            "date": "2014-09-04T23:40:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "027cffa1-874c-45b5-8656-edba0340d97e",
+                "holders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }]
+            }, {
+                "id": "db22f0ba-d725-4e1a-8a5f-71ee3c446c20",
+                "holders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }]
+            }, {
+                "id": "8806f2b9-f104-48fd-b8ef-bb21c1327098",
+                "holders": [{
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }]
+            }, {
+                "id": "6600812b-f80d-48ef-87c4-4096e5687375",
+                "holders": [{
+                    "name": "Priscilla Rose BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }]
+            }, {
+                "id": "8408f04a-9d50-437e-9bf0-72d3c8c98987",
+                "holders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }]
+            }, {
+                "id": "3ba3f603-b97a-4764-90f8-d3c9ed85788d",
+                "holders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }]
+            }, {
+                "id": "bbd38cb6-e08b-4ed9-a766-761979ab091f",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }]
+            }],
+            "documentId": "20106994",
+            "totalShares": 1111,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-09-04T23:40:00.000Z"
+        },
+        "previous_id": "5ab8c74e-a60d-45fa-9225-80a755f9e632"
+    }, {
+        "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+        "data": {
+            "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+            "date": "2014-09-04T23:40:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "33a100d5-77c2-48ce-9d37-7964403415b1",
+                "holders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 4999,
+                    "shareClass": 10005,
+                    "afterAmount": 4999,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "TRANSFER_TO",
+                "transactionMethod": "NEW_ALLOCATION",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }, {
+                "id": "6794fb77-61de-43f4-8f07-b7685f5abbe2",
+                "parcels": [{
+                    "amount": 4999,
+                    "shareClass": 10005,
+                    "afterAmount": 0,
+                    "beforeAmount": 4999
+                }],
+                "afterHolders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }],
+                "beforeHolders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }],
+                "transactionType": "TRANSFER_FROM",
+                "transactionMethod": "AMEND",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }],
+            "documentId": "20106994",
+            "totalShares": null,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-09-04T23:40:00.000Z",
+            "orderIndex": 0
+        },
+        "previous_id": "5ab8c74e-a60d-45fa-9225-80a755f9e632"
+    }, {
+        "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+        "data": {
+            "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+            "date": "2014-09-04T23:40:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "bf858027-ac62-49f6-b9ab-212471fc2b91",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 4999,
+                    "shareClass": 10005,
+                    "afterAmount": 4999,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "TRANSFER_TO",
+                "transactionMethod": "NEW_ALLOCATION",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }, {
+                "id": "de387cb6-70fd-4c1b-a26d-b88c0ede7120",
+                "parcels": [{
+                    "amount": 4999,
+                    "shareClass": 10005,
+                    "afterAmount": 0,
+                    "beforeAmount": 4999
+                }],
+                "afterHolders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }],
+                "beforeHolders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }],
+                "transactionType": "TRANSFER_FROM",
+                "transactionMethod": "AMEND",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }],
+            "documentId": "20106994",
+            "totalShares": null,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-09-04T23:40:00.000Z",
+            "orderIndex": 1
+        },
+        "previous_id": "5ab8c74e-a60d-45fa-9225-80a755f9e632"
+    }, {
+        "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+        "data": {
+            "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+            "date": "2014-09-04T23:40:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "aa682038-2117-404f-afa1-829e6fa29d14",
+                "holders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 1,
+                    "shareClass": 10005,
+                    "afterAmount": 1,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "TRANSFER_TO",
+                "transactionMethod": "NEW_ALLOCATION",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }, {
+                "id": "6794fb77-61de-43f4-8f07-b7685f5abbe2",
+                "parcels": [{
+                    "amount": 1,
+                    "shareClass": 10005,
+                    "afterAmount": 4999,
+                    "beforeAmount": 5000
+                }],
+                "afterHolders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }],
+                "beforeHolders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }],
+                "transactionType": "TRANSFER_FROM",
+                "transactionMethod": "AMEND",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }],
+            "documentId": "20106994",
+            "totalShares": null,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-09-04T23:40:00.000Z",
+            "orderIndex": 2
+        },
+        "previous_id": "5ab8c74e-a60d-45fa-9225-80a755f9e632"
+    }, {
+        "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+        "data": {
+            "id": "9c5da52b-ede5-4320-8cc0-0d091fc90a4c",
+            "date": "2014-09-04T23:40:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "a70ede5c-ed65-4681-a5c2-a9aa6e55e545",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 1,
+                    "shareClass": 10005,
+                    "afterAmount": 1,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "TRANSFER_TO",
+                "transactionMethod": "NEW_ALLOCATION",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }, {
+                "id": "de387cb6-70fd-4c1b-a26d-b88c0ede7120",
+                "parcels": [{
+                    "amount": 1,
+                    "shareClass": 10005,
+                    "afterAmount": 4999,
+                    "beforeAmount": 5000
+                }],
+                "afterHolders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }],
+                "beforeHolders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }],
+                "transactionType": "TRANSFER_FROM",
+                "transactionMethod": "AMEND",
+                "effectiveDate": "2014-09-04T23:40:00.000Z",
+                "userConfirmed": true
+            }],
+            "documentId": "20106994",
+            "totalShares": null,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-09-04T23:40:00.000Z",
+            "orderIndex": 3
+        },
+        "previous_id": "5ab8c74e-a60d-45fa-9225-80a755f9e632"
+    }, {
+        "id": "5ab8c74e-a60d-45fa-9225-80a755f9e632",
+        "data": {
+            "id": "5ab8c74e-a60d-45fa-9225-80a755f9e632",
+            "date": "2014-09-04T23:44:00.000Z",
+            "label": "Update Shares",
+            "actions": [{
+                "id": "a90d73a4-686a-4d28-a7f3-0b0baa83735d",
+                "parcels": [{
+                    "amount": 1111,
+                    "afterAmount": 10000,
+                    "beforeAmount": 11111
+                }],
+                "byAmount": 1111,
+                "increase": false,
+                "effectiveDate": "2014-09-04T12:00:00.000Z",
+                "transactionType": "CONSOLIDATION",
+                "registrationDate": "2014-09-04T23:44:05.000Z",
+                "originaltransactionType": "Consolidation"
+            }, {
+                "id": "1a1c5d9a-4bc8-4819-adc8-38a10ad2602e",
+                "parcels": [{
+                    "amount": 500,
+                    "afterAmount": 4499,
+                    "beforeAmount": 4999
+                }],
+                "afterHolders": [{
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Megan Jean CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2014-09-04T12:00:00.000Z",
+                "transactionType": "CONSOLIDATION_FROM",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "c72c0d1e-ac23-4e29-b281-9939d8425ed0",
+                "parcels": [{
+                    "amount": 500,
+                    "afterAmount": 4499,
+                    "beforeAmount": 4999
+                }],
+                "afterHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2014-09-04T12:00:00.000Z",
+                "transactionType": "CONSOLIDATION_FROM",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "f8032c8b-0c67-43a6-b179-9bb6309a8528",
+                "parcels": [{
+                    "amount": 111,
+                    "afterAmount": 1000,
+                    "beforeAmount": 1111
+                }],
+                "afterHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Priscilla Rose BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }],
+                "inferredType": true,
+                "beforeHolders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Priscilla Rose BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }],
+                "effectiveDate": "2014-09-04T12:00:00.000Z",
+                "transactionType": "CONSOLIDATION_FROM",
+                "transactionMethod": "AMEND"
+            }],
+            "documentId": "20107034",
+            "totalShares": 0,
+            "documentType": "Update Shares",
+            "effectiveDate": "2014-09-04T12:00:00.000Z"
+        },
+        "previous_id": "366d15c1-17ec-4c60-8a3e-b8234e543bcd",
+        "numberId": 12
+    }, {
+        "id": "366d15c1-17ec-4c60-8a3e-b8234e543bcd",
+        "data": {
+            "id": "366d15c1-17ec-4c60-8a3e-b8234e543bcd",
+            "date": "2014-09-04T23:40:00.000Z",
+            "label": "Update Shares",
+            "actions": [{
+                "id": "c1a64fa4-acfd-42cf-98ee-03b940bc11c7",
+                "parcels": [{
+                    "amount": 1111,
+                    "afterAmount": 11111,
+                    "beforeAmount": 10000
+                }],
+                "byAmount": 1111,
+                "increase": true,
+                "effectiveDate": "2014-09-04T12:00:00.000Z",
+                "transactionType": "ISSUE",
+                "registrationDate": "2014-09-04T23:40:34.000Z",
+                "originaltransactionType": "Issue"
+            }, {
+                "id": "430c7f28-fee3-4d65-a559-1bd56b2a9221",
+                "holders": [{
+                    "name": "Peter James BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }, {
+                    "name": "Priscilla Rose BLOY",
+                    "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 1111,
+                    "shareClass": 10005,
+                    "afterAmount": 1111,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "ISSUE_TO",
+                "transactionMethod": "NEW_ALLOCATION",
+                "userConfirmed": true,
+                "targetActionSet": "366d15c1-17ec-4c60-8a3e-b8234e543bcd"
+            }],
+            "documentId": "20106993",
+            "totalShares": null,
+            "documentType": "Update Shares",
+            "effectiveDate": "2014-09-04T12:00:00.000Z",
+            "orderIndex": 4
+        },
+        "previous_id": "5ab8c74e-a60d-45fa-9225-80a755f9e632"
+    }, {
+        "id": "75774579-3a11-454f-99a1-647531b560f7",
+        "data": {
+            "id": "75774579-3a11-454f-99a1-647531b560f7",
+            "date": "2014-07-31T17:48:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "ef3b5296-9fd4-457b-a5db-6b42beb1c95b",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 0,
+                    "afterAmount": 0,
+                    "beforeAmount": 0
+                }],
+                "afterHolders": null,
+                "beforeHolders": null,
+                "unknownAmount": null,
+                "transactionType": "REMOVE_ALLOCATION",
+                "transactionMethod": null,
+                "beforeAmountLookup": null
+            }, {
+                "id": "215a8ecf-4ed9-4cf7-8e4f-7114920d781b",
+                "holders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 0,
+                    "afterAmount": 0,
+                    "beforeAmount": 0
+                }],
+                "afterHolders": null,
+                "beforeHolders": null,
+                "unknownAmount": null,
+                "transactionType": "REMOVE_ALLOCATION",
+                "transactionMethod": null,
+                "beforeAmountLookup": null
+            }],
+            "documentId": "19941799",
+            "totalShares": 0,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-07-31T17:48:00.000Z",
+            "transactionType": "COMPOUND_REMOVALS"
+        },
+        "previous_id": "e4a213a0-6ed0-4bc9-b6db-7ebdd8f4ffb2",
+        "numberId": 14
+    }, {
+        "id": "e4a213a0-6ed0-4bc9-b6db-7ebdd8f4ffb2",
+        "data": {
+            "id": "e4a213a0-6ed0-4bc9-b6db-7ebdd8f4ffb2",
+            "date": "2014-07-31T17:48:00.000Z",
+            "label": "Particulars of Shareholding",
+            "actions": [{
+                "id": "8b3ba621-f220-4fb4-a1e0-b821220f191c",
+                "holders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }],
+                "parcels": [{
+                    "amount": 5000,
+                    "afterAmount": 5000,
+                    "beforeAmount": 0
+                }],
+                "afterHolders": null,
+                "beforeHolders": null,
+                "transactionType": "NEW_ALLOCATION"
+            }, {
+                "id": "9051176f-8da0-4573-9928-c61ffc104044",
+                "holders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }],
+                "parcels": [{
+                    "amount": 5000,
+                    "afterAmount": 5000,
+                    "beforeAmount": 0
+                }],
+                "afterHolders": null,
+                "beforeHolders": null,
+                "transactionType": "NEW_ALLOCATION"
+            }, {
+                "id": "48fbbe7c-9926-4b05-b13e-c23d1a7538a3",
+                "holders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }]
+            }, {
+                "id": "8a7c931f-cc1c-4d8e-a319-57a921c531a4",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }]
+            }, {
+                "id": "6f8abf52-2bea-451a-acc9-ba8bdc64484e",
+                "holders": [{
+                    "name": "NOT THE ROCKPOOL LIMITED",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": "4479218"
+                }]
+            }, {
+                "id": "90f0de25-7084-4ac6-9165-89fe3d902dba",
+                "holders": [{
+                    "name": "BLOY CONSULTING LIMITED",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": "5387329"
+                }]
+            }, {
+                "id": "6a3d975d-9b73-4b3a-841e-3b2be35384e9",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 500,
+                    "afterAmount": 0,
+                    "beforeAmount": 500
+                }],
+                "afterHolders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "beforeHolders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+                    "companyNumber": null
+                }],
+                "unknownAmount": null,
+                "transactionType": "AMEND",
+                "transactionMethod": "AMEND"
+            }, {
+                "id": "23811b2a-15c0-4035-84bb-623c7a97d02f",
+                "holders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }],
+                "parcels": [{
+                    "amount": 500,
+                    "afterAmount": 0,
+                    "beforeAmount": 500
+                }],
+                "afterHolders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }],
+                "beforeHolders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, New Zealand",
+                    "companyNumber": null
+                }],
+                "unknownAmount": null,
+                "transactionType": "AMEND",
+                "transactionMethod": "AMEND"
+            }],
+            "documentId": "19941799",
+            "totalShares": 9000,
+            "documentType": "Particulars of Shareholding",
+            "effectiveDate": "2014-07-31T17:48:00.000Z"
+        },
+        "previous_id": "e1074282-33e6-4cb3-8fc5-c30f8a4aecf0",
+        "numberId": 15
+    }, {
+        "id": "e1074282-33e6-4cb3-8fc5-c30f8a4aecf0",
+        "data": {
+            "id": "e1074282-33e6-4cb3-8fc5-c30f8a4aecf0",
+            "date": "2014-07-31T17:48:00.000Z",
+            "label": "Update Shares",
+            "actions": [{
+                "id": "bae10c5f-ab38-4417-a2e3-fefcc597cd32",
+                "parcels": [{
+                    "amount": 9000,
+                    "afterAmount": 10000,
+                    "beforeAmount": 1000
+                }],
+                "byAmount": 9000,
+                "increase": true,
+                "effectiveDate": "2014-07-31T12:00:00.000Z",
+                "transactionType": "ISSUE",
+                "registrationDate": "2014-07-31T17:48:28.000Z",
+                "originaltransactionType": "Issue"
+            }],
+            "documentId": "19941798",
+            "totalShares": -9000,
+            "documentType": "Update Shares",
+            "effectiveDate": "2014-07-31T12:00:00.000Z"
+        },
+        "previous_id": "24f1c773-e8b9-4c42-8228-e3f5e9a51767",
+        "numberId": 16
+    }, {
+        "id": "24f1c773-e8b9-4c42-8228-e3f5e9a51767",
+        "data": {
+            "id": "24f1c773-e8b9-4c42-8228-e3f5e9a51767",
+            "date": "2014-06-17T03:12:00.000Z",
+            "label": "New Company Incorporation",
+            "actions": [{
+                "id": "bdd18805-9ad2-483d-a677-b1728e36737a",
+                "fields": {
+                    "companyName": "CATALEX LIMITED",
+                    "arFilingMonth": "8",
+                    "companyNumber": "5311842",
+                    "companyStatus": "Registered",
+                    "constiutionFiled": "No",
+                    "addressForService": "468 Sandringham Road, Sandringham, Auckland",
+                    "incorporationDate": "2014-06-16T12:00:00.000Z",
+                    "ultimateHoldingCompany": true,
+                    "addressForShareRegister": null,
+                    "registeredCompanyAddress": "468 Sandringham Road, Sandringham, Auckland"
+                },
+                "transactionType": "DETAILS_MASS"
+            }, {
+                "id": "9489782a-db7e-4bf2-a429-e69f7113d4a3",
+                "parcels": [{
+                    "amount": 1000,
+                    "afterAmount": 1000,
+                    "beforeAmount": 0
+                }],
+                "byAmount": 1000,
+                "transactionType": "ISSUE"
+            }, {
+                "id": "a421bafd-a9f7-4274-a992-8ceb8a70b8bc",
+                "holders": [{
+                    "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                    "address": "468 Sandringham Road, Sandringham, Auckland, 1025, NZ"
+                }],
+                "parcels": [{
+                    "amount": 500,
+                    "afterAmount": 500,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "ISSUE_TO",
+                "transactionMethod": "NEW_ALLOCATION",
+                "confirmationUnneeded": true
+            }, {
+                "id": "d4d547e2-9fa7-4e1c-9510-e8d5720017af",
+                "holders": [{
+                    "name": "Thomas David BLOY",
+                    "address": "59 Russell Road, Rd 2, Silverdale, 0992, NZ"
+                }],
+                "parcels": [{
+                    "amount": 500,
+                    "afterAmount": 500,
+                    "beforeAmount": 0
+                }],
+                "transactionType": "ISSUE_TO",
+                "transactionMethod": "NEW_ALLOCATION",
+                "confirmationUnneeded": true
+            }, {
+                "id": "385dc781-34ee-43e9-87e8-a0c0b660bee8",
+                "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+                "address": "468 Sandringham Road, Sandringham, Auckland, 1025, NZ",
+                "transactionType": "NEW_DIRECTOR"
+            }, {
+                "id": "f8fae67c-701a-4614-8ea1-d8bbfcce68d7",
+                "name": "Thomas David BLOY",
+                "address": "59 Russell Road, Rd 2, Silverdale, 0992, NZ",
+                "transactionType": "NEW_DIRECTOR"
+            }],
+            "documentId": "19745329",
+            "totalShares": 0,
+            "documentType": "New Company Incorporation",
+            "effectiveDate": "2014-06-17T03:12:00.000Z",
+            "transactionType": "INCORPORATION"
+        },
+        "previous_id": null,
+        "numberId": 17
+    }]
 }

@@ -68,7 +68,7 @@ export class ShareholdingsWidget extends React.Component {
     };
 
     countHolders() {
-       return Object.keys(this.props.companyState.holders).length;
+       return Object.keys(this.props.companyState.holders || {}).length;
     }
 
     render() {
