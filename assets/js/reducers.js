@@ -334,7 +334,19 @@ function resources(state = default_resources, action){
         case RESOURCE_CREATE_FAILURE:
         case RESOURCE_UPDATE_FAILURE:
         case RESOURCE_DELETE_FAILURE:
-            return {...state, ...{[action.key]: {...{error: action.response, _status: 'error'}}}};
+            let invalidated = {};
+            if(action.invalidateList){
+                const keys = Object.keys(state);
+                invalidated = keys.reduce((acc, key) => {
+                    return action.invalidateList.reduce((acc, invalid) => {
+                        if(key.indexOf(invalid) === 0 && key !== action.key){
+                            acc[key] = null;
+                        }
+                        return acc;
+                    }, acc);
+                }, {});
+            }
+            return {...state,  ...invalidated, ...{[action.key]: {...{error: action.response, _status: 'error'}}}};
 
         case IMPORT_COMPANY_SUCCESS:
         case RESOURCE_CREATE_SUCCESS:

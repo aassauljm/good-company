@@ -161,6 +161,11 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
 
     const newPendingActions = otherActions.length ? [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}] : [];
 
+    const actionSetLookup = pendingActions.reduce((acc, actionSet) => {
+        acc[actionSet.data.id] = actionSet;
+        return acc;
+    }, {});
+
     const nonTransfers = {};
     const transfers = []
     const transplantActions = [];
@@ -173,13 +178,14 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                 const parcels = r.parcels.map(p => ({amount: parseInt(p.amount, 10), shareClass: parseInt(p.shareClass, 10) || null}))
                 const holders = amends[i].afterHolders || amends[i].holders;
                 if(isTransfer(r.type)){
-                    const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
+                    const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
+                        transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
                     const holdingIndex = values.actions.findIndex(a => a.data.id === r.holding);
                     if(holdingIndex > 0){
                         const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
                         const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
-                            transactionType: inverseTransfer(r.type), parcels, transactionMethod: method, effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true, userSkip: a.userSkip}
+                            transactionType: r.type ? inverseTransfer(r.type) : method, parcels, transactionMethod: r.type !== method ? method : null,
+                            effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true, userSkip: a.userSkip}
                         transfers.push([result, inverse])
                     }
                     else{
@@ -187,8 +193,8 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     }
                 }
                 else{
-                    const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type,
-                        transactionMethod: method, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
+                    const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
+                        transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
                     if(r.targetActionSet && actionSet.id !== r.targetActionSet && pendingActions.length){
                         const target = pendingActions.find(a => a.id === r.targetActionSet);
                         transplantActions[r.targetActionSet] = transplantActions[r.targetActionSet]  || [];
@@ -207,7 +213,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
         });
     });
 
-    const transactions = transfers;
+    let transactions = transfers;
 
     Object.keys(nonTransfers).map(date => {
         transactions.push(nonTransfers[date]);
@@ -228,17 +234,21 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
         return parcels.findIndex(p =>  !p.shareClass || shareClass === p.shareClass);
     }
 
-    transactions.map((actions, i) => {
-        actions.map(action => {
+    transactions = transactions.map((actions, i) => {
+        return actions.map(action => {
+            if(action.userSkip && action._holding !== undefined){
+                return {userSkip: true, ...amends[action._holding]};
+            }
             if(action._holding !== undefined && amends[action._holding].parcels){
                 //look up original action
                 const original = amends[action._holding];
-                action.parcels = action.parcels.map(p => {
+                action.parcels = action.parcels.map((p, j) => {
                     p = {...p}
                     const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
                     // if share class has changed.....
                     p.afterAmount = original.parcels[parcelIndex].afterAmount;
-                    p.beforeAmount = p.afterAmount + (isIncrease(action.transactionType) ? -p.amount : p.amount);
+                    const direction = action.transactionType !== TransactionTypes.AMEND ? isIncrease(action.transactionType) : original.parcels[j].afterAmount > original.parcels[j].beforeAmount;
+                    p.beforeAmount = p.afterAmount + (direction ? -p.amount : p.amount);
                     original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
                     original.parcels[parcelIndex].afterAmount = p.beforeAmount;
                     return p;
@@ -254,10 +264,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
         });
     });
 
-    const actionSetLookup = pendingActions.reduce((acc, actionSet) => {
-        acc[actionSet.data.id] = actionSet;
-        return acc;
-    });
+
 
 
     // put new allocation types where needed
@@ -268,7 +275,6 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     });
 
     transactions.map((actions, orderIndex) => {
-        // add orderIndex to transplants
         if(actions.some(action => action.targetActionSet)){
             // we will find teh actionSet in the original
             const existingActionSet = actionSetLookup[actions[0].targetActionSet];
@@ -276,12 +282,12 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                 //create new one
             }
             else{
-                newPendingActions.push({id: existingActionSet.data.id, data: {...existingActionSet.data, orderIndex: orderIndex, totalShares: null, actions: existingActionSet.data.actions.concat(actions)}, previous_id: actionSet.previous_id});
+                newPendingActions.push({id: existingActionSet.data.id, orderIndex: orderIndex, data: {...existingActionSet.data,  totalShares: null, actions: existingActionSet.data.actions.concat(actions)}, previous_id: actionSet.previous_id});
             }
         }
 
         else{
-            newPendingActions.push({id: actionSet.id, data: {...actionSet.data, orderIndex: orderIndex, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
+            newPendingActions.push({id: actionSet.id, orderIndex: orderIndex, data: {...actionSet.data, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
         }
     });
 

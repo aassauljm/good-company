@@ -475,7 +475,7 @@ describe('Company Controller', function() {
                 .expect(500)
                 .then(function(res){
                     context = res.body.context;
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    res.body.context.importErrorType.should.be.equal('UNBALANCED_TRANSACTION');
                     done();
                 })
             .catch(done)

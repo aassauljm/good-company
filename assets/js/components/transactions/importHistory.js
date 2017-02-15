@@ -80,7 +80,6 @@ function TransactionSummaries(props) {
                                     <div className="col-md-1">
                                         { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button></div> }
                                         { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button></div> }
-
                                     </div>
                                 </div>
                             </div>
@@ -152,6 +151,7 @@ function isEditable(data){
 }
 
 function isNonDisplayedTransaction(transactionType){
+    return false;
     return {
         [TransactionTypes.COMPOUND_REMOVALS]: true,
         [TransactionTypes.ANNUAL_RETURN]: true,
@@ -339,7 +339,6 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     handleEdit(actionSet, pendingActions) {
-        //const otherActions = pendingActions.filter(p => p !== actionSet);
         this.props.destroyForm('amend');
         this.props.show('editTransaction', {...this.props.transactionViewData,
             startId: pendingActions[0].id,
