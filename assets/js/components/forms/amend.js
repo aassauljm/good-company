@@ -261,6 +261,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                 }
                 delete action._holding;
             }
+            return action;
         });
     });
 
