@@ -1681,7 +1681,8 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
 function validateTransactionSet(data, companyState){
     const shareClasses = {};
     let defaultShareClass = null;
-    if(companyState.shareClasses && companyState.dataValues.shareClasses.dataValues.shareClasses.length === 1){
+    if(companyState && companyState.shareClasses && companyState.dataValues.shareClasses &&
+       companyState.dataValues.shareClasses.dataValues.shareClasses.length === 1){
         defaultShareClass = companyState.dataValues.shareClasses.dataValues.shareClasses[0].id;
     }
     data.actions.map(action => {

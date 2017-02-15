@@ -653,9 +653,11 @@ module.exports = {
 
         docs.map((p, i) => {
             p.id = uuid.v4();
+            p.actions = (p.actions || []).filter(a => !!a.transactionType);
             (p.actions || []).map(a => a.id = uuid.v4());
             p.orderFromSource = i;
-        })
+        });
+        docs = docs.filter(d => d.actions.length)
         return docs;
     },
 

@@ -192,7 +192,6 @@ export class CompanyView extends React.Component {
 
         if(this.props._status === 'error'){
             return <NotFound descriptor="Company" />
-
         }
         return <div className="company">
 
