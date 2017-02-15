@@ -257,6 +257,22 @@ export  function holdingOptionsFromState(companyState) {
         });
 }
 
+export function holdingsAndHolders(companyState) {
+    return companyState.holdingList.holdings.map((holding) => {
+        const people = holding.holders.map((holder) => ({
+            personId: holder.person.personId,
+            name: holder.person.name,
+            address: holder.person.address,
+            attr: holder.person.attr
+        }));
+        return {
+            name: (holding.name && holding.name+': ') + joinAnd(people, {prop: 'name'}),
+            holders: people,
+            holdingId: holding.holdingId.toString()
+        };
+    });
+}
+
 export function populatePerson(person, companyState){
     //TODO, make a store or something
     if(person.newPerson){
