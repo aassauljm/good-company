@@ -1,7 +1,7 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList } from '../utils';
+import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import { Link } from 'react-router';
@@ -18,64 +18,64 @@ import { Search } from './search';
 import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel } from 'json-schemer';
 
 function createLawLinks(list){
-    return <div>
-        { list.map((item, i) => {
-            return <LawBrowserLink key={i} {...item.link}>{item.text}</LawBrowserLink>
-        })}
-    </div>
+    return (
+        <div>
+            { list.map((item, i) => <LawBrowserLink key={i} {...item.link}>{item.text}</LawBrowserLink>) }
+        </div>
+    );
 }
 
-function MoveUpButton({ onclick }) {
+function MoveUpButton({ swapFields, index }) {
+    if (index === 0) {
+        return false;
+    }
+
     return(
-        <button type="button" className="btn btn-default" onClick={onclick}>
+        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index - 1)}>
             <Glyphicon glyph="arrow-up"/>
         </button>
     );
 }
 
-function MoveDownButton({ onclick }) {
+function MoveDownButton({ swapFields, index, numItems }) {
+    if (index + 1 === numItems) {
+        return false;
+    }
+
     return (
-        <button type="button" className="btn btn-default" onClick={onclick}>
+        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index + 1)}>
             <Glyphicon glyph="arrow-down"/>
         </button>
     );
 }
 
-function RemoveButton({ onclick }) {
+function RemoveButton({ removeField, index, numItems, minItems }) {
+    if (minItems >= numItems) {
+        return false;
+    }
+
     return (
-        <button type="button" className="btn btn-default" onClick={onclick}>
+        <button type="button" className="btn btn-default" onClick={() => removeField(index)}>
             <Glyphicon glyph="remove"/>
         </button>
     );
 }
 
-function ListItemControls({ componentProps, minItems, index }) {
-    const showRemoveButton = componentProps.length > minItems;
-    const showUpButton = index > 0;
-    const showDownButton = index + 1 !== componentProps.length;
-
-    // If no controls will be displayed, don't render the controls container either
-    if (!(showRemoveButton || showUpButton || showDownButton)) {
-        return false;
-    }
-
-    const removeItem = () => componentProps.removeField(index);
-    const moveItemUp = () => componentProps.swapFields(index, index - 1);
-    const moveItemDown = () => componentProps.swapFields(index, index + 1);
-
+function ListItemControls({ componentProps, index, minItems }) {
     return (
         <div>
             <div className="text-right">
                 <div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
-                    { showUpButton && <MoveUpButton index={index} onclick={moveItemUp} /> }
-                    { showDownButton && <MoveDownButton index={index} onclick={moveItemDown} /> }
-                    { showRemoveButton && <RemoveButton index={index} onclick={removeItem} /> }
+                    <MoveUpButton index={index} swapFields={componentProps.swapFields} />
+                    <MoveDownButton index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />
+                    <RemoveButton index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
                 </div>
             </div>
+
             <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block" style={{zIndex: 100}}>
-                { showUpButton && <MoveUpButton index={index} onclick={moveItemUp} /> }
-                { showRemoveButton && <RemoveButton index={index} onclick={removeItem} /> }
-                { showDownButton && <MoveDownButton index={index} onclick={moveItemDown} /> }
+                <MoveUpButton index={index} swapFields={componentProps.swapFields} />
+                <RemoveButton index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
+                <MoveDownButton index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />
             </div>
         </div>
     );
@@ -85,6 +85,7 @@ function renderList(fieldProps, componentProps) {
     return (
         <fieldset className="list">
             { fieldProps.title && <legend>{fieldProps.title}</legend>}
+
             <Shuffle scale={false}>
                 { componentProps.map((c, i) => {
                     return (
@@ -98,7 +99,8 @@ function renderList(fieldProps, componentProps) {
                     );
                 }) }
             </Shuffle>
-             <div className="button-row">
+
+            <div className="button-row">
                 <Button onClick={() => {componentProps.addField({...((fieldProps.default || [])[0] || {}), _keyIndex: getKey()});
                     } } >{ addItem(fieldProps.items) }
                 </Button>
@@ -124,7 +126,6 @@ function renderField(fieldProps, componentProps, index){
         wrapperClassName: 'col-md-7'
     };
 
-
     if (fieldProps.type === 'string') {
         if (componentType(fieldProps) === 'date') {
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
@@ -136,9 +137,11 @@ function renderField(fieldProps, componentProps, index){
             return <Input type="textarea" rows="5" {...componentProps}  {...props} />
         }
         return <Input type="text" {...componentProps} {...props} />
-    } else if (fieldProps.type === 'number'){
+    }
+    else if (fieldProps.type === 'number'){
         return <Input type="number" {...componentProps} {...props} />
-    } else if (fieldProps.enum && fieldProps.enum.length > 1) {
+    }
+    else if (fieldProps.enum && fieldProps.enum.length > 1) {
         return (
             <Input type="select"  {...componentProps} {...props}>
                 { fieldProps.enum.map((f, i) => {
@@ -158,7 +161,7 @@ function renderField(fieldProps, componentProps, index){
 function renderFormSet(schemaProps, fields, oneOfs, listIndex) {
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
-    }
+    };
     let selectKey;
     Object.keys(schemaProps).map((key, i) => {
         if(schemaProps[key].enum){
@@ -217,10 +220,6 @@ export class RenderForm extends React.Component {
 
 }
 
-
-
-
-
 const CreateForm = (schema, name) => {
     @reduxForm({
       form: name,
@@ -245,7 +244,7 @@ export const TemplateMap = Object.keys(templateSchemas).reduce((acc, k) => {
         getInitialValues: (values, context) => setDefaults(templateSchemas[k], context, values)
     }
     return acc;
-}, {})
+}, {});
 
 
 function makeContext(companyState) {
@@ -259,7 +258,8 @@ function makeContext(companyState) {
         'company.number': companyState.companyNumber,
         'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
         'company.shareholders': personList(companyState),
-        'company.votingShareholders': votingShareholderList(companyState)
+        'company.votingShareholders': votingShareholderList(companyState),
+        'company.holdingsAndHolders': holdingsAndHolders(companyState)
     }
 }
 
@@ -314,36 +314,47 @@ export  class TemplateView extends React.Component {
 
     renderBody() {
         let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...jsonStringToValues(this.props.location.query.json)};
-        let values;
-        if(TemplateMap[this.props.params.name]){
+
+        if (TemplateMap[this.props.params.name]) {
             const template = TemplateMap[this.props.params.name];
             const context = makeContext(this.props.companyState);
             const values = template.getInitialValues(state || {}, context);
-            console.log(values)
+
             return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={context} />
         }
+
         return <div>Not Found</div>
     }
 
     render() {
-        return <div className="row">
-            <div className="col-md-12">
-                { this.renderBody() }
+        return (
+            <div className="row">
+                <div className="col-md-12">
+                    { this.renderBody() }
+                </div>
             </div>
-        </div>
+        );
     }
 }
 
 const RenderTemplateList = (props) => {
-    const {id} = props;
-    return <div>
+    const { id } = props;
+
+    return (
+        <div>
             { Object.keys(TemplateMap).map((template, i) => {
-                return <div key={i}><Link to={id ? `/company/view/${id}/templates/${template}` : `/templates/${template}`} className="actionable select-button" >
-                    <span className={`glyphicon glyphicon-${TemplateMap[template].icon}`}></span>
-                    <span className="transaction-button-text">{TemplateMap[template].title}</span>
-                </Link></div>
+                const link = id ? `/company/view/${id}/templates/${template}` : `/templates/${template}`;
+                return (
+                    <div key={i}>
+                        <Link to={link} className="actionable select-button">
+                            <span className={`glyphicon glyphicon-${TemplateMap[template].icon}`}></span>
+                            <span className="transaction-button-text">{TemplateMap[template].title}</span>
+                        </Link>
+                    </div>
+                );
             }) }
         </div>
+    );
 }
 
 @pureRender
@@ -355,38 +366,43 @@ export default class TemplateList extends React.Component {
 
     renderBody() {
         const id = this.props.companyId;
-        return <div className="row">
-           <RenderTemplateList id={id}/>
-        </div>
-
+        return (
+            <div className="row">
+               <RenderTemplateList id={id}/>
+            </div>
+        );
     }
 
     renderWidget(title) {
-        return  <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    { title }
+        return (
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                        { title }
+                    </div>
+                </div>
+                <div className="widget-body">
+                    { this.props.children ?  React.cloneElement(this.props.children, this.props) : this.renderBody() }
                 </div>
             </div>
-            <div className="widget-body">
-                { this.props.children ?  React.cloneElement(this.props.children, this.props) : this.renderBody() }
-            </div>
-        </div>
-
+        );
     }
 
     render() {
-        const current = this.props.companyState;
-        let title = 'Templates'
-        if(this.props.params.name && TemplateMap[this.props.params.name] && TemplateMap[this.props.params.name].schema.lawBrowserLinks){
-            return <LawBrowserContainer lawLinks={createLawLinks(TemplateMap[this.props.params.name].schema.lawBrowserLinks)}>
-                { this.renderWidget(title) }
-            </LawBrowserContainer>
+        let title = 'Templates';
+        if (this.props.params.name && TemplateMap[this.props.params.name] && TemplateMap[this.props.params.name].schema.lawBrowserLinks) {
+            return (
+                <LawBrowserContainer lawLinks={createLawLinks(TemplateMap[this.props.params.name].schema.lawBrowserLinks)}>
+                    { this.renderWidget(title) }
+                </LawBrowserContainer>
+            );
         }
 
-        return <div className="container icon-action-page">
+        return (
+            <div className="container icon-action-page">
                 { this.renderWidget(title) }
             </div>
+        );
     }
 }
 
@@ -398,15 +414,16 @@ export class TemplateWidget extends React.Component {
     };
 
     render() {
-        const current = this.props.companyState;
         const id = this.props.companyId;
-        return  <div className="widget">
+
+        return (
+            <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
                         <span className="fa fa-file-text-o"/>  Templates
                     </div>
                     <div className="widget-control">
-                     <Link to={id ? `/companies/${id}/templates` : `/templates`} >View All</Link>
+                     <Link to={id ? `/companies/${ic}/templates` : `/templates`} >View All</Link>
                     </div>
                 </div>
                 <div className="widget-body">
@@ -414,33 +431,32 @@ export class TemplateWidget extends React.Component {
                     <RenderTemplateList />
                     </div>
                 </div>
-                </div>
+            </div>
+        );
     }
 }
 
 
 @pureRender
 export class TemplateSelectCompany extends React.Component {
-
     render() {
-        return <LawBrowserContainer>
-            <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    Templates
-                </div>
-            </div>
-            <div className="widget-body">
-                <div className="row">
-                    <div className="col-md-6 col-md-offset-3">
-                   <p className="text-center">Please select a company:</p>
-                   <Search target={(id) => this.props.params.name ? `/company/view/${id}/templates/${this.props.params.name}` : `/company/view/${id}/templates`}/>
-                </div>
-                </div>
-            </div>
-        </div>
+        return (
+            <LawBrowserContainer>
+                <div className="widget">
+                    <div className="widget-header">
+                        <div className="widget-title">Templates</div>
+                    </div>
 
-
-        </LawBrowserContainer>
+                    <div className="widget-body">
+                        <div className="row">
+                            <div className="col-md-6 col-md-offset-3">
+                                <p className="text-center">Please select a company:</p>
+                                <Search target={(id) => this.props.params.name ? `/company/view/${id}/templates/${this.props.params.name}` : `/company/view/${id}/templates`} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </LawBrowserContainer>
+        );
     }
 }
