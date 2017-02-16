@@ -266,7 +266,7 @@ export function holdingsAndHolders(companyState) {
             attr: holder.person.attr
         }));
         return {
-            name: (holding.name && holding.name+': ') + joinAnd(people, {prop: 'name'}),
+            name: joinAnd(people, {prop: 'name'}),
             holders: people,
             holdingId: holding.holdingId.toString()
         };
