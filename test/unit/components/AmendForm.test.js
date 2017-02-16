@@ -127,13 +127,13 @@ describe('Amend submit', () => {
             .then(data => {
                 const { newActions } = formatSubmit(data.values, data.actionSet);
 
-                newActions.length.should.be.equal(6);
+                newActions.length.should.be.equal(5);
 
-                newActions[1].data.actions.length.should.be.equal(2);
-                newActions[1].data.actions[0].transactionType.should.be.equal('TRANSFER_TO');
-                newActions[2].data.actions[0].transactionType.should.be.equal('ISSUE_TO');
-                newActions[2].data.actions.length.should.be.equal(1);
-                newActions[1].data.effectiveDate.should.not.equal(newActions[2].data.effectiveDate);
+                newActions[0].data.actions.length.should.be.equal(2);
+                newActions[0].data.actions[0].transactionType.should.be.equal('TRANSFER_TO');
+                newActions[1].data.actions[0].transactionType.should.be.equal('ISSUE_TO');
+                newActions[1].data.actions.length.should.be.equal(1);
+                newActions[0].data.effectiveDate.should.not.equal(newActions[2].data.effectiveDate);
                 let lastDate = new Date(newActions[0].data.effectiveDate)
                 for(var i=1;i<newActions.length;i++){
                     const thisDate = new Date(newActions[i].data.effectiveDate);

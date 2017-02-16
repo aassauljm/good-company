@@ -722,8 +722,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
             afterAmount: total,
             byAmount: total,
             amount: total,
-            transactionType: Transaction.types.ISSUE,
-            effectiveDate: date
+            transactionType: Transaction.types.ISSUE
         };
 
         result.actions.push(issueAction);

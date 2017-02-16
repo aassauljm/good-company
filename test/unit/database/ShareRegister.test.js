@@ -42,6 +42,8 @@ describe('Share Register', function() {
                         transactionType: Transaction.types.ISSUE,
                         parcels: [{
                             amount: 100,
+                            beforeAmount: 1,
+                            afterAmount: 101,
                             shareClass: 1}]
                     }, {
                         transactionMethod: Transaction.types.AMEND,
@@ -138,7 +140,7 @@ describe('Share Register', function() {
                             amount: 1,
                             shareClass: 1,
                             beforeAmount: 100,
-                            afterAmount: 99
+                            afterAmount: 101
                         }],
                         holders: [{
                             name: 'mike'
@@ -174,7 +176,7 @@ describe('Share Register', function() {
                     const johnA = _.find(sr.shareRegister, {name: 'john', shareClass: 1, holdingName: 'Allocation 2'});
                     const johnB = _.find(sr.shareRegister, {name: 'john', shareClass: 2, holdingName: 'Allocation 2'});
                     mikeA.issueHistory.length.should.be.equal(1);
-                    mikeA.amount.should.be.equal(99);
+                    mikeA.amount.should.be.equal(101);
                     mikeA.transferHistoryFrom.length.should.be.equal(1);
 
                     mikeB.transferHistoryFrom.length.should.be.equal(2)

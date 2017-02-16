@@ -151,7 +151,6 @@ function isEditable(data){
 }
 
 function isNonDisplayedTransaction(transactionType){
-    return false;
     return {
         [TransactionTypes.COMPOUND_REMOVALS]: true,
         [TransactionTypes.ANNUAL_RETURN]: true,

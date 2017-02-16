@@ -134,6 +134,9 @@ module.exports = {
             hasNonEmptyParcels: function(){
                 return this.sumOfParcels() > 0;
             },
+            hasEmptyParcels: function(){
+                return this.sumOfParcels() === 0;
+            },
             sumOfParcels: function(){
                 return _.sum(this.dataValues.parcels, 'amount');
             },

@@ -964,7 +964,7 @@ module.exports = {
             },
 
             hasEmptyHoldings: function(){
-                return this.dataValues.holdingList && this.dataValues.holdingList.dataValues.holdings.some(h => !h.hasNonEmptyParcels())
+                return this.dataValues.holdingList && this.dataValues.holdingList.dataValues.holdings.some(h => h.hasEmptyParcels());
             },
 
             stats: function(combineUnallocated){

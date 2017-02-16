@@ -1333,23 +1333,36 @@ export function addActions(state, actionSet, company){
         })
 }
 
-function cleanupCompanyState(state){
+function cleanupCompanyState(state, effectiveDate){
     if(state.hasEmptyHoldings()){
         let nextState;
+        sails.log.info('Removing empty holdings');
         return state.buildNext({previousCompanyStateId: state.dataValues.id})
             .then((_nextState) => {
                 nextState = _nextState;
                 return nextState.dataValues.holdingList.buildNext()
             })
             .then(holdingList => {
-                nextState.dataValues.holdingList = _.without(holdingList.dataValues.holdings, h => !h.hasNonEmptyParcels());
+                nextState.dataValues.holdingList = holdingList;
                 nextState.dataValues.h_list_id = null;
+                holdingList.dataValues.holdings = _.filter(holdingList.dataValues.holdings, h => !h.hasEmptyParcels());
                 const tran = Transaction.buildDeep({
-                    type: action.transactionType,
+                    type: Transaction.types.COMPOUND_REMOVALS,
+                    data: {},
+                    effectiveDate
                 });
                 return tran.save();
             })
-            .then(() => nextState.save())
+            .then((transaction) => {
+                nextState.dataValues.transactionId =null;
+                nextState.dataValues.transaction = transaction;
+                return nextState.save()
+            })
+            .then(() => nextState)
+            .then(() => {
+
+                return nextState;
+            });
     }
     return state;
 }
@@ -1780,6 +1793,7 @@ function validateTransactionSet(data, companyState){
         }
     });
     if(!Object.keys(shareClasses).every(shareClass => shareClasses[shareClass] === 0)){
+        console.log(shareClasses)
         throw new sails.config.exceptions.InvalidInverseOperation('Total share count is unbalanced', {
             importErrorType: sails.config.enums.UNBALANCED_TRANSACTION,
             companyState: companyState,
@@ -1832,7 +1846,7 @@ export function performTransaction(data, company, companyState){
     validateTransactionSet(data, companyState);
 
     let nextState, current, transactions;
-
+    const effectiveDate = data.effectiveDate || new Date();
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             current = _state;
@@ -1849,7 +1863,7 @@ export function performTransaction(data, company, companyState){
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, nextState, current, data.effectiveDate || new Date(), company.get("ownerId"));
+                    }, nextState, current, effectiveDate, company.get("ownerId"));
                 }
                 if(result){
                     return result.then(function(r){
@@ -1867,7 +1881,7 @@ export function performTransaction(data, company, companyState){
             const tran = Transaction.buildDeep({
                     type: data.transactionType || Transaction.types.COMPOUND,
                     data: _.omit(data, 'actions', 'transactionType', 'effectiveDate', 'documents'),
-                    effectiveDate: data.effectiveDate,
+                    effectiveDate: effectiveDate,
             });
             tran.dataValues.childTransactions = _.filter(transactions);
             return tran.save();
@@ -1887,8 +1901,9 @@ export function performTransaction(data, company, companyState){
         .then(function(){
             return nextState.save();
         })
-        .then(cleanupCompanyState)
-        .then(function(){
+        .then(state => cleanupCompanyState(nextState, effectiveDate))
+        .then(function(_nextState){
+            nextState = _nextState;
             return company.setCurrentCompanyState(nextState);
         })
         .then(function(){

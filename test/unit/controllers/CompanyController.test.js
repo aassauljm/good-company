@@ -811,9 +811,9 @@ describe('Company Controller', function() {
                     const actionSet = res.body.filter(e => {
                         return e.data.documentId === documentId;
                     });
-                    actionSet.length.should.be.equal(2);
-                    actionSet[1].data.actions.length.should.be.equal(2);
-                    actionSet[1].data.totalShares.should.be.equal(900)
+                    actionSet.length.should.be.equal(1);
+                    actionSet[0].data.actions.length.should.be.equal(2);
+                    actionSet[0].data.totalShares.should.be.equal(900)
                     //const
                     done();
                 })
@@ -825,7 +825,7 @@ describe('Company Controller', function() {
             req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(500)
                 .then(function(res){
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    res.body.context.importErrorType.should.be.equal('UNBALANCED_TRANSACTION');
                     done();
                 })
                 .catch(done)
@@ -879,7 +879,7 @@ describe('Company Controller', function() {
                 .expect(500)
                 .then(function(res){
                     context = res.body.context;
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    res.body.context.importErrorType.should.be.equal('UNBALANCED_TRANSACTION');
                     done();
                 })
             .catch(done)
@@ -905,7 +905,7 @@ describe('Company Controller', function() {
                 })
                 .then(function(res){
                     context = res.body.context;
-                    res.body.context.importErrorType.should.be.equal('INVALID_ISSUE');
+                    res.body.context.importErrorType.should.be.equal('UNBALANCED_TRANSACTION');
                     done();
                 })
             .catch(done)
