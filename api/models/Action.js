@@ -26,6 +26,7 @@ module.exports = {
         });
     },
     options: {
+        indexes: [{name: 'action_id_idx', fields: ['id']}],
         tableName: 'action',
         classMethods: {},
         instanceMethods: {},

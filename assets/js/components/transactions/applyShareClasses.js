@@ -158,7 +158,7 @@ export class ApplyShareClassesTransactionView extends React.Component {
 
     renderBody(companyState) {
         if(this.props.transactions._status === 'fetching'){
-            return <Loading />
+            return false;
         }
         const shareClasses = ((companyState.shareClasses || {}).shareClasses || []);
         const options = shareClasses.map((s, i) => {
