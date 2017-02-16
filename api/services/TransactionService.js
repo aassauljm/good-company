@@ -345,7 +345,6 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
             }
             afterParcels = data.parcels.map(p => ({shareClass: p.shareClass, amount: p.afterAmount}));
 
-
             let increase;
             data.parcels.map((newParcel, i) => {
                 const difference = newParcel.afterAmount - newParcel.beforeAmount;
@@ -737,7 +736,7 @@ export function performInverseRemoveAllocation(data, companyState, previousState
     .then(function(holdingList){
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
-        return CompanyState.populatePersonIds(data.holders);
+        return CompanyState.populatePersonIds(data.holders || data.afterHolders);
     })
     .then(function(personData){
         if(!personData.length){
@@ -1334,6 +1333,75 @@ export function addActions(state, actionSet, company){
         })
 }
 
+function cleanupCompanyState(state){
+    if(state.hasEmptyHoldings()){
+        let nextState;
+        return state.buildNext({previousCompanyStateId: state.dataValues.id})
+            .then((_nextState) => {
+                nextState = _nextState;
+                return nextState.dataValues.holdingList.buildNext()
+            })
+            .then(holdingList => {
+                nextState.dataValues.holdingList = _.without(holdingList.dataValues.holdings, h => !h.hasNonEmptyParcels());
+                nextState.dataValues.h_list_id = null;
+                const tran = Transaction.buildDeep({
+                    type: action.transactionType,
+                });
+                return tran.save();
+            })
+            .then(() => nextState.save())
+    }
+    return state;
+}
+
+
+export function performImplicitInverseRemovals(actions, companyState){
+    const removals = actions.filter(a => {
+        return (a.transactionMethod === Transaction.types.AMEND &&
+                                               (a.parcels.reduce((sum, p) => sum + p.afterAmount, 0) === 0));
+    });
+    let prevState;
+    if(removals.length){
+        sails.log.info('Performing implicit inverse removals');
+        return companyState.save()
+            .then(() => {
+                return companyState.buildPrevious({transaction: null, transactionId: null})
+            })
+            .then((_prevState) => {
+                prevState = _prevState;
+                return prevState.dataValues.holdingList.buildNext()
+            })
+            .then(function(holdingList){
+                prevState.dataValues.h_list_id = null;
+                prevState.dataValues.holdingList = holdingList;
+                return Promise.all(removals.map(action => {
+                    return CompanyState.populatePersonIds(action.holders || action.afterHolders)
+                    .then(function(personData){
+                        if(!personData.length){
+                            throw new sails.config.exceptions.InvalidInverseOperation('Allocation missing holders');
+                        }
+                        const holding = Holding.buildDeep({
+                                holders: personData.map(p => ({person: p})), holdingId: action.holdingId,
+                                parcels: []});
+
+                        prevState.dataValues.holdingList.dataValues.holdings.push(holding);
+                    })
+                }))
+                .then(() => {
+                    return prevState.save();
+                })
+                .then(() => {
+                    return companyState.setPreviousCompanyState(prevState);
+                })
+                .then(() => {
+                    return prevState;
+                })
+            })
+    }
+    else{
+        return Promise.resolve(companyState)
+    }
+}
 
 export function performInverseTransaction(data, company, rootState){
 
@@ -1352,7 +1420,7 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.REDEMPTION]:  TransactionService.performInverseRedemption,
         [Transaction.types.CANCELLATION]:  TransactionService.performInverseCancellation,
         [Transaction.types.NEW_ALLOCATION]:  TransactionService.performInverseNewAllocation,
-        [Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
+        //[Transaction.types.REMOVE_ALLOCATION]: TransactionService.performInverseRemoveAllocation,
         [Transaction.types.NAME_CHANGE]: TransactionService.performInverseNameChange,
         [Transaction.types.ADDRESS_CHANGE]: TransactionService.performInverseAddressChange,
         [Transaction.types.USER_FIELDS_CHANGE]: TransactionService.performInverseDetailsChange,
@@ -1367,18 +1435,23 @@ export function performInverseTransaction(data, company, rootState){
         return Promise.resolve(rootState);
     }
     validateTransactionSet(data, rootState);
+
     let prevState, currentRoot, transactions;
+
+    const actions = data.actions.filter(a => !a.userSkip);
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
+        .then((_prevState) => {
+            return performImplicitInverseRemovals(actions, _prevState)
+        })
         .then(function(_rootState){
             currentRoot = _rootState;
             // build previous state, new records if SEED
             return currentRoot.buildPrevious({transaction: null, transactionId: null}, {newRecords: data.transactionType === Transaction.types.SEED});
         })
-
         .then(function(_prevState){
             prevState = _prevState;
             // loop over actions,
-            return Promise.reduce(data.actions.filter(a => !a.userSkip), function(arr, action){
+            return Promise.reduce(actions, function(arr, action){
                 sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
@@ -1432,12 +1505,9 @@ export function performInverseTransaction(data, company, rootState){
                 return company.setSeedCompanyState(currentRoot);
             }
         })
-         .then(function(){
+        .then(function(){
             return prevState;
-         })
-         .then(() => {
-            return prevState;
-         })
+        })
          .catch(sails.config.exceptions.NoValidTransactions, () => {
             return rootState;
          })
@@ -1465,7 +1535,6 @@ export function performInverseAll(company, state){
             }
         });
     }
-x
     function loop(actions){
         // transaction is not bound to cls ns
         return sequelize.transaction(function(t){
@@ -1713,7 +1782,8 @@ function validateTransactionSet(data, companyState){
     if(!Object.keys(shareClasses).every(shareClass => shareClasses[shareClass] === 0)){
         throw new sails.config.exceptions.InvalidInverseOperation('Total share count is unbalanced', {
             importErrorType: sails.config.enums.UNBALANCED_TRANSACTION,
-            companyState: companyState
+            companyState: companyState,
+            actionSet: data
         });
     }
 }
@@ -1737,7 +1807,7 @@ export function performTransaction(data, company, companyState){
         [Transaction.types.HOLDER_CHANGE]:          TransactionService.performHolderChange,
         [Transaction.types.HOLDING_TRANSFER]:       TransactionService.performHoldingTransfer,
         [Transaction.types.NEW_ALLOCATION]:         TransactionService.performNewAllocation,
-        [Transaction.types.REMOVE_ALLOCATION]:      TransactionService.performRemoveAllocation,
+        //[Transaction.types.REMOVE_ALLOCATION]:      TransactionService.performRemoveAllocation,
         [Transaction.types.NEW_DIRECTOR]:           TransactionService.performNewDirector,
         [Transaction.types.REMOVE_DIRECTOR]:        TransactionService.performRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]:        TransactionService.performUpdateDirector,
@@ -1760,7 +1830,9 @@ export function performTransaction(data, company, companyState){
         data.id = uuid.v4();
     }
     validateTransactionSet(data, companyState);
+
     let nextState, current, transactions;
+
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             current = _state;
@@ -1815,6 +1887,7 @@ export function performTransaction(data, company, companyState){
         .then(function(){
             return nextState.save();
         })
+        .then(cleanupCompanyState)
         .then(function(){
             return company.setCurrentCompanyState(nextState);
         })
@@ -1912,7 +1985,8 @@ export function performFilterOutTransactions(transactionIds, company){
             futureTransactions = futureTransactions.filter(f => transactionIds.indexOf(f.id) === -1 && !transactionSets[f.data.transactionSetId]);
             if(futureTransactions.length){
                 return performAll(transactionsToActions(futureTransactions), company, state, true)
-            }else{
+            }
+            else{
                 return company.setCurrentCompanyState(state);
             }
         })
@@ -2008,5 +2082,5 @@ export function createImplicitTransactions(state, transactions, effectiveDate){
         return [];
     }
     // HOLDING CHANGES NEED TO HAVE A REMOVE
-    return [...removeEmpty(), ...replaceDirectors(), ...replaceHolders()]
+    return [ ...replaceDirectors(), ...replaceHolders()]
 }

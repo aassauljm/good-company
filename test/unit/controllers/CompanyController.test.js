@@ -465,7 +465,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(18);
+                    res.body.length.should.be.equal(16);
                     done();
                 })
             .catch(done)
@@ -480,20 +480,22 @@ describe('Company Controller', function() {
                 })
             .catch(done)
         });
+
+
         it('Submits resolution (amend)', function(done){
             return fs.readFileAsync('test/fixtures/transactionData/catalexResolveAmend.json', 'utf8')
                 .then(function(text){
                     var json = JSON.parse(text);
                     json.pendingActions.map(function(p){
                         p.id = context.actionSet.id;
-                        p.previous_id = context.actionSet.previous_id;
+                        //p.previous_id = context.actionSet.previous_id;
                     });
                     return req.put('/api/company/'+companyId+'/update_pending_history')
                         .send(json)
                         .expect(200)
                 })
                 .then(function() {
-                    req.get('/api/company/'+companyId+'/pending_history')
+                    return req.get('/api/company/'+companyId+'/pending_history')
                 })
                 .then(function(){
                      return req.post('/api/company/'+companyId+'/import_pending_history')
@@ -501,19 +503,19 @@ describe('Company Controller', function() {
                 })
                 .then(function(res){
                     context = res.body.context;
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    res.body.context.importErrorType.should.be.equal('UNBALANCED_TRANSACTION');
                     done();
                 })
             .catch(done)
         });
 
-        it('Submits resolution (transfer/amend order, part 1)', function(done){
+        it('Submits resolution (transfer/amend order, part 2)', function(done){
             return fs.readFileAsync('test/fixtures/transactionData/catalexResolveHoldingAmend1.json', 'utf8')
                 .then(function(text){
                     var json = JSON.parse(text);
                     json.pendingActions.map(function(p){
                         p.id = context.actionSet.id;
-                        p.previous_id = context.actionSet.previous_id;
+                        //p.previous_id = context.actionSet.previous_id;
                     });
                     return req.put('/api/company/'+companyId+'/update_pending_history')
                         .send(json)
@@ -528,6 +530,7 @@ describe('Company Controller', function() {
                 })
             .catch(done)
         });
+
 
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
@@ -592,7 +595,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(25);
+                    res.body.length.should.be.equal(20);
                     done();
                 })
             .catch(done)
@@ -643,7 +646,7 @@ describe('Company Controller', function() {
         it('check transaction history', function(done){
             req.get('/api/company/'+companyId+'/transactions')
                 .then(function(res){
-                    res.body.transactions.length.should.be.equal(32);
+                    res.body.transactions.length.should.be.equal(23);
                     done();
                 })
             .catch(done)
@@ -660,7 +663,7 @@ describe('Company Controller', function() {
         it('check pending history', function(done){
             req.get('/api/company/'+companyId+'/pending_history')
                 .then(function(res){
-                    res.body.length.should.be.equal(18);
+                    res.body.length.should.be.equal(16);
                     done();
                 })
                 .catch(done)
@@ -696,7 +699,7 @@ describe('Company Controller', function() {
                 .expect(500)
                 .then(function(res){
                     context = res.body.context;
-                    res.body.context.importErrorType.should.be.equal('UNKNOWN_AMEND');
+                    res.body.context.importErrorType.should.be.equal('UNBALANCED_TRANSACTION');
                     done();
                 })
             .catch(done)

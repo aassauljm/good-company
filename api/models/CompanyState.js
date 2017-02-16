@@ -963,6 +963,10 @@ module.exports = {
                 return this.combineUnallocatedParcels(parcel, true);
             },
 
+            hasEmptyHoldings: function(){
+                return this.dataValues.holdingList && this.dataValues.holdingList.dataValues.holdings.some(h => !h.hasNonEmptyParcels())
+            },
+
             stats: function(combineUnallocated){
                 let stats = {};
 

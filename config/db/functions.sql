@@ -76,6 +76,9 @@ CREATE OR REPLACE FUNCTION last_login(userId integer)
 $$ LANGUAGE SQL;
 
 
+-- TODO, these recursive functions should card against infinite recursion
+
+
 -- Recurse through x generations of companyState and return that id
 CREATE OR REPLACE FUNCTION previous_company_state(companyStateId integer, generation integer)
     RETURNS INTEGER

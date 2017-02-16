@@ -183,9 +183,9 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     const holdingIndex = values.actions.findIndex(a => a.data.id === r.holding);
                     if(holdingIndex > 0){
                         const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
-                        const inverse = {...amends[holdingIndex], beforeHolders: inverseHolders, afterHolders: inverseHolders,
+                        const inverse = {...amends[holdingIndex],  beforeHolders: inverseHolders, afterHolders: inverseHolders,
                             transactionType: r.type ? inverseTransfer(r.type) : method, parcels, transactionMethod: r.type !== method ? method : null,
-                            effectiveDate: r.effectiveDate, _holding: holdingIndex, userConfirmed: true, userSkip: a.userSkip}
+                            effectiveDate: r.effectiveDate, _holding: holdingIndex,  userConfirmed: true, userSkip: a.userSkip}
                         transfers.push([result, inverse])
                     }
                     else{
@@ -193,12 +193,12 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     }
                 }
                 else{
-                    const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
+                    const result = {...amends[i],beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
                         transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
                     if(r.targetActionSet && actionSet.id !== r.targetActionSet && pendingActions.length){
                         const target = pendingActions.find(a => a.id === r.targetActionSet);
                         transplantActions[r.targetActionSet] = transplantActions[r.targetActionSet]  || [];
-                        transplantActions[r.targetActionSet].push({...result, effectiveDate: target.effectiveDate, targetActionSet: r.targetActionSet});
+                        transplantActions[r.targetActionSet].push({...result, effectiveDate: new Date(target.data.effectiveDate), targetActionSet: r.targetActionSet});
                     }
                    /* else if(r.targetActionSet && r.targetActionSet === UNREPORTED_TRANSACTION){
                         //TODO
@@ -266,7 +266,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     });
 
 
-
+    debugger
 
     // put new allocation types where needed
     Object.keys(newAllocations).map(k => {

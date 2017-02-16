@@ -208,20 +208,21 @@ module.exports = {
                         pendingActions[i-1].previous_id = pa.id;
                     }
                 });
+                return sequelize.transaction(() => {
+                    return this.getRootCompanyState()
+                        .then(_rootState => {
+                            rootState = _rootState;
+                            return Action.bulkCreate(pendingActions);
 
-                return this.getRootCompanyState()
-                    .then(_rootState => {
-                        rootState = _rootState;
-                        return Action.bulkCreate(pendingActions);
-
-                    })
-                    .then(() => {
-                        return rootState.update({'pending_historic_action_id': pendingActions[0].id})
-                    })
-                    .then(() => {
-                        // HUGE security risk.  Need to validate this pendingAction is owned by this user
-                        return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
-                    })
+                        })
+                        .then(() => {
+                            return rootState.update({'pending_historic_action_id': pendingActions[0].id})
+                        })
+                        .then(() => {
+                            // HUGE security risk.  Need to validate this pendingAction is owned by this user
+                            return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
+                        })
+                    });
             },
 
             resetPendingActions: function(){

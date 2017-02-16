@@ -55,7 +55,6 @@ export class EditTransactionView extends React.Component {
     renderBody() {
         const actionSet = this.props.transactionViewData.actionSet;
         const hasAmend = actionSet && actionSet.data.actions.some(action =>[TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0);
-
         const updateAction = ({newActions}) => {
 
             const pendingActions = this.props.transactionViewData.pendingActions.map((p, i) => {
@@ -75,7 +74,13 @@ export class EditTransactionView extends React.Component {
                 }
             }, [])
 
-            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1).thenBy(x => x.orderIndex, -1).thenBy(x => x.data.originalIndex, -1).thenBy(x => new Date(x.data.date), -1).thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
+            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1)
+                                .thenBy(x => x.orderIndex || 0)
+                                .thenBy(x => x.originalIndex || 0)
+                                .thenBy(x => x.data.orderFromSource || 0)
+                                .thenBy(x => new Date(x.data.date), -1)
+                                .thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
+
             orderedActions[0].id = this.props.transactionViewData.startId;
             orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
 

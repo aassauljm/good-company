@@ -188,7 +188,7 @@ PAGES[EXPLAINATION] = function() {
         }
         else{
            return <div>
-                <p>All Companies Office documents have successfully been imported.</p>
+                <p>All transactions notified to the companies register have been reconciled.</p>
             </div>
         }
     }

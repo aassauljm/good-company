@@ -184,52 +184,30 @@ module.exports = {
         //  split removeAllocations into amend to zero, then removeAllocation.
         function splitAmends(docs){
             const removalTypes = [Transaction.types.REMOVE_ALLOCATION];
-            return  _.reduce(docs, (acc, doc, i) => {
-                const removalActions = _.filter(doc.actions, a => removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
-                if(!removalActions.length){
-                    acc.push(doc);
-                } else {
-                    const amends = _.cloneDeep(doc);
-                    doc = _.cloneDeep(doc);
-                    amends.actions = removalActions.map(a => {
-                        return {
-                            ...a,
-                            effectiveDate: a.effectiveDate,
-                            beforeHolders: a.holders,
-                            afterHolders: a.holders,
-                            afterAmount: 0,
-                            amount: a.amount,
-                            beforeAmount: a.amount,
-                            transactionMethod: Transaction.types.AMEND,
-                            transactionType: [Transaction.types.AMEND,
-                                Transaction.types.NEW_ALLOCATION,
-                                Transaction.types.REMOVE_ALLOCATION].indexOf(a.transactionType) < 0 ? a.transactionType : Transaction.types.AMEND
-                        }
-                    })
-                    doc.actions = doc.actions.filter(a => {
+            docs.map((doc, i) => {
+                if(doc.actions){
+                    doc.actions = doc.actions.map(a => {
                         if(removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0){
-                            a.transactionType = Transaction.types.REMOVE_ALLOCATION;
-                            a.transactionMethod = null;
-                            a.amount = 0;
-                            a.beforeAmount = 0;
-                            a.afterAmount = 0;
-                            a.beforeAmountLookup = null;
-                            return a;
+                            return {
+                                ...a,
+                                effectiveDate: a.effectiveDate,
+                                beforeHolders: a.holders,
+                                afterHolders: a.holders,
+                                afterAmount: 0,
+                                amount: a.amount,
+                                beforeAmount: a.amount,
+                                transactionMethod: Transaction.types.AMEND,
+                                transactionType: [Transaction.types.AMEND,
+                                    Transaction.types.NEW_ALLOCATION,
+                                    Transaction.types.REMOVE_ALLOCATION].indexOf(a.transactionType) < 0 ? a.transactionType : Transaction.types.AMEND
+                            }
                         }
-                        else{
-                            // if not a removal, then add to amend doc action set
-                            amends.actions.unshift(a);
-                        }
-                    })
-                    doc.transactionType = Transaction.types.COMPOUND_REMOVALS;
-                    doc.totalShares = 0;
-                    acc.push(doc);
-                    acc.push(amends);
+                        return a;
+                     });
                 }
-                return acc;
-            }, []);
+            });
+            return docs;
         }
-
 
         function splitMultiTransfers(docs){
             // segment out transfers into separate pairwise transactions

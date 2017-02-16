@@ -84,16 +84,6 @@ describe('CompanyStateController', function() {
 
 
 
-    describe('Allocation Removal', function(){
-        it('should be rejected for being non empty', function(done) {
-           req.post('/api/transaction/compound/'+companyId)
-                .send({transactions: [{
-                    actions: [{ transactionType: Transaction.types.REMOVE_ALLOCATION, holders: [{name: 'Gary'}, {name: 'Busey'}] }]}
-                    ]})
-                .expect(400, done)
-        });
-    });
-
     describe('Issue CompanyState', function() {
         it('Try Valid Issue Post', function(done) {
             req.post('/api/transaction/compound/'+companyId)
