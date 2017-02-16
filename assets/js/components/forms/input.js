@@ -206,7 +206,7 @@ class InputBase extends React.Component {
 
   renderInput() {
     // strip values
-    const elementProps = getValidInputProps(this.props);
+    const { _originalOnChange, ...elementProps } = getValidInputProps(this.props);
 
     if (!this.props.type) {
       return this.props.children;
