@@ -248,8 +248,6 @@ $$ LANGUAGE SQL;
 
 
 
-
-
 -- Like company_state_history_json but filters on transaction type, ie ISSUE
 -- Note, 2nd param is text, rather than enum_transaction_type because of dependencies and default drop table behaviour.
 -- need to add a pre migrate/sync hook  sigh.
@@ -305,17 +303,27 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION all_pending_actions(companyStateId integer)
     RETURNS SETOF action
     AS $$
-WITH RECURSIVE prev_actions(start_id, id, "previous_id") as (
-    SELECT t.id as start_id, t.id, t."previous_id" FROM action t
-    UNION ALL
-    SELECT pa.start_id, t.id, t."previous_id"
-    FROM action t, prev_actions pa
-    WHERE t.id = pa."previous_id"
-)
-    SELECT p.* from prev_actions pa
-    join action p on p.id = pa.id
-    join company_state cs on cs.pending_historic_action_id = pa.start_id
-    where cs.id = root_company_state($1)
+    WITH RECURSIVE root as (
+        SELECT root_company_state($1) as id
+    ),  historic as (
+        SELECT pending_historic_action_id as id
+        FROM company_state cs
+        JOIN root r on r.id = cs.id
+    ),  prev_actions(start_id, id, "previous_id", index) as (
+            SELECT t.id as start_id, t.id, t."previous_id", 0 as index
+            FROM action t
+            JOIN historic s on s.id = t.id
+
+            UNION ALL
+
+            SELECT pa.start_id, t.id, t."previous_id", index+1
+            FROM action t, prev_actions pa
+            WHERE t.id = pa."previous_id"
+        )
+    SELECT p.* from
+    prev_actions pa
+    JOIN action p on p.id = pa.id
+    order by index asc
 $$ LANGUAGE SQL;
 
 
