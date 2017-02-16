@@ -265,9 +265,6 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
         });
     });
 
-
-    debugger
-
     // put new allocation types where needed
     Object.keys(newAllocations).map(k => {
         newAllocations[k].transactionMethod = TransactionTypes.NEW_ALLOCATION;
