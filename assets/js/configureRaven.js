@@ -16,7 +16,7 @@ export default function configureRaven(getState) {
     const sentryDSN = getSentryDSN(window.location.hostname);
 
     if (sentryDSN) {
-        Raven.config('https://3806c3ea3fd64c13bef86bf7b9a0ae42@sentry.io/139837').install();
+        Raven.config(sentryDSN).install();
         Raven.setExtraContext({ state: getState() });
     }
 };
