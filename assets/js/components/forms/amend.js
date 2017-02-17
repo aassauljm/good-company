@@ -6,6 +6,8 @@ import moment from 'moment';
 export const keyObject = { keyIndex: 1};
 export const UNREPORTED_TRANSACTION = 'UNREPORTED_TRANSACTION';
 
+
+
 function findHolding(companyState, action, existing = []){
     // same names, forget addresses for now
     function personsMatch(h1, h2){
@@ -26,10 +28,26 @@ function findHolding(companyState, action, existing = []){
     })[0];
 }
 
+export const SHARE_CHANGE_TYPES = [
+    TransactionTypes.ISSUE,
+    TransactionTypes.CONVERSION,
+    TransactionTypes.SUBDIVISION,
+    TransactionTypes.REDEMPTION,
+    TransactionTypes.ACQUISITION,
+    TransactionTypes.CONSOLIDATION,
+    TransactionTypes.CANCELLATION,
+    TransactionTypes.PURCHASE
+];
 
-const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0; // && !action.inferAmount;
+
+export const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0; // && !action.inferAmount;
+
+export const isShareChange = (action) => SHARE_CHANGE_TYPES.indexOf(action.transactionType) > -1;
 
 export function collectAmendActions(actions){ return  actions.filter(isAmendable) };
+
+export function collectShareChangeActions(actions){ return  actions.filter(isShareChange) };
+
 
 export function guessAmendAfterAmounts(action, defaultShareClass, companyState){
     const holding = companyState && findHolding(companyState, action);
@@ -101,6 +119,14 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
     let initialValues = {actions: calculateReciprocals(amendActions.map((a, i) => {
         // if all same direction, set amount;
         const effectiveDate = moment(a.effectiveDate || defaultDate).toDate();
+
+        if(isShareChange(a)){
+            return {
+                subActions: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
+                effectiveDate,  _keyIndex: keyObject.keyIndex++, type: a.transactionType}]
+            };
+        }
+
         let amount, holding;
         if(allSameDirection){
             return {
@@ -134,7 +160,6 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
             holding = amountValues[!increase][Object.keys(amountValues[!increase])[0]][0].id;
             inverse = holding && increase;
         }
-
 
         return {
             subActions: [{
@@ -237,7 +262,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     transactions = transactions.map((actions, i) => {
         return actions.map(action => {
             if(action.userSkip && action._holding !== undefined){
-                return {userSkip: true, ...amends[action._holding]};
+                return {userSkip: true, userConfirmed: true, ...amends[action._holding]};
             }
             if(action._holding !== undefined && amends[action._holding].parcels){
                 //look up original action
@@ -302,7 +327,11 @@ export function validateAmend(values, props) {
         if(action.userSkip){
             return errors;
         }
-        const expectedSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0);
+        let expectedSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0);
+
+        if(SHARE_CHANGE_TYPES.indexOf(action.data.transactionType) >= 0){
+            expectedSum = -expectedSum;
+        }
 
         const expectedAfterSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount), 0);
         const inferAmount = action.data ? action.data.inferAmount: false;

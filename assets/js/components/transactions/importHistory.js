@@ -116,9 +116,9 @@ function requiresEdit(data){
 
 function isEditable(data){
     const actions = data.actions;
-    if({[TransactionTypes.INCORPORATION]: true}[data.transactionType]){
+    /*if({[TransactionTypes.INCORPORATION]: true}[data.transactionType]){
         return false;
-    }
+    }*/
 
     const editableTypes = {
         [TransactionTypes.ISSUE]: true,

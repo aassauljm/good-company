@@ -20,8 +20,10 @@ import Panel from '../../panel';
 import { beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection } from './summaries'
 import moment from 'moment';
 import Shuffle from 'react-shuffle';
+import firstBy from 'thenby';
 import { showContextualTransactionView } from '../../../actions';
-import { validateAmend, formatInitialState, formatSubmit, collectAmendActions, signedAmount, isTransfer, isIncrease, keyObject, UNREPORTED_TRANSACTION } from '../../forms/amend';
+import { validateAmend, formatInitialState, formatSubmit, collectAmendActions, collectShareChangeActions, isAmendable,
+    signedAmount, isTransfer, isIncrease, keyObject, UNREPORTED_TRANSACTION, SHARE_CHANGE_TYPES } from '../../forms/amend';
 
 
 const INCREASE_OPTIONS = [
@@ -42,17 +44,7 @@ const DECREASE_OPTIONS = [
 
 
 
-
-const EXTERNAL_TYPES = [
-    TransactionTypes.ISSUE,
-    TransactionTypes.CONVERSION,
-    TransactionTypes.SUBDIVISION,
-    TransactionTypes.REDEMPTION,
-    TransactionTypes.ACQUISITION,
-    TransactionTypes.CONSOLIDATION,
-    TransactionTypes.CANCELLATION,
-    TransactionTypes.PURCHASE
-]; //etc
+ //etc
 
 const TRANSACTION_MAPPING = {
     [TransactionTypes.ISSUE]: TransactionTypes.ISSUE_TO,
@@ -75,7 +67,7 @@ const renderOption = (h, i) => {
 
 
 @formFieldProps()
-class SubAction extends React.Component {
+class AmendSubAction extends React.Component {
 
     renderTransfer(disabled) {
         const holdings = this.props.holdings;
@@ -96,7 +88,6 @@ class SubAction extends React.Component {
     }
 
     renderExternalTarget(disabled){
-
         return <div className="input-row">
                 <Input type="select" {...this.formFieldProps('targetActionSet')}
                     disabled={disabled}
@@ -105,7 +96,7 @@ class SubAction extends React.Component {
                     { this.props.externalActionSets[this.props.type.value] || [] }
                 </Input>
         </div>
-}
+    }
 
     render(){
         const title =  `Transaction #${this.props.index+1}`;
@@ -146,9 +137,34 @@ class SubAction extends React.Component {
     }
 }
 
+@formFieldProps()
+class ShareChangeSubAction extends React.Component {
+    render(){
+        const title =  `Transaction #${this.props.index+1}`;
+        const disabled = !!this.props.isInverse.value || this.props.allDisabled;
+        return  <Panel title={title}>
+                <DateInput {...this.formFieldProps('effectiveDate')} disabled={disabled} time={true}/>
+                <div className="row">{ this.props.parcels.map((p, i) =>{
+                    const remove = this.props.parcels.length > 1 && (() => this.props.parcels.removeField(i));
+                    const add = this.props.parcels.length < this.props.shareOptions.length && (() => this.props.parcels.addField({}));
+                    return <ParcelWithRemove key={i} {...p} shareOptions={this.props.shareOptions} add={add} remove={remove} forceShareClass={true} allDisabled={this.props.allDisabled}/>
+                }) }</div>
+
+        </Panel>
+    }
+}
+
+
+const SubAction = (props) => {
+    if(SHARE_CHANGE_TYPES.indexOf(props.type.value) > -1){
+        return <ShareChangeSubAction {...props} />
+    }
+    return <AmendSubAction {...props} />
+}
 
 
 function SubActions(props){
+    const multipleTransactions = isAmendable(props.data.value);
     return <div className="">
             <Shuffle>
                 { props.subActions.map((r, i) => {
@@ -171,7 +187,7 @@ function SubActions(props){
                             allDisabled={props.allDisabled}
                             externalActionSets={props.externalActionSets}
                             />
-                            { !r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
+                            {  multipleTransactions &&!r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
                                 { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.subActions.swapFields(i, i - 1) } disabled={props.allDisabled}><Glyphicon glyph="arrow-up" /></button> }
                                 <button type="button" className="btn btn-default"onClick={() => props.subActions.removeField(i) } disabled={props.allDisabled}><Glyphicon glyph="remove" /></button>
                                 { i < props.subActions.length - 1  && <button type="button" className="btn btn-default" onClick={() => props.subActions.swapFields(i, i + 1) } disabled={props.allDisabled}><Glyphicon glyph="arrow-down" /></button> }
@@ -182,7 +198,7 @@ function SubActions(props){
 
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
-            { <div className="button-row">
+            { multipleTransactions && <div className="button-row">
                 <Button type="button" disabled={props.allDisabled} onClick={() => {
                     const remaining = props.data.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.subActions.reduce((sum, r) => {
                         return sum + signedAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
@@ -198,28 +214,56 @@ function SubActions(props){
     </div>
 }
 
-
-class AmendActionSummary extends React.Component {
-    render() {
-        return <div className="amend-summary panel panel-default">
-            <div className="panel-heading">
-            <div className="parcels">{ this.props.action.parcels.map((p, i) => {
-                const direction = actionAmountDirection(this.props.action)
-                const diffClassName = direction ? 'diff increase number': 'diff decrease number';
-                return <div key={i} className="parcel-row">
-                    <span className="number">{ numberWithCommas(p.afterAmount) }</span>
-                    <span className={diffClassName}>{ numberWithCommas(p.amount) }</span>
-                    <span className="share-class">{ renderShareClass(p.shareClass, this.props.shareClassMap) } Shares</span>
-                </div>
-            })}
-            </div>
-            <div className="original-date"><label>Original Date</label> { stringDateToFormattedStringTime(this.props.action.effectiveDate) }</div>
-            <div className="holders">{ (this.props.action.afterHolders || this.props.action.holders).map(renderHolders) }</div>
-        </div>
-        { this.props.allDisabled && <div className="disabled-overlay"><span className="fa fa-times"/></div>}
-        </div>
+const ActionSummary = (props) => {
+    if(SHARE_CHANGE_TYPES.indexOf(props.action.transactionType) > -1){
+        return <ShareChangeActionSummary {...props} />
     }
+    return <AmendActionSummary {...props} />
 }
+
+
+const AmendActionSummary = (props) => {
+    return <div className="amend-summary panel panel-default">
+        <div className="panel-heading">
+        <div className="parcels">{ props.action.parcels.map((p, i) => {
+            const direction = actionAmountDirection(props.action)
+            const diffClassName = direction ? 'diff increase number': 'diff decrease number';
+            return <div key={i} className="parcel-row">
+                <span className="number">{ numberWithCommas(p.afterAmount) }</span>
+                <span className={diffClassName}>{ numberWithCommas(p.amount) }</span>
+                <span className="share-class">{ renderShareClass(p.shareClass, props.shareClassMap) } Shares</span>
+            </div>
+        })}
+        </div>
+        <div className="original-date"><label>Original Date</label> { stringDateToFormattedStringTime(props.action.effectiveDate) }</div>
+        <div className="holders">{ (props.action.afterHolders || props.action.holders).map(renderHolders) }</div>
+    </div>
+    { props.allDisabled && <div className="disabled-overlay"><span className="fa fa-times"/></div>}
+    </div>
+}
+
+const ShareChangeActionSummary = (props) => {
+    return <div className="amend-summary panel panel-default">
+        <div className="panel-heading">
+        <div className="parcels">{ props.action.parcels.map((p, i) => {
+            const direction = actionAmountDirection(props.action)
+            const diffClassName = direction ? 'diff increase number': 'diff decrease number';
+            return <div key={i} className="parcel-row">
+                <span className="number">{ numberWithCommas(p.afterAmount) }</span>
+                <span className={diffClassName}>{ numberWithCommas(p.amount) }</span>
+                <span className="share-class">{ renderShareClass(p.shareClass, props.shareClassMap) } Shares</span>
+            </div>
+        })}
+        </div>
+        <div className="original-date"><label>Original Date</label> { stringDateToFormattedStringTime(props.action.effectiveDate) }</div>
+        <div className="share-change">{ STRINGS.transactionTypes[props.action.transactionType] }</div>
+    </div>
+    { props.allDisabled && <div className="disabled-overlay"><span className="fa fa-times"/></div>}
+    </div>
+}
+
+
+
 
 class AmendOptions extends React.Component {
     renderTransfer(action, actions) {
@@ -254,7 +298,7 @@ class AmendOptions extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
-        const holdings = this.props.values.actions.map((r, i) => {
+        const holdings = this.props.values.actions.filter(a => isAmendable(a.data)).map((r, i) => {
             const a = r.data;
             const increase = actionAmountDirection(a);
             const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
@@ -280,7 +324,7 @@ class AmendOptions extends React.Component {
                 return <div  key={i} >
                     <div className={className}>
                         <div className="col-md-6">
-                            <AmendActionSummary action={action} shareClassMap={this.props.shareClassMap} companyState={this.props.companyState } allDisabled={allDisabled}/>
+                            <ActionSummary action={action} shareClassMap={this.props.shareClassMap} companyState={this.props.companyState } allDisabled={allDisabled}/>
                             { this.renderAfterParcels(field) }
                               <div className="button-row">
                                     { !field.userSkip.value && <Button bsStyle="danger" onClick={() => field.userSkip.onChange(!field.userSkip.value) && field.userSkip.onBlur() }>Ignore Transaction</Button> }
@@ -348,6 +392,7 @@ const amendFields = [
     'actions[].subActions[].targetActionSet',
     'actions[].afterParcels[].amount',
     'actions[].afterParcels[].shareClass',
+    'actions[].effectiveDate',
     'actions[].userSkip',
     'actions[].data',
 ];
@@ -360,12 +405,11 @@ const AmendOptionsConnected = reduxForm({
 })(AmendOptions);
 
 
-
 function generateExternalActionSetOptions(actionSets = []){
     const grouped = {};
     actionSets.map((set, i) => {
         set.data.actions.map((action, j) => {
-            if(EXTERNAL_TYPES.indexOf(action.transactionType) >= 0){
+            if(SHARE_CHANGE_TYPES.indexOf(action.transactionType) >= 0){
                 const mappedType = TRANSACTION_MAPPING[action.transactionType]
                 grouped[mappedType] = grouped[mappedType] || [];
                 grouped[mappedType].push(
@@ -375,7 +419,7 @@ function generateExternalActionSetOptions(actionSets = []){
             }
         });
     })
-    EXTERNAL_TYPES.map((type) => {
+    SHARE_CHANGE_TYPES.map((type) => {
         const mappedType = TRANSACTION_MAPPING[type];
         grouped[mappedType] = grouped[mappedType] || [];
 
@@ -391,7 +435,10 @@ function generateExternalActionSetOptions(actionSets = []){
 export default function Amend(props){
     const { context, submit } = props;
     const { actionSet, companyState, pendingActions } = context;
-    const amendActions = actionSet ? collectAmendActions(actionSet.data.actions) : [];
+    const amends = collectAmendActions(actionSet.data.actions);
+    // sort by largest first
+    amends.sort(firstBy(a => a.parcels.reduce((sum, p) => sum + p.amount, 0), -1));
+    const amendActions = actionSet ? collectShareChangeActions(actionSet.data.actions).concat(amends) : [];
 
     const totalAmount = actionSet ? actionSet.data.totalAmount : 0;
     const effectiveDate = actionSet ? moment(actionSet.data.effectiveDate).toDate() : null;

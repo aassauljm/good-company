@@ -132,7 +132,8 @@ export const TransactionTerseRenderMap = {
         return <span className="transaction-terse">
          { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { STRINGS[props.field] } changed to { props.newAddress } </span>
+            { props.newAddress && <span className="transaction-terse-description"> - { STRINGS[props.field] } changed to { props.newAddress } </span> }
+            { !props.newAddress && <span className="transaction-terse-description"> - { STRINGS[props.field] } removed </span> }
             </span>
     },
     [TransactionTypes.UPDATE_DIRECTOR]: (props) => {
@@ -161,6 +162,13 @@ export const TransactionTerseRenderMap = {
          { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
             <span className="transaction-terse-description"> - from { props.previousCompanyName} to {props.newCompanyName} </span>
+            </span>
+    },
+    [TransactionTypes.HOLDER_CHANGE]: (props) => {
+        return <span className="transaction-terse">
+         { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.afterHolder.name } </span>
             </span>
     },
     [TransactionTypes.TRANSFER_TO]: amendTo,

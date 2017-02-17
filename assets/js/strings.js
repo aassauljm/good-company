@@ -5,6 +5,7 @@ export default {
     companyNumber: 'Company Number',
     addressForService: 'Address for Service',
     registeredCompanyAddress: 'Registered Office',
+    addressForShareRegister: 'Address for Share Register',
     incorporationDate: 'Incorporation Date',
     name: 'Full Name',
     address: 'Address',
