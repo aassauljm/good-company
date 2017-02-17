@@ -6,6 +6,7 @@ import Root from "./root";
 import configureStore from './store';
 import { browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux'
+import configureRaven from './configureRaven';
 
 import "../styles/style.scss";
 
@@ -22,6 +23,10 @@ try{
 if (mountNode){
     const store = configureStore(browserHistory, data);
     const history = syncHistoryWithStore(browserHistory, store);
+
+    // Sentry error reporting
+    configureRaven(store.getState);
+
     ReactDOM.render(<Root store={store} history={history}>
                       {/* { __DEV__ && false  ?  <DevTools /> : null } */ }
                     </Root>

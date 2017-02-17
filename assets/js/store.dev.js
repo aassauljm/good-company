@@ -16,22 +16,20 @@ export default function configureStore(history, initialState=data) {
 
     const loggerMiddleware = createLogger();
     middleware = applyMiddleware(
-          thunkMiddleware,
-          //loggerMiddleware,
-          routerMiddleware(history),
-          confirmationMiddleware,
-          callAPIMiddleware)
+        thunkMiddleware,
+        //loggerMiddleware,
+        routerMiddleware(history),
+        confirmationMiddleware,
+        callAPIMiddleware
+    );
 
     const createStoreWithMiddleware = compose(
-                middleware,
-                // Lets you write ?debug_session=<name> in address bar to persist debug sessions
-                // persistState('dev')
-                // Provides support for DevTools:
-                DevTools.instrument()
-            )(createStore)
+        middleware,
+        // Lets you write ?debug_session=<name> in address bar to persist debug sessions
+        // persistState('dev')
+        // Provides support for DevTools:
+        DevTools.instrument()
+    )(createStore);
 
-
-
-    const store = createStoreWithMiddleware(appReducer, initialState);
-    return store;
+    return createStoreWithMiddleware(appReducer, initialState);
 }
