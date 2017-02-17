@@ -14,7 +14,7 @@ function valuesAndActionsFromJSON(path){
                 a.subActions.map((r) => {
                     r.effectiveDate = moment(r.effectiveDate).toDate()
                 });
-                a.data = data.actionSet.data.actions[i];
+                a.originalAction = data.actionSet.data.actions[i];
 
             });
             return data;

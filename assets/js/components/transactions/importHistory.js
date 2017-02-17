@@ -254,7 +254,6 @@ export class ImportHistoryTransactionView extends React.Component {
     constructor(props){
         super(props);
         this.handleStart = ::this.handleStart;
-        this.handleStartYearByYear = ::this.handleStartYearByYear;
         this.handleResolve = ::this.handleResolve;
         this.handleEdit = ::this.handleEdit;
         this.handleAddNew = ::this.handleAddNew;
@@ -302,35 +301,11 @@ export class ImportHistoryTransactionView extends React.Component {
         this.props.next({index: LOADING});
         this.props.performImport()
             .then(action => {
-                if(!action.response.complete){
-                    this.props.next({index: EXPLAINATION});
-                }
-                else{
-                    this.props.end();
-                }
+                this.props.end();
             })
             .catch(e => {
                 this.handleResolve(this.props.importHistory.error, CONTINUE);
             })
-    }
-
-    handleImportUntil(id) {
-        this.props.performImportUntil(id)
-            .then(action => {
-                /*if(!action.response.complete){
-                    this.props.next({index: EXPLAINATION});
-                }
-                else{
-                    this.props.end();
-                }*/
-            })
-            .catch(e => {
-                this.handleResolve(this.props.importHistoryUntil.error);
-            })
-    }
-
-    handleStartYearByYear() {
-        this.props.show('importHistory', {...this.props.transactionViewData});
     }
 
     handleReset() {

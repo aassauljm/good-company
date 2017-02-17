@@ -50,7 +50,7 @@ export function collectShareChangeActions(actions){ return  actions.filter(isSha
 
 
 export function guessAmendAfterAmounts(action, defaultShareClass, companyState){
-    const holding = companyState && findHolding(companyState, action);
+    const holding = companyState && isAmendable(action) && findHolding(companyState, action);
     if(holding){
         return holding.parcels.map(parcel => ({amount: parcel.amount, shareClass: parcel.shareClass + ''}))
     }
@@ -169,7 +169,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
         }]};
     }).filter(identity).map((a, i) => ({
         ...a,
-        data: amendActions[i],
+        originalAction: amendActions[i],
         userSkip: amendActions[i].userSkip,
         afterParcels: guessAmendAfterAmounts(amendActions[i], defaultShareClass, companyState)
     })), identity, identity, x => false)};
@@ -205,7 +205,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                 if(isTransfer(r.type)){
                     const result = {...amends[i], beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
                         transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
-                    const holdingIndex = values.actions.findIndex(a => a.data.id === r.holding);
+                    const holdingIndex = values.actions.findIndex(a => a.originalAction.id === r.holding);
                     if(holdingIndex > 0){
                         const inverseHolders = amends[holdingIndex].afterHolders || amends[holdingIndex].holders;
                         const inverse = {...amends[holdingIndex],  beforeHolders: inverseHolders, afterHolders: inverseHolders,
@@ -327,14 +327,14 @@ export function validateAmend(values, props) {
         if(action.userSkip){
             return errors;
         }
-        let expectedSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0);
+        let expectedSum = action.originalAction.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0);
 
-        if(SHARE_CHANGE_TYPES.indexOf(action.data.transactionType) >= 0){
+        if(action.originalAction && SHARE_CHANGE_TYPES.indexOf(action.originalAction.transactionType) >= 0){
             expectedSum = -expectedSum;
         }
 
-        const expectedAfterSum = action.data.parcels.reduce((sum, p) => sum + (p.afterAmount), 0);
-        const inferAmount = action.data ? action.data.inferAmount: false;
+        const expectedAfterSum = action.originalAction.parcels.reduce((sum, p) => sum + (p.afterAmount), 0);
+        const inferAmount = action.originalAction ? action.originalAction.inferAmount: false;
         const amounts = (action.afterParcels || []).reduce((acc, parcel) => {
             acc[parcel.shareClass || null] = {amount: parseInt(parcel.amount, 10) || 0, sum: 0}
             return acc;
@@ -468,13 +468,13 @@ export function calculateReciprocals(actions, getValue=(x) => x && x.value, setV
                 if(!holding){
                     return;
                 }
-                const holdingIndex = actions.findIndex(h => getValue(h.data).id === holding);
+                const holdingIndex = actions.findIndex(h => getValue(h.originalAction).id === holding);
                 if(holdingIndex < 0){
                     return;
                 }
                 // has a holding, insert inverse transaction
                 const inverseType = inverseTransfer(getValue(recipient.type))
-                const inverseHolding = getValue(actions[i].data).id;
+                const inverseHolding = getValue(actions[i].originalAction).id;
                 // does the reciprocal any fields that have been touched?
 
                 actions[holdingIndex].subActions = actions[holdingIndex].subActions.filter(r => {

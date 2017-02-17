@@ -164,7 +164,7 @@ const SubAction = (props) => {
 
 
 function SubActions(props){
-    const multipleTransactions = isAmendable(props.data.value);
+    const multipleTransactions = isAmendable(props.originalAction.value);
     return <div className="">
             <Shuffle>
                 { props.subActions.map((r, i) => {
@@ -298,11 +298,11 @@ class AmendOptions extends React.Component {
         const getError = (index) => {
             return this.props.error && this.props.error.actions && this.props.error.actions[index];
         }
-        const holdings = this.props.values.actions.filter(a => isAmendable(a.data)).map((r, i) => {
-            const a = r.data;
+        const holdings = this.props.values.actions.filter(a => isAmendable(a.originalAction)).map((r, i) => {
+            const a = r.originalAction;
             const increase = actionAmountDirection(a);
             const names = joinAnd(a.holders || a.afterHolders, {prop: 'name'});
-            return {value: r.data.id, label: `#${i+1} - ${names}`, increase: increase, parcels: a.parcels};
+            return {value: r.originalAction.id, label: `#${i+1} - ${names}`, increase: increase, parcels: a.parcels};
         });
 
 
@@ -314,7 +314,7 @@ class AmendOptions extends React.Component {
             </div>
             <hr/>
             { actions.map((field, i) => {
-                const action = field.data.value;
+                const action = field.originalAction.value;
                 const increase = actionAmountDirection(action);
                 let className = "row ";
                 const allDisabled = !!field.userSkip.value;
@@ -338,14 +338,14 @@ class AmendOptions extends React.Component {
                                 allDisabled={allDisabled}
                                 effectiveDate={this.props.effectiveDate}
                                 subActions={actions[i].subActions}
-                                data={actions[i].data}
+                                originalAction={actions[i].originalAction}
                                 increase={increase}
                                 error={getError(i)}
                                 shareClassMap={shareClassMap}
                                 shareOptions={this.props.shareOptions}
                                 defaultShareClass={this.props.defaultShareClass}
                                 externalActionSets={this.props.externalActionSets}
-                                holdings={holdings.map(amountRemaining).filter(h => h.value !== this.props.values.actions[i].data.id)} /> }
+                                holdings={holdings.map(amountRemaining).filter(h => h.value !== this.props.values.actions[i].originalAction.id)} /> }
                              { allDisabled && <div className="alert alert-warning">
                                 Ignoring this transaction may result in subsequent mismatches with the Companies Register documents.
                              </div> }
@@ -361,7 +361,7 @@ class AmendOptions extends React.Component {
                     this.props.show('selectCreateHoldingChange', {
                         ...this.props.transactionViewData,
                          formName: 'amend',
-                         field: `actions[${actions.length}].data`,
+                         field: `actions[${actions.length}].originalAction`,
                          noEffectiveDate: true,
                          afterClose: { // open this transactionView again
                              showTransactionView: {key: this.props.viewName, data: {...this.props.transactionViewData}}
@@ -394,7 +394,7 @@ const amendFields = [
     'actions[].afterParcels[].shareClass',
     'actions[].effectiveDate',
     'actions[].userSkip',
-    'actions[].data',
+    'actions[].originalAction',
 ];
 
 const AmendOptionsConnected = reduxForm({
