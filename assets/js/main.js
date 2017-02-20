@@ -24,6 +24,10 @@ if (mountNode){
     const store = configureStore(browserHistory, data);
     const history = syncHistoryWithStore(browserHistory, store);
 
+    // Attach getState to window, we need it for user feedback
+    // which is not using to redux
+    window.getState = store.getState;
+
     // Sentry error reporting
     configureRaven(store.getState);
 

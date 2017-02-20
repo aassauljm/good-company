@@ -231,5 +231,10 @@ export default {
         email: "Email"
     },
     importCompanyHistory: "Reconcile Company History",
-    resetCompanyHistory: "Undo Company Reconciliation"
+    resetCompanyHistory: "Undo Company Reconciliation",
+    "userFeedback": {
+        comment: 'Comment',
+        name: 'Name',
+        email: 'Email'
+    }
 }
