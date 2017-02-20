@@ -340,7 +340,7 @@ export class ImportHistoryTransactionView extends React.Component {
                 ...this.props.transactionViewData,
                 error: error,
                  //open this transactionView again
-                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: afterIndex}}},
+                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
                 editTransactionData: {
                     startId: pendingActions[0].id,
                     endId: pendingActions[pendingActions.length-1].previous_id,

@@ -301,7 +301,7 @@ export function collectAmendActions(actions){ return  actions.filter(isAmendable
 
 export function collectShareChangeActions(actions){ return  actions.filter(isShareChange) };
 
-export const actionOptionsFromActionSets = (actionSets, shareClassMap, ignoreId) => {
+export const actionOptionsFromActionSets = (actionSets=[], shareClassMap, ignoreId) => {
     function renderParcels(action, shareClassMap){
         return `${action.parcels.map(p => `${action.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  shareClassMap)}`).join(', ') } shares`;
     }

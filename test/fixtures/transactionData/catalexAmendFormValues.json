@@ -240,7 +240,7 @@
                         "parcels": [{"amount": 1111}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
                         "type": "ISSUE_TO",
-                        "targetActionSet": "xxx"
+                        "targetActionId": "xxx"
                     }
                 ]
             },
