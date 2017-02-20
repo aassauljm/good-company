@@ -461,8 +461,9 @@ const DEFAULT_OBJ = {};
 
 @connect((state, ownProps) => {
     return {
+        currentCompanyState: state.resources[`/company/${ownProps.transactionViewData.companyId}/get_info`] || DEFAULT_OBJ,
         updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ,
-        pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {}
+        pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || DEFAULT_OBJ
     };
 }, (dispatch, ownProps) => {
     return {
@@ -537,15 +538,18 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             }
         }
 
-        if(this.props.updating._status !== 'fetching'){
+        if(this.props.updating._status !== 'fetching' && this.props.pendingHistory.data && this.props.currentCompanyState._status === 'complete'){
             return <div className="resolve">
-                { basicSummary(context, this.props.transactionViewData.companyState)}
+                { basicSummary(context, this.props.transactionViewData.companyState )}
                 <hr/>
                 { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: this.handleClose, ...this.props}) }
             </div>
         }
         else{
-            return <Loading />
+            return <div>
+                      <p className="text-center">Fetching Remaining Transactions</p>
+                <Loading />
+                </div>
         }
     }
 

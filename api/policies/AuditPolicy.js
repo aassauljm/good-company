@@ -12,7 +12,7 @@ module.exports = function(req, res, next) {
         ipAddress: ipAddress,
         url: url,
         method: req.method,
-        body: _.omit(req.body, 'password'),
+        //body: _.omit(req.body, 'password'),
         model: req.options.modelIdentity,
         userId: (req.user || {}).id
     });

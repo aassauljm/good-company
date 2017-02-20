@@ -509,7 +509,10 @@ module.exports = {
                         });
                         state._populated = true;
                         return state.save();
-                    });
+                    })
+                    .then(x => {
+                        return x;
+                    })
             }
         },
         instanceMethods: {

@@ -385,12 +385,12 @@ const selfManagedTransactions = {
                 })
                 .then(_state => {
                     state = _state;
-                    companyName = state.get('companyName')
+                    companyName = state.get('companyName');
                     return state.buildPrevious({
                         transaction: null,
                         transactionId: null,
                         previousCompanyStateId: null,
-                        pending_historic_action_id: historic_action_id }, {newRecords: true});
+                        pending_historic_action_id: historic_action_id }, {newRecords: false});
                 })
                 .then(function(_newRoot){
                     newRoot = _newRoot

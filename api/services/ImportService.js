@@ -2,7 +2,6 @@
 
 export function importCompany(companyNumber, options) {
     let data, company, state, newRoot, processedDocs, companyName, pendingAction;
-
     return ScrapingService.fetch(companyNumber)
         .then(ScrapingService.parseNZCompaniesOffice)
         .tap(checkNameCollision.bind(null, options.userId))
@@ -76,7 +75,7 @@ export function importCompany(companyNumber, options) {
             return company;
         })
         .catch(e => {
-            console.log(e)
+            sails.log.error(e);
             throw e;
         })
 }

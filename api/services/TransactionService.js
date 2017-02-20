@@ -1227,6 +1227,7 @@ export function performSeed(args, company, effectiveDate, userId){
     return company.getCurrentCompanyState()
         .then(function(companyState){
             var fields = companyState ? companyState.nonAssociativeFields() : {};
+             console.time('dedup');
             return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}}), userId);
         })
         .then(function(_state){

@@ -41,6 +41,9 @@ export function findOneHistoric(userId, args) {
 export function findOrCreate(userId, args) {
     return Person.findOrCreate({where: {...args.where, ownerId: userId}, defaults: {...args.defaults, ownerId: userId, createdById: userId}})
         .spread(p => p)
+        .then(x => {
+            return x;
+        })
 }
 
 

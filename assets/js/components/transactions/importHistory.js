@@ -196,7 +196,7 @@ PAGES[EXPLAINATION] = function() {
 PAGES[LOADING] = function() {
     if(this.props.importHistory._status === 'fetching'){
         return <div>
-            <p className="text-center">Importing Transactions</p>
+            <p className="text-center">Importing Transactions - This may take a few moments</p>
                 <Loading />
         </div>
     }

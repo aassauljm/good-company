@@ -55,7 +55,7 @@ module.exports.connections = {
             host: 'localhost',
             benchmark: true,
             port: 5432,
-            logging: true,
+            logging: false,
             pool: {
                 max: 10,
                 min: 0,

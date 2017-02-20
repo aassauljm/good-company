@@ -36,15 +36,6 @@ function reorderAllPending(pendingActions, newActions) {
     });;
 
 
-    // if any actions have been transplanted from pendingActions into newActions, then remove them
-
-   /* newActions.reduce((acc, newActionSet) => {
-        return newActionSet.dat.actions.reduce((acc, action) => {
-
-        }, acc)
-    }, {})*/
-
-
     const ids = newActions.reduce((acc, newActionSet) => {
         return newActionSet.data.actions.reduce((acc, action) => {
             acc[action.id] = true;

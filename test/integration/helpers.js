@@ -54,12 +54,12 @@ function login(credentials) {
 }
 
 
-export function prepareApp(url = '/'){
+export function prepareApp(url = '/', username='companycreator@email.com'){
     const state = {login: {loggedIn: true}};
     const history = createMemoryHistory(url);
     const store = configureStore(history, state);
     this.store = store;
-    return login({'identifier': 'companycreator@email.com', 'password': 'testtest'})
+    return login({'identifier': username, 'password': 'testtest'})
         .then(() => {
             return new Promise((resolve, reject) => {
             match({history, routes: routes(store), location: url}, (error, redirectLocation, renderProps) => {

@@ -164,7 +164,13 @@ before(function(done) {
                  'test/fixtures/companyState.json',
                  'test/fixtures/company.json',
                  ], sails.models)
+                .tap(() => {
+                    sails.log.error('Fixtures loaded')
+                })
                 .then(addMigrations)
+                .tap(() => {
+                    sails.log.error('Migrations complete')
+                })
                 .then(function(){
                     fs.readFileAsync('config/db/functions.sql', 'utf8')
                     .then(function(sql){

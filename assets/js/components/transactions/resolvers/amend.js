@@ -70,7 +70,7 @@ const renderOption = (h, i) => {
 
 
 @formFieldProps()
-class AmendSubAction extends React.Component {
+export class AmendSubAction extends React.Component {
 
     renderTransfer(disabled) {
         const holdings = this.props.holdings;
@@ -107,7 +107,7 @@ class AmendSubAction extends React.Component {
         const disabled = !!this.props.isInverse.value || this.props.allDisabled;
         const dateDisabled = !!this.props.type.value && !isTransfer(this.props.type.value) && !!this.props.targetActionId.value && this.props.targetActionId.value !== UNREPORTED_TRANSACTION;
         const showExternal = !!this.props.type.value && !isTransfer(this.props.type.value)
-        return  <Panel title={title}>
+        return  <Panel title={title} className="amend-subaction">
                 { this.props.isInverse.value && <p>Calculated from paired Transfer</p>}
 
                 <DateInput {...this.formFieldProps('effectiveDate')} disabled={disabled || dateDisabled} time={true}/>
@@ -532,7 +532,6 @@ export default function Amend(props){
     const handleSubmit = (values) => {
         submit(formatSubmit(values, actionSet, pendingActions))
     }
-
     return <div className="resolve">
             <AmendOptionsConnected
             actionSetId={actionSet.id}
