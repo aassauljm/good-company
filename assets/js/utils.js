@@ -282,6 +282,43 @@ export function personOptionsFromState(companyState, filter = x => true){
     return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId+''}>{p.name}</option>);
 }
 
+export const SHARE_CHANGE_TYPES = [
+    TransactionTypes.ISSUE,
+    TransactionTypes.CONVERSION,
+    TransactionTypes.SUBDIVISION,
+    TransactionTypes.REDEMPTION,
+    TransactionTypes.ACQUISITION,
+    TransactionTypes.CONSOLIDATION,
+    TransactionTypes.CANCELLATION,
+    TransactionTypes.PURCHASE
+];
+
+export const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) > -1;
+
+export const isShareChange = (action) => SHARE_CHANGE_TYPES.indexOf(action.transactionType) > -1;
+
+export function collectAmendActions(actions){ return  actions.filter(isAmendable) };
+
+export function collectShareChangeActions(actions){ return  actions.filter(isShareChange) };
+
+export const actionOptionsFromActionSets = (actionSets, shareClassMap, ignoreId) => {
+    function renderParcels(action, shareClassMap){
+        return `${action.parcels.map(p => `${action.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  shareClassMap)}`).join(', ') } shares`;
+    }
+    return <optgroup label="Reported Shareholding Changes">{
+        actionSets.reduce((acc, actionSet) => {
+            if(ignoreId && actionSet.id === ignoreId){
+                return acc;
+            }
+            collectAmendActions(actionSet.data.actions).reduce((acc, action) => {
+                acc.push(<option key={action.id} value={action.id}>{stringDateToFormattedString(actionSet.data.effectiveDate)} - { joinAnd((action.holders || action.afterHolders), {prop: 'name'}) } - { renderParcels(action, shareClassMap) } </option>);
+                return acc;
+            }, acc)
+            return acc;
+    }, []) }
+    </optgroup>
+}
+
 export  function holdingOptionsFromState(companyState) {
     return companyState.holdingList.holdings.map((h, i) => {
             return <option key={i} value={h.holdingId}>{h.name && h.name+': ' } { joinAnd(h.holders.map(h => h.person), {prop: 'name'}) }</option>
