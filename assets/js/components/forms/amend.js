@@ -54,6 +54,13 @@ function inverseTransfer(type){
     return type === TransactionTypes.TRANSFER_FROM ? TransactionTypes.TRANSFER_TO : TransactionTypes.TRANSFER_FROM;
 }
 
+const DECREASE_SHARE_CHANGES = [
+        TransactionTypes.REDEMPTION,
+        TransactionTypes.ACQUISITION,
+        TransactionTypes.CONSOLIDATION,
+        TransactionTypes.CANCELLATION,
+        TransactionTypes.PURCHASE];
+
 export function signedAmount(type, amount){
     if(!type){
         return amount;
@@ -61,11 +68,7 @@ export function signedAmount(type, amount){
     if([TransactionTypes.ISSUE_TO, TransactionTypes.TRANSFER_TO, TransactionTypes.CONVERSION_TO, TransactionTypes.SUBDIVISION_TO].indexOf(type) >- 1){
         return amount;
     }
-    if([TransactionTypes.REDEMPTION,
-        TransactionTypes.ACQUISITION,
-        TransactionTypes.CONSOLIDATION,
-        TransactionTypes.CANCELLATION,
-        TransactionTypes.PURCHASE].indexOf(type) >- 1){
+    if(DECREASE_SHARE_CHANGES.indexOf(type) >- 1){
             return amount;
     }
     return Number.isInteger(amount) ? -amount : 0;
@@ -206,7 +209,8 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     const result = {...a.originalAction, beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
                         transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
                     const holdingIndex = values.actions.findIndex(a => a.originalAction.id === r.holding);
-                    if(holdingIndex > 0){
+
+                    if(holdingIndex >= 0){
                         const inverseAction = values.actions[holdingIndex].originalAction;
                         const inverseHolders = inverseAction.afterHolders || inverseAction.holders;
                         const inverse = {...inverseAction,  beforeHolders: inverseHolders, afterHolders: inverseHolders,
@@ -264,22 +268,32 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     const parcelIndexByClass = (parcels, shareClass) => {
         return parcels.findIndex(p =>  !p.shareClass || shareClass === p.shareClass);
     }
-    debugger
+
     // Set all the before and after amounts
     transactions = transactions.map((actions, i) => {
         return actions.map(action => {
             if(action.userSkip && action._holding !== undefined){
                 return {userSkip: true, userConfirmed: true, ...values.actions[action._holding]};
             }
-            if(action._holding !== undefined && values.actions[action._holding].parcels){
+            if(action._holding !== undefined && values.actions[action._holding].originalAction.parcels){
                 //look up original action
-                const original = values.actions[action._holding];
+                const original = values.actions[action._holding].originalAction;
                 action.parcels = action.parcels.map((p, j) => {
                     p = {...p}
                     const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
                     // if share class has changed.....
                     p.afterAmount = original.parcels[parcelIndex].afterAmount;
-                    const direction = action.transactionType !== TransactionTypes.AMEND ? isIncrease(action.transactionType) : original.parcels[j].afterAmount > original.parcels[j].beforeAmount;
+
+                    let direction;
+                    // if amend, we can go up or down
+                    if(original.transactionType === TransactionTypes.AMEND){
+                        direction = isIncrease(action.transactionType)
+                    }
+                    else{
+                        direction = DECREASE_SHARE_CHANGES.indexOf(action.type) < 0;
+                    }
+
+
                     p.beforeAmount = p.afterAmount + (direction ? -p.amount : p.amount);
                     original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
                     original.parcels[parcelIndex].afterAmount = p.beforeAmount;
@@ -326,6 +340,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
         }
     });
 
+    debugger
 
     return { newActions: newPendingActions }
 }
@@ -477,7 +492,7 @@ export function validateAmend(values, props) {
         errors._error = errors._error || {};
         errors._error.global = [`Please add shareholding(s) to balance the shares.  They are currently ${totalSum > 0 ? "over" : "under"} allocated by ${numberWithCommas(Math.abs(totalSum))} shares.`]
     }
-    console.log(errors)
+
     return errors;
 }
 
@@ -506,6 +521,7 @@ export function calculateReciprocals(actions, getValue=(x) => x && x.value, setV
                     return;
                 }
                 const holdingIndex = actions.findIndex(h => getValue(h.originalAction).id === holding);
+
                 if(holdingIndex < 0){
                     return;
                 }

@@ -44,6 +44,16 @@ function reorderAllPending(pendingActions, newActions) {
         }, acc)
     }, {})*/
 
+
+    const ids = newActions.reduce((acc, newActionSet) => {
+        return newActionSet.data.actions.reduce((acc, action) => {
+            acc[action.id] = true;
+            return acc;
+        }, acc)
+    }, {})
+
+
+
     // pendingActions are all actions
     // newActions MAY replace a subset of those actions
     const orderedActions = pendingActions.reduce((acc, pA) => {
@@ -52,9 +62,10 @@ function reorderAllPending(pendingActions, newActions) {
             return acc.concat(newActionSets)
         }
         else{
+            pA =  {...pA, data: {...pA.data, actions: pA.data.actions.filter(a => !ids[a.id])}}
             return acc.concat([pA]);
         }
-    }, []);
+    }, []).filter(p => p.data.actions.length);
 
 
 

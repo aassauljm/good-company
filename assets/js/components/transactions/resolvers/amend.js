@@ -203,7 +203,7 @@ function SubActions(props){
 
             { multipleTransactions && <div className="button-row">
                 <Button type="button" disabled={props.allDisabled} onClick={() => {
-                    const remaining = props.data.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.subActions.reduce((sum, r) => {
+                    const remaining = props.originalAction.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.subActions.reduce((sum, r) => {
                         return sum + signedAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
                     }, 0);
                     props.subActions.addField({
@@ -494,6 +494,7 @@ function generateExternalActionSetOptions(actionSets = [], actionSetId){
     return grouped;
 }
 
+
 function generateOtherActionMap(actionSets = []){
     return actionSets.reduce((acc, actionSet) => {
         return (actionSet.data.actions || [])
@@ -503,6 +504,7 @@ function generateOtherActionMap(actionSets = []){
             }, acc)
     }, {});
 }
+
 
 export default function Amend(props){
     const { context, submit } = props;

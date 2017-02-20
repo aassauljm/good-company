@@ -109,7 +109,6 @@ function requiresEdit(data){
         [TransactionTypes.NEW_ALLOCATION]: true,
         [TransactionTypes.REMOVE_ALLOCATION]: true
     };
-
     return actions.some(a => requiredTypes[a.transactionType]) || getTotalShares(data) !== 0;
 }
 
