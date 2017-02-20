@@ -47,8 +47,8 @@ if(!DEV){
 }
 else{
     plugins.push(new WebpackNotifierPlugin({
-            title: 'Good Companies',
-            alwaysNotify: true
+        title: 'Good Companies',
+        alwaysNotify: true
     }))
 }
 
@@ -65,7 +65,7 @@ module.exports = {
         filename: DEV ? "[name].js" : "[name].[hash].js",
         path: __dirname + "/.tmp/public/js"
     },
-    devtool: DEV ? 'source-map' : null,
+    devtool: 'source-map',
     module: {
         loaders: [
         {
