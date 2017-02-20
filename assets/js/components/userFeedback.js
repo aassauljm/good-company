@@ -135,8 +135,8 @@ export default class UserFeedback extends React.Component {
 
     render() {
         return (
-            <div className={this.props.containerClasses}>
-                <button className={'btn btn-default'} onClick={this.showForm}>Something not working?</button>
+            <div style={this.props.style || {}}>
+                <a className='btn btn-link hidden-xs hidden-sm' onClick={this.showForm}>Something not working?</a>
                 <UserFeedbackForm visible={this.state.visible} hide={this.hideForm}/>
             </div>
         );

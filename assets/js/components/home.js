@@ -16,7 +16,6 @@ import { CalendarWidget } from './calendar';
 import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS, FAVOURITES } from '../hoc/resources';
 import { HeaderSubControls } from './header';
 import { ImportSingleWidget } from './importMenu'
-import UserFeedback from './userFeedback';
 
 @AsyncHOCFactory([COMPANIES])
 @connect(state => ({ userInfo: state.userInfo}))
@@ -27,7 +26,6 @@ export class LandingPageView extends React.Component {
             return  (
                 <div className="welcome-back">
                     Hello <strong>{ this.props.userInfo.username }</strong>, welcome to Good Companies
-                    <UserFeedback containerClasses='pull-right' />
                 </div>
             );
         }
@@ -35,7 +33,6 @@ export class LandingPageView extends React.Component {
         return (
             <div className="welcome-back">
                 Hello <strong>{ this.props.userInfo.username }</strong>, you last logged in {this.props.userInfo.lastLogin}
-                <UserFeedback containerClasses='pull-right' />
             </div>
         );
     }

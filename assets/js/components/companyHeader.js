@@ -19,7 +19,6 @@ import { FavouritesHOC } from '../hoc/resources';
 import Calendar from 'react-widgets/lib/Calendar'
 import { OverlayTrigger, OverlayPosition, Popover }   from './lawBrowserLink';
 import Raven from 'raven-js';
-import UserFeedback from './userFeedback';
 
 const DropdownToggle = (props) => {
     return <Link to={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}} activeClassName="active" className={props.className} >
@@ -146,10 +145,7 @@ export default class CompanyHeader extends React.Component {
             <div className="nav-controls">
 
                     <div className="company-summary">
-                        <h1>
-                            { this.state.companyState.companyName}
-                            <UserFeedback containerClasses='pull-right' />
-                        </h1>
+                        <h1>{ this.state.companyState.companyName}</h1>
                         <h2> { this.dateControl() } as at { dateString }  </h2>
                     </div>
                     <div className="full-controls">
