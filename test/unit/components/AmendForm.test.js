@@ -2,7 +2,8 @@ var Promise = require('bluebird');
 
 var fs = Promise.promisifyAll(require("fs"));
 import moment from 'moment';
-import { formatInitialState, formatSubmit, validateAmend, collectAmendActions,  guessAmendAfterAmounts } from '../../../assets/js/components/forms/amend';
+import { formatInitialState, formatSubmit, validateAmend, guessAmendAfterAmounts } from '../../../assets/js/components/forms/amend';
+import {  collectAmendActions }  from '../../../assets/js/utils';
 import isValid from 'redux-form/lib/isValid'
 
 function valuesAndActionsFromJSON(path){
@@ -14,7 +15,7 @@ function valuesAndActionsFromJSON(path){
                 a.subActions.map((r) => {
                     r.effectiveDate = moment(r.effectiveDate).toDate()
                 });
-                a.data = data.actionSet.data.actions[i];
+                a.originalAction = data.actionSet.data.actions[i];
 
             });
             return data;

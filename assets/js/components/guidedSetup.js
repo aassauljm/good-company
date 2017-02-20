@@ -74,7 +74,6 @@ export class NextCompanyControls extends React.Component {
                 </div>
             </div>
 
-
     }
 
 }
@@ -174,7 +173,7 @@ export class GuidedSetup extends React.Component {
                         </div>
                         </div>
                          <div className="widget-body">
-                            <h5 className="text-center">Share Register Setup {this.state.warningSteps - this.state.warningCount} / {this.state.warningSteps}</h5>
+                            <h5 className="text-center">Share Register Setup - Step {this.state.warningSteps - this.state.warningCount} of {this.state.warningSteps}</h5>
                             <ProgressBar now={this.state.now} striped bsStyle="success" /></div>
                             { this.state.warningCount === 0 && <div>
                                 <p>Congratulations, { this.props.companyState.companyName } has succesfully been set up. </p>

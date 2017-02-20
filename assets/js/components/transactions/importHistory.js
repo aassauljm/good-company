@@ -109,16 +109,15 @@ function requiresEdit(data){
         [TransactionTypes.NEW_ALLOCATION]: true,
         [TransactionTypes.REMOVE_ALLOCATION]: true
     };
-
     return actions.some(a => requiredTypes[a.transactionType]) || getTotalShares(data) !== 0;
 }
 
 
 function isEditable(data){
     const actions = data.actions;
-    if({[TransactionTypes.INCORPORATION]: true}[data.transactionType]){
+    /*if({[TransactionTypes.INCORPORATION]: true}[data.transactionType]){
         return false;
-    }
+    }*/
 
     const editableTypes = {
         [TransactionTypes.ISSUE]: true,
@@ -254,7 +253,6 @@ export class ImportHistoryTransactionView extends React.Component {
     constructor(props){
         super(props);
         this.handleStart = ::this.handleStart;
-        this.handleStartYearByYear = ::this.handleStartYearByYear;
         this.handleResolve = ::this.handleResolve;
         this.handleEdit = ::this.handleEdit;
         this.handleAddNew = ::this.handleAddNew;
@@ -302,35 +300,11 @@ export class ImportHistoryTransactionView extends React.Component {
         this.props.next({index: LOADING});
         this.props.performImport()
             .then(action => {
-                if(!action.response.complete){
-                    this.props.next({index: EXPLAINATION});
-                }
-                else{
-                    this.props.end();
-                }
+                this.props.end();
             })
             .catch(e => {
                 this.handleResolve(this.props.importHistory.error, CONTINUE);
             })
-    }
-
-    handleImportUntil(id) {
-        this.props.performImportUntil(id)
-            .then(action => {
-                /*if(!action.response.complete){
-                    this.props.next({index: EXPLAINATION});
-                }
-                else{
-                    this.props.end();
-                }*/
-            })
-            .catch(e => {
-                this.handleResolve(this.props.importHistoryUntil.error);
-            })
-    }
-
-    handleStartYearByYear() {
-        this.props.show('importHistory', {...this.props.transactionViewData});
     }
 
     handleReset() {
@@ -366,7 +340,7 @@ export class ImportHistoryTransactionView extends React.Component {
                 ...this.props.transactionViewData,
                 error: error,
                  //open this transactionView again
-                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: afterIndex}}},
+                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
                 editTransactionData: {
                     startId: pendingActions[0].id,
                     endId: pendingActions[pendingActions.length-1].previous_id,

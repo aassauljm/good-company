@@ -1,7 +1,8 @@
 "use strict";
 import React, { PropTypes } from 'react';
 import { requestResource, updateResource, showTransactionView, addNotification } from '../../actions';
-import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas } from '../../utils';
+import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass,
+    generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas,  collectAmendActions, collectShareChangeActions } from '../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import Input from '../forms/input';
@@ -25,11 +26,58 @@ import { Shareholder } from '../shareholders';
 import Loading from '../loading';
 import firstBy from 'thenby';
 
-const TRANSACTION_ORDER = {
-    [TransactionTypes.COMPOUND_REMOVALS]: 1
-}
 
 const DEFAULT_OBJ = {};
+
+
+function reorderAllPending(pendingActions, newActions) {
+    pendingActions = pendingActions.map((p, i) => {
+        return {...p, originalIndex: i}
+    });;
+
+
+    // if any actions have been transplanted from pendingActions into newActions, then remove them
+
+   /* newActions.reduce((acc, newActionSet) => {
+        return newActionSet.dat.actions.reduce((acc, action) => {
+
+        }, acc)
+    }, {})*/
+
+
+    const ids = newActions.reduce((acc, newActionSet) => {
+        return newActionSet.data.actions.reduce((acc, action) => {
+            acc[action.id] = true;
+            return acc;
+        }, acc)
+    }, {})
+
+
+
+    // pendingActions are all actions
+    // newActions MAY replace a subset of those actions
+    const orderedActions = pendingActions.reduce((acc, pA) => {
+        const newActionSets = newActions.filter(nA => nA.id === pA.id);
+        if(newActionSets.length){
+            return acc.concat(newActionSets)
+        }
+        else{
+            pA =  {...pA, data: {...pA.data, actions: pA.data.actions.filter(a => !ids[a.id])}}
+            return acc.concat([pA]);
+        }
+    }, []).filter(p => p.data.actions.length);
+
+
+
+    orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1)
+                        .thenBy(x => x.orderIndex || 0)
+                        .thenBy(x => x.originalIndex || 0)
+                        .thenBy(x => x.data.orderFromSource || 0)
+                        .thenBy(x => new Date(x.data.date), -1));
+    return orderedActions;
+
+}
+
 
 @connect((state, ownProps) => {
     return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
@@ -54,42 +102,17 @@ export class EditTransactionView extends React.Component {
     }
     renderBody() {
         const actionSet = this.props.transactionViewData.actionSet;
-        const hasAmend = actionSet && actionSet.data.actions.some(action =>[TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) >= 0);
+        const amendables = actionSet && collectAmendActions( actionSet.data.actions).concat(collectShareChangeActions(actionSet.data.actions));
         const updateAction = ({newActions}) => {
-
-            const pendingActions = this.props.transactionViewData.pendingActions.map((p, i) => {
-                return {...p, originalIndex: i}
-            });;
-            const previousAction = this.props.transactionViewData.previousAction;
-
-            // pendingActions are all actions
-            // newActions MAY replace a subset of those actions
-            const orderedActions = pendingActions.reduce((acc, pA) => {
-                const newActionSets = newActions.filter(nA => nA.id === pA.id);
-                if(newActionSets.length){
-                    return acc.concat(newActionSets)
-                }
-                else{
-                    return acc.concat([pA]);
-                }
-            }, [])
-
-            orderedActions.sort(firstBy(x => new Date(x.data.effectiveDate), -1)
-                                .thenBy(x => x.orderIndex || 0)
-                                .thenBy(x => x.originalIndex || 0)
-                                .thenBy(x => x.data.orderFromSource || 0)
-                                .thenBy(x => new Date(x.data.date), -1)
-                                .thenBy(x => TRANSACTION_ORDER[x.data.transactionType] || 1000));
-
+            const orderedActions = reorderAllPending(this.props.transactionViewData.pendingActions, newActions);
             orderedActions[0].id = this.props.transactionViewData.startId;
             orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
-
             this.props.updateAction({pendingActions: orderedActions});
             this.handleClose();
         }
 
         if(this.props.updating._status !== 'fetching'){
-            if(hasAmend || !actionSet){
+            if(amendables.length){
                 return Amend({context: this.props.transactionViewData, submit: updateAction, ...this.props, viewName: 'editTransaction', cancel: () =>  this.props.end({cancelled: true}) })
             }
             else{

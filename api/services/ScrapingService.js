@@ -238,6 +238,10 @@ const EXTRACT_DOCUMENT_MAP = {
 
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
         let result = {};
+        result.effectiveDate = result.registrationDate = moment($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Registration Date and Time/);
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate();
+
         result.actions = $('#reviewContactChangesContent .panel').map(function(){
             let $el = $(this);
             let amendAllocRegex = /^\s*Amended Share Allocation\s*$/;
@@ -307,6 +311,7 @@ const EXTRACT_DOCUMENT_MAP = {
             _.each(a.holders, addCompanyNumber);
             _.each(a.afterHolders, addCompanyNumber);
             _.each(a.beforeHolders, addCompanyNumber);
+            a.effectiveDate = result.effectiveDate;
         });
         return result;
     },

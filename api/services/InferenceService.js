@@ -574,7 +574,7 @@ module.exports = {
             [Transaction.types.REMOVE_DIRECTOR] : 1,
             [Transaction.types.NEW_DIRECTOR] : 2,
             [Transaction.types.INCORPORATION] : 0,
-
+            [Transaction.types.AMEND] : 4,
             undefined: 2
         }
 
@@ -619,7 +619,7 @@ module.exports = {
                            'effectiveDate',
                            'orderingCoef',
                            (d) => parseInt(d.documentId, 10),
-                           (d) => d.actions && d.actions.length && TRANSACTION_ORDER[d.transactionType]
+                           (d) => (d.actions && d.actions.length && TRANSACTION_ORDER[d.transactionMethod || d.transactionType]) || 0,
                            ).reverse();
 
         // AFTER SORT

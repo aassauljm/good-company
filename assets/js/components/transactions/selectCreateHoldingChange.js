@@ -14,6 +14,7 @@ import { HoldingSelectWithNew } from '../forms/holding';
 import { enums as ImportErrorTypes } from '../../../../config/enums/importErrors';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 import Amend from './resolvers/amend';
+import { collectAmendActions } from '../forms/amend';
 import { reduxForm, destroy } from 'redux-form';
 import Panel from '../panel';
 import { change } from 'redux-form';
@@ -47,18 +48,51 @@ function valuesToAction(values, companyState){
 }
 
 
+
+
+
+
+
 @reduxForm({
     form: 'holdingSelectWithNew',
-    fields: ['holding', 'newHolding', 'parcels[].amount', 'parcels[].shareClass'],
+    fields: ['holding', 'newHolding', 'actionId'],
     validate: (values) => {
-        if(!values.holding && !values.newHolding){
-            return {holding: ['Required']}
+        if(!values.actionId){
+            return {actionId: ['Required']}
         }
         return {};
     },
     destroyOnUnmount: false
 })
 @formFieldProps()
+export class SelectCreateHoldingForm extends React.Component {
+    render() {
+        const isNew = !!this.props.fields.newHolding.value;
+        return <Input type='select' {...this.formFieldProps('actionId')} label={STRINGS.holding}>
+            { this.props.options }
+        </Input>
+
+          /*          fieldName='holding'
+                    newFieldName='newHolding'
+                    fields={this.props.fields}
+                    showNewHolding={this.props.showNewHolding}
+                    strings={STRINGS}
+                    shareOptions={this.props.shareOptions}
+                    holdingOptions={this.props.holdingOptions} /> */
+
+                    /*
+                    { false && !isNew && <Input className="amount" type="number" {...this.formFieldProps('beforeAmount')} label={'Before Amount'} /> }
+                    { false && !isNew && <Input className="amount" type="number" {...this.formFieldProps('afterAmount')} label={'After Amount'} /> }
+
+                    {  false && isNew && <StaticField type="static"  className="amount"  {...this.formFieldProps('beforeAmount')} value={0} label={'Before Amount'} /> }
+                    {  false && isNew && <StaticField type="static"  className="amount" {...this.formFieldProps('afterAmount')}  value={0} label={'After Amount'} /> }        */
+    }
+}
+
+
+@connect(undefined, {
+    change: (...args) => change(...args)
+})
 export class SelectCreateHoldingChangeTransactionView extends React.Component {
     constructor(props){
         super();
@@ -66,41 +100,35 @@ export class SelectCreateHoldingChangeTransactionView extends React.Component {
         this.handleSubmit= ::this.handleSubmit;
     }
     renderBody() {
-        const isNew = !!this.props.fields.newHolding.value;
         return  <div className="row">
         <div className="col-md-6 col-md-offset-3">
+            <SelectCreateHoldingForm
+                ref='form'
+                onSubmit={this.handleSubmit}
+                shareOptions={this.props.shareOptions}
+                actionSets={this.props.transactionViewData.pendingActions}
+                options={holdingOptionsFromActionSets(this.props.transactionViewData.pendingActions)}
+                //shareClassMap={generateShareClassMap(this.props.transactionViewData.companyState)}
+                showNewHolding={() => this.props.show('newHolding', {
+                     ...this.props.transactionViewData,
+                    formName: 'holdingSelectWithNew',
+                    field: `newHolding`,
+                    noEffectiveDate: true,
+                    noDocuments: true,
+                    afterClose: { // open this transactionView again
+                        showTransactionView: {key: 'selectCreateHoldingChange', data: {...this.props.transactionViewData}}
+                    }})}
 
-                <HoldingSelectWithNew
-                    fieldName='holding'
-                    newFieldName='newHolding'
-                    fields={this.props.fields}
-                    showNewHolding={() => this.props.show('newHolding', {
-                         ...this.props.transactionViewData,
-                        formName: 'holdingSelectWithNew',
-                        field: `newHolding`,
-                        noEffectiveDate: true,
-                        noDocuments: true,
-                        afterClose: { // open this transactionView again
-                            showTransactionView: {key: 'selectCreateHoldingChange', data: {...this.props.transactionViewData}}
-                        }})}
-                    strings={STRINGS}
-                    shareOptions={this.props.shareOptions}
-                    holdingOptions={holdingOptionsFromState(this.props.transactionViewData.companyState)} />
+                />
 
-
-                    { false && !isNew && <Input className="amount" type="number" {...this.formFieldProps('beforeAmount')} label={'Before Amount'} /> }
-                    { false && !isNew && <Input className="amount" type="number" {...this.formFieldProps('afterAmount')} label={'After Amount'} /> }
-
-                    {  false && isNew && <StaticField type="static"  className="amount"  {...this.formFieldProps('beforeAmount')} value={0} label={'Before Amount'} /> }
-                    {  false && isNew && <StaticField type="static"  className="amount" {...this.formFieldProps('afterAmount')}  value={0} label={'After Amount'} /> }
             </div>
         </div>
     }
 
-    handleSubmit() {
+    handleSubmit(values) {
         if(this.props.transactionViewData.afterClose){
-            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, valuesToAction(this.props.values, this.props.transactionViewData.companyState)));
-            this.props.end(this.props.values);
+            this.props.change(this.props.transactionViewData.formName, this.props.transactionViewData.field, valuesToAction(values, this.props.transactionViewData.companyState));
+            this.props.end(values);
             return;
         }
         else{
@@ -115,7 +143,7 @@ export class SelectCreateHoldingChangeTransactionView extends React.Component {
     render() {
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
               <TransactionView.Header closeButton>
-                <TransactionView.Title>Select or Create New Shareholding</TransactionView.Title>
+                <TransactionView.Title>Select or Create New Shareholding Change</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody() }
@@ -123,7 +151,7 @@ export class SelectCreateHoldingChangeTransactionView extends React.Component {
               <TransactionView.Footer>
             <div className="button-row">
                 <Button onClick={this.handleClose} >Cancel</Button>
-                <Button bsStyle={'primary'} onClick={this.handleSubmit} disabled={!this.props.valid}>Select</Button>
+                <Button bsStyle={'primary'} onClick={() => this.refs.form.submit()}>Select</Button>
             </div>
               </TransactionView.Footer>
             </TransactionView>

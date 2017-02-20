@@ -460,7 +460,10 @@ const PAGES = {
 const DEFAULT_OBJ = {};
 
 @connect((state, ownProps) => {
-    return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
+    return {
+        updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ,
+        pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {}
+    };
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
@@ -482,11 +485,9 @@ const DEFAULT_OBJ = {};
                 dispatch(destroy('amend'));
             })
         },
+        requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
         destroyForm: (args) => {
             return dispatch(destroy(args))
-        },
-        cancel: (args) => {
-            dispatch(push(`/company/view/${ownProps.transactionViewData.companyId}`))
         }
     }
 })
@@ -496,11 +497,22 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         super(props);
         this.handleClose = ::this.handleClose;
     }
+    fetch() {
+        return this.props.requestData();
+    };
+
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
     handleClose() {
-        this.props.end();
+        this.props.end({cancelled: true});
     }
     renderBody() {
-        const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
+        const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context, pendingActions: this.props.pendingHistory.data};
         const action = context.action;
         context.shareClassMap = generateShareClassMap(this.props.transactionViewData.companyState);
 
@@ -529,7 +541,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}
                 <hr/>
-                { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, ...this.props}) }
+                { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: this.handleClose, ...this.props}) }
             </div>
         }
         else{
