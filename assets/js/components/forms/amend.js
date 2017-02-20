@@ -225,7 +225,9 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                 else{
                     const result = {...a.originalAction, beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
                         transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
-                    if(r.targetActionId && !values.actions.find(a => a.originalAction.id !==r.targetActionId) && pendingActions.length){
+                        // if you have been transplanted into another actionSet
+
+                    if(r.targetActionId && !values.actions.find(a => a.originalAction.id === r.targetActionId) && pendingActions.length){
                         const target = pendingActions.find(a => a.id === r.targetActionId);
                         transplantActions[r.targetActionId] = transplantActions[r.targetActionId]  || [];
                         transplantActions[r.targetActionId].push({...result, targetActionId: r.targetActionId});
@@ -234,8 +236,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                         //TODO
                         transplantActions.push({...result, effectiveDate: target.effectiveDate, targetActionId: r.targetActionId});
                     }*/
-                    else if(r.targetActionId && values.actions.find(a => a.originalAction.id !==r.targetActionId)){
-                        // todo, set date
+                    else if(r.targetActionId && values.actions.find(a => a.originalAction.id !== r .targetActionId)){
                         nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
                         nonTransfers[r.effectiveDate].push(result);
                     }
@@ -325,10 +326,11 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
 
         if(actions.some(action => action.targetActionId)){
             // we will find teh actionSet in the original
+
             const existingActionSet = actionSetLookup[actions[0].targetActionId];
             if(!existingActionSet){
                 //create new one
-                alert("todo")
+                //alert("todo")
             }
             else{
                 newPendingActions.push({id: existingActionSet.data.id, orderIndex: orderIndex, data: {...existingActionSet.data,  totalShares: null, actions: existingActionSet.data.actions.concat(actions)}, previous_id: actionSet.previous_id});
@@ -339,8 +341,6 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
             newPendingActions.push({id: actionSet.id, orderIndex: orderIndex, data: {...actionSet.data, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
         }
     });
-
-    debugger
 
     return { newActions: newPendingActions }
 }
