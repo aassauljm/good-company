@@ -57,7 +57,7 @@ class UserFeedbackForm extends React.Component {
         const body = new FormData();
         body.append('name', this.state.name);
         body.append('email', this.state.email);
-        body.append('comments', this.state.comments);
+        body.append('comments', this.state.comment);
 
         fetch(feedbackUrl, {
             method: 'POST',
@@ -84,6 +84,8 @@ class UserFeedbackForm extends React.Component {
             return acc;
         }, {});
 
+        const valid = Object.keys(fields).every((key) => fields[key].valid);
+
         const commentValid = !!this.state.comment;
 
         return (
@@ -100,7 +102,7 @@ class UserFeedbackForm extends React.Component {
 
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.props.hide}>Cancel</Button>
-                    <Button bsStyle='primary' onClick={this.send} onClick={this.send}>Send</Button>
+                    <Button bsStyle='primary' onClick={this.send} onClick={this.send} disabled={!valid}>Send</Button>
                 </Modal.Footer>
             </Modal>
         );
