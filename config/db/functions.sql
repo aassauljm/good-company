@@ -895,7 +895,7 @@ FROM
     left outer join "holder" hj on h.id = hj."holdingId"
     left outer join person ppp on hj."holderId" = ppp.id
     join company_persons($1) p on p."personId" = ppp."personId"
-    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2  and pp is not null
+    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2  --and pp is not null
      WINDOW wnd AS (
        PARTITION BY p."personId", h."holdingId", pp."shareClass" ORDER BY generation asc
      )) as q
