@@ -176,7 +176,7 @@ export class GuidedSetup extends React.Component {
                             <h5 className="text-center">Share Register Setup - Step {this.state.warningSteps - this.state.warningCount} of {this.state.warningSteps}</h5>
                             <ProgressBar now={this.state.now} striped bsStyle="success" /></div>
                             { this.state.warningCount === 0 && <div>
-                                <p>Congratulations, { this.props.companyState.companyName } has succesfully been set up. </p>
+                                <p className="congratulations">Congratulations, { this.props.companyState.companyName } has succesfully been set up. </p>
                                 <div className="button-row"><Link className="btn btn-primary" to={`/company/view/${this.props.companyId}/registers/shareregister`}>View Share Register</Link></div>
                                 </div> }
                         </div>

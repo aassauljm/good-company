@@ -341,7 +341,6 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
             newPendingActions.push({id: actionSet.id, orderIndex: orderIndex, data: {...actionSet.data, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
         }
     });
-
     return { newActions: newPendingActions }
 }
 
@@ -492,7 +491,6 @@ export function validateAmend(values, props) {
         errors._error = errors._error || {};
         errors._error.global = [`Please add shareholding(s) to balance the shares.  They are currently ${totalSum > 0 ? "over" : "under"} allocated by ${numberWithCommas(Math.abs(totalSum))} shares.`]
     }
-
     return errors;
 }
 

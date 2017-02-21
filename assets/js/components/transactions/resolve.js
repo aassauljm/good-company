@@ -22,7 +22,7 @@ import { reduxForm, destroy } from 'redux-form';
 import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
 import { InvalidIssue } from './resolvers/unknownShareChanges'
-
+import { reorderAllPending } from './editTransaction';
 import { Shareholder } from '../shareholders';
 import { Director } from '../directors';
 
@@ -517,6 +517,15 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         const action = context.action;
         context.shareClassMap = generateShareClassMap(this.props.transactionViewData.companyState);
 
+        const updateAction = ({newActions}) => {
+            const orderedActions = reorderAllPending(this.props.pendingHistory.data, newActions);
+            orderedActions[0].id = this.props.transactionViewData.startId;
+            orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
+            this.props.updateAction({pendingActions: orderedActions});
+            this.handleClose();
+        }
+
+
         if(!PAGES[context.importErrorType]){
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}
@@ -529,7 +538,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         }
         let edit;
         if(this.props.transactionViewData.editTransactionData){
-            // if we are doing a yeary by year import, we have greater flexibility for importing
+            // if we are doing a year by year import, we have greater flexibility for importing
             edit = () => {
                 const otherActions = this.props.transactionViewData.editTransactionData.pendingActions.filter(p => p.id !== context.actionSet.id);
                 // gross
@@ -542,7 +551,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState )}
                 <hr/>
-                { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: this.handleClose, ...this.props}) }
+                { PAGES[context.importErrorType]({context: context, submit: updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: this.handleClose, ...this.props}) }
             </div>
         }
         else{

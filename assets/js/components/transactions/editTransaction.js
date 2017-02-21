@@ -30,7 +30,7 @@ import firstBy from 'thenby';
 const DEFAULT_OBJ = {};
 
 
-function reorderAllPending(pendingActions, newActions) {
+export function reorderAllPending(pendingActions, newActions) {
     pendingActions = pendingActions.map((p, i) => {
         return {...p, originalIndex: i}
     });;

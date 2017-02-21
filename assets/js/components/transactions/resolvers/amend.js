@@ -80,6 +80,7 @@ export class AmendSubAction extends React.Component {
         return <div className="input-row">
                         <Input type="select" {...this.formFieldProps('holding')}
                             disabled={disabled}
+                            className="transfer"
                             label={this.props.type.value === TransactionTypes.TRANSFER_TO ? 'Transfer From' : 'Transfer To'}>
                             <option value="" disabled></option>
                             {  this.props.increase && decreases.length && <optgroup label="Suggested">{ decreases }</optgroup> }
@@ -93,6 +94,7 @@ export class AmendSubAction extends React.Component {
     renderExternalTarget(disabled){
         return <div className="input-row">
                 <Input type="select" {...this.formFieldProps('targetActionId')}
+                    className="subaction-target"
                     disabled={disabled}
                     label={`${STRINGS.amendTypes[this.props.type.value]} Transaction`}>
                     <option value=""></option>
@@ -114,6 +116,7 @@ export class AmendSubAction extends React.Component {
                 <div className="input-row">
                     <Input type="select" {...this.formFieldProps('type')}
                     label="Select Transaction Type"
+                    className="transaction-type"
                     disabled={disabled}>
                         <option value="" disabled></option>
                             {  this.props.increase && <optgroup label="Increases">{ INCREASE_OPTIONS }</optgroup> }
@@ -166,7 +169,7 @@ const SubAction = (props) => {
 }
 
 
-function SubActions(props){
+export function SubActions(props){
     const multipleTransactions = isAmendable(props.originalAction.value);
     return <div className="">
             <Shuffle>
@@ -202,7 +205,7 @@ function SubActions(props){
           { props.error && props.error.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
 
             { multipleTransactions && <div className="button-row">
-                <Button type="button" disabled={props.allDisabled} onClick={() => {
+                <Button type="button" className="add-subaction" disabled={props.allDisabled} onClick={() => {
                     const remaining = props.originalAction.value.parcels.reduce((sum, p) => sum + (p.afterAmount - p.beforeAmount), 0) - props.subActions.reduce((sum, r) => {
                         return sum + signedAmount(r.type.value, r.parcels.reduce((sum, p) => sum + p.amount.value, 0))
                     }, 0);
@@ -338,6 +341,14 @@ class AmendOptions extends React.Component {
                 </Panel>
     }
 
+    renderControls() {
+        return   <div className="button-row">
+             <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
+             <Button onClick={this.props.resetForm}>Reset</Button>
+                <Button type="submit" bsStyle="primary" className="amend-submit" disabled={!this.props.valid }>Submit</Button>
+            </div>
+    }
+
     render() {
         const { shareClassMap, fields: { actions } } = this.props;
         const amountRemaining = (holding, i) => {
@@ -358,16 +369,12 @@ class AmendOptions extends React.Component {
 
 
         return <form onSubmit={this.props.handleSubmit}>
-            <div className="button-row">
-            <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
-                <Button  onClick={this.props.resetForm}>Reset</Button>
-                <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
-            </div>
+            { this.renderControls() }
             <hr/>
             { actions.map((field, i) => {
                 const action = field.originalAction.value;
                 const increase = actionAmountDirection(action);
-                let className = "row ";
+                let className = "row amend-row";
                 const allDisabled = !!field.userSkip.value;
                 const userTransplanted = action.userTransplanted;
                 if(allDisabled){
@@ -430,11 +437,7 @@ class AmendOptions extends React.Component {
             <hr/>
              { this.props.error && this.props.error.global && this.props.error.global.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
              { this.props.error && this.props.error.global &&  <hr/> }
-             <div className="button-row">
-             <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
-             <Button onClick={this.props.resetForm}>Reset</Button>
-                <Button type="submit" bsStyle="primary" disabled={!this.props.valid }>Submit</Button>
-            </div>
+             { this.renderControls() }
         </form>
     }
 }
@@ -510,9 +513,9 @@ export default function Amend(props){
     const { context, submit } = props;
     const { actionSet, companyState, pendingActions } = context;
     const amends = collectAmendActions(actionSet.data.actions);
-    // sort by largest first
-    amends.sort(firstBy(a => a.parcels.reduce((sum, p) => sum + p.amount, 0), -1));
-    const amendActions = actionSet ? collectShareChangeActions(actionSet.data.actions).concat(amends) : [];
+    // sort by largest parcel change, then name of first holder
+    amends.sort(firstBy(a => a.parcels.reduce((sum, p) => sum + p.amount, 0), -1).thenBy(a => (a.holders || a.afterHolders)[0].name));
+    const amendActions = collectShareChangeActions(actionSet.data.actions).concat(amends);
     const shareChanges = collectShareChangeActions(actionSet.data.actions);
     const shareChangeId = shareChanges.length ? shareChanges[0].id : null;
 

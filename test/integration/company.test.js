@@ -20,7 +20,7 @@ import { CompanyAlertsWidget } from "../../assets/js/components/companyAlerts.js
 import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js';
 import { ShareClassSelect } from '../../assets/js/components/transactions/applyShareClasses.js';
 import { ImportHistoryTransactionView } from '../../assets/js/components/transactions/importHistory.js';
-import Amend from '../../assets/js/components/transactions/resolvers/amend';
+import Amend, { SubActions } from '../../assets/js/components/transactions/resolvers/amend';
 import chai from 'chai';
 
 
@@ -156,8 +156,33 @@ function setupShareClass(name, expected){
 }
 
 
-//function createShareClass
+function resolveAmend(details){
+    return details.map((detail, i) => {
+        const el = this.dom.querySelectorAll('.amend-row')[i];
+        detail.map((entry, j) => {
+            if(j > 0){
+                Simulate.click(el.querySelector('.add-subaction'), {button: 0});
+            }
+            const subaction = el.querySelectorAll('.amend-subaction')[j];
+            Simulate.change(subaction.querySelector('.transaction-type'), { target: {value: entry.type}});
+            if(entry.amount !== undefined){
+                Simulate.change(subaction.querySelector('.amount'), { target: {value: entry.amount}});
+            }
+            if(entry.recipient){
+                const targetVal = Array.from(subaction.querySelectorAll('.transfer option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.recipient) === 0)[0].value;
+                Simulate.change(subaction.querySelector('.transfer'), { target: {value: targetVal}});
+                Simulate.blur(subaction.querySelector('.transfer'))
+            }
+            else{
+                const targetVal = Array.from(subaction.querySelectorAll('.subaction-target option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.target) === 0)[0].value;
+                Simulate.change(subaction.querySelector('.subaction-target'), { target: {value: targetVal}});
+                Simulate.blur(subaction.querySelector('.subaction-target'))
+            }
+        });
+    })
 
+
+}
 
 describe('Company Integration Tests - PROJECT MANAGER HOLDINGS LIMITED', () => {
 
@@ -249,10 +274,66 @@ describe('Company Integration Tests - Catalex', () => {
         });
 
         it('Resolves import', function(){
-            /*let modal;
+            const details = [
+                [{type: 'TRANSFER_FROM', amount: 4999, recipient: '#3 - Tamina Kelly CUNNINGHAM-ADAMS and Megan Jean CUNNINGHAM-ADAMS'},
+                 {type: 'TRANSFER_FROM', amount: 1, recipient: '#6 - Tamina Kelly CUNNINGHAM-ADAMS'}],
+                [{type: 'TRANSFER_FROM', amount: 4999, recipient: '#4 - Thomas David BLOY and Peter James BLOY'},
+                 {type: 'TRANSFER_FROM', amount: 1, recipient: '#7 - Thomas David BLOY'}],
+                 [], [],
+                [{type: 'ISSUE_TO', target: '5 Sep 2014 - Issue of 1,111 shares'}],
+            ]
+
+            return waitFor('Amend page to load', '.amend-row', this.dom, 5000)
+                .then(() => {
+                    return resolveAmend.call(this, details);
+                })
+                .then(() => {
+                    return waitFor('Validation', () => !this.dom.querySelector('.amend-submit').disabled, null, 1000)
+                })
+                .then(() => {
+                    Simulate.submit(this.dom.querySelector('.resolve form'));
+                     //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
+                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                })
+        });
+
+        it('Imports next chunks', function(){
+            let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
             Simulate.click(button, {button: 0});
-            return waitFor('Amend Screen', () => this.dom.querySelectorAll('.resolve').length, null, 10000);&/*/
+            return waitFor('Amend Screen', () => this.dom.querySelectorAll('.resolve').length, null, 20000)
+        })
+
+
+        it('Resolves import again', function(){
+            const details = [
+                [{type: 'ISSUE_TO', amount: 4500, target: '1 Aug 2014 - Issue of 9,000 shares'},
+                {type: 'TRANSFER_TO', amount: 500, recipient: '#4 - Thomas David BLOY'}],
+
+                [{type: 'ISSUE_TO', amount: 4500, target: '1 Aug 2014 - Issue of 9,000 shares'},
+                {type: 'TRANSFER_TO', amount: 500, recipient: '#3 - Tamina Kelly CUNNINGHAM-ADAMS'}]
+            ];
+
+            return waitFor('Amend page to load', '.amend-row', this.dom, 5000)
+                .then(() => {
+                    return resolveAmend.call(this, details);
+                })
+                .then(() => {
+                    return waitFor('Validation', () => !this.dom.querySelector('.amend-submit').disabled, null, 1000)
+                })
+                .then(() => {
+                    Simulate.submit(this.dom.querySelector('.resolve form'));
+                     //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
+                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                });
+            })
+
+
+        it('Imports final chunks', function(){
+            let modal;
+            const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
+            Simulate.click(button, {button: 0});
+            return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
 
 

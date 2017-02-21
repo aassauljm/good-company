@@ -47,7 +47,7 @@ function TransactionSummaries(props) {
         }
         return true;
     });
-    const className = props.loading ? 'button-loading' : '';
+    const className = props.loading ? 'button-loading' : 'loaded';
     return <div className={className}>
         <p>Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.</p>
         <hr/>
