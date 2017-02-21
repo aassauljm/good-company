@@ -25,7 +25,7 @@ import { InvalidIssue } from './resolvers/unknownShareChanges'
 import { Shareholder } from '../shareholders';
 import Loading from '../loading';
 import firstBy from 'thenby';
-
+import ScrollIntoView from '../../hoc/scrollIntoView';
 
 const DEFAULT_OBJ = {};
 
@@ -69,7 +69,7 @@ export function reorderAllPending(pendingActions, newActions) {
 
 }
 
-
+@ScrollIntoView
 @connect((state, ownProps) => {
     return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
 }, (dispatch, ownProps) => {

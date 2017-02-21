@@ -70,7 +70,6 @@ class DocumentBase extends React.Component {
             ref: el => this.fileInputEl = el,
             onChange: (e) => this.onDrop(e)
         };
-
         return <div>
             { this.props.label && <label className="control-label">{ this.props.label }</label>}
 

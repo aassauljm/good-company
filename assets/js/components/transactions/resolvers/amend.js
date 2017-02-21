@@ -27,6 +27,8 @@ import firstBy from 'thenby';
 import { showContextualTransactionView } from '../../../actions';
 import { validateAmend, formatInitialState, formatSubmit,
     signedAmount, isTransfer, isIncrease, keyObject, UNREPORTED_TRANSACTION }from '../../forms/amend';
+import ScrollToTop from '../../../hoc/scrollToTop';
+
 
 
 const INCREASE_OPTIONS = [
@@ -305,7 +307,7 @@ class AddTransaction extends React.Component {
     }
 }
 
-
+@ScrollToTop
 class AmendOptions extends React.Component {
     constructor(props){
         super(props);
@@ -557,6 +559,7 @@ export default function Amend(props){
             />
         </div>
 }
+
 
 
 

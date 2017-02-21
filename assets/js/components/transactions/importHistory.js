@@ -2,6 +2,7 @@
 import React, { PropTypes } from 'react';
 import { requestResource, createResource, updateResource, addNotification } from '../../actions';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap, getTotalShares } from '../../utils';
+import { ScrollIntoViewOptional } from '../../hoc/scrollIntoView';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
 import { Link } from 'react-router'
@@ -15,6 +16,8 @@ import { enums as TransactionTypes } from '../../../../config/enums/transactions
 import Loading from '../loading'
 import { TransactionTerseRenderMap } from '../transaction';
 import Shuffle from 'react-shuffle';
+
+
 
 function companiesOfficeDocumentUrl(companyState, documentId){
     const companyNumber = companyState.companyNumber;
@@ -35,6 +38,47 @@ const CONTINUE = 4;
 const PAGES = [];
 
 
+@ScrollIntoViewOptional
+class PendingAction extends React.Component {
+    render() {
+        const props = this.props;
+        const p = this.props.action;
+        const required = requiresEdit(p.data);
+        const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed);
+        const showConfirm = !required && !showUnconfirm;
+        const editable = (isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed)) || required;
+        let className = "panel panel-default"
+        if(required){
+            className = "panel panel-danger"
+        }
+        return <div key={p.numberId}>
+                <div  className={className}>
+                    <div className="panel-heading">
+                        <div className="row transaction-table">
+                            <div className="transaction-terse-date col-md-2">
+                                { stringDateToFormattedStringTime(p.data.effectiveDate) }
+                            </div>
+                            <div className="col-md-8">
+                            { p.data.actions.map((action, i) => {
+                                const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
+                                return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
+                            }) }
+                            </div>
+                            <div className="col-md-1">{
+                                editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button></div>
+                            }</div>
+                            <div className="col-md-1">
+                                { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button></div> }
+                                { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button></div> }
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+    }
+}
+
+
 function TransactionSummaries(props) {
     const pendingActions = props.pendingActions.filter((p, i) => {
         p.numberId = i;
@@ -48,44 +92,12 @@ function TransactionSummaries(props) {
         return true;
     });
     const className = props.loading ? 'button-loading' : 'loaded';
+
     return <div className={className}>
         <p>Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.</p>
         <hr/>
-        <Shuffle >
-            { pendingActions.map((p, i) => {
-                const required = requiresEdit(p.data);
-                const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed);
-                const showConfirm = !required && !showUnconfirm;
-                const editable = (isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed)) || required;
-                let className = "panel panel-default"
-                if(required){
-                    className = "panel panel-danger"
-                }
-                return <div key={p.numberId}>
-                        <div  className={className}>
-                            <div className="panel-heading">
-                                <div className="row transaction-table">
-                                    <div className="transaction-terse-date col-md-2">
-                                        { stringDateToFormattedStringTime(p.data.effectiveDate) }
-                                    </div>
-                                    <div className="col-md-8">
-                                    { p.data.actions.map((action, i) => {
-                                        const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
-                                        return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
-                                    }) }
-                                    </div>
-                                    <div className="col-md-1">{
-                                        editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions)}>Edit</Button></div>
-                                    }</div>
-                                    <div className="col-md-1">
-                                        { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button></div> }
-                                        { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button></div> }
-                                    </div>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-            }) }
+        <Shuffle>
+            { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
         </Shuffle>
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
@@ -181,6 +193,7 @@ PAGES[EXPLAINATION] = function() {
                 handleConfirm={this.handleConfirm}
                 toggleConfirmed={this.toggleConfirmed}
                 loading={this.isLoading()}
+                scrollIndex={this.props.transactionViewData.editIndex}
                 showConfirmed={this.props.transactionViewData.showConfirmed}
                 />
         }
@@ -311,14 +324,14 @@ export class ImportHistoryTransactionView extends React.Component {
         this.props.reset();
     }
 
-    handleEdit(actionSet, pendingActions) {
+    handleEdit(actionSet, pendingActions, editIndex) {
         this.props.destroyForm('amend');
         this.props.show('editTransaction', {...this.props.transactionViewData,
             startId: pendingActions[0].id,
             endId: pendingActions[pendingActions.length-1].previous_id,
             actionSet,
             pendingActions,
-            afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+            afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION, editIndex}}}
         });
     }
 

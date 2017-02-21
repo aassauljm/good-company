@@ -175,7 +175,7 @@ export default {
         "transferRestrictionQuestion": "Are there restrictions or limitations on the transfer of shares?",
         "transferRestrictionDocument": "Location of document containing transfer restrictions",
         "transferRestrictionPlaceholder": "Type or select from the following",
-
+        "documentsLabel": "Upload Terms of Issue",
         votingRights: {
             _: 'Rights Attached to Shares',
             votingRights: 'Rights Attached to Shares',
