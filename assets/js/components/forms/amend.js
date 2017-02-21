@@ -287,7 +287,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
 
                     let direction;
                     // if amend, we can go up or down
-                    if(original.transactionType === TransactionTypes.AMEND){
+                    if(isAmendable(original)){
                         direction = isIncrease(action.transactionType)
                     }
                     else{
