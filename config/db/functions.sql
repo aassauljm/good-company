@@ -806,6 +806,7 @@ parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
     FROM "parcel_j" pj
     LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
+    where amount > 0
     GROUP BY p."shareClass", pj."holdingId"
 )
 SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
@@ -891,7 +892,7 @@ FROM
     join company_state cs on pt.id = cs.id
     join transaction t on cs."transactionId" = t.id
     left outer join _holding h on h."companyStateId" = pt.id
-    left outer join parcels pp on pp."holdingId" = h.id
+    join parcels pp on pp."holdingId" = h.id
     left outer join "holder" hj on h.id = hj."holdingId"
     left outer join person ppp on hj."holderId" = ppp.id
     join company_persons($1) p on p."personId" = ppp."personId"

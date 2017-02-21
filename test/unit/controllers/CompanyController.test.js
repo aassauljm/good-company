@@ -632,8 +632,8 @@ describe('Company Controller', function() {
                     res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
                     res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
                     res.body.shareRegister.map(s => {
-                        //if(!s.shareClass)
-                        //console.log(s)
+                        if(!s.shareClass)
+                        console.log(s)
                         should.equal(s.shareClass, classes['Class A']);
                     });
                     done();
