@@ -1,0 +1,23 @@
+
+.external-link{
+    font-style: italic;
+    color: $link-color;
+    &:hover{
+        text-decoration: underline;
+    }
+}
+
+ .vanity-link{
+    color: $link-color;
+    cursor: pointer;
+    &:hover{
+        text-decoration: underline;
+    }
+}
+
+
+.nav-link{
+    &:hover{
+        text-decoration: underline;
+    }
+}

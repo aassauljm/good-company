@@ -293,7 +293,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     transactions = transactions.map((actions, i) => {
         return actions.map(action => {
             if(action.userSkip && action._holding !== undefined){
-                return {userSkip: true, userConfirmed: true, ...values.actions[action._holding]};
+                return {userSkip: true, userConfirmed: true, ...values.actions[action._holding].originalAction};
             }
             if(action._holding !== undefined && values.actions[action._holding].originalAction.parcels){
                 //look up original action
@@ -453,7 +453,7 @@ export function validateAmend(values, props) {
                         totalSum += sAmount;
                     }
                 }
-                console.log(sourceParcel.amount - sourceParcel.sum );
+
                 if((sourceParcel.amount - sourceParcel.sum ) < 0){
                     errors.parcels[i].amount = ['Share count for this class goes below 0.'];
                 }

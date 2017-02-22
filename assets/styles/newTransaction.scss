@@ -1,0 +1,46 @@
+// newTransaction
+.icon-action-page{
+    .select-button {
+        @extend .col-sm-6;
+        display: block;
+        padding: 10px;
+        font-size: 10px;
+        line-height: 1.4;
+        text-align: center;
+        background-color: $gray-lighter;
+        border: 8px solid #fff;;
+        border-radius:4px;
+        &:hover{
+            background-color: $brand-primary;
+            color:white;
+            transition: background-color 0.5s ease,
+                        color 0.5s ease;
+        }
+        .glyphicon {
+            margin-top: 16px;
+            margin-bottom: 10px;
+            font-size: 50px;
+        }
+        .transaction-button-text{
+            display: block;
+            text-align: center;
+            word-wrap: break-word;
+            font-size:16px;
+        }
+    }
+}
+
+.icon-action-page-sml{
+    .glyphicon {
+        margin-right:10px;
+        margin-left:10px;
+        margin-bottom:4px;
+        font-size: 24px;
+        vertical-align: middle;
+    }
+    .transaction-button-text{
+        vertical-align: middle;
+        line-height: 24px;
+    }
+}
+

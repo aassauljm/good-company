@@ -43,3 +43,17 @@
         }
     }
 }
+
+
+
+// graphs
+.hide-graph-labels{
+    .arc{
+        polyline{
+            display:none;
+        }
+        path{
+            stroke: white;
+        }
+    }
+}
