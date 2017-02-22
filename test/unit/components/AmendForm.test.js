@@ -16,7 +16,7 @@ function valuesAndActionsFromJSON(path){
                     r.effectiveDate = moment(r.effectiveDate).toDate()
                 });
                 a.originalAction = data.actionSet.data.actions[i];
-
+                a.afterParcels =  guessAmendAfterAmounts(data.actionSet.data.actions[i], null, null)
             });
             return data;
         })

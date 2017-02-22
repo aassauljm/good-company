@@ -177,7 +177,7 @@ module.exports = {
                         newParcels.push(currentP);
                     }
                 });
-                this.dataValues.parcels = newParcels;
+                this.dataValues.parcels = newParcels.filter(p => p.amount > 0);
             },
             buildNext: function(){
                 if(this.isNewRecord){

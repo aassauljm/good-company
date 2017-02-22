@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap, actionOptionsFromActionSets,
     collectAmendActions,
-    collectShareChangeActions, isAmendable,
+    collectShareChangeActions, isAmendable, isShareChange,
     SHARE_CHANGE_TYPES,
     renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState, getTotalShares } from '../../../utils';
 import { connect } from 'react-redux';
@@ -29,6 +29,8 @@ import { validateAmend, formatInitialState, formatSubmit,
     signedAmount, isTransfer, isIncrease, keyObject, UNREPORTED_TRANSACTION }from '../../forms/amend';
 import ScrollToTop from '../../../hoc/scrollToTop';
 
+
+const EXTERNAL_TRANSFERS = 'EXTERNAL_TRANSFERS';
 
 
 const INCREASE_OPTIONS = [
@@ -312,6 +314,7 @@ class AmendOptions extends React.Component {
     constructor(props){
         super(props);
         this.addAction = ::this.addAction;
+        this.state = {submitted: false}
     }
 
     addAction(actionId) {
@@ -347,8 +350,19 @@ class AmendOptions extends React.Component {
         return   <div className="button-row">
              <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
              <Button onClick={this.props.resetForm}>Reset</Button>
-                <Button type="submit" bsStyle="primary" className="amend-submit" disabled={!this.props.valid }>Submit</Button>
+                <Button type="submit" bsStyle="primary" className="amend-submit" onClick={() => this.setState({submitted: true})}>Submit</Button>
             </div>
+    }
+
+    renderInvalid() {
+        if(!this.props.valid && this.state.submitted){
+            return <div><div className="alert alert-danger">
+                Sorry, we cannot submit this form yet.  Please check all fields are valid.
+                </div>
+
+                <hr/>
+            </div>
+        }
     }
 
     render() {
@@ -373,10 +387,11 @@ class AmendOptions extends React.Component {
         return <form onSubmit={this.props.handleSubmit}>
             { this.renderControls() }
             <hr/>
+            { this.renderInvalid() }
             { actions.map((field, i) => {
                 const action = field.originalAction.value;
                 const increase = actionAmountDirection(action);
-                let className = "row amend-row";
+                let className = "row amend-row ";
                 const allDisabled = !!field.userSkip.value;
                 const userTransplanted = action.userTransplanted;
                 if(allDisabled){
@@ -439,6 +454,7 @@ class AmendOptions extends React.Component {
             <hr/>
              { this.props.error && this.props.error.global && this.props.error.global.map((e, i) => <div key={i} className="alert alert-danger">{ e }</div>)}
              { this.props.error && this.props.error.global &&  <hr/> }
+             { this.renderInvalid() }
              { this.renderControls() }
         </form>
     }
@@ -476,7 +492,7 @@ function generateExternalActionSetOptions(actionSets = [], actionSetId){
     const grouped = {};
     actionSets.map((set, i) => {
         set.data.actions.map((action, j) => {
-            if(SHARE_CHANGE_TYPES.indexOf(action.transactionType) >= 0){
+            if(isShareChange(action)){
                 const mappedType = TRANSACTION_MAPPING[action.transactionType]
                 grouped[mappedType] = grouped[mappedType] || [];
                 const prefix = set.data.id === actionSetId ? 'This transaction set' : stringDateToFormattedString(set.data.effectiveDate)
@@ -485,9 +501,17 @@ function generateExternalActionSetOptions(actionSets = [], actionSetId){
                         {prefix } - { `${STRINGS.transactionTypes[action.transactionType]} of ${ action.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') }` }
                     </option>);
             }
+            /*else if(isAmendable(action, j)){
+                const mappedType = EXTERNAL_TRANSFERS;
+                const prefix = stringDateToFormattedString(set.data.effectiveDate);
+                grouped[mappedType].push(
+                    <option value={action.id} key={`${i}-${j}`}>
+                        {prefix } - { `${STRINGS.transactionTypes[action.transactionType]} of ${ action.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') }` }
+                    </option>);
+            }*/
         });
     })
-    SHARE_CHANGE_TYPES.map((type) => {
+    /*SHARE_CHANGE_TYPES.map((type) => {
         const mappedType = TRANSACTION_MAPPING[type];
         grouped[mappedType] = grouped[mappedType] || [];
 
@@ -495,7 +519,8 @@ function generateExternalActionSetOptions(actionSets = [], actionSetId){
             <option value={UNREPORTED_TRANSACTION} key={type}>
                { STRINGS.amend[UNREPORTED_TRANSACTION]}
             </option>);
-    });
+    });*/
+
     return grouped;
 }
 

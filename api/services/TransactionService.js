@@ -21,9 +21,9 @@ export function validateAnnualReturn(data, companyState){
             const currentDirectors = JSON.stringify(_.sortBy(_.map(state.directorList.directors, (d)=>_.pick(d.person, 'name'/*, 'address'*/)), 'name'));
             const expectedDirectors = JSON.stringify(_.sortBy(_.map(data.directors, (d)=>_.pick(d, 'name'/*, 'address'*/)), 'name'));
 
-            const holdingToString = (holdings) =>{
+            const holdingToString = (holdings) => {
                 return _.sortByAll(holdings.map((holding)=>{
-                    return  {holders: _.sortBy(holding.holders.map((p)=>_.pick(p.person ? p.person : p, 'name')), 'name'), parcels: holding.parcels.map((p)=>_.pick(p, 'amount'))};
+                    return  {holders: _.sortBy(holding.holders.map((p)=>_.pick(p.person ? p.person : p, 'name')), 'name'), parcels: [holding.parcels.reduce((acc, p) => ({amount: acc.amount+p.amount}), {amount:0})]};
                 }), (holding) => -holding.parcels.reduce((sum,p) => sum+p.amount, 0), (holding) => holding.holders[0].name);
 
             }
@@ -411,7 +411,7 @@ function findHolding(holding, action, companyState, errors={}){
     if(!current.length){
         const candidate = companyState.getMatchingHolding({...holding, parcels: null},  {ignoreCompanyNumber: true});
         if(candidate && candidate.sumOfParcels() === _.sum(holding.parcels, 'amount')){
-            throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes',{
+            throw new sails.config.exceptions.InvalidInverseOperation('Transaction must specify share classes', {
                 action: action,
                 companyState: companyState,
                 importErrorType: sails.config.enums.UNKNOWN_AMEND
@@ -1227,7 +1227,6 @@ export function performSeed(args, company, effectiveDate, userId){
     return company.getCurrentCompanyState()
         .then(function(companyState){
             var fields = companyState ? companyState.nonAssociativeFields() : {};
-             console.time('dedup');
             return CompanyState.createDedup(_.merge({}, fields, args, {transaction:{type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}}), userId);
         })
         .then(function(_state){
@@ -1694,7 +1693,7 @@ export function performInverseAllPendingUntil(company, endCondition){
                 firstError.context = firstError.context || {};
                 firstError.context.actionSet = current;
 
-                return Promise.all([state.fullPopulateJSON()])
+                return Promise.all([state.fullPopulateJSON(true)])
                     .spread((fullState) => {
                         firstError.context.companyState = fullState;
                         return performInverseAllPendingResolve(company, null, endCondition);
@@ -1710,7 +1709,7 @@ export function performInverseAllPendingUntil(company, endCondition){
                     e.context = e.context || {};
                     e.context.actionSet = current;
                     if(e.context.companyState){
-                        return e.context.companyState.fullPopulateJSON()
+                        return e.context.companyState.fullPopulateJSON(true)
                             .then(function(fullState) {
                                 e.context.companyState = fullState;
                                 throw e;
@@ -1794,7 +1793,6 @@ function validateTransactionSet(data, companyState){
         }
     });
     if(!Object.keys(shareClasses).every(shareClass => shareClasses[shareClass] === 0)){
-        console.log(shareClasses)
         throw new sails.config.exceptions.InvalidInverseOperation('Total share count is unbalanced', {
             importErrorType: sails.config.enums.UNBALANCED_TRANSACTION,
             companyState: companyState,

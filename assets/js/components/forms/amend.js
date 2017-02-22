@@ -37,11 +37,28 @@ function findHolding(companyState, action, existing = []){
 
 
 export function guessAmendAfterAmounts(action, defaultShareClass, companyState){
-    const holding = companyState && isAmendable(action) && findHolding(companyState, action);
-    if(holding){
-        return holding.parcels.map(parcel => ({amount: parcel.amount, shareClass: parcel.shareClass + ''}))
+    const result = (function(){
+        if(companyState){
+            if(isAmendable(action)){
+                const holding = findHolding(companyState, action);
+                if(holding){
+                    return holding.parcels.map(parcel => ({amount: parcel.amount, shareClass: parcel.shareClass + ''}))
+                }
+            }
+            else if(isShareChange(action)){
+                if( Object.keys(companyState.shareCountByClass || {}).length){
+                    return Object.keys(companyState.shareCountByClass || {})
+                        .map(k => ({amount:companyState.shareCountByClass[k].amount, shareClass: companyState.shareCountByClass[k].shareClass}))
+                    }
+                }
+        }
+        return action.parcels.map(parcel => ({amount: parcel.afterAmount, shareClass:  (parcel.shareClass || defaultShareClass) + ''}))
+    })();
+
+    if(!result.length){
+        return [{amount: 0}]
     }
-    return action.parcels.map(parcel => ({amount: parcel.afterAmount, shareClass:  (parcel.shareClass || defaultShareClass) + ''}))
+    return result;
 }
 
 
@@ -199,7 +216,9 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     const transplantActions = [];
 
     values.actions.map((a, i) => {
+        // will be mutating
         a.originalAction  = {...a.originalAction}
+        a.afterParcels = a.afterParcels.map(p => ({afterAmount: parseInt(p.amount, 10), shareClass: parseInt(p.shareClass, 10) || null}));
         a.subActions.map((r, j) => {
             if(!r.isInverse){
                 let method = isAmendable(a.originalAction) ? TransactionTypes.AMEND : null;
@@ -279,11 +298,12 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
             if(action._holding !== undefined && values.actions[action._holding].originalAction.parcels){
                 //look up original action
                 const original = values.actions[action._holding].originalAction;
+                const afterParcels = values.actions[action._holding].afterParcels;
                 action.parcels = action.parcels.map((p, j) => {
                     p = {...p}
-                    const parcelIndex = parcelIndexByClass(original.parcels, p.shareClass);
+                    const parcelIndex = parcelIndexByClass(afterParcels, p.shareClass);
                     // if share class has changed.....
-                    p.afterAmount = original.parcels[parcelIndex].afterAmount;
+                    p.afterAmount = afterParcels[parcelIndex].afterAmount;
 
                     let direction;
                     // if amend, we can go up or down
@@ -293,13 +313,12 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     else{
                         direction = DECREASE_SHARE_CHANGES.indexOf(action.type) < 0;
                     }
-
-
                     p.beforeAmount = p.afterAmount + (direction ? -p.amount : p.amount);
-                    original.parcels[parcelIndex] = {...original.parcels[parcelIndex]}
-                    original.parcels[parcelIndex].afterAmount = p.beforeAmount;
+                    afterParcels[parcelIndex] = {...afterParcels[parcelIndex]}
+                    afterParcels[parcelIndex].afterAmount = p.beforeAmount;
                     return p;
                 });
+
                 if(action.parcels.every(p => p.beforeAmount === 0) && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
                     newAllocations[action._holding] = action;
                 }
@@ -321,8 +340,6 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     });
 
     transactions.map((actions, orderIndex) => {
-
-
 
         if(actions.some(action => action.targetActionId)){
             // we will find teh actionSet in the original
@@ -364,10 +381,11 @@ export function validateAmend(values, props) {
 
         const expectedAfterSum = action.originalAction.parcels.reduce((sum, p) => sum + (p.afterAmount), 0);
         const inferAmount = action.originalAction ? action.originalAction.inferAmount: false;
+
         const amounts = (action.afterParcels || []).reduce((acc, parcel) => {
             acc[parcel.shareClass || null] = {amount: parseInt(parcel.amount, 10) || 0, sum: 0}
             return acc;
-        }, {[null]: {amount: expectedAfterSum, sum: 0}});
+        }, {[null]: {amount: 0, sum: 0}});
 
         let totalActionSum = 0;
 
@@ -431,12 +449,11 @@ export function validateAmend(values, props) {
                     const sAmount = signedAmount(recipient.type, amount)
                     sourceParcel.sum += sAmount;
                     totalActionSum += sAmount;
-                    //if(!isTransfer(recipient.type) && isAmendable(action.originalAction) && recipient.targetActionId ==){
                     if(!isTransplant || transplantIsSelf){
                         totalSum += sAmount;
                     }
-                    //}
                 }
+                console.log(sourceParcel.amount - sourceParcel.sum );
                 if((sourceParcel.amount - sourceParcel.sum ) < 0){
                     errors.parcels[i].amount = ['Share count for this class goes below 0.'];
                 }
@@ -449,7 +466,6 @@ export function validateAmend(values, props) {
                 errors.effectiveDate = ['Required.'];
             }
             if(!isTransplant && !transplantIsSelf && props.effectiveDate && recipient.effectiveDate && recipient.effectiveDate > props.effectiveDate){
-                console.log(recipient.effectiveDate, props.effectiveDate)
                 errors.effectiveDate = ['Effective date must be on or before the date of the document.'];
             }
             if(j < action.subActions.length-1 && (recipient.effectiveDate < action.subActions[j+1].effectiveDate)){
@@ -491,6 +507,7 @@ export function validateAmend(values, props) {
         errors._error = errors._error || {};
         errors._error.global = [`Please add shareholding(s) to balance the shares.  They are currently ${totalSum > 0 ? "over" : "under"} allocated by ${numberWithCommas(Math.abs(totalSum))} shares.`]
     }
+
     return errors;
 }
 
