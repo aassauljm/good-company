@@ -159,6 +159,15 @@ var registered = {
         {
             action: 'create'
         }
+    ],
+    'ApiCredential': [
+        {
+            action: 'read',
+            relation: 'owner'
+        },
+        {
+            action: 'create'
+        }
     ]
 };
 

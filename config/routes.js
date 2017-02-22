@@ -380,6 +380,16 @@ module.exports.routes = {
         action: 'billingInfo'
     },
 
+    'GET /api/auth-with/nzbn': {
+        controller: 'ApiCredentialController',
+        action: 'nzbn'
+    },
+
+    'GET /companies_office_cb': {
+        controller: 'ApiCredentialController',
+        action: 'nzbn'
+    },
+
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
     'GET /api/event/:id': {controller: 'EventController', event: 'event', action: 'findOne'},
