@@ -173,6 +173,7 @@ select.form-control + .form-control-feedback{
 }
 
 .form-horizontal select.form-control + .form-control-feedback,
+.rw-dropdownlist.rw-widget + .form-control-feedback,
 .form-horizontal .rw-combobox + .form-control-feedback{
     right: 26px;
 }
