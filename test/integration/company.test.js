@@ -85,12 +85,12 @@ function applyShareClasses(shareClassData){
         const shareClassSelect = findRenderedComponentWithType(this.tree, ShareClassSelect);
         const tbody = findRenderedDOMComponentWithTag(shareClassSelect, 'tbody');
         const rows = tbody.querySelectorAll('tr');
+        const _shareClassData = JSON.parse(JSON.stringify(shareClassData));
         let parcelCount = 0;
         [].map.call(rows, (row, i) => {
             const names = [].map.call(row.querySelectorAll('td:nth-child(2) li'), l => cheerio(l.outerHTML).text());
             const nameString = JSON.stringify(names);
-            classes = shareClassData[nameString];
-
+            classes = _shareClassData[nameString].shift();
             const select = row.querySelector('select');
             const addNew = row.querySelector('.add-parcel');
             _.map(select.children, option => {
@@ -109,17 +109,18 @@ function applyShareClasses(shareClassData){
         const shareClassSelect = findRenderedComponentWithType(this.tree, ShareClassSelect);
         const tbody = findRenderedDOMComponentWithTag(shareClassSelect, 'tbody');
         const rows = tbody.querySelectorAll('tr');
+         const _shareClassData = JSON.parse(JSON.stringify(shareClassData));
         [].map.call(rows, (row, i) => {
             const names = [].map.call(row.querySelectorAll('td:nth-child(2) li'), l => cheerio(l.outerHTML).text());
             const nameString = JSON.stringify(names);
-            classes = shareClassData[nameString];
-
+            classes = _shareClassData[nameString].shift();
             const select = row.querySelector('select');
             const addNew = row.querySelector('.add-parcel');
             Object.keys(classes).map((shareClass, i) => {
                 const parcelRow = row.querySelectorAll(`.parcel-row`)[i]
                 const select = parcelRow.querySelector('select');
                 const input =  parcelRow.querySelector('input');
+
                 Simulate.change(select, { target: {value: shareClassMap[shareClass]} });
                 Simulate.change(input, { target: {value: classes[shareClass]+''} });
             });
@@ -167,6 +168,14 @@ function resolveAmend(details){
             Simulate.change(subaction.querySelector('.transaction-type'), { target: {value: entry.type}});
             if(entry.amount !== undefined){
                 Simulate.change(subaction.querySelector('.amount'), { target: {value: entry.amount}});
+            }
+            if(entry.shareClass !== undefined){
+                const select = subaction.querySelector('.shareClass');
+                const shareClassMap = {};
+                _.map(select.children, option => {
+                     shareClassMap[option.innerHTML] = option.value;
+                });
+                Simulate.change(subaction.querySelector('.shareClass'), { target: {value: shareClassMap[entry.shareClass]}});
             }
             if(entry.recipient){
                 const targetVal = Array.from(subaction.querySelectorAll('.transfer option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.recipient) === 0)[0].value;
@@ -218,7 +227,8 @@ describe('Company Integration Tests - PROJECT MANAGER HOLDINGS LIMITED', () => {
             return fs.readFileAsync('test/fixtures/transactionData/projectManagerHoldingsTwoShareClasses.json', 'utf8')
                 .then(data => {
                     const shareClassData = JSON.parse(data).reduce((acc, item) => {
-                        acc[JSON.stringify(item.holders)] = item.parcels;
+                        acc[JSON.stringify(item.holders)] = acc[JSON.stringify(item.holders)] || [];
+                        acc[JSON.stringify(item.holders)].push(item.parcels);
                         return acc;
                     }, {})
                     return applyShareClasses.call(this, shareClassData);
@@ -339,6 +349,81 @@ describe('Company Integration Tests - Catalex', () => {
 
     });
 
+});
 
 
-})
+
+describe('Company Integration Tests - Evolution Lawyers', () => {
+
+    before('render', function(){
+        return prepareApp.call(this, '/')
+    });
+
+    after('cleanup', destroyApp);
+
+    describe('Import ', () => {
+        it('Imports Company', function(){
+            return importCompany.call(this, 'evolution lawyers');
+       });
+        it('sets up shareholdings', function(){
+            return setupShareHoldings.call(this);
+        });
+        it('Sets up shares', function(){
+            const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-classes');
+            Simulate.click(linkNode, {button: 0});
+            return setupShareClass.call(this, 'A', 2)
+                .then(() => setupShareClass.call(this, 'B', 3))
+                .then(el => {
+                    const table = findRenderedComponentWithType(this.tree, ShareClassesTable);
+                    const rows = scryRenderedDOMComponentsWithTag(table, 'tr');
+                    rows.length.should.be.equal(3);
+                    Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'btn-success'), {button: 0});
+                })
+        });
+        it('Applies share classes', function(){
+            return fs.readFileAsync('test/fixtures/transactionData/evolutionShareClasses.json', 'utf8')
+                .then(data => {
+                    const shareClassData = JSON.parse(data).reduce((acc, item, i) => {
+                        acc[JSON.stringify(item.holders)] = acc[JSON.stringify(item.holders)] || [];
+                        acc[JSON.stringify(item.holders)].push(item.parcels);
+                        return acc;
+                    }, {})
+                    return applyShareClasses.call(this, shareClassData);
+            })
+        });
+
+        it('Imports chunks', function(){
+            let modal;
+            const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
+            Simulate.click(button, {button: 0});
+            return waitFor('Amend Screen', () => this.dom.querySelectorAll('.resolve').length, null, 10000);
+        });
+
+        it('Resolves import', function(){
+            const details = [
+                [{type: 'TRANSFER_TO', amount: 50, shareClass: 'B', recipient: '#3 - Tamina Kelly CUNNINGHAM-ADAMS'}],
+                [{type: 'TRANSFER_FROM', amount: 50, shareClass: 'A', recipient: '#4 - Thomas David BLOY'}]
+            ];
+
+            return waitFor('Amend page to load', '.amend-row', this.dom, 5000)
+                .then(() => {
+                    return resolveAmend.call(this, details);
+                })
+                .then(() => {
+                    return waitFor('Validation', () => !this.dom.querySelector('.amend-submit').disabled, null, 1000)
+                })
+                .then(() => {
+                    Simulate.submit(this.dom.querySelector('.resolve form'));
+                     //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
+                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                });
+        });
+
+        it('Imports final chunks', function(){
+            let modal;
+            const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
+            Simulate.click(button, {button: 0});
+            return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
+        });
+    });
+});

@@ -36,21 +36,22 @@ function findHolding(companyState, action, existing = []){
 
 
 
-export function guessAmendAfterAmounts(action, defaultShareClass, companyState){
+export function guessAmendAfterAmounts(action, defaultShareClass, companyState, existing = []){
     const result = (function(){
         if(companyState){
             if(isAmendable(action)){
-                const holding = findHolding(companyState, action);
+                const holding = findHolding(companyState, action, existing);
                 if(holding){
-                    return holding.parcels.map(parcel => ({amount: parcel.amount, shareClass: parcel.shareClass + ''}))
+                    existing.push(holding);
+                    return holding.parcels.map(parcel => ({amount: parcel.amount, shareClass: parcel.shareClass + ''}));
                 }
             }
             else if(isShareChange(action)){
                 if( Object.keys(companyState.shareCountByClass || {}).length){
                     return Object.keys(companyState.shareCountByClass || {})
                         .map(k => ({amount:companyState.shareCountByClass[k].amount, shareClass: companyState.shareCountByClass[k].shareClass}))
-                    }
                 }
+            }
         }
         return action.parcels.map(parcel => ({amount: parcel.afterAmount, shareClass:  (parcel.shareClass || defaultShareClass) + ''}))
     })();
@@ -133,6 +134,8 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
         return acc;
     }, {true: {}, false: {}});
 
+    const existing = [];
+
     let initialValues = {actions: calculateReciprocals(amendActions.map((a, i) => {
         // if all same direction, set amount;
         const effectiveDate = moment(a.effectiveDate || defaultDate).toDate();
@@ -189,8 +192,9 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
         ...a,
         originalAction: amendActions[i],
         userSkip: amendActions[i].userSkip,
-        afterParcels: guessAmendAfterAmounts(amendActions[i], defaultShareClass, companyState)
+        afterParcels: guessAmendAfterAmounts(amendActions[i], defaultShareClass, companyState, existing)
     })), identity, identity, x => false)};
+
 
     return initialValues;
 }

@@ -1,0 +1,26 @@
+[
+    {
+        "holders": ["Tamina Kelly CUNNINGHAM-ADAMS"],
+        "parcels": {
+            "A": 50
+        }
+    },
+    {
+        "holders": ["Tamina Kelly CUNNINGHAM-ADAMS"],
+        "parcels": {
+            "B": 50
+        }
+    },
+    {
+        "holders": ["Thomas David BLOY"],
+        "parcels": {
+            "A": 50
+        }
+    },
+    {
+        "holders": ["Peter James BLOY", "Priscilla Rose BLOY"],
+        "parcels": {
+            "B": 50
+        }
+    }
+]
