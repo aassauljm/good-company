@@ -17,10 +17,6 @@ const fileTarget = {
 };
 
 class DocumentBase extends React.Component {
-    static propTypes = {
-        documents: PropTypes.object.isRequired,
-    };
-
     open() {
         this.isFileDialogActive = true;
         this.fileInputEl.value = null;
