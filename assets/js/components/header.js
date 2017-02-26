@@ -86,7 +86,7 @@ export const NavLinks = (props) => {
 
 @FavouritesHOC()
 @AlertsHOC()
-export class Header extends React.Component {
+export class Header extends React.PureComponent {
 
     constructor() {
         super();

@@ -8,7 +8,7 @@ Promise.config({
 });
 
 
-function checkStatus(response) {
+export function checkStatus(response) {
   if (response.status >= 200 && response.status <= 304) {
     return response
   } else {
@@ -18,13 +18,13 @@ function checkStatus(response) {
   }
 }
 
-function parse(response) {
+export function parse(response) {
     if(response.headers.get('Content-Type').indexOf('application/json') === 0){
         return response.text().then(function(text) {
             return text ? JSON.parse(text) : text;
           })
     }
-    return response;
+    return response.text()
 }
 
 

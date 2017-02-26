@@ -112,11 +112,11 @@ function notifications(state = {list: []}, action){
 function lookupCompany(state = {list: []}, action){
     switch(action.type){
         case LOOKUP_COMPANY_REQUEST:
-            return {...state, _status: 'fetching'};
+            return {...state, _status: 'fetching', ...action.payload};
         case LOOKUP_COMPANY_SUCCESS:
-            return {...state, list: action.response, _status: 'complete'};
+            return {...state, list: action.response, _status: 'complete', ...action.payload};
         case LOOKUP_COMPANY_FAILURE:
-            return {...state, _status: 'error'};
+            return {...state, _status: 'error', ...action.payload};
         default:
             return state;
     }

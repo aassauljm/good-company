@@ -4,12 +4,15 @@ import appReducer from './reducers';
 import thunkMiddleware from 'redux-thunk';
 import { callAPIMiddleware, confirmationMiddleware } from './middleware';
 import {  routerMiddleware} from 'react-router-redux';
-
+import createSagaMiddleware from 'redux-saga';
+import { runSagas } from './sagas'
 
 const data = {};
 
 export default function configureStore(history, initialState=data) {
     let middleware;
+    const sagaMiddleware = createSagaMiddleware()
+        sagaMiddleware,
 
     middleware = applyMiddleware(
           thunkMiddleware,
@@ -20,6 +23,9 @@ export default function configureStore(history, initialState=data) {
     const createStoreWithMiddleware = compose(
                 middleware,
             )(createStore);
-    const store = createStoreWithMiddleware(appReducer, initialState);
+
+    const store= createStoreWithMiddleware(appReducer, initialState);;
+    runSagas(sagaMiddleware);
+
     return store;
 }

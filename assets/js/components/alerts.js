@@ -73,7 +73,7 @@ export function alertList(props){
     navigate: (url) => push(url),
     resetTransactionViews: () => resetTransactionViews()
 })
-export class AlertsWidget extends React.Component {
+export class AlertsWidget extends React.PureComponent {
     static POLL_INTERVAL = 10000;
 
      constructor(props) {

@@ -7,15 +7,20 @@ import { callAPIMiddleware, confirmationMiddleware } from './middleware';
 import { devTools, persistState } from 'redux-devtools';
 import DevTools from './components/devTools';
 import { routerMiddleware} from 'react-router-redux';
-
+import createSagaMiddleware from 'redux-saga';
+import { runSagas } from './sagas'
 
 const data = {};
 
+
+
 export default function configureStore(history, initialState=data) {
     let middleware;
+    const sagaMiddleware = createSagaMiddleware()
 
     const loggerMiddleware = createLogger();
     middleware = applyMiddleware(
+        sagaMiddleware,
         thunkMiddleware,
         loggerMiddleware,
         routerMiddleware(history),
@@ -31,5 +36,9 @@ export default function configureStore(history, initialState=data) {
         DevTools.instrument()
     )(createStore);
 
-    return createStoreWithMiddleware(appReducer, initialState);
+    const store= createStoreWithMiddleware(appReducer, initialState);;
+    runSagas(sagaMiddleware);
+
+
+    return store;
 }
