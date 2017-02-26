@@ -11,10 +11,10 @@ const data = {};
 
 export default function configureStore(history, initialState=data) {
     let middleware;
-    const sagaMiddleware = createSagaMiddleware()
-        sagaMiddleware,
+    const sagaMiddleware = createSagaMiddleware();
 
     middleware = applyMiddleware(
+            sagaMiddleware,
           thunkMiddleware,
           routerMiddleware(history),
           confirmationMiddleware,
