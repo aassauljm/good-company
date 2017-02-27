@@ -2,6 +2,10 @@
 #pm2 start app.js -f -n good_company -x -- --prod
 
 git pull
+
+rm -rf node_modules/good-companies-templates
+rm -rf node_modules/json-schemer
+
 npm install
 npm update
 rm serviceIsLive.flag
