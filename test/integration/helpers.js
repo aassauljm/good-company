@@ -58,6 +58,7 @@ export function prepareApp(url = '/', username='companycreator@email.com'){
     const state = {login: {loggedIn: true}};
     const history = createMemoryHistory(url);
     const store = configureStore(history, state);
+
     this.store = store;
     return login({'identifier': username, 'password': 'testtest'})
         .then(() => {

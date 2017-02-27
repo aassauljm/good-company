@@ -46,7 +46,7 @@ function importCompany(name){
             Simulate.focus(input);
             input.value = name;
             Simulate.change(input);
-            return waitFor('Drop down results to appear', '.suggest-container > *', dom);
+            return waitFor('Drop down results to appear', '.suggest-container .list-group-item-heading', dom);
         })
         .then(() => {
             const item = findRenderedDOMComponentWithClass(search, 'list-group-item-heading');

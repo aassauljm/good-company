@@ -36,7 +36,7 @@ export default function configureStore(history, initialState=data) {
         DevTools.instrument()
     )(createStore);
 
-    const store= createStoreWithMiddleware(appReducer, initialState);;
+    const store = createStoreWithMiddleware(appReducer, initialState);;
     runSagas(sagaMiddleware);
 
 
