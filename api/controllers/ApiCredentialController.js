@@ -41,10 +41,10 @@ module.exports = {
                 redirectUri: sails.config.APP_URL + '/companies_office_cb'
             });
 
-            res.json(new Buffer(basicUser + ':' + basicPass, 'base64').toString());
+            // res.json(new Buffer(basicUser + ':' + basicPass, 'base64').toString());
 
-            const basicUser = 'NZBN-Catalex-Test';
-            const basicPass = 'bHDrK2fsBVjHkhHh';
+            // const basicUser = 'NZBN-Catalex-Test';
+            // const basicPass = 'bHDrK2fsBVjHkhHh';
 
             fetch(uri, {
                 method: 'POST',
