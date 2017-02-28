@@ -19,17 +19,22 @@ import { ImportSingleWidget } from './importMenu'
 
 @AsyncHOCFactory([COMPANIES])
 @connect(state => ({ userInfo: state.userInfo}))
-export class LandingPageView extends React.Component {
+export class LandingPageView extends React.PureComponent {
 
     welcomeBack() {
-        if(this.props.userInfo.lastLogin === 'first log in'){
-            return  <div className="welcome-back">
-                 Hello <strong>{ this.props.userInfo.username }</strong>, welcome to Good Companies
+        if (this.props.userInfo.lastLogin === 'first log in') {
+            return  (
+                <div className="welcome-back">
+                    Hello <strong>{ this.props.userInfo.username }</strong>, welcome to Good Companies
                 </div>
+            );
         }
-        return  <div className="welcome-back">
-             Hello <strong>{ this.props.userInfo.username }</strong>, you last logged in {this.props.userInfo.lastLogin}
+
+        return (
+            <div className="welcome-back">
+                Hello <strong>{ this.props.userInfo.username }</strong>, you last logged in {this.props.userInfo.lastLogin}
             </div>
+        );
     }
 
     gettingStarted() {
@@ -61,7 +66,7 @@ export class LandingPageView extends React.Component {
 
 
 @AsyncHOCFactory([COMPANIES, FAVOURITES, ALERTS, EVENTS, RECENT_ACTIVITY])
-export default class Home extends React.Component {
+export default class Home extends React.PureComponent {
     render() {
         return <div className="container">
                 <div className="row">

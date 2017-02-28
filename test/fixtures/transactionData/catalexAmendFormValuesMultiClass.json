@@ -230,17 +230,18 @@
     "values": {
         "actions": [
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 0,
                         "parcels": [{"amount": 1110, "shareClass": 1}, {"amount": 1, "shareClass": 2}],
                         "effectiveDate": "2014-09-04T12:00:00.000Z",
-                        "type": "ISSUE_TO"
+                        "type": "ISSUE_TO",
+                        "targetActionId": "xxx"
                     }
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 1,
                         "parcels": [{"amount": 999, "shareClass": 1}, {"amount": 4000, "shareClass": 2}],
@@ -251,7 +252,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 2,
                         "parcels": [{"amount": 4999, "shareClass": 1}],
@@ -262,7 +263,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 3,
                         "parcels": [{"amount": 1, "shareClass": 1}],
@@ -273,7 +274,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 4,
                         "parcels": [{"amount": 1, "shareClass": 1}],
@@ -284,7 +285,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 56,
                         "parcels": [{"amount": 1, "shareClass": 1}],
@@ -304,7 +305,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 57,
                         "parcels": [{"amount": 1, "shareClass": 1}],

@@ -212,7 +212,7 @@ const EXTRACT_DOCUMENT_MAP = {
         let regex = /^\s*Type of Change:\s*$/;
         result.originaltransactionType = divAfterParent($, '.row .wideLabel label', regex);
         result.transactionType = transactionMap[result.originaltransactionType];
-        result.registrationDate = moment($('.row.wideLabel label').filter(function(){
+        result.effectiveDate = result.registrationDate = moment($('.row.wideLabel label').filter(function(){
                     return $(this).text().match(/Registration Date and Time/);
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate()
         switch(result.transactionType){
@@ -233,11 +233,15 @@ const EXTRACT_DOCUMENT_MAP = {
                 break;
             default:
         }
-        return {actions: [result], totalShares: result.increase ? -result.amount : result.amount };
+        return {actions: [{...result, effectiveDate: result.registrationDate}], totalShares: result.increase ? -result.amount : result.amount, effectiveDate: result.registrationDate };
     },
 
     [DOCUMENT_TYPES.PARTICULARS]: ($) => {
         let result = {};
+        result.effectiveDate = result.registrationDate = moment($('.row.wideLabel label').filter(function(){
+                    return $(this).text().match(/Registration Date and Time/);
+                })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate();
+
         result.actions = $('#reviewContactChangesContent .panel').map(function(){
             let $el = $(this);
             let amendAllocRegex = /^\s*Amended Share Allocation\s*$/;
@@ -307,6 +311,7 @@ const EXTRACT_DOCUMENT_MAP = {
             _.each(a.holders, addCompanyNumber);
             _.each(a.afterHolders, addCompanyNumber);
             _.each(a.beforeHolders, addCompanyNumber);
+            a.effectiveDate = result.effectiveDate;
         });
         return result;
     },
@@ -464,8 +469,9 @@ const EXTRACT_DOCUMENT_MAP = {
                     addressForShareRegister:  matchMultline(/Address for share register/).join(', ')|| null,
                     addressForService:  matchMultline(/Address for service/).join(', ') || null
                 },
-                transactionType: Transaction.types.DETAILS_MASS
-            }]
+                transactionType: Transaction.types.DETAILS_MASS,
+            }],
+            totalShares: 0
         }
         const holdings = matchMultline(/Total Number of Company Shares/);
 
@@ -517,6 +523,8 @@ const EXTRACT_DOCUMENT_MAP = {
                     transactionMethod: Transaction.types.NEW_ALLOCATION,
                     transactionType: Transaction.types.ISSUE_TO,
                     amount: toInt(chunk[0]),
+                    beforeAmount: 0,
+                    afterAmount: toInt(chunk[0]),
                     holders: getHolders(chunk.slice(1)),
                     confirmationUnneeded: true
                 })
@@ -607,7 +615,7 @@ const EXTRACT_DOCUMENT_MAP = {
                 })[0].nextSibling.nodeValue, 'DD MMM YYYY HH:mm:ss').toDate()
         result.unknownAmount = true;
         result.effectiveDate = result.registrationDate;
-        return {actions: [result] }
+        return {actions: [result], effectiveDate: result.effectiveDate }
     }
 }
 
@@ -671,6 +679,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         const result = {
             transactionType: Transaction.types.INCORPORATION,
             effectiveDate: date,
+            totalShares: 0,
             actions: [{
                 fields:{
                     companyNumber: companyNumber,
@@ -729,6 +738,8 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     transactionMethod: Transaction.types.NEW_ALLOCATION,
                     transactionType: Transaction.types.ISSUE_TO,
                     amount: toInt(chunk[0]),
+                    beforeAmount: 0,
+                    afterAmount: toInt(chunk[0]),
                     holders: getHolders(chunk.slice(1)),
                     confirmationUnneeded: true
                 });

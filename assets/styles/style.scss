@@ -108,6 +108,9 @@ $text-color: #333;
 @import "calendar";
 @import "tooltip";
 @import "transactions";
+@import "newTransaction";
+@import "alerts";
+@import "links";
 
 
 
@@ -150,6 +153,26 @@ body{
 .container-fluid{
     padding-left:0;
     padding-right:0;
+}
+
+
+.app-container{
+    position: relative;
+}
+
+
+
+.actionable, .table-hover td{
+    cursor: pointer;
+}
+
+.table tbody tr td{
+    vertical-align: middle;
+}
+
+a, a:hover{
+    text-decoration: none;
+    color: $text-color;
 }
 
 

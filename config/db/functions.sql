@@ -76,6 +76,9 @@ CREATE OR REPLACE FUNCTION last_login(userId integer)
 $$ LANGUAGE SQL;
 
 
+-- TODO, these recursive functions should card against infinite recursion
+
+
 -- Recurse through x generations of companyState and return that id
 CREATE OR REPLACE FUNCTION previous_company_state(companyStateId integer, generation integer)
     RETURNS INTEGER
@@ -245,8 +248,6 @@ $$ LANGUAGE SQL;
 
 
 
-
-
 -- Like company_state_history_json but filters on transaction type, ie ISSUE
 -- Note, 2nd param is text, rather than enum_transaction_type because of dependencies and default drop table behaviour.
 -- need to add a pre migrate/sync hook  sigh.
@@ -302,17 +303,27 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION all_pending_actions(companyStateId integer)
     RETURNS SETOF action
     AS $$
-WITH RECURSIVE prev_actions(start_id, id, "previous_id") as (
-    SELECT t.id as start_id, t.id, t."previous_id" FROM action t
-    UNION ALL
-    SELECT pa.start_id, t.id, t."previous_id"
-    FROM action t, prev_actions pa
-    WHERE t.id = pa."previous_id"
-)
-    SELECT p.* from prev_actions pa
-    join action p on p.id = pa.id
-    join company_state cs on cs.pending_historic_action_id = pa.start_id
-    where cs.id = root_company_state($1)
+    WITH RECURSIVE root as (
+        SELECT root_company_state($1) as id
+    ),  historic as (
+        SELECT pending_historic_action_id as id
+        FROM company_state cs
+        JOIN root r on r.id = cs.id
+    ),  prev_actions(start_id, id, "previous_id", index) as (
+            SELECT t.id as start_id, t.id, t."previous_id", 0 as index
+            FROM action t
+            JOIN historic s on s.id = t.id
+
+            UNION ALL
+
+            SELECT pa.start_id, t.id, t."previous_id", index+1
+            FROM action t, prev_actions pa
+            WHERE t.id = pa."previous_id"
+        )
+    SELECT p.* from
+    prev_actions pa
+    JOIN action p on p.id = pa.id
+    order by index asc
 $$ LANGUAGE SQL;
 
 
@@ -795,6 +806,7 @@ parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
     FROM "parcel_j" pj
     LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
+    where amount > 0
     GROUP BY p."shareClass", pj."holdingId"
 )
 SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
@@ -880,11 +892,11 @@ FROM
     join company_state cs on pt.id = cs.id
     join transaction t on cs."transactionId" = t.id
     left outer join _holding h on h."companyStateId" = pt.id
-    left outer join parcels pp on pp."holdingId" = h.id
+    join parcels pp on pp."holdingId" = h.id
     left outer join "holder" hj on h.id = hj."holdingId"
     left outer join person ppp on hj."holderId" = ppp.id
     join company_persons($1) p on p."personId" = ppp."personId"
-    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2  and pp is not null
+    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2  --and pp is not null
      WINDOW wnd AS (
        PARTITION BY p."personId", h."holdingId", pp."shareClass" ORDER BY generation asc
      )) as q

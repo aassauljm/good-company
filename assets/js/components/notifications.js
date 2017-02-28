@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { hideNotification, addNotification } from '../actions'
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 
-const NOTIFICATION_TIMEOUT = 5000;
+const NOTIFICATION_TIMEOUT = 13333;
 
 
 @pureRender
@@ -24,7 +24,7 @@ class Notification extends React.Component {
     render(){
         const type = this.props.notification.error ? 'alert-danger' : 'alert-success';
         return <div className={"alert notification " +type} role="alert" onClick={() => this.props.close(this.props.notification.notificationId)}>
-        <div className="small-logo"/><span> { this.props.notification.message }</span>
+        <div className="small-logo" /><div>{ this.props.notification.message } </div>
         </div>
     }
 }

@@ -99,7 +99,7 @@ export function DateConfirmation(props){
             pendingActions.push({id: actionSet.id, data: {...actionSet.data, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
         });
         submit({
-            pendingActions: pendingActions
+            newActions: pendingActions
         })
     }
 

@@ -78,7 +78,7 @@ function stubs(){
     // This function will allow cookie authentication to persist on the server side
     Utils.setFetch(function(url, args){
         url =  window.location.protocol + '//' +window.location.host + url;
-        return _fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
+        return _fetch(url, _.merge(args, {headers: _.merge({}, args.headers, {'Cookie': cookie})}))
             .then(function(r){
                 if(r.headers._headers['set-cookie']){
                     cookie = r.headers._headers['set-cookie'][0];
@@ -164,7 +164,13 @@ before(function(done) {
                  'test/fixtures/companyState.json',
                  'test/fixtures/company.json',
                  ], sails.models)
+                .tap(() => {
+                    sails.log.error('Fixtures loaded')
+                })
                 .then(addMigrations)
+                .tap(() => {
+                    sails.log.error('Migrations complete')
+                })
                 .then(function(){
                     fs.readFileAsync('config/db/functions.sql', 'utf8')
                     .then(function(sql){

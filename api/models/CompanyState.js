@@ -509,7 +509,10 @@ module.exports = {
                         });
                         state._populated = true;
                         return state.save();
-                    });
+                    })
+                    .then(x => {
+                        return x;
+                    })
             }
         },
         instanceMethods: {
@@ -565,15 +568,17 @@ module.exports = {
                     })
             },
             groupShares: function() {
+                const holdingList = this.dataValues.holdingList;
+                //return (holdingList ? Promise.resolve(holdingList) : this.getHoldingList({include: CompanyState.includes.holdings()}))
                 return this.getHoldingList({include: CompanyState.includes.holdings()})
                     .then(function(holdingList) {
-                        const holdings = holdingList ? holdingList.dataValues.holdings : [];
-                        return _.groupBy(_.flatten(holdings.map(function(s) {
-                            return s.parcels;
-                        })), function(p) {
-                            return p.shareClass;
-                        });
-                    })
+                    const holdings = holdingList ? holdingList.dataValues.holdings : [];
+                    return _.groupBy(_.flatten(holdings.map(function(s) {
+                        return s.parcels;
+                    })), function(p) {
+                        return p.shareClass;
+                    });
+                })
             },
             groupTotals: function() {
                 // seems overly complicated
@@ -963,6 +968,10 @@ module.exports = {
                 return this.combineUnallocatedParcels(parcel, true);
             },
 
+            hasEmptyHoldings: function(){
+                return this.dataValues.holdingList && this.dataValues.holdingList.dataValues.holdings.some(h => h.hasEmptyParcels());
+            },
+
             stats: function(combineUnallocated){
                 let stats = {};
 
@@ -1105,8 +1114,8 @@ module.exports = {
                     })
             },
 
-            populateIfNeeded: function(){
-                if(this._populated){
+            populateIfNeeded: function(force){
+                if(this._populated && !force){
                     return Promise.resolve(this)
                 }
                 else{
@@ -1114,7 +1123,7 @@ module.exports = {
                 }
             },
 
-            fullPopulateJSON: function(){
+            fullPopulateJSON: function(force){
                 return this.populateIfNeeded()
                 .then(() => this.stats())
                 .then((stats) => ({...this.toJSON(), ...stats}))

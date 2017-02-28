@@ -14,7 +14,7 @@ import { DragDropContext, DropTarget } from 'react-dnd';
 import { POPOVER_DRAGGABLE } from './lawBrowserLink';
 import Promise from 'bluebird';
 import { AsyncHOCFactory, ALERTS, FAVOURITES } from '../hoc/resources';
-
+import UserFeedback from './userFeedback';
 
 
 function prevent(e){
@@ -70,6 +70,12 @@ export default class App extends React.Component {
                     <div key={name}>
                         { this.props.children }
                     </div>
+
+                    <UserFeedback
+                        style={{
+                            textAlign: 'center',
+                            marginBottom: '15px'
+                        }} />
                     </ReactCSSTransitionGroup>
                  </div>
                  </DragContainer>

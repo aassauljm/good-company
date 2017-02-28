@@ -230,7 +230,7 @@
     "values": {
         "actions": [
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 0,
                         "parcels": [{"amount": 1111}],
@@ -240,7 +240,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 1,
                         "parcels": [{"amount": 4998}, {"amount": 1}],
@@ -251,7 +251,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 2,
                         "parcels": [{"amount": 4999}],
@@ -262,7 +262,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 3,
                         "parcels": [{"amount": 1}],
@@ -273,7 +273,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 4,
                         "parcels": [{"amount": 1}],
@@ -284,7 +284,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 56,
                         "parcels": [{"amount": 1}],
@@ -304,7 +304,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 57,
                         "parcels": [{"amount": 1}],

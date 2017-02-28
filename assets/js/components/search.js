@@ -1,7 +1,8 @@
 "use strict";
 import React from 'react';
 import { pureRender,  debounce } from '../utils';
-import { lookupCompany, lookupOwnCompany } from '../actions';
+import { lookupCompanyChange, lookupOwnCompany } from '../actions';
+
 import Autosuggest from 'react-autosuggest';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -9,7 +10,7 @@ import { push } from 'react-router-redux'
 import { CompaniesHOC  } from '../hoc/resources';
 import RootCloseWrapper from 'react-overlays/lib/RootCloseWrapper';
 import { Link, IndexLink } from 'react-router';
-
+import Loading from './loading';
 
 export function highlightString(string, query, highlightClass='highlight'){
     const startIndex = string.toLowerCase().indexOf(query.toLowerCase()),
@@ -57,7 +58,7 @@ export class Search extends React.Component {
     }
 
     setAndClose(value) {
-        this.setState({show: false, value: value})
+        this.setState({show: false, value: ''})
     }
 
     results() {
@@ -65,7 +66,7 @@ export class Search extends React.Component {
             { this.state.list.map((c, i) => {
                 return <Link key={i} className="result" to={this.props.target ? this.props.target(c.id) : `/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
             }) }
-            { this.state.list.length === 0 && !!this.state.value && <div><div className="no-results">No results</div> <div><Link to='/import' query={{value: this.state.value}} className="result" onClick={this.hide}>Search for '{ this.state.value }' on the Companies Register</Link></div></div> }
+            { this.state.list.length === 0 && !!this.state.value && <div><div className="no-results">No results</div> <div><Link to='/import' query={{value: this.state.value}} className="result" onClick={this.setAndClose}>Search for '{ this.state.value }' on the Companies Register</Link></div></div> }
             </div>
     }
 
@@ -127,10 +128,12 @@ function getSectionSuggestions(section) {
 
 function mapDispatchToProps(dispatch, ownProps) {
     return {
-        onSuggestionsUpdateRequested: debounce(({ value }) => {
-            !ownProps.onlyCompaniesOffice && dispatch(lookupOwnCompany(value));
-            dispatch(lookupCompany(value));
-        }),
+        onSuggestionsUpdateRequested: ({value}) => {
+            if(value !== ownProps.fields.input.value){
+                !ownProps.onlyCompaniesOffice && dispatch(lookupOwnCompany(value));
+                dispatch(lookupCompanyChange(value));
+            }
+        },
         onSelectOwnCompany: (id) => {
             dispatch(push("/company/view/"+ id));
         },
@@ -145,6 +148,10 @@ function mapStateToProps(state) {
 };
 
 
+function renderLoading(){
+    return <div><Loading/></div>
+}
+
 const theme = {
     container: 'auto-suggest',
     containerOpen: 'open',
@@ -155,6 +162,8 @@ const theme = {
     suggestionFocused: 'active'
 };
 
+const LOADING_DEFAULT =   [{title: 'Import From Companies Office', list: [{}]}];
+
 export class SearchWidget extends React.Component {
 
     // add proptypes
@@ -162,6 +171,7 @@ export class SearchWidget extends React.Component {
     constructor() {
         super();
         this.handleSelect = ::this.handleSelect;
+        this.state = {suggestions: []};
     }
 
     componentDidMount() {
@@ -184,23 +194,26 @@ export class SearchWidget extends React.Component {
         const { fields, onSuggestionsUpdateRequested } = this.props;
         const suggestions = [];
         let noSuggestions = false;
-        if(this.props.lookupOwnCompany.list.length){
+        const loading = this.props.lookupCompany._status === 'fetching';
+
+        if(this.props.lookupOwnCompany.list.length && !loading){
             suggestions.push({
                 title: 'My Companies',
                 list: this.props.lookupOwnCompany.list
             });
         }
-        if(this.props.lookupCompany.list.length){
+        if(this.props.lookupCompany.list.length && !loading){
             suggestions.push({
                 title: 'Import From Companies Office',
                 list: this.props.lookupCompany.list.map(x => ({...x, companiesOffice: true}))
             });
         }
-
         if(this.props.lookupCompany._status === 'complete' &&
-           suggestions.length === 0 && fields.input.value){
+            suggestions.length === 0 && fields.input.value){
             noSuggestions = true;
         }
+
+
         const inputProps = {
             placeholder: this.props.placeholder || 'Type to find or import a company',
             value: fields.input.value || '',
@@ -212,26 +225,27 @@ export class SearchWidget extends React.Component {
             <div>
                 <Autosuggest theme={theme}
                     multiSection={true}
-                    suggestions={suggestions}
+                    suggestions={loading ? LOADING_DEFAULT : suggestions}
                     onSuggestionsFetchRequested={onSuggestionsUpdateRequested}
                     onSuggestionsClearRequested={() => {}}
-                    onSuggestionSelected={this.handleSelect}
+                    onSuggestionSelected={loading ? null: this.handleSelect}
                     getSuggestionValue={getSuggestionValue}
-                    getSectionSuggestions={getSectionSuggestions}
-                    renderSuggestion={renderSuggestion}
-                    renderSectionTitle={renderSectionTitle}
+                    getSectionSuggestions={ getSectionSuggestions }
+                    renderSuggestion={loading ? renderLoading : renderSuggestion}
+                    renderSectionTitle={ renderSectionTitle }
                     inputProps={inputProps} />
-                { (noSuggestions) && <div className="no-suggestions">
+                { (noSuggestions && !loading) && <div className="no-suggestions">
                   No results found
                 </div> }
+
             </div>
         );
     }
 }
 
-const SearchWidgetForm = reduxForm({
+
+
+export const ConnectedPlaceholderSearch = reduxForm({
   form: 'searchForm',
   fields: ['input']
-})(SearchWidget);
-
-export const ConnectedPlaceholderSearch = connect(mapStateToProps, mapDispatchToProps)(SearchWidgetForm);
+})(connect(mapStateToProps, mapDispatchToProps)(SearchWidget));

@@ -33,7 +33,7 @@ import {
 
 import {
     BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, RESET, START_ASYNC_VALIDATION, START_SUBMIT, STOP_ASYNC_VALIDATION,
-    STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH
+    STOP_SUBMIT, SUBMIT_FAILED, TOUCH, UNTOUCH, ADD_ARRAY_VALUE, REMOVE_ARRAY_VALUE
     } from 'redux-form/lib/actionTypes';
 
 import {reducer as formReducer} from 'redux-form';
@@ -41,7 +41,7 @@ import validator from 'validator'
 import { relationNameToModel } from './schemas';
 import { routerReducer, LOCATION_CHANGE } from 'react-router-redux'
 import { reducer as reduxAsyncConnect } from 'redux-connect'
-import { calculateReciprocals } from './components/transactions/resolvers/amend';
+import { calculateReciprocals } from './components/forms/amend';
 import update from 'immutability-helper';
 
 const initialState = {
@@ -112,11 +112,11 @@ function notifications(state = {list: []}, action){
 function lookupCompany(state = {list: []}, action){
     switch(action.type){
         case LOOKUP_COMPANY_REQUEST:
-            return {...state, _status: 'fetching'};
+            return {...state, _status: 'fetching', ...action.payload};
         case LOOKUP_COMPANY_SUCCESS:
-            return {...state, list: action.response, _status: 'complete'};
+            return {...state, list: action.response, _status: 'complete', ...action.payload};
         case LOOKUP_COMPANY_FAILURE:
-            return {...state, _status: 'error'};
+            return {...state, _status: 'error', ...action.payload};
         default:
             return state;
     }
@@ -334,7 +334,19 @@ function resources(state = default_resources, action){
         case RESOURCE_CREATE_FAILURE:
         case RESOURCE_UPDATE_FAILURE:
         case RESOURCE_DELETE_FAILURE:
-            return {...state, ...{[action.key]: {...{error: action.response, _status: 'error'}}}};
+            let invalidated = {};
+            if(action.invalidateList){
+                const keys = Object.keys(state);
+                invalidated = keys.reduce((acc, key) => {
+                    return action.invalidateList.reduce((acc, invalid) => {
+                        if(key.indexOf(invalid) === 0 && key !== action.key){
+                            acc[key] = null;
+                        }
+                        return acc;
+                    }, acc);
+                }, {});
+            }
+            return {...state,  ...invalidated, ...{[action.key]: {...{error: action.response, _status: 'error'}}}};
 
         case IMPORT_COMPANY_SUCCESS:
         case RESOURCE_CREATE_SUCCESS:
@@ -479,10 +491,10 @@ const normalizeNumber = (value) => {
 export const form = formReducer.plugin({
     amend: (state, action) => {
         switch(action.type) {
-            case "redux-form/FOCUS":
-            case "redux-form/BLUR":
-            case "redux-form/REMOVE_ARRAY_VALUE":
-            case "redux-form/ADD_ARRAY_VALUE":
+            case FOCUS:
+            case BLUR:
+            case REMOVE_ARRAY_VALUE:
+            case ADD_ARRAY_VALUE:
                 return { ...state, actions: calculateReciprocals(state.actions)}
             default:
                 return state

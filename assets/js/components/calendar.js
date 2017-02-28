@@ -85,7 +85,7 @@ class Day extends React.Component {
                 <div>{ title.map((t, i) => <div key={i} className="tooltip-entry">{t}</div>)}</div>
             </Tooltip>;
             return  <OverlayTrigger placement="top" overlay={tooltip} hover={true}>
-                    { day }
+                { day }
             </OverlayTrigger>
         }
         return day;
@@ -194,8 +194,9 @@ const EventSummaries = (props) => {
 
 
 const CalendarHOC = ComposedComponent => {
+    const defaultDate = {date: new Date(), selected: moment().format('YYYY-MM-DD')};
 
-    class Calendar extends React.Component {
+    class Calendar extends React.PureComponent {
         fetch(){
             this.props.requestEvents();
             this.props.requestCompanies();
@@ -219,7 +220,7 @@ const CalendarHOC = ComposedComponent => {
         events: state.resources['/events'],
         companies: state.resources['companies'],
         alerts: state.resources['/alerts'],
-        menu: state.menus['calendar'] || {date: new Date(), selected: moment().format('YYYY-MM-DD')}
+        menu: state.menus['calendar'] || defaultDate
         }), {
         push: (location) => push(location),
         requestEvents: (args) => requestResource('/events', {postProcess: processEvents}),
@@ -233,7 +234,7 @@ const CalendarHOC = ComposedComponent => {
 }
 
 @CalendarHOC
-export default class CalendarFull extends React.Component {
+export default class CalendarFull extends React.PureComponent {
     constructor() {
         super();
         this.selectDay = ::this.selectDay;
@@ -328,7 +329,7 @@ export default class CalendarFull extends React.Component {
 
 
 @CalendarHOC
-export class CalendarWidget extends React.Component {
+export class CalendarWidget extends React.PureComponent {
     constructor() {
         super();
         this.selectDay = ::this.selectDay;
@@ -376,7 +377,7 @@ const wrapperClassName = 'col-sm-8';
     labelClassName,
     wrapperClassName
 })
-class EventForm extends React.Component {
+class EventForm extends React.PureComponent {
     render() {
         return <form className="form form-horizontal">
             <DateInput {...this.formFieldProps('date', STRINGS.calendar) } time={true} displayFormat={'DD/MM/YYYY HH:mm:ss'}/>
@@ -405,7 +406,7 @@ const EventFormConnected = reduxForm({
     addNotification: (args) => addNotification(args),
     createEvent: (args) => createResource('/event', args)
 })
-export  class CreateEvent extends React.Component {
+export  class CreateEvent extends React.PureComponent {
     constructor(props) {
         super(props);
         this.handleSubmit = ::this.handleSubmit;
@@ -440,7 +441,7 @@ export  class CreateEvent extends React.Component {
     addNotification: (args) => addNotification(args),
     updateEvent: (id, args) => updateResource(`/event/${id}`, args)
 })
-export  class EditEventUnpopulated extends React.Component {
+export  class EditEventUnpopulated extends React.PureComponent {
     constructor(props) {
         super(props);
         this.handleSubmit = ::this.handleSubmit;

@@ -16,6 +16,7 @@ module.exports = {
         return _.reduce(actionSets, (acc, d, i) => {
 
             const needsInference = _.any(d.actions, a => types.indexOf(a.transactionType) >= 0);
+
             if(needsInference){
                 // TODO, read previous share update doc
                 //http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/21720672
@@ -39,7 +40,8 @@ module.exports = {
 
                 // not so simple as sums, see http://www.business.govt.nz/companies/app/ui/pages/companies/2109736/19916274/entityFilingRequirement
                 if(d.totalShares === 0 && (allocationsUp === 1 || allocationsDown === 1)){
-                    // totalShares = zero SHOULD mean transfers.  Hopefully.
+                    // totalShares = zero SHOULD mean transfers.
+
                     d.actions.map(a => {
                         a.transactionMethod = a.transactionType;
                         if(a.transactionType === Transaction.types.NEW_ALLOCATION){
@@ -57,72 +59,86 @@ module.exports = {
                     })
                     acc.push(d);
                 }
+
+                // if we find a match, then move all the transactions into that
                 else if(d.totalShares > 0 && allocationsDown === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
-                    d.actions.map(a => {
-                        a.transactionMethod = a.transactionType;
-                        if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
-                           a.transactionType === Transaction.types.AMEND){
-                            if(match){
-                                match.actions.map(m => {
+                    if(match){
+                        const newActions = d.actions.filter((a, i) => {
+                            if(a.transactionType === Transaction.types.NEW_ALLOCATION ||
+                               a.transactionType === Transaction.types.AMEND){
+                                a.transactionMethod = a.transactionType;
+                                return match.actions.some(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.ISSUE:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.ISSUE_TO;
-                                            break;
+                                            return true;
                                         case Transaction.types.CONVERSION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.CONVERSION_TO;
-                                            break;
+                                            return true;
                                         case Transaction.types.SUBDIVISION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.SUBDIVISION_TO;
-                                            break;
+                                            return true;
                                     }
                                 });
                             }
+                        });
+                        d.actions = d.actions.filter(a => newActions.indexOf(a) === -1)
+                        if(newActions.length){
+                            newActions.map(a => {
+                                a.inferredType = true;
+                                a.effectiveDate = match.actions[0].effectiveDate || match.effectiveDate;
+                            });
 
+                            match.actions = match.actions.concat(newActions);
+                            match.totalShares = 0;
                         }
-                    });
+                    }
                     acc.push(d);
                 }
 
                 else if(d.totalShares < 0 && allocationsUp === 0){
                     const match = getMatchingDocument(i, -d.totalShares);
-                    d.actions.map(a => {
-                        if(a.transactionType === Transaction.types.AMEND || a.transactionType === Transaction.types.REMOVE_ALLOCATION){
-                            a.transactionMethod = a.transactionType;
-                            if(match){
-                                match.actions.map(m => {
+                    if(match){
+                        const newActions = d.actions.filter((a, i) => {
+                            if(a.transactionType === Transaction.types.AMEND || a.transactionType === Transaction.types.REMOVE_ALLOCATION){
+                                a.transactionMethod = a.transactionType;
+                                return match.actions.some(m => {
                                     switch(m.transactionType){
                                         case Transaction.types.PURCHASE:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.PURCHASE_FROM;
-                                            a.confirmationNeeded = true;
-                                            break;
+                                            return true;
                                         case Transaction.types.ACQUISITION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.ACQUISITION_FROM;
-                                            break;
+                                            return true;
                                         case Transaction.types.CONSOLIDATION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.CONSOLIDATION_FROM;
-                                            break;
+                                            return true;
                                         case Transaction.types.REDEMPTION:
-                                            a.inferredType = true;
                                             a.transactionType = Transaction.types.REDEMPTION_FROM;
-                                            break;
+                                            return true;
                                     }
                                 });
                             }
+                        });
+                        d.actions = d.actions.filter(a => newActions.indexOf(a) === -1)
+                        if(newActions.length){
+                            newActions.map(a => {
+                                a.inferredType = true;
+                                 a.effectiveDate = match.actions[0].effectiveDate || match.effectiveDate;
+                            });
+                            match.actions = match.actions.concat(newActions);
+                            match.totalShares = 0;
                         }
-                    });
+                    }
                     acc.push(d);
                 }
+
                 else{
                     acc.push(d);
                 }
             }
+
             else{
                 acc.push(d);
             }
@@ -168,52 +184,30 @@ module.exports = {
         //  split removeAllocations into amend to zero, then removeAllocation.
         function splitAmends(docs){
             const removalTypes = [Transaction.types.REMOVE_ALLOCATION];
-            return  _.reduce(docs, (acc, doc, i) => {
-                const removalActions = _.filter(doc.actions, a => removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0);
-                if(!removalActions.length){
-                    acc.push(doc);
-                } else {
-                    const amends = _.cloneDeep(doc);
-                    doc = _.cloneDeep(doc);
-                    amends.actions = removalActions.map(a => {
-                        return {
-                            ...a,
-                            effectiveDate: a.effectiveDate,
-                            beforeHolders: a.holders,
-                            afterHolders: a.holders,
-                            afterAmount: 0,
-                            amount: a.amount,
-                            beforeAmount: a.amount,
-                            transactionMethod: Transaction.types.AMEND,
-                            transactionType: [Transaction.types.AMEND,
-                                Transaction.types.NEW_ALLOCATION,
-                                Transaction.types.REMOVE_ALLOCATION].indexOf(a.transactionType) < 0 ? a.transactionType : Transaction.types.AMEND
-                        }
-                    })
-                    doc.actions = doc.actions.filter(a => {
+            docs.map((doc, i) => {
+                if(doc.actions){
+                    doc.actions = doc.actions.map(a => {
                         if(removalTypes.indexOf(a.transactionMethod || a.transactionType) >= 0){
-                            a.transactionType = Transaction.types.REMOVE_ALLOCATION;
-                            a.transactionMethod = null;
-                            a.amount = 0;
-                            a.beforeAmount = 0;
-                            a.afterAmount = 0;
-                            a.beforeAmountLookup = null;
-                            return a;
+                            return {
+                                ...a,
+                                effectiveDate: a.effectiveDate,
+                                beforeHolders: a.holders,
+                                afterHolders: a.holders,
+                                afterAmount: 0,
+                                amount: a.amount,
+                                beforeAmount: a.amount,
+                                transactionMethod: Transaction.types.AMEND,
+                                transactionType: [Transaction.types.AMEND,
+                                    Transaction.types.NEW_ALLOCATION,
+                                    Transaction.types.REMOVE_ALLOCATION].indexOf(a.transactionType) < 0 ? a.transactionType : Transaction.types.AMEND
+                            }
                         }
-                        else{
-                            // if not a removal, then add to amend doc action set
-                            amends.actions.unshift(a);
-                        }
-                    })
-                    doc.transactionType = Transaction.types.COMPOUND_REMOVALS;
-                    doc.totalShares = 0;
-                    acc.push(doc);
-                    acc.push(amends);
+                        return a;
+                     });
                 }
-                return acc;
-            }, []);
+            });
+            return docs;
         }
-
 
         function splitMultiTransfers(docs){
             // segment out transfers into separate pairwise transactions
@@ -580,7 +574,7 @@ module.exports = {
             [Transaction.types.REMOVE_DIRECTOR] : 1,
             [Transaction.types.NEW_DIRECTOR] : 2,
             [Transaction.types.INCORPORATION] : 0,
-
+            [Transaction.types.AMEND] : 4,
             undefined: 2
         }
 
@@ -625,7 +619,7 @@ module.exports = {
                            'effectiveDate',
                            'orderingCoef',
                            (d) => parseInt(d.documentId, 10),
-                           (d) => d.actions && d.actions.length && TRANSACTION_ORDER[d.transactionType]
+                           (d) => (d.actions && d.actions.length && TRANSACTION_ORDER[d.transactionMethod || d.transactionType]) || 0,
                            ).reverse();
 
         // AFTER SORT
@@ -635,10 +629,13 @@ module.exports = {
         docs = docs.filter(d => d.actions && d.actions.some(a => a.transactionType));
         // Add ids
 
-        docs.map(p => {
+        docs.map((p, i) => {
             p.id = uuid.v4();
-            (p.actions || []).map(a => a.id = uuid.v4())
-        })
+            p.actions = (p.actions || []).filter(a => !!a.transactionType);
+            (p.actions || []).map(a => a.id = uuid.v4());
+            p.orderFromSource = i;
+        });
+        docs = docs.filter(d => d.actions.length)
         return docs;
     },
 

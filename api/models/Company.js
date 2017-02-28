@@ -202,25 +202,27 @@ module.exports = {
                 pendingActions.map((pa, i) => {
                     pa.originalId = pa.id;
                     pa.data.id = pa.id = uuid.v4();
-                    (pa.actions || []).map(a => a.id = uuid.v4())
+                    (pa.data.actions || []).map(a => a.id = uuid.v4());
+
                     if(i >= 1){
                         pendingActions[i-1].previous_id = pa.id;
                     }
                 });
+                return sequelize.transaction(() => {
+                    return this.getRootCompanyState()
+                        .then(_rootState => {
+                            rootState = _rootState;
+                            return Action.bulkCreate(pendingActions);
 
-                return this.getRootCompanyState()
-                    .then(_rootState => {
-                        rootState = _rootState;
-                        return Action.bulkCreate(pendingActions);
-
-                    })
-                    .then(() => {
-                        return rootState.update({'pending_historic_action_id': pendingActions[0].id})
-                    })
-                    .then(() => {
-                        // HUGE security risk.  Need to validate this pendingAction is owned by this user
-                        return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
-                    })
+                        })
+                        .then(() => {
+                            return rootState.update({'pending_historic_action_id': pendingActions[0].id})
+                        })
+                        .then(() => {
+                            // HUGE security risk.  Need to validate this pendingAction is owned by this user
+                            return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
+                        })
+                    });
             },
 
             resetPendingActions: function(){

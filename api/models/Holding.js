@@ -134,6 +134,9 @@ module.exports = {
             hasNonEmptyParcels: function(){
                 return this.sumOfParcels() > 0;
             },
+            hasEmptyParcels: function(){
+                return this.sumOfParcels() === 0;
+            },
             sumOfParcels: function(){
                 return _.sum(this.dataValues.parcels, 'amount');
             },
@@ -174,7 +177,7 @@ module.exports = {
                         newParcels.push(currentP);
                     }
                 });
-                this.dataValues.parcels = newParcels;
+                this.dataValues.parcels = newParcels.filter(p => p.amount > 0);
             },
             buildNext: function(){
                 if(this.isNewRecord){

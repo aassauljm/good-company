@@ -3,7 +3,7 @@
         "data": {
             "actions": [
                 {
-                   "parcels": [{ "afterAmount": 1111,
+                    "parcels": [{"afterAmount": 1111,
                     "amount": 1111,
                     "beforeAmount": 0}],
                     "holders": [
@@ -18,7 +18,7 @@
                             "name": "Priscilla Rose BLOY"
                         }
                     ],
-                    "id": "5c50783e-30aa-4d60-8df5-d19f3d3f0525",
+                    "id": "0",
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
@@ -37,7 +37,7 @@
                             "name": "Peter James BLOY"
                         }
                     ],
-                    "id": "8f5072c3-6c75-4d93-b20d-df5990cd0f0a",
+                    "id": "1",
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
@@ -56,7 +56,7 @@
                             "name": "Megan Jean CUNNINGHAM-ADAMS"
                         }
                     ],
-                    "id": "0e11b95a-595f-4827-bac2-9b5f20cfcbe4",
+                    "id": "2",
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
@@ -70,7 +70,7 @@
                             "name": "Thomas David BLOY"
                         }
                     ],
-                    "id": "f303b9aa-9e16-485c-81f7-06a60c04dbed",
+                    "id": "3",
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
@@ -84,7 +84,7 @@
                             "name": "Tamina Kelly CUNNINGHAM-ADAMS"
                         }
                     ],
-                    "id": "c4d9bf86-4598-4a3c-a4dd-d38c664109f7",
+                    "id": "4",
                     "transactionType": "NEW_ALLOCATION"
                 },
                 {
@@ -158,7 +158,7 @@
                     "id": "af9bf828-bc18-4017-914f-2bfba3e6d611"
                 },
                 {
-                   "parcels": [{ "afterAmount": 0,
+                    "parcels": [{"afterAmount": 0,
                     "amount": 5000,
                     "beforeAmount": 5000}],
                     "afterHolders": [
@@ -182,7 +182,7 @@
                             "name": "NOT THE ROCKPOOL LIMITED"
                         }
                     ],
-                    "id": "65cbf813-8214-4be1-9045-6589aecfedcf",
+                    "id": "5",
                     "transactionMethod": "AMEND",
                     "transactionType": "AMEND"
                 },
@@ -211,7 +211,7 @@
                             "name": "BLOY CONSULTING LIMITED"
                         }
                     ],
-                    "id": "a349540c-1821-4620-a3cd-1860381d6d5d",
+                    "id": "6",
                     "transactionMethod": "AMEND",
                     "transactionType": "AMEND"
                 }
@@ -230,7 +230,7 @@
     "values": {
         "actions": [
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 0,
                         "parcels":[{"amount": 1110}],
@@ -246,7 +246,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 1,
                         "parcels":[{"amount": 4999}],
@@ -257,7 +257,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 2,
                         "parcels":[{"amount": 4999}],
@@ -268,7 +268,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 3,
                         "parcels":[{"amount": 1}],
@@ -279,7 +279,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 4,
                         "parcels":[{"amount": 1}],
@@ -290,7 +290,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 56,
                         "parcels":[{"amount": 1}],
@@ -310,7 +310,7 @@
                 ]
             },
             {
-                "recipients": [
+                "subActions": [
                     {
                         "_keyIndex": 57,
                         "parcels":[{"amount": 1}],

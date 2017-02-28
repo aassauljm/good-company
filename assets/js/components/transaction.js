@@ -101,18 +101,21 @@ const HoldingChange = (props) => {
 
 const amendTo =  props =>
     <span className="transaction-terse">
+             { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.amendTypes[props.transactionType] }
             <span className="transaction-terse-description"> - { props.parcels.map(p => `${props.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  props.shareClassMap)}`).join(', ') } shares to { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
     </span>;
 
 const amendFrom = props =>
             <span className="transaction-terse">
+             { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.amendTypes[props.transactionType] }
             <span className="transaction-terse-description"> - {  props.parcels.map(p => `${props.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  props.shareClassMap)}`).join(', ')} shares from { joinAnd(props.afterHolders || props.holders, {prop: 'name'}) } </span>
     </span>;
 
 const shareChange = props =>
             <span className="transaction-terse">
+             { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
             <span className="transaction-terse-description"> - { props.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') } </span>
     </span>;
@@ -121,38 +124,51 @@ const shareChange = props =>
 export const TransactionTerseRenderMap = {
     [TransactionTypes.ANNUAL_RETURN]: (props) => {
         return <span className="transaction-terse">
+             { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
             </span>
     },
     [TransactionTypes.ADDRESS_CHANGE]: (props) => {
         return <span className="transaction-terse">
+         { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { STRINGS[props.field] } changed to { props.newAddress } </span>
+            { props.newAddress && <span className="transaction-terse-description"> - { STRINGS[props.field] } changed to { props.newAddress } </span> }
+            { !props.newAddress && <span className="transaction-terse-description"> - { STRINGS[props.field] } removed </span> }
             </span>
     },
     [TransactionTypes.UPDATE_DIRECTOR]: (props) => {
         return <span className="transaction-terse">
+             { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
             <span className="transaction-terse-description"> - { props.afterName} </span>
             </span>
     },
     [TransactionTypes.REMOVE_DIRECTOR]: (props) => {
         return <span className="transaction-terse">
+         { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
             <span className="transaction-terse-description"> - { props.name} </span>
             </span>
     },
     [TransactionTypes.NEW_DIRECTOR]: (props) => {
         return <span className="transaction-terse">
-
+         { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
             <span className="transaction-terse-description"> - { props.name} </span>
             </span>
     },
     [TransactionTypes.NAME_CHANGE]: (props) => {
         return <span className="transaction-terse">
+         { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
             <span className="transaction-terse-description"> - from { props.previousCompanyName} to {props.newCompanyName} </span>
+            </span>
+    },
+    [TransactionTypes.HOLDER_CHANGE]: (props) => {
+        return <span className="transaction-terse">
+         { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
+            { STRINGS.transactionTypes[props.transactionType] }
+            <span className="transaction-terse-description"> - { props.afterHolder.name } </span>
             </span>
     },
     [TransactionTypes.TRANSFER_TO]: amendTo,

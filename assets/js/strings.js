@@ -5,6 +5,7 @@ export default {
     companyNumber: 'Company Number',
     addressForService: 'Address for Service',
     registeredCompanyAddress: 'Registered Office',
+    addressForShareRegister: 'Address for Share Register',
     incorporationDate: 'Incorporation Date',
     name: 'Full Name',
     address: 'Address',
@@ -129,9 +130,11 @@ export default {
         TRANSFER_TO: 'Transfer',
         TRANSFER_FROM: 'Transfer',
         AMEND: 'Unknown Change',
-        NEW_ALLOCATION: 'Unknown Increase'
-
+        NEW_ALLOCATION: 'Unknown Increase',
+        AMEND_UP: 'Unknown Increase',
+        AMEND_DOWN: 'Unknown Decrease'
     },
+
     transactionVerbs: {
         ISSUE_TO: 'Issue',
         TRANSFER_TO: 'Transfer',
@@ -172,7 +175,7 @@ export default {
         "transferRestrictionQuestion": "Are there restrictions or limitations on the transfer of shares?",
         "transferRestrictionDocument": "Location of document containing transfer restrictions",
         "transferRestrictionPlaceholder": "Type or select from the following",
-
+        "documentsLabel": "Upload Terms of Issue",
         votingRights: {
             _: 'Rights Attached to Shares',
             votingRights: 'Rights Attached to Shares',
@@ -218,7 +221,8 @@ export default {
         }
     },
     amend: {
-        notified: 'The Companies Register been notified of the change of the total share amount'
+        notified: 'The Companies Register been notified of the change of the total share amount',
+        UNREPORTED_TRANSACTION: 'Unreported Transaction'
     },
     deadlines: {
         annualReturn: "Annual Return",
@@ -228,5 +232,10 @@ export default {
         email: "Email"
     },
     importCompanyHistory: "Reconcile Company History",
-    resetCompanyHistory: "Undo Company Reconciliation"
+    resetCompanyHistory: "Undo Company Reconciliation",
+    "userFeedback": {
+        comment: 'Comment',
+        name: 'Name',
+        email: 'Email'
+    }
 }

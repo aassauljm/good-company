@@ -5,17 +5,28 @@
     right: 20px;
     z-index: 1;
     max-width: 400px;
+
     .notification{
         margin-top: 20px;
+        float:left;
         cursor:pointer;
+        display: table;
+        & > * {
+            display: table-cell;
+            vertical-align: middle;
+        }
         .small-logo{
-            width:30px;
-            height: 30px;
             margin-right:10px;
             background-image: url('~catalex_shared/images/law-browser-icon.png');
             background-size: 30px 30px;
-            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-repeat: no-repeat;
             vertical-align: middle;
+            background-position-y: center;
+        }
+        .small-logo + div {
+            padding-left: 8px;
         }
     }
 }

@@ -2,7 +2,6 @@
 import React from 'react';
 import LawBrowserContainer from '../lawBrowserContainer'
 
-
 export default class GCTransactionView extends React.Component {
     render() {
         if(this.props.lawLinks){

@@ -132,6 +132,7 @@ export class ShareClassForm extends React.Component {
         const referenceUrl = 'https://browser.catalex.nz/open_article/instrument/DLM320143';
         const constitutionDocument = this.props.companyState && this.props.companyState.docList && this.props.companyState.docList.documents.find(d => d.filename === 'Adoption Of Constitution');
 
+
         return <form onSubmit={handleSubmit(this.submit)} className="share-class-form">
             <fieldset>
             {/* <div className="form-group"><LawBrowserLink title="Companies Act 1993" location="s 37">Learn more about share classes</LawBrowserLink></div> */ }
@@ -204,8 +205,7 @@ export class ShareClassForm extends React.Component {
             { fields.transferRestriction.value &&  <div className="form-group"><div className="button-row"><ButtonInput onClick={() => {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div></div> }
-
-            { !this.props.noDocuments && <Documents documents={fields.documents} /> }
+            { !this.props.noDocuments && <Documents documents={fields.documents} label={STRINGS.shareClasses.documentsLabel} /> }
             </fieldset>
             <div className="button-row">
                 { this.props.end &&  <ButtonInput onClick={() => this.props.end({cancelled: true})}>Cancel</ButtonInput> }

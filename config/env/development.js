@@ -35,9 +35,8 @@ module.exports = {
         custom: customLogger,
         inspect: false
     },
-    serverRender: false,
-    // renderServiceUrl: 'http://localhost:5668/render', //'https://convert.catalex.nz'
-    renderServiceUrl: 'http://localhost:5671/render', //'https://convert.catalex.nz/convert'
+    serverRender: true,
+    renderServiceUrl: 'http://localhost:5671/render', //'https://convert.catalex.nz'
     companyInfoServiceUrl: 'http://localhost:5670',
     GOOD_COMPANIES_LOGIN_URL: 'http://localhost:5667/auth/catalex/login',
     USERS_LOGIN_URL: 'http://localhost:8000/good-companies-login',

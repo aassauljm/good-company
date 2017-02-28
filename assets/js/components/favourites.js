@@ -14,7 +14,7 @@ import { FavouritesHOC, CompaniesHOC } from '../hoc/resources';
 })
 @FavouritesHOC(false)
 @CompaniesHOC(false)
-export class FavouritesWidget extends React.Component {
+export class FavouritesWidget extends React.PureComponent {
     renderList() {
         const favourites = this.props.favourites.data || [];
         return <ul>
@@ -76,7 +76,7 @@ export class FavouritesWidget extends React.Component {
 })
 @FavouritesHOC(true)
 @CompaniesHOC(true)
-export default class Favourites extends React.Component {
+export default class Favourites extends React.PureComponent {
 
     renderTable() {
         const handleClick = (event, id) => {

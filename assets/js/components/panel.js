@@ -4,7 +4,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 
 export default class Panel extends React.Component {
     render() {
-        return <div className={"panel panel-"+(this.props.panelType || 'default')} >
+        return <div className={"panel panel-"+(this.props.panelType || 'default')+' '+(this.props.className || '')} >
             <div className="panel-heading">
                 { this.props.title }
                 {this.props.remove && <Button className="close" aria-label="Close"

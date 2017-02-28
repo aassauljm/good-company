@@ -33,7 +33,7 @@ const CompanyItem = (props) => {
 }
 
 
-class SelectCompaniesTable extends React.Component {
+class SelectCompaniesTable extends React.PureComponent {
     constructor(props){
         super();
         this.selectAll = ::this.selectAll;

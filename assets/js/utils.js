@@ -4,6 +4,7 @@ import isoFetch from 'isomorphic-fetch';
 import STRINGS from './strings'
 import { Link } from 'react-router';
 import moment from 'moment';
+import { enums as TransactionTypes } from '../../config/enums/transactions';
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -16,6 +17,36 @@ export function fieldStyle(field){
         return 'success';
     }
 }
+
+export function getTotalShares(data){
+    const shareClasses = {};
+    data.actions.map(action => {
+        if(!action.userSkip){
+            const DIRECTIONS = {
+                [TransactionTypes.ISSUE]: -1,
+                [TransactionTypes.SUBDIVISION]: -1,
+                [TransactionTypes.CONVERSION]: -1,
+                [TransactionTypes.REDEMPTION]:-1,
+                [TransactionTypes.ACQUISITION]: -1,
+                [TransactionTypes.CONSOLIDATION]:-1,
+                [TransactionTypes.CANCELLATION]:-1,
+                [TransactionTypes.PURCHASE]: -1
+            };
+
+            (action.parcels || []).map(p => {
+                shareClasses[p.shareClass] = shareClasses[p.shareClass] || 0;
+                if(p.afterAmount !== undefined && p.beforeAmount !== undefined){
+                    shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+                }
+                else if(p.amount){
+                    shareClasses[p.shareClass] += (DIRECTIONS[action.transactionType] || 1) *  p.amount;
+                }
+            });
+        }
+    });
+    return Object.keys(shareClasses).reduce((sum, k) => sum + shareClasses[k], 0);
+}
+
 
 export function companyListToOptions(companies) {
     return [
@@ -249,6 +280,43 @@ export function votingShareholderList(companyState) {
 
 export function personOptionsFromState(companyState, filter = x => true){
     return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId+''}>{p.name}</option>);
+}
+
+export const SHARE_CHANGE_TYPES = [
+    TransactionTypes.ISSUE,
+    TransactionTypes.CONVERSION,
+    TransactionTypes.SUBDIVISION,
+    TransactionTypes.REDEMPTION,
+    TransactionTypes.ACQUISITION,
+    TransactionTypes.CONSOLIDATION,
+    TransactionTypes.CANCELLATION,
+    TransactionTypes.PURCHASE
+];
+
+export const isAmendable = (action) => [TransactionTypes.AMEND, TransactionTypes.NEW_ALLOCATION].indexOf(action.transactionMethod || action.transactionType) > -1;
+
+export const isShareChange = (action) => SHARE_CHANGE_TYPES.indexOf(action.transactionType) > -1;
+
+export function collectAmendActions(actions){ return  actions.filter(isAmendable) };
+
+export function collectShareChangeActions(actions){ return  actions.filter(isShareChange) };
+
+export const actionOptionsFromActionSets = (actionSets=[], shareClassMap, ignoreId) => {
+    function renderParcels(action, shareClassMap){
+        return `${action.parcels.map(p => `${action.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  shareClassMap)}`).join(', ') } shares`;
+    }
+    return <optgroup label="Reported Shareholding Changes">{
+        actionSets.reduce((acc, actionSet) => {
+            if(ignoreId && actionSet.id === ignoreId){
+                return acc;
+            }
+            collectAmendActions(actionSet.data.actions).reduce((acc, action) => {
+                acc.push(<option key={action.id} value={action.id}>{stringDateToFormattedString(actionSet.data.effectiveDate)} - { joinAnd((action.holders || action.afterHolders), {prop: 'name'}) } - { renderParcels(action, shareClassMap) } </option>);
+                return acc;
+            }, acc)
+            return acc;
+    }, []) }
+    </optgroup>
 }
 
 export  function holdingOptionsFromState(companyState) {

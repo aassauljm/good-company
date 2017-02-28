@@ -22,7 +22,7 @@ const shareRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location="s 89">Share register as legal title</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 90">Director’s supervision of share register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 91">Rectification of share register</LawBrowserLink>
-        <LawBrowserLink title="Companies Act 1993" location="s 92">No Trusts on share register</LawBrowserLink>
+        <LawBrowserLink title="Companies Act 1993" location="s 92">No trusts on share register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 93">Personal representatives of shareholders</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 94">Assignee of bankrupt shareholder</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 125">Ascertaining shareholders from share register</LawBrowserLink>
@@ -368,7 +368,7 @@ export class ShareRegisterDocument extends React.Component {
         return <div>
             <h3>Transaction History</h3>
             { shareRegister.map((s, i) => {
-                const title = `${s.name} ${ s.holdingName && `(${s.holdingName})` } - ${renderShareClass(s.shareClass, shareClassMap)} Shares`;
+                const title = `${s.name} ${ s.holdingName ? `(${s.holdingName})` : '' } - ${renderShareClass(s.shareClass, shareClassMap)} Shares`;
                 return <table key={i} className="table share-register transaction-history">
                         <thead>
                             <tr><th colSpan="2">{ title }</th><th className="total">Total</th></tr>

@@ -22,7 +22,7 @@ import { reduxForm, destroy } from 'redux-form';
 import Panel from '../panel';
 import { basicSummary, sourceInfo, beforeAndAfterSummary, holdingChangeSummary, renderHolders, actionAmountDirection, addressChange, holderChange } from './resolvers/summaries'
 import { InvalidIssue } from './resolvers/unknownShareChanges'
-
+import { reorderAllPending } from './editTransaction';
 import { Shareholder } from '../shareholders';
 import { Director } from '../directors';
 
@@ -32,7 +32,7 @@ function skipOrRestart(props){
 
     function skip(){
         return submit({
-            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+            newActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
         })
     }
     function startOver(){
@@ -62,7 +62,7 @@ function AddressDifference(props){
         actions[index] = {...context.actionSet.data.actions[index], userBypassValidation: true}
         const data = {...context.actionSet.data, actions: actions}
         return submit({
-            pendingActions: [{
+            newActions: [{
                 id: context.actionSet.id,
                 data: {...data},
                 previous_id: context.actionSet.previous_id}]
@@ -93,7 +93,7 @@ function AnnualReturnHoldingDifference(props){
     const { companyState, shareClassMap } = context;
     function skip(){
         return submit({
-            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+            newActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
         })
     }
     function startOver(){
@@ -115,7 +115,7 @@ function DirectorNotFound(props){
 
     function skip(){
         return submit({
-            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+            newActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
         })
     }
     function startOver(){
@@ -141,7 +141,7 @@ function MultipleDirectors(props){
 
     function skip(){
         return submit({
-            pendingActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
+            newActions: [{id: context.actionSet.id, data: {...context.actionSet.data, userSkip: true}, previous_id: context.actionSet.previous_id}]
         })
     }
     function startOver(){
@@ -165,7 +165,7 @@ function MultipleDirectors(props){
         actions[index] = action;
         const data = {...context.actionSet.data, actions: actions}
         return submit({
-            pendingActions: [{
+            newActions: [{
                 id: context.actionSet.id,
                 data: {...data},
                 previous_id: context.actionSet.previous_id}]
@@ -223,7 +223,7 @@ function HolderNotFound(props){
         actions[index] = action;
         const data = {...context.actionSet.data, actions: actions}
         return submit({
-            pendingActions: [{
+            newActions: [{
                 id: context.actionSet.id,
                 data: {...data},
                 previous_id: context.actionSet.previous_id}]
@@ -300,7 +300,7 @@ function MultipleHoldings(props){
             return a;
         })
         submit({
-            pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
+            newActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
         })
     }
     return <div>
@@ -366,7 +366,7 @@ function HoldingNotFound(props){
         pendingActions.push({id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id});
 
         submit({
-            pendingActions: pendingActions
+            newActions: pendingActions
         })
     }
     return <div>
@@ -410,7 +410,7 @@ function MultipleHoldingTransferSources(props){
             return a;
         })
         submit({
-            pendingActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
+            newActions: [{id: context.actionSet.id, data: updatedActions, previous_id: context.actionSet.previous_id}]
         })
     }
     return <div>
@@ -452,6 +452,8 @@ const PAGES = {
     [ImportErrorTypes.AMEND_TRANSFER_ORDER]: HoldingTransfer,
     [ImportErrorTypes.CONFIRMATION_REQUIRED]: DateConfirmation,
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
+    [ImportErrorTypes.UNBALANCED_TRANSACTION]: Amend,
+    [ImportErrorTypes.INVERSE_INCREASE_SUM_MISMATCH]: Amend,
     [ImportErrorTypes.INVALID_ISSUE]: InvalidIssue,
 }
 
@@ -459,7 +461,11 @@ const PAGES = {
 const DEFAULT_OBJ = {};
 
 @connect((state, ownProps) => {
-    return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
+    return {
+        currentCompanyState: state.resources[`/company/${ownProps.transactionViewData.companyId}/get_info`] || DEFAULT_OBJ,
+        updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ,
+        pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || DEFAULT_OBJ
+    };
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
@@ -481,11 +487,9 @@ const DEFAULT_OBJ = {};
                 dispatch(destroy('amend'));
             })
         },
+        requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
         destroyForm: (args) => {
             return dispatch(destroy(args))
-        },
-        cancel: (args) => {
-            dispatch(push(`/company/view/${ownProps.transactionViewData.companyId}`))
         }
     }
 })
@@ -495,27 +499,48 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         super(props);
         this.handleClose = ::this.handleClose;
     }
+    fetch() {
+        return this.props.requestData();
+    };
+
+    componentDidMount() {
+        this.fetch();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+    };
     handleClose() {
-        this.props.end();
+        this.props.end({cancelled: true});
     }
     renderBody() {
-        const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context};
+        const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context, pendingActions: this.props.pendingHistory.data};
         const action = context.action;
         context.shareClassMap = generateShareClassMap(this.props.transactionViewData.companyState);
 
-        if(!action || !PAGES[context.importErrorType]){
+        const updateAction = ({newActions}) => {
+            const orderedActions = reorderAllPending(this.props.pendingHistory.data, newActions);
+            orderedActions[0].id = this.props.transactionViewData.startId;
+            orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
+            this.props.updateAction({pendingActions: orderedActions});
+            this.handleClose();
+        }
+
+
+        if(!PAGES[context.importErrorType]){
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState)}
                     <hr/>
                     <div><p>An unknown problem occured while importing.  Please Restart the import process.</p></div>
                     <div className="button-row">
+                           <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
                         <Button onClick={this.props.resetAction} className="btn-danger">Restart Reconciliation</Button>
                     </div>
                 </div>
         }
         let edit;
         if(this.props.transactionViewData.editTransactionData){
-            // if we are doing a yeary by year import, we have greater flexibility for importing
+            // if we are doing a year by year import, we have greater flexibility for importing
             edit = () => {
                 const otherActions = this.props.transactionViewData.editTransactionData.pendingActions.filter(p => p.id !== context.actionSet.id);
                 // gross
@@ -524,15 +549,18 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             }
         }
 
-        if(this.props.updating._status !== 'fetching'){
+        if(this.props.updating._status !== 'fetching' && this.props.pendingHistory.data && this.props.currentCompanyState._status === 'complete'){
             return <div className="resolve">
-                { basicSummary(context, this.props.transactionViewData.companyState)}
+                { basicSummary(context, this.props.transactionViewData.companyState )}
                 <hr/>
-                { PAGES[context.importErrorType]({context: context, submit: this.props.updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, ...this.props}) }
+                { PAGES[context.importErrorType]({context: context, submit: updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: this.handleClose, ...this.props}) }
             </div>
         }
         else{
-            return <Loading />
+            return <div>
+                      <p className="text-center">Fetching Remaining Transactions</p>
+                <Loading />
+                </div>
         }
     }
 
