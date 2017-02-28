@@ -25,7 +25,9 @@
                 border-left: 4px solid $gray;
                 background-color: $gray-lighter;
                 color: $text-color;
-
+                .list-group-item-text{
+                        color: $text-color;
+                }
             }
         }
         .list-group-item:first-child {

@@ -105,6 +105,7 @@ export function callAPIMiddleware({
             if (typeof callAPI !== 'function') {
                 throw new Error('Expected fetch to be a function.');
             }
+
             if (!shouldCallAPI(getState())) {
                 return Promise.resolve({'shouldCallRejected': true, ...rejectPayload(getState())});
             }
