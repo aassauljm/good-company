@@ -337,6 +337,14 @@ CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
+    RETURNS BOOLEAN
+    AS $$
+    SELECT pending_future_action_id is not null from  company_state cs
+    WHERE  cs.id = $1
+$$ LANGUAGE SQL;
+
+
 CREATE OR REPLACE FUNCTION has_missing_voting_shareholders(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
@@ -383,7 +391,7 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
-    SELECT extensive from  company_state cs where cs.id = $1
+    SELECT extensive from company_state cs where cs.id = $1
 $$ LANGUAGE SQL;
 
 
@@ -392,6 +400,7 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
     AS $$
     SELECT jsonb_build_object(
         'pendingHistory', has_pending_historic_actions($1),
+        --'pendingFuture', has_pending_future_actions($1),
         'missingVotingShareholders', has_missing_voting_shareholders($1),
         'shareClassWarning', has_no_share_classes($1),
         'applyShareClassWarning', has_no_applied_share_classes($1),

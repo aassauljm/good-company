@@ -49,6 +49,23 @@ module.exports = {
         })
     },
 
+    checkCompaniesOffice: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                this.company = company;
+                return company.getNowCompanyState()
+            })
+            .then(function(companyState) {
+                return ImportService.checkCompaniesOfficeForUpdate(this.company, companyState)
+            })
+            .then(result => {
+                return res.json(result);
+            })
+            .catch(function(err) {
+                return res.serverError(err);
+            });
+    },
+
     getInfo: function(req, res) {
 
         Company.findById(req.params.id)

@@ -1,4 +1,6 @@
 "use strict";
+import Promise from 'bluebird';
+
 
 export function importCompany(companyNumber, options) {
     let data, company, state, newRoot, processedDocs, companyName, pendingAction;
@@ -79,6 +81,19 @@ export function importCompany(companyNumber, options) {
             throw e;
         })
 }
+
+export function checkCompaniesOfficeForUpdate(company, companyState){
+    return Promise.all([company.getSourceData(), ScrapingService.fetch(companyState.companyNumber).then(ScrapingService.parseNZCompaniesOffice)])
+        .spread((sourceData, data) => {
+            const existing = sourceData.data.documents.reduce((acc, d) => {
+                acc[d.documentId] = true;
+                return acc;
+            }, {});
+            const documents = data.documents.filter(d => !existing[d.documentId]);
+            return {newDocuments: documents};
+        })
+}
+
 
 export function checkNameCollision(ownerId, data) {
     return Company.findAll({

@@ -19,7 +19,7 @@ export function serverRender(url, cookie, state={}){
     const memoryHistory = createMemoryHistory(url);
     const store = configureStore(memoryHistory, state);
     const history = syncHistoryWithStore(memoryHistory, store);
-    setFetch(function(url, args){
+    setFetch(function(url, args={}){
         url = 'http://localhost:'+sails.config.port+url;
         return fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
     });
