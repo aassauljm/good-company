@@ -52,26 +52,40 @@ export class AffixedLaw extends React.Component {
 export default class LawBrowserContainer extends React.Component {
 
     render(){
-        if(!this.props.lawLinks || this.forceNoLawLinks){
-            return <div className="container">
-            <div className="row">
-                <div className="col-xs-12">
-                    { this.props.children }
+        if (!this.props.lawLinks || this.forceNoLawLinks) {
+            return (
+                <div className="container">
+                    <div className="row">
+                        <div className="col-xs-12">
+                            { this.props.children }
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            );
         }
-        return <div className="container">
-            <div className="row" ref="affixContainer">
-                <div className="col-md-12 col-lg-3 col-lg-push-9">
-                    <AffixedLaw container={() => this.refs.affixContainer}>
-                        { this.props.lawLinks }
-                    </AffixedLaw>
+
+        return (
+            <div className="container">
+                <div className="row hidden-lg">
+                    <div className="col-xs-12">
+                        <Law>
+                            { this.props.lawLinks }
+                        </Law>
+                    </div>
                 </div>
-                <div className="col-md-12 col-lg-9 col-lg-pull-3">
-                    { this.props.children }
+
+                <div className="row" ref="affixContainer">
+                    <div className="visible-lg col-lg-3 col-lg-push-9">
+                        <AffixedLaw container={() => this.refs.affixContainer}>
+                            { this.props.lawLinks }
+                        </AffixedLaw>
+                    </div>
+
+                    <div className="col-md-12 col-lg-9 col-lg-pull-3">
+                        { this.props.children }
+                    </div>
                 </div>
             </div>
-        </div>
+        );
     }
 }
