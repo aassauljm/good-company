@@ -42,20 +42,23 @@ function renderHolders(holding){
 
 
 function pieTooltip(x, y){
-    const holding = this.data.values.filter(v => v.data.holdingId === x)[0].data;
+    //const holding = this.data.values.filter(v => v.data.holdingId === x)[0].data;
+    const holding = this.data.values[x].data;
     return <div className="graph-tooltip">{ renderHolders(holding) }</div>
 }
 
 function limitPrecision(num) {
-    return Math.floor(num * 10000) / 10000;
+    return Math.floor(num * 1000) / 1000;
 }
 
 function groupHoldings(companyState) {
     const total = companyState.totalAllocatedShares;
-    return {values: companyState.holdingList.holdings.map(holding => ({
+
+    return {values: companyState.holdingList.holdings.map((holding, i) => ({
         y: limitPrecision(holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100),
         //y: holding.parcels.reduce((acc, p) => acc + p.amount, 0),
-        x: holding.holdingId,
+        ///x: holding.holdingId,
+        x: i,
         data: holding
     }))};
 };
@@ -124,6 +127,7 @@ export class ShareholdingsWidget extends React.Component {
                                 outerRadius={100}
                                 tooltipHtml={pieTooltip}
                                 colorScale={colorScale}
+                                sort={null}
                                 tooltipMode={'mouse'}
                                 showInnerLabels={false}
                                 showOuterLabels={false} />  }
@@ -202,6 +206,7 @@ export class Holding extends React.Component {
                           data={{values: [{y: sum, x: 'this'}, {y: this.props.total-sum, x: 'other'}]}}
                           innerRadius={10}
                           outerRadius={30}
+                          sort={null}
                           colorScale={colorScale}
                           width={60}
                           height={60} /> }
@@ -292,6 +297,7 @@ export class Shareholdings extends React.Component {
                               height={400}
                               innerRadius={50}
                               outerRadius={150}
+                              sort={null}
                               colorScale={colorScale}
                               tooltipHtml={pieTooltip}
                               tooltipMode={'mouse'}

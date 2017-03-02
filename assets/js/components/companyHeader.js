@@ -139,7 +139,7 @@ export default class CompanyHeader extends React.Component {
     }
 
      render() {
-        let date = this.props.date || new Date();
+        let date = this.props.date || this.state.companyState.dateOfState;
         let dateString = moment(date).format('hh:mm a D MMMM YYYY');
         return <div className="container">
             <div className="nav-controls">
