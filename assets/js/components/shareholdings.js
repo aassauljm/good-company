@@ -46,11 +46,15 @@ function pieTooltip(x, y){
     return <div className="graph-tooltip">{ renderHolders(holding) }</div>
 }
 
+function limitPrecision(num) {
+    return Math.floor(num * 10000) / 10000;
+}
 
 function groupHoldings(companyState) {
     const total = companyState.totalAllocatedShares;
     return {values: companyState.holdingList.holdings.map(holding => ({
-        y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
+        y: limitPrecision(holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100),
+        //y: holding.parcels.reduce((acc, p) => acc + p.amount, 0),
         x: holding.holdingId,
         data: holding
     }))};
@@ -112,12 +116,12 @@ export class ShareholdingsWidget extends React.Component {
                        <div className="hide-graph-labels pie-chart responsive">
                         <div className="pie-chart-limit">
                          { <PieChart
-                                viewBox={'0 0 100 100'}
+                                viewBox={'0 0 200 200'}
                                 data={groupHoldings(this.props.companyState)}
-                                width={100}
-                                height={100}
-                                innerRadius={0.0001}
-                                outerRadius={50}
+                                width={200}
+                                height={200}
+                                innerRadius={0.000001}
+                                outerRadius={100}
                                 tooltipHtml={pieTooltip}
                                 colorScale={colorScale}
                                 tooltipMode={'mouse'}

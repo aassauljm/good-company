@@ -75,15 +75,15 @@ export default class LawBrowserContainer extends React.Component {
                 </div>
 
                 <div className="row" ref="affixContainer">
-                    <div className="visible-lg col-lg-3 col-lg-push-9">
+                    <div className="col-md-12 col-lg-9">
+                        { this.props.children }
+                    </div>
+                    <div className="visible-lg col-lg-3">
                         <AffixedLaw container={() => this.refs.affixContainer}>
                             { this.props.lawLinks }
                         </AffixedLaw>
                     </div>
 
-                    <div className="col-md-12 col-lg-9 col-lg-pull-3">
-                        { this.props.children }
-                    </div>
                 </div>
             </div>
         );
