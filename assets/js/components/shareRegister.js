@@ -12,7 +12,7 @@ import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { CompanyHOCFromRoute } from '../hoc/resources';
-
+import { CompanyAlertsWidget } from './companyAlerts';
 
 const shareRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location="s 87">Share register maintenance</LawBrowserLink>
@@ -205,7 +205,7 @@ function transactionRows(row, shareClassMap){
         results = results.concat(row[k] || []);
     })
     if(!results.length){
-        return <tr><td colSpan="2"><em>No transaction history</em></td></tr>
+        return <tr><td colSpan="2"><em>No transaction history since { stringDateToFormattedString(row.startDate) } </em></td></tr>
     }
     results.sort((a, b) => a.generation - b.generation);
     let total = row.last_amount;
@@ -394,6 +394,7 @@ export class ShareRegisterDocument extends React.Component {
         if(includeDefault){
             shareClasses.push(null)
         }
+
         return <div className="share-register-document">
         <div className="title"><h2>Share Register</h2></div>
             <table className="heading">
@@ -408,7 +409,7 @@ export class ShareRegisterDocument extends React.Component {
                 </tr>
                 </tbody>
             </table>
-            <div>Extract Generated on { stringDateToFormattedString() }</div>
+            <div>From Date { stringDateToFormattedString(shareRegister[0].startDate) } to { stringDateToFormattedString(shareRegister[0].endDate) }</div>
             { this.renderCurrentShareholdings(shareClasses) }
             { this.renderShareClasses(shareClasses) }
             { this.renderHistory(shareClasses) }
@@ -477,6 +478,7 @@ export class ShareRegister extends React.Component {
                             </div>
                         </div>
                         <div className="widget-body">
+                        { this.renderWarnings() }
                             { this.renderControls() }
                                 <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
                         </div>
@@ -493,6 +495,11 @@ export class ShareRegister extends React.Component {
         return  <div className="button-row">
                 <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/shareregister`} target='_blank'>Download</Link>
             </div>
+
+    }
+
+    renderWarnings() {
+        return false;
 
     }
 
