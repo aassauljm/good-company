@@ -8,7 +8,7 @@ import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
-import { renderTemplate, showEmailDocument } from '../actions';
+import { renderTemplate, showEmailDocument, addNotification } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
@@ -16,6 +16,8 @@ import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
 import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel } from 'json-schemer';
+import Raven from 'raven-js';
+
 
 function createLawLinks(list){
     return (
@@ -277,7 +279,8 @@ function jsonStringToValues(string) {
     return {...state.resources['renderTemplate']}
 }, {
     renderTemplate: (args) => renderTemplate(args),
-    showEmailDocument: (args) => showEmailDocument(args)
+    showEmailDocument: (args) => showEmailDocument(args),
+    addNotification: (...args) => addNotification(...args)
 })
 export  class TemplateView extends React.Component {
 
@@ -306,6 +309,10 @@ export  class TemplateView extends React.Component {
             .then(blob => {
                 saveAs(blob, filename);
             })
+            .catch((e) => {
+                this.props.addNotification({error: true, message: 'Could not generate document.  An error has been submitted to CataLex on your behalf'});
+                Raven.captureMessage('Failed to generate document');
+            });
     }
 
     emailDocument(values) {
