@@ -107,6 +107,21 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
     SELECT id from find_state where "previousCompanyStateId" is null;
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION company_from_company_state(companyStateId integer)
+    RETURNS INTEGER
+    AS $$
+     WITH RECURSIVE future_company_states(id, "previousCompanyStateId",  generation) as (
+        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id = $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM company_state t, future_company_states tt
+        WHERE tt.id = t."previousCompanyStateId")
+
+        SELECT c.id from future_company_states fcs
+        JOIN company c on c."currentCompanyStateId" = fcs.id
+    LIMIT 1;
+$$ LANGUAGE SQL;
+
 
 -- get the companyState for right now
 CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp with time zone)
@@ -340,8 +355,9 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
-    SELECT pending_future_action_id is not null from  company_state cs
-    WHERE  cs.id = $1
+    SELECT latest_source_data_id is not null from  company c
+      INNER JOIN
+      (SELECT company_from_company_state($1)) s on s.company_from_company_state = c.id
 $$ LANGUAGE SQL;
 
 
@@ -400,7 +416,7 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
     AS $$
     SELECT jsonb_build_object(
         'pendingHistory', has_pending_historic_actions($1),
-        --'pendingFuture', has_pending_future_actions($1),
+        'pendingFuture', has_pending_future_actions($1),
         'missingVotingShareholders', has_missing_voting_shareholders($1),
         'shareClassWarning', has_no_share_classes($1),
         'applyShareClassWarning', has_no_applied_share_classes($1),
@@ -439,6 +455,37 @@ CREATE TRIGGER company_state_warnings_trigger AFTER INSERT OR UPDATE ON company_
     WHEN (pg_trigger_depth() = 0)
     EXECUTE PROCEDURE apply_warnings();
 
+
+CREATE OR REPLACE FUNCTION company_apply_warnings()
+RETURNS trigger AS $$
+BEGIN
+    UPDATE company_state set warnings = get_warnings(NEW.id) where id = NEW."currentCompanyStateId";
+
+    -- TODO, save result of pendingHistory and propagate
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
+        SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = NEW."currentCompanyStateId"
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", t."transactionId"
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+
+     UPDATE company_state cs set warnings = get_warnings(cs.id)
+     FROM (SELECT id from prev_company_states) subquery
+
+
+    WHERE subquery.id = cs.id and cs.id != NEW.id;
+  RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
+
+
+
+
+DROP TRIGGER IF EXISTS company_company_state_warnings_trigger ON company;
+CREATE TRIGGER company_company_state_warnings_trigger AFTER INSERT OR UPDATE OF latest_source_data_id ON company
+    FOR EACH ROW
+    WHEN (pg_trigger_depth() = 0)
+    EXECUTE PROCEDURE company_apply_warnings();
 
 
 

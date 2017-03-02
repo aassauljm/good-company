@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource } from '../actions';
+import { requestResource, updateResource } from '../actions';
 import { stringDateToFormattedString, stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -11,7 +11,7 @@ import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import STRINGS from '../strings';
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink';
-
+import Button from 'react-bootstrap/lib/Button';
 
 const companiesRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location=" s 360(1)+(4)">Registrar to keep companies register</LawBrowserLink>
@@ -37,9 +37,10 @@ const fields = [
 
 
 @connect((state, ownProps) => {
-    return state.resources[`/company/${ownProps.companyId}/source_data`] || {};
+    return {sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {}, update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}}
 }, {
-    requestData: (key) => requestResource(`/company/${key}/source_data`)
+    requestData: (key) => requestResource(`/company/${key}/source_data`),
+    updateData: (key) => updateResource(`/company/${key}/update_source_data`)
 })
 export class CompaniesRegisterWidget extends React.Component {
 
@@ -60,12 +61,26 @@ export class CompaniesRegisterWidget extends React.Component {
     }
 
     renderBody() {
-        if(this.props._status  === 'fetching' || !this.props._status ){
+        if(this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status ){
             return <div className="loading" key="loading">
-                        <Glyphicon glyph="refresh" className="spin"/>
-                    </div>
+                    <Glyphicon glyph="refresh" className="spin"/>
+                </div>
         }
-        const data = (this.props.data || {}).data || {};
+
+        if(this.props.update._status  === 'fetching' ){
+            return <div>
+                <div className="text-center">
+                 Checking Companies Office for changes...
+            </div>
+                <div className="loading" key="loading">
+                    <Glyphicon glyph="refresh" className="spin"/>
+                </div>
+                </div>
+        }
+
+
+        const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
+        const data = source.data;
 
         return <div className="row" key="body">
 
@@ -87,6 +102,9 @@ export class CompaniesRegisterWidget extends React.Component {
                  { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
             </div> }
+            <div className="button-row">
+                <Button bsStyle="info" onClick={() => this.props.updateData(this.props.companyId)}>Check Companies Office for Updates</Button>
+            </div>
         </div>
     }
 
@@ -126,9 +144,10 @@ function renderValue(value){
 
 
 @connect((state, ownProps) => {
-    return state.resources[`/company/${ownProps.companyId}/source_data`] || {};
+    return {sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {}, update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}}
 }, {
-    requestData: (key) => requestResource(`/company/${key}/source_data`)
+    requestData: (key) => requestResource(`/company/${key}/source_data`),
+    updateData: (key) => updateResource(`/company/${key}/update_source_data`)
 })
 export default class CompaniesRegister extends React.Component {
     fetch() {
@@ -147,19 +166,35 @@ export default class CompaniesRegister extends React.Component {
     }
 
     renderBody() {
-        if(this.props._status  === 'fetching' || !this.props._status ){
+        if(this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status ){
             return <div className="loading" key="loading">
                     <Glyphicon glyph="refresh" className="spin"/>
                 </div>
         }
-        const data = (this.props.data || {}).data || {};
+        if(this.props.update._status  === 'fetching' ){
+            return <div>
+                <div className="text-center">
+                 Checking Companies Office for changes...
+            </div>
+                <div className="loading" key="loading">
+                    <Glyphicon glyph="refresh" className="spin"/>
+                </div>
+                </div>
+        }
+
+        const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         return <div key="body">
+            <div className="text-center">
+                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${source.data.companyNumber}`} target="blank">View at Companies Office</a>
+            </div>
             { fields.map((f, i) => {
-                return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(data[f])}</div></div>
+                return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(source.data[f])}</div></div>
             })}
             <div className="text-center">
-                 { this.props.data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(this.props.data.createdAt) }</em></div> }
-                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office</a>
+                 { source.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(source.createdAt) }</em></div> }
+            </div>
+            <div className="button-row">
+            <Button bsStyle="info" onClick={() => this.props.updateData(this.props.companyId)}>Check Companies Office for Updates</Button>
             </div>
         </div>
     }

@@ -75,7 +75,7 @@ export class ShareholdingsWidget extends React.Component {
         const holderCount = this.countHolders();
         const shareCountByClass = this.props.companyState.shareCountByClass;
         const shareClassMap = generateShareClassMap(this.props.companyState);
-        const classCount = Object.keys(shareClassMap).length
+        const classCount = Object.keys(shareClassMap || {}).length
 
         let bodyClass = "widget-body ";
         if(this.props.toggle){
@@ -125,7 +125,7 @@ export class ShareholdingsWidget extends React.Component {
                           </div>
                     </div>
                     <div className="col-xs-12">
-                    { Object.keys(shareCountByClass).map((k, i) => {
+                    { Object.keys(shareCountByClass || {}).map((k, i) => {
                         return <div key={i} className="class-summary">
                             <div><strong>{numberWithCommas(shareCountByClass[k].amount)}</strong> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
                             <div className="largest-holdings">Largest Shareholdings:</div>

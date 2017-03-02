@@ -93,6 +93,9 @@ export class DirectorsWidget extends React.Component {
         return this.props.companyId;
     }
     renderBody() {
+        if(!this.props.companyState || !this.props.companyState.directorList){
+            return false;
+        }
         let bodyClass = "widget-body expandable ";
         if(this.props.expanded){
             bodyClass += "expanded ";

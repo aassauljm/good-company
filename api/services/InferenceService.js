@@ -377,9 +377,10 @@ module.exports = {
         const incorporationDate = incorporationDoc ? moment(incorporationDoc.date || incorporationDoc.effectiveDate) :
             moment(data.incorporationDate, 'DD MMM YYYY');
 
+        // oh christ
         incorporationDate.add(1, 'second');
 
-        data.directors.forEach(d => {
+        (data.directors || []).forEach(d => {
             const date = moment(d.appointmentDate, 'DD MMM YYYY')
 
             const action = {
@@ -398,7 +399,7 @@ module.exports = {
         });
 
 
-        data.formerDirectors.forEach(d => {
+        (data.formerDirectors || []).forEach(d => {
             // without a cease date, this makes no sense
             // https://www.business.govt.nz/companies/app/ui/pages/companies/135116/directors
             const appointmentDate = moment(d.appointmentDate, 'DD MMM YYYY'),
@@ -455,34 +456,38 @@ module.exports = {
                 })
             });
         }
-        data.previousNames.slice(0, data.previousNames.length-1).map((prevName, i) => {
-            const action = {
-                transactionType: Transaction.types.NAME_CHANGE,
-                effectiveDate: moment(prevName.endDate, 'DD MMM YYYY').toDate(),
-                previousCompanyName: prevName.name,
-                newCompanyName: i ? data.previousNames[i-1].name : data.companyName,
-            }
-            if(doesNotContain(action)){
-                results.push({
-                    actions: [action],
-                    effectiveDate: action.effectiveDate,
+        if(data.previousNames){
+            (data.previousNames || []).slice(0, data.previousNames.length-1).map((prevName, i) => {
+                const action = {
                     transactionType: Transaction.types.NAME_CHANGE,
-                });
-            }
-        });
+                    effectiveDate: moment(prevName.endDate, 'DD MMM YYYY').toDate(),
+                    previousCompanyName: prevName.name,
+                    newCompanyName: i ? data.previousNames[i-1].name : data.companyName,
+                }
+                if(doesNotContain(action)){
+                    results.push({
+                        actions: [action],
+                        effectiveDate: action.effectiveDate,
+                        transactionType: Transaction.types.NAME_CHANGE,
+                    });
+                }
+            });
+        }
         return results;
     },
     inferCompanyShareholderNameChanges: function(data, docs){
         // for now, check if we have ever had any shareholders that are companies, and then check if they ever have had name changes
         let companies = [];
-        data.holdings.allocations.map(a => {
-            a.holders.map(h => {
-                if(h.companyNumber){
-                    companies.push({name: h.name, companyNumber: h.companyNumber});
-                }
+        if(data.holdings && data.holdings.allocations){
+            data.holdings.allocations.map(a => {
+                a.holders.map(h => {
+                    if(h.companyNumber){
+                        companies.push({name: h.name, companyNumber: h.companyNumber});
+                    }
+                })
             })
-        })
-        data.historicHolders.map(h => {
+        }
+        (data.historicHolders || []).map(h => {
             // is historic holder name all in capitals?  probably a company
             if(h.name.toLocaleUpperCase() === h.name){
                 companies.push({name: h.name, date: moment(h.vacationDate, 'DD MMM YYYY').toDate()});

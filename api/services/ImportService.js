@@ -41,7 +41,7 @@ export function importCompany(companyNumber, options) {
                             return SourceData.create({data: processedDocs});
                         })
                         .then(function(sourceData){
-                            return company.setHistoricSourceData(sourceData);
+                            return company.setHistoricProcessedDocuments(sourceData);
                         })
                         .then(() => {
                             return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
@@ -79,18 +79,6 @@ export function importCompany(companyNumber, options) {
         .catch(e => {
             sails.log.error(e);
             throw e;
-        })
-}
-
-export function checkCompaniesOfficeForUpdate(company, companyState){
-    return Promise.all([company.getSourceData(), ScrapingService.fetch(companyState.companyNumber).then(ScrapingService.parseNZCompaniesOffice)])
-        .spread((sourceData, data) => {
-            const existing = sourceData.data.documents.reduce((acc, d) => {
-                acc[d.documentId] = true;
-                return acc;
-            }, {});
-            const documents = data.documents.filter(d => !existing[d.documentId]);
-            return {newDocuments: documents};
         })
 }
 

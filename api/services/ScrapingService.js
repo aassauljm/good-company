@@ -405,13 +405,13 @@ const EXTRACT_DOCUMENT_MAP = {
                 afterName: cleanString($(el).find('.after .directorName').text()),
                 afterAddress: cleanString($(el).find('.after .directorAddress').text())
             }}).get(),
-            /*...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
+            ...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
             return {
                 transactionType: transactionType($(el)),
                 name: cleanString($(el).find('.directorName').text()),
                 address: cleanString($(el).find('.directorAddress').text()),
-                effectiveDate: moment(cleanString(cleanString($(el).find('.directorAppointmentDate, .directorCessationDate').text())), 'DD/MM/YYYY'),
-            }}).get(),*/
+                effectiveDate: moment(cleanString(cleanString($(el).find('.directorAppointmentDate, .directorCeasedDate').text())), 'DD/MM/YYYY'),
+            }}).get()
             ]};
         // Currently ignoring new and remove, and instead using the directorship history
         if(results.actions.length && results.actions[0].effectiveDate){
@@ -1345,17 +1345,21 @@ const ScrapingService = {
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
-                return TransactionService.performSeed({
-                    ...data,
-                    ...ScrapingService.formatHoldings(data, userId),
-                    ...ScrapingService.formatDirectors(data, userId),
-                    ...ScrapingService.formatDocuments(data, userId),
-                }, company, new Date(), userId);
+                return TransactionService.performSeed(ScrapingService.prepareSourceData(data, userId), company, new Date(), userId);
             })
             .then(function(){
                 sails.log.verbose('CompanyState populated in DB');
                 return this.company;
             });
+    },
+
+    prepareSourceData: function(data, userId){
+        return {
+            ...data,
+            ...ScrapingService.formatHoldings(data, userId),
+            ...ScrapingService.formatDirectors(data, userId),
+            ...ScrapingService.formatDocuments(data, userId)
+        }
     },
 
     canonicalizeNZCompaniesData: function(data){

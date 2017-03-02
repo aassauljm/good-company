@@ -90,11 +90,14 @@ module.exports = {
                 include: [{
                     model: SourceData,
                     as: 'sourceData'
+                },{
+                    model: SourceData,
+                    as: 'latestSourceData'
                 }]
             })
             .then(function(company) {
                 const json = company.toJSON();
-                return res.json(json.sourceData);
+                return res.json({currentSourceData: json.sourceData, latestSourceData: json.latestSourceData});
             })
             .catch(function(err) {
                 return res.notFound(err);
@@ -107,22 +110,71 @@ module.exports = {
                 include: [{
                     model: SourceData,
                     as: 'sourceData'
+                },{
+                    model: CompanyState,
+                    as: 'currentCompanyState'
                 }]
             })
             .then(_company => {
                 company = _company;
-                return ScrapingService.fetch(company.sourceData.companyNumber)
+                return ScrapingService.fetch(company.sourceData.data.companyNumber)
             })
             .then(ScrapingService.parseNZCompaniesOffice)
-            .then(data => company.update({sourceData: data}))
-            .then(function(company) {
-                const json = company.toJSON();
-                return res.json(json.sourceData);
+            .then(data => ScrapingService.prepareSourceData(data, req.user.id))
+            .then(newData => {
+                // currently identifhing new source data by comparing data
+                if(newData.docList.documents.length !== company.sourceData.data.docList.documents.length){
+                    return SourceData.create({data:newData})
+                        .then(data => company.setLatestSourceData(data))
+                        .then(() => res.json({sourceDataUpdated: true}))
+                }
+                return res.json({sourceDataUpdated: false})
             })
             .catch(function(err) {
                 return res.notFound(err);
             });
     },
+
+    formatPendingFuture: function(req, res) {
+        let data;
+        Company.findById(req.params.id, {
+                include: [{
+                    model: SourceData,
+                    as: 'sourceData'
+                },{
+                    model: SourceData,
+                    as: 'latestSourceData'
+                }]
+            })
+            .then(function(company) {
+                if(company.latestSourceData){
+                    const existing = company.sourceData.data.documents.reduce((acc, d) => {company.latestSourceData.data.documents
+                        acc[d.documentId] = true;
+                        return acc;
+                    }, {});
+
+                    const documents = company.latestSourceData.data.documents.filter(d => !existing[d.documentId]);
+
+                    data = {documents: documents, companyNumber: company.latestSourceData.data.companyNumber }
+
+                    return ScrapingService.getDocumentSummaries(data)
+                    .then((readDocuments) => {
+                        return ScrapingService.processDocuments(data, readDocuments);
+                    })
+                    .then(results => {
+                        res.json(results)
+                    })
+                }
+                else{
+                    return res.json([])
+                }
+        })
+
+
+    },
+
+
+
 
     history: function(req, res) {
         Company.findById(req.params.id)

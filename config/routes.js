@@ -325,9 +325,9 @@ module.exports.routes = {
         model: 'company'
     },
 
-    'GET /api/company/:id/check_companies_office': {
+    'GET /api/company/:id/format_pending_future': {
         controller: 'CompanyController',
-        action: 'checkCompaniesOffice',
+        action: 'formatPendingFuture',
         model: 'company'
     },
 

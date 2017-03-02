@@ -45,7 +45,7 @@ module.exports = {
                 name: 'currentCompanyStateId'
             }
         });
-        // represents foreign data
+        // represents foreign data, used by import
         Company.belongsTo(SourceData, {
             as: 'sourceData',
             foreignKey: {
@@ -53,8 +53,18 @@ module.exports = {
                 name: 'source_data_id'
             }
         });
+        // represent foreign data, current snap shot
         Company.belongsTo(SourceData, {
-            as: 'historicSourceData',
+            as: 'latestSourceData',
+            foreignKey: {
+                as: 'latestSourceData',
+                name: 'latest_source_data_id'
+            }
+        });
+
+        // NOT the same as above.  is a list of processed_documents
+        Company.belongsTo(SourceData, {
+            as: 'historicProcessedDocuments',
             foreignKey: {
                 as: 'historicSourceData',
                 name: 'historic_source_data_id'
@@ -229,7 +239,7 @@ module.exports = {
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
                 let state, newRoot, pendingActions;
-                return this.getHistoricSourceData()
+                return this.getHistoricProcessedDocuments()
                     .then(dS => {
                         pendingActions = dS.data.map(d => ({data: d}))
 
