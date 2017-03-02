@@ -146,7 +146,7 @@ describe('CompanyStateController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions', 'dateOfState').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions', 'dateOfState'));
                     done();
                 });
         });
@@ -201,14 +201,14 @@ describe('CompanyStateController', function() {
         it('should get and compare seed version', function(done){
             req.get('/api/company/'+companyId+'/history/2')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions', 'dateOfState').should.be.deep.eql(_.omitDeep(firstSummary.currentCompanyState, 'updatedAt', 'futureTransactions', 'dateOfState'));
                     done();
                 });
         });
         it('should get and compare first issue version', function(done){
             req.get('/api/company/'+companyId+'/history/1')
                 .then(function(res){
-                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions').should.be.deep.eql(_.omitDeep(secondSummary.currentCompanyState, 'updatedAt', 'futureTransactions'));
+                    _.omitDeep(res.body.companyState, 'updatedAt', 'futureTransactions', 'dateOfState').should.be.deep.eql(_.omitDeep(secondSummary.currentCompanyState, 'updatedAt', 'futureTransactions', 'dateOfState'));
                     done();
                 });
         });
