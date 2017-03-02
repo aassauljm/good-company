@@ -20,6 +20,8 @@ const shareholdingLawLinks = () => <div>
 
 const colorScale = d3.scale.category20c();
 
+
+
 function largestHolders(shareClass, total, companyState, count = 3){
     const list = companyState.holdingList.holdings.reduce((acc, h) => {
         h.parcels.map(p => {
@@ -110,17 +112,17 @@ export class ShareholdingsWidget extends React.Component {
                        <div className="hide-graph-labels pie-chart responsive">
                         <div className="pie-chart-limit">
                          { <PieChart
-                            viewBox={'0 0 100 100'}
-                          data={groupHoldings(this.props.companyState)}
-                          width={100}
-                          height={100}
-                          innerRadius={0.0001}
-                          outerRadius={50}
-                          tooltipHtml={pieTooltip}
-                          colorScale={colorScale}
-                          tooltipMode={'mouse'}
-                          showInnerLabels={false}
-                          showOuterLabels={false} />  }
+                                viewBox={'0 0 100 100'}
+                                data={groupHoldings(this.props.companyState)}
+                                width={100}
+                                height={100}
+                                innerRadius={0.0001}
+                                outerRadius={50}
+                                tooltipHtml={pieTooltip}
+                                colorScale={colorScale}
+                                tooltipMode={'mouse'}
+                                showInnerLabels={false}
+                                showOuterLabels={false} />  }
                           </div>
                           </div>
                     </div>
