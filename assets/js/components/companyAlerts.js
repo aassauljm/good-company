@@ -187,6 +187,7 @@ export class CompanyAlertsBase extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired,
+        showTypes: PropTypes.array.isRequired
     };
     renderImportWarnings(warn) {
         return <div>

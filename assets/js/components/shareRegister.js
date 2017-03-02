@@ -12,7 +12,7 @@ import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { CompanyHOCFromRoute } from '../hoc/resources';
-import { CompanyAlertsWidget } from './companyAlerts';
+import { CompanyAlertsBase } from './companyAlerts';
 
 const shareRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location="s 87">Share register maintenance</LawBrowserLink>
@@ -500,6 +500,7 @@ export class ShareRegister extends React.Component {
 
     renderWarnings() {
         return false;
+        //return <CompanyAlertsBase companyState={this.props.companyState} companyId={this.props.companyId} showTypes={['danger']}/>
 
     }
 
