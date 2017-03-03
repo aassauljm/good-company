@@ -35,9 +35,19 @@ import { ContactDetailsTransactionView } from './contactDetails';
 import { withRouter } from 'react-router'
 import { push, replace } from 'react-router-redux';
 
+const DEFAULT_OBJ = {};
 
-export const TransactionViewSwitch = (props) => {
+@connect(() => DEFAULT_OBJ, {endTransactionView: (showing) => endTransactionView(showing)})
+export class TransactionViewSwitch extends React.PureComponent {
 
+    componentWillUnmount() {
+        if(this.props.showing){
+            this.props.endTransactionView(this.props.showing);
+        }
+    }
+
+    render(){
+        const props = this.props;
         switch(props.showing){
             case 'addAssignShares':
                 return <AddAssignSharesTransactionView {...props} />
@@ -174,11 +184,14 @@ export const TransactionViewSwitch = (props) => {
             default:
                 return false;
         }
+    }
 
 }
 
 
 export class TransactionViews extends React.Component {
+
+
     renderTransactionView(showing) {
         const data = this.props[showing] || {};
         const props = {
@@ -211,7 +224,6 @@ export class TransactionViews extends React.Component {
         return <TransactionViewSwitch showing={showing} {...props} />;
     }
 
-
     render() {
         if(!this.props.showing){
             return false;
@@ -221,7 +233,6 @@ export class TransactionViews extends React.Component {
     }
 }
 
-const DEFAULT_OBJ = {};
 
 const TransactionViewsConnected = connect(() => DEFAULT_OBJ)(TransactionViews);
 export default TransactionViewsConnected;
