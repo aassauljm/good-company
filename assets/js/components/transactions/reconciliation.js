@@ -227,7 +227,6 @@ FUTURE_PAGES[EXPLAINATION] = function() {
     if(this.state.pendingFuture._status === 'fetching'){
         return  <Loading />
     }
-
     if(this.state.pendingFuture._status === 'complete'){
         const pendingYearActions = collectActions(this.state.pendingFuture.data);
         if(pendingYearActions.length){
@@ -444,7 +443,7 @@ export class ImportHistoryTransactionView extends React.Component {
     return {
         pendingFuture: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_future`] || {},
         importFuture: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_future`] || {},
-        //updatePendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || {},
+        updatePendingFuture: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_future`] || {},
         companyState: state.resources[`/company/${ownProps.transactionViewData.companyId}`] || {},
     };
 }, (dispatch, ownProps) => {
@@ -489,17 +488,17 @@ export class ImportFutureTransactionView extends React.Component {
 
     componentDidMount() {
         this.fetch();
-       // this.checkContinue();
+        this.checkContinue();
     };
 
     componentDidUpdate() {
         this.fetch();
-       // this.checkContinue();
+        this.checkContinue();
     };
 
     componentWillReceiveProps(newProps) {
         if(newProps.pendingFuture && newProps.pendingFuture.data){
-            this.setState({pending: newProps.pendingFuture})
+            this.setState({pendingFuture: newProps.pendingFuture})
         }
     }
 
@@ -510,12 +509,9 @@ export class ImportFutureTransactionView extends React.Component {
     }
 
     renderBody() {
-        return false;
-        //return  FUTURE_PAGES[this.props.index] && FUTURE_PAGES[this.props.index].call(this);
+        return  FUTURE_PAGES[this.props.index] && FUTURE_PAGES[this.props.index].call(this);
     }
-    componentWillUnmount(){
-        debugger
-    }
+
     isLoading() {
         return this.props.pendingFuture._status !== 'complete' || this.props.updatePendingFuture._status === 'fetching'
     }

@@ -159,7 +159,7 @@ module.exports = {
                         return ScrapingService.processDocuments(data, readDocuments);
                     })
                     .then(results => {
-                        res.json(results)
+                        res.json(results.map(r => ({data: r})))
                     })
                 }
                 else{

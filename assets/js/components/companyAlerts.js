@@ -82,7 +82,7 @@ class PendingFuture extends React.Component {
     render(){
         return  <div><a  href="#" onClick={this.props.startFutureImport } className="text-danger alert-entry">
         <Glyphicon glyph="transfer" className="big-icon"/>
-         New Companies Register records found. Click here to start reconiliation.</a>
+         New Companies Register records found. Click here to start reconciliation.</a>
         </div>
     }
 }
