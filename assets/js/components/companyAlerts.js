@@ -80,7 +80,7 @@ class ResolveAllWarnings extends React.Component {
 @pureRender
 class PendingFuture extends React.Component {
     render(){
-        return  <div><a  href="#" className="text-danger alert-entry">
+        return  <div><a  href="#" onClick={this.props.startFutureImport } className="text-danger alert-entry">
         <Glyphicon glyph="transfer" className="big-icon"/>
          New Companies Register records found. Click here to start reconiliation.</a>
         </div>
@@ -183,6 +183,11 @@ function hasAlerts(companyState, showTypes){
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
             dispatch(showTransactionView('votingShareholders', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
         },
+        startFutureImport: () => {
+            dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
+            dispatch(showTransactionView('importFuture', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+        },
+
         resetTransactionViews: () => dispatch(resetTransactionViews())
     }
 })
@@ -208,7 +213,7 @@ export class CompanyAlertsBase extends React.Component {
         const pendingFuture = warn.pendingFuture;
 
         return <ul className="company-alerts">
-                { pendingFuture && <li><AlertWarnings.PendingFuture companyId={this.props.companyId} /></li> }
+                { pendingFuture && <li><AlertWarnings.PendingFuture companyId={this.props.companyId} startFutureImport={this.props.startFutureImport}/></li> }
                 { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetTransactionViews={this.props.resetTransactionViews}/></li>}
                 { deadlines }
                 { this.props.showAllWarnings && this.renderImportWarnings(warn) }

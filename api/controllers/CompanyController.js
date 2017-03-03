@@ -152,11 +152,8 @@ module.exports = {
                         acc[d.documentId] = true;
                         return acc;
                     }, {});
-
                     const documents = company.latestSourceData.data.documents.filter(d => !existing[d.documentId]);
-
                     data = {documents: documents, companyNumber: company.latestSourceData.data.companyNumber }
-
                     return ScrapingService.getDocumentSummaries(data)
                     .then((readDocuments) => {
                         return ScrapingService.processDocuments(data, readDocuments);
@@ -170,10 +167,7 @@ module.exports = {
                 }
         })
 
-
     },
-
-
 
 
     history: function(req, res) {

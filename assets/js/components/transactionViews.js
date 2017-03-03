@@ -13,7 +13,7 @@ import { CompanyDetailsTransactionView } from './transactions/updateCompanyInfo'
 import { NewHoldingTransactionView } from './transactions/newHolding';
 import { UpdateHoldingTransactionView } from './transactions/updateHolding';
 import { SelectHoldingTransactionView } from './transactions/selectHolding';
-import { ImportHistoryTransactionView } from './transactions/importHistory';
+import { ImportHistoryTransactionView, ImportFutureTransactionView } from './transactions/reconciliation';
 import { NewPersonTransactionView, NewDirectorPersonTransactionView } from './transactions/newPerson';
 import { UpdatePersonTransactionView, UpdateDirectorPersonTransactionView, UpdateHistoricPersonTransactionView } from './transactions/updatePerson';
 import { SelectPersonTransactionView, SelectHistoricPersonTransactionView  } from './transactions/selectPerson';
@@ -131,6 +131,9 @@ export const TransactionViewSwitch = (props) => {
 
             case 'importHistory':
                 return <ImportHistoryTransactionView {...props} />
+
+            case 'importFuture':
+                return <ImportFutureTransactionView {...props} />
 
             case 'resolveAmbiguity':
                 return <ResolveAmbiguityTransactionView {...props} />
