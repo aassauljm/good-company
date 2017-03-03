@@ -55,9 +55,9 @@ module.exports = {
         oauthURI: 'https://www.eat.nzbn.govt.nz/oauth-service/oauth/',
 
         nzbn: {
-            basicAuthUser: 'NZBN-Catalex-Test',
-            basicAuthPass: 'bHDrK2fsBVjHkhHh',
-            clientId: 'NZBN-Catalex-Test'
+            basicAuthUser: 'xxxxxx',
+            basicAuthPass: 'xxxxxx',
+            clientId: 'xxxxxx'
         }
     }
 };

@@ -57,6 +57,10 @@ module.exports = {
                 name:  'userId'
             }
         });
+        User.hasMany(ApiCredential, {
+            as: 'apiCredentials',
+            foreignKey: 'ownerId'
+        });
     },
     options: {
         freezeTableName: false,

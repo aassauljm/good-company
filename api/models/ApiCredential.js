@@ -19,10 +19,6 @@ module.exports = {
             type: Sequelize.INTEGER,
             allowNull: false
         },
-        scope: {
-            type: Sequelize.TEXT,
-            allowNull: false
-        },
         service: {
             type: Sequelize.TEXT,
             allowNull: false
@@ -31,16 +27,28 @@ module.exports = {
     associations: function() {
         ApiCredential.belongsTo(User, {
             as: 'owner',
-            foreignKey: {
-                name: 'ownerId'
-            }
+            foreignKey: 'ownerId'
+        });
+        ApiCredential.belongsToMany(ApiCredentialScope, {
+            as: 'scope',
+            unique: true,
+            through: 'api_credential_api_credential_scopes',
+            foreignKey: 'apiCredentialId'
         });
     },
     options: {
         freezeTableName: false,
         tableName: 'api_credential',
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            addScopes(scopes) {
+                scopes.map(scope => {
+                    ApiCredentialScope
+                        .findOrCreate({ where: { scope } })
+                        .then(scopeInstances => this.addScope(scopeInstances[0]));
+                });
+            }
+        },
         hooks: {}
     }
 
