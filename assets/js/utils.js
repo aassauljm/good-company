@@ -305,7 +305,7 @@ export const actionOptionsFromActionSets = (actionSets=[], shareClassMap, ignore
     function renderParcels(action, shareClassMap){
         return `${action.parcels.map(p => `${action.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  shareClassMap)}`).join(', ') } shares`;
     }
-    return <optgroup label="Reported Shareholding Changes">{
+    return <optgroup label="Reported Shareholding Changes"  key="reported-changes">{
         actionSets.reduce((acc, actionSet) => {
             if(ignoreId && actionSet.id === ignoreId){
                 return acc;
@@ -386,6 +386,9 @@ export function isNaturalPerson(person){
     return !nonNatural;
 }
 
+export function personAttributes(person){
+    return {name: person.name, address: person.address, personId: person.personId, companyNumber: person.companyNumber};
+}
 
 export function generateShareClassMap(companyState){
     if(companyState && companyState.shareClasses && companyState.shareClasses.shareClasses){

@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap, actionOptionsFromActionSets,
     collectAmendActions,
     collectShareChangeActions, isAmendable, isShareChange,
-    SHARE_CHANGE_TYPES,
+    SHARE_CHANGE_TYPES, personAttributes,
     renderShareClass, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState, getTotalShares } from '../../../utils';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/lib/Button';
@@ -239,8 +239,8 @@ const AmendActionSummary = (props) => {
             const direction = actionAmountDirection(props.action)
             const diffClassName = direction ? 'diff increase number': 'diff decrease number';
             return <div key={i} className="parcel-row">
-                <span className="number">{ numberWithCommas(p.afterAmount) }</span>
-                <span className={diffClassName}>{ numberWithCommas(p.amount) }</span>
+                <span className="number">{ p.afterAmount !== undefined ? numberWithCommas(p.afterAmount) : '??' }</span>
+                <span className={diffClassName}>{ p.amount !== undefined ? numberWithCommas(p.amount) : '??' }</span>
                 <span className="share-class">{ renderShareClass(p.shareClass, props.shareClassMap) } Shares</span>
             </div>
         })}
@@ -259,8 +259,8 @@ const ShareChangeActionSummary = (props) => {
             const direction = actionAmountDirection(props.action)
             const diffClassName = direction ? 'diff increase number': 'diff decrease number';
             return <div key={i} className="parcel-row">
-                <span className="number">{ numberWithCommas(p.afterAmount) }</span>
-                <span className={diffClassName}>{ numberWithCommas(p.amount) }</span>
+                <span className="number">{ p.afterAmount !== undefined ? numberWithCommas(p.afterAmount) : '??' }</span>
+                <span className={diffClassName}>{ p.amount !== undefined ? numberWithCommas(p.amount) : '??' }</span>
                 <span className="share-class">{ renderShareClass(p.shareClass, props.shareClassMap) } Shares</span>
             </div>
         })}
@@ -272,6 +272,15 @@ const ShareChangeActionSummary = (props) => {
     </div>
 }
 
+
+function amendActionFromHolding(holding){
+    return {
+        beforeHolders: holding.holders.map(h => personAttributes(h.person)),
+        afterHolders: holding.holders.map(h => personAttributes(h.person)),
+        parcels: holding.parcels.map(p => ({afterAmount: p.amount, shareClass: p.shareClass, amount: 0})),
+        transactionType: TransactionTypes.AMEND
+    }
+}
 
 @reduxForm({
     form: 'AddTransaction',
@@ -317,12 +326,20 @@ class AmendOptions extends React.Component {
         this.state = {submitted: false}
     }
 
-    addAction(actionId) {
-        let action = this.props.otherActionMap[actionId];
+    addAction(id) {
+        let action = this.props.otherActionMap[id];
         if(action){
             action = {...action, userTransplanted: true};
             const newAction = formatInitialState([action], null, this.props.defaultShareClass, null, this.props.shareChangeId).actions[0];
             this.props.fields.actions.addField(newAction);
+        }
+        else{
+            // must be a holding id
+            const holding = this.props.holdingMap[id];
+            action = amendActionFromHolding(holding);
+            const newAction = formatInitialState([action], null, this.props.defaultShareClass, null, this.props.shareChangeId).actions[0];
+            this.props.fields.actions.addField(newAction);
+
         }
     }
     renderTransfer(action, actions) {
@@ -498,7 +515,7 @@ function generateExternalActionSetOptions(actionSets = [], actionSetId){
                 const prefix = set.data.id === actionSetId ? 'This transaction set' : stringDateToFormattedString(set.data.effectiveDate)
                 grouped[mappedType].push(
                     <option value={action.id} key={`${i}-${j}`}>
-                        {prefix } - { `${STRINGS.transactionTypes[action.transactionType]} of ${ action.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') }` }
+                        {prefix } - { `${STRINGS.transactionTypes[action.transactionType]} of ${ action.parcels.map(p => `${p.amount ? numberWithCommas(p.amount) : 'an unknown number of'} shares`).join(', ') }` }
                     </option>);
             }
             /*else if(isAmendable(action, j)){
@@ -535,6 +552,11 @@ function generateOtherActionMap(actionSets = []){
     }, {});
 }
 
+function shareHoldingOptionsFromComapnyState(companyState){
+    return <optgroup label="Current Shareholdings" key="current-shareholdings">
+        { holdingOptionsFromState(companyState) }
+    </optgroup>
+}
 
 export default function Amend(props){
     const { context, submit } = props;
@@ -555,9 +577,15 @@ export default function Amend(props){
     });
     const externalActionSets = generateExternalActionSetOptions(pendingActions, actionSet ? actionSet.id : null);
 
-    const otherActionOptions = actionOptionsFromActionSets(pendingActions, shareClassMap, actionSet.id);
+    const otherActionOptions = [actionOptionsFromActionSets(pendingActions, shareClassMap, actionSet.id)].concat([shareHoldingOptionsFromComapnyState(companyState)]);
     const otherActionMap = generateOtherActionMap(pendingActions);
     const defaultShareClass = shareClasses.length ? shareClasses[0].id : null;
+
+
+    const holdingMap = companyState.holdingList.holdings.reduce((acc, h) => {
+        acc[h.holdingId] = h;
+        return acc;
+    }, {})
 
     const handleSubmit = (values) => {
         submit(formatSubmit(values, actionSet, pendingActions))
@@ -576,6 +604,7 @@ export default function Amend(props){
             cancel={props.cancel}
             otherActionOptions={otherActionOptions}
             otherActionMap={otherActionMap}
+            holdingMap={holdingMap}
             initialValues={formatInitialState(amendActions, actionSet.data.effectiveDate, defaultShareClass, props.resolving ? companyState : {}, shareChangeId)}
             show={props.show}
             transactionViewData={props.transactionViewData}

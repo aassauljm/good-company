@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { hideNotification, addNotification } from '../actions'
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 
-const NOTIFICATION_TIMEOUT = 13333;
+const NOTIFICATION_TIMEOUT = 7000;
 
 
 @pureRender
