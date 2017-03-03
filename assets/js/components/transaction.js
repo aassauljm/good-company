@@ -242,6 +242,7 @@ export const TransactionRenderMap = {
     },
 
     [TransactionTypes.COMPOUND]: BasicLoop,
+    [TransactionTypes.INCORPORATION]: BasicLoop,
 
     [TransactionTypes.ISSUE]: BasicLoop,
     [TransactionTypes.CONSOLIDATION]: BasicLoop,

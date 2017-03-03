@@ -79,7 +79,7 @@ module.exports = {
             })
             .spread(function(currentCompanyState, hasPendingJob, futureTransactions) {
                 var json = this.companyState.get();
-                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions}, });
+                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date()}, });
             }).catch(function(err) {
                 return res.notFound();
             });

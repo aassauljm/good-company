@@ -890,6 +890,8 @@ WITH transaction_history as (
 )
 
 SELECT *,
+    format_iso_date(now()) as "endDate",
+    format_iso_date(now() - $2) as "startDate",
     ( SELECT array_to_json(array_agg(row_to_json(qq)))
     FROM transaction_history qq
     WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
