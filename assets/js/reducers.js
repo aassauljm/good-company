@@ -210,9 +210,8 @@ function transactionViews(state = {}, action){
         case RESET_TRANSACTION_VIEWS:
             return {} ;
 
-        case LOCATION_CHANGE:
-            return {...state, showing: false}
-
+        //case LOCATION_CHANGE:
+        //    return {...state, showing: false}
 
         default:
             return state;

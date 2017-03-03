@@ -58,6 +58,7 @@ export class NewTransaction extends React.Component {
         const id = this.props.companyId;
         return <div className="container">
             <div className="row">
+              <div className="col-xs-12">
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -109,6 +110,7 @@ export class NewTransaction extends React.Component {
                     </div>
 
                 </div>
+            </div>
             </div>
             </div>
         </div>
