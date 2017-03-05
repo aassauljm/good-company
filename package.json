@@ -7,7 +7,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "build-dev": "webpack --progress --colors --watch",
+    "build-dev": "cp -n ./config/env/example.development.js ./config/env/development.js && webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p ",
     "run": "BLUEBIRD_WARNINGS=0 sails lift",
     "test-coverage": "istanbul cover _mocha -- --recursive test --compilers js:babel-core/register --timeout 45000",

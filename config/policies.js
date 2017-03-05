@@ -94,6 +94,9 @@ module.exports.policies = {
 
     AdminController: {
         '*': 'adminPolicy'
+    },
+    ApiCredentialController: {
+        '*': simpleAuth
     }
 
     /***************************************************************************
