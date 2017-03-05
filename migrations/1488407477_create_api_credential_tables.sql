@@ -1,3 +1,20 @@
+CREATE SEQUENCE api_credential_id_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 1
+  CACHE 1;
+
+CREATE SEQUENCE api_credential_scope_id_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 1
+  CACHE 1;
+
+
+
+
 CREATE TABLE public.api_credential
 (
   "id" integer NOT NULL DEFAULT nextval('api_credential_id_seq'::regclass),
@@ -13,7 +30,7 @@ CREATE TABLE public.api_credential
   CONSTRAINT "api_credential_ownerId_fkey" FOREIGN KEY ("ownerId")
       REFERENCES public."user" (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE SET NULL
-)
+);
 
 CREATE TABLE public.api_credential_scope
 (
@@ -22,7 +39,7 @@ CREATE TABLE public.api_credential_scope
   "createdAt" timestamp with time zone NOT NULL,
   "updatedAt" timestamp with time zone NOT NULL,
   CONSTRAINT api_credential_scope_pkey PRIMARY KEY (id)
-)
+);
 
 CREATE TABLE public.api_credential_api_credential_scopes
 (
@@ -37,4 +54,4 @@ CREATE TABLE public.api_credential_api_credential_scopes
   CONSTRAINT "api_credential_api_credential_scopes_scopeId_fkey" FOREIGN KEY ("scopeId")
       REFERENCES public."user" (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
-)
+);
