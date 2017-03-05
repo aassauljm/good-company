@@ -14,6 +14,9 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ConnectedPlaceholderSearch } from './search';
 import { Link } from 'react-router';
 
+const REALME_LOGO = 'https://www.companiesoffice.govt.nz/companies/rm_logo.png';
+
+
 const fields = [
     'listType',
     'identifierList'
@@ -153,7 +156,7 @@ export const ImportSingleFull = (props) => {
         <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                   Import from the Companies Register
+                   Search the Companies Register
                 </div>
             </div>
             <div className="widget-body">
@@ -167,6 +170,29 @@ export const ImportSingleFull = (props) => {
     </div>
 }
 
+export const RealMeConnect = (props) => {
+    return <div className="container">
+        <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                   Connect with RealMe®
+                </div>
+            </div>
+            <div className="widget-body">
+                 <div className="row">
+                 <div className="col-md-6 col-md-offset-3">
+                 <p>Retrieve a list of companies you have authority over using RealMe®.</p>
+                       <div className="button-row">
+                        <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 export const ImportSingleWidget = () => {
     return  <div className="widget">
             <div className="widget-header">
@@ -178,6 +204,7 @@ export const ImportSingleWidget = () => {
                 <ImportSingle form='searchForm'/>
                 <div className="button-row">
                 <Link className="btn btn-info" to="/import">Bulk Import</Link>
+                <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a>
                 </div>
             </div>
         </div>
@@ -211,7 +238,7 @@ export class ImportBulk extends React.Component {
                 <div className="widget">
                     <div className="widget-header">
                         <div className="widget-title">
-                            Bulk Import from the New Zealand Companies Office
+                            Bulk Import from the New Zealand Companies Register
                         </div>
                     </div>
                     <div className="widget-body">
@@ -235,6 +262,7 @@ export default class ImportPage extends React.Component {
     render() {
         return <div>
             <ImportSingleFull initialValue={ this.props.location ? this.props.location.query.value : null }/>
+            <RealMeConnect />
             <ImportBulk />
         </div>
     }
