@@ -45,7 +45,7 @@ const validate = (data, props) => {
     }
 
     const classes = {}, holdingIds = {};
-    return { ...requireFields('effectiveDate')(data),
+    const errors = { ...requireFields('effectiveDate')(data),
         parcels: data.parcels.map(p => {
             const errors = requireFields('amount')(p);
             const amount = parseInt(p.amount, 10);
@@ -104,6 +104,7 @@ const validate = (data, props) => {
             holdingIds[h.holding] = true;
             return errors;
         }), _error: Object.keys(formErrors).length ? formErrors: null };
+    return errors;
 }
 
 
@@ -173,6 +174,7 @@ export class Decrease extends React.Component {
             }}>Add Holding</ButtonInput></div>
             <Documents documents={this.props.fields.documents} label="Approval Documents"/>
             { this.renderRemaining() }
+            { this.renderParcelErrors() }
         </fieldset>
         </form>
     }

@@ -20,6 +20,8 @@ const shareholdingLawLinks = () => <div>
 
 const colorScale = d3.scale.category20c();
 
+
+
 function largestHolders(shareClass, total, companyState, count = 3){
     const list = companyState.holdingList.holdings.reduce((acc, h) => {
         h.parcels.map(p => {
@@ -40,16 +42,23 @@ function renderHolders(holding){
 
 
 function pieTooltip(x, y){
-    const holding = this.data.values.filter(v => v.data.holdingId === x)[0].data;
+    //const holding = this.data.values.filter(v => v.data.holdingId === x)[0].data;
+    const holding = this.data.values[x].data;
     return <div className="graph-tooltip">{ renderHolders(holding) }</div>
 }
 
+function limitPrecision(num) {
+    return Math.floor(num * 1000) / 1000;
+}
 
 function groupHoldings(companyState) {
     const total = companyState.totalAllocatedShares;
-    return {values: companyState.holdingList.holdings.map(holding => ({
-        y: holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100,
-        x: holding.holdingId,
+
+    return {values: companyState.holdingList.holdings.map((holding, i) => ({
+        y: limitPrecision(holding.parcels.reduce((acc, p) => acc + p.amount, 0)/total * 100),
+        //y: holding.parcels.reduce((acc, p) => acc + p.amount, 0),
+        ///x: holding.holdingId,
+        x: i,
         data: holding
     }))};
 };
@@ -110,17 +119,18 @@ export class ShareholdingsWidget extends React.Component {
                        <div className="hide-graph-labels pie-chart responsive">
                         <div className="pie-chart-limit">
                          { <PieChart
-                            viewBox={'0 0 100 100'}
-                          data={groupHoldings(this.props.companyState)}
-                          width={100}
-                          height={100}
-                          innerRadius={0.0001}
-                          outerRadius={50}
-                          tooltipHtml={pieTooltip}
-                          colorScale={colorScale}
-                          tooltipMode={'mouse'}
-                          showInnerLabels={false}
-                          showOuterLabels={false} />  }
+                                viewBox={'0 0 200 200'}
+                                data={groupHoldings(this.props.companyState)}
+                                width={200}
+                                height={200}
+                                innerRadius={0.000001}
+                                outerRadius={100}
+                                tooltipHtml={pieTooltip}
+                                colorScale={colorScale}
+                                sort={null}
+                                tooltipMode={'mouse'}
+                                showInnerLabels={false}
+                                showOuterLabels={false} />  }
                           </div>
                           </div>
                     </div>
@@ -196,6 +206,7 @@ export class Holding extends React.Component {
                           data={{values: [{y: sum, x: 'this'}, {y: this.props.total-sum, x: 'other'}]}}
                           innerRadius={10}
                           outerRadius={30}
+                          sort={null}
                           colorScale={colorScale}
                           width={60}
                           height={60} /> }
@@ -286,6 +297,7 @@ export class Shareholdings extends React.Component {
                               height={400}
                               innerRadius={50}
                               outerRadius={150}
+                              sort={null}
                               colorScale={colorScale}
                               tooltipHtml={pieTooltip}
                               tooltipMode={'mouse'}

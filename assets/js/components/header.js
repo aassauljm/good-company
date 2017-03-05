@@ -75,11 +75,10 @@ export const NavLinks = (props) => {
             <li key={1} className="nav-item">
                 <Link to={`/companies`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Companies</Link>
             </li>,
-            <li key={2} className="nav-item">
-                <Link to={`/calendar`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Calendar</Link>
-            </li>,
+            <li key={2} className="nav-item"><Link to={`/calendar`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Calendar</Link></li>,
             <li key={3} className="nav-item"><Link to={`/templates`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Templates</Link></li>,
-            <li key={4} className="nav-item"><Link to={`/import`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Import</Link></li>
+            <li key={4} className="nav-item"><Link to={`/import`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Import</Link></li>,
+            <li key={5} className="nav-item"><Link to={`/recent_activity`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Recent Activity</Link></li>
          ];
 }
 
@@ -141,12 +140,12 @@ export class Header extends React.PureComponent {
                                 <Dropdown.Menu>
                                      { this.renderNavLinks() }
                                     { this.renderFavourites() }
-                                     <li className="separator" />
+                                    {/* }<li className="separator" />
                                     <li>
                                         <a href={this.props.login.userUrl}>{this.props.userInfo.username}
                                         </a>
                                     </li>
-                                    <li><a href="/logout">Log out</a></li>
+                                    <li><a href="/logout">Log out</a></li> */ }
 
                                 </Dropdown.Menu>
                             </Dropdown>

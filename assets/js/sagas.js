@@ -15,7 +15,7 @@ export function* lookupCompanyOnChange() {
 
 function* fetchLookupCompany(action) {
     yield put({ type: LOOKUP_COMPANY_REQUEST, payload: action.payload.query });
-    yield call(delay, 300);
+    yield call(delay, 150);
     try {
         const result = yield fetchAndProcess(`/api/company/lookup?query=${encodeURIComponent(action.payload.query)}`, {
                 credentials: 'same-origin'

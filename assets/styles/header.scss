@@ -160,7 +160,7 @@ nav.navbar{
     .control-icon{
         float:left;
         vertical-align: middle;
-        & > a{
+        & > a, & >a:focus{
             font-size: 1.4em;
             padding:0 8px;
             line-height: $navbar-height;

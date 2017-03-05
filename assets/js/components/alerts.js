@@ -2,7 +2,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
-import { asyncConnect } from 'redux-connect';
 import { requestResource, resetTransactionViews } from '../actions';
 import { stringDateToFormattedStringTime } from '../utils';
 import { Link } from 'react-router';

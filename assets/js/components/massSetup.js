@@ -206,8 +206,6 @@ const PAGES = {
                     transactions: [{
                         data: data.shareClass,
                         transactionType: BulkTransactionTypes.CREATE_APPLY_ALL_SHARE_CLASS
-                    }, {
-                        transactionType: BulkTransactionTypes.IMPORT_HISTORY
                     }]
                 }))
 
