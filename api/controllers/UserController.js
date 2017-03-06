@@ -33,10 +33,15 @@ module.exports = {
         const last = sequelize.query("select last_login(:id)",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: req.user.id }});
-        Promise.join(User.userWithRoles(req.user.id), last)
-            .spread(function(r, last) {
+
+        const connectedApiServices = sequelize.query(`select service from api_credential where "ownerId" = :id and  now() < "createdAt" + ( "expiresIn" * interval '1 second') group by service`,
+                                                { type: sequelize.QueryTypes.SELECT,
+                                                  replacements: { id: req.user.id }});
+
+        Promise.join(User.userWithRoles(req.user.id), last, connectedApiServices)
+            .spread(function(r, last, connectedApiServices) {
                 const ago = last[0].last_login ? moment(last[0].last_login).fromNow() : "first log in";
-                res.json({...r.toJSON(), lastLogin: ago});
+                res.json({...r.toJSON(), lastLogin: ago, mbieServices: connectedApiServices.map(r => r.service)});
             });
     },
 

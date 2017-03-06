@@ -5,6 +5,7 @@ import STRINGS from './strings'
 import { Link } from 'react-router';
 import moment from 'moment';
 import { enums as TransactionTypes } from '../../config/enums/transactions';
+import firstBy from 'thenby';
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -68,6 +69,9 @@ export function analyseCompany(company){
         return acc;
     }, {});
     company.currentCompanyState.holdingList.holdings.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    company.currentCompanyState.holdingList.holdings.map((holding) => {
+        holding.holders.sort(firstBy(h => (h.data || {}).votingShareholder ? 1 : 0, -1))
+    });
     return company;
 }
 
