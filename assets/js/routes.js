@@ -26,6 +26,7 @@ import RecentActivity from './components/recentActivity';
 import Templates, { TemplateView, TemplateSelectCompany } from './components/templates';
 import  { LoginWithCatalex } from './components/login';
 import ImportCompany from './components/importCompany';
+import ImportNZBN from './components/importNZBN';
 import ImportMenu from './components/importMenu';
 import { CompanyTransactions, PendingTransactions } from './components/transactions';
 import { UpdatePeople, UpdateContact, UpdateShares, UpdateResetDelete } from './components/transactions/selection';
@@ -126,6 +127,7 @@ export default (store) => {
                 <Route path="companies/manage" component={ CompaniesDelete  }  />
                 <Route path="mass_setup" component={ MassSetup }  />
                 <Route path="import" component={ ImportMenu } />
+                <Route path="import/nzbn" component={ ImportNZBN } />
                 <Route path="import/:companyNumber" component={ ImportCompany } />
                 <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyHOCFromRoute(true)(Injector) } >
                     <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
