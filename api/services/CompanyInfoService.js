@@ -20,6 +20,21 @@ export function fetchNameHistory(companies){
         })
 }
 
+export function fetchNZBN(nzbns){
+    return fetch(`${sails.config.companyInfoServiceUrl}/nzbn}`,
+        {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(nzbns)
+        })
+        .then(response => response.json())
+        .catch((e) => {
+            return [];
+        })
+}
 
 export function getNameChangeActions(companies, data, docs) {
     const results = [];
@@ -43,4 +58,24 @@ export function getNameChangeActions(companies, data, docs) {
             });
             return results;
         })
+}
+
+
+export function getCompanyNamesFromNZBNS(list) {
+    const nzbns = list.map(x => nzbn);
+    return fetchNZBN(nzbns)
+        .then(results => {
+            const mapping = results.reduce((acc, result) => {
+                acc[result.nzbn] = result;
+                return acc;
+            });
+            return nzbns.map(nzbn => {
+                if(mapping[nzbn]){
+                    return mapping[nzbn];
+                }
+                else{
+                    return {nzbn, companyName: 'Unknown Company', companyNumber: list.find(x => x.nzbn === nzbn).organisationId}
+                }
+            })
+        });
 }

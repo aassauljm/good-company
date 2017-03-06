@@ -175,7 +175,7 @@ export const RealMeConnect = (props) => {
         <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                   Connect with RealMe®
+                   Import with RealMe®
                 </div>
             </div>
             <div className="widget-body">
