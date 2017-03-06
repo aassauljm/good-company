@@ -53,7 +53,6 @@ module.exports = {
         })
         .then((_response) => {
             response = _response;
-
             res.set('Content-Type', response.headers.get('Content-Type'));
             res.set('Content-Disposition', response.headers.get('Content-Disposition'));
             response.body
