@@ -31,7 +31,7 @@ export class AccountControls extends React.Component {
         const props = this.props;
         const close = () => this.refs.dropdown.refs.inner.handleClose()
         if(props.login.loggedIn){
-            return <Dropdown id="update-dropdown" componentClass="li" className="control-icon" ref="dropdown">
+            return <Dropdown id="account-dropdown" componentClass="li" className="control-icon" ref="dropdown">
                         <DropdownToggle href={props.login.userUrl} bsRole="toggle">
                             <span className="fa fa-user-circle"/>
                        </DropdownToggle>

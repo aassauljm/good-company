@@ -88,6 +88,15 @@ function stubs(){
     })
 
 
+    sails.controllers.render.renderTemplate = function(req, res){
+        return fs.readFileAsync('test/fixtures/companies.json')
+            .then(d => {
+                res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+                res.set('Content-Disposition', 'attachment; filename=1.docx');
+                res.send(d);
+            })
+    };
+
 
 
     global.__DEV__ = false;

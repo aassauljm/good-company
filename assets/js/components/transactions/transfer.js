@@ -42,7 +42,7 @@ export class Transfer extends React.Component {
     };
 
     render() {
-        return <form className="form" >
+        return <form className="form transfer-form" >
         <fieldset>
             <DateInput {...this.formFieldProps('effectiveDate')} time={true}/>
             <Input type="select" {...this.formFieldProps('from', STRINGS.transfer)} >
