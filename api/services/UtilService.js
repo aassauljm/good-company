@@ -52,6 +52,16 @@ export function subsetSum(items, targetSum) {
 
 }
 
+/**
+ * Create the content for a basic auth header
+ */
+export function makeBasicAuthHeader(username, password) {
+    const hash = new Buffer(username + ':' + password).toString('base64');
+    const header = 'Basic ' + hash;
+
+    return header;
+}
+
 
 // na, this sucks due to large targetSums
 export function subsetSumMemoFail(items, targetSum) {

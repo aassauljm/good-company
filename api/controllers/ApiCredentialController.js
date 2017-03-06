@@ -1,5 +1,4 @@
 import fetch from "isomorphic-fetch";
-import FormData from 'form-data';
 
 /**
  * ApiCredential
@@ -7,22 +6,6 @@ import FormData from 'form-data';
  * @description :: Get OAuth tokens from third parties
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
-
-const nzbnServiceToken = 'ad4c469b77c34c4ee2c27db75a38d624';
-
-// function getNzbnServiceToken() {
-//     curl -k --user "ZzGbJNptB5XqreeTwmibE4Kz_qAa:RBQttVu3G5gH7qzfzYUJp8gEfhEa"
-
-//     var formData = new FormData();
-//     formData.append('grant_type', 'client_credentials');
-
-//     return fetch('https://sandbox.api.business.govt.nz/services/token', {
-//         headers: {
-//             'Content-Type': 'application/x-www-form-urlencoded'
-//         },
-//         body: form
-//     })
-// }
 
 module.exports = {
 
@@ -36,31 +19,48 @@ module.exports = {
     },
 
     authorisedCompanies: function (req, res) {
+        MbieApiBearerTokenService.requestToken()
+            .then(r => r.text())
+            .then(r => {
+                console.log('dadada');
+                return console.log(r);
+            });
+
         req.user.getApiCredentials({
                 where: { service: 'nzbn' },
                 order: [['createdAt', 'DESC']]
             })
-            .then(result => result ? result[0].dataValues.accessToken : null)
+            .then(result => result[0] ? result[0].dataValues.accessToken : null)
             .then(nzbnUserAccessToken => {
                 if (!nzbnUserAccessToken) {
-                    return res.json({message: ['No MBIE access token']});
+                    return res.json({message: ['No MBIE access token.']});
                 }
 
                 const headers = {
                     Accept: 'application/json',
                     'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
-                    Authorization: 'Bearer ' + nzbnServiceToken
+                    Authorization: 'Bearer ' + MbieApiBearerTokenService.getToken()
                 };
 
-                return fetch('https://sandbox.api.business.govt.nz/services/v3/nzbn/users', { headers })
+                return fetch(sails.config.mbie.uri + 'v3/nzbn/users', { headers })
+                    .then(response => {
+                        if (response.status === 401) {
+                            throw new Error('Received 401 from MBIE API');
+                        }
+                        
+                        return response;
+                    })
                     .then(response => response.json())
                     .then(users => users.users[0].userId)
-                    .then(userNzbnId => fetch('https://sandbox.api.business.govt.nz/services/v3/nzbn/authorities?user-id=' + userNzbnId, { headers }))
+                    .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers }))
                     .then(response => response.json())
-                    .then(result => {
-                        return res.json(result.items);
-                    });
+                    .then(json => CompanyInfoService.getCompanyNamesFromNZBNS(json.items))
+                    .then(result => res.json(result));
             })
+            .catch(error => {
+                sails.log.error(error);
+                return res.json({message: ['Something went wrong.']})
+            });
     }
 
 };
