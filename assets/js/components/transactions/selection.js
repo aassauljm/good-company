@@ -263,7 +263,7 @@ export class UpdateShares extends React.Component {
                     <span className="transaction-button-text">Apply Share Classes</span>
             </div>
 
-            <div className="actionable select-button" onClick={() => this.props.show('transfer') } >
+            <div className="actionable select-button transfer" onClick={() => this.props.show('transfer') } >
                 <span className="glyphicon glyphicon-transfer"></span>
                 <span className="transaction-button-text">Transfer Shares</span>
             </div>

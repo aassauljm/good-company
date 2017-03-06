@@ -100,13 +100,13 @@ export default class CompanyHeader extends React.Component {
                 </Dropdown>,
 
               <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
-                    <DropdownToggle href={`${this.props.baseUrl}/new_transaction`} bsRole="toggle">
+                    <DropdownToggle href={`${this.props.baseUrl}/new_transaction`} bsRole="toggle" className="update-dropdown">
                         Update
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
-                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
+                        <MenuItem className="update-shares" onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown>,

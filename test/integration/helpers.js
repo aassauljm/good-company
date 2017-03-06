@@ -11,6 +11,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from '../../assets/js/reducers';
 import { fetch } from '../../assets/js/utils';
 import thunkMiddleware from 'redux-thunk';
+import sinon from 'sinon';
 
 
 const LOOP = 20;
@@ -60,6 +61,7 @@ export function prepareApp(url = '/', username='companycreator@email.com'){
     const store = configureStore(history, state);
 
     this.store = store;
+
     return login({'identifier': username, 'password': 'testtest'})
         .then(() => {
             return new Promise((resolve, reject) => {

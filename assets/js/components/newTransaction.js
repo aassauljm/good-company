@@ -83,7 +83,7 @@ export class NewTransaction extends React.Component {
                             <span className="glyphicon glyphicon-usd"></span>
                             <span className="transaction-button-text">Repurchase or Redeem Shares</span>
                     </div>
-                    <div className="actionable select-button" onClick={() => this.startTransaction('transfer') } >
+                    <div className="actionable select-button transfer" onClick={() => this.startTransaction('transfer') } >
                             <span className="glyphicon glyphicon-transfer"></span>
                             <span className="transaction-button-text">Transfer Shares</span>
                     </div>
