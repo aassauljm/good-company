@@ -18,16 +18,6 @@ function buildUri(baseUri, parameters={}) {
     return baseUri + queryString;
 }
 
-/**
- * Create the content for a basic auth header
- */
-function makeBasicAuthHeader(username, password) {
-    const hash = new Buffer(username + ':' + password).toString('base64');
-    const header = 'Basic ' + hash;
-
-    return header;
-}
-
 export function authWith(req, res) {
     const service = req.params.service;
 
@@ -58,7 +48,7 @@ function nzbn(req, res) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': makeBasicAuthHeader(sails.config.mbie.nzbn.basicAuthUser, sails.config.mbie.nzbn.basicAuthPass)
+                    'Authorization': UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.basicAuthUser, sails.config.mbie.nzbn.basicAuthPass)
                 }
             })
             .then(response => {

@@ -53,6 +53,9 @@ module.exports = {
 
     mbie: {
         oauthURI: 'https://www.eat.nzbn.govt.nz/oauth-service/oauth/',
+        uri: 'https://sandbox.api.business.govt.nz/services/',
+        consumer_key: 'xxxxxx',
+        consumer_secret: 'xxxxxx',
 
         nzbn: {
             basicAuthUser: 'xxxxxx',
