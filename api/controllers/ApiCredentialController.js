@@ -1,4 +1,5 @@
 import fetch from "isomorphic-fetch";
+import FormData from 'form-data';
 
 /**
  * ApiCredential
@@ -7,19 +8,21 @@ import fetch from "isomorphic-fetch";
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-const nzbnServiceToken = '9f107b532c6b0869e2dd74876ff3a001';
+const nzbnServiceToken = 'ad4c469b77c34c4ee2c27db75a38d624';
 
-function getUserMbieAccessToken(user) {
-    return user.getApiCredentials({
-        where: {
-            service: 'nzbn'
-        },
-        order: [
-            ['createdAt', 'DESC']
-        ]
-    })
-    .then(result => result ? result[0].dataValues.accessToken : null);
-}
+// function getNzbnServiceToken() {
+//     curl -k --user "ZzGbJNptB5XqreeTwmibE4Kz_qAa:RBQttVu3G5gH7qzfzYUJp8gEfhEa"
+
+//     var formData = new FormData();
+//     formData.append('grant_type', 'client_credentials');
+
+//     return fetch('https://sandbox.api.business.govt.nz/services/token', {
+//         headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded'
+//         },
+//         body: form
+//     })
+// }
 
 module.exports = {
 
@@ -33,7 +36,11 @@ module.exports = {
     },
 
     authorisedCompanies: function (req, res) {
-        getUserMbieAccessToken(req.user)
+        req.user.getApiCredentials({
+                where: { service: 'nzbn' },
+                order: [['createdAt', 'DESC']]
+            })
+            .then(result => result ? result[0].dataValues.accessToken : null)
             .then(nzbnUserAccessToken => {
                 if (!nzbnUserAccessToken) {
                     return res.json({message: ['No MBIE access token']});
@@ -45,18 +52,10 @@ module.exports = {
                     Authorization: 'Bearer ' + nzbnServiceToken
                 };
 
-                return fetch('https://sandbox.api.business.govt.nz/services/v3/nzbn/users', {headers})
+                return fetch('https://sandbox.api.business.govt.nz/services/v3/nzbn/users', { headers })
                     .then(response => response.json())
                     .then(users => users.users[0].userId)
-                    .then(userNzbnId => {
-                        return fetch('https://sandbox.api.business.govt.nz/services/v3/nzbn/authorities?user-id=' + userNzbnId, {
-                            headers: {
-                                Accept: 'application/json',
-                                'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
-                                Authorization: 'Bearer ' + nzbnServiceToken
-                            }
-                        });
-                    })
+                    .then(userNzbnId => fetch('https://sandbox.api.business.govt.nz/services/v3/nzbn/authorities?user-id=' + userNzbnId, { headers }))
                     .then(response => response.json())
                     .then(result => {
                         return res.json(result.items);
