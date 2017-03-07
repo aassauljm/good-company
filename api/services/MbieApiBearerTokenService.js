@@ -3,16 +3,16 @@ const curl = Promise.promisifyAll(require('curlrequest'));
 
 module.exports = {
     getToken: function() {
-        return MbieApiBearerToken.findAll({
-            where: {
-                service: 'nzbn',
-                createdAt: {
-                    $gt: new Date(new Date() - 60 * 60 * 1000) // an hour ago
+        const query = `SELECT * from mbie_api_bearer_token WHERE service = 'nzbn' AND  now() < "createdAt" + ( "expiresIn" * interval '1 second')`;
+        
+        return sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
+            .spread(result => result ? result.token : null)
+            .then(mbieBearerToken => {
+                if (!mbieBearerToken) {
+                    return MbieApiBearerTokenService.requestToken();
                 }
-            },
-            order: [['createdAt', 'DESC']]
-        })
-        .spread(result => result ? result.dataValues.token : null);
+                return mbieBearerToken;
+            });
     },
 
     requestToken: function() {

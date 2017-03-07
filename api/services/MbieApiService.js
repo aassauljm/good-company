@@ -32,6 +32,7 @@ export function authWith(req, res) {
 
 function nzbn(req, res) {
     const service = 'nzbn';
+    const callbackRoute = '/companies_office_cb'; // '/api/auth-with/' + service;
 
     if (req.query.code) {
         const code = req.query.code;
@@ -41,7 +42,7 @@ function nzbn(req, res) {
             grant_type: 'authorization_code',
             client_id: sails.config.mbie.nzbn.clientId,
             scopes: 'updateNZBNPBD',
-            redirect_uri: sails.config.APP_URL + '/api/auth-with/nzbn'
+            redirect_uri: sails.config.APP_URL + callbackRoute
         });
 
         fetch(uri, {
@@ -55,6 +56,10 @@ function nzbn(req, res) {
                 return response.text()
             })
             .then(result => {
+
+                console.log('error');
+                console.log(result);
+
                 const authDetails = JSON.parse(result);
                 sails.log.info(authDetails);
                 const data = {
@@ -86,7 +91,7 @@ function nzbn(req, res) {
     else {
         const url = buildUri(sails.config.mbie.oauthURI + 'authorize', {
             client_id: sails.config.mbie.nzbn.clientId,
-            redirect_uri: sails.config.APP_URL + '/api/auth-with/nzbn',
+            redirect_uri: sails.config.APP_URL + callbackRoute,
             response_type: 'code'
         });
 
