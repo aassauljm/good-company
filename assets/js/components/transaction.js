@@ -13,6 +13,7 @@ import { actionAmountDirection } from './transactions/resolvers/summaries';
 import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary } from './transactions/resolvers/summaries';
 import { push } from 'react-router-redux'
 
+
 const TEMPLATABLE = {
     [TransactionTypes.TRANSFER]: {
         url: 'transfer',

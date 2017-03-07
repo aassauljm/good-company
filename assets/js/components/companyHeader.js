@@ -10,7 +10,7 @@ import NavbarToggle from 'react-bootstrap/lib/NavbarToggle';
 import NavbarCollapse from 'react-bootstrap/lib/NavbarCollapse';
 import Dropdown from 'react-bootstrap/lib/Dropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { addNotification, createResource, deleteResource } from '../actions';
+import { addNotification, createResource, deleteResource, endTransactionView } from '../actions';
 import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
@@ -27,11 +27,14 @@ const DropdownToggle = (props) => {
 }
 
 @FavouritesHOC()
-@connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing, favourite: state.resources[`/favourites/${ownProps.companyId}`]}), {
-    navigate: (url) => push(url),
-    addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),
-    removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']})
-})
+@connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing, favourite: state.resources[`/favourites/${ownProps.companyId}`]}),
+
+    (dispatch) => ({
+        navigate: (url) => { dispatch(push(url)); dispatch(endTransactionView()) },
+        addFavourite: (id) => dispatch(createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']})),
+        removeFavourite: (id) => dispatch(deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']}))
+    })
+)
 export default class CompanyHeader extends React.Component {
 
     constructor(props){
