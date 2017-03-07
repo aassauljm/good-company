@@ -244,7 +244,7 @@ class RenderFile extends React.Component {
             return <div className="file-sub-tree"><span className="expand-control"></span>
                     <span className="file selected" >
                         <span className="icon fa fa-plus-circle"></span>
-                        <Input type="text" placeholder={ 'New Folder' } ref="input"/>
+                        <Input type="text" placeholder={ 'New Folder' } ref="input" />
                         <span onClick={submitCreateFolder} className="view">Create Folder</span>
                         <span onClick={endCreateFolder} className="view">Cancel</span>
                     </span>
@@ -443,7 +443,7 @@ class FileTree extends React.Component {
         return <div>
             <div className="button-row">
                 <form className="form-inline">
-                <Input type="text" label="Search" onChange={this.onSearchChange}/>
+                <Input type="text" label="Search" onChange={this.onSearchChange} value={this.state.filter}/>
                 <div className="btn-group">
                 <Button onClick={this.expandAll}>Expand All</Button>
                 <Button onClick={this.collapseAll}>Collapse All</Button>
