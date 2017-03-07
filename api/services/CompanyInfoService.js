@@ -62,8 +62,6 @@ export function getNameChangeActions(companies, data, docs) {
 
 
 export function getCompanyNamesFromNZBNS(list) {
-    console.log('dadada');
-    console.log(list);
     const nzbns = list.map(x => x.nzbn);
     return fetchNZBN(nzbns)
         .then(results => {

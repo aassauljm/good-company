@@ -19,13 +19,6 @@ module.exports = {
     },
 
     authorisedCompanies: function (req, res) {
-        MbieApiBearerTokenService.requestToken()
-            .then(r => r.text())
-            .then(r => {
-                console.log('dadada');
-                return console.log(r);
-            });
-
         req.user.getApiCredentials({
                 where: { service: 'nzbn' },
                 order: [['createdAt', 'DESC']]
@@ -33,15 +26,27 @@ module.exports = {
             .then(result => result[0] ? result[0].dataValues.accessToken : null)
             .then(nzbnUserAccessToken => {
                 if (!nzbnUserAccessToken) {
-                    return res.json({message: ['No MBIE access token.']});
+                    throw new Error('No MBIE access token');
                 }
 
-                const headers = {
-                    Accept: 'application/json',
-                    'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
-                    Authorization: 'Bearer ' + MbieApiBearerTokenService.getToken()
-                };
+                return nzbnUserAccessToken;
+            })
+            .then(nzbnUserAccessToken => {
+                return MbieApiBearerTokenService.getToken()
+                    .then(mbieBearerToken => {
+                        if (!mbieBearerToken) {
+                            return MbieApiBearerTokenService.requestToken();
+                        }
 
+                        return mbieBearerToken;
+                    })
+                    .then(mbieBearerToken => ({
+                            Accept: 'application/json',
+                            'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
+                            Authorization: 'Bearer ' + mbieBearerToken
+                    }));
+            })
+            .then(headers => {
                 return fetch(sails.config.mbie.uri + 'v3/nzbn/users', { headers })
                     .then(response => {
                         if (response.status === 401) {
@@ -59,7 +64,7 @@ module.exports = {
             })
             .catch(error => {
                 sails.log.error(error);
-                return res.json({message: ['Something went wrong.']})
+                return res.json({message: ['Something went wrong.']});
             });
     }
 

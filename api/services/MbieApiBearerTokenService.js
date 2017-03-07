@@ -1,8 +1,6 @@
 import Promise from 'bluebird';
 const curl = Promise.promisifyAll(require('curlrequest'));
 
-let access_token = '64e95988f91a7e32f3832b489ec94041';
-
 module.exports = {
     getToken: function() {
         return MbieApiBearerToken.findAll({
@@ -11,12 +9,10 @@ module.exports = {
                 createdAt: {
                     $gt: new Date(new Date() - 60 * 60 * 1000) // an hour ago
                 }
-            }
+            },
+            order: [['createdAt', 'DESC']]
         })
-        .then(result => {
-            console.log('dadada');
-            return console.log(result);
-        });
+        .spread(result => result ? result.dataValues.token : null);
     },
 
     requestToken: function() {
@@ -45,7 +41,7 @@ module.exports = {
                         },
                         defaults
                     })
-                    .then(record => record[0].token);
+                    .spread(record => record.token);
             });
     }
 }
