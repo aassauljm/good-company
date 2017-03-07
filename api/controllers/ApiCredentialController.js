@@ -47,7 +47,7 @@ module.exports = {
                         if (response.status === 401) {
                             throw new Error('Received 401 from MBIE API');
                         }
-                        
+
                         return response;
                     })
                     .then(response => response.json())
@@ -59,7 +59,7 @@ module.exports = {
             })
             .catch(error => {
                 sails.log.error(error);
-                return res.json({message: ['Something went wrong.']})
+                return res.serverError({message: ['Something went wrong.']})
             });
     }
 
