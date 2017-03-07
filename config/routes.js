@@ -385,6 +385,11 @@ module.exports.routes = {
         action: 'mbie'
     },
 
+    'DELETE /api/auth-with/:service': {
+        controller: 'ApiCredentialController',
+        action: 'removeAuth'
+    },
+
     'GET /companies_office_cb': {
         controller: 'ApiCredentialController',
         action: 'companies_office_cb'

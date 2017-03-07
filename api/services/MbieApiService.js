@@ -18,21 +18,9 @@ function buildUri(baseUri, parameters={}) {
     return baseUri + queryString;
 }
 
-export function authWith(req, res) {
-    const service = req.params.service;
-
-    switch (service) {
-        case 'nzbn':
-            nzbn(req, res);
-            break;
-        default:
-            throw new Error("MBIE auth service '${service}' not found");
-    }
-}
-
-function nzbn(req, res) {
+const authWithNzbn = (req, res) => {
     const service = 'nzbn';
-    const callbackRoute = '/companies_office_cb'; // '/api/auth-with/' + service;
+    const callbackRoute = `/api/auth-with/${service}`;
 
     if (req.query.code) {
         const code = req.query.code;
@@ -97,4 +85,44 @@ function nzbn(req, res) {
 
         res.redirect(url);
     }
+}
+
+const removeNzbnAuth = (req, res) => {
+    ApiCredential.destroy({
+        where: {
+            service: req.params.service,
+            ownerId: req.user.id
+        }
+    })
+    .then(result => {
+        if (result === 0) {
+            return res.json({message: ['No existing RealMe connection']});
+        }
+
+        return res.json({message: ['RealMe disconnected']});
+    });
+}
+
+const nzbn = {
+    authWith: authWithNzbn,
+    removeAuth: removeNzbnAuth
+}
+
+function getService(service) {
+    switch (service) {
+        case 'nzbn':
+            return nzbn;
+        default:
+            throw new Error("MBIE auth service '${service}' not found");
+    }
+}
+
+export function authWith(req, res) {
+    const service = getService(req.params.service);
+    service.authWith(req, res);
+}
+
+export function removeAuth(req, res) {
+    const service = getService(req.params.service);
+    service.removeAuth(req, res);
 }

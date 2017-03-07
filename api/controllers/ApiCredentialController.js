@@ -13,6 +13,10 @@ module.exports = {
         MbieApiService.authWith(req, res);
     },
 
+    removeAuth: function(req, res) {
+        MbieApiService.removeAuth(req, res);
+    },
+
     companies_office_cb: function (req, res) {
         req.params.service = 'nzbn';
         MbieApiService.authWith(req, res);
