@@ -1,8 +1,11 @@
-import FormData from 'form-data';
+import Promise from 'bluebird';
+const curl = Promise.promisifyAll(require('curlrequest'));
+
+let access_token = '64e95988f91a7e32f3832b489ec94041';
 
 module.exports = {
     getToken: function() {
-        MbieApiBearerToken.findAll({
+        return MbieApiBearerToken.findAll({
             where: {
                 service: 'nzbn',
                 createdAt: {
@@ -11,24 +14,38 @@ module.exports = {
             }
         })
         .then(result => {
+            console.log('dadada');
             return console.log(result);
         });
-
-        return 'ea14037595cc273d0ba9d7fad0a4ba15';
     },
 
     requestToken: function() {
-        var formData = new FormData();
-        formData.append('grant_type', 'client_credentials');
+        return curl.requestAsync({
+                url: 'https://sandbox.api.business.govt.nz/services/token',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    Authorization: 'Basic WnpHYkpOcHRCNVhxcmVlVHdtaWJFNEt6X3FBYTpSQlF0dFZ1M0c1Z0g3cXpmellVSnA4Z0VmaEVh'
+                },
+                data: {
+                    grant_type: 'client_credentials'
+                }
+            })
+            .then(result => JSON.parse(result))
+            .then(json => {
+                const defaults = {
+                    token: json.access_token,
+                    expiresIn: json.expires_in,
+                    service: 'nzbn'
+                };
 
-        // console.log(UtilService.makeBasicAuthHeader(sails.config.mbie.consumer_key, sails.config.mbie.consumer_secret));
-
-        return fetch(sails.config.mbie.uri + 'token', {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.consumer_key, sails.config.mbie.consumer_secret)
-            },
-            body: formData
-        });
+                return MbieApiBearerToken.findOrCreate({
+                        where: {
+                            token: defaults.token,
+                            service: defaults.service
+                        },
+                        defaults
+                    })
+                    .then(record => record[0].token);
+            });
     }
 }
