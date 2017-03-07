@@ -14,7 +14,7 @@ module.exports = {
             return console.log(result);
         });
 
-        return 'ea14037595cc273d0ba9d7fad0a4ba15';
+        return '5ac35885a781f8919b6a5f2dfe9234d2';
     },
 
     requestToken: function() {
