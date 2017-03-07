@@ -17,10 +17,10 @@ module.exports = {
 
     requestToken: function() {
         return curl.requestAsync({
-                url: 'https://sandbox.api.business.govt.nz/services/token',
+                url: `${sails.config.mbie.uri}token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: 'Basic WnpHYkpOcHRCNVhxcmVlVHdtaWJFNEt6X3FBYTpSQlF0dFZ1M0c1Z0g3cXpmellVSnA4Z0VmaEVh'
+                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.consumer_key, sails.config.mbie.consumer_secret)
                 },
                 data: {
                     grant_type: 'client_credentials'
