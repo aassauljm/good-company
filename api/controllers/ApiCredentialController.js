@@ -37,7 +37,6 @@ module.exports = {
                         if (!mbieBearerToken) {
                             return MbieApiBearerTokenService.requestToken();
                         }
-
                         return mbieBearerToken;
                     })
                     .then(mbieBearerToken => ({
@@ -47,12 +46,13 @@ module.exports = {
                     }));
             })
             .then(headers => {
-                return fetch(sails.config.mbie.uri + 'v3/nzbn/users', { headers })
+                const url = sails.config.mbie.uri + 'v3/nzbn/users';
+                sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`)
+                return fetch(url, { headers })
                     .then(response => {
                         if (response.status === 401) {
                             throw new Error('Received 401 from MBIE API');
                         }
-                        
                         return response;
                     })
                     .then(response => response.json())
