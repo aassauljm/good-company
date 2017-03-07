@@ -73,7 +73,7 @@ function nzbn(req, res) {
                     });
             })
             .then(() => {
-                res.json({message: ['NZBN OAuth complete']});
+               res.redirect('/import/nzbn');
             })
             .catch(e => {
                 sails.log.error(e)
