@@ -467,7 +467,7 @@ function listToTree(documents){
         return acc;
     }, {});
     documents.map(d => {
-        if(!d.directoryId){
+        if(!d.directoryId || !map[d.directoryId]){
             roots.push(map[d.id]);
         }
         else{
