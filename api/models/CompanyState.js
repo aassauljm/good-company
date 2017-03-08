@@ -468,14 +468,9 @@ module.exports = {
                             filename: 'Companies Office Documents',
                             ownerId: userId,
                             createdById: userId
-                        }), Document.create({
-                                type: 'Directory',
-                                filename: 'Transactions',
-                                ownerId: userId,
-                                createdById: userId
-                            })])
+                        })
                     })
-                    .spread(function(documentDirectory, transactionDirectory){
+                    .spread(function(documentDirectory){
                         args.directorList = args.directorList || {directors: []}
                         args.transaction = args.transaction || {type: Transaction.types.SEED};
                         if(!args.docList){
@@ -494,7 +489,6 @@ module.exports = {
                         })
 
                         state.get('docList').get('documents').push(documentDirectory);
-                        state.get('docList').get('documents').push(transactionDirectory);
 
                         (state.get('holdingList').get('holdings') || []).map(function(h){
                             h.get('holders').map(function(h){
