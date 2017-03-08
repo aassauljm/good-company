@@ -64,6 +64,7 @@ export function getNameChangeActions(companies, data, docs) {
 
 export function getCompanyNamesFromNZBNS(list) {
     const nzbns = list.map(x => x.nzbn);
+    sails.log.verbose(list);
     return fetchNZBN(nzbns)
         .then(results => {
             sails.log.verbose(results);
