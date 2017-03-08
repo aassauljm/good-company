@@ -1257,6 +1257,7 @@ export function performSeed(args, company, effectiveDate, userId){
         });
 }
 
+
 export function removeDocuments(state, actions){
     const ids = _.filter(_.map(actions, 'sourceUrl'))
     if(ids.length){
@@ -1301,6 +1302,7 @@ export function addDocuments(state, documents){
             return state;
         })
 }
+
 
 export function addActions(state, actionSet, company){
     return state.getHistoricActions()
@@ -1505,7 +1507,7 @@ export function performInverseTransaction(data, company, rootState){
             return currentRoot.setTransaction(transaction.id);
         })
         .then(function(){
-            return removeDocuments(prevState, data.actions);
+            //return removeDocuments(prevState, data.actions);
         })
         .then(function(){
             return prevState.save();
@@ -1780,7 +1782,8 @@ function validateTransactionSet(data, companyState){
                 [Transaction.types.ACQUISITION]: -1,
                 [Transaction.types.CONSOLIDATION]:-1,
                 [Transaction.types.CANCELLATION]:-1,
-                [Transaction.types.PURCHASE]: -1
+                [Transaction.types.PURCHASE]: -1,
+                [Transaction.types.APPLY_SHARE_CLASS]: 0
             };
 
             (action.parcels || []).map(p => {
@@ -1788,6 +1791,9 @@ function validateTransactionSet(data, companyState){
                 shareClasses[shareClass] = shareClasses[shareClass] || 0;
                 if(p.afterAmount !== undefined && p.beforeAmount !== undefined){
                     shareClasses[shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+                }
+                else if(p.amount){
+                    shareClasses[shareClass] += (DIRECTIONS[action.transactionType] !== undefined ? DIRECTIONS[action.transactionType] : 1) * (p.amount);
                 }
             });
         }
@@ -1890,7 +1896,7 @@ export function performTransaction(data, company, companyState){
             if(data.documents && data.documents.length){
                 return transaction.setDocuments(data.documents)
                     .then(function(){
-                        return addDocuments(nextState, data.documents);
+                        //return addDocuments(nextState, data.documents);
                     })
             }
         })

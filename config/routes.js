@@ -325,6 +325,18 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/:id/documents': {
+        controller: 'CompanyController',
+        action: 'getDocuments',
+        model: 'company'
+    },
+
+    'POST /api/company/:id/documents': {
+        controller: 'CompanyController',
+        action: 'createDocument',
+        model: 'company'
+    },
+
     'POST /api/company/:id/import_pending_history': {
         controller: 'CompanyController',
         action: 'importPendingHistory',

@@ -43,7 +43,7 @@ export class Confirmation extends React.Component {
     }
 }
 
-const ConfirmationConnected = connect()(Confirmation)
+const ConfirmationConnected = connect()(Confirmation);
 
 
 
