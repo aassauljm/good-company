@@ -122,3 +122,22 @@ export function removeAuth(req, res) {
     const service = getService(req.params.service);
     service.removeAuth(req, res);
 }
+
+export function lookupByNzbn(nzbn) {
+    return MbieApiBearerTokenService.getToken()
+        .then(mbieBearerToken => {
+            this.headers = {
+                Accept: 'application/json',
+                Authorization: 'Bearer ' + mbieBearerToken
+            }
+
+            return this.headers;
+        })
+        .then(headers => {
+            const url = `${sails.config.mbie.uri}v3/nzbn/entities/${nzbn}`;
+            UtilService.logRequest(url, this.headers);
+            return fetch(url, { headers: this.headers });
+        })
+        .then(response => response.json())
+        .catch(sails.log.error);
+}
