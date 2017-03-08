@@ -295,11 +295,6 @@ var transactions = {
             return shareClasses.addShareClass(shareClass)
         })
         .then(function(){
-            if(data.documents){
-                return TransactionService.addDocuments(companyState, data.documents)
-            }
-        })
-        .then(function(){
             companyState.s_classes_id = companyState.dataValues.s_classes_id = shareClasses.id;
             companyState.shareClasses = companyState.dataValues.shareClasses = shareClasses;
             return companyState.save();
@@ -475,24 +470,21 @@ function createTransaction(req, res, type){
                     args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
                     /* if uploadedFiles, find or create a transactions directory, add it to list */
                     if(uploadedFiles && uploadedFiles.length && args.directoryId === undefined && !args.newDirectory){
-                        return company.getCurrentCompanyState()
-                            .then(companyState => {
-                                return companyState.findOrCreateTransactionDirectory()
-                                    .then(transactionDirectory => {
-                                        return Document.create({
-                                            filename: `Transaction ${moment().format('DD/MM/YYYY')}`,
-                                            createdById: req.user.id,
-                                            ownerId: req.user.id,
-                                            type: 'Directory',
-                                            directoryId: transactionDirectory.id,
-                                            userUploaded: true
-                                        })
-                                        .then(d => {
-                                            directory = d;
-                                            directoryId = d.id;
-                                        })
+                        return company.findOrCreateTransactionDirectory()
+                            .then(transactionDirectory => {
+                                return Document.create({
+                                    filename: `Transaction ${moment().format('DD/MM/YYYY')}`,
+                                    createdById: req.user.id,
+                                    ownerId: req.user.id,
+                                    type: 'Directory',
+                                    directoryId: transactionDirectory.id,
+                                    userUploaded: true
                                 })
-                            })
+                                .then(d => {
+                                    directory = d;
+                                    directoryId = d.id;
+                                })
+                        })
                     }
                     else if(args.directoryId){
                         directoryId = args.directoryId;
@@ -534,6 +526,9 @@ function createTransaction(req, res, type){
                     args.documents = files;
                     if(directory){
                         args.documents.push(directory);
+                    }
+                    if(args.documents.length){
+                        return company.addDocuments(args.documents);
                     }
                 })
                 .then(() => {

@@ -16,7 +16,7 @@ function stringOrFunction(input, props) {
     }
 }
 
-const HOCFactory = ({resource, location, postProcess}, useAsyncConnect)  => ComposedComponent => {
+const HOCFactory = ({resource, location, postProcess, propName}, useAsyncConnect)  => ComposedComponent => {
 
     class Injector extends React.Component {
 
@@ -41,7 +41,7 @@ const HOCFactory = ({resource, location, postProcess}, useAsyncConnect)  => Comp
 
 
     const stateToProps = (state, ownProps) => ({
-        [stringOrFunction(resource, ownProps)]: state.resources[stringOrFunction(location, ownProps)] || DEFAULT
+        [propName ? propName : stringOrFunction(resource, ownProps)]: state.resources[stringOrFunction(location, ownProps)] || DEFAULT
     });
 
     const actions = (dispatch, ownProps) => ({
@@ -125,6 +125,7 @@ export const ALERTS = {resource: 'alerts', location: '/alerts', postProcess: ale
 export const RECENT_ACTIVITY = {resource: 'recent_activity', location: '/recent_activity' };
 export const COMPANIES = {resource: 'companies', location: 'companies'};
 export const COMPANY = {resource: props => `/company/${props.companyId}/get_info`, location: props => `/company/${props.companyId}/get_info`, postProcess: analyseCompany};
+export const DOCUMENTS = {resource: props => `/company/${props.params.id}/documents`, location: props => `/company/${props.params.id}/documents`, propName: 'documents'};
 export const COMPANY_FROM_ROUTE = {resource: props => `/company/${props.params.id}/get_info`, location: props => `/company/${props.params.id}/get_info`, postProcess: analyseCompany};
 export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.params.id}/at_date/${props.params.date}`, location: props => `/company/${props.params.id}/at_date/${props.params.date}`, postProcess: analyseCompany};
 
@@ -135,6 +136,7 @@ export const CompaniesHOC = (async) => HOCFactory(COMPANIES,  async);
 export const CompanyHOC = (async) => HOCFactory(COMPANY, async);
 export const CompanyHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_ROUTE, async);
 export const CompanyDatedHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_DATED_ROUTE, async);
+export const DocumentsHOCFromRoute = (async) => HOCFactory(DOCUMENTS, async);
 
 export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };
 
