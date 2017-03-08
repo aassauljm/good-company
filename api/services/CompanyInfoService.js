@@ -64,12 +64,12 @@ export function getNameChangeActions(companies, data, docs) {
 
 
 export function getCompanyNamesFromNZBNS(list) {
+    sails.log.verbose('Looking up list', list);
     const nzbns = _.uniq(list.map(x => x.nzbn));
-    sails.log.verbose(list);
     return fetchNZBN(nzbns)
         .then(results => {
-            sails.log.verbose(results);
-            const mapping = results.reduce((acc, result) => {
+            sails.log.verbose('fetched from companyinfo: ', results);
+            const mapping = (results || []).reduce((acc, result) => {
                 acc[result.nzbn] = result;
                 return acc;
             }, {});
@@ -78,8 +78,21 @@ export function getCompanyNamesFromNZBNS(list) {
                     return {nzbn: mapping[nzbn].nzbn, companyName: mapping[nzbn].company_name, companyNumber: mapping[nzbn].company_number}
                 }
                 else{
-                    return {nzbn, companyName: 'Unknown Company', companyNumber: 'Unknown'}
+                    return {nzbn, companyName: 'Unknown Company', companyNumber: 'Unknown', unknown: true}
                 }
             })
-        });
+        })
+        .then((results) => {
+            const unknowns = results.filter(r => r.unknown);
+            if(unknowns.length){
+                const knowns = results.filter(r => !r.unknown);
+                return Promise.all(unknowns.map(nzbn => MbieApiService.lookupByNzbn(nzbn).catch(() => ({}))))
+                    .then(results => {
+                        return [...results.map(result => ({
+                            nzbn: result.nzbn, companyName: result.entityName,  companyNumber: result.sourceRegisterUniqueIdentifier
+                        })), ...knowns]
+                    });
+            }
+            return results;
+        })
 }
