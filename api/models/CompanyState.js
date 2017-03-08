@@ -468,7 +468,7 @@ module.exports = {
                             filename: 'Companies Office Documents',
                             ownerId: userId,
                             createdById: userId
-                        })
+                        })])
                     })
                     .spread(function(documentDirectory){
                         args.directorList = args.directorList || {directors: []}

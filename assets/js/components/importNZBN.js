@@ -27,7 +27,7 @@ class SelectCompanies extends React.Component {
             </div>
             <div className="row">
             <div className="col-xs-12">
-                <div className="table-responsive">
+                { fields.companies.length && <div className="table-responsive">
                 <table className="table table-striped">
                 <thead>
                 <tr><th></th><th>{STRINGS.companyName}</th><th>{STRINGS.nzbn}</th><th>{STRINGS.companyNumber}</th></tr>
@@ -47,7 +47,9 @@ class SelectCompanies extends React.Component {
                 }) }
                 </tbody>
                 </table>
-            </div>
+            </div> }
+
+            { !fields.companies.length && <div className="alert alert-warning">Sorry, it appears no your RealMe® account has no companies under it's authourity.</div> }
             </div>
             </div>
             <div className="button-row">
