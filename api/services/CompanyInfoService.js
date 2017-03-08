@@ -76,7 +76,7 @@ export function getCompanyNamesFromNZBNS(list) {
             }, {});
             return nzbns.map(nzbn => {
                 if(mapping[nzbn]){
-                    return mapping[nzbn];
+                    return {nzbn: mapping[nzbn].nzbn: companyName: mapping[nzbn].company_name, companyNumber: mapping[nzbn].company_number},
                 }
                 else{
                     return {nzbn, companyName: 'Unknown Company', companyNumber: list.find(x => x.nzbn === nzbn).organisationId}
