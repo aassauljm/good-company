@@ -4,6 +4,10 @@ import moment from 'moment';
 import fetch from "isomorphic-fetch";
 
 
+const LIST = [{
+    nzbn: '9429039496942'
+}]
+
 export function fetchNameHistory(companies){
     return fetch(sails.config.companyInfoServiceUrl,
         {
@@ -22,7 +26,7 @@ export function fetchNameHistory(companies){
 }
 
 export function fetchNZBN(nzbns){
-    return fetch(`${sails.config.companyInfoServiceUrl}/nzbn}`,
+    return fetch(`${sails.config.companyInfoServiceUrl}/nzbn`,
         {
         headers: {
             'Accept': 'application/json',
@@ -33,6 +37,7 @@ export function fetchNZBN(nzbns){
         })
         .then(response => response.json())
         .catch((e) => {
+            sails.log.error(e)
             return [];
         })
 }
@@ -63,6 +68,7 @@ export function getNameChangeActions(companies, data, docs) {
 
 
 export function getCompanyNamesFromNZBNS(list) {
+    list = LIST;
     const nzbns = list.map(x => x.nzbn);
     sails.log.verbose(list);
     return fetchNZBN(nzbns)
