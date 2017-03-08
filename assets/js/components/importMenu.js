@@ -171,24 +171,23 @@ export const ImportSingleFull = (props) => {
     </div>
 }
 
-@connect(state => ({userInfo: state.userInfo}), {
-    disconnectNzbn: () => deleteResource('/auth-with/nzbn', {
-        confirmation: {
-            title: 'Confirm Disconnection of RealMe®',
-            description: 'Please confirm the disconnecting of RealMe® from your Good Companies account.',
-            resolveMessage: 'Confirm Disconnection',
-            resolveBsStyle: 'warning'
-        }
-    }),
-    updateUserInfo: () => requestUserInfo({ refresh: true }),
-    notifyDisconnect: () => addNotification({ message: 'Your RealMe® account has been disconnected from your Good Companies account' }),
-})
-export class RealMeConnect extends React.PureComponent {
-
-    constructor(props) {
-        super(props);
-        this.disconnect = ::this.disconnect;
+export const realMeActions = (dispatch) => ({
+    disconnectNzbn: () => {
+        dispatch(deleteResource('/auth-with/nzbn', {
+                confirmation: {
+                    title: 'Confirm Disconnection of RealMe®',
+                    description: 'Please confirm the disconnecting of RealMe® from your Good Companies account.',
+                    resolveMessage: 'Confirm Disconnection',
+                    resolveBsStyle: 'warning'
+                }
+            }))
+            .then(result => dispatch(requestUserInfo({ refresh: true })))
+            .then(result => dispatch(addNotification({ message: 'Your RealMe® account has been disconnected from your Good Companies account' })))
     }
+});
+
+@connect(state => ({userInfo: state.userInfo}), realMeActions)
+export class RealMeConnect extends React.PureComponent {
 
     renderConnect() {
         return  (
@@ -201,12 +200,6 @@ export class RealMeConnect extends React.PureComponent {
         );
     }
 
-    disconnect() {
-        this.props.disconnectNzbn()
-            .then(result => this.props.updateUserInfo())
-            .then(result => this.props.notifyDisconnect());
-    }
-
     renderLink() {
         return (
             <div>
@@ -214,7 +207,7 @@ export class RealMeConnect extends React.PureComponent {
                 
                 <div className="button-row">
                     <Link to={'/import/nzbn'} className="btn btn-primary">Click here to select your Companies</Link>
-                    <Button bsStyle="warning" type="submit" onClick={this.disconnect}>Disconnect from RealMe®</Button>
+                    <Button bsStyle="warning" type="submit" onClick={this.props.disconnectNzbn}>Disconnect from RealMe®</Button>
                 </div>
             </div>
         );
