@@ -258,36 +258,39 @@ export function issueFormatSubmit(values, companyState){
         }))
         return acc;
     }, {amounts: {}, persons: {}})
-    values.parcels.map(p => {
-        const amount = parseInt(p.amount, 10);
-        const shareClass = parseInt(p.shareClass, 10) || null;
-        actions.push({
-            shareClass: shareClass,
-            amount: amount,
-            transactionType: 'ISSUE',
-            effectiveDate: values.effectiveDate
-        });
-    });
-    values.holdings.map(h => {
-        h.parcels.map(p => {
-            const beforeAmount = h.newHolding ? 0 : (holdings.amounts[h.holding] || {})[p.shareClass] || 0;
+
+    actions.push({
+        parcels: values.parcels.map(p => {
             const amount = parseInt(p.amount, 10);
             const shareClass = parseInt(p.shareClass, 10) || null;
-            const persons = holdings.persons[h.holding];
-            actions.push({
-                holdingId: parseInt(h.holding, 10) || null,
-                holders: h.newHolding ? h.newHolding.persons : null,
-                afterHolders: persons,
-                beforeHolders: persons,
+            return {
                 shareClass: shareClass,
+                amount: amount }
+        }),
+        transactionType: 'ISSUE',
+        effectiveDate: values.effectiveDate
+    });
+
+    values.holdings.map(h => {
+        const persons = holdings.persons[h.holding];
+        actions.push({
+            parcels: h.parcels.map(p => {
+                const beforeAmount = h.newHolding ? 0 : (holdings.amounts[h.holding] || {})[p.shareClass || undefined] || 0;
+                const amount = parseInt(p.amount, 10);
+                const shareClass = parseInt(p.shareClass, 10) || null;
+                return {shareClass: shareClass,
                 amount: amount,
                 beforeAmount: beforeAmount,
-                afterAmount: beforeAmount + amount,
-                transactionType: 'ISSUE_TO',
-                transactionMethod: h.newHolding ? 'NEW_ALLOCATION' :'AMEND',
-                approvalDocuments: values.approvalDocuments,
-                noticeDate: values.noticeDate
-            });
+                afterAmount: beforeAmount + amount}
+            }),
+            holdingId: parseInt(h.holding, 10) || null,
+            holders: h.newHolding ? h.newHolding.persons : null,
+            afterHolders: persons,
+            beforeHolders: persons,
+            transactionType: 'ISSUE_TO',
+            transactionMethod: h.newHolding ? 'NEW_ALLOCATION' :'AMEND',
+            approvalDocuments: values.approvalDocuments,
+            noticeDate: values.noticeDate
         });
     });
 
@@ -344,6 +347,7 @@ export class IssueTransactionView extends React.Component {
     submit(values) {
         const transactions = issueFormatSubmit(values, this.props.transactionViewData.companyState)
         if(transactions.length){
+            debugger
             this.props.dispatch(companyTransaction(
                                     'compound',
                                     this.props.transactionViewData.companyId,

@@ -9,7 +9,7 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 var moment = require('moment');
-
+var fs = Promise.promisifyAll(require("fs"));
 
 module.exports = {
 
@@ -83,6 +83,104 @@ module.exports = {
                 return res.notFound(err);
             });
     },
+
+    getDocuments: function(req, res) {
+        Company.findById(req.params.id, {
+                include: [{
+                     model: DocumentList,
+                     as: 'docList',
+                     include: [
+                        {
+                            through: {attributes: []},
+                            model: Document,
+                            as: 'documents'
+                        }
+                     ]
+                }]
+            })
+            .then(function(company) {
+                const json = company.docList ? company.docList.toJSON() : {documents: []};
+                return res.json(json);
+            })
+            .catch(function(err) {
+                return res.notFound(err);
+            });
+    },
+
+    createDocument: function(req, res) {
+        let args = actionUtil.parseValues(req);
+        let directory, directoryId, company, companyName, docList;
+        args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
+        return req.file('documents').upload(function(err, uploadedFiles){
+            return Company.findById(req.params.id)
+                .then(function(_company){
+                    company  = _company;
+                    return company.getNowCompanyState();
+                })
+                .then(_state => {
+                    companyName = _state.get('companyName');
+                    return company.findOrCreateDocList();
+                })
+                .then(_docList => {
+                    docList = _docList;
+                    if(args.newDirectory){
+                        return Document.create({
+                            filename: args.newDirectory,
+                            createdById: req.user.id,
+                            ownerId: req.user.id,
+                            type: 'Directory',
+                            directoryId: args.directoryId,
+                            userUploaded: true
+                        })
+                        .then(doc => {
+                            directory = doc;
+                            directoryId = doc.id;
+                            return docList.addDocuments(doc);
+                        })
+                    }
+                    else{
+                        directoryId = args.directoryId;
+                    }
+                })
+                .then(() => {
+                    return Promise.map(uploadedFiles || [], f => {
+                        return fs.readFileAsync(f.fd)
+                            .then(readFile => {
+                                return Document.create({
+                                    filename: f.filename,
+                                    createdById: req.user.id,
+                                    ownerId: req.user.id,
+                                    type: f.type,
+                                    directoryId: directoryId,
+                                    userUploaded: true,
+                                    documentData: {
+                                        data: readFile,
+                                    }
+                                }, { include: [{model: DocumentData, as: 'documentData'}]});
+                        });
+                    })
+                    .then(uploaded => {
+                        return docList.addDocuments(uploaded);
+                    })
+                })
+                .then(() => {
+                    return res.json({message: ['Documents Created']})
+                })
+                .then(() => {
+                    return ActivityLog.create({
+                        type: args.newDirectory ? ActivityLog.types.CREATE_DIRECTORY : ActivityLog.types.UPLOAD_DOCUMENT,
+                        userId: req.user.id,
+                        companyId: company.id,
+                        description: `Added documents to ${companyName} `,
+                        data: {companyId: company.id}
+                    });
+                })
+                .catch(function(err) {
+                    return res.serverError(err);
+                })
+            });
+    },
+
 
     updateSourceData: function(req, res){
         let company;

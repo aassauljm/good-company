@@ -299,7 +299,7 @@ export class TransactionViewBody extends React.Component {
             </div>
             <hr/>
             { transaction.documents && transaction.documents.map((d, i) => {
-                return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
+                return <div key={i}><Link to={`/documents/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
             }) }
 
             { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState, shareClassMap: this.props.shareClassMap}) }
