@@ -4,9 +4,6 @@ import moment from 'moment';
 import fetch from "isomorphic-fetch";
 
 
-const LIST = [{
-    nzbn: '9429039496942'
-}]
 
 export function fetchNameHistory(companies){
     return fetch(sails.config.companyInfoServiceUrl,
@@ -68,7 +65,6 @@ export function getNameChangeActions(companies, data, docs) {
 
 
 export function getCompanyNamesFromNZBNS(list) {
-    list = LIST;
     const nzbns = list.map(x => x.nzbn);
     sails.log.verbose(list);
     return fetchNZBN(nzbns)
