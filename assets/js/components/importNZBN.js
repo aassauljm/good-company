@@ -10,10 +10,12 @@ import STRINGS from '../strings'
 import { fieldStyle, fieldHelp, requiredFields, formFieldProps } from '../utils';
 import { push } from 'react-router-redux'
 import Loading from './loading';
+import { realMeActions } from './importMenu';
 
 const DEFAULT_OBJ = {};
 
 
+@connect(undefined, realMeActions)
 @formFieldProps()
 class SelectCompanies extends React.Component {
     render() {
@@ -52,6 +54,9 @@ class SelectCompanies extends React.Component {
                 <Button onClick={() => fields.companies.map(c => c.selected.onChange(true) )} >Select All</Button>
                 <Button onClick={() => fields.companies.map(c => c.selected.onChange(false) )} >Unselect All</Button>
                 <Button type="submit" bsStyle="primary" disabled={ invalid}>Import</Button>
+            </div>
+            <div className="button-row">
+                <Button bsStyle="warning" onClick={this.props.disconnectNzbn}>Disconnect from RealMe®</Button>
             </div>
         </form>
     }
@@ -100,7 +105,8 @@ export default class ImportNZBN extends React.PureComponent {
     }
 
     fetch() {
-        this.props.requestListCompanies();
+        this.props.requestListCompanies()
+            .catch(e => true);
     }
 
     componentDidMount() {
