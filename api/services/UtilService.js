@@ -106,3 +106,7 @@ export function subsetSumMemoFail(items, targetSum) {
         subset[targetSum].map((v, i) => v ? i : null)
     }
 }
+
+export function logRequest(url, headers) {
+    sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);
+}

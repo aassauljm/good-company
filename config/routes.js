@@ -412,6 +412,11 @@ module.exports.routes = {
         action: 'authorisedCompanies'
     },
 
+    'GET /api/nzbn/companyDetails': {
+        controller: 'ApiCredentialController',
+        action: 'companyDetails'
+    },
+
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
     'GET /api/event/:id': {controller: 'EventController', event: 'event', action: 'findOne'},

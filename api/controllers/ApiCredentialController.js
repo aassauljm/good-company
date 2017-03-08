@@ -6,6 +6,20 @@ import fetch from "isomorphic-fetch";
  * @description :: Get OAuth tokens from third parties
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
+function getUserNzbnToken(user) {
+    return user.getApiCredentials({
+            where: { service: 'nzbn' },
+            order: [['createdAt', 'DESC']]
+        })
+        .then(result => result[0] ? result[0].dataValues.accessToken : null)
+        .then(nzbnUserAccessToken => {
+            if (!nzbnUserAccessToken) {
+                throw new Error('No MBIE access token');
+            }
+
+            return nzbnUserAccessToken;
+        });
+}
 
 module.exports = {
 
@@ -23,29 +37,20 @@ module.exports = {
     },
 
     authorisedCompanies: function (req, res) {
-        let headers;
-        req.user.getApiCredentials({
-                where: { service: 'nzbn' },
-                order: [['createdAt', 'DESC']]
-            })
-            .then(result => result[0] ? result[0].dataValues.accessToken : null)
-            .then(nzbnUserAccessToken => {
-                if (!nzbnUserAccessToken) {
-                    throw new Error('No MBIE access token');
-                }
-
-                return nzbnUserAccessToken;
-            })
+        getUserNzbnToken(req.user)
             .then(nzbnUserAccessToken => {
                 return MbieApiBearerTokenService.getToken()
-                    .then(mbieBearerToken => ({
+                    .then(mbieBearerToken => {
+                        this.headers = {
                             Accept: 'application/json',
                             'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
                             Authorization: 'Bearer ' + mbieBearerToken
-                    }));
+                        }
+
+                        return this.headers;
+                    });
             })
-            .then(_headers => {
-                this.headers = _headers;
+            .then(headers => {
                 const url = sails.config.mbie.uri + 'v3/nzbn/users';
                 
                 sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(this.headers)}`);
@@ -67,6 +72,15 @@ module.exports = {
             .catch(error => {
                 sails.log.error(error);
                 return res.json({message: ['Something went wrong.']});
+            });
+    },
+
+    companyDetails: function (req, res) {
+        MbieApiService.lookupByNzbn(req.query.nzbn)
+            .then(result => res.json(result))
+            .catch(error => {
+                sails.log.error(error);
+                res.serverError(error);
             });
     }
 
