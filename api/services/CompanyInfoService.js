@@ -16,6 +16,7 @@ export function fetchNameHistory(companies){
         })
         .then(response => response.json())
         .catch((e) => {
+            sails.log.error(e);
             return [];
         })
 }
@@ -65,6 +66,7 @@ export function getCompanyNamesFromNZBNS(list) {
     const nzbns = list.map(x => x.nzbn);
     return fetchNZBN(nzbns)
         .then(results => {
+            sails.log.verbose(results);
             const mapping = results.reduce((acc, result) => {
                 acc[result.nzbn] = result;
                 return acc;
