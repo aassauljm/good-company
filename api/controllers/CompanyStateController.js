@@ -36,7 +36,7 @@ function transactionMessages(transactions, companyName){
     const results = [];
 
     const calcSum = (transactions, type) => transactions.reduce((acc, t) => {
-        return acc + _.sum((t.actions || []).filter(t => t.transactionType === type), 'amount')
+        return acc + (t.actions || []).filter(t => t.transactionType === type).reduce((sum, action) => sum + action.parcels.reduce((sum, parcel) => sum + parcel.amount, 0), 0)
     }, 0);
 
     const issue = _.filter(transactions, t => t.transactionType === Transaction.types.ISSUE);

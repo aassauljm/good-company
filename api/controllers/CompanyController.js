@@ -146,6 +146,7 @@ module.exports = {
                     return Promise.map(uploadedFiles || [], f => {
                         return fs.readFileAsync(f.fd)
                             .then(readFile => {
+                                console.log('READ FILE', readFile)
                                 return Document.create({
                                     filename: f.filename,
                                     createdById: req.user.id,

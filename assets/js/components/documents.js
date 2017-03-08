@@ -533,22 +533,6 @@ export class CompanyDocuments extends React.Component {
         }
     }
 
-    uploadFUCKED(files, directoryId=null) {
-        const transactions = [{
-            actions: [{transactionType: TransactionTypes.UPLOAD_DOCUMENT}],
-            transactionType: TransactionTypes.UPLOAD_DOCUMENT,
-            effectiveDate: new Date()
-        }];
-        return this.props.companyTransaction(
-                                    'compound',
-                                    this.props.companyId,
-                                    {transactions: transactions, documents: files, directoryId: directoryId}, {skipConfirmation: true, 'loadingMessage': 'Uploading'})
-            .then((result) => {
-                this.props.addNotification({message: 'File uploaded'});
-                return result;
-            })
-
-    }
 
     upload(files, directoryId=null) {
         const body = new FormData();
@@ -556,7 +540,7 @@ export class CompanyDocuments extends React.Component {
         (files || []).map(d => {
             body.append('documents', d, d.name);
         });
-        return this.props.createDocument(body, {stringify: false})
+        return this.props.createDocument(body, {stringify: false, 'loadingMessage': 'Uploading'})
             .then((result) => {
                 this.props.addNotification({message: 'File uploaded'});
                 return result;

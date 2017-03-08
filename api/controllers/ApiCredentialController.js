@@ -52,9 +52,9 @@ module.exports = {
             })
             .then(headers => {
                 const url = sails.config.mbie.uri + 'v3/nzbn/users';
-                
+
                 sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(this.headers)}`);
-                
+
                 return fetch(url, { headers: this.headers });
             })
             .then(response => {
@@ -64,7 +64,9 @@ module.exports = {
                 return response;
             })
             .then(response => response.json())
-            .then(users => users.users[0].userId)
+            .then(users => {
+                return users.users[0].userId;
+            })
             .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: this.headers }))
             .then(response => response.json())
             .then(json => CompanyInfoService.getCompanyNamesFromNZBNS(json.items))

@@ -16,12 +16,13 @@ export function fetchNameHistory(companies){
         })
         .then(response => response.json())
         .catch((e) => {
+            sails.log.error(e);
             return [];
         })
 }
 
 export function fetchNZBN(nzbns){
-    return fetch(`${sails.config.companyInfoServiceUrl}/nzbn}`,
+    return fetch(`${sails.config.companyInfoServiceUrl}/nzbn`,
         {
         headers: {
             'Accept': 'application/json',
@@ -32,6 +33,7 @@ export function fetchNZBN(nzbns){
         })
         .then(response => response.json())
         .catch((e) => {
+            sails.log.error(e)
             return [];
         })
 }
@@ -62,20 +64,35 @@ export function getNameChangeActions(companies, data, docs) {
 
 
 export function getCompanyNamesFromNZBNS(list) {
-    const nzbns = list.map(x => x.nzbn);
+    sails.log.verbose('Looking up list', list);
+    const nzbns = _.uniq(list.map(x => x.nzbn));
     return fetchNZBN(nzbns)
         .then(results => {
-            const mapping = results.reduce((acc, result) => {
+            sails.log.verbose('fetched from companyinfo: ', results);
+            const mapping = (results || []).reduce((acc, result) => {
                 acc[result.nzbn] = result;
                 return acc;
             }, {});
             return nzbns.map(nzbn => {
                 if(mapping[nzbn]){
-                    return mapping[nzbn];
+                    return {nzbn: mapping[nzbn].nzbn, companyName: mapping[nzbn].company_name, companyNumber: mapping[nzbn].company_number}
                 }
                 else{
-                    return {nzbn, companyName: 'Unknown Company', companyNumber: list.find(x => x.nzbn === nzbn).organisationId}
+                    return {nzbn, companyName: 'Unknown Company', companyNumber: 'Unknown', unknown: true}
                 }
             })
-        });
+        })
+        .then((results) => {
+            const unknowns = results.filter(r => r.unknown);
+            if(unknowns.length){
+                const knowns = results.filter(r => !r.unknown);
+                return Promise.all(unknowns.map(nzbn => MbieApiService.lookupByNzbn(nzbn).catch(() => ({}))))
+                    .then(results => {
+                        return [...results.map(result => ({
+                            nzbn: result.nzbn, companyName: result.entityName,  companyNumber: result.sourceRegisterUniqueIdentifier
+                        })), ...knowns]
+                    });
+            }
+            return results;
+        })
 }
