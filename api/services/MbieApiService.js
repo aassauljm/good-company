@@ -44,12 +44,7 @@ const authWithNzbn = (req, res) => {
                 return response.text()
             })
             .then(result => {
-
-                console.log('error');
-                console.log(result);
-
                 const authDetails = JSON.parse(result);
-                sails.log.info(authDetails);
                 const data = {
                     accessToken: authDetails.access_token,
                     tokenType: authDetails.token_type,
@@ -69,12 +64,13 @@ const authWithNzbn = (req, res) => {
                res.redirect('/import/nzbn');
             })
             .catch(e => {
-                sails.log.error(e)
-                res.serverError();
+                sails.log.error(e);
+                res.json({message: ['Something went wrong']});
             })
     }
     else if (req.query.error) {
-        res.json({message: [req.query.error]});
+        sails.log.error(req.query.error)
+        res.redirect('/import/nzbn');
     }
     else {
         const url = buildUri(sails.config.mbie.oauthURI + 'authorize', {
