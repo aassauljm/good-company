@@ -28,7 +28,8 @@ import {
     LAW_BROWSER_REQUEST, LAW_BROWSER_SUCCESS, LAW_BROWSER_FAILURE,
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE,
     SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT,
-    SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE
+    SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
+    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING
      } from './actionTypes';
 
 import {
@@ -451,6 +452,10 @@ function modals(state = {}, action) {
             return {...state, emailDocument: {renderData: action.data, showing: true}}
         case HIDE_EMAIL_DOCUMENT:
             return {...state, emailDocument: {showing: false}}
+        case SHOW_VERSION_WARNING:
+            return {...state, versionWarning: {showing: true}}
+        case HIDE_VERSION_WARNING:
+            return {...state, versionWarning: {showing: false}}
 
         case RESOURCE_REQUEST:
         case RESOURCE_CREATE_REQUEST:

@@ -32,7 +32,8 @@ import {
     SHOW_LOADING, END_LOADING,
     TOGGLE_WIDGET_SIZE,
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE,
-    SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT, SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE
+    SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT, SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
+    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -536,11 +537,17 @@ export function sendDocument(recipients, renderData) {
     };
 }
 
-
-
 export function lookupCompanyChange(query) {
     return {
         type: LOOKUP_COMPANY_CHANGE,
         payload: { query }
     };
+}
+
+export function showVersionWarning() {
+    return { type: SHOW_VERSION_WARNING };
+}
+
+export function hideVersionWarning() {
+    return { type: HIDE_VERSION_WARNING };
 }
