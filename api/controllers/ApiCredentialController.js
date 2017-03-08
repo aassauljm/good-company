@@ -13,6 +13,10 @@ module.exports = {
         MbieApiService.authWith(req, res);
     },
 
+    removeAuth: function(req, res) {
+        MbieApiService.removeAuth(req, res);
+    },
+
     companies_office_cb: function (req, res) {
         req.params.service = 'nzbn';
         MbieApiService.authWith(req, res);
@@ -34,12 +38,6 @@ module.exports = {
             })
             .then(nzbnUserAccessToken => {
                 return MbieApiBearerTokenService.getToken()
-                    .then(mbieBearerToken => {
-                        if (!mbieBearerToken) {
-                            return MbieApiBearerTokenService.requestToken();
-                        }
-                        return mbieBearerToken;
-                    })
                     .then(mbieBearerToken => ({
                             Accept: 'application/json',
                             'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
@@ -47,10 +45,12 @@ module.exports = {
                     }));
             })
             .then(_headers => {
-                headers = headers;
+                this.headers = _headers;
                 const url = sails.config.mbie.uri + 'v3/nzbn/users';
-                sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`)
-                return fetch(url, { headers })
+                
+                sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(this.headers)}`);
+                
+                return fetch(url, { headers: this.headers });
             })
             .then(response => {
                 if (response.status === 401) {
@@ -60,7 +60,7 @@ module.exports = {
             })
             .then(response => response.json())
             .then(users => users.users[0].userId)
-            .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers }))
+            .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: this.headers }))
             .then(response => response.json())
             .then(json => CompanyInfoService.getCompanyNamesFromNZBNS(json.items))
             .then(result => res.json(result))

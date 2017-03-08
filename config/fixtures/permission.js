@@ -162,11 +162,15 @@ var registered = {
     ],
     'ApiCredential': [
         {
+            action: 'create'
+        },
+        {
             action: 'read',
             relation: 'owner'
         },
         {
-            action: 'create'
+            action: 'delete',
+            relation: 'owner'
         }
     ]
 };

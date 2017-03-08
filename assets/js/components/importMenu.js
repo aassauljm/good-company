@@ -3,7 +3,7 @@ import React, {PropTypes} from 'react';
 import TransactionView from './forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import { importCompany, addNotification, requestResource, createResource, importBulk } from '../actions';
+import { importCompany, addNotification, requestResource, createResource, importBulk, deleteResource, requestUserInfo } from '../actions';
 import { reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
@@ -171,25 +171,53 @@ export const ImportSingleFull = (props) => {
     </div>
 }
 
-@connect(state => ({userInfo: state.userInfo}))
+@connect(state => ({userInfo: state.userInfo}), {
+    disconnectNzbn: () => deleteResource('/auth-with/nzbn', {
+        confirmation: {
+            title: 'Confirm Disconnection of RealMe®',
+            description: 'Please confirm the disconnecting of RealMe® from your Good Companies account.',
+            resolveMessage: 'Confirm Disconnection',
+            resolveBsStyle: 'warning'
+        }
+    }),
+    updateUserInfo: () => requestUserInfo({ refresh: true }),
+    notifyDisconnect: () => addNotification({ message: 'Your RealMe® account has been disconnected from your Good Companies account' }),
+})
 export class RealMeConnect extends React.PureComponent {
 
+    constructor(props) {
+        super(props);
+        this.disconnect = ::this.disconnect;
+    }
+
     renderConnect() {
-        return  <div>
-            <p>Retrieve a list of companies you have authority over using your RealMe® account.</p>
-               <div className="button-row">
+        return  (
+            <div>
+                <p>Retrieve a list of companies you have authority over using your RealMe® account.</p>
+                <div className="button-row">
                     <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a>
                 </div>
-        </div>
+            </div>
+        );
+    }
+
+    disconnect() {
+        this.props.disconnectNzbn()
+            .then(result => this.props.updateUserInfo())
+            .then(result => this.props.notifyDisconnect());
     }
 
     renderLink() {
-        return <div>
-            <p>Your RealMe® account is connected with this Good Companies account.</p>
-               <div className="button-row">
-               <Link to={'/import/nzbn'} className="btn btn-primary">Click here to select your Companies</Link>
+        return (
+            <div>
+                <p>Your RealMe® account is connected with this Good Companies account.</p>
+                
+                <div className="button-row">
+                    <Link to={'/import/nzbn'} className="btn btn-primary">Click here to select your Companies</Link>
+                    <Button bsStyle="warning" type="submit" onClick={this.disconnect}>Disconnect from RealMe®</Button>
                 </div>
-        </div>
+            </div>
+        );
     }
 
     render() {

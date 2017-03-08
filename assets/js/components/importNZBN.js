@@ -32,7 +32,7 @@ class SelectCompanies extends React.Component {
                 </thead>
                 <tbody>
                 { fields.companies.map((company, i) => {
-                    return <tr className="actionable" onClick={() => fields.companies[i].selected.onChange(!fields.companies[i].selected.value)}>
+                    return <tr key={i} className="actionable" onClick={() => fields.companies[i].selected.onChange(!fields.companies[i].selected.value)}>
                         <td>
                             <Input key={i} type="checkbox"  {...this.formFieldProps(['companies', i, 'selected'])} label={''} />
                         </td>
