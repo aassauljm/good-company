@@ -86,7 +86,7 @@ export function getCompanyNamesFromNZBNS(list) {
             const unknowns = results.filter(r => r.unknown);
             if(unknowns.length){
                 const knowns = results.filter(r => !r.unknown);
-                return Promise.all(unknowns.map(nzbn => MbieApiService.lookupByNzbn(nzbn).catch(() => ({}))))
+                return Promise.all(unknowns.map(unknown=> MbieApiService.lookupByNzbn(unknown.nzbn).catch(() => ({}))))
                     .then(results => {
                         return [...results.map(result => ({
                             nzbn: result.nzbn, companyName: result.entityName,  companyNumber: result.sourceRegisterUniqueIdentifier
