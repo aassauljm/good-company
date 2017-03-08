@@ -4,7 +4,6 @@ import moment from 'moment';
 import fetch from "isomorphic-fetch";
 
 
-
 export function fetchNameHistory(companies){
     return fetch(sails.config.companyInfoServiceUrl,
         {
@@ -65,7 +64,7 @@ export function getNameChangeActions(companies, data, docs) {
 
 
 export function getCompanyNamesFromNZBNS(list) {
-    const nzbns = list.map(x => x.nzbn);
+    const nzbns = _.uniq(list.map(x => x.nzbn));
     sails.log.verbose(list);
     return fetchNZBN(nzbns)
         .then(results => {
@@ -79,7 +78,7 @@ export function getCompanyNamesFromNZBNS(list) {
                     return {nzbn: mapping[nzbn].nzbn, companyName: mapping[nzbn].company_name, companyNumber: mapping[nzbn].company_number}
                 }
                 else{
-                    return {nzbn, companyName: 'Unknown Company', companyNumber: list.find(x => x.nzbn === nzbn).organisationId}
+                    return {nzbn, companyName: 'Unknown Company', companyNumber: 'Unknown'}
                 }
             })
         });

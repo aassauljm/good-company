@@ -124,7 +124,7 @@ export default class ImportNZBN extends React.PureComponent {
     }
 
     handleSubmit(values) {
-        const list = values.companies.map((c, i) => ({...c, ...this.getCompanies()[i]})).filter(c => c.selected).map(c => c.companyNumber);
+        const list = values.companies.map((c, i) => ({...c, ...this.getCompanies()[i]})).filter(c => c.selected).map(c => c.companyNumber === 'Unknown' ? c.nzbn : c.companyNumber);
         this.props.importBulk({
             listType: 'companyNumber',
             list: list
