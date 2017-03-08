@@ -32,6 +32,10 @@ module.exports.routes = {
      *                                                                          *
      ***************************************************************************/
 
+    'GET /api/version': function (req, res) {
+        res.json({ ASSET_HASH: sails.config.ASSET_HASH });
+    },
+
     '/': {
         controller: 'LandingController',
         action: 'landing'
