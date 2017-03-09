@@ -99,6 +99,9 @@ function stats(){
          .then(function(data){
             sails.config.ASSET_HASH = data.hash;
          })
+         .catch(e => {
+
+         });
 }
 
 function patchReactWidget(){
