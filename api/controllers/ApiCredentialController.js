@@ -1,4 +1,6 @@
 import fetch from "isomorphic-fetch";
+import Promise from 'bluebird';
+import promiseRetry from 'bluebird-retry';
 
 /**
  * ApiCredential
@@ -21,6 +23,41 @@ function getUserNzbnToken(user) {
         });
 }
 
+function getAuthorisedCompanies(user) {
+    let headers;
+
+    return getUserNzbnToken(user)
+            .then(nzbnUserAccessToken => {
+                return MbieApiBearerTokenService.getToken()
+                    .then(mbieBearerToken => ({
+                            Accept: 'application/json',
+                            'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
+                            Authorization: 'Bearer ' + mbieBearerToken
+                        }));
+            })
+            .then(_headers => {
+                headers = _headers;
+                const url = sails.config.mbie.uri + 'v3/nzbn/users';
+
+                sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);
+
+                return fetch(url, { headers: headers });
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    throw new Error('Received 401 from MBIE API');
+                }
+                return response;
+            })
+            .then(response => response.json())
+            .then(users => {
+                return users.users[0].userId;
+            })
+            .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: headers }))
+            .then(response => response.json())
+            .then(json => CompanyInfoService.getCompanyNamesFromNZBNS(json.items))
+}
+
 module.exports = {
 
     mbie: function (req, res) {
@@ -37,43 +74,17 @@ module.exports = {
     },
 
     authorisedCompanies: function (req, res) {
-        getUserNzbnToken(req.user)
-            .then(nzbnUserAccessToken => {
-                return MbieApiBearerTokenService.getToken()
-                    .then(mbieBearerToken => {
-                        this.headers = {
-                            Accept: 'application/json',
-                            'NZBN-Authorization': 'Bearer ' + nzbnUserAccessToken,
-                            Authorization: 'Bearer ' + mbieBearerToken
-                        }
+        function getCompaniesTask() {
+             return getAuthorisedCompanies(req.user)
+                .then(authorisedCompanies => Promise.resolve(authorisedCompanies))
+                .catch(error => Promise.reject(error));
+        }
 
-                        return this.headers;
-                    });
-            })
-            .then(headers => {
-                const url = sails.config.mbie.uri + 'v3/nzbn/users';
-
-                sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(this.headers)}`);
-
-                return fetch(url, { headers: this.headers });
-            })
-            .then(response => {
-                if (response.status === 401) {
-                    throw new Error('Received 401 from MBIE API');
-                }
-                return response;
-            })
-            .then(response => response.json())
-            .then(users => {
-                return users.users[0].userId;
-            })
-            .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: this.headers }))
-            .then(response => response.json())
-            .then(json => CompanyInfoService.getCompanyNamesFromNZBNS(json.items))
-            .then(result => res.json(result))
-            .catch(error => {
+        promiseRetry(getCompaniesTask, { max_tries: 5, interval: 1000, backoff: 1.5 })
+            .then(authorisedCompanies => res.json(authorisedCompanies))
+            .caught(error => {
                 sails.log.error(error);
-                return res.json({message: ['Something went wrong.']});
+                res.serverError(error);
             });
     },
 
