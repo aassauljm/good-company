@@ -1,3 +1,5 @@
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs'));
 /**
  * Route Mappings
  * (sails.config.routes)
@@ -33,7 +35,7 @@ module.exports.routes = {
      ***************************************************************************/
 
     'GET /api/version': function (req, res) {
-        res.json({ ASSET_HASH: sails.config.ASSET_HASH });
+        res.json({ ASSET_HASH: __DEV__ ? false : sails.config.ASSET_HASH });
     },
 
     '/': {

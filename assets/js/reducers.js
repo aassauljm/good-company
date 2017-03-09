@@ -486,6 +486,9 @@ function modals(state = {}, action) {
     }
 }
 
+function version(state = {}){
+    return state;
+}
 
 const normalizeNumber = (value) => {
     return value ? value.replace(/[^\d]/g, '') : value
@@ -559,7 +562,8 @@ const appReducer = combineReducers({
     workingDays,
     modals,
     sendDocument,
-    reduxAsyncConnect
+    reduxAsyncConnect,
+    version
 });
 
 

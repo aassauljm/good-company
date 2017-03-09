@@ -92,9 +92,6 @@ function prepTemp(){
 }
 
 function stats(){
-    if(__DEV__){
-        return;
-    }
     return fs.readFileAsync('stats.json', 'utf8')
          .then(function(text){
             return JSON.parse(text)
@@ -102,6 +99,9 @@ function stats(){
          .then(function(data){
             sails.config.ASSET_HASH = data.hash;
          })
+         .catch(e => {
+
+         });
 }
 
 function patchReactWidget(){

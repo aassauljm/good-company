@@ -14,7 +14,7 @@ import "../styles/style.scss";
 let mountNode = document.getElementById("main");
 let data = {};
 try{
-    data = JSON.parse(document.getElementById("data").textContent);
+    data = {...data, ...JSON.parse(document.getElementById("data").textContent)};
     const recurse = (obj) => {
         for(let x in obj){
             if(!!obj[x] && typeof(obj[x]) === "object"){
@@ -28,7 +28,12 @@ try{
     recurse(data);
     console.log('Data loaded');
 }catch(e){
+    //do nothing
+}
 
+try{
+    data = {...data, version: JSON.parse(document.getElementById("version").textContent)};
+}catch(e){
     //do nothing
 }
 

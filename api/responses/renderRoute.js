@@ -1,11 +1,13 @@
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs'));
 
-module.exports = function(renderProps) {
+
+function render(renderProps){
     const urls = {
         loginUrl: sails.config.USERS_LOGIN_URL,
         userUrl: sails.config.ACCOUNT_URL,
         logoutUrl: sails.config.USER_LOGOUT_URL
     }
-
     if(sails.config.serverRender){
         const req = this.req,
             res = this.res;
@@ -31,4 +33,20 @@ module.exports = function(renderProps) {
         this.res.render('content.ejs', { reactOutput: '', data: JSON.stringify(
                         {login: {loggedIn: this.req.isAuthenticated(), ...urls}}),  _layoutFile: 'layout.ejs'});
     }
+}
+
+module.exports = function(renderProps) {
+
+
+    if(__DEV__){
+        return fs.readFileAsync('stats.json', 'utf8')
+         .then((text) => {
+            return JSON.parse(text)
+        })
+         .then((data) => {
+            sails.config.ASSET_HASH = data.hash;
+            return render.call(this, renderProps);
+         })
+    }
+    return render.call(this, renderProps);
 }

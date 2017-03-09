@@ -51,10 +51,15 @@ function getAuthorisedCompanies(user) {
             })
             .then(response => response.json())
             .then(users => {
+                sails.log.verbose('MBIE user: ', JSON.stringify(users));
                 return users.users[0].userId;
             })
             .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: headers }))
-            .then(response => response.json())
+            .then(response => response.text())
+            .then(text => {
+                sails.log.verbose('Authority List: ', text);
+                return JSON.parse(text);
+            })
             .then(json => CompanyInfoService.getCompanyNamesFromNZBNS(json.items))
 }
 
