@@ -91,7 +91,7 @@ export class NZBNForm extends React.PureComponent {
     nzbn: state.resources['/nzbn'] || DEFAULT_OBJ,
     bulk: state.importBulk
 }), {
-    requestListCompanies: () => requestResource('/nzbn'),
+    requestListCompanies: (refresh=false) => requestResource('/nzbn', {refresh}),
     importBulk: (data) => importBulk(data),
     addNotification: (data) => addNotification(data),
     navigateHome: () => push('/')
@@ -106,8 +106,8 @@ export default class ImportNZBN extends React.PureComponent {
         this.handleSubmit = ::this.handleSubmit;
     }
 
-    fetch() {
-        this.props.requestListCompanies()
+    fetch(refresh) {
+        this.props.requestListCompanies(refresh)
             .catch(e => true);
     }
 
@@ -157,8 +157,12 @@ export default class ImportNZBN extends React.PureComponent {
             return this.renderForm();
         }
         else if(this.props.nzbn._status === 'error'){
-            return <div className="alert alert-danger">
+            return <div><div className="alert alert-danger">
                 Sorry, we could not contact the NZBN API service at this time.
+            </div>
+            <div className="button-row">
+            <Button bsStyle="info" onClick={() => this.fetch(true)}>Click here to retry</Button>
+            </div>
             </div>
         }
 

@@ -51,7 +51,7 @@ function NewGCVersionModal(props) {
             </Modal.Header>
 
             <Modal.Body>
-                A new verion of Good Companies has been released. Please click refresh to get the latest version.
+                A new version of Good Companies has been released. Please click refresh to get the latest version.
             </Modal.Body>
 
             <Modal.Footer>
