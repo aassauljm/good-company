@@ -1,6 +1,7 @@
 import { fetch } from './utils';
 import FormData from 'form-data';
 import {
+    MOUNTED,
     LOGIN_START, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT,
     SIGNUP_REQUEST, SIGNUP_SUCCESS, SIGNUP_FAILURE,
     USER_INFO_REQUEST, USER_INFO_SUCCESS, USER_INFO_FAILURE,
@@ -58,6 +59,10 @@ const accept_json_headers = {
 
 function retryOnError(status){
     return !status || status === 'error';
+}
+
+export function mounted(){
+    return {type: MOUNTED};
 }
 
 export function loginStart(){

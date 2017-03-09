@@ -27,7 +27,7 @@ class SelectCompanies extends React.Component {
             </div>
             <div className="row">
             <div className="col-xs-12">
-                { fields.companies.length && <div className="table-responsive">
+                { !!fields.companies.length && <div className="table-responsive">
                 <table className="table table-striped">
                 <thead>
                 <tr><th></th><th>{STRINGS.companyName}</th><th>{STRINGS.nzbn}</th><th>{STRINGS.companyNumber}</th></tr>

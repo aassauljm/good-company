@@ -32,7 +32,6 @@ import ScrollToTop from '../../../hoc/scrollToTop';
 
 const EXTERNAL_TRANSFERS = 'EXTERNAL_TRANSFERS';
 
-
 const INCREASE_OPTIONS = [
         <option key={1} value={TransactionTypes.ISSUE_TO}>{STRINGS.transactionVerbs[TransactionTypes.ISSUE_TO]}</option>,
         <option key={0} value={TransactionTypes.TRANSFER_TO}>{STRINGS.transactionVerbs[TransactionTypes.TRANSFER_TO]}</option>,

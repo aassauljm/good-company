@@ -45,11 +45,11 @@ export class Confirmation extends React.Component {
 
 function NewGCVersionModal(props) {
     return (
-        <Modal show={true}>
+        <Modal show={true} onHide={props.hide}>
             <Modal.Header closeButton>
                 <Modal.Title>New Version of Good Companies</Modal.Title>
             </Modal.Header>
-            
+
             <Modal.Body>
                 A new verion of Good Companies has been released. Please click refresh to get the latest version.
             </Modal.Body>
@@ -84,7 +84,7 @@ export default class Modals extends React.Component {
             return <EmailDocument {...this.props.modals.emailDocument} />
         }
         else if (this.props.modals.versionWarning && this.props.modals.versionWarning.showing) {
-            return <NewGCVersionModal hide={hideVersionWarning} />
+            return <NewGCVersionModal hide={this.props.hideVersionWarning} />
         }
 
         return false;

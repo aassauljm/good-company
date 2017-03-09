@@ -92,9 +92,6 @@ function prepTemp(){
 }
 
 function stats(){
-    if(__DEV__){
-        return;
-    }
     return fs.readFileAsync('stats.json', 'utf8')
          .then(function(text){
             return JSON.parse(text)

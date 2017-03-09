@@ -22,7 +22,7 @@ var plugins = [
         definePlugin,
         // extract inline css into separate 'styles.css'
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-nz/),
-        new ExtractTextPlugin(DEV ? '../css/[name].css' : '../css/[name].[hash].css'),
+        new ExtractTextPlugin('../css/[name].[hash].css'),
         new webpack.optimize.DedupePlugin(),
         new CopyWebpackPlugin([
                 { from: '*.*', to: '../'  },
@@ -30,20 +30,19 @@ var plugins = [
         ])
     ];
 
+plugins.push(function() {
+    this.plugin("done", function(stats) {
+      require("fs").writeFileSync(
+        path.join(__dirname, "stats.json"),
+        JSON.stringify({hash: stats.hash}));
+    });
+})
 if(!DEV){
     plugins.push(new webpack.optimize.UglifyJsPlugin({
             compress: {
               warnings: false
             }
     }));
-    plugins.push(function() {
-        this.plugin("done", function(stats) {
-          require("fs").writeFileSync(
-            path.join(__dirname, "stats.json"),
-            JSON.stringify({hash: stats.hash}));
-        });
-  })
-
 }
 else{
     plugins.push(new WebpackNotifierPlugin({
@@ -62,7 +61,7 @@ module.exports = {
         fs: 'empty'
     },
     output: {
-        filename: DEV ? "[name].js" : "[name].[hash].js",
+        filename:  "[name].[hash].js",
         path: __dirname + "/.tmp/public/js"
     },
     devtool: 'source-map',
