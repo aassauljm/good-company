@@ -16,6 +16,7 @@ module.exports = {
     },
     associations: function() {
         Company.belongsTo(User, {
+            as: 'owner',
             foreignKey: {
                 onDelete: 'cascade',
                 as: 'owner',

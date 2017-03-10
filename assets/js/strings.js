@@ -24,6 +24,7 @@ export default {
     holdingName: 'Shareholding Name',
     appointment: 'Appointment Date',
     cessation: 'Cessation of Directorship Date',
+    owner: "Owner",
     shareRegister: {
         shareClass: 'Class of Share',
         name: 'Name of Person',

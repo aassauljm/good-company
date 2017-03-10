@@ -50,8 +50,7 @@ module.exports = {
     },
 
     getInfo: function(req, res) {
-
-        Company.findById(req.params.id)
+        Company.findById(req.params.id, {include: [{model: User, as: 'owner'}]})
             .then(function(company) {
                 this.company = company;
                 return company.getNowCompanyState()
@@ -64,6 +63,7 @@ module.exports = {
                 var json = this.companyState.get();
                 return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date()}, });
             }).catch(function(err) {
+                console.log(err)
                 return res.notFound();
             });
     },

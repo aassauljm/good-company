@@ -15,6 +15,7 @@ import { ShareholdingsWidget } from './shareholdings';
 import { RecentCompanyActivityWidget } from './recentActivity';
 import { CompaniesRegisterWidget } from './companiesRegister';
 import { ContactDetailsWidget } from './contactDetails';
+import { AccessListWidget } from './accessList';
 import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
@@ -177,6 +178,15 @@ export class CompanyView extends React.Component {
                         companyState={current}
                         companyId={this.props.params.id}
                         baseUrl={this.props.baseUrl}
+                     />
+
+                    <AccessListWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'accessList'], expanded) }
+                        expanded={(this.props.widgets.directors || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                        baseUrl={this.props.baseUrl}
+                        owner={this.props.data.owner}
                      />
 
                 </div>

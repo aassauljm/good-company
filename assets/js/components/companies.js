@@ -23,6 +23,7 @@ const CompanyItem = (props) => {
     return <div className="company-view">
         <Link to={`/company/view/${props.company.id}`}>
         <h2>{ props.company.companyName }</h2>
+        <h3><span className="sub-label">{ STRINGS['owner'] }:</span> { props.company.owner }</h3>
         <h3><span className="sub-label">{ STRINGS['companyNumber'] }:</span> { props.company.companyNumber }</h3>
         <h3><span className="sub-label">{ STRINGS['nzbn'] }:</span> { props.company.nzbn }</h3>
         <h3><span className="sub-label">{ STRINGS['companyStatus'] }:</span> { props.company.companyStatus }</h3>
@@ -63,7 +64,7 @@ class SelectCompaniesTable extends React.PureComponent {
 
     render() {
         const { handleSubmit, fields, invalid } = this.props;
-        const fieldNames = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        const fieldNames = ['id', 'companyName', 'companyNumber', 'nzbn', 'owner'];
         let className = "table table-striped table-hover ";
         const handleClick = (event, id) => {
             event.preventDefault();
@@ -113,9 +114,13 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
             this.props.push(id);
         }
         const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+
         let className = "table table-striped table-hover ";
         if(condensed){
             className += "table-condensed ";
+        }
+        else{
+            fields.push('owner')
         }
         return <div className="table-responsive">
         <table className={className}>

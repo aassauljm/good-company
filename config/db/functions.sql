@@ -153,11 +153,12 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState" FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner FROM (
         SELECT *, company_now(c.id) FROM company c
         WHERE c."ownerId" = $1 and c.deleted != true
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
+        JOIN public.user u on q."ownerId" = u.id
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
