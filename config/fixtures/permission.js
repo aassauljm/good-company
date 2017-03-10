@@ -9,11 +9,6 @@ var grants = {
         action: 'update'
     }, {
         action: 'delete'
-    }],
-    registered: [{
-        action: 'create'
-    }, {
-        action: 'read'
     }]
 };
 /*
@@ -38,11 +33,11 @@ var modelRestrictions = {
 /**
  * Create default Role permissions
  */
-exports.create = function(roles, models, admin) {
+exports.create = function(roles, models) {
     sails.log.verbose('creating permissions');
     return Promise.all([
-            grantAdminPermissions(roles, models, admin),
-            grantRegisteredPermissions(roles, models, admin)
+            grantAdminPermissions(roles, models),
+            grantRegisteredPermissions(roles, models)
         ])
         .spread(function(err, permissions) {
             return permissions;
@@ -69,6 +64,37 @@ function grantAdminPermissions(roles, models, admin) {
         });
     }))
 }
+
+function grantRegisteredPermissions(roles, models) {
+    var registeredRole = _.find(roles, {
+        name: 'registered'
+    });
+
+    var permissions = Object.keys(registered).reduce((acc, modelKey) => {
+        return registered[modelKey].reduce((acc, perm) => {
+            acc.push({
+                modelId: _.find(models, {
+                    name: modelKey
+                }).id,
+                action: perm.action,
+                roleId: registeredRole.id,
+                relation: perm.relation
+            })
+            return acc;
+        }, acc)
+    }, [])
+
+    return Promise.all(
+        permissions.map(function(permission) {
+            return Permission.findOrCreate({
+                where: permission,
+                defaults: permission
+            });
+        })
+    )
+
+}
+
 // TODO, make json file of this
 
 var registered = {
@@ -119,6 +145,10 @@ var registered = {
         {
             action: 'delete',
             relation: 'owner'
+        },
+        {
+            action: 'read',
+            relation: 'organisation'
         }
     ],
     'Favourite': [
@@ -176,32 +206,3 @@ var registered = {
 };
 
 
-function grantRegisteredPermissions(roles, models, admin) {
-    var registeredRole = _.find(roles, {
-        name: 'registered'
-    });
-
-    var permissions = Object.keys(registered).reduce((acc, modelKey) => {
-        return registered[modelKey].reduce((acc, perm) => {
-            acc.push({
-                modelId: _.find(models, {
-                    name: modelKey
-                }).id,
-                action: perm.action,
-                roleId: registeredRole.id,
-                relation: perm.relation
-            })
-            return acc;
-        }, acc)
-    }, [])
-
-    return Promise.all(
-        permissions.map(function(permission) {
-            return Permission.findOrCreate({
-                where: permission,
-                defaults: permission
-            });
-        })
-    )
-
-}

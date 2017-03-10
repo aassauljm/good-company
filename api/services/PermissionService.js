@@ -11,8 +11,26 @@ var findRecords = require('sails-hook-sequelize-blueprints/actions/find');
 
 var wlFilter = require('waterline-criteria');
 
-module.exports = {
 
+function formatCriteriaQuery(permission, criteria, user){
+    // ensure criteria.where is initialized
+    criteria.where = criteria.where || {};
+
+    if (permission.relation == 'owner') {
+      criteria.where.ownerId = user.id;
+    }
+    if (permission.relation == 'user') {
+      criteria.where.userId = req.user.id;
+    }
+
+    if (permission.relation == 'organisation') {
+      criteria.where.organisationId = user.getOrganisation()
+    }
+    return criteria;
+}
+
+module.exports = {
+    formatCriteriaQuery: formatCriteriaQuery,
     /**
      * Given an object, or a list of objects, return true if the list contains
      * objects not owned by the specified user.
@@ -109,7 +127,7 @@ module.exports = {
                         model: Criteria
                     }]
                 })
-            });
+            })
     },
 
     /**
@@ -132,6 +150,7 @@ module.exports = {
         if (!_.isArray(objects)) {
             objects = [objects];
         }
+        console.log(objects, JSON.stringify(permissions), attributes, userId)
         var criteria = permissions.reduce(function(memo, perm) {
             if (perm) {
                 if (!perm.criteria || perm.criteria.length == 0) {
@@ -161,7 +180,7 @@ module.exports = {
         }
         // every object must have at least one permission that has a passing criteria and a passing attribute check
         return objects.every(function(obj) {
-            return criteria.some(function(criteria) {
+            const some = criteria.some(function(criteria) {
                 var match = wlFilter([typeof obj.get === 'function' ? obj.get() : obj], {
                     where: criteria.where
                 }).results;
@@ -170,8 +189,12 @@ module.exports = {
                 if (criteria.owner) {
                     hasOwnership = !PermissionService.isForeignObject(userId)(obj);
                 }
+                console.log('match', match)
                 return match.length === 1 && !hasUnpermittedAttributes && hasOwnership;
             });
+            console.log('allow', criteria)
+            console.log('allow', some)
+            return some;
         });
 
     },
@@ -532,17 +555,8 @@ module.exports = {
                           where: {}
                         }];
                       }
-
                       var criteriaList = permission.criteria;
-                      return _.map(criteriaList, function(criteria) {
-                        // ensure criteria.where is initialized
-                        criteria.where = criteria.where || {};
-
-                        if (permission.relation == 'owner') {
-                          criteria.where.ownerId = user.id;
-                        }
-                        return criteria;
-                      });
+                      return _.map(criteriaList, (criteria) => formatCriterialQuery(permission, criteria, user));
                     })
                   ));
                 return permissions;

@@ -13,7 +13,7 @@ var Promise = require('bluebird');
  *
  * This policy verifies #1-2 here, before any controller is invoked. However
  * it is not generally possible to determine ownership relationship until after
- * the object has been queried. Verification of #4 occurs in RolePolicy.
+ * the object has been queried. Verification of #4 occurs in CriteriaPolicy.
  *
  * @param {Object}   req
  * @param {Object}   res

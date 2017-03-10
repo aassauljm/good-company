@@ -27,7 +27,8 @@ module.exports = {
             type: Sequelize.ENUM(
                 'role',
                 'owner',
-                'user'),
+                'user',
+                'organisation'),
             defaultValue: 'role',
             index: true,
             unique: 'permissionIndex'
@@ -37,10 +38,16 @@ module.exports = {
             type: Sequelize.INTEGER,
             unique: 'permissionIndex'
         },
-
         roleId: {
             type: Sequelize.INTEGER,
             unique: 'permissionIndex'
+        },
+        entityId: {
+            type: Sequelize.INTEGER
+        },
+        allow: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: true
         }
     },
 

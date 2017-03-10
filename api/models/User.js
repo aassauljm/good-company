@@ -88,6 +88,9 @@ module.exports = {
                 var user = this.get();
                 delete user.password;
                 return user;
+            },
+            getOrganisation: function(){
+                return 1;
             }
         },
         hooks: {

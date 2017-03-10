@@ -39,18 +39,7 @@ module.exports = function(req, res, next) {
       }
 
       var criteriaList = permission.criteria;
-      return _.map(criteriaList, function(criteria) {
-        // ensure criteria.where is initialized
-        criteria.where = criteria.where || {};
-
-        if (permission.relation == 'owner') {
-          criteria.where.ownerId = req.user.id;
-        }
-        if (permission.relation == 'user') {
-          criteria.where.userId = req.user.id;
-        }
-        return criteria;
-      });
+      return _.map(criteriaList, (criteria) => PermissionService.formatCriteriaQuery(permission, criteria, req.user));
     })
   ));
 
