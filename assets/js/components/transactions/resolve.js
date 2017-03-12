@@ -454,7 +454,8 @@ const PAGES = {
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
     [ImportErrorTypes.UNBALANCED_TRANSACTION]: Amend,
     [ImportErrorTypes.INVERSE_INCREASE_SUM_MISMATCH]: Amend,
-    [ImportErrorTypes.INVALID_ISSUE]: Amend
+    [ImportErrorTypes.INVALID_ISSUE]: Amend,
+    [ImportErrorTypes.ADDRESS_DIFFERENCE]: AddressDifference
 }
 
 
