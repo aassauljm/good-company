@@ -144,7 +144,8 @@ describe('#hasPassingCriteria()', function() {
                 where: {
                     x: 2
                 }
-            }
+            },
+            allow: true
         }];
         assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions), false);
         done();
@@ -163,13 +164,15 @@ describe('#hasPassingCriteria()', function() {
                 where: {
                     x: 2
                 }
-            }
+            },
+            allow: true
         }, {
             criteria: {
                 where: {
                     x: 3
                 }
-            }
+            },
+            allow: true
         }];
         assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions), false);
         done();
@@ -184,13 +187,15 @@ describe('#hasPassingCriteria()', function() {
                 where: {
                     x: 2
                 }
-            }
+            },
+                allow: true
         }, {
             criteria: {
                 where: {
                     x: 3
                 }
-            }
+            },
+                allow: true
         }];
         assert(sails.services.permissionservice.hasPassingCriteria(objects, permissions));
         done();
@@ -219,7 +224,8 @@ describe('#hasPassingCriteria()', function() {
         var permissions = [{
             criteria: {
                 blacklist: ['x']
-            }
+            },
+                allow: true
         }];
         assert(sails.services.permissionservice.hasPassingCriteria(objects, permissions));
         done();
@@ -240,7 +246,8 @@ describe('#hasPassingCriteria()', function() {
                         '>': 0
                     }
                 },
-                blacklist: ['y']
+                blacklist: ['y'],
+                allow: true
             }
         }];
         assert(sails.services.permissionservice.hasPassingCriteria(objects, permissions, {
@@ -264,7 +271,8 @@ describe('#hasPassingCriteria()', function() {
                         '<': 0
                     }
                 },
-                blacklist: ['y']
+                blacklist: ['y'],
+                allow: true
             }
         }];
         assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions, {
@@ -288,7 +296,8 @@ describe('#hasPassingCriteria()', function() {
                         '>': 0
                     }
                 },
-                blacklist: ['x']
+                blacklist: ['x'],
+                allow: true
             }
         }];
         assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions, {
@@ -441,19 +450,19 @@ it('should create a permission', function(done) {
                     }];
                     return sails.services.permissionservice.grant(newPermissions);
                 })
-.then(function(perm) {
-                    // verify that it was created
-                    return Permission.findOne({
-                        action: 'create',
-                        relation: 'role',
-                        model: permissionModelId
-                    });
-                })
-.then(function(permission) {
-    assert(permission && permission.id);
-})
-.done(done, done);
-});
+    .then(function(perm) {
+                        // verify that it was created
+                        return Permission.findOne({
+                            action: 'create',
+                            relation: 'role',
+                            model: permissionModelId
+                        });
+                    })
+    .then(function(permission) {
+        assert(permission && permission.id);
+    })
+    .done(done, done);
+    });
 
 
 it('should grant a permission directly to a user', function(done) {
@@ -519,22 +528,22 @@ it('should grant a permission directly to a user', function(done) {
                     }];
                     return sails.services.permissionservice.grant(newPermissions);
                 })
-.then(function(perm) {
-                    // verify that it was created
-                    return Permission.findOne({
-                        where: {
-                            action: 'create',
-                            relation: 'role',
-                            userId: userId,
-                            modelId: permissionModelId
-                        }
-                    });
-                })
-.then(function(permission) {
-    assert(permission && permission.id);
-})
-.done(done, done);
-});
+    .then(function(perm) {
+                        // verify that it was created
+                        return Permission.findOne({
+                            where: {
+                                action: 'create',
+                                relation: 'role',
+                                userId: userId,
+                                modelId: permissionModelId
+                            }
+                        });
+                    })
+    .then(function(permission) {
+        assert(permission && permission.id);
+    })
+    .done(done, done);
+    });
 
 it('should revoke a permission', function(done) {
     var permissionModelId, userId;

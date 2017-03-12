@@ -15,7 +15,6 @@ var wlFilter = require('waterline-criteria');
 function formatCriteriaQuery(permission, criteria, user){
     // ensure criteria.where is initialized
     criteria.where = criteria.where || {};
-
     if (permission.relation == 'owner') {
       criteria.where.ownerId = user.id;
     }
@@ -26,6 +25,11 @@ function formatCriteriaQuery(permission, criteria, user){
     if (permission.relation == 'organisation') {
       criteria.where.organisationId = user.getOrganisation()
     }
+
+    if (permission.entityId) {
+      criteria.where.id= req.user.permission.entityId;
+    }
+
     return criteria;
 }
 
@@ -145,22 +149,29 @@ module.exports = {
      */
     hasPassingCriteria: function(objects, permissions, attributes, userId) {
         // return success if there are no permissions or objects
+
         if (_.isEmpty(permissions) || _.isEmpty(objects)) return true;
 
         if (!_.isArray(objects)) {
             objects = [objects];
         }
-        console.log(objects, JSON.stringify(permissions), attributes, userId)
+
         var criteria = permissions.reduce(function(memo, perm) {
             if (perm) {
                 if (!perm.criteria || perm.criteria.length == 0) {
                     // If a permission has no criteria then it passes for all cases
                     // (like the admin role)
                     memo = memo.concat([{
-                        where: {}
+                        where: {},
+                        allow: perm.allow
                     }]);
                 } else {
-                    memo = memo.concat(perm.criteria);
+                    if(!Array.isArray(perm.criteria)){
+                        memo = memo.concat({...perm.criteria, allow: perm.allow});
+                    }
+                    else{
+                        memo = memo.concat(perm.criteria.map(c => ({...c, allow: perm.allow})));
+                    }
                 }
                 if (perm.relation === 'owner') {
                     perm.criteria.forEach(function(criteria) {
@@ -170,7 +181,7 @@ module.exports = {
                 return memo;
             }
         }, []);
-
+        console.log(criteria)
         if (!_.isArray(criteria)) {
             criteria = [criteria];
         }
@@ -184,16 +195,16 @@ module.exports = {
                 var match = wlFilter([typeof obj.get === 'function' ? obj.get() : obj], {
                     where: criteria.where
                 }).results;
+                if(!criteria.allow){
+                    return false;
+                }
                 var hasUnpermittedAttributes = PermissionService.hasUnpermittedAttributes(attributes, criteria.blacklist);
                 var hasOwnership = true; // edge case for scenario where a user has some permissions that are owner based and some that are role based
                 if (criteria.owner) {
                     hasOwnership = !PermissionService.isForeignObject(userId)(obj);
                 }
-                console.log('match', match)
                 return match.length === 1 && !hasUnpermittedAttributes && hasOwnership;
             });
-            console.log('allow', criteria)
-            console.log('allow', some)
             return some;
         });
 
