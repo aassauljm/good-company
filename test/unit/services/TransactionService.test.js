@@ -4,7 +4,7 @@ import moment from 'moment';
 import chai from 'chai';
 const should = chai.should();
 
-const USER_ID = 1;
+const USER_ID = null;
 
 
 describe('Transaction Service', function() {

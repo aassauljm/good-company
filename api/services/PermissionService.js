@@ -556,7 +556,7 @@ module.exports = {
                         }];
                       }
                       var criteriaList = permission.criteria;
-                      return _.map(criteriaList, (criteria) => formatCriterialQuery(permission, criteria, user));
+                      return _.map(criteriaList, (criteria) => formatCriteriaQuery(permission, criteria, user));
                     })
                   ));
                 return permissions;

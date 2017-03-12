@@ -264,7 +264,7 @@ describe('CompanyState Model', function() {
             };
 
         it('populates company state and confirms person deduplication and associations', function(done){
-            CompanyState.createDedup(initialState, 1)
+            CompanyState.createDedup(initialState, null)
                 .then(function(companyState){
                     var firstMicky = _.find(companyState.holdingList.holdings[0].holders, h => _.isMatch(h.person, {name: 'Mickey Twofists'})).person;
                     var secondMicky = _.find(companyState.holdingList.holdings[1].holders, h => _.isMatch(h.person,  {name: 'Mickey Twofists'})).person;
@@ -299,7 +299,7 @@ describe('CompanyState Model', function() {
 
         it('populates company state, builds new, checks ids', function(done){
             let firstState, nextState, newRecordState;
-            CompanyState.createDedup(initialState, 1)
+            CompanyState.createDedup(initialState, null)
                 .then(function(companyState){
                     firstState = companyState.toJSON();
                     return companyState.buildNext()
