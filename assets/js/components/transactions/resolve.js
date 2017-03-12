@@ -81,7 +81,7 @@ function AddressDifference(props){
          </div>
         <div className="button-row">
             <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
-            { <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
+            { <Button onClick={skip} className="btn-primary">Update Address</Button> }
             <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
         </div>
     </div>

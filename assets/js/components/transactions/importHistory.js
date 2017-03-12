@@ -92,9 +92,12 @@ function TransactionSummaries(props) {
         return true;
     });
     const className = props.loading ? 'button-loading' : 'loaded';
+    const message = pendingActions.length ?
+        'Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
+        "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
 
     return <div className={className}>
-        <p>Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.</p>
+        <p>{ message }</p>
         <hr/>
         <Shuffle>
             { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
@@ -315,7 +318,7 @@ export class ImportHistoryTransactionView extends React.Component {
                 this.props.end();
             })
             .catch(e => {
-                this.handleResolve(this.props.importHistory.error, CONTINUE);
+                this.handleResolve(this.props.importHistory.error);
             })
     }
 
@@ -344,7 +347,7 @@ export class ImportHistoryTransactionView extends React.Component {
         });
     }
 
-    handleResolve(error, afterIndex) {
+    handleResolve(error) {
         const pendingActions = collectActions(this.state.pendingHistory.data || []);
         this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
