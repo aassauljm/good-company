@@ -146,6 +146,8 @@ CREATE OR REPLACE FUNCTION company_at(company integer, timestamp with time zone)
     SELECT company_state_at("currentCompanyStateId", $2) id FROM company where company.id = $1
 $$ LANGUAGE SQL;
 
+
+
 CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     RETURNS SETOF json
     AS $$

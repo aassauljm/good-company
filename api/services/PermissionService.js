@@ -19,7 +19,7 @@ function formatCriteriaQuery(permission, criteria, user){
       criteria.where.ownerId = user.id;
     }
     if (permission.relation == 'user') {
-      criteria.where.userId = req.user.id;
+      criteria.where.userId = user.id;
     }
 
     if (permission.relation == 'organisation') {

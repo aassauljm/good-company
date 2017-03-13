@@ -31,7 +31,9 @@ module.exports = function(sails) {
                         next(error);
                     });
             });
-        }
+        },
+        initializeFixtures: initializeFixtures
+
     };
 };
 

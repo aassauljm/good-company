@@ -246,9 +246,9 @@ describe('#hasPassingCriteria()', function() {
                         '>': 0
                     }
                 },
-                blacklist: ['y'],
-                allow: true
-            }
+                blacklist: ['y']
+            },
+            allow: true
         }];
         assert(sails.services.permissionservice.hasPassingCriteria(objects, permissions, {
             x: 5
@@ -665,35 +665,44 @@ it('should not revoke a permission if no user or role is supplied', function(don
                     })
                     .done(done, done);
                 });
-});
+        });
 
-it('should remove users from a role', function(done) {
-    var user;
-    var ok = User.create({
-        username: 'test',
-        email: 'testemail@test.test'
+        it('should remove users from a role', function(done) {
+            var user;
+            var ok = User.create({
+                username: 'test',
+                email: 'testemail@test.test'
+            });
+
+            ok = ok.then(function(usr) {
+                user = usr;
+                return PermissionService.addUsersToRole('test', 'admin');
+            });
+
+            ok = ok.then(function(role) {
+                assert(_.contains(_.pluck(role.users, 'id'), user.id));
+                return PermissionService.removeUsersFromRole('test', 'admin');
+            });
+
+            ok = ok.then(function(role) {
+                assert(!_.contains(_.pluck(role.users, 'id'), user.id));
+            })
+            .done(done, done);
+
+        });
+
     });
-
-    ok = ok.then(function(usr) {
-        user = usr;
-        return PermissionService.addUsersToRole('test', 'admin');
-    });
-
-    ok = ok.then(function(role) {
-        assert(_.contains(_.pluck(role.users, 'id'), user.id));
-        return PermissionService.removeUsersFromRole('test', 'admin');
-    });
-
-    ok = ok.then(function(role) {
-        assert(!_.contains(_.pluck(role.users, 'id'), user.id));
-    })
-    .done(done, done);
-
-});
-
-});
     //TODO: add unit tests for #findTargetObjects()
 
     //TODO: add unit tests for #findModelPermissions()
+
+
+    after(function(){
+        //reset
+        return Permission.destroy({where: {}})
+            .then(function () {
+                return sails.hooks['sails-permissions'].initializeFixtures(sails);
+            });
+    });
 
 })
