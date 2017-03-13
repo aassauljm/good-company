@@ -86,7 +86,6 @@ function grantRegisteredPermissions(roles, models) {
 
     return Promise.all(
         permissions.map(function(permission) {
-            console.log(permission)
             return Permission.findOrCreate({
                 where: permission,
                 defaults: permission

@@ -140,7 +140,7 @@ function lift(cb){
             connection: 'pg_test',
             migrate: 'drop'
         },
-        fixtures: false,
+        fixtures: !process.env.SKIP_SAILS,
         hooks:{
             orm: false,
             blueprints: false,
@@ -181,17 +181,8 @@ before(function(done) {
                     sails.log.error('Migrations complete')
                 })
                 .then(function(){
-                    fs.readFileAsync('config/db/functions.sql', 'utf8')
-                    .then(function(sql){
-                        return sequelize.query(sql)
-                    })
-                    .then(function(){
-                        return sequelize.query('SELECT reset_sequences();')
-                    })
-                    .then(function(){
-                        stubs();
-                        done();
-                    });
+                    stubs();
+                    done();
                 });
             });
     }

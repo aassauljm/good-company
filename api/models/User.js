@@ -89,9 +89,9 @@ module.exports = {
                 delete user.password;
                 return user;
             },
-            getOrganisation: function(){
+            /*getOrganisation: function(){
                 return 1;
-            }
+            }*/
         },
         hooks: {
             beforeValidate: [

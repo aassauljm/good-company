@@ -22,13 +22,13 @@ function formatCriteriaQuery(permission, criteria, user){
       criteria.where.userId = user.id;
     }
 
-    if (permission.relation == 'organisation') {
+    /*if (permission.relation == 'organisation') {
       criteria.where.organisationId = user.getOrganisation()
     }
 
     if (permission.entityId) {
       criteria.where.id= req.user.permission.entityId;
-    }
+    }*/
 
     return criteria;
 }
@@ -181,7 +181,6 @@ module.exports = {
                 return memo;
             }
         }, []);
-        console.log(criteria)
         if (!_.isArray(criteria)) {
             criteria = [criteria];
         }

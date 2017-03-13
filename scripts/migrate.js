@@ -6,6 +6,7 @@ var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var pgp = require('pg-promise')();
 var connections = require('../config/connections').connections;
+var ORDERED_DB_SCRIPTS = require('../api/hooks/db')(null).ORDERED_DB_SCRIPTS;
 var _ = require('lodash');
 
 
@@ -59,13 +60,14 @@ db.tx(function (t) {
             });
         })
 })
-.then(function(){
-    return fs.readFileAsync('config/db/functions.sql', 'utf8')
+.then(function() {
+    return Promise.each(ORDERED_DB_SCRIPTS, (file) => {
+        console.log('Reading: ', file);
+        return fs.readFileAsync(file, 'utf8')
+    .then(sql => {
+        return db.none(sql);
+    })});
 })
- .then(function(sql){
-    return db.none(sql);
-})
-
 .then(function(){
     console.log('Migrations Complete.');
     process.exit(0)
