@@ -2,7 +2,12 @@ var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 
 
-const ORDERED_DB_SCRIPTS = ['config/db/functions.sql']
+const ORDERED_DB_SCRIPTS = [
+    'config/db/functions.sql',
+    'config/db/shareRegister.sql',
+    'config/db/admin.sql',
+    'config/db/acls.sql'
+    ]
 
 
 function populate() {
@@ -15,14 +20,7 @@ function populate() {
 module.exports = function(sails) {
     return {
         identity: 'db',
-        /**
-         * Local cache of Model name -> id mappings to avoid excessive database lookups.
-         */
-        _modelCache: {},
-
-        configure: function() {
-
-        },
+        configure: function() { },
 
         initialize: function(next) {
             sails.log.info('loading db functions');
