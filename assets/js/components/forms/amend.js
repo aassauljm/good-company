@@ -204,7 +204,6 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
     actionSet = actionSet || {data: {actions: []}};
     const amendActions = collectAmendActions(actionSet.data.actions);
 
-    debugger
     const otherActions = actionSet.data.actions.filter(a => !isAmendable(a) && !isShareChange(a));
 
     const newPendingActions = otherActions.length ? [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}] : [];
@@ -363,7 +362,6 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
             newPendingActions.push({id: actionSet.id, orderIndex: orderIndex, data: {...actionSet.data, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
         }
     });
-    debugger
     return { newActions: newPendingActions }
 }
 

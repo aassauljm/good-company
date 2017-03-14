@@ -80,6 +80,7 @@ class PendingAction extends React.Component {
 
 
 function TransactionSummaries(props) {
+    let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType === TransactionTypes.INCORPORATION);
     const pendingActions = props.pendingActions.filter((p, i) => {
         p.numberId = i;
         const actions = p.data.actions.filter(a => a.transactionType);
@@ -87,6 +88,9 @@ function TransactionSummaries(props) {
             return false;
         }
         if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
+            return false;
+        }
+        if(i > incorpIndex && incorpIndex >= 0){
             return false;
         }
         return true;
@@ -167,7 +171,7 @@ function isEditable(data){
 function isNonDisplayedTransaction(transactionType){
     return {
         [TransactionTypes.ANNUAL_RETURN]: true
-    }[transactionType]
+    }[transactionType];
 }
 
 PAGES[EXPLAINATION] = function() {
