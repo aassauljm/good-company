@@ -5,7 +5,8 @@ import { numberWithCommas,
     isShareChange,
     collectAmendActions,
     collectShareChangeActions,
-    SHARE_CHANGE_TYPES } from '../../utils';
+    SHARE_CHANGE_TYPES,
+    getTotalShares } from '../../utils';
 import moment from 'moment';
 
 export const keyObject = { keyIndex: 1};
@@ -129,7 +130,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
     const amountValues = amendActions.reduce((acc, action, i) => {
         const dir = (action.parcels[0].afterAmount > action.parcels[0].beforeAmount || !action.beforeHolders);
         action.parcels.map(parcel => {
-            acc[dir][parcel.amount] = (acc[dir][parcel.amount] || []).concat({...action, id: action.id});
+            acc[dir][parcel.amount || 0] = (acc[dir][parcel.amount] || []).concat({...action, id: action.id});
         });
         return acc;
     }, {true: {}, false: {}});
@@ -142,7 +143,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
 
         if(isShareChange(a)){
             return {
-                subActions: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
+                subActions: [{parcels:  a.parcels.map(parcel => ({amount: parcel.amount === undefined ? getTotalShares({actions:amendActions}) : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
                 effectiveDate,  _keyIndex: keyObject.keyIndex++, type: a.transactionType}]
             };
         }
@@ -203,7 +204,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
 export function formatSubmit(values, actionSet, pendingActions = []) {
     actionSet = actionSet || {data: {actions: []}};
     const amendActions = collectAmendActions(actionSet.data.actions);
-    const amends = [...(values.actions.map((a, i) => ({...amendActions[i]})))];
+
     const otherActions = actionSet.data.actions.filter(a => !isAmendable(a) && !isShareChange(a));
 
     const newPendingActions = otherActions.length ? [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}] : [];
@@ -246,7 +247,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     }
                 }
                 else{
-                    const result = {...a.originalAction, beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
+                    const result = {...a.originalAction, beforeHolders: holders, afterHolders: holders, transactionType: r.type || method, unknownAmount: false, targetActionId: null,
                         transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
                         // if you have been transplanted into another actionSet
 
@@ -261,11 +262,11 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     }*/
                     else if(r.targetActionId && values.actions.find(a => a.originalAction.id !== r .targetActionId)){
                         nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
-                        nonTransfers[r.effectiveDate].push(result);
+                        nonTransfers[r.effectiveDate].push({...result});
                     }
                     else{
                         nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
-                        nonTransfers[r.effectiveDate].push(result);
+                        nonTransfers[r.effectiveDate].push({...result});
                     }
                 }
             }
@@ -348,7 +349,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
         if(actions.some(action => action.targetActionId)){
             // we will find teh actionSet in the original
 
-            const existingActionSet = actionSetLookup[actions[0].targetActionId];
+            const existingActionSet = actionSetLookup[(actions.find(action => action.targetActionId) || {}).targetActionId];
             if(!existingActionSet){
                 //create new one
                 //alert("todo")

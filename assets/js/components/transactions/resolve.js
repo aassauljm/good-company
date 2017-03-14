@@ -81,7 +81,7 @@ function AddressDifference(props){
          </div>
         <div className="button-row">
             <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
-            { <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
+            { <Button onClick={skip} className="btn-primary">Update Address</Button> }
             <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
         </div>
     </div>
@@ -454,7 +454,8 @@ const PAGES = {
     [ImportErrorTypes.UNKNOWN_AMEND]: Amend,
     [ImportErrorTypes.UNBALANCED_TRANSACTION]: Amend,
     [ImportErrorTypes.INVERSE_INCREASE_SUM_MISMATCH]: Amend,
-    [ImportErrorTypes.INVALID_ISSUE]: Amend
+    [ImportErrorTypes.INVALID_ISSUE]: Amend,
+    [ImportErrorTypes.ADDRESS_DIFFERENCE]: AddressDifference
 }
 
 
@@ -474,7 +475,6 @@ const DEFAULT_OBJ = {};
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
             .then(() => {
-                ownProps.end();
                 dispatch(destroy('amend'));
             })
         },
@@ -510,8 +510,8 @@ export class ResolveAmbiguityTransactionView extends React.Component {
     componentDidUpdate() {
         this.fetch();
     };
-    handleClose() {
-        this.props.end({cancelled: true});
+    handleClose(args) {
+        this.props.end(args);
     }
     renderBody() {
         const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context, pendingActions: this.props.pendingHistory.data};
@@ -553,7 +553,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState )}
                 <hr/>
-                { PAGES[context.importErrorType]({context: context, submit: updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: this.handleClose, ...this.props}) }
+                { PAGES[context.importErrorType]({context: context, submit: updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: () => this.handleClose({cancelled: true, index: 0}), ...this.props}) }
             </div>
         }
         else{
@@ -568,7 +568,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
         if(!this.props.transactionViewData.error){
             return false;
         }
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large"  backdrop={'static'}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>{ STRINGS.importCompanyHistory } - More Information Required</TransactionView.Title>
               </TransactionView.Header>

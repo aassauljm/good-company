@@ -10,8 +10,10 @@
     "build-dev": "cp -n ./config/env/example.development.js ./config/env/development.js && webpack --progress --colors --watch",
     "build": "NODE_ENV=production webpack -p ",
     "run": "BLUEBIRD_WARNINGS=0 sails lift",
-    "test-coverage": "istanbul cover _mocha -- --recursive test --compilers js:babel-core/register --timeout 45000",
-    "test": "BLUEBIRD_WARNINGS=0 NODE_ENV=test  _mocha --recursive test --compilers js:babel-core/register --timeout 45000"
+    "test-coverage": "BLUEBIRD_WARNINGS=0 NODE_ENV=test nyc --reporter=html --reporter=text  _mocha -- --recursive test --compilers js:babel-core/register --timeout 45000",
+    "test-mocha": "BLUEBIRD_WARNINGS=0 NODE_ENV=test  _mocha --recursive test --compilers js:babel-core/register --timeout 45000",
+    "test": "BLUEBIRD_WARNINGS=0 NODE_ENV=test nyc  --reporter=html --reporter=text _mocha --recursive test --compilers js:babel-core/register --timeout 45000",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
     "chai-subset": "^1.1.0",
+    "coveralls": "^2.12.0",
     "css-loader": "^0.18.0",
     "extract-text-webpack-plugin": "^0.8.2",
     "grunt-contrib-clean": "~0.5.0",
@@ -36,6 +39,7 @@
     "mocha": "^2.3.2",
     "mocha-lcov-reporter": "0.0.2",
     "node-sass": "^3.3.3",
+    "nyc": "^10.1.2",
     "react-addons-test-utils": "^15.2.0",
     "react-dnd-test-backend": "^1.0.2",
     "redux-devtools": "^3.0.0-beta-3",

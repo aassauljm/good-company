@@ -80,6 +80,7 @@ class PendingAction extends React.Component {
 
 
 function TransactionSummaries(props) {
+    let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType === TransactionTypes.INCORPORATION);
     const pendingActions = props.pendingActions.filter((p, i) => {
         p.numberId = i;
         const actions = p.data.actions.filter(a => a.transactionType);
@@ -89,12 +90,18 @@ function TransactionSummaries(props) {
         if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
             return false;
         }
+        if(i > incorpIndex && incorpIndex >= 0){
+            return false;
+        }
         return true;
     });
     const className = props.loading ? 'button-loading' : 'loaded';
+    const message = pendingActions.length ?
+        'Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
+        "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
 
     return <div className={className}>
-        <p>Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.</p>
+        <p>{ message }</p>
         <hr/>
         <Shuffle>
             { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
@@ -164,7 +171,7 @@ function isEditable(data){
 function isNonDisplayedTransaction(transactionType){
     return {
         [TransactionTypes.ANNUAL_RETURN]: true
-    }[transactionType]
+    }[transactionType];
 }
 
 PAGES[EXPLAINATION] = function() {
@@ -295,7 +302,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     checkContinue() {
-        if(this.props.index === CONTINUE){
+        if(this.props.index === CONTINUE && !this.isLoading()){
             this.handleStart();
         }
     }
@@ -312,10 +319,10 @@ export class ImportHistoryTransactionView extends React.Component {
         this.props.next({index: LOADING});
         this.props.performImport()
             .then(action => {
-                this.props.end();
+                return this.props.end();
             })
             .catch(e => {
-                this.handleResolve(this.props.importHistory.error, CONTINUE);
+                return this.handleResolve(this.props.importHistory.error);
             })
     }
 
@@ -344,7 +351,7 @@ export class ImportHistoryTransactionView extends React.Component {
         });
     }
 
-    handleResolve(error, afterIndex) {
+    handleResolve(error) {
         const pendingActions = collectActions(this.state.pendingHistory.data || []);
         this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
@@ -352,16 +359,17 @@ export class ImportHistoryTransactionView extends React.Component {
                 ...this.props.transactionViewData,
                 error: error,
                  //open this transactionView again
-                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
+                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}},
                 editTransactionData: {
                     startId: pendingActions[0].id,
                     endId: pendingActions[pendingActions.length-1].previous_id,
                     pendingActions,
                     // other actions
-                    afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+                    afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}}
                 }
         });
     }
+
 
     handleConfirm(transaction, confirmState=true) {
         if(this.isLoading()){
@@ -386,7 +394,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" backdrop={'static'}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>{ STRINGS.importCompanyHistory } </TransactionView.Title>
               </TransactionView.Header>

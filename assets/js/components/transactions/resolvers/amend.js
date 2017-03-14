@@ -506,6 +506,7 @@ const AmendOptionsConnected = reduxForm({
 
 function generateExternalActionSetOptions(actionSets = [], actionSetId){
     const grouped = {};
+    let count = 1;
     actionSets.map((set, i) => {
         set.data.actions.map((action, j) => {
             if(isShareChange(action)){
@@ -514,7 +515,7 @@ function generateExternalActionSetOptions(actionSets = [], actionSetId){
                 const prefix = set.data.id === actionSetId ? 'This transaction set' : stringDateToFormattedString(set.data.effectiveDate)
                 grouped[mappedType].push(
                     <option value={action.id} key={`${i}-${j}`}>
-                        {prefix } - { `${STRINGS.transactionTypes[action.transactionType]} of ${ action.parcels.map(p => `${p.amount ? numberWithCommas(p.amount) : 'an unknown number of'} shares`).join(', ') }` }
+                        #{count++} {prefix } - { `${STRINGS.transactionTypes[action.transactionType]} of ${ action.parcels.map(p => `${p.amount ? numberWithCommas(p.amount) : 'an unknown number of'} shares`).join(', ') }` }
                     </option>);
             }
             /*else if(isAmendable(action, j)){
