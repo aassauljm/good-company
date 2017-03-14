@@ -302,7 +302,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     checkContinue() {
-        if(this.props.index === CONTINUE){
+        if(this.props.index === CONTINUE && !this.isLoading()){
             this.handleStart();
         }
     }
@@ -319,10 +319,10 @@ export class ImportHistoryTransactionView extends React.Component {
         this.props.next({index: LOADING});
         this.props.performImport()
             .then(action => {
-                this.props.end();
+                return this.props.end();
             })
             .catch(e => {
-                this.handleResolve(this.props.importHistory.error);
+                return this.handleResolve(this.props.importHistory.error);
             })
     }
 
@@ -359,16 +359,17 @@ export class ImportHistoryTransactionView extends React.Component {
                 ...this.props.transactionViewData,
                 error: error,
                  //open this transactionView again
-                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
+                afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}},
                 editTransactionData: {
                     startId: pendingActions[0].id,
                     endId: pendingActions[pendingActions.length-1].previous_id,
                     pendingActions,
                     // other actions
-                    afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+                    afterClose: { showTransactionView: {key: 'importHistory', data: {...this.props.transactionViewData, index: CONTINUE}}}
                 }
         });
     }
+
 
     handleConfirm(transaction, confirmState=true) {
         if(this.isLoading()){
@@ -393,7 +394,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" backdrop={'static'}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>{ STRINGS.importCompanyHistory } </TransactionView.Title>
               </TransactionView.Header>

@@ -5,7 +5,8 @@ import { numberWithCommas,
     isShareChange,
     collectAmendActions,
     collectShareChangeActions,
-    SHARE_CHANGE_TYPES } from '../../utils';
+    SHARE_CHANGE_TYPES,
+    getTotalShares } from '../../utils';
 import moment from 'moment';
 
 export const keyObject = { keyIndex: 1};
@@ -129,7 +130,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
     const amountValues = amendActions.reduce((acc, action, i) => {
         const dir = (action.parcels[0].afterAmount > action.parcels[0].beforeAmount || !action.beforeHolders);
         action.parcels.map(parcel => {
-            acc[dir][parcel.amount] = (acc[dir][parcel.amount] || []).concat({...action, id: action.id});
+            acc[dir][parcel.amount || 0] = (acc[dir][parcel.amount] || []).concat({...action, id: action.id});
         });
         return acc;
     }, {true: {}, false: {}});
@@ -142,7 +143,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
 
         if(isShareChange(a)){
             return {
-                subActions: [{parcels:  a.parcels.map(parcel => ({amount:  a.inferAmount ? 'All' : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
+                subActions: [{parcels:  a.parcels.map(parcel => ({amount: parcel.amount === undefined ? getTotalShares({actions:amendActions}) : parcel.amount, shareClass: (parcel.shareClass || defaultShareClass)+''})),
                 effectiveDate,  _keyIndex: keyObject.keyIndex++, type: a.transactionType}]
             };
         }
