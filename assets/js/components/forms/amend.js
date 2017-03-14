@@ -203,7 +203,8 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
 export function formatSubmit(values, actionSet, pendingActions = []) {
     actionSet = actionSet || {data: {actions: []}};
     const amendActions = collectAmendActions(actionSet.data.actions);
-    const amends = [...(values.actions.map((a, i) => ({...amendActions[i]})))];
+
+    debugger
     const otherActions = actionSet.data.actions.filter(a => !isAmendable(a) && !isShareChange(a));
 
     const newPendingActions = otherActions.length ? [{id: actionSet.id, data: {...actionSet.data, actions: otherActions}, previous_id: actionSet.previous_id}] : [];
@@ -246,7 +247,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     }
                 }
                 else{
-                    const result = {...a.originalAction, beforeHolders: holders, afterHolders: holders, transactionType: r.type || method,
+                    const result = {...a.originalAction, beforeHolders: holders, afterHolders: holders, transactionType: r.type || method, unknownAmount: false, targetActionId: null,
                         transactionMethod: r.type !== method ? method : null, parcels, effectiveDate: r.effectiveDate, _holding: i, userConfirmed: true, userSkip: a.userSkip};
                         // if you have been transplanted into another actionSet
 
@@ -261,11 +262,11 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     }*/
                     else if(r.targetActionId && values.actions.find(a => a.originalAction.id !== r .targetActionId)){
                         nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
-                        nonTransfers[r.effectiveDate].push(result);
+                        nonTransfers[r.effectiveDate].push({...result});
                     }
                     else{
                         nonTransfers[r.effectiveDate] = nonTransfers[r.effectiveDate] || [];
-                        nonTransfers[r.effectiveDate].push(result);
+                        nonTransfers[r.effectiveDate].push({...result});
                     }
                 }
             }
@@ -348,7 +349,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
         if(actions.some(action => action.targetActionId)){
             // we will find teh actionSet in the original
 
-            const existingActionSet = actionSetLookup[actions[0].targetActionId];
+            const existingActionSet = actionSetLookup[(actions.find(action => action.targetActionId) || {}).targetActionId];
             if(!existingActionSet){
                 //create new one
                 //alert("todo")
@@ -362,6 +363,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
             newPendingActions.push({id: actionSet.id, orderIndex: orderIndex, data: {...actionSet.data, effectiveDate: actions[0].effectiveDate, totalShares: null, actions: actions}, previous_id: actionSet.previous_id});
         }
     });
+    debugger
     return { newActions: newPendingActions }
 }
 
