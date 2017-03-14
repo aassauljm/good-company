@@ -38,7 +38,7 @@ export function fetchNZBN(nzbns){
         })
 }
 
-export function getNameChangeActions(companies, data, docs) {
+export function getNameChangeActions(companies, sourceData, docs) {
     const results = [];
 
     return CompanyInfoService.fetchNameHistory(companies)
@@ -58,7 +58,8 @@ export function getNameChangeActions(companies, data, docs) {
                     });
                 });
             });
-            return results;
+            const incorporationDate = moment(sourceData.incorporationDate, 'DD MMM YYYY').toDate();
+            return results.filter(r => r.effectiveDate > incorporationDate);
         })
 }
 
