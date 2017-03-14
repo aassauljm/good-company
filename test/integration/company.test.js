@@ -223,12 +223,12 @@ function resolveAmend(details){
                 Simulate.change(subaction.querySelector('.shareClass'), { target: {value: shareClassMap[entry.shareClass]}});
             }
             if(entry.recipient){
-                const targetVal = Array.from(subaction.querySelectorAll('.transfer option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.recipient) === 0)[0].value;
+                const targetVal = Array.from(subaction.querySelectorAll('.transfer option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.recipient) > -1)[0].value;
                 Simulate.change(subaction.querySelector('.transfer'), { target: {value: targetVal}});
                 Simulate.blur(subaction.querySelector('.transfer'))
             }
             else{
-                const targetVal = Array.from(subaction.querySelectorAll('.subaction-target option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.target) === 0)[0].value;
+                const targetVal = Array.from(subaction.querySelectorAll('.subaction-target option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.target) > -1)[0].value;
                 Simulate.change(subaction.querySelector('.subaction-target'), { target: {value: targetVal}});
                 Simulate.blur(subaction.querySelector('.subaction-target'))
             }
@@ -348,14 +348,14 @@ describe('Company Integration Tests - Catalex', () => {
                 .then(() => {
                     Simulate.submit(this.dom.querySelector('.resolve form'));
                      //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
-                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                     //return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
                 })
         });
 
         it('Imports next chunks', function(){
-            let modal;
+            /*let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
-            Simulate.click(button, {button: 0});
+            Simulate.click(button, {button: 0});*/
             return waitFor('Amend Screen', () => this.dom.querySelectorAll('.resolve').length, null, 20000)
         })
 
@@ -379,15 +379,15 @@ describe('Company Integration Tests - Catalex', () => {
                 .then(() => {
                     Simulate.submit(this.dom.querySelector('.resolve form'));
                      //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
-                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                    // return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
                 });
             })
 
 
         it('Imports final chunks', function(){
-            let modal;
+            /*let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
-            Simulate.click(button, {button: 0});
+            Simulate.click(button, {button: 0});*/
             return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
 
@@ -463,14 +463,14 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
                 .then(() => {
                     Simulate.submit(this.dom.querySelector('.resolve form'));
                      //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
-                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                    // return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
                 });
         });
 
         it('Imports final chunks', function(){
-            let modal;
+           /* let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
-            Simulate.click(button, {button: 0});
+            Simulate.click(button, {button: 0}); */
             return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
 
