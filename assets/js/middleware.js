@@ -2,11 +2,34 @@
 import Promise from 'bluebird';
 import { logout, showConfirmation } from './actions';
 import { push } from 'react-router-redux';
+import Raven from 'raven-js';
 
 Promise.config({
     cancellation: true
 });
 
+
+// So when we log errors, we can grab the current state from the window
+export const addStateToWindow = store => next => action => {
+    const debloatState = (state) => {
+        return {
+            ..state,
+            resources: Object.keys(state.resources).reduce((acc, key) => {
+                    acc[key] = { ...state.resources[key], data: null };
+                    return acc;
+                }, {})
+        };
+    };
+
+    ['routing', 'version', 'userInfo', 'form']``
+
+    const state = debloatState(store.getState());
+
+    window.getState = () => state; // So UserFeedback can get the most recent state
+    Raven.setExtraContext({ state });
+
+    return next(action);
+};
 
 export function checkStatus(response) {
   if (response.status >= 200 && response.status <= 304) {

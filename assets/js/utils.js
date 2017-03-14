@@ -471,3 +471,14 @@ export const processEvents = (events) => {
     }, {})
     return {eventList: events, eventMap: eventMap}
 }
+
+export const recurse = (obj, func) => {
+    for(let x in obj) {
+        if(!!obj[x] && typeof(obj[x]) === "object") {
+            if(obj[x]){
+                func(obj[x]);
+            }
+            recurse(obj[x])
+        }
+    }
+}

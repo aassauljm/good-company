@@ -2,7 +2,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import appReducer from './reducers';
 import thunkMiddleware from 'redux-thunk';
-import { callAPIMiddleware, confirmationMiddleware } from './middleware';
+import { callAPIMiddleware, confirmationMiddleware,addStateToWindow } from './middleware';
 import {  routerMiddleware} from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
 import { runSagas } from './sagas'
@@ -17,6 +17,7 @@ export default function configureStore(history, initialState=data) {
             sagaMiddleware,
           thunkMiddleware,
           routerMiddleware(history),
+          addStateToWindow,
           confirmationMiddleware,
           callAPIMiddleware)
 
