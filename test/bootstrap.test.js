@@ -177,6 +177,9 @@ before(function(done) {
                     sails.log.error('Fixtures loaded')
                 })
                 .then(addMigrations)
+                .then(function(){
+                    return sequelize.query('SELECT reset_sequences();')
+                })
                 .tap(() => {
                     sails.log.error('Migrations complete')
                 })

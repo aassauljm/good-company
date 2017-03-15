@@ -80,7 +80,7 @@ module.exports = {
             recentActivity: function(id){
                 return sequelize.query("select recent_activity(:id)",
                                { type: sequelize.QueryTypes.SELECT,
-                                    id: id})
+                                    replacements: {id: id}})
             }
         },
         instanceMethods: {
@@ -89,9 +89,12 @@ module.exports = {
                 delete user.password;
                 return user;
             },
-            /*getOrganisation: function(){
-                return 1;
-            }*/
+            getOrganisation: function(){
+                return sequelize.query("select get_user_organisation(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                    replacements:{id: this.id}})
+                                    .then(r => r[0].get_user_organisation)
+            }
         },
         hooks: {
             beforeValidate: [

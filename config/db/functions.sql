@@ -71,7 +71,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION last_login(userId integer)
     RETURNS  text
-    AS $$
+    IMMUTABLE AS $$
     SELECT format_iso_date("createdAt") from login_history where "userId" = $1 order by "createdAt" DESC limit 1 offset 1
 $$ LANGUAGE SQL;
 
@@ -147,6 +147,29 @@ CREATE OR REPLACE FUNCTION company_at(company integer, timestamp with time zone)
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION get_user_organisation(userId integer)
+    RETURNS INTEGER
+    STABLE AS $$
+      SELECT o."organisationId"
+      FROM passport p
+      JOIN organisation o on p.identifier = o."catalexId"
+      WHERE  p."userId" = $1 and provider = 'catalex'
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION readable_companies(userId integer)
+    RETURNS SETOF company
+    STABLE AS $$
+        SELECT c.* from company c where "ownerId" = $1 and deleted = false
+
+        UNION
+
+        SELECT c.* from company c
+        WHERE deleted = false and get_user_organisation($1) = get_user_organisation(c."ownerId")
+
+
+
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     RETURNS SETOF json
@@ -156,15 +179,13 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     )
     SELECT row_to_json(q) FROM (
         SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner FROM (
-        SELECT *, company_now(c.id) FROM company c
-        WHERE c."ownerId" = $1 and c.deleted != true
+        SELECT *, company_now(c.id) FROM readable_companies($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
         JOIN public.user u on q."ownerId" = u.id
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
-
 
 CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
     RETURNS SETOF json

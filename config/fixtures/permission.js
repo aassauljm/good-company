@@ -28,11 +28,9 @@ var modelRestrictions = {
   ]
 };
 */
-// TODO let users override this in the actual model definition
 
-/**
- * Create default Role permissions
- */
+
+
 exports.create = function(roles, models) {
     sails.log.verbose('creating permissions');
     return Promise.all([
@@ -98,11 +96,11 @@ function grantRegisteredPermissions(roles, models) {
 // TODO, make json file of this
 
 var registered = {
-    'Permission': [
+    /*'Permission': [
         {
             action: 'read'
         }
-    ],
+    ],*/
     'User': [
         {
             action: 'read',
@@ -185,11 +183,11 @@ var registered = {
             relation: 'user'
         }
     ],
-    'CompanyState': [
+    /*'CompanyState': [
         {
             action: 'create'
         }
-    ],
+    ],*/
     'ApiCredential': [
         {
             action: 'create'

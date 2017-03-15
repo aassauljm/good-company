@@ -22,14 +22,6 @@ var simpleAuth = [
     'AuditPolicy'
 ];
 
-var noCriteria = [
-    'passport',
-    'sessionAuth',
-    'ModelPolicy',
-    'AuditPolicy',
-    'OwnerPolicy',
-    'PermissionPolicy'
-]
 
 module.exports.policies = {
     LandingController: {
@@ -42,8 +34,7 @@ module.exports.policies = {
         'ModelPolicy',
         'AuditPolicy',
         'OwnerPolicy',
-        'PermissionPolicy',
-        'CriteriaPolicy'
+        'ACLPolicy'
     ],
     AuthController: {
         '*': ['passport'],
@@ -54,11 +45,15 @@ module.exports.policies = {
         ]
     },
     UserController: {
-        'setPassword': simpleAuth,
         'signup': true,
         'validateUser': true,
-        'pendingJobs': simpleAuth,
-        'accountSettings': noCriteria
+        'setPassword': simpleAuth,
+        userInfo: simpleAuth,
+        pendingJobs: simpleAuth,
+        recentActivity: simpleAuth,
+        recentActivityFull: simpleAuth,
+        alerts: simpleAuth,
+        accountSettings: simpleAuth
     },
     ModelController:{
         'create': false,
@@ -89,7 +84,7 @@ module.exports.policies = {
         echo: ['passport','sessionAuth']
     },
     EventController: {
-        'find': noCriteria
+        'find': simpleAuth
     },
 
     AdminController: {

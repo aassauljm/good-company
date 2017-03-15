@@ -10,6 +10,7 @@ module.exports = {
 	},
 	associations: function(){
 	    Criteria.belongsTo(Permission, {
+           as: "permission",
             foreignKey: {
                 as: 'permission',
                 name: 'permissionId'

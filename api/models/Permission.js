@@ -28,7 +28,8 @@ module.exports = {
                 'role',
                 'owner',
                 'user',
-                'organisation'),
+                'organisation',
+                'catalex'),
             defaultValue: 'role',
             index: true,
             unique: 'permissionIndex'

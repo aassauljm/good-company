@@ -195,7 +195,8 @@ module.exports.routes = {
     'POST /api/transaction/:type/:id': {
         controller: 'CompanyStateController',
         model: 'company',
-        action: 'create'
+        action: 'create',
+        method: 'update'
     },
 
     'DELETE /api/company/:id/transactions/:transactionIds': {
@@ -260,7 +261,7 @@ module.exports.routes = {
     },
     'POST /api/bulk/transaction': {
         controller: 'CompanyController',
-        action: 'transactionBulk'
+        action: 'transactionBulk',
     },
 
     'GET /api/address/lookup/:query': {
@@ -271,19 +272,22 @@ module.exports.routes = {
     'POST /api/company/:id/interests_register/create': {
         controller: 'CompanyStateController',
         action: 'createRegisterEntry',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'POST /api/company/:id/share_classes/create': {
         controller: 'CompanyStateController',
         action: 'createShareClass',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'PUT /api/company/:id/share_classes/:shareClassId': {
         controller: 'CompanyStateController',
         action: 'updateShareClass',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'GET /api/company/render/:id/shareregister': {
@@ -295,11 +299,13 @@ module.exports.routes = {
     'POST /api/render_template': {
         controller: 'RenderController',
         action: 'renderTemplate',
+        method: 'read'
     },
 
     'POST /api/send_template': {
         controller: 'RenderController',
         action: 'sendTemplate',
+        method: 'read'
     },
 
     'GET /echo_file': {
@@ -340,25 +346,29 @@ module.exports.routes = {
     'POST /api/company/:id/documents': {
         controller: 'CompanyController',
         action: 'createDocument',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'POST /api/company/:id/import_pending_history': {
         controller: 'CompanyController',
         action: 'importPendingHistory',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'POST /api/company/:id/import_pending_history_until_ar': {
         controller: 'CompanyController',
         action: 'importPendingHistoryUntilAR',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'POST /api/company/:id/import_pending_history_until': {
         controller: 'CompanyController',
         action: 'importPendingHistoryUntil',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'PUT /api/company/:id/update_pending_history': {
