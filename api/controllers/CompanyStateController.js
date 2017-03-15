@@ -219,14 +219,20 @@ var transactions = {
             })
             .then(function(r){
                 register = r;
-                return InterestsEntry.create(data, {include: [{model: Document, as: 'documents', include: [
-                                                {model: DocumentData, as: 'documentData'}
-                                            ]}]})
+                return InterestsEntry.create(_.omit(data, 'documents'))
             })
             .then(function(entry){
                 return entry.setPersons(data.persons)
                     .then(() => entry)
             })
+            .then(function(entry){
+                if(data.documents){
+                    return entry.setDocuments(data.documents)
+                        .then(() => entry)
+                }
+                return etnry;
+            })
+
             .then(function(entry){
                 return register.addEntry(entry)
             })

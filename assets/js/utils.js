@@ -233,9 +233,9 @@ export function debounce(func, delay = 100) {
     };
 }
 
-export function renderDocumentLinks(list){
+export function renderDocumentLinks(list, companyId){
     return list.map((d, i) =>
-        <div key={i}><Link  activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
+        <div key={i}><Link  activeClassName="active" className="nav-link" to={`/company/view/${companyId}/document/view/${d.id}`} >
             {d.filename}
         </Link></div>);
 }
