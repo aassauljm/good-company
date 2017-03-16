@@ -571,6 +571,7 @@ module.exports = {
                     a.userSkip = true;
                     a.userConfirmed = true;
                 });
+                d.historic = true;
             }
         })
         return docs;
