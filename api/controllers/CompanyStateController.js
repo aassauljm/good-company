@@ -356,12 +356,6 @@ var transactions = {
         .then(function(){
             companyState.s_classes_id = companyState.dataValues.s_classes_id = shareClasses.id;
             companyState.shareClasses = companyState.dataValues.shareClasses = shareClasses;
-            return companyState.save();
-        })
-        .then(function(){
-            return company.setCurrentCompanyState(companyState);
-        })
-        .then(() => {
             return TransactionService.addActions(companyState, {
                 id:  uuid.v4(),
                 actions: actions,
@@ -369,9 +363,12 @@ var transactions = {
                 transactionType: Transaction.types.CREATE_SHARE_CLASS
             },  company);
         })
-        /*.then(() => {
+        .then(() => {
             return companyState.save();
-        })*/
+        })
+        .then(function(){
+            return company.setCurrentCompanyState(companyState);
+        })
         .then(function(){
             return {message: `Share Class created for ${companyState.companyName}`}
         })
