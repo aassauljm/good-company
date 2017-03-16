@@ -1,16 +1,16 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, createResource, addNotification } from '../actions';
+import { requestResource, createResource, updateResource, addNotification } from '../actions';
 import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import { reduxForm, addArrayValue } from 'redux-form';
 import { Link } from 'react-router';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
-import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
 import { fieldStyle, fieldHelp, objectValues, validateWithSchema, requireFields, renderDocumentLinks } from '../utils';
 import DateInput from './forms/dateInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import Button from 'react-bootstrap/lib/Button';
 import { Documents } from './forms/documents';
 import STRINGS from '../strings';
 import { push } from 'react-router-redux';
@@ -179,11 +179,37 @@ function renderField(key, data, companyId) {
     }
 }
 
-
+@connect((state, ownProps) => {
+    return {...state.resources[`/company/${ownProps.params.id}/interests_register/remove/${ownProps.params.entryId}`]}
+}, {
+    deleteEntry: (companyId, entryId) => updateResource(`/company/${companyId}/interests_register/remove/${entryId}`, {}, {
+         confirmation: {
+            title: 'Confirm Removal',
+            description: 'Please confirm the  removal of this entry',
+            resolveMessage: 'Confirm Removal',
+            resolveBsStyle: 'danger'
+        }
+    }),
+    addNotification: (...args) => addNotification(...args),
+    push: (...args) => push(...args)
+})
 export class InterestsRegisterView extends React.Component {
     static propTypes = {
         interestsRegister: PropTypes.array,
     };
+
+    destroy() {
+        const companyId = this.props.companyId;
+        const request = this.props.deleteEntry(companyId, this.props.params.entryId)
+        request
+            .then(() => {
+                this.props.addNotification({message: 'Entry Removed'});
+                this.props.push(`/company/view/${companyId}/registers/interests_register`)
+            })
+            .catch((e) => {
+                this.props.addNotification({message: e.message, error: true});
+            })
+    }
 
     render() {
         const companyId = this.props.companyId;
@@ -202,6 +228,10 @@ export class InterestsRegisterView extends React.Component {
                     <dt>Documents</dt>
                     <dd>{ renderField('documents', entry.documents, companyId) }</dd>
                 </dl>
+                  <div className="button-row">
+                    <Link className='btn btn-default' to={`/company/view/${companyId}/registers/interests_register`}>Back</Link>
+                    <Button className="btn btn-danger" onClick={() => this.destroy()}>Remove Entry</Button>
+                 </div>
             </div>
         </div>
     }

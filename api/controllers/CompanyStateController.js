@@ -144,6 +144,7 @@ var transactions = {
         .then(function(currentCompanyState){
             const date = new Date();
             return currentCompanyState.buildNext(_.merge({}, args, {
+                previousCompanyStateId: currentCompanyState.dataValues.id,
                 transaction: {type: Transaction.types.DETAILS, data: args, effectiveDate: args.effectiveDate || date }
             }))
         })
@@ -201,6 +202,7 @@ var transactions = {
         return company.getCurrentCompanyState()
             .then(function(currentCompanyState){
                 return currentCompanyState.buildNext({
+                previousCompanyStateId: currentCompanyState.dataValues.id,
                     transaction: {type: Transaction.types.REGISTER_ENTRY, data: _.omit(data, 'documents'), effectiveDate: new Date() }
                 });
             })
@@ -252,9 +254,53 @@ var transactions = {
             .then(function(messages){
                 return {messages}
             })
-
     },
-
+    deleteRegisterEntry: function (data, company){
+        let companyState, register;
+        const entryId = parseInt(data.entryId, 10);
+        return company.getCurrentCompanyState()
+            .then(function(currentCompanyState){
+                return currentCompanyState.buildNext({
+                previousCompanyStateId: currentCompanyState.dataValues.id,
+                    transaction: {type: Transaction.types.REGISTER_ENTRY, data: _.omit(data, 'documents'), effectiveDate: new Date() }
+                });
+            })
+            .then(function(cs){
+                companyState = cs;
+                return companyState.getIRegister();
+            })
+            .then(function(register){
+                if(!register){
+                    return InterestsRegister.build();
+                }
+                return register.buildNext();
+            })
+            .then(function(r){
+                register = r;
+                const entry = register.dataValues.entries.find(e => e.id === entryId);
+                if(!entry){
+                    throw new sails.config.exceptions.ValidationException('Interests Register Entry Not Found')
+                }
+                register.dataValues.entries = _.without(register.dataValues.entries, entry);
+                return register.save()
+            })
+            .then(register => {
+                companyState.set('register_id', register.id);
+                return companyState.save();
+            })
+            .then(function(nextCompanyState){
+                return company.setCurrentCompanyState(companyState);
+             })
+            .then(function(){
+                return company.save();
+            })
+            .then(function(){
+                return {message: `Entry removed for ${companyState.companyName} Interest Register.`}
+            })
+            .then(function(messages){
+                return {messages}
+            })
+    },
     createShareClass: function(data, company){
         let companyState, shareClasses;
         let effectiveDate = new Date();
@@ -262,6 +308,7 @@ var transactions = {
         return company.getCurrentCompanyState()
         .then(function(currentCompanyState){
             return currentCompanyState.buildNext({
+                previousCompanyStateId: currentCompanyState.dataValues.id,
                 transaction: {type: Transaction.types.CREATE_SHARE_CLASS, data: actions[0], effectiveDate: effectiveDate }
             });
         })
@@ -294,7 +341,13 @@ var transactions = {
             shareClasses = r;
             const attributes = {name: data.name, properties: _.omit(data, 'name', 'documents')}
             sails.log.info('Creating share class')
-            return ShareClass.create(attributes, {include: [{model: Document, as: 'documents'}]})
+            return ShareClass.create(attributes)
+        })
+        .then(function(shareClass){
+            if(data.documents){
+                return shareClass.addDocuments(data.documents).then(() => shareClass)
+            }
+            return shareClass;
         })
         .then(function(shareClass){
             shareClass.validate();
@@ -316,9 +369,9 @@ var transactions = {
                 transactionType: Transaction.types.CREATE_SHARE_CLASS
             },  company);
         })
-        .then(() => {
+        /*.then(() => {
             return companyState.save();
-        })
+        })*/
         .then(function(){
             return {message: `Share Class created for ${companyState.companyName}`}
         })
@@ -622,6 +675,9 @@ module.exports = {
     },
     createRegisterEntry: function(req, res){
         createTransaction(req, res, 'createRegisterEntry');
+    },
+    deleteRegisterEntry: function(req, res){
+        createTransaction(req, res, 'deleteRegisterEntry');
     },
     createShareClass: function(req, res){
         createTransaction(req, res, 'createShareClass');

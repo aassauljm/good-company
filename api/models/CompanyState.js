@@ -1125,7 +1125,17 @@ module.exports = {
                         cs.getShareClasses({
                             include: [{
                                 model: ShareClass,
-                                as: 'shareClasses'
+                                as: 'shareClasses',
+                                include: [{
+                                    model: Document,
+                                    as: 'documents',
+                                    through: {
+                                        attributes: []
+                                    }
+                                }],
+                                through: {
+                                    attributes: []
+                                }
                             }]
                         }))
                     .spread(function(holdingList, unallocatedParcels, transaction, docList, directors, shareClasses) {
