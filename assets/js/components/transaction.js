@@ -196,12 +196,14 @@ export const TransactionTerseRenderMap = {
 
     [TransactionTypes.DETAILS_MASS]: (props) => {
         return <span className="transaction-terse">
+          { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
              { STRINGS.transactionTypes.INCORPORATION }
             </span>
     },
 
     DEFAULT: (props) => {
         return <span className="transaction-terse">
+          { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
               { STRINGS.transactionTypes[props.transactionType] }
             </span>
     },
