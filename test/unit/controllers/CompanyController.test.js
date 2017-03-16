@@ -589,7 +589,8 @@ describe('Company Controller', function() {
                     }).should.be.equal(true);
                     res.body.transactions.length.should.be.equal(3);
                     done();
-                });
+                })
+                .catch(done)
         });
 
         it('check pending history', function(done){
@@ -632,8 +633,6 @@ describe('Company Controller', function() {
                     res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
                     res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
                     res.body.shareRegister.map(s => {
-                        if(!s.shareClass)
-                        console.log(s)
                         should.equal(s.shareClass, classes['Class A']);
                     });
                     done();
@@ -669,22 +668,12 @@ describe('Company Controller', function() {
                 .catch(done)
         });
 
-        it('check transaction history', function(done){
-            req.get('/api/company/'+companyId+'/transactions')
-                .then(function(res){
-                    res.body.transactions.length.should.be.equal(3);
-                    done();
-                })
-                .catch(done)
-        });
-
         it('checks share register is empty', function(done){
             return req.get('/api/company/'+companyId+'/share_register')
             .then(function(res){
                 res.body.shareRegister.map(s => {
                     should.equal(null, s.issueHistory)
                     should.equal(null, s.transferHistoryTo)
-
                     should.equal(null, s.transferHistoryFrom)
                     s.shareClass.should.equal(classes['Class A']);
                 });
@@ -693,6 +682,14 @@ describe('Company Controller', function() {
             .catch(done)
         });
 
+        it('check transaction history', function(done){
+            req.get('/api/company/'+companyId+'/transactions')
+                .then(function(res){
+                    res.body.transactions.length.should.be.equal(3);
+                    done();
+                })
+                .catch(done)
+        });
 
         it('Imports history, fails', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
@@ -704,6 +701,30 @@ describe('Company Controller', function() {
                 })
             .catch(done)
         });
+
+        it('reset history', function(done){
+            req.put('/api/company/'+companyId+'/reset_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+        it('checks share register is empty', function(done){
+            return req.get('/api/company/'+companyId+'/share_register')
+            .then(function(res){
+                console.log(res.body.shareRegister)
+                res.body.shareRegister.map(s => {
+                    should.equal(null, s.issueHistory)
+                    should.equal(null, s.transferHistoryTo)
+                    should.equal(null, s.transferHistoryFrom)
+                    s.shareClass.should.equal(classes['Class A']);
+                });
+                done();
+            })
+            .catch(done)
+        });
+
     });
 
 

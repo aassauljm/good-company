@@ -135,7 +135,7 @@ export class ShareholdingsWidget extends React.Component {
                           </div>
                     </div>
                     <div className="col-xs-12">
-                    { Object.keys(shareCountByClass).map((k, i) => {
+                    { Object.keys(shareCountByClass || {}).map((k, i) => {
                         return <div key={i} className="class-summary">
                             <div><strong>{numberWithCommas(shareCountByClass[k].amount)}</strong> Shares of Class:<strong> {renderShareClass(k, shareClassMap)}</strong></div>
                             <div className="largest-holdings">Largest Shareholdings:</div>

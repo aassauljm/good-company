@@ -68,6 +68,7 @@ export default {
     },
     transactionTypes: {
         _: 'Transaction Type',
+        REGISTER_ENTRY: "Interest Register Change",
         HISTORIC_HOLDER_CHANGE: 'Former Shareholder Update',
         SEED: 'Import from Companies Register',
         INCORPORATION: 'Incorporation',

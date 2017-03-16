@@ -276,6 +276,12 @@ module.exports.routes = {
         method: 'update'
     },
 
+    'PUT /api/company/:id/interests_register/remove/:entryId': {
+        controller: 'CompanyStateController',
+        action: 'deleteRegisterEntry',
+        model: 'company'
+    },
+
     'POST /api/company/:id/share_classes/create': {
         controller: 'CompanyStateController',
         action: 'createShareClass',

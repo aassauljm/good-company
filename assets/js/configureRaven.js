@@ -1,5 +1,9 @@
 import Raven from 'raven-js';
 
+export function prepState(state){
+    return {routing: state.routing, userInfo: state.userInfo}
+}
+
 export default function configureRaven(getState) {
     const getSentryDSN = hostname => {
         if (hostname === 'test.gc.catalex.nz') {
@@ -17,6 +21,6 @@ export default function configureRaven(getState) {
 
     if (sentryDSN) {
         Raven.config(sentryDSN).install();
-        Raven.setExtraContext({ state: getState() });
+        Raven.setExtraContext({ state: prepState(getState()) });
     }
 };

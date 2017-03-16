@@ -288,7 +288,7 @@ export function renderLimitations(data = []){
     return <ul><li>No Limitations</li></ul>;
 }
 
-function renderField(key, data, row) {
+function renderField(key, data, row, companyId) {
     switch(key){
         case 'limitations':
             return renderLimitations(row.properties.limitations);
@@ -297,7 +297,7 @@ function renderField(key, data, row) {
         case 'votingRights':
             return renderRights(row.properties.votingRights);
         case 'documents':
-            return renderDocumentLinks(data || [])
+            return renderDocumentLinks(data || [], companyId)
         default:
             return data;
     }
@@ -320,7 +320,7 @@ export class ShareClassesTable extends React.Component {
                     { data.map((row, i) => {
                         return <tr key={i} onClick={() => this.props.editShareClass(row.id)}>
                             { ShareClassesTable.fields.map((field, i) => {
-                                return <td key={i}>{renderField(field, row[field], row)}</td>
+                                return <td key={i}>{renderField(field, row[field], row, this.props.companyId)}</td>
                             }) }
                         </tr>
                     })}

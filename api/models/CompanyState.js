@@ -788,9 +788,37 @@ module.exports = {
                 })
             },
 
+            findPersonId: function(person){
+                if(person.personId){
+                    Promise.resolve(person.personId)
+                }
+                // look in holders/directors for a single name match, based ONLY on name
+                const matches = [];
+                this.dataValues.holdingList.holdings.map(h => {
+                    h.dataValues.holders.map(h => {
+                        if(h.person.name === person.name){
+                            matches.push(h.person.personId)
+                        }
+                    });
+                })
+                this.dataValues.directorList.directors.map(h => {
+                    if(h.person.name === person.name){
+                        matches.push(h.person.personId)
+                    }
+                })
+
+                if(_.unique(matches).length === 1){
+                    return Promise.resolve(matches[0]);
+                }
+                return Promise.resolve(undefined)
+            },
             replaceHolder: function(currentHolder, newHolder, transaction, userId){
                 let personId, newPerson, state = this;
-                return CompanyState.findPersonId(newHolder, userId)
+                return this.findPersonId(newHolder)
+                    .then(function(id){
+                        if(!id) return CompanyState.findPersonId(newHolder, userId);
+                        return id;
+                    })
                     .then(function(id){
                         if(!id) return CompanyState.findPersonId(currentHolder, userId);
                         return id
@@ -832,7 +860,11 @@ module.exports = {
             replaceDirector: function(currentDirector, newDirector, transaction, userId){
                 const directors = this.dataValues.directorList.dataValues.directors;
                 let newPerson, state = this;
-                return CompanyState.findPersonId(newDirector, userId)
+                return this.findPersonId(newDirector)
+                    .then(function(id){
+                        if(!id) return CompanyState.findPersonId(newDirector, userId)
+                        return id;
+                    })
                     .then(function(personId){
                         if(!personId) return CompanyState.findPersonId(currentDirector, userId);
                         return personId
@@ -1093,7 +1125,17 @@ module.exports = {
                         cs.getShareClasses({
                             include: [{
                                 model: ShareClass,
-                                as: 'shareClasses'
+                                as: 'shareClasses',
+                                include: [{
+                                    model: Document,
+                                    as: 'documents',
+                                    through: {
+                                        attributes: []
+                                    }
+                                }],
+                                through: {
+                                    attributes: []
+                                }
                             }]
                         }))
                     .spread(function(holdingList, unallocatedParcels, transaction, docList, directors, shareClasses) {

@@ -48,7 +48,7 @@ class UserFeedbackForm extends React.Component {
     send(e) {
         e.preventDefault();
 
-        const sentryEvent = Raven.captureMessage('User feedback without error');
+        const sentryEvent = Raven.captureMessage('User feedback without error ' + this.state.email + ' ' + new Date());
 
         const eventId = sentryEvent._lastEventId;
         const dsn = sentryEvent._dsn;
@@ -117,7 +117,7 @@ export default class UserFeedback extends React.Component {
 
         this.showForm = ::this.showForm;
         this.hideForm = ::this.hideForm;
-        
+
         this.state = {
             visible: false
         }
