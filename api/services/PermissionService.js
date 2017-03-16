@@ -22,6 +22,13 @@ module.exports = {
                 })
                 .then(r => r[0].check_permission)
     },
+    getPermissions: function(userId, modelIdentity, entityId){
+        return sequelize.query("select get_permissions(:userId, :modelIdentity, :entityId)",
+                { type: sequelize.QueryTypes.SELECT,
+                    replacements: { userId, modelIdentity, entityId }
+                })
+            .then(r => r.map(r => r.get_permissions))
+    },
     getModel: Promise.method(function(modelIdentity) {
         var modelCache = sails.hooks['sails-permissions']._modelCache;
         if (_.isEmpty(modelIdentity)) {

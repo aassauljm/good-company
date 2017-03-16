@@ -160,7 +160,7 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION get_user_organisation_info_json(userId integer)
     RETURNS JSON
     STABLE AS $$
-      SELECT '{}'::json
+      SELECT array_to_json(array_agg(row_to_json(q))) from ( SELECT * FROM organisation o where "organisationId" = get_user_organisation($1)) q
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION readable_companies(userId integer)
@@ -211,6 +211,31 @@ CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION activity_log_json(userId integer default null, companyid integer default null, maxLimit integer default null )
+    RETURNS JSON
+    STABLE AS $$
+      SELECT array_to_json(array_agg(row_to_json(q))) from (
+
+     SELECT a."id", "type", "description", "data", a."createdAt", "userId", "companyId", u.username
+     FROM "activity_log" a
+     JOIN public.user u on u.id = "userId"
+
+     WHERE
+    ($1 IS NULL OR a."userId" = $1)
+    AND
+        ($2 is NULL OR a."companyId" = $2)
+
+     ORDER BY a."createdAt" DESC
+
+     LIMIT $3
+     ) q
+
+$$ LANGUAGE SQL;
+
+
 
 --CREATE OR REPLACE FUNCTION future_transactions(companyId integer)
 --    RETURNS SETOF json

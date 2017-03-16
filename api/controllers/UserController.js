@@ -39,26 +39,19 @@ module.exports = {
                                                   replacements: { id: req.user.id }});
 
         Promise.join(User.userWithRoles(req.user.id), last, connectedApiServices, User.getOrganisationInfo(req.user.id))
-            .spread(function(r, last, connectedApiServices) {
+            .spread(function(r, last, connectedApiServices, organisation) {
                 const ago = last[0].last_login ? moment(last[0].last_login).fromNow() : "first log in";
-                res.json({...r.toJSON(), lastLogin: ago, mbieServices: connectedApiServices.map(r => r.service)});
+                res.json({...r.toJSON(), lastLogin: ago, mbieServices: connectedApiServices.map(r => r.service), organisation});
             });
     },
 
     recentActivity: function(req, res) {
-        ActivityLog.findAll({
-            where: {userId: req.user.id},
-            order: [['createdAt', 'DESC']],
-            limit: 10
-        })
+        ActivityLog.query(req.user.id, null, 10)
         .then(activities => res.json(activities));
     },
 
     recentActivityFull: function(req, res) {
-        ActivityLog.findAll({
-            where: {userId: req.user.id},
-            order: [['createdAt', 'DESC']]
-        })
+        ActivityLog.query(req.user.id)
         .then(activities => res.json(activities));
     },
 

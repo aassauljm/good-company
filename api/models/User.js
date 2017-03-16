@@ -85,9 +85,7 @@ module.exports = {
                 },
 
             recentActivity: function(id){
-                return sequelize.query("select recent_activity(:id)",
-                               { type: sequelize.QueryTypes.SELECT,
-                                    replacements: {id: id}})
+                return ActivityLog.query(id);
             }
         },
         instanceMethods: {

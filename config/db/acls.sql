@@ -116,7 +116,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entityId integer default NULL)
     RETURNS SETOF TEXT
-        STABLE AS $$
+        AS $$
 
         WITH principals as (
             SELECT generate_principals($1) as principal
@@ -124,10 +124,10 @@ CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entit
         aces as (
             SELECT (a).permission, (a).principal, (a).allow, row_number() OVER () as index FROM generate_aces($2, $3) a
         )
-        SELECT permission FROM aces a
+        SELECT distinct(permission) FROM aces a
         JOIN principals p on a.principal = p.principal
         WHERE allow = TRUE
-        ORDER BY index
+
 $$ LANGUAGE SQL;
 
 

@@ -325,6 +325,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/:id/recent_activity/full': {
+        controller: 'CompanyController',
+        action: 'recentActivity',
+        model: 'company'
+    },
+
     'GET /api/company/:id/source_data': {
         controller: 'CompanyController',
         action: 'getSourceData',

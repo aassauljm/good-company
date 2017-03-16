@@ -83,6 +83,10 @@ export class CompanyView extends React.Component {
         return this.props.params.id
     }
 
+    canViewAlerts(permissions) {
+        return (permissions || []).indexOf('update') >= 0;
+    }
+
     renderBody(current) {
 
         if(!current){
@@ -104,11 +108,12 @@ export class CompanyView extends React.Component {
 
             <div className="row">
                  <div className="col-md-6">
-                     <CompanyAlertsWidget
+
+                     { this.canViewAlerts(current.permissions) && <CompanyAlertsWidget
                         companyState={current}
                         companyId={this.props.params.id}
                         baseUrl={this.props.baseUrl}
-                     />
+                     /> }
 
 
                     <CompaniesRegisterWidget

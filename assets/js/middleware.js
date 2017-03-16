@@ -124,15 +124,16 @@ export function callAPIMiddleware({
                     type: successType
                 })))
                 .catch(error => {
-                    if(error.response && error.response.status === 403){
-                        dispatch(logout());
-                        // out redirect or something
-                        const state = getState();
-                        if(state.routing.locationBeforeTransitions.pathname !== '/login'){
-                            dispatch(push({pathname: '/login', query: {next: state.routing.locationBeforeTransitions.pathname}}))
-                        }
+                    /*if(error.response && error.response.status === 403){
+                        if()
+                            dispatch(logout());
+                            // out redirect or something
+                            const state = getState();
+                            if(state.routing.locationBeforeTransitions.pathname !== '/login'){
+                                dispatch(push({pathname: '/login', query: {next: state.routing.locationBeforeTransitions.pathname}}))
+                            }
                         return;
-                    }
+                    }*/
                     if(error.response && error.response.status === 503){
                         !USER_WARNED && setTimeout(() => alert('Good Companies is currently undergoing maintenance.  Please try again in a few moments.'), 0);
                         USER_WARNED = true;

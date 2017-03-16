@@ -341,6 +341,9 @@ module.exports = {
                     .then(() => {
                         return directory;
                     })
+            },
+            permissions: function(userId){
+                return PermissionService.getPermissions(userId, 'Company', this.id)
             }
         },
 

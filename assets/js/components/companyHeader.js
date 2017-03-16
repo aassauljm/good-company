@@ -54,6 +54,10 @@ export default class CompanyHeader extends React.Component {
         //this.refs.dropdown.refs.inner.handleClose()
     }
 
+    canUpdate() {
+        return (this.props.companyState.permissions || []).indexOf('update') >= 0;
+    }
+
     isFavourite() {
         const companyIdInt = parseInt(this.props.companyId, 10);
         // save result maybe
@@ -92,7 +96,7 @@ export default class CompanyHeader extends React.Component {
                     <IndexLink to={this.props.baseUrl} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
 
-            <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
+            this.canUpdate() &&  <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
                     <DropdownToggle href={`${this.props.baseUrl}/registers`} bsRole="toggle">
                         Registers
                    </DropdownToggle>
@@ -100,9 +104,9 @@ export default class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
                         <MenuItem  onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
                         </Dropdown.Menu>
-                </Dropdown>,
+                </Dropdown> ,
 
-              <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
+             this.canUpdate() && <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
                     <DropdownToggle href={`${this.props.baseUrl}/new_transaction`} bsRole="toggle" className="update-dropdown">
                         Update
                    </DropdownToggle>
@@ -112,7 +116,7 @@ export default class CompanyHeader extends React.Component {
                         <MenuItem className="update-shares" onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
                         </Dropdown.Menu>
-                </Dropdown>,
+                </Dropdown> ,
              <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={this.closeMenu} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
@@ -149,7 +153,7 @@ export default class CompanyHeader extends React.Component {
 
                     <div className="company-summary">
                         <h1>{ this.state.companyState.companyName}</h1>
-                        <h2> { this.dateControl() } as at { dateString }  </h2>
+                        <h2>{ !this.canUpdate() && <strong>View Only </strong>}{ this.dateControl() } as at { dateString }  </h2>
                     </div>
                     <div className="full-controls">
                         <ul className="nav navbar-nav">
@@ -162,7 +166,7 @@ export default class CompanyHeader extends React.Component {
                     </div>
 
                     <div className="small-controls">
-                                         <ul className="nav navbar-nav">
+                            <ul className="nav navbar-nav">
                         <Dropdown id="menu-dropdown" className="nav-item" componentClass="li">
                            <DropdownToggle href={`/company/view/${this.props.companyId}`} className="active" bsRole="toggle">Menu</DropdownToggle>
                         <Dropdown.Menu bsRole="menu">

@@ -72,11 +72,6 @@ module.exports = {
                 as: 'user'
             }
         });
-        Permission.hasMany(Criteria, {
-            foreignKey: {
-                as: 'criteria'
-            }
-        });
     },
     options: {
         freezeTableName: false,
