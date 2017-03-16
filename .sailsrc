@@ -11,7 +11,7 @@
         "pubsub": false
     },
     "log": {
-        "level": "development"
+        "level": "verbose"
     },
     "models": {
 
