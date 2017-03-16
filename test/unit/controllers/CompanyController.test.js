@@ -587,9 +587,11 @@ describe('Company Controller', function() {
                     res.body.transactions.some(doc => {
                         return doc.transaction.type === Transaction.types.SEED;
                     }).should.be.equal(true);
+                    console.log(res.body.transactions)
                     res.body.transactions.length.should.be.equal(3);
                     done();
-                });
+                })
+                .catch(done)
         });
 
         it('check pending history', function(done){

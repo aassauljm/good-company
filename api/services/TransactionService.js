@@ -1042,7 +1042,7 @@ export function performRemoveAllocation(data, nextState, companyState, effective
         if(!holding || holding.hasNonEmptyParcels()){
             throw new sails.config.exceptions.InvalidOperation('Holding has non empty parcels')
         }
-        holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
+        holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding)
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     })
 }
@@ -1467,7 +1467,7 @@ export function performInverseTransaction(data, company, rootState){
             prevState = _prevState;
             // loop over actions,
             return Promise.reduce(actions, function(arr, action){
-                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
+                sails.log.info('Performing inverse action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(session.get('options')){
