@@ -159,6 +159,7 @@ export function formatInitialState(amendActions, defaultDate, defaultShareClass,
         }
         // else if one exact opposite transaction, then set that
         const increase =  actionAmountDirection(a);
+
         if(a.parcels.every(p => amountValues[increase][p.amount] && amountValues[increase][p.amount].length === 1 &&
            amountValues[!increase][p.amount] && amountValues[!increase][p.amount].length === 1)){
             return {subActions: [{

@@ -44,8 +44,8 @@ class PendingAction extends React.Component {
         const props = this.props;
         const p = this.props.action;
         const required = requiresEdit(p.data);
-        const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed);
-        const showConfirm = !required && !showUnconfirm;
+        const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed) && !p.data.historic;
+        const showConfirm = !required && !showUnconfirm && !p.data.historic;;
         const editable = (isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed)) || required;
         let className = "panel panel-default"
         if(required){
@@ -59,6 +59,7 @@ class PendingAction extends React.Component {
                                 { stringDateToFormattedStringTime(p.data.effectiveDate) }
                             </div>
                             <div className="col-md-8">
+                            { p.data.historic && <strong>Historic Transaction</strong> }
                             { p.data.actions.map((action, i) => {
                                 const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
                                 return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
@@ -97,7 +98,7 @@ function TransactionSummaries(props) {
     });
     const className = props.loading ? 'button-loading' : 'loaded';
     const message = pendingActions.length ?
-        'Please Confirm or Edit the transactions listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
+        'Please Confirm or Edit the transactions from the last 10 years listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
         "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
 
     return <div className={className}>
@@ -110,7 +111,6 @@ function TransactionSummaries(props) {
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
         { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }
         { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
-
         { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
         { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
         {  <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button> }
@@ -128,6 +128,9 @@ function requiresEdit(data){
         [TransactionTypes.NEW_ALLOCATION]: true,
         [TransactionTypes.REMOVE_ALLOCATION]: true
     };
+    if(actions.every(a => a.userSkip)){
+        return false;
+    }
     return actions.some(a => requiredTypes[a.transactionType]) || getTotalShares(data) !== 0;
 }
 

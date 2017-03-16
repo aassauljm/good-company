@@ -562,6 +562,20 @@ module.exports = {
             });
     },
 
+    userSkipOldDocs: function(docs){
+        const CUT_OFF_TIME = 10;
+        const startDate = moment(docs[0].effectiveDate);
+        docs.map(d => {
+            if(startDate.diff(moment(d.effectiveDate), 'years', true) > CUT_OFF_TIME){
+                d.actions.map(a =>{
+                    a.userSkip = true;
+                    a.userConfirmed = true;
+                });
+                d.historic = true;
+            }
+        })
+        return docs;
+    },
 
     segmentAndSortActions: function(docs, companyNumber){
         // split group actions by date
@@ -635,7 +649,9 @@ module.exports = {
             (p.actions || []).map(a => a.id = uuid.v4());
             p.orderFromSource = i;
         });
-        docs = docs.filter(d => d.actions.length)
+        docs = docs.filter(d => d.actions.length);
+
+        docs = InferenceService.userSkipOldDocs(docs);
         return docs;
     },
 

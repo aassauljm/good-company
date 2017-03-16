@@ -1454,6 +1454,9 @@ export function performInverseTransaction(data, company, rootState){
     let prevState, currentRoot, transactions;
 
     const actions = data.actions.filter(a => !a.userSkip);
+    if(!actions.length){
+        return Promise.resolve(rootState);
+    }
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then((_prevState) => {
             return performImplicitInverseRemovals(actions, _prevState)
