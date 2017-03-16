@@ -157,6 +157,12 @@ CREATE OR REPLACE FUNCTION get_user_organisation(userId integer)
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION get_user_organisation_info_json(userId integer)
+    RETURNS JSON
+    STABLE AS $$
+      SELECT '{}'::json
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION readable_companies(userId integer)
     RETURNS SETOF company
     STABLE AS $$

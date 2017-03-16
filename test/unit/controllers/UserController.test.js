@@ -49,7 +49,7 @@ describe('UserController', function() {
                     done();
                 })
         });
-        it('should attempt change password, fail auth', function(done) {
+       /* it('should attempt change password, fail auth', function(done) {
             req
                 .put('/api/set_password')
                 .send({'oldPassword': 'test2', 'newPassword': 'hunter12'})
@@ -94,7 +94,7 @@ describe('UserController', function() {
                 .put('/api/set_password')
                 .send({'oldPassword': 'hunter12', 'newPassword': 'testtest'})
                 .expect(200, done)
-            });
+            });*/
 
     });
 

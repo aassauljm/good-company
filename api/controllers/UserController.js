@@ -38,7 +38,7 @@ module.exports = {
                                                 { type: sequelize.QueryTypes.SELECT,
                                                   replacements: { id: req.user.id }});
 
-        Promise.join(User.userWithRoles(req.user.id), last, connectedApiServices)
+        Promise.join(User.userWithRoles(req.user.id), last, connectedApiServices, User.getOrganisationInfo(req.user.id))
             .spread(function(r, last, connectedApiServices) {
                 const ago = last[0].last_login ? moment(last[0].last_login).fromNow() : "first log in";
                 res.json({...r.toJSON(), lastLogin: ago, mbieServices: connectedApiServices.map(r => r.service)});
@@ -62,41 +62,6 @@ module.exports = {
         .then(activities => res.json(activities));
     },
 
-    setPassword: function(req, res) {
-        sails.models.passport.findOne({where: {
-                protocol: 'local',
-                userId: req.user.id
-            }})
-            .then(function(passport) {
-                return bcrypt.compareAsync(req.allParams().oldPassword || '', passport.password)
-                    .then(function(match) {
-                        if (!match) {
-                            throw new sails.config.exceptions.ForbiddenException('Incorrect Password');
-                        }
-                        return passport.changePassword(req.allParams().newPassword)
-                    });
-            })
-            .then(() => {
-                return ActivityLog.create({
-                    type: ActivityLog.types.SET_PASSWORD,
-                    userId: req.user.id,
-                    description: `Updated Password`
-                });
-            })
-            .then(function(match) {
-                res.ok({message: ['Password set.']});
-            })
-            .catch(sails.config.exceptions.ForbiddenException, function(err) {
-                res.forbidden({
-                    'oldPassword': [err]
-                });
-            })
-            .catch(sails.config.exceptions.ValidationException, function(err) {
-                res.badRequest({
-                    'newPassword': [err]
-                });
-            })
-    },
     validateUser: function(req, res){
         var data = actionUtil.parseValues(req);
         checkNameCollision(data)
@@ -107,7 +72,7 @@ module.exports = {
                 res.badRequest(err);
             })
     },
-    signup: function(req, res) {
+   /* signup: function(req, res) {
         Promise.resolve()
             .then(() => sails.services.passport.protocols.local.register(req.body))
             .then(function(user) {
@@ -142,7 +107,7 @@ module.exports = {
             .catch(function(err){
                 return res.serverError(err);
             });
-    },
+    }, */
 
     pendingJobs: function(req, res) {
         // should be using this, but it shows removed jobs

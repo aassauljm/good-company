@@ -77,6 +77,13 @@ module.exports = {
                     include: [{model: Role, as: 'roles'}]
                 })
             },
+            getOrganisationInfo: function(id){
+                return sequelize.query("select get_user_organisation_info_json(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                    replacements:{id: id}})
+                                    .then(r => r[0].get_user_organisation_info_json)
+                },
+
             recentActivity: function(id){
                 return sequelize.query("select recent_activity(:id)",
                                { type: sequelize.QueryTypes.SELECT,

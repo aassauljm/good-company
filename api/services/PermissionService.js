@@ -16,7 +16,6 @@ module.exports = {
     isAllowed: function(model, user, permission, modelIdentity){
         const entityId = model ? model.id : null;
         const userId = user.id;
-        console.log({ userId, permission, modelIdentity, entityId })
         return sequelize.query("select check_permission(:userId, :permission, :modelIdentity, :entityId)",
                 { type: sequelize.QueryTypes.SELECT,
                     replacements: { userId, permission, modelIdentity, entityId }
