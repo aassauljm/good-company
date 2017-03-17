@@ -71,9 +71,9 @@ db.tx(function (t) {
         return db.none(sql);
     })});
 })
-.then(function(){
+.then(function() {
     console.log('Migrations Complete.');
-    process.exit(0)
+    pgp.end(); // shutting down the connection pool, so we can exit normally
 })
 .catch(function(e){
     console.log('Migration failure')
