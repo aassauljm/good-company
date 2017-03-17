@@ -12,8 +12,19 @@ import { replace, push } from 'react-router-redux'
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
 import TransactionView from './forms/transactionView';
+import { ForeignPermissionsHOC } from '../hoc/resources';
 
+const RenderPermissionType = (props) => {
+    if(props.perm.permissions.indexOf('update') >= 0){
+        return <strong>Administration Access</strong>
+    }
+     if(props.perm.permissions.indexOf('read') >= 0){
+        return <strong>View Only Access</strong>
+     }
+     return <strong>No Access</strong>
+}
 
+@ForeignPermissionsHOC()
 export class AccessListWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
@@ -21,9 +32,20 @@ export class AccessListWidget extends React.Component {
         toggle: PropTypes.func.isRequired,
         expanded: PropTypes.bool
     };
+
     key() {
         return this.props.companyId;
     }
+
+    renderAccessList() {
+        console.log(this.props);
+        if(this.props.foreignPermissions && this.props.foreignPermissions.data){
+            return this.props.foreignPermissions.data.map((perm, i) => {
+                return <div>{ perm.name } <RenderPermissionType perm={perm} /></div>
+            })
+        }
+    }
+
     renderBody() {
         let bodyClass = "widget-body expandable ";
         if(this.props.expanded){
@@ -33,18 +55,14 @@ export class AccessListWidget extends React.Component {
         const data = this.props.companyState;
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body" >
-            <dl>
+            <dl className="dl-horizontal">
             <dt>{ STRINGS.accessControl.owner }</dt>
             <dd>{ this.props.owner && this.props.owner.username }</dd>
 
             <dt>{ STRINGS.accessControl.organisation }</dt>
-            <dd>{  }</dd>
+            <dd>{ this.renderAccessList() }</dd>
 
-
-            <dt>{ STRINGS.accessControl.other }</dt>
-            <dd>{  }</dd>
-
-                </dl>
+            </dl>
             </div>
         </div>
     }

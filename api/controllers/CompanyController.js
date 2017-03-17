@@ -721,6 +721,10 @@ module.exports = {
             }).catch(function(err) {
                 return res.notFound(err);
             })
+    },
+    getForeignPermissions: function(req, res) {
+        Company.foreignPermissions(req.params.id)
+            .then(r => res.json(r));
     }
 
 };

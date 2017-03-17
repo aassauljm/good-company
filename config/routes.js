@@ -134,18 +134,6 @@ module.exports.routes = {
         action: 'recentActivityFull'
     },
 
-   'PUT /api/set_password': {
-        controller: 'UserController',
-        modelIdentity: 'user',
-        action: 'setPassword',
-        blacklist: ['oldPassword']
-    },
-
-    'POST /api/user/signup': {
-        controller: 'UserController',
-        action: 'signup'
-    },
-
     'POST /api/user/validate': {
         controller: 'UserController',
         action: 'validateUser'
@@ -346,6 +334,12 @@ module.exports.routes = {
     'GET /api/company/:id/pending_history': {
         controller: 'CompanyController',
         action: 'getPendingHistoricActions',
+        model: 'company'
+    },
+
+    'GET /api/company/:id/foreign_permissions': {
+        controller: 'CompanyController',
+        action: 'getForeignPermissions',
         model: 'company'
     },
 

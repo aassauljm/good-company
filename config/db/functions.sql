@@ -235,6 +235,39 @@ CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
 $$ LANGUAGE SQL;
 
 
+CREATE OR REPLACE FUNCTION get_permissions_catalex_user(catalexId text, modelName text, entityId integer default NULL)
+    RETURNS SETOF TEXT
+        AS $$
+
+        WITH principals as (
+            SELECT generate_principals_catalex_user($1) as principal
+        ),
+        aces as (
+            SELECT (a).permission, (a).principal, (a).allow, row_number() OVER () as index FROM generate_aces($2, $3) a
+        )
+        SELECT distinct(permission) FROM aces a
+        JOIN principals p on a.principal = p.principal
+        WHERE allow = TRUE
+
+$$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION get_all_company_permissions_json(entityId integer default NULL)
+    RETURNS JSON
+        AS $$
+    SELECT array_to_json(array_agg(row_to_json(qq))) from (
+
+    SELECT "catalexId", "name", array_agg(perms) as permissions from (
+    SELECT "catalexId", o."name",  get_permissions_catalex_user("catalexId", 'Company', $1) as perms
+    FROM company c
+    JOIN organisation o ON o."organisationId" = get_user_organisation(c."ownerId")
+    ) q
+    GROUP BY "catalexId", "name"
+    ) qq
+
+$$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION activity_log_json(userId integer default null, companyid integer default null, maxLimit integer default null )
     RETURNS JSON

@@ -85,6 +85,13 @@ module.exports = {
                        { type: sequelize.QueryTypes.SELECT,
                         replacements: { id: userId}})
                     .map(r => r.user_companies_now)
+            },
+            foreignPermissions: function(id) {
+                return sequelize.query("select * from get_all_company_permissions_json(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: id}})
+                .then(r => r[0].get_all_company_permissions_json)
+
             }
         },
         instanceMethods: {
@@ -344,6 +351,9 @@ module.exports = {
             },
             permissions: function(userId){
                 return PermissionService.getPermissions(userId, 'Company', this.id)
+            },
+            foreignPermissions: function(userId){
+                return Company.foreignPermissions(this.id)
             }
         },
 
