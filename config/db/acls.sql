@@ -26,7 +26,6 @@ CREATE OR REPLACE FUNCTION get_user(_tbl regclass, id integer, OUT result intege
     INTO result;
     END
 $func$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION get_user_organisation(userId integer)
     RETURNS INTEGER
     STABLE AS $$
