@@ -147,15 +147,6 @@ CREATE OR REPLACE FUNCTION company_at(company integer, timestamp with time zone)
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION get_user_organisation(userId integer)
-    RETURNS INTEGER
-    STABLE AS $$
-      SELECT o."organisationId"
-      FROM passport p
-      JOIN organisation o on p.identifier = o."catalexId"
-      WHERE  p."userId" = $1 and provider = 'catalex'
-$$ LANGUAGE SQL;
-
 
 CREATE OR REPLACE FUNCTION get_user_organisation_info_json(userId integer)
     RETURNS JSON

@@ -27,6 +27,14 @@ CREATE OR REPLACE FUNCTION get_user(_tbl regclass, id integer, OUT result intege
     END
 $func$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION get_user_organisation(userId integer)
+    RETURNS INTEGER
+    STABLE AS $$
+      SELECT o."organisationId"
+      FROM passport p
+      JOIN organisation o on p.identifier = o."catalexId"
+      WHERE  p."userId" = $1 and provider = 'catalex'
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION get_org(_tbl regclass, id integer, OUT result integer) AS
     $func$
