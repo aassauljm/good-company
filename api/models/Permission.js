@@ -43,6 +43,9 @@ module.exports = {
             type: Sequelize.INTEGER,
             unique: 'permissionIndex'
         },
+        catalexId: {
+            type: Sequelize.TEXT
+        },
         entityId: {
             type: Sequelize.INTEGER
         },

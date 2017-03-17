@@ -163,19 +163,50 @@ CREATE OR REPLACE FUNCTION get_user_organisation_info_json(userId integer)
       SELECT array_to_json(array_agg(row_to_json(q))) from ( SELECT * FROM organisation o where "organisationId" = get_user_organisation($1)) q
 $$ LANGUAGE SQL;
 
+
+
 CREATE OR REPLACE FUNCTION readable_companies(userId integer)
     RETURNS SETOF company
     STABLE AS $$
-        SELECT c.* from company c where "ownerId" = $1 and deleted = false
+
+    SELECT c.* FROM company c
+    JOIN (
+
+        SELECT c.id from company c where "ownerId" = $1 and deleted = false
 
         UNION
 
-        SELECT c.* from company c
-        WHERE deleted = false and get_user_organisation($1) = get_user_organisation(c."ownerId")
+    SELECT c.id
 
+    FROM passport p
+    JOIN organisation o on p.identifier = o."catalexId" and provider = 'catalex'
+    LEFT OUTER JOIN organisation oo on oo."organisationId" = o."organisationId"
+    JOIN passport pp on pp."identifier" = oo."catalexId" and  p.provider = 'catalex'
+    JOIN company c on pp."userId" = c."ownerId"
+    WHERE  p."userId" = $1
 
+        UNION
 
+        SELECT c.id
+        FROM model m
+        LEFT OUTER JOIN permission p on m.id = p."modelId" and m.name = 'Company' and relation = 'user' and  "userId" = $1
+        JOIN company c on c.id = p."entityId"
+        WHERE allow = TRUE
+
+        UNION
+
+        SELECT c.id
+        FROM model m
+        LEFT OUTER JOIN permission p on m.id = p."modelId" and m.name = 'Company' and relation = 'catalex'
+        JOIN passport ps on ps.identifier = p."catalexId" and provider = 'catalex' and ps."userId" = $1
+        JOIN company c on c.id = p."entityId"
+        WHERE allow = TRUE
+
+        ) q on q.id = c.id
+
+    WHERE deleted = false AND check_permission($1, 'read', 'Company', c.id);
 $$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     RETURNS SETOF json

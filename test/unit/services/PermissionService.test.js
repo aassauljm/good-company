@@ -1,20 +1,190 @@
 var assert = require('assert');
+var Promise = require('bluebird');
+
 
 describe('Permission Service', function() {
-
-    it('should exist', function() {
-
-        assert.ok(sails.services.permissionservice);
-        assert.ok(global.PermissionService);
-
-    });
-
-    after(function(){
-        //reset
-        return Permission.destroy({where: {}})
-            .then(function () {
-                return sails.hooks['sails-permissions'].initializeFixtures(sails);
+    describe('User based permissions', function(){
+        before(function(){
+            //reset
+           return Promise.all([
+                              User.create({username: 'first', email: 'e1@mail.com', passports: [{provider: 'catalex', 'identifier': '3'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'second', email: 'e2@mail.com', passports: [{provider: 'catalex', 'identifier': '2'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'third', email: 'e3@mail.com', passports: [{provider: 'catalex', 'identifier': '1'}] }, {include: [{model: Passport, as: 'passports'}]})
+                              ])
+            .spread((user1, user2, user3) => {
+                this.user1 = user1;
+                this.user2 = user2;
+                this.user3 = user3;
+                return Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
+                .then(c => {
+                    this.company = c;
+                });
             });
+        });
+
+        it('should exist', function() {
+
+            assert.ok(sails.services.permissionservice);
+            assert.ok(global.PermissionService);
+
+        });
+
+        it('should check read access from two users', function(){
+            return PermissionService.isAllowed(this.company, this.user1, 'read', 'Company')
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user1, 'update', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false;
+            });
+        });
+
+        it('should add read access to user, then revoke', function(){
+            return PermissionService.addPermissionUser(this.user2, this.company, 'read', true)
+            .then(allowed => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user3, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false
+                return PermissionService.removePermissionUser(this.user2, this.company, 'read', true)
+            })
+            .then(() => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false;
+            });
+        });
+
+        it('should add read access to catalex user, then revoke', function(){
+            return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true)
+
+            .then(allowed => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user3, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false
+                return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true)
+            })
+            .then(() => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false;
+            });
+        });
+
+
+        it('should get filtered company list', function(){
+            return Company.getNowCompanies(this.user2.id)
+                .then(companies => {
+                    companies.length.should.equal(0);
+                    return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true);
+                })
+                .then(() => {
+                     return Company.getNowCompanies(this.user2.id)
+                 })
+                .then((companies) => {
+                    companies.length.should.be.equal(1);
+                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true)
+                })
+                .then(() => {
+                     return Company.getNowCompanies(this.user2.id)
+                 })
+                .then(companies => {
+                    companies.length.should.equal(0);
+                });
+        });
+
+        after(function(){
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}})])
+                .then(function () {
+                    return sails.hooks['sails-permissions'].initializeFixtures(sails);
+                });
+        });
+
     });
+
+    describe('Organisation permissions', function(){
+        before(function(){
+            //reset
+           return Promise.all([
+                              User.create({username: 'first', email: 'e1@mail.com', passports: [{provider: 'catalex', 'identifier': '3'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'second', email: 'e2@mail.com', passports: [{provider: 'catalex', 'identifier': '2'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'third', email: 'e3@mail.com', passports: [{provider: 'catalex', 'identifier': '1'}] }, {include: [{model: Passport, as: 'passports'}]})
+                              ])
+            .spread((user1, user2, user3) => {
+                this.user1 = user1;
+                this.user2 = user2;
+                this.user3 = user3;
+                return Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
+                .then(c => {
+                    this.company = c;
+                    return Organisation.updateOrganisation({
+                        id: 1,
+                        members: [{id: '3'}, {id: '2'}]
+                    })
+                })
+            });
+        });
+        it('members of org should see company', function(){
+            return Company.getNowCompanies(this.user1.id)
+                .then((companies) => {
+                    companies.length.should.be.equal(1);
+                      return Company.getNowCompanies(this.user2.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(1);
+                      return Company.getNowCompanies(this.user3.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(0);
+                  })
+        });
+
+        it('should add deny permission', function(){
+           return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false)
+                .then(() => {
+                      return Company.getNowCompanies(this.user2.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(0);
+                    return Company.getNowCompanies(this.user1.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(1);
+                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false);
+                  })
+                .then(() => {
+                      return Company.getNowCompanies(this.user2.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(1);
+                });
+        });
+
+
+        after(function(){
+            return;
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}), Organisation.destroy({where:{organisationId: 1}})])
+                .then(function () {
+                    return sails.hooks['sails-permissions'].initializeFixtures(sails);
+                });
+        });
+    });
+
 
 })

@@ -44,6 +44,7 @@ module.exports = {
             }
         });
         User.hasMany(Passport, {
+            as: 'passports',
             foreignKey: {
                 as: 'passports',
                 name: 'userId'

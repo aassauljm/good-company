@@ -62,4 +62,28 @@ module.exports = {
                 return model;
             })
     }),
+    addPermissionUser: function(user, model, permission, allow){
+        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        return Permission.create({
+            userId: user.id, modelId, action: permission, relation: 'user', entityId: model.id, allow
+        })
+    },
+    addPermissionCatalexUser: function(catalexId, model, permission, allow){
+        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        return Permission.create({
+            catalexId,  modelId, action: permission, relation: 'catalex', entityId: model.id, allow
+        })
+    },
+    removePermissionUser: function(user, model, permission, allow){
+        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        return Permission.destroy({where: {
+            userId: user.id, modelId, action: permission, relation: 'user', entityId: model.id, allow
+        }})
+    },
+    removePermissionCatalexUser: function(catalexId, model, permission, allow){
+        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        return Permission.destroy({where: {
+            catalexId, modelId, action: permission, relation: 'catalex', entityId: model.id, allow
+        }})
+    },
 }

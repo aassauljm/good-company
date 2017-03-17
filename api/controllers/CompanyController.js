@@ -214,11 +214,11 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.stats(), this.company.hasPendingJob()])
+                return Promise.all([companyState.stats(), this.company.hasPendingJob(), this.company.permissions(req.user.id)])
             })
-            .spread(function(stats, hasPendingJob) {
+            .spread(function(stats, hasPendingJob,  permissions) {
                 var json = this.companyState.get();
-                res.json({companyState: _.merge(json, stats, {hasPendingJob: hasPendingJob})});
+                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions})});
             }).catch(function(err) {
                 return res.notFound();
             });
