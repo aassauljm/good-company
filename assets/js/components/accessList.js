@@ -34,8 +34,15 @@ export class AccessListWidget extends React.Component {
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body" >
             <dl>
-            <dt>{ STRINGS.owner }</dt>
+            <dt>{ STRINGS.accessControl.owner }</dt>
             <dd>{ this.props.owner && this.props.owner.username }</dd>
+
+            <dt>{ STRINGS.accessControl.organisation }</dt>
+            <dd>{  }</dd>
+
+
+            <dt>{ STRINGS.accessControl.other }</dt>
+            <dd>{  }</dd>
 
                 </dl>
             </div>

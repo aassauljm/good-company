@@ -45,7 +45,7 @@ $$ LANGUAGE SQL;
 
 
 
-DROP FUNCTION generate_aces(text,integer);
+
 CREATE OR REPLACE FUNCTION generate_aces(modelName text,  entityId integer default NULL)
     RETURNS SETOF ace
         AS $$
@@ -67,7 +67,7 @@ CREATE OR REPLACE FUNCTION generate_aces(modelName text,  entityId integer defau
             ) q WHERE principal IS NOT NULL
 $$ LANGUAGE SQL;
 
-DROP FUNCTION generate_aces(text,integer);
+
 
 CREATE OR REPLACE FUNCTION generate_aces(modelName text,  entityId integer default NULL)
     RETURNS SETOF ace

@@ -66,6 +66,11 @@ export default {
         'companyNumber': 'Company Number',
         'nzbn': 'NZBN'
     },
+    accessControl: {
+        "owner": "Owner",
+        "organisation": "Organisation",
+        "other": "Other"
+    },
     transactionTypes: {
         _: 'Transaction Type',
         REGISTER_ENTRY: "Interest Register Change",
