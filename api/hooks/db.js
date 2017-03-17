@@ -3,10 +3,10 @@ var fs = Promise.promisifyAll(require("fs"));
 
 
 const ORDERED_DB_SCRIPTS = [
+    'config/db/acls.sql',
     'config/db/functions.sql',
     'config/db/shareRegister.sql',
     'config/db/admin.sql',
-    'config/db/acls.sql'
     ]
 
 

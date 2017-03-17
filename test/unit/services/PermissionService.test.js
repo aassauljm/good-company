@@ -178,7 +178,6 @@ describe('Permission Service', function() {
 
 
         after(function(){
-            return;
             return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}), Organisation.destroy({where:{organisationId: 1}})])
                 .then(function () {
                     return sails.hooks['sails-permissions'].initializeFixtures(sails);
