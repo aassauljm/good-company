@@ -123,7 +123,24 @@ CREATE OR REPLACE FUNCTION generate_principals(userId integer)
             WHERE "userId" = $1 AND provider = 'catalex'
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
+    RETURNS SETOF text
+    AS $$
+        SELECT 'id:' || p."userId"
+        FROM passport p
+        WHERE p.identifier = $1 and provider = 'catalex'
 
+        UNION
+
+        SELECT 'org:' || o."organisationId"
+        FROM organisation o
+        WHERE o."catalexId" = $1
+
+        UNION
+
+        SELECT 'catalexId:' || $1
+
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entityId integer default NULL)
     RETURNS SETOF TEXT
