@@ -96,7 +96,7 @@ export default class CompanyHeader extends React.Component {
                     <IndexLink to={this.props.baseUrl} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
 
-            this.canUpdate() &&  <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
+             <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
                     <DropdownToggle href={`${this.props.baseUrl}/registers`} bsRole="toggle">
                         Registers
                    </DropdownToggle>

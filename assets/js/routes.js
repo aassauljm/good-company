@@ -39,6 +39,7 @@ import Alerts from './components/alerts';
 import AnnualReturn from './components/annualReturn';
 import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
+import AccessList from './components/accessList';
 import { CompanyHOCFromRoute, Injector } from './hoc/resources';
 
 const CompanyChildren = [
@@ -64,6 +65,7 @@ const CompanyChildren = [
     <Route path="source_data" component={ CompaniesRegister } />,
     <Route path="directors" component={ Directors } />,
     <Route path="graph" component={ CompanyGraph } />,
+    <Route path="access_list" component={ AccessList } />,
 
     <Route path="share_classes" component={ ShareClasses } >
         <Route path="create" component={ ShareClassCreate } />

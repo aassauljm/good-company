@@ -725,6 +725,25 @@ module.exports = {
     getForeignPermissions: function(req, res) {
         Company.foreignPermissions(req.params.id)
             .then(r => res.json(r));
+    },
+    addForeignPermissions: function(req, res) {
+        var data = actionUtil.parseValues(req);
+        Company.findById(req.params.id)
+            .then(company => {
+                return Promise.map(data.permissions, permission => {
+                    return PermissionService.addPermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                });
+            })
+            .then(r => res.json({message: 'Permissions Updated'}));
+    },
+    removeForeignPermissions: function(req, res) {
+        var data = actionUtil.parseValues(req);
+        Company.findById(req.params.id)
+            .then(company => {
+                return Promise.map(data.permissions, permission => {
+                    return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                });
+            })
+            .then(r => res.json({message: 'Permissions Updated'}));
     }
-
 };

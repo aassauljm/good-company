@@ -38,10 +38,16 @@ module.exports = {
                                                 { type: sequelize.QueryTypes.SELECT,
                                                   replacements: { id: req.user.id }});
 
-        Promise.join(User.userWithRoles(req.user.id), last, connectedApiServices, User.getOrganisationInfo(req.user.id))
-            .spread(function(r, last, connectedApiServices, organisation) {
+        const catalexId = sequelize.query(`SELECT identifier
+            FROM passport
+            WHERE "userId" = :id AND provider = 'catalex'`,
+                { type: sequelize.QueryTypes.SELECT,
+                   replacements: { id: req.user.id }});
+
+        Promise.join(User.userWithRoles(req.user.id), last, connectedApiServices, User.getOrganisationInfo(req.user.id), catalexId)
+            .spread(function(r, last, connectedApiServices, organisation, catalex) {
                 const ago = last[0].last_login ? moment(last[0].last_login).fromNow() : "first log in";
-                res.json({...r.toJSON(), lastLogin: ago, mbieServices: connectedApiServices.map(r => r.service), organisation});
+                res.json({...r.toJSON(), lastLogin: ago, mbieServices: connectedApiServices.map(r => r.service), organisation, catalexId: catalex.map(c => c.identifier)[0]});
             });
     },
 

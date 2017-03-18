@@ -21,8 +21,12 @@ describe('Organisation Model', function() {
                 return User.getOrganisationInfo(user.id)
             })
             .then((org) => {
-                console.log(org);
-                org.should.deep.equal([{"id":10001,"organisationId":1,"catalexId":"1","name":"test1","email":"test1@email.com"},{"id":10002,"organisationId":1,"catalexId":"2","name":"test2","email":"test2@email.com"}])
+
+                 _.omitDeep(org, 'userId')
+                    .should.deep.equal([
+                      {"id":10001,"organisationId":1,"catalexId":"1","name":"test1","email":"test1@email.com"},
+                      {"id":10002,"organisationId":1,"catalexId":"2","name":"test2","email":"test2@email.com"}
+                    ])
             });
         });
 

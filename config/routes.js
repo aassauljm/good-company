@@ -343,6 +343,18 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'PUT /api/company/:id/add_permissions': {
+        controller: 'CompanyController',
+        action: 'addForeignPermissions',
+        model: 'company'
+    },
+
+    'PUT /api/company/:id/remove_permissions': {
+        controller: 'CompanyController',
+        action: 'removeForeignPermissions',
+        model: 'company'
+    },
+
     'GET /api/company/:id/documents': {
         controller: 'CompanyController',
         action: 'getDocuments',

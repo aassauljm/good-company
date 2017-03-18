@@ -127,11 +127,37 @@ CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entit
         ),
         aces as (
             SELECT (a).permission, (a).principal, (a).allow, row_number() OVER () as index FROM generate_aces($2, $3) a
-        )
-        SELECT distinct(permission) FROM aces a
+        ),
+        first_permissions as (
+        SELECT permission, allow, ROW_NUMBER() OVER(PARTITION BY permission  ORDER BY index ASC) AS index
+        FROM aces a
         JOIN principals p on a.principal = p.principal
-        WHERE allow = TRUE
+    )
+    SELECT permission
+    FROM first_permissions
+    WHERE index = 1 and allow = TRUE
 
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION get_permissions_catalex_user(catalexId text, modelName text, entityId integer default NULL)
+    RETURNS SETOF TEXT
+        AS $$
+
+        WITH principals as (
+            SELECT generate_principals_catalex_user($1) as principal
+        ),
+        aces as (
+            SELECT (a).permission, (a).principal, (a).allow, row_number() OVER () as index FROM generate_aces($2, $3) a
+        ),
+        first_permissions as (
+        SELECT permission, allow, ROW_NUMBER() OVER(PARTITION BY permission  ORDER BY index ASC) AS index
+        FROM aces a
+        JOIN principals p on a.principal = p.principal
+    )
+    SELECT permission
+    FROM first_permissions
+    WHERE index = 1 and allow = TRUE
 $$ LANGUAGE SQL;
 
 
