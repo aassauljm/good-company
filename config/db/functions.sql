@@ -249,7 +249,7 @@ CREATE OR REPLACE FUNCTION user_companies_catalex_user_permissions("userId" inte
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username, get_company_permissions_json(q.id, $2)  as "permissions" FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username, get_company_permissions_json(q.id, $2)  as "userPermissions" FROM (
         SELECT *, company_now(c.id) FROM user_companies_by_permission($1, 'update') c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now

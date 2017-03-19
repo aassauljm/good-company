@@ -257,9 +257,9 @@ export default class AccessList extends React.Component {
  (dispatch, ownProps) => ({
     fetchPermissions: (refresh) => dispatch(requestResource(`/company/permissions/${ownProps.catalexId}`, {refresh})),
     updatePermission: (...args) => dispatch(updateResource(...args)),
-    addNotification: (...args) => addNotification(...args),
-    showLoading: (...args) => showLoading(...args),
-    hideLoading: (...args) => endLoading(...args)
+    addNotification: (...args) => dispatch(addNotification(...args)),
+    showLoading: (...args) => dispatch(showLoading(...args)),
+    hideLoading: (...args) => dispatch(endLoading(...args))
 }))
 export class PermissionTable extends React.Component {
     componentDidUpdate(){
@@ -304,7 +304,6 @@ export class PermissionTable extends React.Component {
             </thead>
             <tbody>
                     { companies.map((member, i) => {
-                        console.log(member)
                         const disabled = member.userPermissions && member.ownerId === member.userPermissions.userId;
                         const permissions = (member.userPermissions || {}).permissions || [];
                         return <tr key={i}>
