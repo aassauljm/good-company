@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, updateResource, showTransactionView, addNotification } from '../../actions';
+import { requestResource, updateResource, showTransactionView, addNotification, showLoading, endLoading } from '../../actions';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, renderShareClass,
     generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas,  collectAmendActions, collectShareChangeActions } from '../../utils';
 import { connect } from 'react-redux';
@@ -76,9 +76,13 @@ export function reorderAllPending(pendingActions, newActions) {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
         updateAction: (args) => {
+            dispatch(showLoading({message: 'Saving'}))
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
+            .then(() => {
+                dispatch(endLoading())
+            })
         },
         resetAction: (args) => {
             return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/reset_pending_history`, {}, {}))
