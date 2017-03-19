@@ -1,5 +1,5 @@
 var Promise = require("bluebird");
-var request = require("supertest-as-promised");
+var request = require("supertest");
 var fs = Promise.promisifyAll(require("fs"));
 import chai from 'chai';
 const should = chai.should();

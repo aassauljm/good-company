@@ -24,7 +24,7 @@ export function parse(response) {
             return text ? JSON.parse(text) : text;
           })
     }
-    return response;
+    return Promise.resolve(response);
 }
 
 

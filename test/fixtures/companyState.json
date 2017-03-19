@@ -25,4 +25,16 @@
         "id": 4,
         "companyName": "Futures Ltd"
     }
+},{
+    "model": "companystate",
+    "data": {
+        "id": 5,
+        "companyName": "Favourites Limted"
+    }
+},{
+    "model": "companystate",
+    "data": {
+        "id": 6,
+        "companyName": "Favourites Unlimited"
+    }
 }]

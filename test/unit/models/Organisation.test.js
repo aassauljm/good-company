@@ -30,5 +30,8 @@ describe('Organisation Model', function() {
             });
         });
 
+        after(() => {
+            return Organisation.destroy({where: {organisationId: 1}})
+        });
     })
 });

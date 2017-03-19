@@ -722,10 +722,15 @@ module.exports = {
                 return res.notFound(err);
             })
     },
+
     getForeignPermissions: function(req, res) {
         Company.foreignPermissions(req.params.id)
-            .then(r => res.json(r));
+            .then(r => res.json(r))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
     },
+
     addForeignPermissions: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.findById(req.params.id)
@@ -734,7 +739,10 @@ module.exports = {
                     return PermissionService.addPermissionCatalexUser(data.catalexId, company, permission, data.allow)
                 });
             })
-            .then(r => res.json({message: 'Permissions Updated'}));
+            .then(r => res.json({message: 'Permissions Updated'}))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
     },
     removeForeignPermissions: function(req, res) {
         var data = actionUtil.parseValues(req);
@@ -744,7 +752,10 @@ module.exports = {
                     return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow)
                 });
             })
-            .then(r => res.json({message: 'Permissions Updated'}));
+            .then(r => res.json({message: 'Permissions Updated'}))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
     },
 
     companyPermissionsCatalexUser: function(req, res) {
@@ -752,7 +763,7 @@ module.exports = {
             .then(result =>{
                 return res.ok(result);
             }).catch(function(err) {
-                return res.notFound(err);
+                return res.badRequest(err);
             });
     },
 };

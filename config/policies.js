@@ -16,6 +16,16 @@
  * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.policies.html
  */
 
+
+var standardAuth = [
+    'passport',
+    'sessionAuth',
+    'ModelPolicy',
+    'AuditPolicy',
+    'OwnerPolicy',
+    'ACLPolicy'
+];
+
 var simpleAuth = [
     'passport',
     'sessionAuth',
@@ -28,14 +38,7 @@ module.exports.policies = {
         'landing': ['passport']
     },
 
-    '*': [
-        'passport',
-        'sessionAuth',
-        'ModelPolicy',
-        'AuditPolicy',
-        'OwnerPolicy',
-        'ACLPolicy'
-    ],
+    '*': standardAuth,
     AuthController: {
         '*': ['passport'],
         'callback': [
@@ -77,7 +80,8 @@ module.exports.policies = {
         'companyPermissionsCatalexUser': simpleAuth,
     },
     FavouriteController: {
-        '*': simpleAuth
+        '*': simpleAuth,
+        'addFavourite': standardAuth
     },
     RenderController: {
         renderTemplate: simpleAuth,

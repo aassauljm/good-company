@@ -108,9 +108,11 @@ module.exports.routes = {
         action: 'lookupOwn'
     },
 
-    'POST /api/favourites/:companyId': {
+    'POST /api/favourites/:id': {
         controller: 'FavouriteController',
-        action: 'addFavourite'
+        action: 'addFavourite',
+        model: 'company',
+        method: 'read'
     },
 
     'GET /api/favourites': {
@@ -118,12 +120,8 @@ module.exports.routes = {
         action: 'favourites'
     },
 
-    'POST /api/favourites/:companyId': {
-        controller: 'FavouriteController',
-        action: 'addFavourite'
-    },
 
-    'DELETE /api/favourites/:companyId': {
+    'DELETE /api/favourites/:id': {
         controller: 'FavouriteController',
         action: 'removeFavourite'
     },

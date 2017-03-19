@@ -15,9 +15,13 @@ describe('Permission Service', function() {
                 this.user1 = user1;
                 this.user2 = user2;
                 this.user3 = user3;
-                return Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
-                .then(c => {
+                return Promise.all([
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]}),
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test2'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
+                                   ])
+                .spread((c, c2) => {
                     this.company = c;
+                    this.otherCompany =c2;
                 });
             });
         });
@@ -130,25 +134,29 @@ describe('Permission Service', function() {
                 this.user1 = user1;
                 this.user2 = user2;
                 this.user3 = user3;
-                return Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
-                .then(c => {
+                return Promise.all([
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]}),
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test2'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
+                                   ])
+                .spread((c, c2) => {
                     this.company = c;
+                    this.otherCompany = c2;
                     return Organisation.updateOrganisation({
                         id: 1,
                         members: [{id: '3'}, {id: '2'}]
-                    })
-                })
+                   })
+                });
             });
         });
 
         it('members of org should see company', function(){
             return Company.getNowCompanies(this.user1.id)
                 .then((companies) => {
-                    companies.length.should.be.equal(1);
+                    companies.length.should.be.equal(2);
                       return Company.getNowCompanies(this.user2.id);
                   })
                 .then((companies) => {
-                    companies.length.should.be.equal(1);
+                    companies.length.should.be.equal(2);
                       return Company.getNowCompanies(this.user3.id);
                   })
                 .then((companies) => {
@@ -156,25 +164,47 @@ describe('Permission Service', function() {
                   })
         });
 
-        it('should add deny permission', function(){
+        it('should add deny read permission', function(){
            return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false)
                 .then(() => {
                       return Company.getNowCompanies(this.user2.id);
                   })
                 .then((companies) => {
-                    companies.length.should.be.equal(0);
+                    companies.length.should.be.equal(1);
                     return Company.getNowCompanies(this.user1.id);
                   })
                 .then((companies) => {
-                    companies.length.should.be.equal(1);
+                    companies.length.should.be.equal(2);
                     return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false);
                   })
                 .then(() => {
                       return Company.getNowCompanies(this.user2.id);
                   })
                 .then((companies) => {
-                    companies.length.should.be.equal(1);
+                    companies.length.should.be.equal(2);
                 });
+        });
+
+        it('should add allow update permission', function(){
+            return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company')
+                .then(allow => {
+                    allow.should.be.equal(false);
+                    return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update', true)
+                })
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company')
+                })
+                .then(allow => {
+                    allow.should.be.equal(true);
+                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update', true)
+                })
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company');
+                })
+                .then(allow => {
+                    allow.should.be.equal(false);
+                })
+
         });
 
         it('should get company user permissions', function(){
