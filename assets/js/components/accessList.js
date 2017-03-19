@@ -152,20 +152,20 @@ function formatChange(value, catalexId, permission){
     let addOrRemove ='add_permissions';
     let allow = value;
 
-    if(permission === 'read'){
+    //if(permission === 'read'){
         if(!value){
             allow = false;
         }
         else{
             addOrRemove ='remove_permissions';
         }
-    }
+    //}
 
-    if(permission === 'update'){
+    /*if(permission === 'update'){
         if(!value){
             addOrRemove ='remove_permissions';
         }
-    }
+    }*/
 
     if(addOrRemove === 'remove_permissions'){
         allow = !allow;

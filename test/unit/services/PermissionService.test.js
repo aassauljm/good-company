@@ -185,24 +185,24 @@ describe('Permission Service', function() {
                 });
         });
 
-        it('should add allow update permission', function(){
+        it('should add deny update permission', function(){
             return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company')
                 .then(allow => {
-                    allow.should.be.equal(false);
-                    return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update', true)
+                    allow.should.be.equal(true);
+                    return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update', false)
                 })
                 .then(() => {
                     return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company')
                 })
                 .then(allow => {
-                    allow.should.be.equal(true);
-                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update', true)
+                    allow.should.be.equal(false);
+                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update',false)
                 })
                 .then(() => {
                     return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company');
                 })
                 .then(allow => {
-                    allow.should.be.equal(false);
+                    allow.should.be.equal(true);
                 })
 
         });

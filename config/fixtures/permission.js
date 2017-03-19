@@ -147,6 +147,10 @@ var registered = {
         {
             action: 'read',
             relation: 'organisation'
+        },
+        {
+            action: 'update',
+            relation: 'organisation'
         }
     ],
     'Favourite': [
