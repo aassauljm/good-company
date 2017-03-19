@@ -355,6 +355,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/permissions/:catalexId': {
+        controller: 'CompanyController',
+        action: 'companyPermissionsCatalexUser',
+    },
+
     'GET /api/company/:id/documents': {
         controller: 'CompanyController',
         action: 'getDocuments',

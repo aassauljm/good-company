@@ -73,7 +73,8 @@ module.exports.policies = {
         'populate': false,
         'lookup': simpleAuth,
         'lookupOwn': simpleAuth,
-        'find': simpleAuth
+        'find': simpleAuth,
+        'companyPermissionsCatalexUser': simpleAuth,
     },
     FavouriteController: {
         '*': simpleAuth

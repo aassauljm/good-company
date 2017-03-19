@@ -60,15 +60,16 @@ CREATE OR REPLACE FUNCTION generate_aces(modelName text,  entityId integer defau
              CASE
         WHEN p."relation" = 'role' THEN 'role:' || p."roleId"
         WHEN  p."relation" = 'organisation' and $2 IS NOT NULL THEN 'org:' || get_org(m.identity, $2)
-        WHEN  p."relation" = 'user' and $2 IS NOT NULL   THEN 'id:' || p."userId"
+        WHEN  p."relation" = 'user' and $2 IS NOT NULL AND "entityId" = $2   THEN 'id:' || p."userId"
         WHEN  p."relation" = 'owner' and $2 IS NOT NULL  THEN 'id:' || get_owner(m.identity, $2)
-        WHEN  p."relation" = 'catalex' and $2 IS NOT NULL  THEN 'catalexId:' || p."catalexId"
+        WHEN  p."relation" = 'catalex' and $2 IS NOT NULL  AND "entityId" = $2 THEN 'catalexId:' || p."catalexId"
          END as principal,
          allow
             FROM model m
             LEFT OUTER JOIN permission p on m.id = p."modelId"
 
             WHERE $1 = m.name
+
             ORDER BY(p."relation"='user', p."relation"='catalex', p."relation"='owner', p."relation"='organisation', p."relation"='role') DESC
             ) q WHERE principal IS NOT NULL
 $$ LANGUAGE SQL;

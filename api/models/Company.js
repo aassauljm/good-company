@@ -92,6 +92,12 @@ module.exports = {
                                 replacements: { id: id}})
                 .then(r => r[0].get_all_company_permissions_json)
 
+            },
+            companyPermissionsUser: function(id, catalexId){
+                return sequelize.query("select * from user_companies_catalex_user_permissions(:id, :catalexId)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id, catalexId}})
+                .then(r => r.map(r => r.user_companies_catalex_user_permissions))
             }
         },
         instanceMethods: {

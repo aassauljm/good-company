@@ -45,7 +45,7 @@ const HOCFactory = ({resource, location, postProcess, propName}, useAsyncConnect
     });
 
     const actions = (dispatch, ownProps) => ({
-        fetch: () => dispatch(requestResource(stringOrFunction(location, ownProps), {postProcess}))
+        fetch: (refresh) => dispatch(requestResource(stringOrFunction(location, ownProps), {postProcess, refresh}))
     })
 
     if(useAsyncConnect){
@@ -79,7 +79,7 @@ export const AsyncHOCFactory = (resourceTuples)  => ComposedComponent => {
 
         render() {
             const {...props} = this.props;
-            return <ComposedComponent {...props} />;
+            return <ComposedComponent {...props}  />;
         }
     }
 

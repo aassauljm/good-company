@@ -41,6 +41,7 @@ import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
 import AccessList from './components/accessList';
 import { CompanyHOCFromRoute, Injector } from './hoc/resources';
+import { Organisation } from './components/accessList';
 
 const CompanyChildren = [
     <Route path="shareholdings" component={ Shareholdings } />,
@@ -140,6 +141,7 @@ export default (store) => {
                  <Route path="templates" component={ TemplateSelectCompany } >
                     <Router path=":name" component={ TemplateSelectCompany }/>
                  </Route>
+                <Route path="organisation" component={ Organisation } />
             </Route>
             <Route path="company/view/:id" component={ Company } children={CompanyChildren} />
             <Route path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />

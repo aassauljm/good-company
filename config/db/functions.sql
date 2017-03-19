@@ -164,7 +164,7 @@ $$ LANGUAGE SQL;
 
 
 
-CREATE OR REPLACE FUNCTION readable_companies(userId integer)
+CREATE OR REPLACE FUNCTION user_companies_by_permission(userId integer, permission text default 'read')
     RETURNS SETOF company
     STABLE AS $$
 
@@ -215,12 +215,48 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     )
     SELECT row_to_json(q) FROM (
         SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner FROM (
-        SELECT *, company_now(c.id) FROM readable_companies($1) c
+        SELECT *, company_now(c.id) FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
         JOIN public.user u on q."ownerId" = u.id
         ORDER BY cs."companyName"
     ) q
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION get_company_permissions_json(entityId integer, catalexId text)
+    RETURNS JSON
+        AS $$
+    SELECT row_to_json(qq) from (
+
+    SELECT "catalexId", "name", "userId", array_agg(perms) as permissions from (
+        SELECT "catalexId", o."name", "userId", get_permissions_catalex_user("catalexId", 'Company', $1) as perms
+        FROM company c
+        JOIN organisation o ON o."organisationId" = get_user_organisation(c."ownerId")
+        LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and "userId" IS NOT NULL
+        WHERE c.id = $1 AND "catalexId" = $2
+        ) q
+        GROUP BY "catalexId", "name", "userId"
+    ) qq
+$$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION user_companies_catalex_user_permissions("userId" integer, "catalexId" text)
+    RETURNS SETOF json
+    AS $$
+    WITH basic_company_state as (
+        SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
+    )
+    SELECT row_to_json(q) FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username, get_company_permissions_json(q.id, $2)  as "permissions" FROM (
+        SELECT *, company_now(c.id) FROM user_companies_by_permission($1, 'update') c
+        ) q
+        JOIN basic_company_state cs on cs.id = q.company_now
+        JOIN public.user u on q."ownerId" = u.id
+        ORDER BY cs."companyName"
+    ) q
+
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
@@ -254,6 +290,7 @@ CREATE OR REPLACE FUNCTION get_all_company_permissions_json(entityId integer def
         FROM company c
         JOIN organisation o ON o."organisationId" = get_user_organisation(c."ownerId")
         LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and "userId" IS NOT NULL
+        WHERE c.id = $1
         ) q
         GROUP BY "catalexId", "name", "userId"
     ) qq

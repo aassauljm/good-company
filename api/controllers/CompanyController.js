@@ -745,5 +745,14 @@ module.exports = {
                 });
             })
             .then(r => res.json({message: 'Permissions Updated'}));
-    }
+    },
+
+    companyPermissionsCatalexUser: function(req, res) {
+        return Company.companyPermissionsUser(req.user.id, req.params.catalexId)
+            .then(result =>{
+                return res.ok(result);
+            }).catch(function(err) {
+                return res.notFound(err);
+            });
+    },
 };
