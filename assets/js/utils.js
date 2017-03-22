@@ -400,9 +400,9 @@ export function generateShareClassMap(companyState){
             acc[s.id] = s;
             return acc;
         }, {});
-        /*if(companyState.shareClasses.shareClasses.length === 1){
+        if(companyState.shareClasses.shareClasses.length === 1){
             results[undefined] = companyState.shareClasses.shareClasses[0];
-        }*/
+        }
         return results;
     }
 
