@@ -107,7 +107,8 @@ export function validateInverseAmend(amend, companyState, previousState){
     let holding = companyState.getMatchingHolding({
         holders: amend.afterHolders,
         holdingId: amend.holdingId,
-        parcels: amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true});
+        parcels: (amend.parcels || []).map(p => ({amount: amend.inferAmount ? undefined : p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true});
+
 
     if(!holding){
         holding = companyState.getMatchingHolding({
@@ -143,7 +144,7 @@ export function validateInverseAmend(amend, companyState, previousState){
             throw new sails.config.exceptions.InvalidOperation('Unsafe number')
         }
     })
-    const parcels = amend.inferAmount ? null : amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}));
+    const parcels = amend.inferAmount ? null : amend.parcels.map(p => ({amount: amend.inferAmount ? undefined : p.afterAmount , shareClass: p.shareClass}));
     if(!amend.inferAmount){
         holding.dataValues.parcels.map(parcel => {
             amend.parcels.map(newParcel => {
@@ -497,6 +498,11 @@ export function performHoldingTransfer(data, companyState, previousState, effect
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);
+    (normalizedData.parcels || []).map(p => {
+        if(!p.amount){
+            p.amount = undefined;
+        }
+    })
      let current;
     // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -692,7 +698,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
                 importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
             })
         }
-        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: data.parcels},
+        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: (data.parcels || []).map(p => ({...p, amount: data.inferAmount ? undefined: p.amount}))},
           data, companyState, {
             multiple: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
             none: sails.config.enums.HOLDING_NOT_FOUND,
