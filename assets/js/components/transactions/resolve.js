@@ -533,7 +533,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
                     <hr/>
                     <div><p>An unknown problem occured while importing.  Please Restart the import process.</p></div>
                     <div className="button-row">
-                           <Button onClick={this.props.cancel} bsStyle="default">Cancel</Button>
+                           <Button onClick={() => this.handleClose({cancelled: true, index: 0})} bsStyle="default">Cancel</Button>
                         <Button onClick={this.props.resetAction} className="btn-danger">Restart Reconciliation</Button>
                     </div>
                 </div>
