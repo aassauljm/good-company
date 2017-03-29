@@ -256,6 +256,11 @@ describe('Permission Service', function() {
         it('should fail to change permission of user in another org', function(){
            //return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false)
 
+
+        })
+        it('should fail to change permission of user in another org', function(){
+           //return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false)
+
         })
 
 
