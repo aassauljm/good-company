@@ -1014,7 +1014,7 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                     if(JSON.stringify(result.beforeHolders).toLowerCase() !== JSON.stringify(result.afterHolders).toLowerCase()){
                         let difference = result.beforeHolders.length !== result.afterHolders.length
                             // must a holder change or holding transfer
-                            // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
+                            // if SAME NAME, different address in same position, then its an HOLDER_CHANGE
 
                         if(!difference){
                             result.beforeHolders.map((holder, i) => {

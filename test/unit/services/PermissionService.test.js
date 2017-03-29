@@ -204,7 +204,6 @@ describe('Permission Service', function() {
                 .then(allow => {
                     allow.should.be.equal(true);
                 })
-
         });
 
         it('should get company user permissions', function(){
@@ -213,6 +212,29 @@ describe('Permission Service', function() {
                     permissions.length.should.be.equal(2);
                 });
          });
+
+        it('should add deny create persmission', function(){
+            return PermissionService.isAllowed(this.company, this.user1, 'create', 'Company')
+                .then(allow => {
+                    allow.should.be.equal(true);
+                    return PermissionService.addPermissionCatalexUser(this.user1.passports[0].identifier, this.company, 'create', false)
+                })
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user1, 'create', 'Company')
+                })
+                .then(allow => {
+                    allow.should.be.equal(false);
+                    return PermissionService.removePermissionCatalexUser(this.user1.passports[0].identifier, this.company, 'create', false)
+                })
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user1, 'create', 'Company');
+                })
+                .then(allow => {
+                    allow.should.be.equal(true);
+                })
+        });
+
+
 
         after(function(){
             return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}), Organisation.destroy({where:{organisationId: 1}})])

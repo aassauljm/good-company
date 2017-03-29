@@ -100,6 +100,7 @@ CREATE OR REPLACE FUNCTION generate_principals(userId integer)
             WHERE "userId" = $1 AND provider = 'catalex'
 $$ LANGUAGE SQL;
 
+
 CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
     RETURNS SETOF text
     AS $$
@@ -118,6 +119,7 @@ CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
         SELECT 'catalexId:' || $1
 
 $$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entityId integer default NULL)
     RETURNS SETOF TEXT

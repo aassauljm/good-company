@@ -15,6 +15,9 @@ module.exports = {
         },
         email: {
             type: Sequelize.TEXT
+        },
+        roles: {
+            type: Sequelize.ARRAY(Sequelize.TEXT)
         }
     },
     associations: function(){
