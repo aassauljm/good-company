@@ -524,4 +524,19 @@ describe('Scraping Service', function() {
             });
     });
 
+    describe('Should figure out holder change is not holding transfer', function() {
+        it('reads file, creates holder change action 17162724', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/17162724.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding',
+                    });
+                    result.actions.filter(a => a.transactionType === Transaction.types.HOLDING_TRANSFER).length.should.be.equal(0)
+                    done();
+                })
+                .catch(done)
+            });
+    });
+
+
 });
