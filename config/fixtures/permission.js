@@ -144,6 +144,7 @@ var registered = {
             action: 'delete',
             relation: 'owner'
         },
+        // DEFAULT RULES:  org members can read update
         {
             action: 'read',
             relation: 'organisation'
@@ -187,11 +188,6 @@ var registered = {
             relation: 'user'
         }
     ],
-    /*'CompanyState': [
-        {
-            action: 'create'
-        }
-    ],*/
     'ApiCredential': [
         {
             action: 'create'

@@ -167,7 +167,6 @@ function parseAmendAllocation($, $el){
         }
     }
 
-
     result.amount = Math.abs(result.beforeAmount - result.afterAmount)
     return result;
 }

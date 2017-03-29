@@ -176,7 +176,8 @@ function formatChange(value, catalexId, permission){
 
 @ForeignPermissionsHOC()
 @connect(state => ({
-    userInfo: state.userInfo
+    userInfo: state.userInfo,
+    login: state.login
 }), {
     updatePermission: (...args) => updateResource(...args),
     addNotification: (...args) => addNotification(...args),
@@ -210,6 +211,9 @@ export default class AccessList extends React.Component {
         const members = (this.props.userInfo.organisation && this.props.userInfo.organisation)  || [];
         members.sort(firstBy(a => a.name.toLowerCase()));
         return <div className="widget-body">
+            <div className="button-row">
+                <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Manage Organisation</a>
+            </div>
             <table className="table table-striped permissions">
                 <thead>
                     <tr>
@@ -322,7 +326,8 @@ export class PermissionTable extends React.Component {
     fields: ['user']
 })
 @connect(state => ({
-    userInfo: state.userInfo
+    userInfo: state.userInfo,
+    login: state.login
 }))
 export class Organisation extends React.Component {
 
@@ -337,9 +342,12 @@ export class Organisation extends React.Component {
 
      renderBody() {
         return <div className="widget-body">
-        <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
+        <div className="button-row">
+            <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Invite Users to your Organisation</a>
+            </div>
         <div className="row">
             <div className="col-md-6 col-md-offset-3">
+            <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
             { this.userSelect() }
         </div>
 
