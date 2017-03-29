@@ -156,8 +156,15 @@ function parseAmendAllocation($, $el){
     }
 
     if(JSON.stringify(result.beforeHolders) !== JSON.stringify(result.afterHolders)){
-        //result.unknownHoldingChange = true;
-        result.transactionType = Transaction.types.HOLDING_TRANSFER;
+        // if the names are different, then it is a transfer
+        // if they are the same, then make after addresses the before addresses
+        const sameNames = result.beforeHolders.map(b => b.name).join('|') === result.afterHolders.map(b => b.name).join('|');
+        if(sameNames){
+            result.afterHolders = result.beforeHolders;
+        }
+        else{
+            result.transactionType = Transaction.types.HOLDING_TRANSFER;
+        }
     }
 
 
@@ -1015,8 +1022,8 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
                         let difference = result.beforeHolders.length !== result.afterHolders.length
                             // must a holder change or holding transfer
                             // if SAME NAME, different address in same position, then its an UPDATE_HOLDER
-
                         if(!difference){
+
                             result.beforeHolders.map((holder, i) => {
                                 const nameSame = result.beforeHolders[i].name.toLowerCase() === result.afterHolders[i].name.toLowerCase();
                                 if(nameSame &&
