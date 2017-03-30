@@ -60,6 +60,7 @@ CREATE OR REPLACE FUNCTION generate_aces(modelName text,  entityId integer defau
              CASE
         WHEN p."relation" = 'role' THEN 'role:' || p."roleId"
         WHEN  p."relation" = 'organisation' and $2 IS NOT NULL THEN 'org:' || get_org(m.identity, $2)
+        WHEN  p."relation" = 'organisation_admin' and $2 IS NOT NULL THEN 'org:' || get_org(m.identity, $2)
         WHEN  p."relation" = 'user' and $2 IS NOT NULL AND "entityId" = $2   THEN 'id:' || p."userId"
         WHEN  p."relation" = 'owner' and $2 IS NOT NULL  THEN 'id:' || get_owner(m.identity, $2)
         WHEN  p."relation" = 'catalex' and $2 IS NOT NULL  AND "entityId" = $2 THEN 'catalexId:' || p."catalexId"
@@ -98,6 +99,14 @@ CREATE OR REPLACE FUNCTION generate_principals(userId integer)
         SELECT 'catalexId:' || identifier
             FROM passport
             WHERE "userId" = $1 AND provider = 'catalex'
+
+        UNION
+
+        SELECT 'orgAdmin:' || o."organisationId"
+        FROM passport p
+        JOIN organisation o on p.identifier = o."catalexId" AND 'organisation_admin' = ANY(o.roles)
+        WHERE  p."userId" = $1 and provider = 'catalex'
+
 $$ LANGUAGE SQL;
 
 

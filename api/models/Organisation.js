@@ -41,7 +41,7 @@ module.exports = {
                             organisationId: organisation.id,
                             catalexId: member.id.toString(),
                             name: member.name,
-                            email: member.email
+                            email: member.email,
                             roles: member.roles
                         })))
                     })

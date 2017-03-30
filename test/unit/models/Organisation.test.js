@@ -9,8 +9,8 @@ describe('Organisation Model', function() {
                     name: 'test',
                     id: 1,
                     members: [
-                        {name: 'test1', email: 'test1@email.com', id: 1},
-                        {name: 'test2', email: 'test2@email.com', id: 2}
+                        {name: 'test1', email: 'test1@email.com', id: 1, roles: ['organisation_admin']},
+                        {name: 'test2', email: 'test2@email.com', id: 2, roles: []}
                     ]
                 })
             })
@@ -24,8 +24,8 @@ describe('Organisation Model', function() {
 
                  _.omitDeep(org, 'userId')
                     .should.deep.equal([
-                      {"id":10001,"organisationId":1,"catalexId":"1","name":"test1","email":"test1@email.com"},
-                      {"id":10002,"organisationId":1,"catalexId":"2","name":"test2","email":"test2@email.com"}
+                      {"id":10001,"organisationId":1,"catalexId":"1","name":"test1","email":"test1@email.com", roles: ['organisation_admin']},
+                      {"id":10002,"organisationId":1,"catalexId":"2","name":"test2","email":"test2@email.com", roles: []}
                     ])
             });
         });

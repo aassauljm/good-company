@@ -29,6 +29,7 @@ module.exports = {
                 'owner',
                 'user',
                 'organisation',
+                'organisation_admin',
                 'catalex'),
             defaultValue: 'role',
             index: true,

@@ -1,0 +1,1 @@
+DELETE FROM permission WHERE (relation != 'catalex' and relation != 'user');

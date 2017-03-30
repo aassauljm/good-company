@@ -11,31 +11,13 @@ var grants = {
         action: 'delete'
     }]
 };
-/*
-var modelRestrictions = {
-  registered: [
-    'Role',
-    'Permission',
-    'User',
-    'Passport'
-  ],
-  public: [
-    'Role',
-    'Permission',
-    'User',
-    'Model',
-    'Passport'
-  ]
-};
-*/
-
 
 
 exports.create = function(roles, models) {
     sails.log.verbose('creating permissions');
     return Promise.all([
             grantAdminPermissions(roles, models),
-            grantRegisteredPermissions(roles, models)
+            grantStandardPermissions(roles, models)
         ])
         .spread(function(err, permissions) {
             return permissions;
@@ -63,44 +45,67 @@ function grantAdminPermissions(roles, models, admin) {
     }))
 }
 
-function grantRegisteredPermissions(roles, models) {
-    var registeredRole = _.find(roles, {
-        name: 'registered'
-    });
 
-    var permissions = Object.keys(registered).reduce((acc, modelKey) => {
-        return registered[modelKey].reduce((acc, perm) => {
-            acc.push({
-                modelId: _.find(models, {
-                    name: modelKey
-                }).id,
-                action: perm.action,
-                roleId: registeredRole.id,
-                relation: perm.relation
-            })
-            return acc;
-        }, acc)
-    }, [])
 
-    return Promise.all(
-        permissions.map(function(permission) {
-            return Permission.findOrCreate({
-                where: permission,
-                defaults: permission
-            });
-        })
-    )
-
+function grantStandardPermissions(roles, models) {
+    return Promise.all(permissions.map(perm => {
+        const permission =  {
+            modelId: _.find(models, {
+                name: perm.model
+            }).id,
+            action: perm.action,
+            relation: perm.relation,
+            roleId: (_.find(roles, {
+                name: perm.role
+            }) || []).id || null,
+        }
+        return Permission.findOrCreate({
+            where: permission,
+            defaults: permission
+        });
+    }));
 }
 
-// TODO, make json file of this
 
+
+var permissions = [
+    {model: 'User', action: 'read', relation: 'owner'},
+    {model: 'User', action: 'update', relation: 'owner'},
+    {model: 'User', action: 'update', relation: 'organisation_admin'},
+
+    {model: 'Document', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Document', action: 'read', relation: 'owner' },
+    {model: 'Document', action: 'update', relation: 'owner' },
+    {model: 'Document', action: 'delete', relation: 'owner' },
+    {model: 'Document', action: 'read', relation: 'organisation' },
+    {model: 'Document', action: 'update', relation: 'organisation' },
+    {model: 'Document', action: 'delete', relation: 'organisation' },
+
+    {model: 'Company', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Company', action: 'read', relation: 'owner'},
+    {model: 'Company', action: 'update', relation: 'owner'},
+    {model: 'Company', action: 'delete', relation: 'owner'},
+    {model: 'Company', action: 'read', relation: 'organisation'},
+    {model: 'Company', action: 'update', relation: 'organisation'},
+
+    {model: 'Favourite', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Favourite', action: 'read', relation: 'owner'},
+    {model: 'Favourite', action: 'update', relation: 'owner'},
+    {model: 'Favourite', action: 'delete', relation: 'owner'},
+
+    {model: 'Event', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Event', action: 'read', relation: 'owner'},
+    {model: 'Event', action: 'update', relation: 'owner'},
+    {model: 'Event', action: 'delete', relation: 'owner'},
+
+    {model: 'ApiCredential', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'ApiCredential', action: 'read', relation: 'owner'},
+    {model: 'ApiCredential', action: 'delete', relation: 'owner'},
+]
+
+/*
 var registered = {
-    /*'Permission': [
-        {
-            action: 'read'
-        }
-    ],*/
+
     'User': [
         {
             action: 'read',
@@ -201,6 +206,6 @@ var registered = {
             relation: 'owner'
         }
     ]
-};
+};*/
 
 
