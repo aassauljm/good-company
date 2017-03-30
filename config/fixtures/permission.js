@@ -109,7 +109,7 @@ var registered = {
         {
             action: 'update',
             relation: 'owner'
-        },
+        }
     ],
     'Document': [
         {

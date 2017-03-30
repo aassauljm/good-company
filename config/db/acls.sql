@@ -116,9 +116,16 @@ CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
 
         UNION
 
+        SELECT 'orgAdmin:' || o."organisationId"
+        FROM organisation o
+        WHERE o."catalexId" = $1 AND 'organisation_admin' = ANY(o.roles)
+
+        UNION
+
         SELECT 'catalexId:' || $1
 
 $$ LANGUAGE SQL;
+
 
 
 CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entityId integer default NULL)
