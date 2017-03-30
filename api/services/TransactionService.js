@@ -1368,7 +1368,6 @@ function cleanupCompanyState(state, effectiveDate){
             })
             .then(() => nextState)
             .then(() => {
-
                 return nextState;
             });
     }
@@ -1817,7 +1816,7 @@ function validateTransactionSet(data, companyState){
 }
 
 
-export function performTransaction(data, company, companyState){
+export function performTransaction(data, company, companyState, resultingTransactions){
 
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE]:                  TransactionService.performIssue,
@@ -1901,6 +1900,9 @@ export function performTransaction(data, company, companyState){
             return tran.save();
         })
         .then(function(transaction){
+            if(resultingTransactions){
+                resultingTransactions.push(transaction);
+            }
             nextState.dataValues.transaction = transaction;
             if(data.documents && data.documents.length){
                 return transaction.setDocuments(data.documents)
@@ -1929,9 +1931,9 @@ export function performTransaction(data, company, companyState){
 }
 
 
-export function performAll(data, company, state, isReplay){
+export function performAll(data, company, state, isReplay, resultingTransactions){
     return Promise.each(data, function(doc){
-        return TransactionService.performTransaction(doc, company, state)
+        return TransactionService.performTransaction(doc, company, state, resultingTransactions)
             .then(_state => {
                 state = _state;
             })
@@ -1964,7 +1966,7 @@ export function transactionsToActions(transactions){
 export function performAllInsertByEffectiveDate(data, company){
     const date = data[0].effectiveDate;
     let state, futureTransactions;
-    let completedTransaction;
+    let completedTransactions = [];
     return company.getDatedCompanyState(date)
         .then(_state => {
             state = _state;
@@ -1972,10 +1974,9 @@ export function performAllInsertByEffectiveDate(data, company){
         })
         .then(_transactions => {
             futureTransactions = _transactions;
-            return performAll(data, company, state)
+            return performAll(data, company, state, false, completedTransactions)
         })
         .then((state) => {
-            completedTransaction = state.dataValues.transaction;
             const implicit = createImplicitTransactions(state, data, date);
             if(implicit.length){
                 return performAll(implicit, company, state)
@@ -1989,7 +1990,7 @@ export function performAllInsertByEffectiveDate(data, company){
             return state;
         })
         .then(state => {
-            return {companyState: state, transaction: completedTransaction}
+            return {companyState: state, transaction: completedTransactions[0]}
         });
 }
 
