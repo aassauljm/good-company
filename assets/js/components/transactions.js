@@ -203,7 +203,7 @@ export class TransactionWidget extends React.Component {
         return <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                    <span className="fa fa-balance-scale"/>Completed Transactions
+                    <span className="fa fa-balance-scale"/> Completed Transactions
                 </div>
                 <div className="widget-control">
                     <Link to={`${this.props.baseUrl}/transactions`} >View All</Link>

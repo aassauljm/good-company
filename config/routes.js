@@ -96,6 +96,7 @@ module.exports.routes = {
     'DELETE /api/company/:id': {
         controller: 'CompanyController',
         model: 'company',
+        method: 'update',
         action: 'destroy'
     },
 
