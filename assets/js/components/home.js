@@ -70,6 +70,7 @@ export class LandingPageView extends React.PureComponent {
 @connect(state => ({ userInfo: state.userInfo}))
 export default class Home extends React.PureComponent {
     render() {
+        const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         return <div className="container">
                 <div className="row">
                     <div className="col-md-6">
@@ -78,7 +79,7 @@ export default class Home extends React.PureComponent {
                         <TemplateWidget />
                     </div>
                     <div className="col-md-6">
-                        <ImportSingleWidget />
+                        { canImport && <ImportSingleWidget /> }
                         <AlertsWidget />
                         <FavouritesWidget />
                         <RecentActivityWidget />

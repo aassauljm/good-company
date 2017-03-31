@@ -7,7 +7,7 @@ describe('Organisation Model', function() {
                 user = _user;
                 return Organisation.updateOrganisation({
                     name: 'test',
-                    id: 1,
+                    organisation_id: 1,
                     members: [
                         {name: 'test1', email: 'test1@email.com', id: 1, roles: ['organisation_admin']},
                         {name: 'test2', email: 'test2@email.com', id: 2, roles: []}
@@ -21,7 +21,6 @@ describe('Organisation Model', function() {
                 return User.getOrganisationInfo(user.id)
             })
             .then((org) => {
-
                  _.omitDeep(org, 'userId')
                     .should.deep.equal([
                       {"id":10001,"organisationId":1,"catalexId":"1","name":"test1","email":"test1@email.com", roles: ['organisation_admin']},
@@ -29,6 +28,7 @@ describe('Organisation Model', function() {
                     ])
             });
         });
+
 
         after(() => {
             return Organisation.destroy({where: {organisationId: 1}})

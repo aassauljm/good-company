@@ -21,7 +21,7 @@ module.exports = function(sails) {
 
         initialize: function(next) {
             sails.log.info('loading db functions');
-            if(sails.config.fixtures === false || !__DEV__){
+            if(sails.config.hooks.fixtures === false || !__DEV__){
                 return next();
             }
             sails.after('hook:sequelize:loaded', function() {

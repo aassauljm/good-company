@@ -87,7 +87,11 @@ module.exports = {
 
             recentActivity: function(id){
                 return ActivityLog.query(id);
-            }
+            },
+            permissions: function(id){
+                return PermissionService.getPermissions(id, 'Company')
+                    .then(permissions => ({company: permissions}))
+            },
         },
         instanceMethods: {
             toJSON: function() {
@@ -100,6 +104,12 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                     replacements:{id: this.id}})
                                     .then(r => r[0].get_user_organisation)
+            },
+            getPrincipals: function(){
+                return sequelize.query("select get_user_principals(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                    replacements:{id: this.id}})
+                                    .then(r => r.map(r => r.get_user_princials))
             }
         },
         hooks: {

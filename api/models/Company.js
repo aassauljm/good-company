@@ -5,7 +5,7 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 const uuid = require('node-uuid');
-
+const Promise = require('bluebird')
 
 module.exports = {
     attributes: {
@@ -94,10 +94,18 @@ module.exports = {
 
             },
             companyPermissionsUser: function(id, catalexId){
-                return sequelize.query("select * from user_companies_catalex_user_permissions(:id, :catalexId)",
+                return Promise.all([
+                sequelize.query("select * from user_companies_catalex_user_permissions(:id, :catalexId)",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id, catalexId}})
-                .then(r => r.map(r => r.user_companies_catalex_user_permissions))
+                    .then(r => r.map(r => r.user_companies_catalex_user_permissions)),
+
+                    PermissionService.getCatalexUserPermissions(catalexId, 'Company')
+
+                ])
+                .spread((companyPermissions, userPermissions) => {
+                    return {companyPermissions, userPermissions}
+                })
             }
         },
         instanceMethods: {

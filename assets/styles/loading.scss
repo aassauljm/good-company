@@ -64,3 +64,8 @@
 .modal-backdrop{
     opacity: 0.5;
 }
+
+/*
+.modal-backdrop.fade{
+  @include transition(opacity .3s linear);
+}*/

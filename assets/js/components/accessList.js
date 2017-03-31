@@ -43,7 +43,7 @@ export class OrganisationWidget extends React.Component {
 
 
     renderBody() {
-        const MAX_ROWS = 2;
+        const MAX_ROWS = 5;
         let bodyClass = "widget-body";
         const fullList = (this.props.userInfo.organisation || []);
         const members = fullList.slice(0, MAX_ROWS);
@@ -206,7 +206,7 @@ export default class AccessList extends React.Component {
         })
     }
 
-     renderBody() {
+    renderBody() {
         const foreignPermissions = (this.props.foreignPermissions && this.props.foreignPermissions.data) || [];
         const members = (this.props.userInfo.organisation && this.props.userInfo.organisation)  || [];
         members.sort(firstBy(a => a.name.toLowerCase()));
@@ -247,11 +247,12 @@ export default class AccessList extends React.Component {
                                     <span className="fa fa-key"/> Access List
                                 </div>
                             </div>
-                              { this.renderBody() }
+                            { this.renderBody() }
                         </div>
                     </div>
                 </div>
-            </div>)
+            </div>
+        )
     }
 }
 
@@ -266,13 +267,16 @@ export default class AccessList extends React.Component {
     hideLoading: (...args) => dispatch(endLoading(...args))
 }))
 export class PermissionTable extends React.Component {
+
     componentDidUpdate(){
         this.props.fetchPermissions();
     }
+
     componentWillMount(){
         this.props.fetchPermissions();
     }
-    onChange(event, company, permission) {
+
+    onCompanyChange(event, company, permission) {
         const value = event.target.checked;
         const {addOrRemove, permissions, allow} = formatChange(value, this.props.catalexId, permission)
         this.props.showLoading({message: 'Updating'});
@@ -292,32 +296,57 @@ export class PermissionTable extends React.Component {
         })
     }
 
+    onUserChange(event, permission) {
+        const value = event.target.checked;
+        const {addOrRemove, permissions, allow} = formatChange(value, this.props.catalexId, permission)
+        this.props.showLoading({message: 'Updating'});
+        this.props.updatePermission(`/user/${addOrRemove}`, {permissions, model: 'Company', allow, catalexId: this.props.catalexId}, {
+            invalidates: []
+        })
+        .then((r) => {
+            this.props.addNotification({message: r.response.message});
+            return this.props.fetchPermissions(true)
+        })
+        .then(() =>{
+            this.props.hideLoading();
+        })
+        .catch(error => {
+            this.props.addNotification({message: 'Unable to update permissions', error: true})
+            this.props.hideLoading();
+        })
+    }
+
     render(){
-        const companies = this.props.permissions.data || [];
+        const companies = (this.props.permissions.data || {}).companyPermissions || [];
+        const userPermissions =(this.props.permissions.data || {}).userPermissions || [];
         /*if(this.props.permissions._status === 'fetching'){
             return <Loading />
         }*/
-        return <table className="table table-striped permissions">
-        <thead><tr>
-
-            <th>Name</th>
-            <th>View Access</th>
-            <th>Make Changes</th>
-            </tr>
-
+        return <div>
+            <div className="button-row">
+                <Input type="checkbox" checked={ userPermissions.indexOf('create') >= 0 } disabled={false} onChange={(e) => this.onUserChange(e, 'create')} label="Can Import New Companies" />
+            </div>
+        <table className="table table-striped permissions">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>View Access</th>
+                    <th>Make Changes</th>
+                </tr>
             </thead>
             <tbody>
-                    { companies.map((member, i) => {
-                        const disabled = member.userPermissions && member.ownerId === member.userPermissions.userId;
-                        const permissions = (member.userPermissions || {}).permissions || [];
+                    { companies.map((company, i) => {
+                        const disabled = company.userPermissions && company.ownerId === company.userPermissions.userId;
+                        const permissions = (company.userPermissions || {}).permissions || [];
                         return <tr key={i}>
-                             <td> { member.currentCompanyState.companyName } </td>
-                            <td> <Input type="checkbox" checked={permissions.indexOf('read') >= 0 } disabled={disabled} onChange={(e) => this.onChange(e, member, 'read') }/></td>
-                            <td> <Input type="checkbox" checked={permissions.indexOf('update') >= 0 } disabled={disabled} onChange={(e) => this.onChange(e, member, 'update')}/></td>
+                             <td> { company.currentCompanyState.companyName } </td>
+                            <td> <Input type="checkbox" checked={permissions.indexOf('read') >= 0 } disabled={disabled} onChange={(e) => this.onCompanyChange(e, company, 'read') }/></td>
+                            <td> <Input type="checkbox" checked={permissions.indexOf('update') >= 0 } disabled={disabled} onChange={(e) => this.onCompanyChange(e, company, 'update')}/></td>
                         </tr>
                     })}
                 </tbody>
         </table>
+        </div>
    }
 }
 
@@ -336,24 +365,23 @@ export class Organisation extends React.Component {
         members.sort(firstBy('name'))
         return <Input type="select" {...this.props.fields.user}>
             <option> </option>
-            { members.filter(m => m.userId !== this.props.userInfo.id).map((m, i) => <option key={i} value={m.catalexId}>{m.name}</option>)}
+            { members.filter(m => m.userId !== this.props.userInfo.id).map((m, i) => <option key={i} value={m.catalexId}>{m.name}</option>) }
         </Input>
     }
 
      renderBody() {
         return <div className="widget-body">
-        <div className="button-row">
-            <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Invite Users to your Organisation</a>
+            <div className="button-row">
+                <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Invite Users to your Organisation</a>
             </div>
-        <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-            <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
-            { this.userSelect() }
+            <div className="row">
+                <div className="col-md-6 col-md-offset-3">
+                <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
+                { this.userSelect() }
+            </div>
         </div>
 
-
-        </div>
-        { this.props.fields.user.value && <PermissionTable catalexId={this.props.fields.user.value} userInfo={this.props.userInfo}/> }
+        { this.props.fields.user.value && <PermissionTable catalexId={this.props.fields.user.value} userInfo={this.props.userInfo} /> }
 
         </div>
      }

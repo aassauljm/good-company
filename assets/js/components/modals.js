@@ -8,6 +8,7 @@ import { LoadingOverlay } from './loading';
 import EmailDocument from './modals/emailDocument';
 
 
+
 export class Confirmation extends React.Component {
     constructor(){
         super();
@@ -24,8 +25,8 @@ export class Confirmation extends React.Component {
         this.props.dispatch(this.props.cancelAction);
         this.props.dispatch(endConfirmation());
     }
-
     render() {
+
         const {title, description, cancelMessage, resolveMessage} = this.props;
         return <Modal show={true} onHide={this.reject} ref="modal">
             <Modal.Header closeButton>
@@ -78,7 +79,7 @@ export default class Modals extends React.Component {
             return <ConfirmationConnected {...this.props.modals.confirmation} />
         }
         else if(this.props.modals.loading && this.props.modals.loading.showing){
-            return <Loading {...this.props.modals.loading} />
+            return  <Loading {...this.props.modals.loading} />
         }
         else if (this.props.modals.emailDocument && this.props.modals.emailDocument.showing) {
             return <EmailDocument {...this.props.modals.emailDocument} />

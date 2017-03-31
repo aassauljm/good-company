@@ -114,7 +114,9 @@ describe('Permission Service', function() {
         });
 
         after(function(){
-            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}})])
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(),
+                               Passport.destroy({where: {provider: 'catalex', identifier: {$in: ['1','2','3']}}}),
+                               Permission.destroy({where: {}})])
                 .then(function () {
                     return sails.hooks['sails-permissions'].initializeFixtures(sails);
                 });
@@ -142,7 +144,7 @@ describe('Permission Service', function() {
                     this.company = c;
                     this.otherCompany = c2;
                     return Organisation.updateOrganisation({
-                        id: 1,
+                        organisation_id: 1,
                         members: [{id: '3'}, {id: '2'}]
                    })
                 });
@@ -237,7 +239,9 @@ describe('Permission Service', function() {
 
 
         after(function(){
-            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}), Organisation.destroy({where:{organisationId: 1}})])
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}),
+                               Passport.destroy({where: {provider: 'catalex', identifier: {$in: ['1','2','3']}}}),
+                               Organisation.destroy({where:{organisationId: 1}})])
                 .then(function () {
                     return sails.hooks['sails-permissions'].initializeFixtures(sails);
                 });
@@ -265,29 +269,42 @@ describe('Permission Service', function() {
                     this.company = c;
                     this.otherCompany = c2;
                     return Promise.all([Organisation.updateOrganisation({
-                        id: 1,
-                        members: [{id: '1'}, {id: '3'}]
+                        organisation_id: 1,
+                        members: [{id: '1', roles:['organisation_admin']}, {id: '3'}]
                    }),Organisation.updateOrganisation({
-                        id: 2,
+                        organisation_id: 2,
                         members: [{id: '2'}]
                    })])
                 });
             });
         });
 
-        it('should fail to change permission of user in another org', function(){
-            //return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false)
-
-
+        it('should be allowed to change permission of user this org', function(){
+            return PermissionService.isAllowed(this.user1, this.user3, 'update', 'User')
+                .then(allow => {
+                    allow.should.be.equal(true);
+                })
         })
-        it('should fail to change permission of user in another org', function(){
-           //return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false)
 
+        it('should fail to change permission of admin in org', function(){
+            return PermissionService.isAllowed(this.user3, this.user2, 'update', 'User')
+                .then(allow => {
+                    allow.should.be.equal(false);
+                })
+        })
+
+        it('should fail to change permission of user in another org', function(){
+            return PermissionService.isAllowed(this.user2, this.user3, 'update', 'User')
+                .then(allow => {
+                    allow.should.be.equal(false);
+                })
         })
 
 
         after(function(){
-            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}), Organisation.destroy({where:{organisationId: 1}}), Organisation.destroy({where:{organisationId: 2}})])
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}),
+                               Passport.destroy({where: {provider: 'catalex', identifier: {$in: ['1','2','3']}}}),
+                               Organisation.destroy({where:{organisationId: 1}}), Organisation.destroy({where:{organisationId: 2}}), Organisation])
                 .then(function () {
                     return sails.hooks['sails-permissions'].initializeFixtures(sails);
                 });

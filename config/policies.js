@@ -48,15 +48,15 @@ module.exports.policies = {
         ]
     },
     UserController: {
-        'signup': true,
-        'validateUser': true,
-        'setPassword': simpleAuth,
+        validateUser: true,
         userInfo: simpleAuth,
         pendingJobs: simpleAuth,
         recentActivity: simpleAuth,
         recentActivityFull: simpleAuth,
         alerts: simpleAuth,
-        accountSettings: simpleAuth
+        accountSettings: simpleAuth,
+        addPermissions: simpleAuth,
+        removePermissions: simpleAuth
     },
     ModelController:{
         'create': false,

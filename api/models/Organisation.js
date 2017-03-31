@@ -35,10 +35,10 @@ module.exports = {
                 if(!organisation){
                     return
                 }
-                return Organisation.destroy({where: {organisationId: organisation.id}})
+                return Organisation.destroy({where: {organisationId: organisation.organisation_id}})
                     .then(() => {
                         return Organisation.bulkCreate(organisation.members.map(member => ({
-                            organisationId: organisation.id,
+                            organisationId: organisation.organisation_id,
                             catalexId: member.id.toString(),
                             name: member.name,
                             email: member.email,

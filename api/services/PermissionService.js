@@ -22,12 +22,19 @@ module.exports = {
                 })
                 .then(r => r[0].check_permission)
     },
-    getPermissions: function(userId, modelIdentity, entityId){
+    getPermissions: function(userId, modelIdentity, entityId = null){
         return sequelize.query("select get_permissions(:userId, :modelIdentity, :entityId)",
                 { type: sequelize.QueryTypes.SELECT,
                     replacements: { userId, modelIdentity, entityId }
                 })
             .then(r => r.map(r => r.get_permissions))
+    },
+    getCatalexUserPermissions: function(catalexId, modelIdentity, entityId = null){
+        return sequelize.query("select get_permissions_catalex_user(:catalexId, :modelIdentity, :entityId)",
+                { type: sequelize.QueryTypes.SELECT,
+                    replacements: { catalexId, modelIdentity, entityId }
+                })
+            .then(r => r.map(r => r.get_permissions_catalex_user))
     },
     getModel: Promise.method(function(modelIdentity) {
         var modelCache = sails.hooks['sails-permissions']._modelCache;
@@ -63,27 +70,31 @@ module.exports = {
             })
     }),
     addPermissionUser: function(user, model, permission, allow){
-        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        const entityId = typeof model !== 'string' ? model.id : null;
+        const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.create({
-            userId: user.id, modelId, action: permission, relation: 'user', entityId: model.id, allow
+            userId: user.id, modelId, action: permission, relation: 'user', entityId, allow
         })
     },
     addPermissionCatalexUser: function(catalexId, model, permission, allow){
-        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        const entityId = typeof model !== 'string' ? model.id : null;
+        const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.create({
-            catalexId,  modelId, action: permission, relation: 'catalex', entityId: model.id, allow
+            catalexId,  modelId, action: permission, relation: 'catalex', entityId, allow
         })
     },
     removePermissionUser: function(user, model, permission, allow){
-        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        const entityId = typeof model !== 'string' ? model.id : null;
+        const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.destroy({where: {
-            userId: user.id, modelId, action: permission, relation: 'user', entityId: model.id, allow
+            userId: user.id, modelId, action: permission, relation: 'user', entityId: {$eq: typeof model !== 'string'  ? model.id : null}, allow
         }})
     },
     removePermissionCatalexUser: function(catalexId, model, permission, allow){
-        const modelId = sails.hooks['sails-permissions']._modelCache[model.$modelOptions.name.singular].id;
+        const entityId = typeof model !== 'string' ? model.id : null;
+        const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.destroy({where: {
-            catalexId, modelId, action: permission, relation: 'catalex', entityId: model.id, allow
+            catalexId, modelId, action: permission, relation: 'catalex', entityId: {$eq: typeof model !== 'string'  ? model.id : null}, allow
         }})
     },
 }

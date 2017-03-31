@@ -103,8 +103,10 @@ passport.connect = function (req, query, profile, next) {
     return next(new Error('Neither a username nor email was available'));
   }
   return sequelize.transaction(t => {
+    console.log(profile)
       return Organisation.updateOrganisation(profile.organisation)
       .then(() => {
+            console.log(profile)
           return sails.models.passport.findOne({ where: {
               provider: provider,
               identifier: query.identifier.toString()

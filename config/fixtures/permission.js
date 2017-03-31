@@ -82,6 +82,7 @@ var permissions = [
     {model: 'Document', action: 'delete', relation: 'organisation' },
 
     {model: 'Company', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Company', action: 'create', relation: 'role', role: 'organisationMember' },
     {model: 'Company', action: 'read', relation: 'owner'},
     {model: 'Company', action: 'update', relation: 'owner'},
     {model: 'Company', action: 'delete', relation: 'owner'},

@@ -901,4 +901,19 @@ AS $$
     WHERE  c."ownerId" = $1 and deleted = FALSE;
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION user_is_organisation_admin_of_catalex_user(userId integer, catalexId text)
+    RETURNS BOOLEAN
+    AS $$
 
+        WITH catalex as (
+        SELECT identifier
+            FROM passport
+            WHERE "userId" = $1 AND provider = 'catalex'
+            )
+         SELECT exists (SELECT 1 FROM organisation o
+     JOIN catalex on identifier = o."catalexId"
+     JOIN organisation oo on oo."organisationId" = o."organisationId"
+     WHERE 'organisation_admin' = any(o.roles)
+
+     and oo."catalexId" = $2 and not( 'organisation_admin' = any(oo.roles)))
+$$ LANGUAGE SQL;
