@@ -1,6 +1,5 @@
 import React from 'react';
 import Header from './header';
-import Login from './login';
 import { pureRender } from '../utils';
 import { requestUserInfo } from '../actions';
 import { createResource, mounted } from '../actions'

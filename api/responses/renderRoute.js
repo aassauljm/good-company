@@ -8,7 +8,7 @@ function render(renderProps){
         userUrl: sails.config.ACCOUNT_URL,
         logoutUrl: sails.config.USER_LOGOUT_URL
     }
-    if(sails.config.serverRender){
+    if(sails.config.serverRender && this.req.isAuthenticated()){
         const req = this.req,
             res = this.res;
 
