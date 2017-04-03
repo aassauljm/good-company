@@ -1,6 +1,6 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, softDeleteResource, updateResource, companyTransaction, addNotification, showLoading, endLoading } from '../actions';
+import { requestResource, softDeleteResource, updateResource, createResource, companyTransaction, addNotification, showLoading, endLoading } from '../actions';
 import { pureRender, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -19,6 +19,9 @@ import { DragSource, DropTarget } from 'react-dnd';
 import Loading from './loading';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import firstBy from 'thenby';
+import { DocumentsHOCFromRoute } from '../hoc/resources';
+
+
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}, params}) => {
@@ -244,7 +247,7 @@ class RenderFile extends React.Component {
             return <div className="file-sub-tree"><span className="expand-control"></span>
                     <span className="file selected" >
                         <span className="icon fa fa-plus-circle"></span>
-                        <Input type="text" placeholder={ 'New Folder' } ref="input"/>
+                        <Input type="text" placeholder={ 'New Folder' } ref="input" />
                         <span onClick={submitCreateFolder} className="view">Create Folder</span>
                         <span onClick={endCreateFolder} className="view">Cancel</span>
                     </span>
@@ -443,7 +446,7 @@ class FileTree extends React.Component {
         return <div>
             <div className="button-row">
                 <form className="form-inline">
-                <Input type="text" label="Search" onChange={this.onSearchChange}/>
+                <Input type="text" label="Search" onChange={this.onSearchChange} value={this.state.filter}/>
                 <div className="btn-group">
                 <Button onClick={this.expandAll}>Expand All</Button>
                 <Button onClick={this.collapseAll}>Collapse All</Button>
@@ -467,7 +470,7 @@ function listToTree(documents){
         return acc;
     }, {});
     documents.map(d => {
-        if(!d.directoryId){
+        if(!d.directoryId || !map[d.directoryId]){
             roots.push(map[d.id]);
         }
         else{
@@ -482,12 +485,18 @@ function listToTree(documents){
         }]
 }
 
-@connect(undefined, {
-    companyTransaction: (...args) => companyTransaction(...args),
-    addNotification: (args) => addNotification(args),
-    updateResource: (...args) => updateResource(...args),
-    softDeleteResource: (...args) => softDeleteResource(...args),
-})
+//(state, ownProps) => ({uploadedDocuments: state.resources[`/company/${ownProps.companyId}/documents`]}
+
+
+@connect(undefined,
+ (dispatch, ownProps) => ({
+    //companyTransaction: (...args) => companyTransaction(...args),
+    addNotification: (args) => dispatch(addNotification(args)),
+    createDocument: (...args) => dispatch(createResource(`/company/${ownProps.companyId}/documents`, ...args)),
+    updateDocument: (...args) => dispatch(updateResource(...args)),
+    softDeleteResource: (...args) => dispatch(softDeleteResource(...args)),
+}))
+@DocumentsHOCFromRoute(true)
 export class CompanyDocuments extends React.Component {
 
     static propTypes = {
@@ -502,12 +511,15 @@ export class CompanyDocuments extends React.Component {
         this.deleteFile = ::this.deleteFile;
         this.createDirectory = ::this.createDirectory;
         this.upload = ::this.upload;
-        this.state = {companyState: props.companyState};
+        this.state = {companyState: props.companyState, documents: props.documents};
     }
 
     componentWillReceiveProps(newProps) {
         if(newProps.companyState && newProps.companyState.docList){
             this.setState({companyState: newProps.companyState});
+        }
+        if(newProps.documents && newProps.documents._status === 'complete'){
+            this.setState({documents: newProps.documents});
         }
     }
 
@@ -521,25 +533,22 @@ export class CompanyDocuments extends React.Component {
         }
     }
 
+
     upload(files, directoryId=null) {
-        const transactions = [{
-            actions: [{transactionType: TransactionTypes.UPLOAD_DOCUMENT}],
-            transactionType: TransactionTypes.UPLOAD_DOCUMENT,
-            effectiveDate: new Date()
-        }];
-        return this.props.companyTransaction(
-                                    'compound',
-                                    this.props.companyId,
-                                    {transactions: transactions, documents: files, directoryId: directoryId}, {skipConfirmation: true, 'loadingMessage': 'Uploading'})
+        const body = new FormData();
+        body.append('json', JSON.stringify({directoryId}));
+        (files || []).map(d => {
+            body.append('documents', d, d.name);
+        });
+        return this.props.createDocument(body, {stringify: false, 'loadingMessage': 'Uploading'})
             .then((result) => {
                 this.props.addNotification({message: 'File uploaded'});
                 return result;
             })
 
     }
-
     move(documentId, directoryId) {
-        return this.props.updateResource(`/document/${documentId}`, {directoryId: directoryId}, {loadingMessage: 'Deleting File'})
+        return this.props.updateDocument(`/document/${documentId}`, {directoryId: directoryId}, {loadingMessage: 'Moving File'})
             .then(() => this.props.addNotification({message: 'File moved'}))
     }
 
@@ -549,30 +558,21 @@ export class CompanyDocuments extends React.Component {
     }
 
     renameFile(documentId, filename) {
-        return this.props.updateResource(`/document/${documentId}`, {filename: filename}, {loadingMessage: 'Renaming File'})
+        return this.props.updateDocument(`/document/${documentId}`, {filename: filename}, {loadingMessage: 'Renaming File'})
             .then(() => this.props.addNotification({message: 'File renamed'}))
     }
 
     createDirectory(directoryId, name) {
-        const transactions = [{
-            actions: [{transactionType: TransactionTypes.CREATE_DIRECTORY}],
-            transactionType: TransactionTypes.CREATE_DIRECTORY,
-            effectiveDate: new Date(),
-            directoryId: directoryId,
-            newDirectoryId: name
-        }];
-        return this.props.companyTransaction(
-                                    'compound',
-                                    this.props.companyId,
-                                    {transactions: transactions, directoryId: directoryId, newDirectory: name},
-                                    {skipConfirmation: true, 'loadingMessage': 'Creating Folder'} )
+        return this.props.createDocument({directoryId: directoryId, newDirectory: name})
             .then(() => {
                 this.props.addNotification({message: 'Directory Created'});
             })
     }
 
     renderTree() {
-        const files = (this.state.companyState.docList && this.state.companyState.docList.documents) || []
+        const companyStateDocs = (this.state.companyState.docList && this.state.companyState.docList.documents) || [];
+        const companyDocs = (this.state.documents.data && this.state.documents.data.documents) || [];
+        const files = [...companyStateDocs, ...companyDocs]
         return  <div>
             <FileTree
                 files={listToTree(files)}

@@ -74,15 +74,6 @@ function patchBluebird(ns) {
     shimCLS(Promise.prototype, 'done', [0, 1]);
 }
 
-function loadDB(){
-    if(sails.config.fixtures === false || !__DEV__){
-        return;
-    }
-    return fs.readFileAsync('config/db/functions.sql', 'utf8')
-         .then(function(sql){
-            return sequelize.query(sql)
-        })
-}
 
 function prepTemp(){
     return fs.accessAsync(sails.config.CACHE_DIR)
@@ -92,9 +83,6 @@ function prepTemp(){
 }
 
 function stats(){
-    if(__DEV__){
-        return;
-    }
     return fs.readFileAsync('stats.json', 'utf8')
          .then(function(text){
             return JSON.parse(text)
@@ -102,6 +90,9 @@ function stats(){
          .then(function(data){
             sails.config.ASSET_HASH = data.hash;
          })
+         .catch(e => {
+
+         });
 }
 
 function patchReactWidget(){
@@ -128,7 +119,7 @@ module.exports.bootstrap = function(cb) {
 
     patchBluebird(namespace);
     patchBluebird(session);
-    return Promise.all([loadDB(), prepTemp(), stats(), patchReactWidget()])
+    return Promise.all([prepTemp(), stats(), patchReactWidget()])
         .then(touchLoadedFile())
         .then(function(){
             cb();

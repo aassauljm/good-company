@@ -83,8 +83,8 @@ export class ShareholdingsWidget extends React.Component {
     render() {
         const holderCount = this.countHolders();
         const shareCountByClass = this.props.companyState.shareCountByClass;
-        const shareClassMap = generateShareClassMap(this.props.companyState);
-        const classCount = Object.keys(shareClassMap || {}).length
+        const shareClassMap = generateShareClassMap(this.props.companyState);;
+        const classCount = Object.keys(shareCountByClass || {}).length
 
         let bodyClass = "widget-body ";
         if(this.props.toggle){

@@ -1,9 +1,9 @@
-var request = require("supertest-as-promised");
+var request = require("supertest");
 
 describe('Model Controller', function() {
 
     describe('Admin can read, but cannot create, update or delete models', function() {
-        var req;
+        var req, modelId;
         it('should login successfully and get model list', function(done) {
             req = request.agent(sails.hooks.http.app);
             req
@@ -15,6 +15,7 @@ describe('Model Controller', function() {
                 })
                 .then(function(res){
                     var models = res.body;
+                    modelId = models[0].id;
                     _.intersection(_.pluck(models, 'name'), [
                       'Model',
                       'Permission',
@@ -27,7 +28,7 @@ describe('Model Controller', function() {
 
         it('should get model single model definition', function(done) {
             req
-                .get('/api/model/1')
+                .get('/api/model/'+modelId)
                 .expect(200, done)
         });
         it('should fail to create model', function(done) {
@@ -38,13 +39,13 @@ describe('Model Controller', function() {
         });
         it('should fail to update model', function(done) {
             req
-                .put('/api/model/1')
+                .put('/api/model/'+modelId)
                 .send({})
                 .expect(403, done)
         });
         it('should fail to delete model', function(done) {
             req
-                .delete('/api/model/1')
+                .delete('/api/model/'+modelId)
                 .send({})
                 .expect(403, done)
         });

@@ -33,7 +33,6 @@ module.exports = function (req, res, next) {
     passport.session()(req, res, function () {
       // Make the user available throughout the frontend (for views)
       res.locals.user = req.user;
-
       next();
     });
   });

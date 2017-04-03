@@ -1,690 +1,315 @@
 var assert = require('assert');
+var Promise = require('bluebird');
+
 
 describe('Permission Service', function() {
+    describe('User based permissions', function(){
+        before(function(){
+            //reset
+           return Promise.all([
+                              User.create({username: 'first', email: 'e1@mail.com', passports: [{provider: 'catalex', 'identifier': '3'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'second', email: 'e2@mail.com', passports: [{provider: 'catalex', 'identifier': '2'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'third', email: 'e3@mail.com', passports: [{provider: 'catalex', 'identifier': '1'}] }, {include: [{model: Passport, as: 'passports'}]})
+                              ])
+            .spread((user1, user2, user3) => {
+                this.user1 = user1;
+                this.user2 = user2;
+                this.user3 = user3;
+                return Promise.all([
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]}),
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test2'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
+                                   ])
+                .spread((c, c2) => {
+                    this.company = c;
+                    this.otherCompany =c2;
+                });
+            });
+        });
 
-    it('should exist', function() {
+        it('should exist', function() {
 
-        assert.ok(sails.services.permissionservice);
-        assert.ok(global.PermissionService);
-
-    });
-
-    describe('#isForeignObject()', function() {
-
-        it('should return true if object is not owned by the requesting user', function(done) {
-
-            var objectNotOwnedByUser = {
-                ownerId: 2
-            };
-            var user = 1;
-
-            assert.equal(sails.services.permissionservice.isForeignObject(user)(objectNotOwnedByUser), true);
-
-            done();
+            assert.ok(sails.services.permissionservice);
+            assert.ok(global.PermissionService);
 
         });
 
-        it('should return false if object is owned by the requesting user', function(done) {
+        it('should check read access from two users', function(){
+            return PermissionService.isAllowed(this.company, this.user1, 'read', 'Company')
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user1, 'update', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false;
+            });
+        });
 
-            var objectOwnedByUser = {
-                ownerId: 1
-            };
-            var user = 1;
+        it('should add read access to user, then revoke', function(){
+            return PermissionService.addPermissionUser(this.user2, this.company, 'read', true)
+            .then(allowed => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user3, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false
+                return PermissionService.removePermissionUser(this.user2, this.company, 'read', true)
+            })
+            .then(() => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false;
+            });
+        });
 
-            assert.equal(sails.services.permissionservice.isForeignObject(user)(objectOwnedByUser), false);
+        it('should add read access to catalex user, then revoke', function(){
+            return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true)
 
-            done();
+            .then(allowed => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.true;
+                return PermissionService.isAllowed(this.company, this.user3, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false
+                return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true)
+            })
+            .then(() => {
+                return PermissionService.isAllowed(this.company, this.user2, 'read', 'Company')
+            })
+            .then(allowed => {
+                allowed.should.be.false;
+            });
+        });
+
+
+        it('should get filtered company list', function(){
+            return Company.getNowCompanies(this.user2.id)
+                .then(companies => {
+                    companies.length.should.equal(0);
+                    return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true);
+                })
+                .then(() => {
+                     return Company.getNowCompanies(this.user2.id)
+                 })
+                .then((companies) => {
+                    companies.length.should.be.equal(1);
+                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', true)
+                })
+                .then(() => {
+                     return Company.getNowCompanies(this.user2.id)
+                 })
+                .then(companies => {
+                    companies.length.should.equal(0);
+                });
+        });
+
+        after(function(){
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(),
+                               Passport.destroy({where: {provider: 'catalex', identifier: {$in: ['1','2','3']}}}),
+                               Permission.destroy({where: {}})])
+                .then(function () {
+                    return sails.hooks['sails-permissions'].initializeFixtures(sails);
+                });
         });
 
     });
 
-    describe('#hasForeignObjects()', function() {
-
-        it('should return true if any object is not owned by the requesting user', function(done) {
-
-            var objectOwnedByUser = {
-                ownerId: 1
-            };
-            var objectNotOwnedByUser = {
-                ownerId: 2
-            };
-            var user = {
-                id: 1
-            };
-
-            assert.equal(sails.services.permissionservice.hasForeignObjects([objectNotOwnedByUser, objectOwnedByUser], user), true);
-
-            done();
+    describe('Organisation permissions', function(){
+        before(function(){
+            //reset
+           return Promise.all([
+                              User.create({username: 'first', email: 'e1@mail.com', passports: [{provider: 'catalex', 'identifier': '3'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'second', email: 'e2@mail.com', passports: [{provider: 'catalex', 'identifier': '2'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'third', email: 'e3@mail.com', passports: [{provider: 'catalex', 'identifier': '1'}] }, {include: [{model: Passport, as: 'passports'}]})
+                              ])
+            .spread((user1, user2, user3) => {
+                this.user1 = user1;
+                this.user2 = user2;
+                this.user3 = user3;
+                return Promise.all([
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]}),
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test2'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
+                                   ])
+                .spread((c, c2) => {
+                    this.company = c;
+                    this.otherCompany = c2;
+                    return Organisation.updateOrganisation({
+                        organisation_id: 1,
+                        members: [{id: '3'}, {id: '2'}]
+                   })
+                });
+            });
         });
 
-        it('should return false if all objects are owned by the requesting user', function(done) {
-
-            var objectOwnedByUser = {
-                ownerId: 1
-            };
-            var objectOwnedByUser2 = {
-                ownerId: 1
-            };
-            var user = {
-                id: 1
-            };
-
-            assert.equal(sails.services.permissionservice.hasForeignObjects([objectOwnedByUser2, objectOwnedByUser], user), false);
-            done();
-
+        it('members of org should see company', function(){
+            return Company.getNowCompanies(this.user1.id)
+                .then((companies) => {
+                    companies.length.should.be.equal(2);
+                      return Company.getNowCompanies(this.user2.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(2);
+                      return Company.getNowCompanies(this.user3.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(0);
+                  })
         });
 
-    });
-
-describe('#hasOwnershipPolicy()', function() {
-
-    it('should return true if object supports ownership policy', function(done) {
-
-        assert.equal(sails.services.permissionservice.hasOwnershipPolicy({
-            associations: {
-                owner: {}
-            }
-        }), true);
-        done();
-    });
-
-    it('should return false if object does not support ownership policy', function(done) {
-
-        assert.equal(sails.services.permissionservice.hasOwnershipPolicy({}), false);
-        done();
-
-    });
-
-});
-
-describe('#getMethod()', function() {
-
-    it('should return \'create\' if POST request', function(done) {
-
-        assert.equal(sails.services.permissionservice.getMethod('POST'), 'create');
-        done();
-
-    });
-
-    it('should return \'update\' if PUT request', function(done) {
-
-        assert.equal(sails.services.permissionservice.getMethod('PUT'), 'update');
-        done();
-
-    });
-
-    it('should return \'read\' if GET request', function(done) {
-
-        assert.equal(sails.services.permissionservice.getMethod('GET'), 'read');
-        done();
-
-    });
-
-    it('should return \'delete\' if DELETE request', function(done) {
-
-        assert.equal(sails.services.permissionservice.getMethod('DELETE'), 'delete');
-        done();
-
-    });
-
-});
-
-describe('#hasPassingCriteria()', function() {
-
-    it('should return an array of items that don\'t match the given criteria', function(done) {
-        var objects = [{
-            x: 1
-        }, {
-            x: 2
-        }, {
-            x: 3
-        }];
-        var permissions = [{
-            criteria: {
-                where: {
-                    x: 2
-                }
-            }
-        }];
-        assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions), false);
-        done();
-    });
-
-    it('should return an array of items that don\'t match the given criteria, if the criteria has many values for the same key', function(done) {
-        var objects = [{
-            x: 1
-        }, {
-            x: 2
-        }, {
-            x: 3
-        }];
-        var permissions = [{
-            criteria: {
-                where: {
-                    x: 2
-                }
-            }
-        }, {
-            criteria: {
-                where: {
-                    x: 3
-                }
-            }
-        }];
-        assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions), false);
-        done();
-    });
-
-    it('should return an array of items that don\'t match the given criteria, if the criteria has many values for the same key', function(done) {
-        var objects = {
-            x: 2
-        };
-        var permissions = [{
-            criteria: {
-                where: {
-                    x: 2
-                }
-            }
-        }, {
-            criteria: {
-                where: {
-                    x: 3
-                }
-            }
-        }];
-        assert(sails.services.permissionservice.hasPassingCriteria(objects, permissions));
-        done();
-    });
-
-    it('should return an empty array if there is no criteria', function(done) {
-        var objects = [{
-            x: 1
-        }, {
-            x: 2
-        }, {
-            x: 3
-        }];
-        assert(sails.services.permissionservice.hasPassingCriteria(objects));
-        done();
-    });
-
-    it('should match without where clause and blacklist', function(done) {
-        var objects = [{
-            x: 1
-        }, {
-            x: 2
-        }, {
-            x: 3
-        }];
-        var permissions = [{
-            criteria: {
-                blacklist: ['x']
-            }
-        }];
-        assert(sails.services.permissionservice.hasPassingCriteria(objects, permissions));
-        done();
-    });
-
-    it('should match with where clause and attributes', function(done) {
-        var objects = [{
-            x: 1
-        }, {
-            x: 2
-        }, {
-            x: 3
-        }];
-        var permissions = [{
-            criteria: {
-                where: {
-                    x: {
-                        '>': 0
-                    }
-                },
-                blacklist: ['y']
-            }
-        }];
-        assert(sails.services.permissionservice.hasPassingCriteria(objects, permissions, {
-            x: 5
-        }));
-        done();
-    });
-
-    it('should fail with bad where clause and good blacklist', function(done) {
-        var objects = [{
-            x: 1
-        }, {
-            x: 2
-        }, {
-            x: 3
-        }];
-        var permissions = [{
-            criteria: {
-                where: {
-                    x: {
-                        '<': 0
-                    }
-                },
-                blacklist: ['y']
-            }
-        }];
-        assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions, {
-            x: 5
-        }), false);
-        done();
-    });
-
-    it('should fail with good where clause and bad blacklist', function(done) {
-        var objects = [{
-            x: 1
-        }, {
-            x: 2
-        }, {
-            x: 3
-        }];
-        var permissions = [{
-            criteria: {
-                where: {
-                    x: {
-                        '>': 0
-                    }
-                },
-                blacklist: ['x']
-            }
-        }];
-        assert.equal(sails.services.permissionservice.hasPassingCriteria(objects, permissions, {
-            x: 5
-        }), false);
-        done();
-    });
-
-});
-
-describe('#hasUnpermittedAttributes', function() {
-    it('should return true if any of the attributes are in the blacklist', function(done) {
-        var attributes = {
-            ok: 1,
-            fine: 2
-        };
-        var blacklist = ["ok", "alright", "fine"];
-        assert(sails.services.permissionservice.hasUnpermittedAttributes(attributes, blacklist));
-        done();
-    });
-
-    it('should return true if any attributes are not permitted', function(done) {
-        var attributes = {
-            ok: 1,
-            fine: 2,
-            whatever: 3
-        };
-        var blacklist = ["ok", "alright", "fine"];
-        assert(sails.services.permissionservice.hasUnpermittedAttributes(attributes, blacklist));
-        done();
-    });
-
-    it('should return false if none of the keys are in the blacklist', function(done) {
-        var attributes = {
-            ok: 1,
-            fine: 2,
-            whatever: 3
-        };
-        var blacklist = ["notallowed"];
-        assert.equal(sails.services.permissionservice.hasUnpermittedAttributes(attributes, blacklist), false);
-        done();
-    });
-
-    it('should return false if there are no attributes', function(done) {
-        var attributes = {};
-        var blacklist = ["ok", "alright", "fine"];
-        assert.equal(sails.services.permissionservice.hasUnpermittedAttributes(attributes, blacklist), false);
-        done();
-    });
-
-    it('should return false if blacklist is empty', function(done) {
-        var attributes = {
-            ok: 1,
-            fine: 2,
-            whatever: 3
-        };
-        var blacklist = [];
-        assert.equal(sails.services.permissionservice.hasUnpermittedAttributes(attributes, blacklist), false);
-        done();
-    });
-
-});
-
-describe('role and permission helpers', function() {
-    it('should create a role', function(done) {
-            // make sure there is no existing role with this name
-            Role.findAll({
-                where: {
-                    name: 'fakeRole'
-                }
-            })
-            .then(function(role) {
-                assert.equal(role.length, 0);
-                    // use the helper to create a new role
-                    var newRole = {
-                        name: 'fakeRole',
-                        permissions: [{
-                            model: 'Permission',
-                            action: 'delete',
-                            relation: 'role',
-                        }],
-                        users: ['newuser']
-                    };
-                    return sails.services.permissionservice.createRole(newRole);
-                })
-            .then(function(result) {
-                    // make sure the role exists now that we have created it
-                    return Role.findOne({
-                        name: 'fakeRole'
-                    });
-                })
-            .then(function(role) {
-                assert(role && role.id);
-            })
-            .done(done, done);
+        it('should add deny read permission', function(){
+           return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false)
+                .then(() => {
+                      return Company.getNowCompanies(this.user2.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(1);
+                    return Company.getNowCompanies(this.user1.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(2);
+                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'read', false);
+                  })
+                .then(() => {
+                      return Company.getNowCompanies(this.user2.id);
+                  })
+                .then((companies) => {
+                    companies.length.should.be.equal(2);
+                });
         });
 
-it('should create a permission', function(done) {
-    var permissionModelId;
-            // find any existing permission for this action, and delete it
-            Model.findOne({
-                where: {
-                    name: 'Permission'
-                }
-            }).then(function(permissionModel) {
-                permissionModelId = permissionModel.id;
-                return Permission.destroy({
-                    where: {
-                        action: 'create',
-                        modelId: permissionModelId,
-                        relation: 'role'
-                    }
-                });
-            })
-            .then(function(destroyed) {
-                    // make sure we actually destroyed it
-                    return Permission.findAll({
-                        where: {
-                            action: 'create',
-                            relation: 'role',
-                            modelId: permissionModelId
-                        }
-                    });
+        it('should add deny update permission', function(){
+            return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company')
+                .then(allow => {
+                    allow.should.be.equal(true);
+                    return PermissionService.addPermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update', false)
                 })
-            .then(function(permission) {
-                assert.equal(permission.length, 0);
-                    // create a new permission
-                    var newPermissions = [{
-                        role: 'fakeRole',
-                        model: 'Permission',
-                        action: 'create',
-                        relation: 'role',
-                        criteria: {
-                            where: {
-                                x: 1
-                            },
-                            blacklist: ['y']
-                        }
-                    }, {
-                        role: 'fakeRole',
-                        model: 'Role',
-                        action: 'update',
-                        relation: 'role',
-                        criteria: {
-                            where: {
-                                x: 1
-                            },
-                            blacklist: ['y']
-                        }
-                    }];
-                    return sails.services.permissionservice.grant(newPermissions);
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company')
                 })
-.then(function(perm) {
-                    // verify that it was created
-                    return Permission.findOne({
-                        action: 'create',
-                        relation: 'role',
-                        model: permissionModelId
-                    });
+                .then(allow => {
+                    allow.should.be.equal(false);
+                    return PermissionService.removePermissionCatalexUser(this.user2.passports[0].identifier, this.company, 'update',false)
                 })
-.then(function(permission) {
-    assert(permission && permission.id);
-})
-.done(done, done);
-});
-
-
-it('should grant a permission directly to a user', function(done) {
-    var permissionModelId, userId;
-            // find any existing permission for this action, and delete it
-            User.create({
-                username: 'permission-user',
-                email: 'permission-user@email.com'
-            })
-            .then(function(user) {
-                userId = user.id;
-                return Model.findOne({
-                    where: {
-                        name: 'Permission'
-                    }
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user2, 'update', 'Company');
                 })
-            })
-            .then(function(permissionModel) {
-                permissionModelId = permissionModel.id;
-                return Permission.destroy({
-                    where: {
-                        action: 'create',
-                        modelId: permissionModelId,
-                        relation: 'role'
-                    }
-                });
-            })
-            .then(function(destroyed) {
-                    // make sure we actually destroyed it
-                    return Permission.findAll({
-                        where: {
-                            action: 'create',
-                            relation: 'role',
-                            modelId: permissionModelId
-                        }
-                    });
+                .then(allow => {
+                    allow.should.be.equal(true);
                 })
-            .then(function(permission) {
-                assert.equal(permission.length, 0);
-                    // create a new permission
-                    var newPermissions = [{
-                        user: 'permission-user',
-                        model: 'Permission',
-                        action: 'create',
-                        relation: 'role',
-                        criteria: {
-                            where: {
-                                x: 1
-                            },
-                            blacklist: ['y']
-                        }
-                    }, {
-                        user: 'permission-user',
-                        model: 'Role',
-                        action: 'update',
-                        relation: 'role',
-                        criteria: {
-                            where: {
-                                x: 1
-                            },
-                            blacklist: ['y']
-                        }
-                    }];
-                    return sails.services.permissionservice.grant(newPermissions);
-                })
-.then(function(perm) {
-                    // verify that it was created
-                    return Permission.findOne({
-                        where: {
-                            action: 'create',
-                            relation: 'role',
-                            userId: userId,
-                            modelId: permissionModelId
-                        }
-                    });
-                })
-.then(function(permission) {
-    assert(permission && permission.id);
-})
-.done(done, done);
-});
-
-it('should revoke a permission', function(done) {
-    var permissionModelId, userId;
-
-            // make sure there is already an existing permission for this case
-            User.findOne({
-                where: {
-                    username: 'permission-user',
-                    email: 'permission-user@email.com'
-                }
-            })
-            .then(function(user) {
-                userId = user.id;
-                return Model.findOne({
-                    where: {
-                        name: 'Permission'
-                    }
-                })
-            }).then(function(permissionModel) {
-                permissionModelId = permissionModel.id;
-                return Permission.findAll({
-                    where: {
-                        action: 'create',
-                        relation: 'role',
-                        userId: userId,
-                        modelId: permissionModelId
-                    }
-                });
-            })
-            .then(function(permission) {
-                assert.equal(permission.length, 1);
-                return sails.services.permissionservice.revoke({
-                    user: 'permission-user',
-                    model: 'Permission',
-                    relation: 'role',
-                    action: 'create'
-                });
-            })
-            .then(function() {
-                return Permission.findAll({
-                    where: {
-                        action: 'create',
-                        relation: 'role',
-                        userId: userId,
-                        modelId: permissionModelId
-                    }
-                });
-            })
-            .then(function(permission) {
-                assert.equal(permission.length, 0);
-            })
-            .done(done, done);
         });
 
-it('should not revoke a permission if no user or role is supplied', function(done) {
-    var permissionModelId;
-    var newPermissions = [{
-        user: 'permission-user',
-        model: 'Permission',
-        action: 'create',
-        relation: 'role',
-        criteria: {
-            where: {
-                x: 1
-            },
-            blacklist: ['y']
-        }
-    }, {
-        user: 'permission-user',
-        model: 'Role',
-        action: 'update',
-        relation: 'role',
-        criteria: {
-            where: {
-                x: 1
-            },
-            blacklist: ['y']
-        }
-    }];
-
-    return sails.services.permissionservice.grant(newPermissions)
-    .then(function() {
-        var count;
-                    // make sure there is already an existing permission for this case
-                    Model.findOne({
-                        name: 'Permission'
-                    }).then(function(permissionModel) {
-                        permissionModelId = permissionModel.id;
-                        return Permission.findAll({
-                            where: {
-                                action: 'create',
-                                relation: 'role',
-                                modelId: permissionModelId
-                            }
-                        });
-                    })
-                    .then(function(permission) {
-                        count = permission.length
-                        return sails.services.permissionservice.revoke({
-                            model: 'Permission',
-                            relation: 'role',
-                            action: 'create'
-                        });
-                    })
-                    .catch(function(err) {
-                        assert.equal(err.message, 'You must provide either a user or role to revoke the permission from');
-                    })
-                    .then(function() {
-                        return Permission.findAll({
-                            where: {
-                                action: 'create',
-                                relation: 'role',
-                                modelId: permissionModelId
-                            }
-                        });
-                    })
-                    .then(function(permission) {
-                        assert.equal(permission.length, count);
-                    })
-                    .done(done, done);
+        it('should get company user permissions', function(){
+                return this.company.foreignPermissions()
+                .then(permissions => {
+                    permissions.length.should.be.equal(2);
                 });
-});
+         });
 
-it('should remove users from a role', function(done) {
-    var user;
-    var ok = User.create({
-        username: 'test',
-        email: 'testemail@test.test'
+        it('should add deny create persmission', function(){
+            return PermissionService.isAllowed(this.company, this.user1, 'create', 'Company')
+                .then(allow => {
+                    allow.should.be.equal(true);
+                    return PermissionService.addPermissionCatalexUser(this.user1.passports[0].identifier, this.company, 'create', false)
+                })
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user1, 'create', 'Company')
+                })
+                .then(allow => {
+                    allow.should.be.equal(false);
+                    return PermissionService.removePermissionCatalexUser(this.user1.passports[0].identifier, this.company, 'create', false)
+                })
+                .then(() => {
+                    return PermissionService.isAllowed(this.company, this.user1, 'create', 'Company');
+                })
+                .then(allow => {
+                    allow.should.be.equal(true);
+                })
+        });
+
+
+
+        after(function(){
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}),
+                               Passport.destroy({where: {provider: 'catalex', identifier: {$in: ['1','2','3']}}}),
+                               Organisation.destroy({where:{organisationId: 1}})])
+                .then(function () {
+                    return sails.hooks['sails-permissions'].initializeFixtures(sails);
+                });
+        });
     });
 
-    ok = ok.then(function(usr) {
-        user = usr;
-        return PermissionService.addUsersToRole('test', 'admin');
-    });
 
-    ok = ok.then(function(role) {
-        assert(_.contains(_.pluck(role.users, 'id'), user.id));
-        return PermissionService.removeUsersFromRole('test', 'admin');
-    });
+    describe('Multiple Organisation permissions', function(){
+        before(function(){
+            //reset
+           return Promise.all([
+                              User.create({username: 'first', email: 'e1@mail.com', passports: [{provider: 'catalex', 'identifier': '3'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'second', email: 'e2@mail.com', passports: [{provider: 'catalex', 'identifier': '2'}] }, {include: [{model: Passport, as: 'passports'}]}),
+                              User.create({username: 'third', email: 'e3@mail.com', passports: [{provider: 'catalex', 'identifier': '1'}] }, {include: [{model: Passport, as: 'passports'}]})
+                              ])
+            .spread((user1, user2, user3) => {
+                this.user1 = user1;
+                this.user2 = user2;
+                this.user3 = user3;
+                return Promise.all([
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]}),
+                                   Company.create({ownerId: this.user1.id, currentCompanyState: {companyName: 'test2'}}, {include: [{model: CompanyState, as: 'currentCompanyState'}]})
+                                   ])
+                .spread((c, c2) => {
+                    this.company = c;
+                    this.otherCompany = c2;
+                    return Promise.all([Organisation.updateOrganisation({
+                        organisation_id: 1,
+                        members: [{id: '1', roles:['organisation_admin']}, {id: '3'}]
+                   }),Organisation.updateOrganisation({
+                        organisation_id: 2,
+                        members: [{id: '2'}]
+                   })])
+                });
+            });
+        });
 
-    ok = ok.then(function(role) {
-        assert(!_.contains(_.pluck(role.users, 'id'), user.id));
+        it('should be allowed to change permission of user this org', function(){
+            return PermissionService.isAllowed(this.user1, this.user3, 'update', 'User')
+                .then(allow => {
+                    allow.should.be.equal(true);
+                })
+        })
+
+        it('should fail to change permission of admin in org', function(){
+            return PermissionService.isAllowed(this.user3, this.user2, 'update', 'User')
+                .then(allow => {
+                    allow.should.be.equal(false);
+                })
+        })
+
+        it('should fail to change permission of user in another org', function(){
+            return PermissionService.isAllowed(this.user2, this.user3, 'update', 'User')
+                .then(allow => {
+                    allow.should.be.equal(false);
+                })
+        })
+
+
+        after(function(){
+            return Promise.all([this.user1.destroy(), this.user2.destroy(), this.user3.destroy(), Permission.destroy({where: {}}),
+                               Passport.destroy({where: {provider: 'catalex', identifier: {$in: ['1','2','3']}}}),
+                               Organisation.destroy({where:{organisationId: 1}}), Organisation.destroy({where:{organisationId: 2}}), Organisation])
+                .then(function () {
+                    return sails.hooks['sails-permissions'].initializeFixtures(sails);
+                });
+        });
+
     })
-    .done(done, done);
-
-});
-
-});
-    //TODO: add unit tests for #findTargetObjects()
-
-    //TODO: add unit tests for #findModelPermissions()
 
 })

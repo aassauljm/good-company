@@ -16,6 +16,7 @@ import { CalendarWidget } from './calendar';
 import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS, FAVOURITES } from '../hoc/resources';
 import { HeaderSubControls } from './header';
 import { ImportSingleWidget } from './importMenu'
+import { OrganisationWidget } from './accessList'
 
 @AsyncHOCFactory([COMPANIES])
 @connect(state => ({ userInfo: state.userInfo}))
@@ -66,8 +67,10 @@ export class LandingPageView extends React.PureComponent {
 
 
 @AsyncHOCFactory([COMPANIES, FAVOURITES, ALERTS, EVENTS, RECENT_ACTIVITY])
+@connect(state => ({ userInfo: state.userInfo}))
 export default class Home extends React.PureComponent {
     render() {
+        const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         return <div className="container">
                 <div className="row">
                     <div className="col-md-6">
@@ -76,10 +79,11 @@ export default class Home extends React.PureComponent {
                         <TemplateWidget />
                     </div>
                     <div className="col-md-6">
-                        <ImportSingleWidget />
+                        { canImport && <ImportSingleWidget /> }
                         <AlertsWidget />
                         <FavouritesWidget />
                         <RecentActivityWidget />
+                        { (this.props.userInfo || {}).organisation && <OrganisationWidget /> }
                     </div>
                 </div>
             </div>

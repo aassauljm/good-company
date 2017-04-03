@@ -10,7 +10,7 @@ import NavbarToggle from 'react-bootstrap/lib/NavbarToggle';
 import NavbarCollapse from 'react-bootstrap/lib/NavbarCollapse';
 import Dropdown from 'react-bootstrap/lib/Dropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
-import { addNotification, createResource, deleteResource } from '../actions';
+import { addNotification, createResource, deleteResource, endTransactionView } from '../actions';
 import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
@@ -27,11 +27,14 @@ const DropdownToggle = (props) => {
 }
 
 @FavouritesHOC()
-@connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing, favourite: state.resources[`/favourites/${ownProps.companyId}`]}), {
-    navigate: (url) => push(url),
-    addFavourite: (id) => createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']}),
-    removeFavourite: (id) => deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']})
-})
+@connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing, favourite: state.resources[`/favourites/${ownProps.companyId}`]}),
+
+    (dispatch) => ({
+        navigate: (url) => { dispatch(push(url)); dispatch(endTransactionView()) },
+        addFavourite: (id) => dispatch(createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']})),
+        removeFavourite: (id) => dispatch(deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']}))
+    })
+)
 export default class CompanyHeader extends React.Component {
 
     constructor(props){
@@ -49,6 +52,10 @@ export default class CompanyHeader extends React.Component {
     closeMenu() {
         // ugly ugly
         //this.refs.dropdown.refs.inner.handleClose()
+    }
+
+    canUpdate() {
+        return (this.props.companyState.permissions || []).indexOf('update') >= 0;
     }
 
     isFavourite() {
@@ -89,7 +96,7 @@ export default class CompanyHeader extends React.Component {
                     <IndexLink to={this.props.baseUrl} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
 
-            <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
+             <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
                     <DropdownToggle href={`${this.props.baseUrl}/registers`} bsRole="toggle">
                         Registers
                    </DropdownToggle>
@@ -97,19 +104,19 @@ export default class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
                         <MenuItem  onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
                         </Dropdown.Menu>
-                </Dropdown>,
+                </Dropdown> ,
 
-              <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
-                    <DropdownToggle href={`${this.props.baseUrl}/new_transaction`} bsRole="toggle">
+             this.canUpdate() && <Dropdown key={3} id="update-dropdown" className="nav-item" componentClass="li">
+                    <DropdownToggle href={`${this.props.baseUrl}/new_transaction`} bsRole="toggle" className="update-dropdown">
                         Update
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
-                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
+                        <MenuItem className="update-shares" onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
                         </Dropdown.Menu>
-                </Dropdown>,
+                </Dropdown> ,
              <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={this.closeMenu} activeClassName="active" className="nav-link">Templates</Link></li>,
              ]
     }
@@ -146,7 +153,7 @@ export default class CompanyHeader extends React.Component {
 
                     <div className="company-summary">
                         <h1>{ this.state.companyState.companyName}</h1>
-                        <h2> { this.dateControl() } as at { dateString }  </h2>
+                        <h2>{ !this.canUpdate() && <strong>View Only </strong>}{ this.dateControl() } as at { dateString }  </h2>
                     </div>
                     <div className="full-controls">
                         <ul className="nav navbar-nav">
@@ -159,7 +166,7 @@ export default class CompanyHeader extends React.Component {
                     </div>
 
                     <div className="small-controls">
-                                         <ul className="nav navbar-nav">
+                            <ul className="nav navbar-nav">
                         <Dropdown id="menu-dropdown" className="nav-item" componentClass="li">
                            <DropdownToggle href={`/company/view/${this.props.companyId}`} className="active" bsRole="toggle">Menu</DropdownToggle>
                         <Dropdown.Menu bsRole="menu">

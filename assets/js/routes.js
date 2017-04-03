@@ -26,6 +26,7 @@ import RecentActivity from './components/recentActivity';
 import Templates, { TemplateView, TemplateSelectCompany } from './components/templates';
 import  { LoginWithCatalex } from './components/login';
 import ImportCompany from './components/importCompany';
+import ImportNZBN from './components/importNZBN';
 import ImportMenu from './components/importMenu';
 import { CompanyTransactions, PendingTransactions } from './components/transactions';
 import { UpdatePeople, UpdateContact, UpdateShares, UpdateResetDelete } from './components/transactions/selection';
@@ -38,7 +39,16 @@ import Alerts from './components/alerts';
 import AnnualReturn from './components/annualReturn';
 import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
+import AccessList from './components/accessList';
 import { CompanyHOCFromRoute, Injector } from './hoc/resources';
+import { Organisation } from './components/accessList';
+
+const Status = (props) => {
+    return <div className="container-fluid page-top">
+    <div className="text-center"><h4>Good Companies is Live</h4></div>
+    </div>
+}
+
 
 const CompanyChildren = [
     <Route path="shareholdings" component={ Shareholdings } />,
@@ -63,6 +73,7 @@ const CompanyChildren = [
     <Route path="source_data" component={ CompaniesRegister } />,
     <Route path="directors" component={ Directors } />,
     <Route path="graph" component={ CompanyGraph } />,
+    <Route path="access_list" component={ AccessList } />,
 
     <Route path="share_classes" component={ ShareClasses } >
         <Route path="create" component={ ShareClassCreate } />
@@ -96,7 +107,9 @@ export default (store) => {
         function checkAuth() {
             const { login: { loggedIn, loginUrl }} = store.getState();
             if (!loggedIn) {
-                replace({pathname: '/login', query:  {next: nextState.location.pathname}});
+                //replace({pathname: '/login', query:  {next: nextState.location.pathname}});
+                const query = encodeURIComponent(nextState.location.pathname);
+                window.location.href = `${loginUrl}?next=${nextState.location.pathname}`
                 cb();
             }
             else{
@@ -108,7 +121,7 @@ export default (store) => {
 
 
     return <Route path="/" component={ App }>
-        <Route path="login" component={ LoginWithCatalex }  />
+
         <Route onEnter={requireLogin} component={ LoggedInApp }>
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
@@ -126,6 +139,7 @@ export default (store) => {
                 <Route path="companies/manage" component={ CompaniesDelete  }  />
                 <Route path="mass_setup" component={ MassSetup }  />
                 <Route path="import" component={ ImportMenu } />
+                <Route path="import/nzbn" component={ ImportNZBN } />
                 <Route path="import/:companyNumber" component={ ImportCompany } />
                 <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyHOCFromRoute(true)(Injector) } >
                     <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
@@ -136,12 +150,13 @@ export default (store) => {
                  <Route path="templates" component={ TemplateSelectCompany } >
                     <Router path=":name" component={ TemplateSelectCompany }/>
                  </Route>
+                <Route path="organisation" component={ Organisation } />
             </Route>
             <Route path="company/view/:id" component={ Company } children={CompanyChildren} />
             <Route path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
 
         </Route>
-
+         <Route path='status' component={ Status } />
         <Route path="*" component={ NotFound } />
     </Route>
 };

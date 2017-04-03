@@ -3,7 +3,7 @@ import React, {PropTypes} from 'react';
 import TransactionView from './forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import { importCompany, addNotification, requestResource, createResource, importBulk } from '../actions';
+import { importCompany, addNotification, requestResource, createResource, importBulk, deleteResource, requestUserInfo } from '../actions';
 import { reduxForm} from 'redux-form';
 import Input from './forms/input';
 import STRINGS from '../strings'
@@ -13,6 +13,9 @@ import LookupCompany from './lookupCompany';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ConnectedPlaceholderSearch } from './search';
 import { Link } from 'react-router';
+
+const REALME_LOGO = 'https://www.companiesoffice.govt.nz/companies/rm_logo.png';
+
 
 const fields = [
     'listType',
@@ -123,10 +126,10 @@ export class ImportSingle extends React.Component {
         if(this.state.company){
             return this.renderSummary(this.state.company);
         }
-
         return  <ConnectedPlaceholderSearch  form={this.props.form} placeholder='Type to find a company'
             onlyCompaniesOffice={true} onSelect={this.handleSelect} initialValues={{input: this.props.initialValue}}/>
     }
+
     renderError() {
         return <div>
         <p><strong>{this.state.company.companyName}</strong> could not be imported.</p>
@@ -136,6 +139,7 @@ export class ImportSingle extends React.Component {
                 </div>
         </div>
     }
+
     renderResult() {
         return <div>
         <p><strong>{this.state.company.companyName}</strong> has been imported.</p>
@@ -153,7 +157,7 @@ export const ImportSingleFull = (props) => {
         <div className="widget">
             <div className="widget-header">
                 <div className="widget-title">
-                   Import from the Companies Register
+                   Search the Companies Register
                 </div>
             </div>
             <div className="widget-body">
@@ -167,20 +171,90 @@ export const ImportSingleFull = (props) => {
     </div>
 }
 
-export const ImportSingleWidget = () => {
-    return  <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                   Import from the Companies Register
+export const realMeActions = (dispatch) => ({
+    disconnectNzbn: () => {
+        dispatch(deleteResource('/auth-with/nzbn', {
+                confirmation: {
+                    title: 'Confirm Disconnection of RealMe®',
+                    description: 'Please confirm the disconnecting of RealMe® from your Good Companies account.',
+                    resolveMessage: 'Confirm Disconnection',
+                    resolveBsStyle: 'warning'
+                }
+            }))
+            .then(result => dispatch(requestUserInfo({ refresh: true })))
+            .then(result => dispatch(addNotification({ message: 'Your RealMe® account has been disconnected from your Good Companies account' })))
+    }
+});
+
+@connect(state => ({userInfo: state.userInfo}), realMeActions)
+export class RealMeConnect extends React.PureComponent {
+
+    renderConnect() {
+        return  (
+            <div>
+                <p>Retrieve a list of companies you have authority over using your RealMe® account.</p>
+                <div className="button-row">
+                    <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a>
                 </div>
             </div>
-            <div className="widget-body">
-                <ImportSingle form='searchForm'/>
+        );
+    }
+
+    renderLink() {
+        return (
+            <div>
+                <p>Your RealMe® account is connected with this Good Companies account.</p>
+                
                 <div className="button-row">
-                <Link className="btn btn-info" to="/import">Bulk Import</Link>
+                    <Link to={'/import/nzbn'} className="btn btn-primary">Click here to select your Companies</Link>
+                    <Button bsStyle="warning" type="submit" onClick={this.props.disconnectNzbn}>Disconnect from RealMe®</Button>
+                </div>
+            </div>
+        );
+    }
+
+    render() {
+        const hasNZBN = this.props.userInfo.mbieServices.indexOf('nzbn') >= 0;
+        return <div className="container">
+            <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                       Import with RealMe®
+                    </div>
+                </div>
+                <div className="widget-body">
+                     <div className="row">
+                     <div className="col-md-6 col-md-offset-3">
+                     { hasNZBN && this.renderLink() }
+                     { !hasNZBN && this.renderConnect() }
+                     </div>
+                    </div>
                 </div>
             </div>
         </div>
+    }
+}
+
+@connect(state => ({userInfo: state.userInfo}))
+export class ImportSingleWidget extends React.PureComponent {
+    render() {
+        const hasNZBN = this.props.userInfo.mbieServices.indexOf('nzbn') >= 0;
+        return  <div className="widget">
+                <div className="widget-header">
+                    <div className="widget-title">
+                       Import from the Companies Register
+                    </div>
+                </div>
+                <div className="widget-body">
+                    <ImportSingle form='searchForm'/>
+                    <div className="button-row">
+                    <Link className="btn btn-info" to="/import">Bulk Import</Link>
+                    { !hasNZBN && <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a> }
+                    { hasNZBN && <Link to={'/import/nzbn'}><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></Link> }
+                    </div>
+                </div>
+            </div>
+        }
 }
 
 @connect(state => state.importBulk, {
@@ -211,7 +285,7 @@ export class ImportBulk extends React.Component {
                 <div className="widget">
                     <div className="widget-header">
                         <div className="widget-title">
-                            Bulk Import from the New Zealand Companies Office
+                            Bulk Import from the New Zealand Companies Register
                         </div>
                     </div>
                     <div className="widget-body">
@@ -235,6 +309,7 @@ export default class ImportPage extends React.Component {
     render() {
         return <div>
             <ImportSingleFull initialValue={ this.props.location ? this.props.location.query.value : null }/>
+            <RealMeConnect />
             <ImportBulk />
         </div>
     }

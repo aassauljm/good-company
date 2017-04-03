@@ -24,3 +24,16 @@
         font-size:2em;
     }
 }
+
+.table-no-margin{
+    margin-bottom:0;
+}
+
+table.permissions{
+    th, td{
+        text-align: center;
+    }
+    th:first-child, td:first-child{
+        text-align: left;
+    }
+}

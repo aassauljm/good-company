@@ -6,6 +6,7 @@ var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var pgp = require('pg-promise')();
 var connections = require('../config/connections').connections;
+var ORDERED_DB_SCRIPTS = require('../api/hooks/db')(null).ORDERED_DB_SCRIPTS;
 var _ = require('lodash');
 
 
@@ -31,17 +32,17 @@ var dbConfig = connections[config.models.connection];
 var db = pgp(dbConfig);
 var completed;
 db.tx(function (t) {
-    return t.query('select name from migrations')
+    return t.map('select name from migrations', [], a => a.name)
         .then(function(data) {
             console.log('Current Migrations in DB:', data.length);
-            completed = data.map(function(d) { return d.name});
+            completed = data;
             return getFiles();
         })
         .then(function(files) {
             files = _.difference(files, completed);
             files.sort();
             console.log('Pending Migrations:', files.length);
-            return Promise.each(files, function(f){
+            var queries = files.map(f => {
                 console.log('Running ', f);
                 let useTransaction;
                 return readFile(f)
@@ -50,25 +51,29 @@ db.tx(function (t) {
                         return sql.indexOf('--split-statements') > -1  ? sql.split(/;/).map(s => s + ';') : [sql]
                     })
                     .then(function(sqls) {
-                        return useTransaction ?  Promise.each(sqls, t.none) : Promise.each(sqls, db.none)
+                        var context = useTransaction ?  t : db;
+                        return t.batch(sqls.map(s => context.none(s)));
                     })
                     .then(function(){
                         console.log('Migration run, adding to DB.');
                         return t.none('insert into migrations(name) values ($1)', [f]);
                     })
             });
+           return t.batch(queries);      
         })
 })
-.then(function(){
-    return fs.readFileAsync('config/db/functions.sql', 'utf8')
+.then(function() {
+    // this can/should be inside the transaction also ;)
+    return Promise.each(ORDERED_DB_SCRIPTS, (file) => {
+        console.log('Reading: ', file);
+        return fs.readFileAsync(file, 'utf8')
+    .then(sql => {
+        return db.none(sql);
+    })});
 })
- .then(function(sql){
-    return db.none(sql);
-})
-
-.then(function(){
+.then(function() {
     console.log('Migrations Complete.');
-    process.exit(0)
+    pgp.end(); // shutting down the connection pool, so we can exit normally
 })
 .catch(function(e){
     console.log('Migration failure')

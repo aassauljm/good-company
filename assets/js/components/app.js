@@ -1,9 +1,8 @@
 import React from 'react';
 import Header from './header';
-import Login from './login';
 import { pureRender } from '../utils';
 import { requestUserInfo } from '../actions';
-import { createResource } from '../actions'
+import { createResource, mounted } from '../actions'
 import Notifications from './notifications';
 import Modals from './modals';
 import Search from './search';
@@ -13,6 +12,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext, DropTarget } from 'react-dnd';
 import { POPOVER_DRAGGABLE } from './lawBrowserLink';
 import Promise from 'bluebird';
+import { connect } from 'react-redux';
 import { AsyncHOCFactory, ALERTS, FAVOURITES, COMPANIES } from '../hoc/resources';
 import UserFeedback from './userFeedback';
 
@@ -23,7 +23,6 @@ function prevent(e){
 }
 
 const transition = __SERVER__ ? 0 : 200;
-
 
 
 @DropTarget(POPOVER_DRAGGABLE, {
@@ -86,8 +85,14 @@ export default class App extends React.Component {
 
 
 
-@AsyncHOCFactory([ALERTS, FAVOURITES, COMPANIES])
+@AsyncHOCFactory([ALERTS, COMPANIES, FAVOURITES])
+@connect(undefined, {
+    mounted: () => mounted()
+})
 export class LoggedInApp extends React.Component {
+    componentDidMount() {
+        this.props.mounted();
+    }
     render() {
         return this.props.children
     }

@@ -55,4 +55,11 @@
         "username": "integrate",
         "email": "integrate@email.com"
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 18,
+        "username": "favourites",
+        "email": "favourites@email.com"
+    }
 }]

@@ -8,7 +8,7 @@ import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
-import { renderTemplate, showEmailDocument, addNotification } from '../actions';
+import { renderTemplate, showEmailDocument, addNotification, showLoading, endLoading } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
@@ -198,7 +198,7 @@ export class RenderForm extends React.Component {
             <div className="button-row form-controls">
                 <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
                 <Button type="submit" bsStyle="primary" >Download Document <Glyphicon glyph='download'/></Button>
-                <Button bsStyle="info" disabled={!this.props.valid} onClick={this.emailDocument}>Email Document <Glyphicon glyph='envelope'/></Button>
+                <Button bsStyle="info" className="email-document" disabled={!this.props.valid} onClick={this.emailDocument}>Email Document <Glyphicon glyph='envelope'/></Button>
             </div>
         );
     }
@@ -231,7 +231,7 @@ const CreateForm = (schema, name) => {
     class Form extends React.Component {
         render() {
             const { fields } = this.props;
-            return <RenderForm schema={schema}  {...this.props} />
+            return <RenderForm  schema={schema}  {...this.props} />
         }
     };
     return Form;
@@ -280,7 +280,9 @@ function jsonStringToValues(string) {
 }, {
     renderTemplate: (args) => renderTemplate(args),
     showEmailDocument: (args) => showEmailDocument(args),
-    addNotification: (...args) => addNotification(...args)
+    addNotification: (...args) => addNotification(...args),
+    showLoading: () => showLoading(),
+    endLoading: () => endLoading(),
 })
 export  class TemplateView extends React.Component {
 
@@ -300,6 +302,7 @@ export  class TemplateView extends React.Component {
 
     submit(values) {
         let filename;
+        this.props.showLoading();
         this.props.renderTemplate(this.buildRenderObject(values))
             .then((response) => {
                 const disposition = response.response.headers.get('Content-Disposition')
@@ -307,9 +310,11 @@ export  class TemplateView extends React.Component {
                 return response.response.blob()
             })
             .then(blob => {
+                this.props.endLoading();
                 saveAs(blob, filename);
             })
             .catch((e) => {
+                this.props.endLoading();
                 this.props.addNotification({error: true, message: 'Could not generate document.  An error has been submitted to CataLex on your behalf'});
                 Raven.captureMessage('Failed to generate document');
             });
@@ -326,7 +331,6 @@ export  class TemplateView extends React.Component {
             const template = TemplateMap[this.props.params.name];
             const context = makeContext(this.props.companyState);
             const values = template.getInitialValues(state || {}, context);
-
             return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={context} />
         }
 

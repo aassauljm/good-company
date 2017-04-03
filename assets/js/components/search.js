@@ -128,8 +128,8 @@ function getSectionSuggestions(section) {
 
 function mapDispatchToProps(dispatch, ownProps) {
     return {
-        onSuggestionsUpdateRequested: ({value}) => {
-            if(value !== ownProps.fields.input.value){
+        onSuggestionsUpdateRequested: ({value, force}) => {
+            if(value !== ownProps.fields.input.value || force){
                 !ownProps.onlyCompaniesOffice && dispatch(lookupOwnCompany(value));
                 dispatch(lookupCompanyChange(value));
             }
@@ -176,7 +176,7 @@ export class SearchWidget extends React.Component {
 
     componentDidMount() {
         if(this.props.fields.input.initialValue){
-            this.props.onSuggestionsUpdateRequested({value: this.props.fields.input.initialValue});
+            this.props.onSuggestionsUpdateRequested({value: this.props.fields.input.initialValue, force: true});
         }
     }
 

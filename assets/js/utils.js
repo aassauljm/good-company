@@ -5,6 +5,7 @@ import STRINGS from './strings'
 import { Link } from 'react-router';
 import moment from 'moment';
 import { enums as TransactionTypes } from '../../config/enums/transactions';
+import firstBy from 'thenby';
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -68,6 +69,9 @@ export function analyseCompany(company){
         return acc;
     }, {});
     company.currentCompanyState.holdingList.holdings.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    company.currentCompanyState.holdingList.holdings.map((holding) => {
+        holding.holders.sort(firstBy(h => (h.data || {}).votingShareholder ? 1 : 0, -1))
+    });
     return company;
 }
 
@@ -229,9 +233,9 @@ export function debounce(func, delay = 100) {
     };
 }
 
-export function renderDocumentLinks(list){
-    return list.map((d, i) =>
-        <div key={i}><Link  activeClassName="active" className="nav-link" to={"/document/view/"+d.id} >
+export function renderDocumentLinks(list, companyId){
+    return list.filter(d => d.type !== 'Directory').map((d, i) =>
+        <div key={i}><Link  activeClassName="active" className="nav-link" to={`/company/view/${companyId}/document/view/${d.id}`} >
             {d.filename}
         </Link></div>);
 }
@@ -305,7 +309,7 @@ export const actionOptionsFromActionSets = (actionSets=[], shareClassMap, ignore
     function renderParcels(action, shareClassMap){
         return `${action.parcels.map(p => `${action.inferAmount ? 'All' : numberWithCommas(p.amount)} ${renderShareClass(p.shareClass,  shareClassMap)}`).join(', ') } shares`;
     }
-    return <optgroup label="Reported Shareholding Changes">{
+    return <optgroup label="Reported Shareholding Changes"  key="reported-changes">{
         actionSets.reduce((acc, actionSet) => {
             if(ignoreId && actionSet.id === ignoreId){
                 return acc;
@@ -386,6 +390,9 @@ export function isNaturalPerson(person){
     return !nonNatural;
 }
 
+export function personAttributes(person){
+    return {name: person.name, address: person.address, personId: person.personId, companyNumber: person.companyNumber};
+}
 
 export function generateShareClassMap(companyState){
     if(companyState && companyState.shareClasses && companyState.shareClasses.shareClasses){

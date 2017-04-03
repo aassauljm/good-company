@@ -134,11 +134,12 @@ export default class RecentActivity extends React.Component {
             <div className="widget-body">
                 <div className="table-responsive">
                 <table className="table table-hover">
-                <thead><tr><th>Time & Date</th><th>Description</th></tr></thead>
+                <thead><tr><th>Time & Date</th><th>User</th><th>Description</th></tr></thead>
                     <tbody>
                     {activities.map(
                         (row, i) => <tr key={i} className="actionable" onClick={() => this.handleClick(row)}>
                         <td>{stringDateToFormattedStringTime(row.createdAt)}</td>
+                        <td>{row.username}</td>
                         <td>{row.description}</td>
                         </tr>) }
                     </tbody>

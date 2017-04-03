@@ -47,6 +47,12 @@ module.exports = {
         tableName: 'activity_log',
         classMethods: {
             types: types,
+            query: function(userId, companyId, limit){
+                return sequelize.query("select activity_log_json(:userId, :companyId, :limit)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: {userId: userId || null, companyId: companyId || null, limit: limit || null}})
+                    .then(r => r[0].activity_log_json)
+            }
         },
         instanceMethods: {},
         hooks: {},

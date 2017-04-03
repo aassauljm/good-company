@@ -103,10 +103,15 @@ passport.connect = function (req, query, profile, next) {
     return next(new Error('Neither a username nor email was available'));
   }
   return sequelize.transaction(t => {
-      return sails.models.passport.findOne({ where: {
-          provider: provider,
-          identifier: query.identifier.toString()
-        }})
+    console.log(profile)
+      return Organisation.updateOrganisation(profile.organisation)
+      .then(() => {
+            console.log(profile)
+          return sails.models.passport.findOne({ where: {
+              provider: provider,
+              identifier: query.identifier.toString()
+            }})
+        })
         .then(function (passport) {
           if (!req.user || true) { // force this user to log in, again, if needed
             // Scenario: A new user is attempting to sign up using a third-party

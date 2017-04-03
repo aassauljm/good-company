@@ -1,3 +1,5 @@
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs'));
 /**
  * Route Mappings
  * (sails.config.routes)
@@ -31,6 +33,10 @@ module.exports.routes = {
      * `assets` directory)                                                      *
      *                                                                          *
      ***************************************************************************/
+
+    'GET /api/version': function (req, res) {
+        res.json({ ASSET_HASH: __DEV__ ? false : sails.config.ASSET_HASH });
+    },
 
     '/': {
         controller: 'LandingController',
@@ -90,6 +96,7 @@ module.exports.routes = {
     'DELETE /api/company/:id': {
         controller: 'CompanyController',
         model: 'company',
+        method: 'update',
         action: 'destroy'
     },
 
@@ -102,9 +109,11 @@ module.exports.routes = {
         action: 'lookupOwn'
     },
 
-    'POST /api/favourites/:companyId': {
+    'POST /api/favourites/:id': {
         controller: 'FavouriteController',
-        action: 'addFavourite'
+        action: 'addFavourite',
+        model: 'company',
+        method: 'read'
     },
 
     'GET /api/favourites': {
@@ -112,12 +121,8 @@ module.exports.routes = {
         action: 'favourites'
     },
 
-    'POST /api/favourites/:companyId': {
-        controller: 'FavouriteController',
-        action: 'addFavourite'
-    },
 
-    'DELETE /api/favourites/:companyId': {
+    'DELETE /api/favourites/:id': {
         controller: 'FavouriteController',
         action: 'removeFavourite'
     },
@@ -126,18 +131,6 @@ module.exports.routes = {
         controller: 'UserController',
         modelIdentity: 'user',
         action: 'recentActivityFull'
-    },
-
-   'PUT /api/set_password': {
-        controller: 'UserController',
-        modelIdentity: 'user',
-        action: 'setPassword',
-        blacklist: ['oldPassword']
-    },
-
-    'POST /api/user/signup': {
-        controller: 'UserController',
-        action: 'signup'
     },
 
     'POST /api/user/validate': {
@@ -189,7 +182,8 @@ module.exports.routes = {
     'POST /api/transaction/:type/:id': {
         controller: 'CompanyStateController',
         model: 'company',
-        action: 'create'
+        action: 'create',
+        method: 'update'
     },
 
     'DELETE /api/company/:id/transactions/:transactionIds': {
@@ -254,7 +248,7 @@ module.exports.routes = {
     },
     'POST /api/bulk/transaction': {
         controller: 'CompanyController',
-        action: 'transactionBulk'
+        action: 'transactionBulk',
     },
 
     'GET /api/address/lookup/:query': {
@@ -265,19 +259,28 @@ module.exports.routes = {
     'POST /api/company/:id/interests_register/create': {
         controller: 'CompanyStateController',
         action: 'createRegisterEntry',
+        model: 'company',
+        method: 'update'
+    },
+
+    'PUT /api/company/:id/interests_register/remove/:entryId': {
+        controller: 'CompanyStateController',
+        action: 'deleteRegisterEntry',
         model: 'company'
     },
 
     'POST /api/company/:id/share_classes/create': {
         controller: 'CompanyStateController',
         action: 'createShareClass',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'PUT /api/company/:id/share_classes/:shareClassId': {
         controller: 'CompanyStateController',
         action: 'updateShareClass',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'GET /api/company/render/:id/shareregister': {
@@ -289,11 +292,13 @@ module.exports.routes = {
     'POST /api/render_template': {
         controller: 'RenderController',
         action: 'renderTemplate',
+        method: 'read'
     },
 
     'POST /api/send_template': {
         controller: 'RenderController',
         action: 'sendTemplate',
+        method: 'read'
     },
 
     'GET /echo_file': {
@@ -302,6 +307,12 @@ module.exports.routes = {
     },
 
     'GET /api/company/:id/recent_activity': {
+        controller: 'CompanyController',
+        action: 'recentActivity',
+        model: 'company'
+    },
+
+    'GET /api/company/:id/recent_activity/full': {
         controller: 'CompanyController',
         action: 'recentActivity',
         model: 'company'
@@ -331,22 +342,72 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/:id/foreign_permissions': {
+        controller: 'CompanyController',
+        action: 'getForeignPermissions',
+        model: 'company'
+    },
+
+    'PUT /api/company/:id/add_permissions': {
+        controller: 'CompanyController',
+        action: 'addForeignPermissions',
+        model: 'company'
+    },
+
+    'PUT /api/company/:id/remove_permissions': {
+        controller: 'CompanyController',
+        action: 'removeForeignPermissions',
+        model: 'company'
+    },
+
+
+    'GET /api/company/permissions/:catalexId': {
+        controller: 'CompanyController',
+        action: 'companyPermissionsCatalexUser',
+    },
+
+    'PUT /api/user/add_permissions': {
+        controller: 'UserController',
+        action: 'addPermissions'
+    },
+
+    'PUT /api/user/remove_permissions': {
+        controller: 'UserController',
+        action: 'removePermissions'
+    },
+
+    'GET /api/company/:id/documents': {
+        controller: 'CompanyController',
+        action: 'getDocuments',
+        model: 'company'
+    },
+
+    'POST /api/company/:id/documents': {
+        controller: 'CompanyController',
+        action: 'createDocument',
+        model: 'company',
+        method: 'update'
+    },
+
     'POST /api/company/:id/import_pending_history': {
         controller: 'CompanyController',
         action: 'importPendingHistory',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'POST /api/company/:id/import_pending_history_until_ar': {
         controller: 'CompanyController',
         action: 'importPendingHistoryUntilAR',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'POST /api/company/:id/import_pending_history_until': {
         controller: 'CompanyController',
         action: 'importPendingHistoryUntil',
-        model: 'company'
+        model: 'company',
+        method: 'update'
     },
 
     'PUT /api/company/:id/update_pending_history': {
@@ -384,6 +445,31 @@ module.exports.routes = {
     'POST /api/admin/billing': {
         controller: 'AdminController',
         action: 'billingInfo'
+    },
+
+    'GET /api/auth-with/:service': {
+        controller: 'ApiCredentialController',
+        action: 'mbie'
+    },
+
+    'DELETE /api/auth-with/:service': {
+        controller: 'ApiCredentialController',
+        action: 'removeAuth'
+    },
+
+    'GET /companies_office_cb': {
+        controller: 'ApiCredentialController',
+        action: 'companies_office_cb'
+    },
+
+    'GET /api/nzbn': {
+        controller: 'ApiCredentialController',
+        action: 'authorisedCompanies'
+    },
+
+    'GET /api/nzbn/companyDetails': {
+        controller: 'ApiCredentialController',
+        action: 'companyDetails'
     },
 
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},

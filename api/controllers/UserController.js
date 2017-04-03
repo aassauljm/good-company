@@ -27,71 +27,68 @@ function checkNameCollision(data) {
         })
 }
 
+function changePermissions(changeFunction, req, res){
+    const data = actionUtil.parseValues(req);
+    return sequelize.query(`SELECT user_is_organisation_admin_of_catalex_user(:userId, :catalexId)`,
+            { type: sequelize.QueryTypes.SELECT,
+               replacements: { userId: req.user.id, catalexId: data.catalexId }})
+        .then((r) => r[0].user_is_organisation_admin_of_catalex_user)
+        .then(allowed => {
+            if(!allowed){
+                throw Exception();
+            }
+            return Promise.map(data.permissions, permission => {
+                if(['create'].indexOf(permission) === -1){
+                    throw Exception();
+                }
+                if(['Company'].indexOf(data.model) === -1){
+                    throw Exception();
+                }
+                return changeFunction(data.catalexId, data.model, permission, data.allow)
+            })
+        })
+        .then(r => res.json({message: 'Permissions Updated'}))
+        .catch(function(err){
+            return res.forbidden();
+        })
+}
+
 module.exports = {
 
     userInfo: function(req, res) {
         const last = sequelize.query("select last_login(:id)",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: req.user.id }});
-        Promise.join(User.userWithRoles(req.user.id), last)
-            .spread(function(r, last) {
+
+        const connectedApiServices = sequelize.query(`select service from api_credential where "ownerId" = :id and  now() < "createdAt" + ( "expiresIn" * interval '1 second') group by service`,
+                                                { type: sequelize.QueryTypes.SELECT,
+                                                  replacements: { id: req.user.id }});
+
+        const catalexId = sequelize.query(`SELECT identifier
+            FROM passport
+            WHERE "userId" = :id AND provider = 'catalex'`,
+                { type: sequelize.QueryTypes.SELECT,
+                   replacements: { id: req.user.id }});
+
+        const permissions = User.permissions(req.user.id);
+
+        Promise.join(User.userWithRoles(req.user.id), last, connectedApiServices, User.getOrganisationInfo(req.user.id), catalexId, permissions)
+            .spread(function(r, last, connectedApiServices, organisation, catalex, permissions) {
                 const ago = last[0].last_login ? moment(last[0].last_login).fromNow() : "first log in";
-                res.json({...r.toJSON(), lastLogin: ago});
+                res.json({...r.toJSON(), lastLogin: ago, mbieServices: connectedApiServices.map(r => r.service), organisation, catalexId: catalex.map(c => c.identifier)[0], permissions });
             });
     },
 
     recentActivity: function(req, res) {
-        ActivityLog.findAll({
-            where: {userId: req.user.id},
-            order: [['createdAt', 'DESC']],
-            limit: 10
-        })
+        ActivityLog.query(req.user.id, null, 10)
         .then(activities => res.json(activities));
     },
 
     recentActivityFull: function(req, res) {
-        ActivityLog.findAll({
-            where: {userId: req.user.id},
-            order: [['createdAt', 'DESC']]
-        })
+        ActivityLog.query(req.user.id)
         .then(activities => res.json(activities));
     },
 
-    setPassword: function(req, res) {
-        sails.models.passport.findOne({where: {
-                protocol: 'local',
-                userId: req.user.id
-            }})
-            .then(function(passport) {
-                return bcrypt.compareAsync(req.allParams().oldPassword || '', passport.password)
-                    .then(function(match) {
-                        if (!match) {
-                            throw new sails.config.exceptions.ForbiddenException('Incorrect Password');
-                        }
-                        return passport.changePassword(req.allParams().newPassword)
-                    });
-            })
-            .then(() => {
-                return ActivityLog.create({
-                    type: ActivityLog.types.SET_PASSWORD,
-                    userId: req.user.id,
-                    description: `Updated Password`
-                });
-            })
-            .then(function(match) {
-                res.ok({message: ['Password set.']});
-            })
-            .catch(sails.config.exceptions.ForbiddenException, function(err) {
-                res.forbidden({
-                    'oldPassword': [err]
-                });
-            })
-            .catch(sails.config.exceptions.ValidationException, function(err) {
-                res.badRequest({
-                    'newPassword': [err]
-                });
-            })
-    },
     validateUser: function(req, res){
         var data = actionUtil.parseValues(req);
         checkNameCollision(data)
@@ -101,42 +98,6 @@ module.exports = {
             .catch(function(err){
                 res.badRequest(err);
             })
-    },
-    signup: function(req, res) {
-        Promise.resolve()
-            .then(() => sails.services.passport.protocols.local.register(req.body))
-            .then(function(user) {
-                const passport = sails.services.passport;
-                // Initialize Passport
-                passport.initialize()(req, res, function() {
-                    // Use the built-in sessions
-                    passport.session()(req, res, function() {
-                        req.login(user, function(err) {
-                            if (err) {
-                                return res.negotiate(err);
-                            }
-                            req.session.authenticated = true;
-                            return ActivityLog.create({
-                                type: ActivityLog.types.ACCOUNT_CREATED,
-                                userId: req.user.id,
-                                description: 'Created account'
-                            })
-                            .then(() => res.ok({
-                                account_created: true
-                            }))
-                            .then(() => {
-                                MailService.signup(user)
-                            })
-                        });
-                    });
-                });
-            })
-            .catch(sails.config.exceptions.ValidationError, function(err){
-                return res.badRequest(err);
-            })
-            .catch(function(err){
-                return res.serverError(err);
-            });
     },
 
     pendingJobs: function(req, res) {
@@ -169,5 +130,14 @@ module.exports = {
             .catch(function(err){
                 return res.serverError(err);
             });
+    },
+
+    addPermissions: function(req, res) {
+        return changePermissions(PermissionService.addPermissionCatalexUser, req, res);
+    },
+
+    removePermissions: function(req, res) {
+        return changePermissions(PermissionService.removePermissionCatalexUser, req, res);
     }
+
 }

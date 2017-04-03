@@ -1,16 +1,16 @@
 "use strict";
 import React, { PropTypes } from 'react';
-import { requestResource, createResource, addNotification } from '../actions';
+import { requestResource, createResource, updateResource, addNotification } from '../actions';
 import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import { reduxForm, addArrayValue } from 'redux-form';
 import { Link } from 'react-router';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
-import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
 import { fieldStyle, fieldHelp, objectValues, validateWithSchema, requireFields, renderDocumentLinks } from '../utils';
 import DateInput from './forms/dateInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import Button from 'react-bootstrap/lib/Button';
 import { Documents } from './forms/documents';
 import STRINGS from '../strings';
 import { push } from 'react-router-redux';
@@ -90,7 +90,7 @@ class EntryForm extends React.Component {
         return this.props.dispatch(createResource(`/company/${key}/interests_register/create`, body, {stringify: false}))
             .then(() => {
                 this.props.dispatch(addNotification({message: 'Entry Added'}))
-                this.props.dispatch(push(`/company/view/${key}/interests_register`))
+                this.props.dispatch(push(`/company/view/${key}/registers/interests_register`))
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({error: true, message: err.message}))
@@ -139,7 +139,7 @@ class EntryForm extends React.Component {
 
             </fieldset>
             <div className="button-row">
-                <ButtonInput onClick={() => this.props.dispatch(push(`/company/view/${this.props.companyId}/interests_register`))}>Cancel</ButtonInput>
+                <ButtonInput onClick={() => this.props.dispatch(push(`/company/view/${this.props.companyId}/registers/interests_register`))}>Cancel</ButtonInput>
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
                 <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid}>Create</ButtonInput>
             </div>
@@ -165,12 +165,12 @@ export class InterestsRegisterCreate extends React.Component {
 }
 
 
-function renderField(key, data) {
+function renderField(key, data, companyId) {
     switch(key){
         case 'date':
             return stringDateToFormattedString(data);
         case 'documents':
-            return renderDocumentLinks(data || [])
+            return renderDocumentLinks(data || [], companyId)
         case 'persons':
             return (data || []).map(d => d.name).join(', ')
         case 'details':
@@ -179,13 +179,40 @@ function renderField(key, data) {
     }
 }
 
-
+@connect((state, ownProps) => {
+    return {...state.resources[`/company/${ownProps.params.id}/interests_register/remove/${ownProps.params.entryId}`]}
+}, {
+    deleteEntry: (companyId, entryId) => updateResource(`/company/${companyId}/interests_register/remove/${entryId}`, {}, {
+         confirmation: {
+            title: 'Confirm Removal',
+            description: 'Please confirm the  removal of this entry',
+            resolveMessage: 'Confirm Removal',
+            resolveBsStyle: 'danger'
+        }
+    }),
+    addNotification: (...args) => addNotification(...args),
+    push: (...args) => push(...args)
+})
 export class InterestsRegisterView extends React.Component {
     static propTypes = {
         interestsRegister: PropTypes.array,
     };
 
+    destroy() {
+        const companyId = this.props.companyId;
+        const request = this.props.deleteEntry(companyId, this.props.params.entryId)
+        request
+            .then(() => {
+                this.props.addNotification({message: 'Entry Removed'});
+                this.props.push(`/company/view/${companyId}/registers/interests_register`)
+            })
+            .catch((e) => {
+                this.props.addNotification({message: e.message, error: true});
+            })
+    }
+
     render() {
+        const companyId = this.props.companyId;
         const entry = this.props.interestsRegister.filter(i => i.id+'' === this.props.params.entryId)[0] || {};
         return  <div className="row">
             <div className="col-md-12">
@@ -199,8 +226,12 @@ export class InterestsRegisterView extends React.Component {
                     <dt>Details</dt>
                     <dd>{ renderField('details', entry.details) }</dd>
                     <dt>Documents</dt>
-                    <dd>{ renderField('documents', entry.documents) }</dd>
+                    <dd>{ renderField('documents', entry.documents, companyId) }</dd>
                 </dl>
+                  <div className="button-row">
+                    <Link className='btn btn-default' to={`/company/view/${companyId}/registers/interests_register`}>Back</Link>
+                    <Button className="btn btn-danger" onClick={() => this.destroy()}>Remove Entry</Button>
+                 </div>
             </div>
         </div>
     }
@@ -219,6 +250,7 @@ export class InterestsRegister extends React.Component {
     static fields = ['date', 'persons', 'details', 'documents']
 
     renderList(data) {
+        const companyId = this.props.companyId;
         return <div>
             <table className="table table-hover table-striped">
                 <thead>
@@ -230,7 +262,7 @@ export class InterestsRegister extends React.Component {
                     { data.map((row, i) => {
                         return <tr key={i} onClick={() => this.props.viewEntry(this.props.location.pathname, row.id)}>
                             { InterestsRegister.fields.map((field, i) => {
-                                return <td key={i}>{renderField(field, row[field])}</td>
+                                return <td key={i}>{renderField(field, row[field], companyId)}</td>
                             }) }
                         </tr>
                     })}

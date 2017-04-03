@@ -88,6 +88,15 @@ function stubs(){
     })
 
 
+    sails.controllers.render.renderTemplate = function(req, res){
+        return fs.readFileAsync('test/fixtures/companies.json')
+            .then(d => {
+                res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+                res.set('Content-Disposition', 'attachment; filename=1.docx');
+                res.send(d);
+            })
+    };
+
 
 
     global.__DEV__ = false;
@@ -131,7 +140,7 @@ function lift(cb){
             connection: 'pg_test',
             migrate: 'drop'
         },
-        fixtures: false,
+        fixtures: !process.env.SKIP_SAILS,
         hooks:{
             orm: false,
             blueprints: false,
@@ -168,21 +177,15 @@ before(function(done) {
                     sails.log.error('Fixtures loaded')
                 })
                 .then(addMigrations)
+                .then(function(){
+                    return sequelize.query('SELECT reset_sequences();')
+                })
                 .tap(() => {
                     sails.log.error('Migrations complete')
                 })
                 .then(function(){
-                    fs.readFileAsync('config/db/functions.sql', 'utf8')
-                    .then(function(sql){
-                        return sequelize.query(sql)
-                    })
-                    .then(function(){
-                        return sequelize.query('SELECT reset_sequences();')
-                    })
-                    .then(function(){
-                        stubs();
-                        done();
-                    });
+                    stubs();
+                    done();
                 });
             });
     }

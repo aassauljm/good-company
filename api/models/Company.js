@@ -5,7 +5,7 @@
  * @docs        :: http://sailsjs.org/#!documentation/models
  */
 const uuid = require('node-uuid');
-
+const Promise = require('bluebird')
 
 module.exports = {
     attributes: {
@@ -16,6 +16,7 @@ module.exports = {
     },
     associations: function() {
         Company.belongsTo(User, {
+            as: 'owner',
             foreignKey: {
                 onDelete: 'cascade',
                 as: 'owner',
@@ -70,6 +71,14 @@ module.exports = {
                 name: 'historic_source_data_id'
             }
         });
+        Company.belongsTo(DocumentList, {
+            as: 'docList',
+            foreignKey: {
+                as: 'docList',
+                name: 'doc_list_id'
+            }
+        });
+
     },
     options: {
         indexes: [
@@ -86,6 +95,27 @@ module.exports = {
                        { type: sequelize.QueryTypes.SELECT,
                         replacements: { id: userId}})
                     .map(r => r.user_companies_now)
+            },
+            foreignPermissions: function(id) {
+                return sequelize.query("select * from get_all_company_permissions_json(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: id}})
+                .then(r => r[0].get_all_company_permissions_json)
+
+            },
+            companyPermissionsUser: function(id, catalexId){
+                return Promise.all([
+                sequelize.query("select * from user_companies_catalex_user_permissions(:id, :catalexId)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id, catalexId}})
+                    .then(r => r.map(r => r.user_companies_catalex_user_permissions)),
+
+                    PermissionService.getCatalexUserPermissions(catalexId, 'Company')
+
+                ])
+                .spread((companyPermissions, userPermissions) => {
+                    return {companyPermissions, userPermissions}
+                })
             }
         },
         instanceMethods: {
@@ -262,7 +292,7 @@ module.exports = {
                             transaction: null,
                             transactionId: null,
                             pending_historic_action_id: pendingActions[0].id,
-                            previousCompanyStateId: null}, {newRecords: false})
+                            previousCompanyStateId: null}, {newRecords: true})
                     })
                     .then(function(_newRoot){
                         newRoot = _newRoot
@@ -287,7 +317,70 @@ module.exports = {
                     .catch(() => false)
             },
 
+            findOrCreateDocList: function(userId){
+                let directory, docList;
+                return this.getDocList({
+                            include: [{
+                                model: Document,
+                                as: 'documents'
+                            }]})
+                    .then(dl => {
+                        if(!dl){
+                            dl = DocumentList.build({documents: []})
+                            return dl.save()
+                                .then(dl => {
+                                    docList = dl;
+                                    this.set('doc_list_id', dl.dataValues.id);
+                                    this.dataValues.docList = dl;
+                                    return this.save();
+                                })
+                                .then(() => {
+                                    return docList;
+                                })
+                        }
+                        return dl;
+                    });
+            },
+
+            addDocuments: function(documents){
+                return this.findOrCreateDocList()
+                    .then((docList) => {
+                        return docList.addDocuments(documents)
+                    })
+            },
+
+            findOrCreateTransactionDirectory: function(userId){
+                let directory, docList;
+                return this.findOrCreateDocList()
+                    .then(dl => {
+                        directory = _.find(dl.dataValues.documents, d => {
+                            return d.filename === 'Transactions' && d.type === 'Directory' && !d.directoryId
+                        });
+                        if(!directory){
+                            return Document.create({
+                                type: 'Directory',
+                                filename: 'Transactions',
+                                ownerId: userId,
+                                createdById: userId
+                            })
+                            .then(dir => {
+                                directory = dir;
+                                return dl.addDocument(directory);
+                            })
+                        }
+                    })
+                    .then(() => {
+                        return directory;
+                    })
+            },
+            permissions: function(userId){
+                return PermissionService.getPermissions(userId, 'Company', this.id)
+            },
+            foreignPermissions: function(userId){
+                return Company.foreignPermissions(this.id)
+            }
         },
+
         hooks: {
             afterCreate: [
                 function addSeedCompanyState(company) {

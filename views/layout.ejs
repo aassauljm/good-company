@@ -12,6 +12,10 @@
           type="image/png"
           href="/favicon.png">
 
+      <script id="version" type="application/json">
+       <%- JSON.stringify({ASSET_HASH: sails.config.ASSET_HASH || false }) %>
+      </script>
+
   </head>
 
   <body>

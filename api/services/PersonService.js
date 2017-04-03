@@ -43,7 +43,7 @@ export function findOrCreate(userId, args) {
         .spread(p => p)
         .then(x => {
             return x;
-        })
+        });
 }
 
 

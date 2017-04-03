@@ -21,13 +21,13 @@ module.exports = {
     },
 
     addFavourite: function(req, res) {
-        const args = {userId: req.user.id, companyId: req.params.companyId};
+        const args = {userId: req.user.id, companyId: req.params.id};
         Favourite.findOrCreate({where: args, defaults: args})
             .then(() => res.ok({message: 'Company added to favourites'}))
     },
 
     removeFavourite: function(req, res) {
-        const args = {userId: req.user.id, companyId: req.params.companyId};
+        const args = {userId: req.user.id, companyId: req.params.id};
         Favourite.destroy({where: args})
             .then(() => res.ok({message: 'Company removed from favourites'}))
     }

@@ -25,7 +25,7 @@ describe('AuthController', function() {
         it('should get login page', function(done) {
             req
                 .get('/')
-                .expect(301, done)
+                .expect(200, done)
         });
         it('should login successfully', function(done) {
             req

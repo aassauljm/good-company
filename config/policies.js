@@ -16,35 +16,29 @@
  * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.policies.html
  */
 
+
+var standardAuth = [
+    'passport',
+    'sessionAuth',
+    'ModelPolicy',
+    'AuditPolicy',
+    'OwnerPolicy',
+    'ACLPolicy'
+];
+
 var simpleAuth = [
     'passport',
     'sessionAuth',
     'AuditPolicy'
 ];
 
-var noCriteria = [
-    'passport',
-    'sessionAuth',
-    'ModelPolicy',
-    'AuditPolicy',
-    'OwnerPolicy',
-    'PermissionPolicy'
-]
 
 module.exports.policies = {
     LandingController: {
         'landing': ['passport']
     },
 
-    '*': [
-        'passport',
-        'sessionAuth',
-        'ModelPolicy',
-        'AuditPolicy',
-        'OwnerPolicy',
-        'PermissionPolicy',
-        'CriteriaPolicy'
-    ],
+    '*': standardAuth,
     AuthController: {
         '*': ['passport'],
         'callback': [
@@ -54,11 +48,15 @@ module.exports.policies = {
         ]
     },
     UserController: {
-        'setPassword': simpleAuth,
-        'signup': true,
-        'validateUser': true,
-        'pendingJobs': simpleAuth,
-        'accountSettings': noCriteria
+        validateUser: true,
+        userInfo: simpleAuth,
+        pendingJobs: simpleAuth,
+        recentActivity: simpleAuth,
+        recentActivityFull: simpleAuth,
+        alerts: simpleAuth,
+        accountSettings: simpleAuth,
+        addPermissions: simpleAuth,
+        removePermissions: simpleAuth
     },
     ModelController:{
         'create': false,
@@ -78,10 +76,12 @@ module.exports.policies = {
         'populate': false,
         'lookup': simpleAuth,
         'lookupOwn': simpleAuth,
-        'find': simpleAuth
+        'find': simpleAuth,
+        'companyPermissionsCatalexUser': simpleAuth,
     },
     FavouriteController: {
-        '*': simpleAuth
+        '*': simpleAuth,
+        'addFavourite': standardAuth
     },
     RenderController: {
         renderTemplate: simpleAuth,
@@ -89,11 +89,14 @@ module.exports.policies = {
         echo: ['passport','sessionAuth']
     },
     EventController: {
-        'find': noCriteria
+        'find': simpleAuth
     },
 
     AdminController: {
         '*': 'adminPolicy'
+    },
+    ApiCredentialController: {
+        '*': simpleAuth
     }
 
     /***************************************************************************

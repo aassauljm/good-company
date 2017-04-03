@@ -468,14 +468,9 @@ module.exports = {
                             filename: 'Companies Office Documents',
                             ownerId: userId,
                             createdById: userId
-                        }), Document.create({
-                                type: 'Directory',
-                                filename: 'Transactions',
-                                ownerId: userId,
-                                createdById: userId
-                            })])
+                        })])
                     })
-                    .spread(function(documentDirectory, transactionDirectory){
+                    .spread(function(documentDirectory){
                         args.directorList = args.directorList || {directors: []}
                         args.transaction = args.transaction || {type: Transaction.types.SEED};
                         if(!args.docList){
@@ -494,7 +489,6 @@ module.exports = {
                         })
 
                         state.get('docList').get('documents').push(documentDirectory);
-                        state.get('docList').get('documents').push(transactionDirectory);
 
                         (state.get('holdingList').get('holdings') || []).map(function(h){
                             h.get('holders').map(function(h){
@@ -794,9 +788,37 @@ module.exports = {
                 })
             },
 
+            findPersonId: function(person){
+                if(person.personId){
+                    Promise.resolve(person.personId)
+                }
+                // look in holders/directors for a single name match, based ONLY on name
+                const matches = [];
+                this.dataValues.holdingList.holdings.map(h => {
+                    h.dataValues.holders.map(h => {
+                        if(h.person.name === person.name){
+                            matches.push(h.person.personId)
+                        }
+                    });
+                })
+                this.dataValues.directorList.directors.map(h => {
+                    if(h.person.name === person.name){
+                        matches.push(h.person.personId)
+                    }
+                })
+
+                if(_.unique(matches).length === 1){
+                    return Promise.resolve(matches[0]);
+                }
+                return Promise.resolve(undefined)
+            },
             replaceHolder: function(currentHolder, newHolder, transaction, userId){
                 let personId, newPerson, state = this;
-                return CompanyState.findPersonId(newHolder, userId)
+                return this.findPersonId(newHolder)
+                    .then(function(id){
+                        if(!id) return CompanyState.findPersonId(newHolder, userId);
+                        return id;
+                    })
                     .then(function(id){
                         if(!id) return CompanyState.findPersonId(currentHolder, userId);
                         return id
@@ -838,7 +860,11 @@ module.exports = {
             replaceDirector: function(currentDirector, newDirector, transaction, userId){
                 const directors = this.dataValues.directorList.dataValues.directors;
                 let newPerson, state = this;
-                return CompanyState.findPersonId(newDirector, userId)
+                return this.findPersonId(newDirector)
+                    .then(function(id){
+                        if(!id) return CompanyState.findPersonId(newDirector, userId)
+                        return id;
+                    })
                     .then(function(personId){
                         if(!personId) return CompanyState.findPersonId(currentDirector, userId);
                         return personId
@@ -1099,7 +1125,17 @@ module.exports = {
                         cs.getShareClasses({
                             include: [{
                                 model: ShareClass,
-                                as: 'shareClasses'
+                                as: 'shareClasses',
+                                include: [{
+                                    model: Document,
+                                    as: 'documents',
+                                    through: {
+                                        attributes: []
+                                    }
+                                }],
+                                through: {
+                                    attributes: []
+                                }
                             }]
                         }))
                     .spread(function(holdingList, unallocatedParcels, transaction, docList, directors, shareClasses) {
@@ -1127,52 +1163,6 @@ module.exports = {
                 return this.populateIfNeeded()
                 .then(() => this.stats())
                 .then((stats) => ({...this.toJSON(), ...stats}))
-            },
-
-
-            findOrCreateTransactionDirectory: function(userId){
-                let directory, docList;
-                return this.getDocList({
-                            include: [{
-                                model: Document,
-                                as: 'documents'
-                            }]})
-                    .then(dl => {
-                        if(!dl){
-                            dl = DocumentList.build({documents: []})
-                            return dl.save()
-                                .then(dl => {
-                                    docList = dl;
-                                    this.set('doc_list_id', dl.dataValues.id);
-                                    this.dataValues.docList = dl;
-                                    return this.save();
-                                })
-                                .then(() => {
-                                    return docList;
-                                })
-                        }
-                        return dl;
-                    })
-                    .then(dl => {
-                        directory = _.find(dl.dataValues.documents, d => {
-                            return d.filename === 'Transactions' && d.type === 'Directory' && !d.directoryId
-                        });
-                        if(!directory){
-                            return Document.create({
-                                type: 'Directory',
-                                filename: 'Transactions',
-                                ownerId: userId,
-                                createdById: userId
-                            })
-                            .then(dir => {
-                                directory = dir;
-                                return dl.addDocument(directory);
-                            })
-                        }
-                    })
-                    .then(() => {
-                        return directory;
-                    })
             }
         },
         hooks: {

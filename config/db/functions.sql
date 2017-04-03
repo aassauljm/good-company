@@ -71,7 +71,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION last_login(userId integer)
     RETURNS  text
-    AS $$
+    IMMUTABLE AS $$
     SELECT format_iso_date("createdAt") from login_history where "userId" = $1 order by "createdAt" DESC limit 1 offset 1
 $$ LANGUAGE SQL;
 
@@ -161,6 +161,67 @@ CREATE OR REPLACE FUNCTION company_at(company integer, timestamp with time zone)
     SELECT company_state_at("currentCompanyStateId", $2) id FROM company where company.id = $1
 $$ LANGUAGE SQL;
 
+
+
+CREATE OR REPLACE FUNCTION get_user_organisation_info_json(userId integer)
+    RETURNS JSON
+    STABLE AS $$
+      SELECT array_to_json(array_agg(row_to_json(q))) from
+      ( SELECT o.*, "userId"
+       FROM organisation o
+       LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex'
+
+       where "organisationId" = get_user_organisation($1)
+
+
+       ) q
+$$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION user_companies_by_permission(userId integer, permission text default 'read')
+    RETURNS SETOF company
+    STABLE AS $$
+
+    SELECT c.* FROM company c
+    JOIN (
+
+        SELECT c.id from company c where "ownerId" = $1 and deleted = false
+
+        UNION
+
+    SELECT c.id
+
+    FROM passport p
+    JOIN organisation o on p.identifier = o."catalexId" and provider = 'catalex'
+    LEFT OUTER JOIN organisation oo on oo."organisationId" = o."organisationId"
+    JOIN passport pp on pp."identifier" = oo."catalexId" and  p.provider = 'catalex'
+    JOIN company c on pp."userId" = c."ownerId"
+    WHERE  p."userId" = $1
+
+        UNION
+
+        SELECT c.id
+        FROM model m
+        LEFT OUTER JOIN permission p on m.id = p."modelId" and m.name = 'Company' and relation = 'user' and  "userId" = $1
+        JOIN company c on c.id = p."entityId"
+        WHERE allow = TRUE
+
+        UNION
+
+        SELECT c.id
+        FROM model m
+        LEFT OUTER JOIN permission p on m.id = p."modelId" and m.name = 'Company' and relation = 'catalex'
+        JOIN passport ps on ps.identifier = p."catalexId" and provider = 'catalex' and ps."userId" = $1
+        JOIN company c on c.id = p."entityId"
+        WHERE allow = TRUE
+
+        ) q on q.id = c.id
+
+    WHERE deleted = false AND check_permission($1, 'read', 'Company', c.id);
+$$ LANGUAGE SQL;
+
+
 CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     RETURNS SETOF json
     AS $$
@@ -168,15 +229,50 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState" FROM (
-        SELECT *, company_now(c.id) FROM company c
-        WHERE c."ownerId" = $1 and c.deleted != true
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner FROM (
+        SELECT *, company_now(c.id) FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
+        JOIN public.user u on q."ownerId" = u.id
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
 
+
+CREATE OR REPLACE FUNCTION get_company_permissions_json(entityId integer, catalexId text)
+    RETURNS JSON
+        AS $$
+    SELECT row_to_json(qq) from (
+
+    SELECT "catalexId", "name", "userId", array_agg(perms) as permissions from (
+        SELECT "catalexId", o."name", "userId", get_permissions_catalex_user("catalexId", 'Company', $1) as perms
+        FROM company c
+        JOIN organisation o ON o."organisationId" = get_user_organisation(c."ownerId")
+        LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and "userId" IS NOT NULL
+        WHERE c.id = $1 AND "catalexId" = $2
+        ) q
+        GROUP BY "catalexId", "name", "userId"
+    ) qq
+$$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION user_companies_catalex_user_permissions("userId" integer, "catalexId" text)
+    RETURNS SETOF json
+    AS $$
+    WITH basic_company_state as (
+        SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
+    )
+    SELECT row_to_json(q) FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username, get_company_permissions_json(q.id, $2)  as "userPermissions" FROM (
+        SELECT *, company_now(c.id) FROM user_companies_by_permission($1, 'update') c
+        ) q
+        JOIN basic_company_state cs on cs.id = q.company_now
+        JOIN public.user u on q."ownerId" = u.id
+        ORDER BY cs."companyName"
+    ) q
+
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
     RETURNS SETOF json
@@ -196,6 +292,49 @@ CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION get_all_company_permissions_json(entityId integer default NULL)
+    RETURNS JSON
+        AS $$
+    SELECT array_to_json(array_agg(row_to_json(qq))) from (
+
+    SELECT "catalexId", "name", "userId", array_agg(perms) as permissions from (
+        SELECT "catalexId", o."name", "userId", get_permissions_catalex_user("catalexId", 'Company', $1) as perms
+        FROM company c
+        JOIN organisation o ON o."organisationId" = get_user_organisation(c."ownerId")
+        LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and "userId" IS NOT NULL
+        WHERE c.id = $1
+        ) q
+        GROUP BY "catalexId", "name", "userId"
+    ) qq
+
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION activity_log_json(userId integer default null, companyid integer default null, maxLimit integer default null )
+    RETURNS JSON
+    STABLE AS $$
+      SELECT array_to_json(array_agg(row_to_json(q))) from (
+
+     SELECT a."id", "type", "description", "data", a."createdAt", "userId", "companyId", u.username
+     FROM "activity_log" a
+     JOIN public.user u on u.id = "userId"
+
+     WHERE
+    ($1 IS NULL OR a."userId" = $1)
+    AND
+        ($2 is NULL OR a."companyId" = $2)
+
+     ORDER BY a."createdAt" DESC
+
+     LIMIT $3
+     ) q
+
+$$ LANGUAGE SQL;
+
+
 
 --CREATE OR REPLACE FUNCTION future_transactions(companyId integer)
 --    RETURNS SETOF json
@@ -818,162 +957,19 @@ AS $$
     WHERE  c."ownerId" = $1 and deleted = FALSE;
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION user_is_organisation_admin_of_catalex_user(userId integer, catalexId text)
+    RETURNS BOOLEAN
+    AS $$
 
+        WITH catalex as (
+        SELECT identifier
+            FROM passport
+            WHERE "userId" = $1 AND provider = 'catalex'
+            )
+         SELECT exists (SELECT 1 FROM organisation o
+     JOIN catalex on identifier = o."catalexId"
+     JOIN organisation oo on oo."organisationId" = o."organisationId"
+     WHERE 'organisation_admin' = any(o.roles)
 
--- Bloated function to create the share register
-CREATE OR REPLACE FUNCTION share_register(companyStateId integer, interval default '10 year')
-RETURNS SETOF JSON
-AS $$
--- flatten holdings, simpler to deal with (companyStateId, ...holding) than the joining tables
-WITH RECURSIVE _holding(id, "holdingId", "transactionId", name, "companyStateId") as (
-        SELECT h.id, "holdingId", h."transactionId", name, cs.id
-        from holding h
-        join h_list_j hlj on h.id = hlj.h_j_id
-        join company_state cs on cs.h_list_id = hlj.holdings_id
-),
---- run back until root, ignore interval because a never modified holding might not be included
-prev_company_states(id, "previousCompanyStateId",  generation) as (
-    SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
-    UNION ALL
-    SELECT t.id, t."previousCompanyStateId", generation + 1
-    FROM company_state t, prev_company_states tt
-    WHERE t.id = tt."previousCompanyStateId"
-),
--- previous holdings for every company_state, with the newestHoldingId  (the current id for each holding)
-prev_holdings as (
-    SELECT cs.id, cs."previousCompanyStateId", h."holdingId", h."transactionId", h.id as "hId", generation
-    FROM prev_company_states as cs
-    left outer JOIN _holding h on h."companyStateId" = cs.id
-),
-person_holdings as (
-    SELECT DISTINCT ON (p."personId", ph."transactionId", "holdingId")
-    ph."hId" "hId",
-    p."personId",
-    ph."transactionId",
-    ph."holdingId",
-    generation
-    FROM prev_holdings ph
-    LEFT OUTER JOIN "holder" hj on ph."hId" = hj."holdingId"
-    LEFT OUTER JOIN person p on hj."holderId" = p.id
-),
-
--- get parcels for a given holdingId
-parcels as (
-    SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
-    FROM "parcel_j" pj
-    LEFT OUTER JOIN parcel p on p.id = pj."parcelId"
-    where amount > 0
-    GROUP BY p."shareClass", pj."holdingId"
-)
-SELECT array_to_json(array_agg(row_to_json(q) ORDER BY q."shareClass", q.name))
-
-FROM (
-
-WITH transaction_history as (
-    SELECT ph."personId", t.*, format_iso_date("effectiveDate") as "effectiveDate",  ph."hId",
-    (tt.parcels->>'amount')::int as "amount",
-    (tt.parcels->>'shareClass')::int as "shareClass",
-    (tt.parcels->>'beforeAmount')::int as "beforeAmount",
-    (tt.parcels->>'afterAmount')::int as "afterAmount",
-
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
-    "holdingId",
-    generation
-    FROM person_holdings ph
-    INNER JOIN transaction t on t.id = ph."transactionId"
-    LEFT OUTER JOIN (
-    select q.id,  jsonb_array_elements(data->'parcels') as parcels from (
-    select id, data from transaction
-    ) q) tt on t.id = tt.id
-
-    ORDER BY generation
-)
-
-SELECT *,
-    format_iso_date(now()) as "endDate",
-    format_iso_date(now() - $2) as "startDate",
-    ( SELECT array_to_json(array_agg(row_to_json(qq)))
-    FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
-    AND qq."holdingId" = q."holdingId"
-    AND  type = ANY(ARRAY['ISSUE_TO', 'SUBDIVISION_TO', 'CONVERSION_TO']::enum_transaction_type[]) )
-    AS "issueHistory",
-
-    ( SELECT array_to_json(array_agg(row_to_json(qq)))
-    FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
-    AND qq."holdingId" = q."holdingId"
-    AND  type = ANY(ARRAY['REDEMPTION_FROM', 'PURCHASE_FROM', 'ACQUISITION_FROM', 'CONSOLIDATION_FROM']::enum_transaction_type[]) )
-    AS "repurchaseHistory",
-
-    ( SELECT array_to_json(array_agg(row_to_json(qq)))
-    FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
-    AND qq."holdingId" = q."holdingId"
-    AND  type = ANY(ARRAY['TRANSFER_TO']::enum_transaction_type[]) )
-    AS "transferHistoryTo",
-
-    ( SELECT array_to_json(array_agg(row_to_json(qq)))
-    FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = q."shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
-    AND qq."holdingId" = q."holdingId"
-    AND  type = ANY(ARRAY['TRANSFER_FROM']::enum_transaction_type[]) )
-    AS "transferHistoryFrom",
-
-    ( SELECT array_to_json(array_agg(row_to_json(qq)))
-    FROM transaction_history qq
-    WHERE qq."personId" = q."personId" AND  (qq."shareClass" = "shareClass" or qq."shareClass" IS NULL and q."shareClass" IS NULL)
-    AND qq."holdingId" = q."holdingId"
-      AND (data->>amount::text)::int != 0
-    AND  type = ANY(ARRAY['AMEND', 'REMOVE_ALLOCATION', 'NEW_ALLOCATION']::enum_transaction_type[]) )
-    AS "ambiguousChanges"
-
-
-
-FROM
-
-    (SELECT DISTINCT ON ("personId", "holdingId", "shareClass")
-    p."personId",
-    first_value(p.name) OVER wnd as name,
-    first_value(p."companyNumber") OVER wnd as "companyNumber",
-    first_value(h."companyStateId") OVER wnd = $1 as current,
-    first_value(p.address) OVER wnd as address,
-    CASE WHEN first_value(h."companyStateId") OVER wnd = $1 THEN first_value(pp.amount) OVER wnd ELSE 0 END as amount,
-    first_value(pp.amount) OVER wnd as last_amount,
-    pp."shareClass" as  "shareClass",
-    first_value(h."holdingId") OVER wnd as "holdingId",
-    first_value(h."name") OVER wnd as "holdingName",
-    first_value(h."id") OVER wnd as "newestHoldingId",
-    first_value(h."companyStateId") OVER wnd as "lastCompanyStateId",
-    format_iso_date(t."effectiveDate") as "lastEffectiveDate"
-    from prev_company_states pt
-    join company_state cs on pt.id = cs.id
-    join transaction t on cs."transactionId" = t.id
-    left outer join _holding h on h."companyStateId" = pt.id
-    join parcels pp on pp."holdingId" = h.id
-    left outer join "holder" hj on h.id = hj."holdingId"
-    left outer join person ppp on hj."holderId" = ppp.id
-    join company_persons($1) p on p."personId" = ppp."personId"
-    WHERE t."effectiveDate" <= now() and t."effectiveDate" >= now() - $2  --and pp is not null
-     WINDOW wnd AS (
-       PARTITION BY p."personId", h."holdingId", pp."shareClass" ORDER BY generation asc
-     )) as q
-    ) as q
-
-$$ LANGUAGE SQL STABLE;
-
-
-
-CREATE OR REPLACE FUNCTION billing_info()
-    RETURNS SETOF json
-        AS $$
-    SELECT row_to_json(qq)
-    FROM (
-    SELECT identifier::int as "userId", q.id as "companyId", not q.deleted as active, cs."companyName" FROM (
-        SELECT identifier, "userId", c.deleted, c.id, company_now(c.id) as "companyStateId" FROM passport
-        LEFT OUTER JOIN company c on c."ownerId" = "userId"
-        WHERE provider = 'catalex'
-    ) q
-    JOIN company_state cs on cs.id = "companyStateId"
-    ) qq
+     and oo."catalexId" = $2 and not( 'organisation_admin' = any(oo.roles)))
 $$ LANGUAGE SQL;

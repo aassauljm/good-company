@@ -1,5 +1,5 @@
 var Promise = require("bluebird");
-var request = require("supertest-as-promised");
+var request = require("supertest");
 var fs = Promise.promisifyAll(require("fs"));
 import chai from 'chai';
 const should = chai.should();
@@ -266,7 +266,6 @@ describe('Company Controller', function() {
                     done();
                 })
                 .catch(e => {
-                    console.log(e)
                     done(e)
                 })
             });
@@ -589,7 +588,8 @@ describe('Company Controller', function() {
                     }).should.be.equal(true);
                     res.body.transactions.length.should.be.equal(3);
                     done();
-                });
+                })
+                .catch(done)
         });
 
         it('check pending history', function(done){
@@ -627,13 +627,10 @@ describe('Company Controller', function() {
         it('check share register', function(done){
             req.get('/api/company/'+companyId+'/share_register')
                 .then(function(res){
-                    //console.log(JSON.stringify(res.body.shareRegister, null, 4))
                     res.body.shareRegister[0].issueHistory.length.should.be.at.least(0);
                     res.body.shareRegister[0].transferHistoryTo.length.should.be.least(0);
                     res.body.shareRegister[0].transferHistoryFrom.length.should.be.least(0);
                     res.body.shareRegister.map(s => {
-                        if(!s.shareClass)
-                        console.log(s)
                         should.equal(s.shareClass, classes['Class A']);
                     });
                     done();
@@ -669,22 +666,12 @@ describe('Company Controller', function() {
                 .catch(done)
         });
 
-        it('check transaction history', function(done){
-            req.get('/api/company/'+companyId+'/transactions')
-                .then(function(res){
-                    res.body.transactions.length.should.be.equal(3);
-                    done();
-                })
-                .catch(done)
-        });
-
         it('checks share register is empty', function(done){
             return req.get('/api/company/'+companyId+'/share_register')
             .then(function(res){
                 res.body.shareRegister.map(s => {
                     should.equal(null, s.issueHistory)
                     should.equal(null, s.transferHistoryTo)
-
                     should.equal(null, s.transferHistoryFrom)
                     s.shareClass.should.equal(classes['Class A']);
                 });
@@ -693,6 +680,14 @@ describe('Company Controller', function() {
             .catch(done)
         });
 
+        it('check transaction history', function(done){
+            req.get('/api/company/'+companyId+'/transactions')
+                .then(function(res){
+                    res.body.transactions.length.should.be.equal(3);
+                    done();
+                })
+                .catch(done)
+        });
 
         it('Imports history, fails', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
@@ -704,6 +699,29 @@ describe('Company Controller', function() {
                 })
             .catch(done)
         });
+
+        it('reset history', function(done){
+            req.put('/api/company/'+companyId+'/reset_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+        it('checks share register is empty', function(done){
+            return req.get('/api/company/'+companyId+'/share_register')
+            .then(function(res){
+                res.body.shareRegister.map(s => {
+                    should.equal(null, s.issueHistory)
+                    should.equal(null, s.transferHistoryTo)
+                    should.equal(null, s.transferHistoryFrom)
+                    s.shareClass.should.equal(classes['Class A']);
+                });
+                done();
+            })
+            .catch(done)
+        });
+
     });
 
 
@@ -1013,5 +1031,30 @@ describe('Company Controller', function() {
         });
     });
 
+
+   describe('Import self transfer (5423794)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/5423794')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Imports history', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then((res) => {
+                    done();
+                    // TODO, resolve this crazy doc
+                });
+        });
+    });
 
 });

@@ -1,11 +1,4 @@
-var permissionPolicies = [
-    'passport',
-    'sessionAuth',
-    'ModelPolicy',
-    'OwnerPolicy',
-    'PermissionPolicy',
-    'RolePolicy'
-];
+
 module.exports = function(sails) {
     return {
         identity: 'permissions',
@@ -38,7 +31,9 @@ module.exports = function(sails) {
                         next(error);
                     });
             });
-        }
+        },
+        initializeFixtures: initializeFixtures
+
     };
 };
 
@@ -58,6 +53,8 @@ function initializeFixtures(sails) {
         })
         .then(function(roles) {
             this.roles = roles;
+
+            /*
             var userModel = _.find(this.models, {
                 name: 'User'
             });
@@ -73,9 +70,9 @@ function initializeFixtures(sails) {
             user.createdBy = user.id;
             user.owner = user.id;
             return user.save();
-        })
-        .then(function(admin) {
-            return require('../../config/fixtures/permission').create(this.roles, this.models, admin);
+        })*/
+
+            return require('../../config/fixtures/permission').create(this.roles, this.models);
         })
         .catch(function(error) {
             sails.log.error(error);

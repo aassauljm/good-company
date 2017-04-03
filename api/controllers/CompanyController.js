@@ -9,7 +9,7 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 var moment = require('moment');
-
+var fs = Promise.promisifyAll(require("fs"));
 
 module.exports = {
 
@@ -67,20 +67,20 @@ module.exports = {
     },
 
     getInfo: function(req, res) {
-
-        Company.findById(req.params.id)
+        Company.findById(req.params.id, {include: [{model: User, as: 'owner'}]})
             .then(function(company) {
                 this.company = company;
                 return company.getNowCompanyState()
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id)])
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id)])
             })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions) {
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions) {
                 var json = this.companyState.get();
-                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date()}, });
+                return res.json({...this.company.toJSON(),  currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date(), permissions}, });
             }).catch(function(err) {
+                console.log(err)
                 return res.notFound();
             });
     },
@@ -103,6 +103,105 @@ module.exports = {
                 return res.notFound(err);
             });
     },
+
+    getDocuments: function(req, res) {
+        Company.findById(req.params.id, {
+                include: [{
+                     model: DocumentList,
+                     as: 'docList',
+                     include: [
+                        {
+                            through: {attributes: []},
+                            model: Document,
+                            as: 'documents'
+                        }
+                     ]
+                }]
+            })
+            .then(function(company) {
+                const json = company.docList ? company.docList.toJSON() : {documents: []};
+                return res.json(json);
+            })
+            .catch(function(err) {
+                return res.notFound(err);
+            });
+    },
+
+    createDocument: function(req, res) {
+        let args = actionUtil.parseValues(req);
+        let directory, directoryId, company, companyName, docList;
+        args = args.json ? {...args, ...JSON.parse(args.json), json: null} : args;
+        return req.file('documents').upload(function(err, uploadedFiles){
+            return Company.findById(req.params.id)
+                .then(function(_company){
+                    company  = _company;
+                    return company.getNowCompanyState();
+                })
+                .then(_state => {
+                    companyName = _state.get('companyName');
+                    return company.findOrCreateDocList();
+                })
+                .then(_docList => {
+                    docList = _docList;
+                    if(args.newDirectory){
+                        return Document.create({
+                            filename: args.newDirectory,
+                            createdById: req.user.id,
+                            ownerId: req.user.id,
+                            type: 'Directory',
+                            directoryId: args.directoryId,
+                            userUploaded: true
+                        })
+                        .then(doc => {
+                            directory = doc;
+                            directoryId = doc.id;
+                            return docList.addDocuments(doc);
+                        })
+                    }
+                    else{
+                        directoryId = args.directoryId;
+                    }
+                })
+                .then(() => {
+                    return Promise.map(uploadedFiles || [], f => {
+                        return fs.readFileAsync(f.fd)
+                            .then(readFile => {
+                                console.log('READ FILE', readFile)
+                                return Document.create({
+                                    filename: f.filename,
+                                    createdById: req.user.id,
+                                    ownerId: req.user.id,
+                                    type: f.type,
+                                    directoryId: directoryId,
+                                    userUploaded: true,
+                                    documentData: {
+                                        data: readFile,
+                                    }
+                                }, { include: [{model: DocumentData, as: 'documentData'}]});
+                        });
+                    })
+                    .then(uploaded => {
+                        return docList.addDocuments(uploaded);
+                    })
+                })
+                .then(() => {
+                    return res.json({message: ['Documents Created']})
+                })
+                .then(() => {
+                    return ActivityLog.create({
+                        type: args.newDirectory ? ActivityLog.types.CREATE_DIRECTORY : ActivityLog.types.UPLOAD_DOCUMENT,
+                        userId: req.user.id,
+                        companyId: company.id,
+                        description: `Added documents to ${companyName} `,
+                        data: {companyId: company.id}
+                    });
+                })
+                .catch(function(err) {
+                    return res.serverError(err);
+                })
+            });
+    },
+
 
     updateSourceData: function(req, res){
         let company;
@@ -178,11 +277,11 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.stats(), this.company.hasPendingJob()])
+                return Promise.all([companyState.stats(), this.company.hasPendingJob(), this.company.permissions(req.user.id)])
             })
-            .spread(function(stats, hasPendingJob) {
+            .spread(function(stats, hasPendingJob,  permissions) {
                 var json = this.companyState.get();
-                res.json({companyState: _.merge(json, stats, {hasPendingJob: hasPendingJob})});
+                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions})});
             }).catch(function(err) {
                 return res.notFound();
             });
@@ -196,11 +295,11 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id)])
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id)])
             })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions) {
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions) {
                 var json = this.companyState.get();
-                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions}, });
+                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, permissions} });
             }).catch(function(err) {
                 return res.notFound();
             });
@@ -659,14 +758,14 @@ module.exports = {
     },
 
     recentActivity: function(req, res) {
-        ActivityLog.findAll({
-            where: {companyId: req.params.id},
-            order: [['createdAt', 'DESC']],
-            limit: 10
-        })
+        ActivityLog.query(null, req.params.id, 10)
         .then(activities => res.json(activities));
     },
 
+    recentActivityFull: function(req, res) {
+         ActivityLog.query(null, req.params.id)
+        .then(activities => res.json(activities));
+    },
     getPendingHistoricActions: function(req, res) {
         Company.findById(req.params.id)
         .then(company => company.getPendingActions())
@@ -685,6 +784,49 @@ module.exports = {
             }).catch(function(err) {
                 return res.notFound(err);
             })
-    }
+    },
 
+    getForeignPermissions: function(req, res) {
+        Company.foreignPermissions(req.params.id)
+            .then(r => res.json(r))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
+    },
+
+    addForeignPermissions: function(req, res) {
+        var data = actionUtil.parseValues(req);
+        Company.findById(req.params.id)
+            .then(company => {
+                return Promise.map(data.permissions, permission => {
+                    return PermissionService.addPermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                });
+            })
+            .then(r => res.json({message: 'Permissions Updated'}))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
+    },
+    removeForeignPermissions: function(req, res) {
+        var data = actionUtil.parseValues(req);
+        Company.findById(req.params.id)
+            .then(company => {
+                return Promise.map(data.permissions, permission => {
+                    return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                });
+            })
+            .then(r => res.json({message: 'Permissions Updated'}))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
+    },
+
+    companyPermissionsCatalexUser: function(req, res) {
+        return Company.companyPermissionsUser(req.user.id, req.params.catalexId)
+            .then(result =>{
+                return res.ok(result);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
 };

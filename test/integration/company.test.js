@@ -21,6 +21,10 @@ import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js
 import { ShareClassSelect } from '../../assets/js/components/transactions/applyShareClasses.js';
 import { ImportHistoryTransactionView } from '../../assets/js/components/transactions/importHistory.js';
 import Amend, { SubActions } from '../../assets/js/components/transactions/resolvers/amend';
+import { Confirmation } from '../../assets/js/components/modals';
+import { LoadingOverlay } from '../../assets/js/components/loading';
+import Modal from 'react-bootstrap/lib/Modal'
+
 import chai from 'chai';
 
 
@@ -157,6 +161,47 @@ function setupShareClass(name, expected){
 }
 
 
+
+function populateTransfer({fromHolding, toHolding, parcels}){
+    return waitFor('Form to load', '.transfer-form', this.dom)
+        .then(el => {
+            const holdingMap = {};
+            const fromSelect = this.dom.querySelector('select[name="from"]');
+            const toSelect = this.dom.querySelector('select[name="to"]');
+           _.map(fromSelect.children, option => {
+                holdingMap[option.innerHTML] = option.value;
+            });
+            Simulate.change(fromSelect, { target: {value: holdingMap[fromHolding]} });
+            Simulate.change(toSelect, { target: {value: holdingMap[toHolding]} });
+            const shareClassMap = {};
+            const parcelSelect = this.dom.querySelector('select.shareClass');
+            _.map(parcelSelect.children, option => {
+                 shareClassMap[option.innerHTML] = option.value;
+            });
+            parcels.map((p, i) => {
+                if(i > 0){
+                    const addNew = row.querySelector('.add-parcel');
+                    Simulate.click(addNew, {button: 0});
+                }
+                Simulate.change(this.dom.querySelectorAll('.amount')[i], { target: {value: p.amount}});
+                Simulate.change(this.dom.querySelectorAll('.shareClass')[i], { target: {value: shareClassMap[p.shareClass]}});
+
+            });
+            const submit = this.dom.querySelector('.widget-footer .btn-primary');
+            Simulate.click(submit, {button: 0});
+            return waitFor('Modal to appear', () => scryRenderedComponentsWithType(this.tree, Confirmation).length, this.dom, 10000)
+        })
+        .then(() => {
+            const portal = ReactDOM.findDOMNode(findRenderedComponentWithType(this.tree, Confirmation).refs.modal._modal.refs.modal);
+            Simulate.click(portal.querySelector('.btn-primary'), {button: 0});
+            return waitFor('Summary to appear', '.transaction-summary', this.dom, 5000)
+        })
+
+}
+
+
+
+
 function resolveAmend(details){
     return details.map((detail, i) => {
         const el = this.dom.querySelectorAll('.amend-row')[i];
@@ -178,12 +223,12 @@ function resolveAmend(details){
                 Simulate.change(subaction.querySelector('.shareClass'), { target: {value: shareClassMap[entry.shareClass]}});
             }
             if(entry.recipient){
-                const targetVal = Array.from(subaction.querySelectorAll('.transfer option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.recipient) === 0)[0].value;
+                const targetVal = Array.from(subaction.querySelectorAll('.transfer option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.recipient) > -1)[0].value;
                 Simulate.change(subaction.querySelector('.transfer'), { target: {value: targetVal}});
                 Simulate.blur(subaction.querySelector('.transfer'))
             }
             else{
-                const targetVal = Array.from(subaction.querySelectorAll('.subaction-target option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.target) === 0)[0].value;
+                const targetVal = Array.from(subaction.querySelectorAll('.subaction-target option')).filter((el) => cheerio(el.outerHTML).text().indexOf(entry.target) > -1)[0].value;
                 Simulate.change(subaction.querySelector('.subaction-target'), { target: {value: targetVal}});
                 Simulate.blur(subaction.querySelector('.subaction-target'))
             }
@@ -303,14 +348,14 @@ describe('Company Integration Tests - Catalex', () => {
                 .then(() => {
                     Simulate.submit(this.dom.querySelector('.resolve form'));
                      //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
-                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                     //return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
                 })
         });
 
         it('Imports next chunks', function(){
-            let modal;
+            /*let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
-            Simulate.click(button, {button: 0});
+            Simulate.click(button, {button: 0});*/
             return waitFor('Amend Screen', () => this.dom.querySelectorAll('.resolve').length, null, 20000)
         })
 
@@ -334,15 +379,15 @@ describe('Company Integration Tests - Catalex', () => {
                 .then(() => {
                     Simulate.submit(this.dom.querySelector('.resolve form'));
                      //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
-                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                    // return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
                 });
             })
 
 
         it('Imports final chunks', function(){
-            let modal;
+            /*let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
-            Simulate.click(button, {button: 0});
+            Simulate.click(button, {button: 0});*/
             return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
 
@@ -364,10 +409,12 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
     describe('Import ', () => {
         it('Imports Company', function(){
             return importCompany.call(this, 'evolution lawyers');
-       });
+        });
+
         it('sets up shareholdings', function(){
             return setupShareHoldings.call(this);
         });
+
         it('Sets up shares', function(){
             const linkNode = findRenderedDOMComponentWithClass(this.tree, 'share-classes');
             Simulate.click(linkNode, {button: 0});
@@ -380,6 +427,7 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
                     Simulate.click(findRenderedDOMComponentWithClass(this.tree, 'btn-success'), {button: 0});
                 })
         });
+
         it('Applies share classes', function(){
             return fs.readFileAsync('test/fixtures/transactionData/evolutionShareClasses.json', 'utf8')
                 .then(data => {
@@ -415,15 +463,53 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
                 .then(() => {
                     Simulate.submit(this.dom.querySelector('.resolve form'));
                      //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
-                     return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
+                    // return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
                 });
         });
 
         it('Imports final chunks', function(){
-            let modal;
+           /* let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
-            Simulate.click(button, {button: 0});
+            Simulate.click(button, {button: 0}); */
             return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
+
+        it('Does a transfer', function(){
+            const link = this.dom.querySelector('.update-shares a');
+            Simulate.click(link, {button: 0});
+            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.new-transaction').length, null, 2000)
+            .then(() => {
+                const link = this.dom.querySelector('.actionable.transfer');
+                Simulate.click(link, {button: 0});
+                //return waitFor('For transfer form display', () => this.dom.querySelectorAll('.generated-form form-horizontal').length, null, 2000)
+                return waitFor('For transfer form display', () => this.dom.querySelectorAll('.transfer-form').length, null, 2000)
+            })
+            .then(() => {
+                return populateTransfer.call(this, {
+                    fromHolding: "Allocation 1:  Tamina Kelly CUNNINGHAM-ADAMS",
+                    toHolding: "Allocation 2:  Tamina Kelly CUNNINGHAM-ADAMS",
+                    parcels: [{amount: 1, shareClass: 'A'}]
+                })
+            })
+        });
+        it('Goes to template page', function(){
+           const generate = this.dom.querySelector('.btn.btn-primary');
+           Simulate.click(generate, {button: 0});
+           return waitFor('Template page to appear', '.generated-form', this.dom)
+        });
+
+
+        /*it('Generates transfer document', function(){
+            return waitFor('template to validate', '.email-document:not(:disabled)', this.dom, 10000 )
+            .then(() => {
+                const generate = this.dom.querySelector('.btn.btn-primary');
+               return waitFor('Loading modal to appear', !!scryRenderedComponentsWithType(this.tree, LoadingOverlay).length, this.dom)
+            })
+            .then(() => waitFor('Loading modal to disappear', !scryRenderedComponentsWithType(this.tree, LoadingOverlay.length, this.dom)))
+           //Simulate.click(generate, {button: 0});
+        })*/
+
+
     });
+
 });

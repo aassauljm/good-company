@@ -241,8 +241,8 @@ export class ShareRegisterTable extends React.Component {
                     <tbody>
                         { shareRegister.map((s, i) => {
                             return <tr key={i}>{ this.fields.map((f, j) => {
-                                return <td key={j}>{renderField(f, shareRegister[i][f], shareRegister[i], shareClassMap)}</td>
-                            })}</tr>
+                                return <td key={j}>{ renderField(f, shareRegister[i][f], shareRegister[i], shareClassMap) }</td>
+                            }) }</tr>
                         }) }
                     </tbody>
                 </table>
@@ -260,7 +260,7 @@ export class ShareRegisterDocument extends React.Component {
         companyState: PropTypes.object.isRequired
     };
 
-    shareholderFields = ['name', 'address', 'last_amount']
+    shareholderFields = ['name', 'address', 'amount']
 
     renderShareClassSection(k) {
         const {shareRegister, shareClassMap} = this.props;

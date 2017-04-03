@@ -44,6 +44,7 @@ module.exports = {
             }
         });
         User.hasMany(Passport, {
+            as: 'passports',
             foreignKey: {
                 as: 'passports',
                 name: 'userId'
@@ -56,6 +57,10 @@ module.exports = {
             foreignKey:{
                 name:  'userId'
             }
+        });
+        User.hasMany(ApiCredential, {
+            as: 'apiCredentials',
+            foreignKey: 'ownerId'
         });
     },
     options: {
@@ -73,17 +78,38 @@ module.exports = {
                     include: [{model: Role, as: 'roles'}]
                 })
             },
-            recentActivity: function(id){
-                return sequelize.query("select recent_activity(:id)",
+            getOrganisationInfo: function(id){
+                return sequelize.query("select get_user_organisation_info_json(:id)",
                                { type: sequelize.QueryTypes.SELECT,
-                                    id: id})
-            }
+                                    replacements:{id: id}})
+                                    .then(r => r[0].get_user_organisation_info_json)
+                },
+
+            recentActivity: function(id){
+                return ActivityLog.query(id);
+            },
+            permissions: function(id){
+                return PermissionService.getPermissions(id, 'Company')
+                    .then(permissions => ({company: permissions}))
+            },
         },
         instanceMethods: {
             toJSON: function() {
                 var user = this.get();
                 delete user.password;
                 return user;
+            },
+            getOrganisation: function(){
+                return sequelize.query("select get_user_organisation(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                    replacements:{id: this.id}})
+                                    .then(r => r[0].get_user_organisation)
+            },
+            getPrincipals: function(){
+                return sequelize.query("select get_user_principals(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                    replacements:{id: this.id}})
+                                    .then(r => r.map(r => r.get_user_princials))
             }
         },
         hooks: {

@@ -15,6 +15,7 @@ import { ShareholdingsWidget } from './shareholdings';
 import { RecentCompanyActivityWidget } from './recentActivity';
 import { CompaniesRegisterWidget } from './companiesRegister';
 import { ContactDetailsWidget } from './contactDetails';
+import { AccessListWidget } from './accessList';
 import { DirectorsWidget } from './directors';
 import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
@@ -82,6 +83,12 @@ export class CompanyView extends React.Component {
         return this.props.params.id
     }
 
+    canViewAlerts(permissions) {
+        return (permissions || []).indexOf('update') >= 0;
+    }
+    canUpdate(current) {
+        return (current.permissions || []).indexOf('update') >= 0;
+    }
     renderBody(current) {
 
         if(!current){
@@ -95,6 +102,7 @@ export class CompanyView extends React.Component {
                         push: this.props.push,
                         baseUrl: this.props.baseUrl,
                         destroyForm: this.props.destroyForm,
+                        owner: this.props.data.owner,
                         showTransactionView: (key, data) => this.props.showTransactionView(key, data)
                 });
         }
@@ -103,11 +111,12 @@ export class CompanyView extends React.Component {
 
             <div className="row">
                  <div className="col-md-6">
-                     <CompanyAlertsWidget
+
+                     { this.canViewAlerts(current.permissions) && <CompanyAlertsWidget
                         companyState={current}
                         companyId={this.props.params.id}
                         baseUrl={this.props.baseUrl}
-                     />
+                     /> }
 
 
                     <CompaniesRegisterWidget
@@ -179,6 +188,15 @@ export class CompanyView extends React.Component {
                         baseUrl={this.props.baseUrl}
                      />
 
+                    { this.canUpdate(current) && <AccessListWidget
+                        toggle={(expanded) => this.props.toggleWidget([this.key(), 'accessList'], expanded) }
+                        expanded={(this.props.widgets.directors || {}).expanded}
+                        companyState={current}
+                        companyId={this.props.params.id}
+                        baseUrl={this.props.baseUrl}
+                        owner={this.props.data.owner}
+                     /> }
+
                 </div>
 
                 </div>
@@ -197,7 +215,7 @@ export class CompanyView extends React.Component {
 
                 <div className={current ? "company-page company-loaded" : "company-page"}>
                     <div className="container-fluid page-top">
-                        <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} baseUrl={this.props.baseUrl} date={this.props.date}/>
+                        <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} baseUrl={this.props.baseUrl} date={this.props.date} />
                         </div>
                     <div className="container-fluid page-body">
                         { this.renderBody(current || FAKE_COMPANY) }

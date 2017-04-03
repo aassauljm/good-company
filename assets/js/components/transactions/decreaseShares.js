@@ -195,35 +195,36 @@ export function createFormatSubmit(options){
             }))
             return acc;
         }, {amounts: {}, persons: {}})
-        values.parcels.map(p => {
-            const amount = parseInt(p.amount, 10);
-            const shareClass = parseInt(p.shareClass, 10) || null;
-            actions.push({
-                shareClass: shareClass,
-                amount: amount,
-                transactionType: options.baseTransaction,
-                effectiveDate: values.effectiveDate
-            });
-        });
-        values.holdings.map(h => {
-            h.parcels.map(p => {
-                const beforeAmount = h.newHolding ? 0 : (holdings.amounts[h.holding] || {})[p.shareClass] || 0;
+        actions.push({
+            parcels: values.parcels.map(p => {
                 const amount = parseInt(p.amount, 10);
                 const shareClass = parseInt(p.shareClass, 10) || null;
-                const persons = holdings.persons[h.holding];
-                actions.push({
-                    holdingId: parseInt(h.holding, 10) || null,
-                    shareClass: shareClass,
-                    amount: amount,
-                    beforeAmount: beforeAmount,
-                    afterAmount: beforeAmount - amount,
-                    transactionType: options.fromTransaction,
-                    afterHolders: persons,
-                    beforeHolders: persons,
-                    transactionMethod: 'AMEND',
-                    approvalDocuments: values.approvalDocuments,
-                    noticeDate: values.noticeDate
-                });
+                return {shareClass: shareClass,
+                amount: amount}
+            }),
+            transactionType: options.baseTransaction,
+            effectiveDate: values.effectiveDate
+        });
+        values.holdings.map(h => {
+            const persons = holdings.persons[h.holding];
+            actions.push({
+                holdingId: parseInt(h.holding, 10) || null,
+                parcels: h.parcels.map(p => {
+                    const beforeAmount = h.newHolding ? 0 : (holdings.amounts[h.holding] || {})[p.shareClass] || 0;
+                    const amount = parseInt(p.amount, 10);
+                    const shareClass = parseInt(p.shareClass, 10) || null;
+                    return {
+                        shareClass: shareClass,
+                        amount: amount,
+                        beforeAmount: beforeAmount,
+                        afterAmount: beforeAmount - amount
+                    }}),
+                transactionType: options.fromTransaction,
+                afterHolders: persons,
+                beforeHolders: persons,
+                transactionMethod: 'AMEND',
+                approvalDocuments: values.approvalDocuments,
+                noticeDate: values.noticeDate
             });
         });
 

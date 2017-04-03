@@ -107,7 +107,8 @@ export function validateInverseAmend(amend, companyState, previousState){
     let holding = companyState.getMatchingHolding({
         holders: amend.afterHolders,
         holdingId: amend.holdingId,
-        parcels: amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true});
+        parcels: (amend.parcels || []).map(p => ({amount: amend.inferAmount ? undefined : p.afterAmount, shareClass: p.shareClass}))},  {ignoreCompanyNumber: true});
+
 
     if(!holding){
         holding = companyState.getMatchingHolding({
@@ -143,7 +144,7 @@ export function validateInverseAmend(amend, companyState, previousState){
             throw new sails.config.exceptions.InvalidOperation('Unsafe number')
         }
     })
-    const parcels = amend.inferAmount ? null : amend.parcels.map(p => ({amount: p.afterAmount, shareClass: p.shareClass}));
+    const parcels = amend.inferAmount ? null : amend.parcels.map(p => ({amount: amend.inferAmount ? undefined : p.afterAmount , shareClass: p.shareClass}));
     if(!amend.inferAmount){
         holding.dataValues.parcels.map(parcel => {
             amend.parcels.map(newParcel => {
@@ -497,6 +498,11 @@ export function performHoldingTransfer(data, companyState, previousState, effect
 
 export function performInverseHoldingChange(data, companyState, previousState, effectiveDate, userId){
     const normalizedData = _.cloneDeep(data);
+    (normalizedData.parcels || []).map(p => {
+        if(!p.amount){
+            p.amount = undefined;
+        }
+    })
      let current;
     // new rule:  holder changes ONLY effective name or holder_j meta data.  Persons must remain the same
     const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -692,7 +698,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
                 importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
             })
         }
-        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: data.parcels},
+        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: (data.parcels || []).map(p => ({...p, amount: data.inferAmount ? undefined: p.amount}))},
           data, companyState, {
             multiple: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
             none: sails.config.enums.HOLDING_NOT_FOUND,
@@ -1042,7 +1048,7 @@ export function performRemoveAllocation(data, nextState, companyState, effective
         if(!holding || holding.hasNonEmptyParcels()){
             throw new sails.config.exceptions.InvalidOperation('Holding has non empty parcels')
         }
-        holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding);
+        holdingList.dataValues.holdings = _.without(holdingList.dataValues.holdings, holding)
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
     })
 }
@@ -1257,6 +1263,7 @@ export function performSeed(args, company, effectiveDate, userId){
         });
 }
 
+
 export function removeDocuments(state, actions){
     const ids = _.filter(_.map(actions, 'sourceUrl'))
     if(ids.length){
@@ -1301,6 +1308,7 @@ export function addDocuments(state, documents){
             return state;
         })
 }
+
 
 export function addActions(state, actionSet, company){
     return state.getHistoricActions()
@@ -1360,7 +1368,6 @@ function cleanupCompanyState(state, effectiveDate){
             })
             .then(() => nextState)
             .then(() => {
-
                 return nextState;
             });
     }
@@ -1452,6 +1459,9 @@ export function performInverseTransaction(data, company, rootState){
     let prevState, currentRoot, transactions;
 
     const actions = data.actions.filter(a => !a.userSkip);
+    if(!actions.length){
+        return Promise.resolve(rootState);
+    }
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then((_prevState) => {
             return performImplicitInverseRemovals(actions, _prevState)
@@ -1465,7 +1475,7 @@ export function performInverseTransaction(data, company, rootState){
             prevState = _prevState;
             // loop over actions,
             return Promise.reduce(actions, function(arr, action){
-                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
+                sails.log.info('Performing inverse action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(session.get('options')){
@@ -1505,7 +1515,7 @@ export function performInverseTransaction(data, company, rootState){
             return currentRoot.setTransaction(transaction.id);
         })
         .then(function(){
-            return removeDocuments(prevState, data.actions);
+            //return removeDocuments(prevState, data.actions);
         })
         .then(function(){
             return prevState.save();
@@ -1780,7 +1790,8 @@ function validateTransactionSet(data, companyState){
                 [Transaction.types.ACQUISITION]: -1,
                 [Transaction.types.CONSOLIDATION]:-1,
                 [Transaction.types.CANCELLATION]:-1,
-                [Transaction.types.PURCHASE]: -1
+                [Transaction.types.PURCHASE]: -1,
+                [Transaction.types.APPLY_SHARE_CLASS]: 0
             };
 
             (action.parcels || []).map(p => {
@@ -1788,6 +1799,9 @@ function validateTransactionSet(data, companyState){
                 shareClasses[shareClass] = shareClasses[shareClass] || 0;
                 if(p.afterAmount !== undefined && p.beforeAmount !== undefined){
                     shareClasses[shareClass] += (DIRECTIONS[action.transactionType] || 1) * (p.afterAmount - p.beforeAmount);
+                }
+                else if(p.amount){
+                    shareClasses[shareClass] += (DIRECTIONS[action.transactionType] !== undefined ? DIRECTIONS[action.transactionType] : 1) * (p.amount);
                 }
             });
         }
@@ -1802,7 +1816,7 @@ function validateTransactionSet(data, companyState){
 }
 
 
-export function performTransaction(data, company, companyState){
+export function performTransaction(data, company, companyState, resultingTransactions){
 
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE]:                  TransactionService.performIssue,
@@ -1886,11 +1900,14 @@ export function performTransaction(data, company, companyState){
             return tran.save();
         })
         .then(function(transaction){
+            if(resultingTransactions){
+                resultingTransactions.push(transaction);
+            }
             nextState.dataValues.transaction = transaction;
             if(data.documents && data.documents.length){
                 return transaction.setDocuments(data.documents)
                     .then(function(){
-                        return addDocuments(nextState, data.documents);
+                        //return addDocuments(nextState, data.documents);
                     })
             }
         })
@@ -1914,9 +1931,9 @@ export function performTransaction(data, company, companyState){
 }
 
 
-export function performAll(data, company, state, isReplay){
+export function performAll(data, company, state, isReplay, resultingTransactions){
     return Promise.each(data, function(doc){
-        return TransactionService.performTransaction(doc, company, state)
+        return TransactionService.performTransaction(doc, company, state, resultingTransactions)
             .then(_state => {
                 state = _state;
             })
@@ -1949,7 +1966,7 @@ export function transactionsToActions(transactions){
 export function performAllInsertByEffectiveDate(data, company){
     const date = data[0].effectiveDate;
     let state, futureTransactions;
-    let completedTransaction;
+    let completedTransactions = [];
     return company.getDatedCompanyState(date)
         .then(_state => {
             state = _state;
@@ -1957,10 +1974,9 @@ export function performAllInsertByEffectiveDate(data, company){
         })
         .then(_transactions => {
             futureTransactions = _transactions;
-            return performAll(data, company, state)
+            return performAll(data, company, state, false, completedTransactions)
         })
         .then((state) => {
-            completedTransaction = state.dataValues.transaction;
             const implicit = createImplicitTransactions(state, data, date);
             if(implicit.length){
                 return performAll(implicit, company, state)
@@ -1974,7 +1990,7 @@ export function performAllInsertByEffectiveDate(data, company){
             return state;
         })
         .then(state => {
-            return {companyState: state, transaction: completedTransaction}
+            return {companyState: state, transaction: completedTransactions[0]}
         });
 }
 

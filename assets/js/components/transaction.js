@@ -13,6 +13,7 @@ import { actionAmountDirection } from './transactions/resolvers/summaries';
 import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary } from './transactions/resolvers/summaries';
 import { push } from 'react-router-redux'
 
+
 const TEMPLATABLE = {
     [TransactionTypes.TRANSFER]: {
         url: 'transfer',
@@ -195,12 +196,14 @@ export const TransactionTerseRenderMap = {
 
     [TransactionTypes.DETAILS_MASS]: (props) => {
         return <span className="transaction-terse">
+          { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
              { STRINGS.transactionTypes.INCORPORATION }
             </span>
     },
 
     DEFAULT: (props) => {
         return <span className="transaction-terse">
+          { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
               { STRINGS.transactionTypes[props.transactionType] }
             </span>
     },
@@ -299,12 +302,12 @@ export class TransactionViewBody extends React.Component {
             </div>
             <hr/>
             { transaction.documents && transaction.documents.map((d, i) => {
-                return <div key={i}><Link to={`/document/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
+                return <div key={i}><Link to={`/documents/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
             }) }
 
             { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState, shareClassMap: this.props.shareClassMap}) }
 
-            <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div>
+            {/* <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div> */ }
             { this.state.showingData && <pre>{JSON.stringify(transaction, null, 4)}</pre> }
         </div>
     };

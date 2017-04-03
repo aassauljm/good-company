@@ -7,7 +7,7 @@
 
 
 [![Build Status](https://travis-ci.org/joshgagnon/good-company.svg)](https://travis-ci.org/joshgagnon/good-company)
-
+[![Coverage Status](https://coveralls.io/repos/github/joshgagnon/good-company/badge.svg?branch=master)](https://coveralls.io/github/joshgagnon/good-company?branch=master)
 
 * React support
 * ES2015 support

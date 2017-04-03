@@ -27,7 +27,10 @@ module.exports = {
             type: Sequelize.ENUM(
                 'role',
                 'owner',
-                'user'),
+                'user',
+                'organisation',
+                'organisation_admin',
+                'catalex'),
             defaultValue: 'role',
             index: true,
             unique: 'permissionIndex'
@@ -37,10 +40,19 @@ module.exports = {
             type: Sequelize.INTEGER,
             unique: 'permissionIndex'
         },
-
         roleId: {
             type: Sequelize.INTEGER,
             unique: 'permissionIndex'
+        },
+        catalexId: {
+            type: Sequelize.TEXT
+        },
+        entityId: {
+            type: Sequelize.INTEGER
+        },
+        allow: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: true
         }
     },
 
@@ -62,11 +74,6 @@ module.exports = {
             foreignKey: {
                 name: 'userId',
                 as: 'user'
-            }
-        });
-        Permission.hasMany(Criteria, {
-            foreignKey: {
-                as: 'criteria'
             }
         });
     },

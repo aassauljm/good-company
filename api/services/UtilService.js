@@ -52,6 +52,16 @@ export function subsetSum(items, targetSum) {
 
 }
 
+/**
+ * Create the content for a basic auth header
+ */
+export function makeBasicAuthHeader(username, password) {
+    const hash = new Buffer(username + ':' + password).toString('base64');
+    const header = 'Basic ' + hash;
+
+    return header;
+}
+
 
 // na, this sucks due to large targetSums
 export function subsetSumMemoFail(items, targetSum) {
@@ -95,4 +105,8 @@ export function subsetSumMemoFail(items, targetSum) {
     if(subset[targetSum][n]){
         subset[targetSum].map((v, i) => v ? i : null)
     }
+}
+
+export function logRequest(url, headers) {
+    sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);
 }

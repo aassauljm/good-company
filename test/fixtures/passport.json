@@ -54,4 +54,18 @@
         "password": "testtest",
         "userId": 17
     }
+}, {
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "userId": 18
+    }
+}, {
+    "model": "passport",
+    "data": {
+        "protocol": "catalex",
+        "identifier": "666",
+        "userId": 18
+    }
 }]

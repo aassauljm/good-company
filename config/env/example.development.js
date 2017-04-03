@@ -49,5 +49,18 @@ module.exports = {
     CACHE_DIR: '/tmp/.gc',
     APP_URL: 'http://localhost:5667',
     EMAIL_URL: 'http://localhost:8000/mail/send',
-    ADMIN_KEY: 'gc'
+    ADMIN_KEY: 'gc',
+
+    mbie: {
+        oauthURI: 'https://www.eat.nzbn.govt.nz/oauth-service/oauth/',
+        uri: 'https://sandbox.api.business.govt.nz/services/',
+        consumer_key: 'xxxxxx',
+        consumer_secret: 'xxxxxx',
+
+        nzbn: {
+            basicAuthUser: 'xxxxxx',
+            basicAuthPass: 'xxxxxx',
+            clientId: 'xxxxxx'
+        }
+    }
 };
