@@ -90,14 +90,11 @@ module.exports = {
                 include: [{
                     model: SourceData,
                     as: 'sourceData'
-                },{
-                    model: SourceData,
-                    as: 'latestSourceData'
                 }]
             })
             .then(function(company) {
                 const json = company.toJSON();
-                return res.json({currentSourceData: json.sourceData, latestSourceData: json.latestSourceData});
+                return res.json({currentSourceData: json.sourceData});
             })
             .catch(function(err) {
                 return res.notFound(err);
