@@ -23,7 +23,7 @@ if(!companyNumber){
 ScrapingService.fetch(companyNumber)
     .then(function(data){
         this.data = data;
-        return ScrapingService.writeRootDocument(companyNumber, {text: data}, 'test/fixtures/companies_office/futures')
+        return ScrapingService.writeRootDocument(companyNumber, {text: data})
     })
     .then(function(){
         console.log('Parsing')
@@ -33,7 +33,7 @@ ScrapingService.fetch(companyNumber)
         this.companyData = companyData;
         console.log(JSON.stringify(companyData, null, 4));
         console.log('Writing Docs');
-        return ScrapingService.writeDocumentSummaries(companyData, 'test/fixtures/companies_office/futures');
+        return ScrapingService.writeDocumentSummaries(companyData);
     })
     .then(function(){
         console.log('Pulled ' + this.companyData.documents.length + ' documents');
