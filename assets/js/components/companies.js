@@ -249,7 +249,7 @@ export class CompaniesDelete extends React.Component {
         return dispatch(requestResource('companies'));
     }
 }],
-    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ}),
+    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ, userInfo: state.userInfo}),
 {
     push: (id) => push(`/company/view/${id}`),
     handleImport: () => push('/import')
@@ -258,21 +258,19 @@ export class CompaniesDelete extends React.Component {
 export default class Companies extends React.Component {
 
     renderBody() {
-
+        const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         const filteredCompanies = (this.props.companies.data || [])
             .filter(c => !c.deleted)
             .map(c => ({ ...c.currentCompanyState, ...c, companyId: c.id}));
 
-        if(!filteredCompanies.length){
-            return <div>No Companies</div>
-        }
+
 
         const initialValues = {companies: filteredCompanies
                                     .map(c => ({companyName: c.companyName, companyId: c.companyId}) )}
         return <div className="company-list-body">
            <div className="button-row">
                 <Link to="/companies/manage" className="btn btn-danger">Manage Companies</Link>
-                <Link to="/import" className="btn btn-info">Import Companies</Link>
+                {canImport && <Link to="/import" className="btn btn-info">Import Companies</Link> }
             </div>
              { this.props.renderTable(filteredCompanies) }
         </div>
