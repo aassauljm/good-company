@@ -23,10 +23,10 @@ const permissionsToString = (permissions) => {
     if(permissions.indexOf('update') >= 0){
         return 'Update Access';
     }
-     if(permissions.indexOf('read') >= 0){
+    if(permissions.indexOf('read') >= 0){
         return 'View Only Access';
-     }
-     return 'No Access';
+    }
+    return 'No Access';
 }
 
 const RenderPermissionType = (props) => {

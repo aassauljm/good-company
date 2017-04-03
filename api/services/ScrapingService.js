@@ -1455,17 +1455,17 @@ const ScrapingService = {
         }, {concurrency: 10});
     },
 
-    writeDocumentSummaries: function(data){
+    writeDocumentSummaries: function(data, path='test/fixtures/companies_office/'){
         return ScrapingService.getDocumentSummaries(data)
             .then(function(texts){
                 return Promise.map(texts, function(data){
-                    return fs.writeFileAsync('test/fixtures/companies_office/documents/'+data.documentId+'.html', data.text, 'utf-8');
+                    return fs.writeFileAsync(path+'documents/'+data.documentId+'.html', data.text, 'utf-8');
             });
         });
     },
 
-    writeRootDocument: function(companyNumber, data){
-        return fs.writeFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', data.text, 'utf-8');
+    writeRootDocument: function(companyNumber, data, path='test/fixtures/companies_office/'){
+        return fs.writeFileAsync(path+companyNumber+'.html', data.text, 'utf-8');
     },
 
     processDocument: function(html, info={}){
