@@ -156,6 +156,13 @@ module.exports = {
                 name: 'pending_historic_action_id'
             }
         });
+        CompanyState.belongsTo(Action, {
+            as: 'pendingFutureActions',
+            foreignKey: {
+                as: 'pendingFutureActions',
+                name: 'pending_future_action_id'
+            }
+        });
         CompanyState.belongsTo(HistoricPersonList, {
             as: 'historicPersonList',
             foreignKey: {

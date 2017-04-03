@@ -478,7 +478,6 @@ export class ImportHistoryTransactionView extends React.Component {
         },
     }
 })
-
 export class ImportFutureTransactionView extends React.Component {
 
     constructor(props){
