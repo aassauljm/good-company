@@ -62,4 +62,18 @@
         "username": "favourites",
         "email": "favourites@email.com"
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 19,
+        "username": "event",
+        "email": "event@email.com"
+    }
+}, {
+    "model": "user",
+    "data": {
+        "id": 20,
+        "username": "eventstealer",
+        "email": "eventstealer@email.com"
+    }
 }]

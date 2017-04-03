@@ -68,4 +68,18 @@
         "identifier": "666",
         "userId": 18
     }
+},{
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "userId": 19
+    }
+},{
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "userId": 20
+    }
 }]
