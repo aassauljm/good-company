@@ -414,7 +414,7 @@ export  class CreateEvent extends React.PureComponent {
 
     handleSubmit(values) {
         const {companyId, date, ...data} = values;
-        return this.props.createEvent({companyId, date, data})
+        return this.props.createEvent({companyId: companyId || null, date, data})
             .then(() => {
                 this.props.addNotification({message: 'Event Created'});;
                 this.props.close();

@@ -93,6 +93,29 @@ export function addressChange(context) {
 }
 
 
+export function nameChange(context) {
+    /// if(!AddressService.compareAddresses(newAddress, companyState[data.field])){
+    /// ['registeredCompanyAddress',
+    ///  'addressForShareRegister',
+    ///  'addressForService']
+    return <div className="row row-separated">
+                <div className="col-md-5">
+                <h5>Previous {STRINGS[context.action.field]}</h5>
+                { context.action.previousCompanyName }
+            </div>
+            <div className="col-md-2">
+                <div className="text-center">
+                    <Glyphicon glyph="arrow-right" className="big-arrow" />
+                    <h5>Effective as at {stringDateToFormattedStringTime(context.action.effectiveDate)}</h5>
+                </div>
+            </div>
+            <div className="col-md-5">
+                <h5>New {STRINGS[context.action.field]}</h5>
+                { context.action.newCompanyName }
+            </div>
+        </div>
+}
+
 export function holderChange(context) {
     return <div className="row row-separated">
                 <div className="col-md-5">
@@ -132,24 +155,39 @@ export function directorChange(context, companyState, showType) {
                 </div>
             </div>
             <div className="col-md-5">
-                            <div className="shareholding action-description">
+            <div className="shareholding action-description">
                 { renderHolders({name: context.action.afterName, address: context.action.afterAddress})  }
                 </div>
                 </div>
         </div>
 }
 
+
+export function addRemoveDirector(context, companyState, showType) {
+    return <div className="row row-separated">
+        <div className="col-xs-12">
+            { showType && <h5>{ STRINGS.transactionTypes[context.action.transactionType || context.action.type] }</h5> }
+                <div className="shareholding action-description">
+                  { renderHolders({name: context.action.name, address: context.action.address }) }
+                </div>
+            </div>
+        </div>
+}
+
 export function directionString(action) {
+    if(!action.parcels){
+        return false;
+    }
     return actionAmountDirection(action) ? 'Increased by a' : 'Decreased by a';
 }
 
 
 export function beforeAndAfterSummary(context, companyState, showType){
     let { action = {}, actionSet } = context;
-    const increase = actionAmountDirection(action);
+    const increase = action.parcels && actionAmountDirection(action);
     const beforeSharesList = [];
     const afterSharesList = []
-    const shareChanges = action.parcels.map((p, i) => {
+    const shareChanges = (action.parcels || []).map((p, i) => {
         const beforeCount = p.beforeAmount || 0;
         const afterCount = p.afterAmount !== undefined ? p.afterAmount : p.amount;
         let beforeShares = beforeCount ? `${numberWithCommas(beforeCount)} ${renderShareClass(p.shareClass, context.shareClassMap)} Shares` : 'No Shares';
@@ -178,7 +216,6 @@ export function beforeAndAfterSummary(context, companyState, showType){
         /*if(i > 0 && i === action.parcels.length-1){
             beforeSharesList.push(beforeShares);
         } */
-
 
     return <div className="row row-separated">
                 <div className="col-md-5">
@@ -209,7 +246,6 @@ export function beforeAndAfterSummary(context, companyState, showType){
 
 export function holdingChangeSummary(context, companyState, showType){
     const { action, actionSet } = context;
-
     return <div>
             { showType && <div className="row">
                 <div className="col-md-12">
@@ -221,7 +257,8 @@ export function holdingChangeSummary(context, companyState, showType){
             <div className="row">
                 <div className="col-md-5">
                     <div className="shareholding action-description ">
-                    { (action.beforeHolders || []).map(renderHolders) }
+                    { action.beforeName && <div className="shareholding-name">{ action.beforeName }</div> }
+                    { (action.beforeHolders || []).map((h, i) => renderHolders(h, i, action.beforeVotingShareholder)) }
                     </div>
                 </div>
                 <div className="col-md-2">
@@ -231,19 +268,24 @@ export function holdingChangeSummary(context, companyState, showType){
                 </div>
                 <div className="col-md-5">
                     <div className="shareholding action-description ">
-                    { (action.afterHolders || []).map(renderHolders) }
+                     { action.afterName && <div className="shareholding-name">{ action.afterName }</div> }
+                    { (action.afterHolders || []).map((h, i) => renderHolders(h, i, action.afterVotingShareholder)) }
                     </div>
                 </div>
             </div>
     </div>
 }
 
-export function renderHolders(h, i){
+export function renderHolders(h, i, voting){
+    let votingShareholder = false;
     if(h.person && !h.name){
         h = h.person;
     }
+    if(voting && voting.personId === h.personId){
+        votingShareholder = true;
+    }
     return <div key={i}>
-        <div className="name">{ h.name }{h.companyNumber && ` (${h.companyNumber})`}</div>
+    <div className="name">{ h.name }{h.companyNumber && ` (${h.companyNumber})`} {votingShareholder && <strong>(Voting Shareholder)</strong>} </div>
         <div className="address">{ h.address }</div>
     </div>
 }

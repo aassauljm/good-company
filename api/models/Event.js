@@ -17,7 +17,7 @@ module.exports = {
         Event.belongsTo(User, {
             as: 'owner',
             foreignKey: {
-                name: 'userId'
+                name: 'ownerId'
             }
         });
 

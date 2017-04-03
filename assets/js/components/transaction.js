@@ -10,7 +10,7 @@ import { Link } from 'react-router';
 import { deleteResource, addNotification } from '../actions'
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { actionAmountDirection } from './transactions/resolvers/summaries';
-import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary } from './transactions/resolvers/summaries';
+import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary, holdingChangeSummary, addressChange, nameChange, addRemoveDirector } from './transactions/resolvers/summaries';
 import { push } from 'react-router-redux'
 
 
@@ -90,9 +90,10 @@ const BasicLoop = (props) => {
         </BaseTransaction>
 }
 
-const HoldingChange = (props) => {
+const ShareHoldingChange = (props) => {
     return beforeAndAfterSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}, shareClassMap: props.shareClassMap}, props.companyState, true)
 }
+
 
 
 
@@ -244,6 +245,11 @@ export const TransactionRenderMap = {
         </BaseTransaction>
     },
 
+    [TransactionTypes.ANNUAL_RETURN]: (props) => {
+        return <BaseTransaction {...props}>
+        </BaseTransaction>
+    },
+
     [TransactionTypes.COMPOUND]: BasicLoop,
     [TransactionTypes.INCORPORATION]: BasicLoop,
 
@@ -254,6 +260,7 @@ export const TransactionRenderMap = {
     [TransactionTypes.SUBDIVISION]: BasicLoop,
     [TransactionTypes.ACQUISITION]: BasicLoop,
     [TransactionTypes.PURCHASE]: BasicLoop,
+    [TransactionTypes.DETAILS]: BasicLoop,
 
     [TransactionTypes.HOLDING_TRANSFER]: BasicLoop,
 
@@ -265,17 +272,37 @@ export const TransactionRenderMap = {
         return  props.subTransactions ? BasicLoop(props) : directorChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
     },
 
-    [TransactionTypes.ISSUE_TO]: HoldingChange,
-    [TransactionTypes.CONVERSION_TO]: HoldingChange,
-    [TransactionTypes.SUBDIVISION_TO]: HoldingChange,
-    [TransactionTypes.ACQUISITION_FROM]: HoldingChange,
-    [TransactionTypes.PURCHASE_FROM]: HoldingChange,
-    [TransactionTypes.REDEMPTION_FROM]: HoldingChange,
-    [TransactionTypes.CONSOLIDATION_FROM]: HoldingChange,
+    [TransactionTypes.NEW_DIRECTOR]: (props) => {
+        return  props.subTransactions ? BasicLoop(props) : addRemoveDirector({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    },
+
+    [TransactionTypes.REMOVE_DIRECTOR]: (props) => {
+        return  props.subTransactions ? BasicLoop(props) : addRemoveDirector({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    },
+
+    [TransactionTypes.ISSUE_TO]: ShareHoldingChange,
+    [TransactionTypes.CONVERSION_TO]: ShareHoldingChange,
+    [TransactionTypes.SUBDIVISION_TO]: ShareHoldingChange,
+    [TransactionTypes.ACQUISITION_FROM]: ShareHoldingChange,
+    [TransactionTypes.PURCHASE_FROM]: ShareHoldingChange,
+    [TransactionTypes.REDEMPTION_FROM]: ShareHoldingChange,
+    [TransactionTypes.CONSOLIDATION_FROM]: ShareHoldingChange,
+    [TransactionTypes.NAME_CHANGE]: (props) => {
+        return nameChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    },
+    [TransactionTypes.ADDRESS_CHANGE]: (props) => {
+        return props.subTransactions ? BasicLoop(props) : addressChange({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    },
+
+    [TransactionTypes.INFERRED_REMOVE_DIRECTOR]: BasicLoop,
+    [TransactionTypes.INFERRED_NEW_DIRECTOR]: BasicLoop,
 
     [TransactionTypes.TRANSFER]: BasicLoop,
-    [TransactionTypes.TRANSFER_TO]: HoldingChange,
-    [TransactionTypes.TRANSFER_FROM]: HoldingChange
+    [TransactionTypes.TRANSFER_TO]: ShareHoldingChange,
+    [TransactionTypes.TRANSFER_FROM]: ShareHoldingChange,
+    [TransactionTypes.HOLDING_CHANGE]: (props) => {
+        return props.subTransactions ? BasicLoop(props) : holdingChangeSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}}, props.companyState, true)
+    }
 }
 
 
@@ -307,8 +334,11 @@ export class TransactionViewBody extends React.Component {
 
             { TransactionRenderMap[transaction.type] && TransactionRenderMap[transaction.type]({...transaction, companyState: this.props.companyState, shareClassMap: this.props.shareClassMap}) }
 
-            {/* <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div> */ }
+             { false &&  <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div> }
             { this.state.showingData && <pre>{JSON.stringify(transaction, null, 4)}</pre> }
+                <div className="button-row">
+            <Link className="btn btn-default" to={`/company/view/${this.props.companyId}/transactions`}>View All Transactions</Link>
+            </div>
         </div>
     };
 
@@ -319,7 +349,6 @@ export class TransactionViewBody extends React.Component {
 
 
 export class TransactionView extends React.Component {
-
     render(){
         const id = this.props.params.transactionId;
         let transaction;
