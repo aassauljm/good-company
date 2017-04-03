@@ -54,14 +54,6 @@ module.exports = {
                 name: 'source_data_id'
             }
         });
-        // represent foreign data, current snap shot
-        Company.belongsTo(SourceData, {
-            as: 'latestSourceData',
-            foreignKey: {
-                as: 'latestSourceData',
-                name: 'latest_source_data_id'
-            }
-        });
 
         // NOT the same as above.  is a list of processed_documents
         Company.belongsTo(SourceData, {

@@ -494,9 +494,10 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
-    SELECT latest_source_data_id is not null from  company c
+    SELECT pending_future_action_id is not null from  company c
       INNER JOIN
       (SELECT company_from_company_state($1)) s on s.company_from_company_state = c.id
+      INNER JOIN company_state cs on c."currentCompanyStateId" = cs.id
 $$ LANGUAGE SQL;
 
 
@@ -595,36 +596,6 @@ CREATE TRIGGER company_state_warnings_trigger AFTER INSERT OR UPDATE ON company_
     EXECUTE PROCEDURE apply_warnings();
 
 
-CREATE OR REPLACE FUNCTION company_apply_warnings()
-RETURNS trigger AS $$
-BEGIN
-    UPDATE company_state set warnings = get_warnings(NEW.id) where id = NEW."currentCompanyStateId";
-
-    -- TODO, save result of pendingHistory and propagate
-    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId") as (
-        SELECT t.id, t."previousCompanyStateId", t."transactionId" FROM company_state as t where t.id = NEW."currentCompanyStateId"
-        UNION ALL
-        SELECT t.id, t."previousCompanyStateId", t."transactionId"
-        FROM company_state t, prev_company_states tt
-        WHERE t.id = tt."previousCompanyStateId"
-    )
-
-     UPDATE company_state cs set warnings = get_warnings(cs.id)
-     FROM (SELECT id from prev_company_states) subquery
-
-
-    WHERE subquery.id = cs.id and cs.id != NEW.id;
-  RETURN NEW;
-END $$ LANGUAGE 'plpgsql';
-
-
-
-
-DROP TRIGGER IF EXISTS company_company_state_warnings_trigger ON company;
-CREATE TRIGGER company_company_state_warnings_trigger AFTER INSERT OR UPDATE OF latest_source_data_id ON company
-    FOR EACH ROW
-    WHEN (pg_trigger_depth() = 0)
-    EXECUTE PROCEDURE company_apply_warnings();
 
 
 

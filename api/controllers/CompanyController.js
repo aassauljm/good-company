@@ -221,10 +221,10 @@ module.exports = {
             .then(ScrapingService.parseNZCompaniesOffice)
             .then(data => ScrapingService.prepareSourceData(data, req.user.id))
             .then(newData => {
-                // currently identifhing new source data by comparing data
+                // currently identifying new source data by comparing data
                 if(newData.docList.documents.length !== company.sourceData.data.docList.documents.length){
                     return SourceData.create({data:newData})
-                        .then(data => company.setLatestSourceData(data))
+                        .then(data => company.setSourceData(data))
                         .then(() => res.json({sourceDataUpdated: true}))
                 }
                 return res.json({sourceDataUpdated: false})
