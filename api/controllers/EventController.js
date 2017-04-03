@@ -9,7 +9,7 @@ module.exports = {
     find: function(req, res) {
         Event.findAll({
             where: {
-                userId: req.user.id
+                ownerId: req.user.id
             }
         }).then(function(matchingRecords) {
             res.ok(matchingRecords.map(x => x.toJSON()));
