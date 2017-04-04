@@ -1,7 +1,7 @@
 "use strict";
 import React, {PropTypes} from 'react';
 import { requestResource, changeCompanyTab, showTransactionView, toggleWidget, resetTransactionViews } from '../actions';
-import { pureRender, numberWithCommas, stringDateToFormattedString, analyseCompany } from '../utils';
+import { pureRender, numberWithCommas, stringDateToFormattedString, analyseCompan, resourceIsForbidden } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
 import CompanyHeader from  './companyHeader';
@@ -21,6 +21,7 @@ import { DocumentsWidget } from './documents';
 import { ReportingDetailsWidget } from './reportingDetails';
 import { TransactionWidget, PendingTransactionsWidget } from './transactions';
 import NotFound from './notFound';
+import Forbidden from './forbidden';
 import { push } from 'react-router-redux'
 import Header from './header';
 import { CompanyAlertsWidget } from './companyAlerts';
@@ -65,7 +66,10 @@ export class CompanyDated extends React.Component {
     return {
         companyPage: state.companyPage,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
-        transactionViews: state.transactionViews};
+        transactionViews: state.transactionViews,
+        login: state.login
+    };
+
 },
 (dispatch, ownProps) => ({
     showTransactionView: (key, data) => { dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)); dispatch(showTransactionView(key, data)) },
@@ -209,6 +213,9 @@ export class CompanyView extends React.Component {
         const current = data.currentCompanyState || data.companyState;
 
         if(this.props._status === 'error'){
+            if(resourceIsForbidden(this.props.error)){
+                return <Forbidden descriptor="Company" />
+            }
             return <NotFound descriptor="Company" />
         }
         return <div className="company">
