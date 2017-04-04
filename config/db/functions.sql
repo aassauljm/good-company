@@ -480,6 +480,30 @@ CREATE OR REPLACE FUNCTION all_pending_actions(companyStateId integer)
     order by index asc
 $$ LANGUAGE SQL;
 
+-- A list of pendingActions for a company state
+CREATE OR REPLACE FUNCTION all_pending_future_actions(companyStateId integer)
+    RETURNS SETOF action
+    AS $$
+    WITH RECURSIVE future as (
+        SELECT pending_future_action_id as id
+        FROM company_state cs
+        WHERE cs.id = $1
+    ),  prev_actions(start_id, id, "previous_id", index) as (
+            SELECT t.id as start_id, t.id, t."previous_id", 0 as index
+            FROM action t
+            JOIN future s on s.id = t.id
+
+            UNION ALL
+
+            SELECT pa.start_id, t.id, t."previous_id", index+1
+            FROM action t, prev_actions pa
+            WHERE t.id = pa."previous_id"
+        )
+    SELECT p.* from
+    prev_actions pa
+    JOIN action p on p.id = pa.id
+    order by index desc
+$$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)

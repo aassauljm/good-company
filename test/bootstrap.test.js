@@ -28,12 +28,14 @@ function stubs(){
     // lawbrowser links screw up in the testing tree
     LawBrowserContainer.default.prototype.forceNoLawLinks = true;
 
+    ScrapingService._testPath = 'test/fixtures/companies_office/';
+
     ScrapingService.fetch = function(companyNumber){
-        return fs.readFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', 'utf8');
+        return fs.readFileAsync(ScrapingService._testPath +companyNumber+'.html', 'utf8');
     }
 
     ScrapingService.fetchDocument = function(companyNumber, documentId){
-        return fs.readFileAsync('test/fixtures/companies_office/documents/'+documentId+'.html', 'utf8')
+        return fs.readFileAsync(ScrapingService._testPath + 'documents/'+documentId+'.html', 'utf8')
             .then(function(text){
                 return {text: text, documentId: documentId}
             });

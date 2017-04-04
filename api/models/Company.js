@@ -222,7 +222,11 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}});
             },
-
+            getPendingFutureActions: function(){
+                return sequelize.query("select * from all_pending_future_actions(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId}});
+            },
             getHistoricHolders: function(){
                 return sequelize.query("select * from company_persons(:id) where current = FALSE",
                                { type: sequelize.QueryTypes.SELECT,

@@ -219,50 +219,39 @@ module.exports = {
             .then(data => ScrapingService.prepareSourceData(data, req.user.id))
             .then(newData => {
                 // currently identifying new source data by comparing data
-                if(newData.docList.documents.length !== company.sourceData.data.docList.documents.length){
-                    return SourceData.create({data:newData})
-                        .then(data => company.setSourceData(data))
-                        .then(() => res.json({sourceDataUpdated: true}))
-                }
-                return res.json({sourceDataUpdated: false})
-            })
-            .catch(function(err) {
-                return res.notFound(err);
-            });
-    },
-
-    formatPendingFuture: function(req, res) {
-        let data;
-        Company.findById(req.params.id, {
-                include: [{
-                    model: SourceData,
-                    as: 'sourceData'
-                },{
-                    model: SourceData,
-                    as: 'latestSourceData'
-                }]
-            })
-            .then(function(company) {
-                if(company.latestSourceData){
-                    const existing = company.sourceData.data.documents.reduce((acc, d) => {company.latestSourceData.data.documents
+                    const existing = company.sourceData.data.documents.reduce((acc, d) => {
                         acc[d.documentId] = true;
                         return acc;
                     }, {});
-                    const documents = company.latestSourceData.data.documents.filter(d => !existing[d.documentId]);
-                    data = {documents: documents, companyNumber: company.latestSourceData.data.companyNumber }
-                    return ScrapingService.getDocumentSummaries(data)
-                    .then((readDocuments) => {
-                        return ScrapingService.processDocuments(data, readDocuments);
-                    })
-                    .then(results => {
-                        res.json(results.map(r => ({data: r})))
-                    })
-                }
-                else{
-                    return res.json([])
-                }
-        })
-
+                    const documents = newData.documents.filter(d => !existing[d.documentId]);
+                    if(documents.length){
+                        const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };
+                        return SourceData.create({data:newData})
+                            .then(data => company.setSourceData(data))
+                            .then(() => ScrapingService.getDocumentSummaries(docData))
+                            .then((readDocuments) => {
+                                return ScrapingService.processDocuments(docData, readDocuments);
+                            })
+                            .then((docs) => {
+                                const processedDocs = docs.reverse();
+                                 return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                            })
+                            .then((actions) => {
+                                company.currentCompanyState.set('pending_future_action_id', actions[0].id);
+                                return company.currentCompanyState.save()
+                            })
+                            .then(() => {
+                                return res.json({sourceDataUpdated: true})
+                            })
+                    }
+                    else{
+                        return res.json({sourceDataUpdated: false});
+                    }
+            })
+            .catch(function(err) {
+                console.log(err)
+                return res.notFound(err);
+            });
     },
 
 
@@ -772,7 +761,15 @@ module.exports = {
             return res.notFound(err);
         })
     },
-
+    getPendingFutureActions: function(req, res) {
+        Company.findById(req.params.id)
+        .then(company => company.getPendingFutureActions())
+       .then(function(matchingRecords) {
+            res.ok(matchingRecords);
+        }).catch(function(err) {
+            return res.notFound(err);
+        })
+    },
     getHistoricHolders: function(req, res) {
         Company.findById(req.params.id)
             .then(company => company.getHistoricHolders())

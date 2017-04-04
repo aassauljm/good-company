@@ -338,7 +338,7 @@ module.exports.routes = {
 
     'GET /api/company/:id/pending_future': {
         controller: 'CompanyController',
-        action: 'formatPendingFuture',
+        action: 'GetPendingFutureActions',
         model: 'company'
     },
 
