@@ -146,68 +146,60 @@ export function transferFormatSubmit(values, companyState){
         }, {})
         return acc;
     }, {});
-    //values.parcels.map(p => {
 
-
-        const fromHoldingId = parseInt(values.from, 10);
+    const fromHoldingId = parseInt(values.from, 10);
+    actions.push({
+        holdingId: fromHoldingId,
+        holders: holders[values.from],
+            parcels: values.parcels.map(p => {
+                const shareClass = parseInt(p.shareClass, 10) || null;
+                const amount = parseInt(p.amount, 10);
+                return {
+            shareClass: shareClass,
+            amount: amount,
+            beforeAmount: amounts[values.from][p.shareClass],
+            afterAmount: (amounts[values.from][p.shareClass]) - amount
+        }}),
+        transactionType: 'TRANSFER_FROM',
+        transactionMethod: 'AMEND'
+    });
+    if(!values.newHolding){
+        const toHoldingId = parseInt(values.to, 10);
         actions.push({
-            holdingId: fromHoldingId,
-            holders: holders[values.from],
-                parcels: values.parcels.map(p => {
-                    const shareClass = parseInt(p.shareClass, 10) || null;
-                    const amount = parseInt(p.amount, 10);
-                    return {
-                shareClass: shareClass,
-                amount: amount,
-                beforeAmount: amounts[values.from][p.shareClass],
-                afterAmount: (amounts[values.from][p.shareClass]) - amount
-            }}),
-            transactionType: 'TRANSFER_FROM',
+            holdingId: toHoldingId,
+            holders: holders[values.to],
+            parcels: values.parcels.map(p => {
+                const shareClass = parseInt(p.shareClass, 10) || null;
+                const amount = parseInt(p.amount, 10);
+                return {
+                    shareClass: shareClass,
+                    amount: amount,
+                    beforeAmount: amounts[values.to][p.shareClass] || 0,
+                    afterAmount: (amounts[values.to][p.shareClass] || 0) + amount
+                }
+            }),
+            transactionType: 'TRANSFER_TO',
             transactionMethod: 'AMEND'
         });
-        if(!values.newHolding){
-            const toHoldingId = parseInt(values.to, 10);
-            actions.push({
-                holdingId: toHoldingId,
-                holders: holders[values.to],
-                parcels: values.parcels.map(p => {
-                    const shareClass = parseInt(p.shareClass, 10) || null;
-                    const amount = parseInt(p.amount, 10);
-                    return {
-                        shareClass: shareClass,
-                        amount: amount,
-                        beforeAmount: amounts[values.to][p.shareClass] || 0,
-                        afterAmount: (amounts[values.to][p.shareClass] || 0) + amount
-                    }
-                }),
-                transactionType: 'TRANSFER_TO',
-                transactionMethod: 'AMEND'
-            });
-        }
-        else{
-            actions.push({
-                holders: values.newHolding.persons,
-                parcels: values.parcels.map(p => {
-                    const shareClass = parseInt(p.shareClass, 10) || null;
-                    const amount = parseInt(p.amount, 10);
-                    return {
-                        shareClass: shareClass,
-                        amount: amount,
-                        beforeAmount: 0,
-                        afterAmount: amount
-                    }}),
-                transactionType: 'TRANSFER_TO',
-                transactionMethod: 'AMEND'
-            });
-        }
-    //});
-    if(values.newHolding){
-        results.push({
-            effectiveDate: values.effectiveDate,
-            transactionType: 'NEW_ALLOCATION',
-            actions: [newHoldingFormatAction(values.newHolding)]
+    }
+    else{
+        actions.push({
+            holders: values.newHolding.persons,
+            parcels: values.parcels.map(p => {
+                const shareClass = parseInt(p.shareClass, 10) || null;
+                const amount = parseInt(p.amount, 10);
+                return {
+                    shareClass: shareClass,
+                    amount: amount,
+                    beforeAmount: 0,
+                    afterAmount: amount
+                }}),
+            transactionType: 'TRANSFER_TO',
+            transactionMethod: 'NEW_ALLOCATION'
         });
     }
+
+
     results.push({
         effectiveDate: values.effectiveDate,
         transactionType: 'TRANSFER',
