@@ -1656,7 +1656,7 @@ export function performInverseAllPendingResolve(company, root, endCondition){
     return company.getRootCompanyState()
         .then(_state => {
             state = _state;
-            return company.getPendingActions()
+            return company.getPendingHistoryActions()
         })
         .then(historicActions => {
             if(endCondition){
@@ -1734,7 +1734,7 @@ export function performInverseAllPendingUntil(company, endCondition){
         return company.getRootCompanyState()
             .then(_state => {
                 state = _state;
-                return company.getPendingActions()
+                return company.getPendingHistoryActions()
             })
         })
         .then(historicActions => {
@@ -1751,6 +1751,9 @@ export function performInverseAllPendingUntil(company, endCondition){
             return historicActions.length && perform(historicActions)
         })
 }
+
+
+
 
 export function performInverseAllPending(company, endCondition, requireConfirmation){
     // if we specify endCondition, it should get there fine, as it will not be before SEED
@@ -1769,21 +1772,32 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
         });
 }
 
-export function performAllPending(company, endCondition, requireConfirmation){
-    return new Promise((resolve, reject) => {
-        session.run(() => {
-            session.set('REQUIRE_CONFIRMATION', !!requireConfirmation);
-            return performAllPendingUntil(company, endCondition)
-                .then(result => {
-                    if(!!result && !endCondition){
-                        return performAllPending(company, endCondition);
+
+export function performAllPending(company){
+    return sequelize.transaction(function(t){
+        return company.getCurrentCompanyState()
+            .then(_state => {
+                state = _state;
+                return company.getPendingFutureActions()
+            })
+        })
+        .then(historicActions => {
+            if(endCondition){
+                let finished = false;
+                historicActions = historicActions.reduce((acc, hA) => {
+                    if(!finished){
+                        acc.push(hA);
                     }
-                })
-                .then(resolve)
-                .catch(reject)
-            });
-        });
+                    finished = finished || endCondition(hA);
+                    return acc;
+                }, []);
+            }
+            return historicActions.length && perform(historicActions)
+        })
+
 }
+
+
 
 
 function validateTransactionSet(data, companyState){
