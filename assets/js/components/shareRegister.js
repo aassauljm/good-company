@@ -493,7 +493,7 @@ export class ShareRegister extends React.Component {
 
     renderControls() {
         return  <div className="button-row">
-                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/shareregister`} target='_blank'>Download</Link>
+                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/share_register`} target='_blank'>Download</Link>
             </div>
 
     }

@@ -1,0 +1,6 @@
+.directors-register-document{
+    @extend .share-register-document;
+    th:last-of-type {
+        text-align: left;
+    }
+}

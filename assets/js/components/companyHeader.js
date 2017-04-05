@@ -103,6 +103,7 @@ export default class CompanyHeader extends React.Component {
                     <Dropdown.Menu bsRole="menu">
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
                         <MenuItem  onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
+                        <MenuItem  onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/director_register`)}><span className="fa fa-book"/>Director Register</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown> ,
 

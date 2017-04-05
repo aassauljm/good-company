@@ -20,7 +20,7 @@ import CompaniesRegister from './components/companiesRegister';
 import { NewTransaction } from './components/newTransaction';
 import ContactDetails, { ContactEditDetails } from './components/contactDetails';
 import ReportingDetails from './components/reportingDetails';
-import Directors from './components/directors';
+import Directors, { DirectorRegister, DirectorRegisterDocumentLoader  } from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassEdit } from './components/shareClasses';
 import RecentActivity from './components/recentActivity';
 import Templates, { TemplateView, TemplateSelectCompany } from './components/templates';
@@ -86,6 +86,7 @@ const CompanyChildren = [
             <Route path="create" component={ InterestsRegisterCreate } />
             <Route path="view/:entryId" component={ InterestsRegisterView } />
         </Route>
+        <Route path="director_register" component={ DirectorRegister } />
 
     </Route>,
 
@@ -142,7 +143,8 @@ export default (store) => {
                 <Route path="import/nzbn" component={ ImportNZBN } />
                 <Route path="import/:companyNumber" component={ ImportCompany } />
                 <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyHOCFromRoute(true)(Injector) } >
-                    <Route path="shareregister" component={ ShareRegisterDocumentLoader } />
+                    <Route path="share_register" component={ ShareRegisterDocumentLoader } />
+                    <Route path="director_register" component={ DirectorRegisterDocumentLoader  } />
                 </Route>
                 <Route path="favourites" component={ Favourites } />
                 <Route path="alerts" component={ Alerts } />

@@ -283,9 +283,15 @@ module.exports.routes = {
         method: 'update'
     },
 
-    'GET /api/company/render/:id/shareregister': {
+    'GET /api/company/render/:id/share_register': {
         controller: 'RenderController',
         action: 'renderShareRegister',
+        model: 'company'
+    },
+
+    'GET /api/company/render/:id/director_register': {
+        controller: 'RenderController',
+        action: 'renderDirectorRegister',
         model: 'company'
     },
 
