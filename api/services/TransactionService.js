@@ -1769,6 +1769,22 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
         });
 }
 
+export function performAllPending(company, endCondition, requireConfirmation){
+    return new Promise((resolve, reject) => {
+        session.run(() => {
+            session.set('REQUIRE_CONFIRMATION', !!requireConfirmation);
+            return performAllPendingUntil(company, endCondition)
+                .then(result => {
+                    if(!!result && !endCondition){
+                        return performAllPending(company, endCondition);
+                    }
+                })
+                .then(resolve)
+                .catch(reject)
+            });
+        });
+}
+
 
 function validateTransactionSet(data, companyState){
     const shareClasses = {};

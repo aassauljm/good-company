@@ -232,7 +232,7 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}});
             },
-            replacePendingActions: function(pendingActions){
+            replacePendingHistoricActions: function(pendingActions){
                 // Find root, and replace next x pendingActions
                 let rootState;
                 pendingActions.map((pa, i) => {
@@ -260,7 +260,34 @@ module.exports = {
                         })
                     });
             },
+            replacePendingFutureActions: function(pendingActions){
+                // Find current and replace next x pendingActions
+                let currentState;
+                pendingActions.map((pa, i) => {
+                    pa.originalId = pa.id;
+                    pa.data.id = pa.id = uuid.v4();
+                    (pa.data.actions || []).map(a => a.id = uuid.v4());
 
+                    if(i >= 1){
+                        pendingActions[i-1].previous_id = pa.id;
+                    }
+                });
+                return sequelize.transaction(() => {
+                    return this.getCurrentCompanyState()
+                        .then(_currentState => {
+                            currentState = _currentState;
+                            return Action.bulkCreate(pendingActions);
+
+                        })
+                        .then(() => {
+                            return currentState.update({'pending_future_action_id': pendingActions[0].id})
+                        })
+                        .then(() => {
+                            // HUGE security risk.  Need to validate this pendingAction is owned by this user
+                            return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
+                        })
+                    });
+            },
             resetPendingActions: function(){
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState

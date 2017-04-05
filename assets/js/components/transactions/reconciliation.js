@@ -538,7 +538,7 @@ export class ImportFutureTransactionView extends React.Component {
     }
 
     handleReset() {
-        this.props.reset();
+        //this.props.reset();
     }
 
     handleEdit(actionSet, pendingActions, editIndex) {

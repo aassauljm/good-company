@@ -541,79 +541,30 @@ module.exports = {
         })
     },
 
-    importPendingHistoryUntilAR: function(req, res){
+    importPendingFuture: function(req, res){
         let company, companyName;
         Company.findById(req.params.id)
         .then(function(_company){
             company  = _company;
-            return company.getNowCompanyState()
+            return company.getCurrentCompanyState()
         })
         .then(_state => {
             companyName = _state.get('companyName');
-            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN));
+            return TransactionService.performAllPending(company);
+        })
+        .then(function(result){
+            return res.json(result)
         })
         .then(() => {
-            return company.getPendingActions()
-        })
-        .then(pA => {
-            if(!pA.length){
-                res.json({complete: true});
-                return ActivityLog.create({
-                    type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
-                    userId: req.user.id,
-                    companyId: company.id,
-                    description: `Completed ${companyName} History Import`,
-                    data: {companyId: company.id}
-                });
-            }
-            else{
-                return res.json({complete: false})
-            }
+            return ActivityLog.create({
+                type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                userId: req.user.id,
+                companyId: company.id,
+                description: `Completed ${companyName} Reconciliation`,
+                data: {companyId: company.id}
+            });
         })
         .catch(function(e){
-            if(e.context){
-                e.context.CHUNK_IMPORT = true;
-            }
-            return res.serverError(e)
-        })
-    },
-
-    importPendingHistoryUntil: function(req, res){
-        let company, companyName;
-        const targetId = actionUtil.parseValues(req).target;
-        Company.findById(req.params.id)
-        .then(function(_company){
-            company  = _company;
-            return company.getNowCompanyState()
-        })
-        .then(_state => {
-            companyName = _state.get('companyName');
-            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => {
-                return actionSet.id === targetId;
-            }));
-        })
-        .then(() => {
-            return company.getPendingActions()
-        })
-        .then(pA => {
-            if(!pA.length){
-                res.json({complete: true});
-                return ActivityLog.create({
-                    type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
-                    userId: req.user.id,
-                    companyId: company.id,
-                    description: `Completed ${companyName} History Import`,
-                    data: {companyId: company.id}
-                });
-            }
-            else{
-                return res.json({complete: false})
-            }
-        })
-        .catch(function(e){
-            if(e.context){
-                e.context.CHUNK_IMPORT = true;
-            }
             return res.serverError(e)
         })
     },
@@ -628,7 +579,36 @@ module.exports = {
         })
         .then(_state => {
             state = _state;
-            return company.replacePendingActions(args.pendingActions);
+            return company.replacePendingHistoricActions(args.pendingActions);
+        })
+        .then(() => {
+            const companyName = state.get('companyName');
+            return ActivityLog.create({
+                type: ActivityLog.types.UPDATE_PENDING_HISTORY,
+                userId: req.user.id,
+                description: `Updated ${companyName} History`,
+                data: {companyId: company.id}
+            });
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
+
+    updatePendingFuture: function(req, res){
+        const args = actionUtil.parseValues(req);
+        let company ,state;
+        Company.findById(req.params.id)
+        .then(function(_company){
+            company  = _company;
+            return company.getNowCompanyState()
+        })
+        .then(_state => {
+            state = _state;
+            return company.replacePendingFutureActions(args.pendingActions);
         })
         .then(() => {
             const companyName = state.get('companyName');

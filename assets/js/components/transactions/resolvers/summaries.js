@@ -62,7 +62,7 @@ export function basicSummary(context, companyState){
     return <div>
             <div className="row">
                 <div className="col-md-6 col-md-offset-3">
-                    { sourceInfo(companyState, actionSet) }
+                    { actionSet && companyState && sourceInfo(companyState, actionSet) }
                 </div>
             </div>
         </div>
