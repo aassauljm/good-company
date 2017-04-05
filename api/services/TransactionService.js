@@ -1587,7 +1587,7 @@ export function performInverseAll(company, state){
     }
     return sequelize.transaction(function(t){
             return Promise.resolve(state || company.getCurrentCompanyState())
-            .then(state => state.getPendingHistoricActions())
+            .then(state => state.getPendingActions())
         })
         .then(historicActions => historicActions && loop(historicActions.actions))
         .then(function(){
@@ -1656,7 +1656,7 @@ export function performInverseAllPendingResolve(company, root, endCondition){
     return company.getRootCompanyState()
         .then(_state => {
             state = _state;
-            return company.getPendingHistoryActions()
+            return company.getPendingActions()
         })
         .then(historicActions => {
             if(endCondition){
@@ -1734,7 +1734,7 @@ export function performInverseAllPendingUntil(company, endCondition){
         return company.getRootCompanyState()
             .then(_state => {
                 state = _state;
-                return company.getPendingHistoryActions()
+                return company.getPendingActions()
             })
         })
         .then(historicActions => {
@@ -1771,32 +1771,6 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
             });
         });
 }
-
-
-export function performAllPending(company){
-    return sequelize.transaction(function(t){
-        return company.getCurrentCompanyState()
-            .then(_state => {
-                state = _state;
-                return company.getPendingFutureActions()
-            })
-        })
-        .then(historicActions => {
-            if(endCondition){
-                let finished = false;
-                historicActions = historicActions.reduce((acc, hA) => {
-                    if(!finished){
-                        acc.push(hA);
-                    }
-                    finished = finished || endCondition(hA);
-                    return acc;
-                }, []);
-            }
-            return historicActions.length && perform(historicActions)
-        })
-
-}
-
 
 
 
@@ -1958,6 +1932,30 @@ export function performTransaction(data, company, companyState, resultingTransac
         .then(function(){
             return nextState;
         })
+}
+
+export function performAllPending(company){
+    return sequelize.transaction(function(t){
+        return company.getCurrentCompanyState()
+            .then(_state => {
+                state = _state;
+                return company.getPendingFutureActions()
+            })
+        })
+        .then(historicActions => {
+            if(endCondition){
+                let finished = false;
+                historicActions = historicActions.reduce((acc, hA) => {
+                    if(!finished){
+                        acc.push(hA);
+                    }
+                    finished = finished || endCondition(hA);
+                    return acc;
+                }, []);
+            }
+            return historicActions.length && perform(historicActions)
+        })
+
 }
 
 
