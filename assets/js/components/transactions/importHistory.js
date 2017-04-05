@@ -355,7 +355,10 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     handleResolve(error) {
-        const pendingActions = collectActions(this.state.pendingHistory.data || []);
+        let pendingActions = collectActions(this.state.pendingHistory.data || []);
+        const id = error.context.actionSet;
+        const index = pendingActions.findIndex((a) => a.id === id)
+        pendingActions.slice(index);
         this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
             {
