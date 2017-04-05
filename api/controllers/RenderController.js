@@ -21,11 +21,10 @@ function binaryParser(res, callback) {
     });
 }
 
-module.exports = {
-
-    renderShareRegister: function(req, res){
+const renderPage = (title, route) => {
+    return (req, res) => {
         const state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user.toJSON(), _status: 'complete'};
-        RenderService.serverRender('/company/render/'+req.params.id+'/shareregister', req.get('cookie'), state)
+        RenderService.serverRender('/company/render/'+req.params.id+route, req.get('cookie'), state)
             .then(result => {
                 res.render('staticContent', {reactOutput: result.reactOutput, assets: sails.config.paths.public}, (err, html) => {
                     const options = { format: 'A4',"border": "2cm", "orientation": "portrait", "base": 'file://'+sails.config.paths.public, phantomPath: '/usr/local/bin/phantomjs'};
@@ -33,13 +32,20 @@ module.exports = {
                         if(err){
                             return res.negotiate(err);
                         }
-                        res.setHeader('Content-disposition', `attachment; filename=Share Register.pdf`);
+                        res.setHeader('Content-disposition', `attachment; filename=${title}.pdf`);
                         stream.pipe(res);
                     });
                 });
             })
             .catch(res.negotiate)
-    },
+    }
+}
+
+
+module.exports = {
+
+    renderShareRegister: renderPage('Share Register', '/share_register'),
+    renderDirectorRegister: renderPage('Director Register', '/director_register'),
 
     renderTemplate: function(req, res){
         let response;

@@ -924,6 +924,7 @@ export function performInverseRemoveDirector(data, companyState, previousState, 
         const director = Director.build({
             appointment: effectiveDate, personId: person.id})
         director.dataValues.person = person;
+        // TODO, add transaction data
         companyState.dataValues.directorList.dataValues.directors.push(director);
         return Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate})
     });

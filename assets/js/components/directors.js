@@ -8,6 +8,7 @@ import { reduxForm } from 'redux-form';
 import { pureRender, stringDateToFormattedString } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
 import { replace } from 'react-router-redux'
+import { asyncConnect } from 'redux-connect';
 
 /*
   Interests? (yes/no – if yes, link to Interests Register),
@@ -167,6 +168,115 @@ export default class Directors extends React.Component {
             <div className='widget-body'>
                 <h5 className="text-center">Current Directors</h5>
                     <DirectorList directors={directors} holders={holders} editDirector={this.editDirector} />
+            </div>
+        </div>
+        </div>
+    }
+}
+
+
+export class DirectorRegisterDocument extends React.Component {
+    render(){
+        const companyState = this.props.companyState;
+        const directors = this.props.companyState.directorList.directors;
+        const holders = this.props.companyState.holders;
+
+        return <div className="directors-register-document">
+
+        <h2 className="title">Director Register</h2>
+            <table className="heading">
+                <tbody><tr>
+                <td>
+                <h2>{ companyState.companyName }</h2>
+                </td>
+                <td>
+                <h4>NZBN: { companyState.nzbn }</h4>
+                <h4>Company Number #{ companyState.companyNumber }</h4>
+                </td>
+                </tr>
+                </tbody>
+            </table>
+        <div> At as { stringDateToFormattedString(new Date()) }</div>
+        <h3>Current Directors</h3>
+
+           <table className="table directors-register">
+                <thead>
+                <tr><th>Name</th><th>Address</th><th>Appointment Date</th><th>Current Shareholder</th></tr>
+                </thead>
+                <tbody>
+                    { directors.map((director, i) => {
+                        return <tr key={i}>
+                        <td>{ director.person.name }</td>
+                        <td>{ director.person.address }</td>
+                        <td>{ stringDateToFormattedString(director.appointment) }</td>
+
+                        <td>{ holders[director.person.personId] ? 'Yes': 'No' }</td>
+
+
+                        </tr>
+                    }) }
+                </tbody>
+                </table>
+
+        { false && <h3>Historic Directors</h3> }
+
+
+        </div>
+    }
+}
+@asyncConnect([{
+    key: 'shareRegister',
+    promise: ({store: {dispatch, getState}, params}) => {
+        //return dispatch(requestResource('/company/'+params.id+'/share_register'));
+    }
+}])
+@connect((state, ownProps) => {
+    return {data: {}}
+})
+export class DirectorRegisterDocumentLoader extends React.Component {
+    static propTypes = {
+        data: PropTypes.object.isRequired
+    };
+
+    render() {
+        const companyState = ((this.props['/company/'+this.props.params.id +'/get_info'] || {}).data || {}).currentCompanyState;
+
+        if(!companyState){
+            return false;
+        }
+        return <DirectorRegisterDocument companyState={companyState}/>
+    }
+}
+
+
+export class DirectorRegister extends React.Component {
+    static propTypes = {
+        companyState: PropTypes.object,
+        companyId: PropTypes.string
+    };
+    renderControls() {
+        return  <div className="button-row">
+                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/director_register`} target='_blank'>Download</Link>
+            </div>
+
+    }
+    render() {
+        if(!this.props.companyState || !this.props.companyState.directorList){
+            return false;
+        }
+        const directors = this.props.companyState.directorList.directors;
+        const holders = this.props.companyState.holders;
+        return <div className="container">
+            <div className="widget">
+            <div className="widget-header">
+                <div className="widget-title">
+                    Director Registers
+                </div>
+            </div>
+            <div className='widget-body'>
+                    { this.renderControls() }
+               <DirectorRegisterDocument {...this.props} />
+
             </div>
         </div>
         </div>
