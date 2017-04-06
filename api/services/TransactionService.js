@@ -1068,7 +1068,7 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
                 return {votingShareholder: true}
             }
         }
-        const parcels = data.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}));
+        const parcels = (data.parcels || []).map(p => ({amount: p.amount, shareClass: p.shareClass}));
 
         parcels.map(newParcel => {
             nextState.subtractUnallocatedParcels(newParcel)

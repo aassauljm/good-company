@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var Promise = require('bluebird');
-var bcrypt = Promise.promisifyAll(require('bcrypt'));
+var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 var MIN_PASSWORD = 8;
 
 var validatePassword = function(newPassword) {

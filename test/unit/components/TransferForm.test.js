@@ -5,7 +5,7 @@ import { validate, createHoldingMap, transferFormatSubmit, TransferConnected } f
 import { ParcelWithRemove } from '../../../assets/js/components/forms/parcel';
 import Input from '../../../assets/js/components/forms/input';
 import { simpleStore } from '../../integration/helpers';
-import TestUtils, { Simulate } from 'react/lib/ReactTestUtils';
+import TestUtils, { Simulate } from 'react-addons-test-utils';
 import { Provider } from 'react-redux';
 import chai from 'chai';
 import { DragDropContext } from 'react-dnd';
@@ -153,14 +153,6 @@ describe('Transfer form', () => {
             const submit = transferFormatSubmit(values, companyState);
             submit.should.containSubset([{
                 effectiveDate: values.effectiveDate,
-                transactionType: "NEW_ALLOCATION",
-                actions: [{
-                    transactionType: 'NEW_ALLOCATION',
-                    holders: [{name: 'new guy'}],
-                    name: undefined
-                }]
-            },{
-                effectiveDate: values.effectiveDate,
                 transactionType: 'TRANSFER',
                 actions: [
                     {
@@ -183,7 +175,7 @@ describe('Transfer form', () => {
                             afterAmount: 1
                         }],
                         transactionType: 'TRANSFER_TO',
-                        transactionMethod: 'AMEND'
+                        transactionMethod: 'NEW_ALLOCATION'
                     }
                 ]
             }]);
