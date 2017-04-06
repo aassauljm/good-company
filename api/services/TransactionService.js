@@ -1334,9 +1334,9 @@ export function addActions(state, actionSet, company){
             }
         })
         .then(data => {
-            return Action.findOrCreate({where: {id: actionSet.id}, defaults: actionSet});
+            return Action.findOrCreate({where: {id: actionSet.id}, defaults: data});
         })
-        .then(function(hA){
+        .spread(function(hA){
             state.set('historic_action_id', hA.id)
             state.dataValues.historicActions = hA;
             return state;
@@ -1954,8 +1954,7 @@ export function performAllPending(company){
             return company.getCurrentCompanyState()
         })
         .then(function(state) {
-            state.set('pending_future_action_id', null);
-            return state.save();
+            return state.update({'pending_future_action_id': null});
         })
 }
 

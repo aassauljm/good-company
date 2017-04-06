@@ -136,7 +136,7 @@ function lift(cb){
         port: 1338,
         serverRender: true,
         log: {
-            level: process.env.LOG_LEVEL || 'error'
+            level: process.env.LOG || 'error'
         },
         models: {
             connection: 'pg_test',

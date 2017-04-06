@@ -1107,10 +1107,18 @@ describe('Company Controller', function() {
             req.post('/api/company/'+companyId+'/import_pending_future')
                 .expect(200)
                 .then(function(res){
-
                     done();
                 })
                 .catch(done)
+        });
+
+        it('Gets warnings', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(false);
+                    done();
+                });
         });
         after(() => {
             ScrapingService._testPath = path;
