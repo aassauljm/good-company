@@ -964,12 +964,13 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
 
 
 export function validateAmend(data, companyState){
-    if(!data.holdingId && !(data.holders && data.holders.length)){
-        throw new sails.config.exceptions.InvalidOperation('Holders required')
+    const holders = data.holders || data.afterHolders;
+    if(!data.holdingId && !(holders && holders.length)){
+        throw new sails.config.exceptions.InvalidOperation('Holders required');
     }
 
     const parcels =  data.parcels.map(p => ({amount: p.beforeAmount, shareClass: p.shareClass}));;
-    const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId, parcels},
+    const holding = companyState.getMatchingHolding({holders: holders, holdingId: data.holdingId, parcels},
                                                     {ignoreCompanyNumber: true});
 
     if(!holding){
@@ -1022,7 +1023,7 @@ export const performAmend = Promise.method(function(data, companyState, previous
                 return  {amount: Math.abs(difference), shareClass: newParcel.shareClass};
             });
 
-            const newHolding = {holders: data.holders, parcels: parcels, holdingId: data.holdingId};
+            const newHolding = {holders: data.holders || data.afterHolders, parcels: parcels, holdingId: data.holdingId};
 
             if(!increase){
                 parcels.map(parcel => companyState.combineUnallocatedParcels(parcel));
@@ -1333,7 +1334,7 @@ export function addActions(state, actionSet, company){
             }
         })
         .then(data => {
-            return Action.create(data);
+            return Action.findOrCreate({where: {id: actionSet.id}, defaults: actionSet});
         })
         .then(function(hA){
             state.set('historic_action_id', hA.id)
@@ -1936,6 +1937,7 @@ export function performTransaction(data, company, companyState, resultingTransac
 }
 
 export function performAllPending(company){
+    let state;
     return sequelize.transaction(function(t){
         return company.getCurrentCompanyState()
             .then(_state => {
@@ -1943,20 +1945,18 @@ export function performAllPending(company){
                 return company.getPendingFutureActions()
             })
         })
-        .then(historicActions => {
-            if(endCondition){
-                let finished = false;
-                historicActions = historicActions.reduce((acc, hA) => {
-                    if(!finished){
-                        acc.push(hA);
-                    }
-                    finished = finished || endCondition(hA);
-                    return acc;
-                }, []);
-            }
-            return historicActions.length && perform(historicActions)
+        .then(futureActions => {
+            return Promise.each(futureActions, (futureAction) => {
+                return performAllInsertByEffectiveDate([futureAction.data], company)
+            });
         })
-
+        .then(function() {
+            return company.getCurrentCompanyState()
+        })
+        .then(function(state) {
+            state.set('pending_future_action_id', null);
+            return state.save();
+        })
 }
 
 

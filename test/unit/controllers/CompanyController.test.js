@@ -933,7 +933,7 @@ describe('Company Controller', function() {
 
 
 
-   describe('Year by year import history (5387329)', function(){
+   describe('Import history (5387329)', function(){
         var req, companyId, context, classes, holdings;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -949,7 +949,7 @@ describe('Company Controller', function() {
                 .catch(done);
         });
         it('Imports history', function(done){
-            req.post('/api/company/'+companyId+'/import_pending_history_until_ar')
+            req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(200)
                 .then(() => {
                     done();
@@ -1103,7 +1103,15 @@ describe('Company Controller', function() {
                 })
                 .catch(done)
         });
+        it('Updates future', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_future')
+                .expect(200)
+                .then(function(res){
 
+                    done();
+                })
+                .catch(done)
+        });
         after(() => {
             ScrapingService._testPath = path;
         })

@@ -402,16 +402,9 @@ module.exports.routes = {
         method: 'update'
     },
 
-    'POST /api/company/:id/import_pending_history_until_ar': {
+    'POST /api/company/:id/import_pending_future': {
         controller: 'CompanyController',
-        action: 'importPendingHistoryUntilAR',
-        model: 'company',
-        method: 'update'
-    },
-
-    'POST /api/company/:id/import_pending_history_until': {
-        controller: 'CompanyController',
-        action: 'importPendingHistoryUntil',
+        action: 'importPendingFuture',
         model: 'company',
         method: 'update'
     },
