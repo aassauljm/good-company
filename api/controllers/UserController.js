@@ -2,7 +2,6 @@
 
 var _ = require('lodash');
 var Promise = require("bluebird");
-var bcrypt = Promise.promisifyAll(require('bcrypt'));
 var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 var moment = require('moment');
 
