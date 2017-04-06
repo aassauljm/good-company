@@ -495,7 +495,7 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
         it('Goes to template page', function(){
            const generate = this.dom.querySelector('.btn.btn-primary');
            Simulate.click(generate, {button: 0});
-           return waitFor('Template page to appear', '.generated-form', this.dom)
+           return waitFor('Template page to appear', '.generated-form', this.dom);
         });
 
 
