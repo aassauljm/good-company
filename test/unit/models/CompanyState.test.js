@@ -1,3 +1,5 @@
+"use strict";
+
 describe('CompanyState Model', function() {
     describe('Create CompanyState Holdings', function() {
 
@@ -365,26 +367,19 @@ describe('CompanyState Model', function() {
                 return CompanyState.createDedup(initialState)
             })
             .then((state) => {
-                console.log('1')
                 return state.buildNext({previousCompanyStateId: state.dataValues.id})
             })
-            .then(state => {
-                console.log('2')
+            .then((state) => {
                 return state.save();
             })
             .then((state) => {
-                console.log('3')
                 return state.buildNext({previousCompanyStateId: state.dataValues.id})
             })
-            .then(state => {
+            .then((state) => {
                 return state.save();
             })
-            then(state => {
-                console.log('huh', state)
+            .then((state) => {
                 return company.setCurrentCompanyState(state);
-            })
-            .catch((e) => {
-                console.log('fags', e)
             })
         });
 /*
@@ -397,7 +392,7 @@ describe('CompanyState Model', function() {
 
 */
 
-        it('should be first warnings', () => {
+        it('current should have warnings', () => {
             return company.getCurrentCompanyState()
                 .then(state => {
                     state.warnings.shareClassWarning.should.be.equal(true);
@@ -409,8 +404,8 @@ describe('CompanyState Model', function() {
         })
 
 
-        it('should be first warnings', () => {
-            return company.getCurrentCompanyState()
+        it('root should have warnings', () => {
+            return company.getRootCompanyState()
                 .then(state => {
                     state.warnings.shareClassWarning.should.be.equal(true);
                     state.warnings.missingVotingShareholders.should.be.equal(true);
