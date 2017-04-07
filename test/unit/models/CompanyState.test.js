@@ -340,4 +340,87 @@ describe('CompanyState Model', function() {
     });
 
 
+    describe('Test warnings ', function() {
+        let company, initialState = {
+            companyName: 'warning limited',
+                holdingList: {
+                    holdings: [{
+                        name: 'Allocation 1',
+                        parcels: [{
+                            amount: 1,
+                        }],
+                        holders: [{
+                            person:{ name: 'jimbo robinson'}
+                        },{
+                            person:{ name: 'janson rimblesnotch'}
+                        }]
+                    }]
+                }
+        };
+
+        before(() => {
+            return Company.create({})
+            .then((_c) => {
+                company = _c;
+                return CompanyState.createDedup(initialState)
+            })
+            .then((state) => {
+                console.log('1')
+                return state.buildNext({previousCompanyStateId: state.dataValues.id})
+            })
+            .then(state => {
+                console.log('2')
+                return state.save();
+            })
+            .then((state) => {
+                console.log('3')
+                return state.buildNext({previousCompanyStateId: state.dataValues.id})
+            })
+            .then(state => {
+                return state.save();
+            })
+            then(state => {
+                console.log('huh', state)
+                return company.setCurrentCompanyState(state);
+            })
+            .catch((e) => {
+                console.log('fags', e)
+            })
+        });
+/*
+        'pendingHistory', has_pending_historic_actions($1),
+        'pendingFuture', COALESCE(has_pending_future_actions($1), FALSE),
+        'missingVotingShareholders', has_missing_voting_shareholders($1),
+        'shareClassWarning', has_no_share_classes($1),
+        'applyShareClassWarning', has_no_applied_share_classes($1),
+        'extensiveWarning', has_extensive_shareholding($1),
+
+*/
+
+        it('should be first warnings', () => {
+            return company.getCurrentCompanyState()
+                .then(state => {
+                    state.warnings.shareClassWarning.should.be.equal(true);
+                    state.warnings.missingVotingShareholders.should.be.equal(true);
+                    state.warnings.applyShareClassWarning.should.be.equal(true);
+                    state.warnings.pendingHistory.should.be.equal(false);
+                    state.warnings.pendingFuture.should.be.equal(false);
+                })
+        })
+
+
+        it('should be first warnings', () => {
+            return company.getCurrentCompanyState()
+                .then(state => {
+                    state.warnings.shareClassWarning.should.be.equal(true);
+                    state.warnings.missingVotingShareholders.should.be.equal(true);
+                    state.warnings.applyShareClassWarning.should.be.equal(true);
+                    state.warnings.pendingHistory.should.be.equal(false);
+                    state.warnings.pendingFuture.should.be.equal(false);
+                })
+        })
+
+    });
+
+
 });
