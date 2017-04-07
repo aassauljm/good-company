@@ -632,11 +632,11 @@ module.exports = {
                         return CompanyState.build(_.merge({}, this.toJSON(), attr, {id: null}),
                             {include:
                                 CompanyState.includes.fullNoJunctions()
-                                .concat(CompanyState.includes.docList())
-                                .concat(CompanyState.includes.directorList())
-                                .concat(CompanyState.includes.iRegister())
-                                .concat(CompanyState.includes.holdingList())
-                                .concat(CompanyState.includes.shareClasses())
+                                    .concat(CompanyState.includes.docList())
+                                    .concat(CompanyState.includes.directorList())
+                                    .concat(CompanyState.includes.iRegister())
+                                    .concat(CompanyState.includes.holdingList())
+                                    .concat(CompanyState.includes.shareClasses())
                             });
                     })
                     .then((next) => {
@@ -662,7 +662,7 @@ module.exports = {
                                     obj.dataValues[name].map(set);
                                 }
                                 else{
-                                    set(obj.dataValues[name])
+                                    set(obj.dataValues[name]);
                                 }
                             })
                         }

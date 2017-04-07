@@ -237,8 +237,7 @@ module.exports = {
                                  return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
                             })
                             .then((actions) => {
-                                company.currentCompanyState.set('pending_future_action_id', actions[0].id);
-                                return company.currentCompanyState.save()
+                                return company.currentCompanyState.update({'pending_future_action_id': actions[0].id});
                             })
                             .then(() => {
                                 return res.json({sourceDataUpdated: true})

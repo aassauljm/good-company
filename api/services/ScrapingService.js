@@ -1352,7 +1352,11 @@ const ScrapingService = {
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
-                return TransactionService.performSeed(ScrapingService.prepareSourceData(data, userId), company, new Date(), userId);
+                let date = new Date();
+                if(data.documents.length){
+                    date = moment(data.documents[0].date, 'DD MMM YYYY HH:mm').toDate()
+                }
+                return TransactionService.performSeed(ScrapingService.prepareSourceData(data, userId), company, date, userId);
             })
             .then(function(){
                 sails.log.verbose('CompanyState populated in DB');

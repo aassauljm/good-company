@@ -425,9 +425,9 @@ const selfManagedTransactions = {
             return company.getCurrentCompanyState()
                 .then(currentState => {
                     historic_action_id = currentState.get('historic_action_id');
-                    return currentState.save();
-                })
-                .then(() => {
+                //    return currentState.save();
+                //})
+                //.then(() => {
                     return TransactionService.performTransaction({
                             actions: data.actions,
                             effectiveDate: data.effectiveDate || new Date(),

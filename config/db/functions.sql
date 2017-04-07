@@ -138,7 +138,8 @@ CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp wi
         (SELECT pvs.id, generation, "effectiveDate" FROM prev_company_states pvs
          LEFT OUTER JOIN transaction t on t.id = pvs."transactionId"
          ORDER BY generation ASC) q
-    WHERE q."effectiveDate" < $2 OR q."effectiveDate" is NULL LIMIT 1
+    WHERE q."effectiveDate" < $2 OR q."effectiveDate" is NULL
+    LIMIT 1
 $$ LANGUAGE SQL;
 
 -- get the companyState for right now
@@ -518,7 +519,8 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
-    SELECT pending_future_action_id is not null from  company c
+    SELECT pending_future_action_id is not null
+    from  company c
       INNER JOIN
       (SELECT company_from_company_state($1)) s on s.company_from_company_state = c.id
       INNER JOIN company_state cs on c."currentCompanyStateId" = cs.id
@@ -580,7 +582,7 @@ CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
     AS $$
     SELECT jsonb_build_object(
         'pendingHistory', has_pending_historic_actions($1),
-        'pendingFuture', has_pending_future_actions($1),
+        'pendingFuture', COALESCE(has_pending_future_actions($1), FALSE),
         'missingVotingShareholders', has_missing_voting_shareholders($1),
         'shareClassWarning', has_no_share_classes($1),
         'applyShareClassWarning', has_no_applied_share_classes($1),
@@ -605,9 +607,19 @@ BEGIN
 
      UPDATE company_state cs set warnings = get_warnings(cs.id)
      FROM (SELECT id from future_company_states) subquery
-
-
     WHERE subquery.id = cs.id and cs.id != NEW.id;
+
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "generation") as (
+        SELECT t.id, t."previousCompanyStateId", 0 as generation FROM company_state as t where t.id = NEW.id
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+         UPDATE company_state cs set warnings = get_warnings(cs.id)
+         FROM (SELECT id from prev_company_states) subquery
+        WHERE subquery.id = cs.id;
+
   RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 

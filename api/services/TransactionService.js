@@ -1086,9 +1086,12 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
 };
 
 
-export  function performApplyShareClass(data, nextState, companyState, effectiveDate){
+export  function performApplyShareClass(data, nextState, companyState, effectiveDate, userId, isReplay){
     let index, holdingList;
-    // TODO, what if there is more than one match?
+    // FOR NOW, don't try to reapply
+    if(isReplay){
+        return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+    }
     return nextState.dataValues.holdingList.buildNext()
     .then(function(_holdingList){
         holdingList = _holdingList;
@@ -1100,8 +1103,13 @@ export  function performApplyShareClass(data, nextState, companyState, effective
         if(index < 0){
             throw new sails.config.exceptions.InvalidOperation('Cannot find holding to apply share class to')
         }
-        if(holdingList.dataValues.holdings[index].parcels.length > 1 || holdingList.dataValues.holdings[index].parcels[0].shareClass){
+        if(!isReplay && (holdingList.dataValues.holdings[index].parcels.length > 1 || holdingList.dataValues.holdings[index].parcels[0].shareClass)){
             throw new sails.config.exceptions.InvalidOperation('Share classes are all ready applied for this shareholding')
+        }
+        else if(isReplay){
+            // update this, may have changed
+            data.parcels = holdingList.dataValues.holdings[index].parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}));
+            return holdingList.dataValues.holdings[index];
         }
         const sum = holdingList.dataValues.holdings[index].parcels.reduce((sum, p) => sum + p.amount, 0);
         const newSum = data.parcels.reduce((sum, p) => sum + p.amount, 0);
@@ -1215,11 +1223,11 @@ export function performHistoricHolderChange(data, nextState, previousState, effe
 }
 
 export function performInverseSeed(data, nextState, previousState, effectiveDate){
-    return Promise.resolve(Transaction.build({type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}));
+    return Promise.resolve(Transaction.build({type: Transaction.types.SEED, effectiveDate: effectiveDate || data.effectiveDate }));
 }
 
 /**
-    Seed is a special cause, it doesn't care about previousState
+    Seed is a special cause, it doesn't care about previousState.  So not in normal transaction handler
 */
 export function performSeed(args, company, effectiveDate, userId){
     let state;
@@ -1822,7 +1830,7 @@ function validateTransactionSet(data, companyState){
 }
 
 
-export function performTransaction(data, company, companyState, resultingTransactions){
+export function performTransaction(data, company, companyState, resultingTransactions, isReplay){
 
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE]:                  TransactionService.performIssue,
@@ -1869,20 +1877,20 @@ export function performTransaction(data, company, companyState, resultingTransac
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             current = _state;
-            return current.buildNext({previousCompanyStateId: current.dataValues.id});
+            return current.buildNext({previousCompanyStateId: current.dataValues.id, pending_future_action_id: current.dataValues.pending_future_action_id});
         })
         .then(function(_nextState){
             nextState = _nextState;
             // TODO, serviously consider having EACH action create a persistant graph
             // OR, force each transaction set to be pre grouped
             return Promise.reduce(data.actions, function(arr, action){
-                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
+                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId, isReplay);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, nextState, current, effectiveDate, company.get("ownerId"));
+                    }, nextState, current, effectiveDate, company.get("ownerId"), isReplay);
                 }
                 if(result){
                     return result.then(function(r){
@@ -1944,24 +1952,24 @@ export function performAllPending(company){
                 state = _state;
                 return company.getPendingFutureActions()
             })
-        })
-        .then(futureActions => {
-            return Promise.each(futureActions, (futureAction) => {
-                return performAllInsertByEffectiveDate([futureAction.data], company)
-            });
-        })
-        .then(function() {
-            return company.getCurrentCompanyState()
+            .then(futureActions => {
+                return Promise.each(futureActions, (futureAction) => {
+                    return performAllInsertByEffectiveDate([futureAction.data], company)
+                });
+            })
+            .then(function() {
+                return company.getCurrentCompanyState()
+            })
         })
         .then(function(state) {
-            return state.update({'pending_future_action_id': null});
+            return state.update({'pending_future_action_id': null}, {fields: ['pending_future_action_id']});
         })
 }
 
 
 export function performAll(data, company, state, isReplay, resultingTransactions){
     return Promise.each(data, function(doc){
-        return TransactionService.performTransaction(doc, company, state, resultingTransactions)
+        return TransactionService.performTransaction(doc, company, state, resultingTransactions, isReplay)
             .then(_state => {
                 state = _state;
             })
@@ -2052,6 +2060,7 @@ export function performFilterOutTransactions(transactionIds, company){
             return state;
         });
 }
+
 
 export function createImplicitTransactions(state, transactions, effectiveDate){
     // remove empty allocations
