@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS company_state_warnings_trigger ON company_state;

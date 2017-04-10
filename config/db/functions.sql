@@ -513,7 +513,7 @@ CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)
     SELECT pending_historic_action_id is not null from  company_state cs
       INNER JOIN
       (SELECT root_company_state($1)) s on s.root_company_state = cs.id
-$$ LANGUAGE SQL;
+$$ LANGUAGE SQL STABLE;
 
 
 CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
@@ -524,7 +524,7 @@ CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
       INNER JOIN
       (SELECT company_from_company_state($1)) s on s.company_from_company_state = c.id
       INNER JOIN company_state cs on c."currentCompanyStateId" = cs.id
-$$ LANGUAGE SQL;
+$$ LANGUAGE SQL STABLE;
 
 
 CREATE OR REPLACE FUNCTION has_missing_voting_shareholders(companyStateId integer)
@@ -575,63 +575,6 @@ CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
     AS $$
     SELECT extensive from company_state cs where cs.id = $1
 $$ LANGUAGE SQL;
-
-
-CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
-    RETURNS JSONB
-    AS $$
-    SELECT jsonb_build_object(
-        'pendingHistory', has_pending_historic_actions($1),
-        'pendingFuture', COALESCE(has_pending_future_actions($1), FALSE),
-        'missingVotingShareholders', has_missing_voting_shareholders($1),
-        'shareClassWarning', has_no_share_classes($1),
-        'applyShareClassWarning', has_no_applied_share_classes($1),
-        'extensiveWarning', has_extensive_shareholding($1),
-        'treasuryStockOverAllocated', FALSE
-        )
-$$ LANGUAGE SQL;
-
-
-CREATE OR REPLACE FUNCTION apply_warnings()
-RETURNS trigger AS $$
-BEGIN
-    UPDATE company_state set warnings = get_warnings(NEW.id) where id = NEW.id;
-
-    -- TODO, save result of pendingHistory and propagate
-     WITH RECURSIVE future_company_states(id, "previousCompanyStateId",  generation) as (
-        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  NEW.id
-        UNION ALL
-        SELECT t.id, t."previousCompanyStateId", generation + 1
-        FROM company_state t, future_company_states tt
-        WHERE tt.id = t."previousCompanyStateId")
-
-     UPDATE company_state cs set warnings = get_warnings(cs.id)
-     FROM (SELECT id from future_company_states) subquery
-    WHERE subquery.id = cs.id and cs.id != NEW.id;
-
-    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "generation") as (
-        SELECT t.id, t."previousCompanyStateId", 0 as generation FROM company_state as t where t.id = NEW.id
-        UNION ALL
-        SELECT t.id, t."previousCompanyStateId", generation + 1
-        FROM company_state t, prev_company_states tt
-        WHERE t.id = tt."previousCompanyStateId"
-    )
-         UPDATE company_state cs set warnings = get_warnings(cs.id)
-         FROM (SELECT id from prev_company_states) subquery
-        WHERE subquery.id = cs.id;
-
-  RETURN NEW;
-END $$ LANGUAGE 'plpgsql';
-
-
-
-DROP TRIGGER IF EXISTS company_state_warnings_trigger ON company_state;
-CREATE TRIGGER company_state_warnings_trigger AFTER INSERT OR UPDATE ON company_state
-    FOR EACH ROW
-    WHEN (pg_trigger_depth() = 0)
-    EXECUTE PROCEDURE apply_warnings();
-
-
 
 
 

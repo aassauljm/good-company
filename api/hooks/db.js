@@ -7,6 +7,7 @@ const ORDERED_DB_SCRIPTS = [
     'config/db/functions.sql',
     'config/db/shareRegister.sql',
     'config/db/admin.sql',
+    'config/db/triggers.sql'
     ]
 
 

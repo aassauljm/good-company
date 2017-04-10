@@ -7,7 +7,6 @@ const Promise = require("bluebird");
 const fetch = require("isomorphic-fetch");
 const fs = Promise.promisifyAll(require("fs"));
 const moment = require('moment');
-const uuid = require('node-uuid')
 const querystring = require('querystring');
 
 
