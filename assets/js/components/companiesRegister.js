@@ -37,7 +37,10 @@ const fields = [
 
 
 @connect((state, ownProps) => {
-    return state.resources[`/company/${ownProps.companyId}/source_data`] || {};
+    return {
+        userInfo: state.userInfo,
+        ...state.resources[`/company/${ownProps.companyId}/source_data`]
+    };
 }, {
     requestData: (key) => requestResource(`/company/${key}/source_data`)
 })
@@ -66,6 +69,7 @@ export class CompaniesRegisterWidget extends React.Component {
                     </div>
         }
         const data = (this.props.data || {}).data || {};
+        const hasCompaniesIntegration = this.props.userInfo.mbieServices.indexOf('companies_office') >= 0;
 
         return <div className="row" key="body">
 
@@ -87,6 +91,24 @@ export class CompaniesRegisterWidget extends React.Component {
                  { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
             </div> }
+
+            <div className="col-xs-12">
+                <hr />
+                { !hasCompaniesIntegration &&
+                    <div className="text-center">
+                        <button className="btn btn-info">Connect with Companies Office</button>
+                    </div>
+                }
+                { hasCompaniesIntegration &&
+                    <div className="text-center">
+                        <div>
+                            <Glyphicon glyph="ok" />&nbsp;&nbsp;
+                            <strong>Connected with Companies Office</strong>
+                        </div>
+                        <button className='btn btn-warning'>Disconnect from Companies Office</button>
+                    </div>
+                }
+            </div>
         </div>
     }
 
