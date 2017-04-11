@@ -252,6 +252,7 @@ export class CompanyAlertsWidget extends React.Component {
 export const CompanyAlerts = (props) => {
     return <div className="container">
             <div className="row">
+            <div className="col-xs-12">
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -261,6 +262,7 @@ export const CompanyAlerts = (props) => {
                 <div className="widget-body">
                     <CompanyAlertsBase {...props} showTypes={['danger', 'warning', 'pending', 'safe']} showAllWarnings={true} />
                 </div>
+            </div>
             </div>
             </div>
         </div>

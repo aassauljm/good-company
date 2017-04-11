@@ -1833,6 +1833,7 @@ function validateTransactionSet(data, companyState){
 export function performTransaction(data, company, companyState, resultingTransactions, isReplay){
 
     const PERFORM_ACTION_MAP = {
+        [Transaction.types.ANNUAL_RETURN]:          TransactionService.performAnnualReturn,
         [Transaction.types.ISSUE]:                  TransactionService.performIssue,
         [Transaction.types.ACQUISITION]:            TransactionService.performAcquisition,
         [Transaction.types.PURCHASE]:               TransactionService.performPurchase,
@@ -1859,14 +1860,14 @@ export function performTransaction(data, company, companyState, resultingTransac
     if(!data.actions || data.userSkip){
         return Promise.resolve(companyState);
     }
-    if(data.transactionType === Transaction.types.ANNUAL_RETURN){
+    /*if(data.transactionType === Transaction.types.ANNUAL_RETURN){
         return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             return PERFORM_ACTION_MAP[data.transactionType]({
                         ...data.actions[0], documentId: data.documentId
                     }, _state);
         })
-    }
+    }*/
     if(!data.id){
         data.id = uuid.v4();
     }

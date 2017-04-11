@@ -223,30 +223,34 @@ module.exports = {
                         acc[d.documentId] = true;
                         return acc;
                     }, {});
+                    let processedDocs;
                     const documents = newData.documents.filter(d => !existing[d.documentId]);
+                    console.log(documents)
                     if(documents.length){
-                        const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };
-                        return SourceData.create({data:newData})
-                            .then(data => company.setSourceData(data))
-                            .then(() => ScrapingService.getDocumentSummaries(docData))
-                            .then((readDocuments) => {
-                                return ScrapingService.processDocuments(docData, readDocuments);
-                            })
-                            .then((docs) => {
-                                const processedDocs = docs.reverse();
-                                return company.getPendingFutureActions()
-                            })
-                            .then(pendingActions => {
-                                if(pendingActions.length){
-                                    nextActionId = _.last(pendingActions).id;
-                                }
-                                return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id || nextActionId})));
-                            })
-                            .then((actions) => {
-                                return !nextActionId && company.currentCompanyState.update({'pending_future_action_id': actions[0].id});
-                            })
-                            .then(() => {
-                                return res.json({sourceDataUpdated: true})
+                        sequelize.transaction(() => {
+                            const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };
+                            return SourceData.create({data:newData})
+                                .then(data => company.setSourceData(data))
+                                .then(() => ScrapingService.getDocumentSummaries(docData))
+                                .then((readDocuments) => {
+                                    return ScrapingService.processDocuments(docData, readDocuments);
+                                })
+                                .then((docs) => {
+                                    processedDocs = docs.reverse();
+                                    return company.getPendingFutureActions()
+                                })
+                                .then(pendingActions => {
+                                    if(pendingActions.length){
+                                        nextActionId = _.last(pendingActions).id;
+                                    }
+                                    return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id || nextActionId})));
+                                })
+                                .then((actions) => {
+                                    return !nextActionId && company.currentCompanyState.update({'pending_future_action_id': actions[0].id});
+                                })
+                                .then(() => {
+                                    return res.json({sourceDataUpdated: true})
+                                })
                             })
                     }
                     else{

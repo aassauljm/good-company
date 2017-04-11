@@ -594,7 +594,7 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default '
          EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland') as "incorporatedThisYear",
                 EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM now()) as "filedThisYear",
                 make_timestamptz(
-                    EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland')::integer,
+                    EXTRACT(YEAR FROM date AT TIME ZONE 'Pacific/Auckland')::integer + 1,
                     EXTRACT(MONTH FROM TO_TIMESTAMP("arFilingMonth"::text, 'Month'))::integer,
                     1,
                     0,0,0.0, $2) + INTERVAL '1 month - 1 second' as "due"

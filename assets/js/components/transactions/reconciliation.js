@@ -85,7 +85,7 @@ function TransactionSummaries(props) {
     const pendingActions = props.pendingActions.filter((p, i) => {
         p.numberId = i;
         const actions = p.data.actions.filter(a => a.transactionType);
-        if(!actions.length || isNonDisplayedTransaction(p.data.transactionType)){
+        if(!actions.length || (!props.showAllTypes && isNonDisplayedTransaction(p.data.transactionType))){
             return false;
         }
         if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
@@ -253,6 +253,7 @@ FUTURE_PAGES[EXPLAINATION] = function() {
                 loading={this.isLoading()}
                 scrollIndex={this.props.transactionViewData.editIndex}
                 showConfirmed={this.props.transactionViewData.showConfirmed}
+                showAllTypes={true}
                 />
         }
         else{
