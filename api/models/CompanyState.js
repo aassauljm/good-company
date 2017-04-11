@@ -490,7 +490,6 @@ module.exports = {
                                 .concat(CompanyState.includes.holdingList())
                             });
 
-
                         state.get('docList').get('documents').map(d => {
                             d.dataValues.directoryId = documentDirectory.dataValues.id;
                         })
@@ -517,6 +516,20 @@ module.exports = {
             }
         },
         instanceMethods: {
+            getDocumentDirectory: function(){
+                return this.getDocList({
+                            include: [{
+                                model: Document,
+                                as: 'documents',
+                                through: {
+                                    attributes: []
+                                }
+                            }]})
+                .then(docList => {
+                    return docList.documents.find(d => d.type === 'Directory');
+                });
+            },
+
             getTransactionSummary: function(){
                 return sequelize.query('select transaction_summary(:id)',
                                        { type: sequelize.QueryTypes.SELECT,
@@ -527,32 +540,6 @@ module.exports = {
                                        { type: sequelize.QueryTypes.SELECT,
                                             replacements: { id: this.id}})
                     .then(results => results[0].get_deadlines)
-                /*const  annualReturn = () => {
-                    if(!this.dataValues.arFilingMonth){
-                        return {annualReturn : {status: 'danger', 'message': 'No Annual Return filing month specified'}};
-                    }
-                    const documents = this.dataValues.docList ? this.dataValues.docList.dataValues.documents : [];
-                    const due = moment().month(this.dataValues.arFilingMonth).endOf('month');
-                    const now = moment();
-                    const diff = due.clone().diff(now)
-                    const humanDiff = due.clone().from(now);
-                    const thisYear = (new Date()).getFullYear();
-                    const ar = _.find(documents, d => {
-                        return d.type === 'Companies Office' && (d.filename === 'Online Annual Return' || d.filename === 'Annual Return Filed') && d.date.getFullYear() === thisYear;
-                    });
-                    if(!ar){
-                        if(diff > 0){
-                            return {annualReturn : {status: moment.duration(diff).asMonths() > 1 ? 'pending' : 'warning', 'message': `Annual Return due ${humanDiff}`, diff: diff}};
-                        }
-                        else{
-                            return {annualReturn : {status: 'danger', 'message': `Annual Return due ${humanDiff}`, diff: diff}};
-                        }
-                    }
-                    else{
-                        return {annualReturn : {status: 'safe', 'message': 'Annual Return Filed for the current year', diff: diff}};
-                    }
-                }
-                return {...annualReturn()}*/
             },
             votingShareholdersCheck: function() {
                 return this.getHoldingList({include: CompanyState.includes.holdings()})

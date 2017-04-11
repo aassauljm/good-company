@@ -223,11 +223,10 @@ module.exports = {
                         acc[d.documentId] = true;
                         return acc;
                     }, {});
-                    let processedDocs;
+                    let processedDocs, state, directory;
                     const documents = newData.documents.filter(d => !existing[d.documentId]);
-                    console.log(documents)
                     if(documents.length){
-                        sequelize.transaction(() => {
+                        return sequelize.transaction(() => {
                             const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };
                             return SourceData.create({data:newData})
                                 .then(data => company.setSourceData(data))
@@ -249,6 +248,24 @@ module.exports = {
                                     return !nextActionId && company.currentCompanyState.update({'pending_future_action_id': actions[0].id});
                                 })
                                 .then(() => {
+                                    return company.getCurrentCompanyState({include: [{model: DocumentList, as: 'docList'}]})
+                                })
+                                .then(_state => {
+                                    state = _state;
+                                    return state.getDocumentDirectory();
+                                })
+                                .then(_directory => {
+                                    directory = _directory;
+                                    return ScrapingService.formatDocuments({documents, companyNumber: company.sourceData.data.companyNumber}, req.user.id)
+                                })
+                                .then(data => {
+                                    return Document.bulkCreate(data.docList.documents.map(d => ({...d, directoryId: directory.id})), {returning: true})
+                                })
+                                 .then((documents) => {
+                                    // mutate the company document list to contain the new docs
+                                    return state.docList.addDocuments(documents);
+                                })
+                                .then(() => {
                                     return res.json({sourceDataUpdated: true})
                                 })
                             })
@@ -258,7 +275,6 @@ module.exports = {
                     }
             })
             .catch(function(err) {
-                console.log(err)
                 return res.notFound(err);
             });
     },
