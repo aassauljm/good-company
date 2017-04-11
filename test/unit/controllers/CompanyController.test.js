@@ -734,7 +734,7 @@ describe('Company Controller', function() {
             });
             it('Checks for updates', function(done){
                 path =  ScrapingService._testPath ;
-                ScrapingService._testPath = 'test/fixtures/companies_office/futures/';
+                ScrapingService._testPath = 'test/fixtures/companies_office/futures/1';
                 return req
                     .put('/api/company/'+companyId+'/update_source_data')
                     .expect(200)
