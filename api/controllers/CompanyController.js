@@ -201,7 +201,7 @@ module.exports = {
 
 
     updateSourceData: function(req, res){
-        let company;
+        let company, nextActionId;
         Company.findById(req.params.id, {
                 include: [{
                     model: SourceData,
@@ -234,10 +234,16 @@ module.exports = {
                             })
                             .then((docs) => {
                                 const processedDocs = docs.reverse();
-                                 return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                                return company.getPendingFutureActions()
+                            })
+                            .then(pendingActions => {
+                                if(pendingActions.length){
+                                    nextActionId = _.last(pendingActions).id;
+                                }
+                                return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id || nextActionId})));
                             })
                             .then((actions) => {
-                                return company.currentCompanyState.update({'pending_future_action_id': actions[0].id});
+                                return !nextActionId && company.currentCompanyState.update({'pending_future_action_id': actions[0].id});
                             })
                             .then(() => {
                                 return res.json({sourceDataUpdated: true})
