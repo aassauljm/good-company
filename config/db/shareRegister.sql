@@ -53,7 +53,7 @@ WITH transaction_history as (
     (tt.parcels->>'amount')::int as "amount",
     (tt.parcels->>'shareClass')::int as "shareClass",
     (tt.parcels->>'beforeAmount')::int as "beforeAmount",
-    (tt.parcels->>'afterAmount')::int as "afterAmount",
+    CASE WHEN tt.method = 'NEW_ALLOCATION' THEN (tt.parcels->>'amount')::int ELSE (tt.parcels->>'afterAmount')::int END as "afterAmount",
 
     (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
     "holdingId",
@@ -61,7 +61,7 @@ WITH transaction_history as (
     FROM person_holdings ph
     INNER JOIN transaction t on t.id = ph."transactionId"
     LEFT OUTER JOIN (
-    select q.id,  jsonb_array_elements(data->'parcels') as parcels from (
+    select q.id,   data->>'transactionMethod' as method, jsonb_array_elements(data->'parcels') as parcels from (
     select id, data from transaction
     ) q) tt on t.id = tt.id
 

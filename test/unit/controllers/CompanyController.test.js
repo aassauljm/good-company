@@ -1030,23 +1030,6 @@ describe('Company Controller', function() {
         });
     });
 
-  /* describe('PROJECT MANAGER HOLDINGS (2118589)', function(){
-        var req, companyId, context, classes, holdings;
-        it('should login successfully', function(done) {
-            req = request.agent(sails.hooks.http.app);
-            login(req).then(done);
-        });
-        it('Does a stubbed import', function(done){
-            req.post('/api/company/import/companiesoffice/2118589')
-                .expect(200)
-                .then(function(res){
-                    companyId = res.body.id;
-                    done();
-                })
-                .catch(done);
-        });
-
-    }); */
 
    describe('Import self transfer (5423794)', function(){
         var req, companyId, context, classes, holdings;
@@ -1055,7 +1038,7 @@ describe('Company Controller', function() {
             login(req).then(done);
         });
         it('Does a stubbed import', function(done){
-            req.post('/api/company/import/companiesoffice/5423794')
+            return req.post('/api/company/import/companiesoffice/5423794')
                 .expect(200)
                 .then(function(res){
                     companyId = res.body.id;
@@ -1064,7 +1047,7 @@ describe('Company Controller', function() {
                 .catch(done);
         });
         it('Imports history', function(done){
-            req.post('/api/company/'+companyId+'/import_pending_history')
+            return req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(200)
                 .then((res) => {
                     done();
@@ -1072,5 +1055,31 @@ describe('Company Controller', function() {
                 });
         });
     });
+
+   describe('Import with full inferred transfer (2449534)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            return req.post('/api/company/import/companiesoffice/2449534')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Imports history', function(done){
+            return req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then((res) => {
+                    done();
+                    // TODO, resolve this crazy doc
+                });
+        });
+    });
+
 
 });
