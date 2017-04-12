@@ -17,7 +17,7 @@ import { push } from 'react-router-redux';
 import StaticField from './forms/staticField';
 import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
-
+import Loading from './loading';
 
 const interestRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM319933">Keeping of interests register</LawBrowserLink>
@@ -60,7 +60,7 @@ const validate = (values) => {
     return errors;
 }
 
-class EntryForm extends React.Component {
+class EntryForm extends React.PureComponent {
     static propTypes = {
         addValue: PropTypes.func.isRequired,
         fields: PropTypes.object.isRequired,
@@ -121,7 +121,7 @@ class EntryForm extends React.Component {
                 hasFeedback groupClassName='has-group'
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
                     <option></option>
-                    { ((this.props.companyState.directorList || {}).directors || []).map((d, i) => {
+                    { (((this.props.companyState || {}).directorList || {}).directors || []).map((d, i) => {
                         return <option key={i} value={d.person.id}>{d.person.name}</option>
                     })}
                 </Input>
@@ -152,7 +152,7 @@ const ConnectedForm = reduxForm({
     fields,
     validate
 }, state => ({
-    initialValues: {persons: [{}], }
+    initialValues: {persons: [''], }
 }), {
     addValue: addArrayValue
 })(EntryForm);
@@ -193,7 +193,7 @@ function renderField(key, data, companyId) {
     addNotification: (...args) => addNotification(...args),
     push: (...args) => push(...args)
 })
-export class InterestsRegisterView extends React.Component {
+export class InterestsRegisterView extends React.PureComponent {
     static propTypes = {
         interestsRegister: PropTypes.array,
     };
@@ -245,7 +245,7 @@ export class InterestsRegisterView extends React.Component {
     requestData: (key) => requestResource('/company/'+key+'/interests_register'),
     viewEntry: (path, id) => push(path + '/view/'+id)
 })
-export class InterestsRegister extends React.Component {
+export class InterestsRegister extends React.PureComponent {
 
     static fields = ['date', 'persons', 'details', 'documents']
 
@@ -268,6 +268,7 @@ export class InterestsRegister extends React.Component {
                     })}
                 </tbody>
             </table>
+             { this.props._status === 'fetching' && <Loading />}
             <div className="button-row">
             <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary">Create New Entry</Link></div>
             </div>

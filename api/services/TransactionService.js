@@ -333,8 +333,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                             shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
                         });
                 }
-
-                data.parcels = inverseHolding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}))
+                // TODO, needs before and after amount
+                data.parcels = inverseHolding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass, beforeAmount: p.amount, afterAmount: 0 }))
                 data.inferAmount = false;
             }
             if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !data.confirmationUnneeded){
@@ -707,7 +707,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
 
         if(data.inferAmount){
             data = {...data}
-            data.parcels = holding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}));
+            data.parcels = holding.dataValues.parcels.map(p => ({amount: p.amount, beforeAmount: 0, afterAmount: p.amount, shareClass: p.shareClass}));
             data.inferAmount = false;
         }
         data.parcels.map(newParcel => {

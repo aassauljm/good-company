@@ -2,7 +2,6 @@ var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var moment = require('moment');
 const cheerio = require('cheerio');
-import ScrapingService from '../../../api/services/ScrapingService';
 
 
 describe('Scraping Service', function() {
