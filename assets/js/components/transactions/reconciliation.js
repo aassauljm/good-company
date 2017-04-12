@@ -278,6 +278,16 @@ FUTURE_PAGES[LOADING] = function() {
         </div>
     }
 }
+
+FUTURE_PAGES[FINISHED] = function() {
+    return <div>
+        <p>All Companies Office change has been successfully reconciled.</p>
+        <div className="button-row">
+        <Link className="btn btn-primary" to={`/company/view/${this.props.transactionViewData.companyId}`}>Click here to return to your company page</Link>
+        </div>
+        </div>
+}
+
 @connect((state, ownProps) => {
     return {
         pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {},
@@ -493,7 +503,6 @@ export class ImportFutureTransactionView extends React.Component {
         this.handleAddNew = ::this.handleAddNew;
         this.handleConfirm = ::this.handleConfirm;
         this.toggleConfirmed = ::this.toggleConfirmed;
-        this.handleReset = ::this.handleReset;
         this.state = {pendingFuture: props.pendingFuture};
     };
 
@@ -535,16 +544,14 @@ export class ImportFutureTransactionView extends React.Component {
         this.props.next({index: LOADING});
         this.props.performImport()
             .then(action => {
-                this.props.end();
+                this.props.next({index: FINISHED});
             })
             .catch(e => {
                 this.handleResolve(this.props.importFuture.error, CONTINUE);
             })
     }
 
-    handleReset() {
-        //this.props.reset();
-    }
+
 
     handleEdit(actionSet, pendingActions, editIndex) {
         this.props.destroyForm('amend');

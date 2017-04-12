@@ -898,7 +898,7 @@ describe('Company Controller', function() {
     });
 
    describe('Test another multi transfer (1971578)', function(){
-        var req, companyId, context, classes, holdings;
+        var req, companyId, context, classes, holdings, path
 
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -944,6 +944,30 @@ describe('Company Controller', function() {
                 .catch(done)
         });
 
+        it('Checks for updates', function(done){
+            path =  ScrapingService._testPath ;
+            ScrapingService._testPath = 'test/fixtures/companies_office/futures/1/';
+            return req
+                .put('/api/company/'+companyId+'/update_source_data')
+                .expect(200)
+                .then((res) => {
+                    done();
+                })
+                .catch(done)
+        });
+
+        it('Updates future', function(done){
+            req.post('/api/company/'+companyId+'/import_pending_future')
+                .expect(200)
+                .then(function(res){
+                    done();
+                })
+                .catch(done)
+        });
+
+        after(() => {
+            ScrapingService._testPath = path;
+        })
     });
 
    describe('Director appointed and removed on incorporation day (1522101)', function(){

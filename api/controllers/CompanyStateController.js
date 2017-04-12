@@ -232,7 +232,7 @@ var transactions = {
                     return entry.setDocuments(data.documents)
                         .then(() => entry)
                 }
-                return etnry;
+                return entry;
             })
 
             .then(function(entry){

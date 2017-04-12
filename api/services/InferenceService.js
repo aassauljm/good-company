@@ -197,7 +197,7 @@ module.exports = {
                                 amount: a.amount,
                                 beforeAmount: a.amount,
                                 transactionMethod: Transaction.types.AMEND,
-                                transactionType: [Transaction.types.AMEND,
+                                transactionType: a.transactionType && [Transaction.types.AMEND,
                                     Transaction.types.NEW_ALLOCATION,
                                     Transaction.types.REMOVE_ALLOCATION].indexOf(a.transactionType) < 0 ? a.transactionType : Transaction.types.AMEND
                             }

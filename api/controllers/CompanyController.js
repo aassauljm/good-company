@@ -225,6 +225,7 @@ module.exports = {
                     }, {});
                     let processedDocs, state, directory;
                     const documents = newData.documents.filter(d => !existing[d.documentId]);
+
                     if(documents.length){
                         return sequelize.transaction(() => {
                             const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };

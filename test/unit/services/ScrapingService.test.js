@@ -2,6 +2,8 @@ var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var moment = require('moment');
 const cheerio = require('cheerio');
+import ScrapingService from '../../../api/services/ScrapingService';
+
 
 describe('Scraping Service', function() {
 
@@ -538,5 +540,20 @@ describe('Scraping Service', function() {
             });
     });
 
+    describe('Process all transfers', function() {
+        it('reads file, creates amends actions 24152312', function(done){
+            return fs.readFileAsync('test/fixtures/companies_office/documents/24152312.html', 'utf8')
+                .then(function(document){
+                    const result = ScrapingService.processDocument(document, {
+                        'documentType': 'Particulars of Shareholding',
+                    });
+                    const actions = InferenceService.segmentAndSortActions([result]);
+                    actions[0].actions.length.should.be.equal(4);
+
+                    done();
+                })
+                .catch(done)
+            });
+    });
 
 });
