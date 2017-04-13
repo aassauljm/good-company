@@ -97,9 +97,17 @@ function TransactionSummaries(props) {
         return true;
     });
     const className = props.loading ? 'button-loading' : 'loaded';
-    const message = pendingActions.length ?
+    let message;
+    if(props.future){
+        message = pendingActions.length ?
+        'Please Confirm or Edit the recent transactions listed below.  Please note that even confirmed transactions may require corrections.' :
+        "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
+    }
+    else{
+        message = pendingActions.length ?
         'Please Confirm or Edit the transactions from the last 10 years listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
         "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
+    }
 
     return <div className={className}>
         <p>{ message }</p>
@@ -241,6 +249,7 @@ FUTURE_PAGES[EXPLAINATION] = function() {
         const pendingYearActions = collectActions(this.state.pendingFuture.data);
         if(pendingYearActions.length){
             return <TransactionSummaries
+                future={true}
                 shareClassMap={generateShareClassMap(this.props.transactionViewData.companyState) }
                 pendingActions={pendingYearActions}
                 handleStart={this.handleStart}

@@ -139,7 +139,7 @@ describe('Company Controller', function() {
     });
 
     describe('Test import from companies office (AROA BIOSURGERY LIMITED (1980577))', function(){
-        var req, companyId;
+        var req, companyId, path
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
             login(req).then(done);
@@ -161,6 +161,38 @@ describe('Company Controller', function() {
                 })
                 .catch(done);
         });
+        it('Gets warnings', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(false);
+                    done();
+                });
+        });
+        it('Checks for updates', function(done){
+            path =  ScrapingService._testPath ;
+            ScrapingService._testPath = 'test/fixtures/companies_office/futures/1/';
+            return req
+                .put('/api/company/'+companyId+'/update_source_data')
+                .expect(200)
+                .then((res) => {
+                    done();
+                })
+                .catch(done)
+        });
+        it('Gets warnings', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(true);
+                    done();
+                })
+                .catch(done)
+        });
+        after(() => {
+            ScrapingService._testPath = path;
+        })
+
     });
 
     describe('Test import and previous state (3523392)', function(){
