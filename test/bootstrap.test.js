@@ -12,9 +12,8 @@ var chaiSubset = require('chai-subset');
 chai.use(chaiAsPromised);
 chai.use(chaiSubset);
 chai.should();
-var events = require("events"),
-EventEmitter = events.EventEmitter;
-EventEmitter.defaultMaxListeners = 30;
+var events = require("events");
+events.EventEmitter.prototype._maxListeners = 100;
 Error.stackTraceLimit = Infinity;
 var Utils = require("../assets/js/utils");
 var _fetch = require('isomorphic-fetch');
