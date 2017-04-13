@@ -503,7 +503,7 @@ CREATE OR REPLACE FUNCTION all_pending_future_actions(companyStateId integer)
     SELECT p.* from
     prev_actions pa
     JOIN action p on p.id = pa.id
-    order by index desc
+    order by index asc
 $$ LANGUAGE SQL;
 
 
