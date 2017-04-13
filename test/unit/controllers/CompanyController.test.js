@@ -769,23 +769,8 @@ describe('Company Controller', function() {
                         done();
                     });
             });
-            after(() => {
-                ScrapingService._testPath = path;
-            })
-        });
 
-    describe('Test more futures with catalex (5311842)', function(){
-            var path;
-            it('Gets warnings', function(done){
-                req.get('/api/company/'+companyId+'/get_info')
-                    .expect(200)
-                    .then(function(res){
-                        res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(false);
-                        done();
-                    });
-            });
-            it('Checks for updates', function(done){
-                path =  ScrapingService._testPath ;
+            it('Checks for updates again ', function(done){
                 ScrapingService._testPath = 'test/fixtures/companies_office/futures/2/';
                 return req
                     .put('/api/company/'+companyId+'/update_source_data')
