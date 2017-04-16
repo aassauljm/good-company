@@ -589,6 +589,7 @@ export class ImportFutureTransactionView extends React.Component {
         this.props.show('resolveAmbiguity',
             {
                 ...this.props.transactionViewData,
+                isFuture: true,
                 error: error,
                  //open this transactionView again
                 afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}},

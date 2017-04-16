@@ -464,14 +464,18 @@ const DEFAULT_OBJ = {};
 @connect((state, ownProps) => {
     return {
         currentCompanyState: state.resources[`/company/${ownProps.transactionViewData.companyId}/get_info`] || DEFAULT_OBJ,
-        updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ,
-        pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || DEFAULT_OBJ
+        updating: ownProps.transactionViewData.isFuture ?
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ :
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_future`] || DEFAULT_OBJ,
+        pendingHistory: ownProps.transactionViewData.isFuture ?
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_future`] || DEFAULT_OBJ :
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || DEFAULT_OBJ
     };
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
         updateAction: (args) => {
-            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/${ownProps.transactionViewData.isFuture ? 'update_pending_future' : 'update_pending_history'}`, args, {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
             .then(() => {
@@ -487,7 +491,9 @@ const DEFAULT_OBJ = {};
                 dispatch(destroy('amend'));
             })
         },
-        requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
+        requestData: () => ownProps.transactionViewData.isFuture ?
+            dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_future`)) :
+            dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
         destroyForm: (args) => {
             return dispatch(destroy(args))
         }

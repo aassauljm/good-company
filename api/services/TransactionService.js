@@ -672,7 +672,13 @@ export const performHolderChange = function(data, companyState, previousState, e
             return transaction;
         })
         .catch((e)=>{
-            throw new sails.config.exceptions.InvalidOperation('Cannot find holder, holder change')
+            throw new sails.config.exceptions.InvalidOperation('Cannot find holder, holder change', {
+                action: data,
+                importErrorType: sails.config.enums.HOLDER_NOT_FOUND,
+                companyState: companyState
+            })
+
+
         });
 };
 
@@ -1946,7 +1952,7 @@ export function performTransaction(data, company, companyState, resultingTransac
 }
 
 export function performAllPending(company){
-    let state;
+    let state, actionSet;
     return sequelize.transaction(function(t){
         return company.getCurrentCompanyState()
             .then(_state => {
@@ -1955,6 +1961,7 @@ export function performAllPending(company){
             })
             .then(futureActions => {
                 return Promise.each(futureActions, (futureAction) => {
+                    actionSet = futureAction;
                     return performAllInsertByEffectiveDate([futureAction.data], company)
                 });
             })
@@ -1964,6 +1971,11 @@ export function performAllPending(company){
         })
         .then(function(state) {
             return state.update({'pending_future_action_id': null}, {fields: ['pending_future_action_id']});
+        })
+        .catch(e => {
+            e.context = e.context || {};
+            e.context.actionSet = actionSet;
+            throw e;
         })
 }
 
