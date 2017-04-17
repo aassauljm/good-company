@@ -272,6 +272,7 @@ module.exports = {
                         pendingActions[i-1].previous_id = pa.id;
                     }
                 });
+
                 return sequelize.transaction(() => {
                     return this.getCurrentCompanyState()
                         .then(_currentState => {

@@ -1,0 +1,205 @@
+{"transactions": [{
+    "effectiveDate": "2017-03-29T23:56:21.000Z",
+      "actions": [
+        {
+          "holders": [
+            {
+              "name": "Norman Barry WHITE",
+              "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "parcels": [
+            {
+              "amount": 971,
+              "afterAmount": 0,
+              "beforeAmount": 971
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Norman Barry WHITE",
+              "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Norman Barry WHITE",
+              "address": "64 Khyber Pass Road, Grafton, Auckland, 1023, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "effectiveDate": "2017-03-29T23:56:21.000Z",
+          "transactionType": "TRANSFER_FROM",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "parcels": [
+            {
+              "amount": 426,
+              "afterAmount": 41733,
+              "beforeAmount": 41307
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Megan Jean CUNNINGHAM-ADAMS",
+              "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+              "companyNumber": null
+            },
+            {
+              "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+              "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Megan Jean CUNNINGHAM-ADAMS",
+              "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+              "companyNumber": null
+            },
+            {
+              "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+              "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "effectiveDate": "2017-03-29T23:56:21.000Z",
+          "transactionType": "TRANSFER_TO",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "parcels": [
+            {
+              "amount": 426,
+              "afterAmount": 41733,
+              "beforeAmount": 41307
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Peter James BLOY",
+              "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+              "companyNumber": null
+            },
+            {
+              "name": "Thomas David BLOY",
+              "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Peter James BLOY",
+              "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+              "companyNumber": null
+            },
+            {
+              "name": "Thomas David BLOY",
+              "address": "19 Halberg Street, Glenfield, Auckland, 0629, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "effectiveDate": "2017-03-29T23:56:21.000Z",
+          "transactionType": "TRANSFER_TO",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "parcels": [
+            {
+              "amount": 97,
+              "afterAmount": 9612,
+              "beforeAmount": 9515
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Peter James BLOY",
+              "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+              "companyNumber": null
+            },
+            {
+              "name": "Priscilla Rose BLOY",
+              "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Peter James BLOY",
+              "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+              "companyNumber": null
+            },
+            {
+              "name": "Priscilla Rose BLOY",
+              "address": "3 Lookaway Lane, Huntsbury, Christchurch, 8022, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "effectiveDate": "2017-03-29T23:56:21.000Z",
+          "transactionType": "TRANSFER_TO",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "parcels": [
+            {
+              "amount": 11,
+              "afterAmount": 982,
+              "beforeAmount": 971
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Stephen James ROGERS",
+              "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Stephen James ROGERS",
+              "address": "32b Sylvan Avenue, Northcote, Auckland, 0627, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "effectiveDate": "2017-03-29T23:56:21.000Z",
+          "transactionType": "TRANSFER_TO",
+          "transactionMethod": "AMEND"
+        },
+        {
+          "parcels": [
+            {
+              "amount": 11,
+              "afterAmount": 982,
+              "beforeAmount": 971
+            }
+          ],
+          "afterHolders": [
+            {
+              "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+              "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "inferredType": true,
+          "beforeHolders": [
+            {
+              "name": "Tamina Kelly CUNNINGHAM-ADAMS",
+              "address": "468 Sandringham Road, Sandringham, Auckland, 1025, New Zealand",
+              "companyNumber": null
+            }
+          ],
+          "effectiveDate": "2017-03-29T23:56:21.000Z",
+          "transactionType": "TRANSFER_TO",
+          "transactionMethod": "AMEND"
+        }
+      ]
+}]
+}

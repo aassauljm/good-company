@@ -478,7 +478,7 @@ describe('Company Controller', function() {
         });
     });
 
-    describe('Test import with resolution and reset catalex (5311842)', function(){
+    describe('Test import with resolution and reset and futures catalex (5311842)', function(){
         var req, companyId, context, classes, holdings;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -757,13 +757,30 @@ describe('Company Controller', function() {
         describe('Test futures with catalex (5311842)', function(){
             var path;
             it('Gets warnings', function(done){
-                req.get('/api/company/'+companyId+'/get_info')
+                return req.get('/api/company/'+companyId+'/get_info')
                     .expect(200)
                     .then(function(res){
                         res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(false);
                         done();
                     });
             });
+
+            it('does an update, mirroring transactions on companies office', function(done){
+                return fs.readFileAsync('test/fixtures/transactionData/catalexFutureTransferConflict.json', 'utf8')
+                    .then((data) =>{
+                        return req
+                        .post('/api/transaction/compound/'+companyId)
+                        .send(JSON.parse(data))
+                        .expect(200)
+                        .then((res) => {
+                            done();
+                        })
+                        .catch(e => {
+                            console.log(e)
+                        })
+                })
+            });
+
             it('Checks for updates', function(done){
                 path =  ScrapingService._testPath ;
                 ScrapingService._testPath = 'test/fixtures/companies_office/futures/1/';
@@ -773,33 +790,24 @@ describe('Company Controller', function() {
                     .then((res) => {
                         done();
                     })
-                    .catch(done)
             });
             it('Gets warnings', function(done){
-                req.get('/api/company/'+companyId+'/get_info')
+                return req.get('/api/company/'+companyId+'/get_info')
                     .expect(200)
                     .then(function(res){
                         res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(true);
                         done();
                     })
-                    .catch(done)
             });
-            it('Updates future', function(done){
-                req.post('/api/company/'+companyId+'/import_pending_future')
+
+            it('Counts pending future', function(done){
+                return req.get('/api/company/'+companyId+'/pending_future')
                     .expect(200)
                     .then(function(res){
+                       res.body.length.should.be.equal(1);
                         done();
                     })
                     .catch(done)
-            });
-
-            it('Gets warnings', function(done){
-                req.get('/api/company/'+companyId+'/get_info')
-                    .expect(200)
-                    .then(function(res){
-                        res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(false);
-                        done();
-                    });
             });
 
             it('Checks for updates again ', function(done){
@@ -813,7 +821,7 @@ describe('Company Controller', function() {
                     .catch(done)
             });
             it('Gets warnings', function(done){
-                req.get('/api/company/'+companyId+'/get_info')
+                return req.get('/api/company/'+companyId+'/get_info')
                     .expect(200)
                     .then(function(res){
                         res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(true);
@@ -821,13 +829,41 @@ describe('Company Controller', function() {
                     })
                     .catch(done)
             });
-            it('Updates future', function(done){
-                req.post('/api/company/'+companyId+'/import_pending_future')
+
+            it('Counts pending future', function(done){
+                return req.get('/api/company/'+companyId+'/pending_future')
                     .expect(200)
                     .then(function(res){
+                       res.body.length.should.be.equal(4);
                         done();
                     })
-                    .catch(done)
+            });
+
+
+
+            it('Updates future, fails, then resolves', function(done){
+
+                return req.post('/api/company/'+companyId+'/import_pending_future')
+                    .expect(500)
+                    .then(function(res){
+                        return req.get('/api/company/'+companyId+'/pending_future');
+                    })
+                    .then(function(res){
+                        const update = res.body;
+                        update[0].data.actions.map(a => {
+                            a.userSkip = true;
+                        });
+                        return req.put('/api/company/'+companyId+'/update_pending_future')
+                            .send({pendingActions: update})
+                            .expect(200)
+                            .then(() => {
+                                return req.post('/api/company/'+companyId+'/import_pending_future')
+                            })
+
+                    })
+                    .then(function(){
+                        done();
+                    })
             });
 
             it('Gets warnings', function(done){

@@ -532,18 +532,6 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             this.handleClose();
         }
 
-
-        if(!PAGES[context.importErrorType]){
-            return <div className="resolve">
-                { basicSummary(context, this.props.transactionViewData.companyState)}
-                    <hr/>
-                    <div><p>An unknown problem occured while importing.  Please Restart the import process.</p></div>
-                    <div className="button-row">
-                           <Button onClick={() => this.handleClose({cancelled: true, index: 0})} bsStyle="default">Cancel</Button>
-                        <Button onClick={this.props.resetAction} className="btn-danger">Restart Reconciliation</Button>
-                    </div>
-                </div>
-        }
         let edit;
         if(this.props.transactionViewData.editTransactionData){
             // if we are doing a year by year import, we have greater flexibility for importing
@@ -553,6 +541,19 @@ export class ResolveAmbiguityTransactionView extends React.Component {
                 this.props.show('editTransaction', {...this.props.transactionViewData.editTransactionData, actionSet: context.actionSet, otherActions});
                 this.props.destroyForm('amend');
             }
+        }
+
+        if(!PAGES[context.importErrorType]){
+            return <div className="resolve">
+                { basicSummary(context, this.props.transactionViewData.companyState)}
+                    <hr/>
+                    <div><p>An unknown problem occured while importing.  {!this.props.transactionViewData.isFuture &&  `Please Restart the import process.`}</p></div>
+                    <div className="button-row">
+                           <Button onClick={() => this.handleClose({cancelled: true, index: 0})} bsStyle="default">Cancel</Button>
+                        { !this.props.transactionViewData.isFuture && <Button onClick={this.props.resetAction} className="btn-danger">Restart Reconciliation</Button> }
+                        { this.props.transactionViewData.isFuture && <Button onClick={edit} className="btn-info">Edit Transaction</Button> }
+                    </div>
+                </div>
         }
 
         if(this.props.updating._status !== 'fetching' && this.props.pendingHistory.data && this.props.currentCompanyState._status === 'complete'){

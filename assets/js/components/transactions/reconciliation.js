@@ -121,7 +121,7 @@ function TransactionSummaries(props) {
         { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
         { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
         { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
-        {  <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button> }
+        {  !props.future  && <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button> }
 
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
@@ -569,6 +569,7 @@ export class ImportFutureTransactionView extends React.Component {
             endId: pendingActions[pendingActions.length-1].previous_id,
             actionSet,
             pendingActions,
+            isFuture: true,
             afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION, editIndex}}}
         });
     }
@@ -579,6 +580,7 @@ export class ImportFutureTransactionView extends React.Component {
             startId: pendingActions[0].id,
             endId: pendingActions[pendingActions.length-1].previous_id,
             otherActions: pendingActions,
+            isFuture: true,
             afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
         });
     }
@@ -595,6 +597,7 @@ export class ImportFutureTransactionView extends React.Component {
                 afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
                 editTransactionData: {
                     startId: pendingActions[0].id,
+                    isFuture: true,
                     endId: pendingActions[pendingActions.length-1].previous_id,
                     pendingActions,
                     // other actions

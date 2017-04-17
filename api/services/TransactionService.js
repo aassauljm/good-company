@@ -678,7 +678,6 @@ export const performHolderChange = function(data, companyState, previousState, e
                 companyState: companyState
             })
 
-
         });
 };
 
@@ -1866,6 +1865,10 @@ export function performTransaction(data, company, companyState, resultingTransac
     if(!data.actions || data.userSkip){
         return Promise.resolve(companyState);
     }
+    const actions = data.actions.filter(a => !a.userSkip);
+    if(!actions.length){
+        return Promise.resolve(companyState);
+    }
     /*if(data.transactionType === Transaction.types.ANNUAL_RETURN){
         return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
@@ -1890,7 +1893,7 @@ export function performTransaction(data, company, companyState, resultingTransac
             nextState = _nextState;
             // TODO, serviously consider having EACH action create a persistant graph
             // OR, force each transaction set to be pre grouped
-            return Promise.reduce(data.actions, function(arr, action){
+            return Promise.reduce(actions, function(arr, action){
                 sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId, isReplay);
                 let result;
                 const method = action.transactionMethod || action.transactionType;

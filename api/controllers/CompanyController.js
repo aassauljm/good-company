@@ -243,10 +243,15 @@ module.exports = {
                                     if(pendingActions.length){
                                         nextActionId = _.last(pendingActions).id;
                                     }
-                                    return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id || nextActionId})));
+                                    return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
                                 })
                                 .then((actions) => {
-                                    return !nextActionId && company.currentCompanyState.update({'pending_future_action_id': actions[0].id});
+                                    if(!nextActionId){
+                                        return company.currentCompanyState.update({'pending_future_action_id': processedDocs[0].id});
+                                    }
+                                    else{
+                                        return Action.update({previous_id: processedDocs[0].id}, {where: {id: nextActionId}})
+                                    }
                                 })
                                 .then(() => {
                                     return company.getCurrentCompanyState({include: [{model: DocumentList, as: 'docList'}]})
@@ -625,6 +630,7 @@ module.exports = {
     },
 
     updatePendingFuture: function(req, res){
+        console.log('updating pending')
         const args = actionUtil.parseValues(req);
         let company ,state;
         Company.findById(req.params.id)
@@ -641,7 +647,7 @@ module.exports = {
             return ActivityLog.create({
                 type: ActivityLog.types.UPDATE_PENDING_HISTORY,
                 userId: req.user.id,
-                description: `Updated ${companyName} History`,
+                description: `Updated ${companyName} Pending Transactions`,
                 data: {companyId: company.id}
             });
         })
