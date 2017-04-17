@@ -107,6 +107,21 @@ CREATE OR REPLACE FUNCTION root_company_state(companyStateId integer)
     SELECT id from find_state where "previousCompanyStateId" is null;
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION company_from_company_state(companyStateId integer)
+    RETURNS INTEGER
+    AS $$
+     WITH RECURSIVE future_company_states(id, "previousCompanyStateId",  generation) as (
+        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id = $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM company_state t, future_company_states tt
+        WHERE tt.id = t."previousCompanyStateId")
+
+        SELECT c.id from future_company_states fcs
+        JOIN company c on c."currentCompanyStateId" = fcs.id
+    LIMIT 1;
+$$ LANGUAGE SQL;
+
 
 -- get the companyState for right now
 CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp with time zone)
@@ -123,7 +138,8 @@ CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp wi
         (SELECT pvs.id, generation, "effectiveDate" FROM prev_company_states pvs
          LEFT OUTER JOIN transaction t on t.id = pvs."transactionId"
          ORDER BY generation ASC) q
-    WHERE q."effectiveDate" < $2 OR q."effectiveDate" is NULL LIMIT 1
+    WHERE q."effectiveDate" < $2 OR q."effectiveDate" is NULL
+    LIMIT 1
 $$ LANGUAGE SQL;
 
 -- get the companyState for right now
@@ -465,6 +481,30 @@ CREATE OR REPLACE FUNCTION all_pending_actions(companyStateId integer)
     order by index asc
 $$ LANGUAGE SQL;
 
+-- A list of pendingActions for a company state
+CREATE OR REPLACE FUNCTION all_pending_future_actions(companyStateId integer)
+    RETURNS SETOF action
+    AS $$
+    WITH RECURSIVE future as (
+        SELECT pending_future_action_id as id
+        FROM company_state cs
+        WHERE cs.id = $1
+    ),  prev_actions(start_id, id, "previous_id", index) as (
+            SELECT t.id as start_id, t.id, t."previous_id", 0 as index
+            FROM action t
+            JOIN future s on s.id = t.id
+
+            UNION ALL
+
+            SELECT pa.start_id, t.id, t."previous_id", index+1
+            FROM action t, prev_actions pa
+            WHERE t.id = pa."previous_id"
+        )
+    SELECT p.* from
+    prev_actions pa
+    JOIN action p on p.id = pa.id
+    order by index asc
+$$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)
@@ -473,7 +513,18 @@ CREATE OR REPLACE FUNCTION has_pending_historic_actions(companyStateId integer)
     SELECT pending_historic_action_id is not null from  company_state cs
       INNER JOIN
       (SELECT root_company_state($1)) s on s.root_company_state = cs.id
-$$ LANGUAGE SQL;
+$$ LANGUAGE SQL STABLE;
+
+
+CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
+    RETURNS BOOLEAN
+    AS $$
+    SELECT pending_future_action_id is not null
+    from  company c
+      INNER JOIN
+      (SELECT company_from_company_state($1)) s on s.company_from_company_state = c.id
+      INNER JOIN company_state cs on c."currentCompanyStateId" = cs.id
+$$ LANGUAGE SQL STABLE;
 
 
 CREATE OR REPLACE FUNCTION has_missing_voting_shareholders(companyStateId integer)
@@ -522,53 +573,8 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
-    SELECT extensive from  company_state cs where cs.id = $1
+    SELECT extensive from company_state cs where cs.id = $1
 $$ LANGUAGE SQL;
-
-
-CREATE OR REPLACE FUNCTION get_warnings(companyStateId integer)
-    RETURNS JSONB
-    AS $$
-    SELECT jsonb_build_object(
-        'pendingHistory', has_pending_historic_actions($1),
-        'missingVotingShareholders', has_missing_voting_shareholders($1),
-        'shareClassWarning', has_no_share_classes($1),
-        'applyShareClassWarning', has_no_applied_share_classes($1),
-        'extensiveWarning', has_extensive_shareholding($1),
-        'treasuryStockOverAllocated', FALSE
-        )
-$$ LANGUAGE SQL;
-
-
-CREATE OR REPLACE FUNCTION apply_warnings()
-RETURNS trigger AS $$
-BEGIN
-    UPDATE company_state set warnings = get_warnings(NEW.id) where id = NEW.id;
-
-    -- TODO, save result of pendingHistory and propagate
-     WITH RECURSIVE future_company_states(id, "previousCompanyStateId",  generation) as (
-        SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  NEW.id
-        UNION ALL
-        SELECT t.id, t."previousCompanyStateId", generation + 1
-        FROM company_state t, future_company_states tt
-        WHERE tt.id = t."previousCompanyStateId")
-
-     UPDATE company_state cs set warnings = get_warnings(cs.id)
-     FROM (SELECT id from future_company_states) subquery
-
-
-    WHERE subquery.id = cs.id and cs.id != NEW.id;
-  RETURN NEW;
-END $$ LANGUAGE 'plpgsql';
-
-
-
-DROP TRIGGER IF EXISTS company_state_warnings_trigger ON company_state;
-CREATE TRIGGER company_state_warnings_trigger AFTER INSERT OR UPDATE ON company_state
-    FOR EACH ROW
-    WHEN (pg_trigger_depth() = 0)
-    EXECUTE PROCEDURE apply_warnings();
-
 
 
 
@@ -588,7 +594,7 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default '
          EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland') as "incorporatedThisYear",
                 EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM now()) as "filedThisYear",
                 make_timestamptz(
-                    EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland')::integer,
+                    EXTRACT(YEAR FROM date AT TIME ZONE 'Pacific/Auckland')::integer + 1,
                     EXTRACT(MONTH FROM TO_TIMESTAMP("arFilingMonth"::text, 'Month'))::integer,
                     1,
                     0,0,0.0, $2) + INTERVAL '1 month - 1 second' as "due"

@@ -333,8 +333,8 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
                             shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
                         });
                 }
-
-                data.parcels = inverseHolding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}))
+                // TODO, needs before and after amount
+                data.parcels = inverseHolding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass, beforeAmount: p.amount, afterAmount: 0 }))
                 data.inferAmount = false;
             }
             if(session.get('REQUIRE_CONFIRMATION') && !data.userConfirmed && !data.confirmationUnneeded){
@@ -672,7 +672,12 @@ export const performHolderChange = function(data, companyState, previousState, e
             return transaction;
         })
         .catch((e)=>{
-            throw new sails.config.exceptions.InvalidOperation('Cannot find holder, holder change')
+            throw new sails.config.exceptions.InvalidOperation('Cannot find holder, holder change', {
+                action: data,
+                importErrorType: sails.config.enums.HOLDER_NOT_FOUND,
+                companyState: companyState
+            })
+
         });
 };
 
@@ -707,7 +712,7 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
 
         if(data.inferAmount){
             data = {...data}
-            data.parcels = holding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}));
+            data.parcels = holding.dataValues.parcels.map(p => ({amount: p.amount, beforeAmount: 0, afterAmount: p.amount, shareClass: p.shareClass}));
             data.inferAmount = false;
         }
         data.parcels.map(newParcel => {
@@ -964,12 +969,13 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
 
 
 export function validateAmend(data, companyState){
-    if(!data.holdingId && !(data.holders && data.holders.length)){
-        throw new sails.config.exceptions.InvalidOperation('Holders required')
+    const holders = data.holders || data.afterHolders;
+    if(!data.holdingId && !(holders && holders.length)){
+        throw new sails.config.exceptions.InvalidOperation('Holders required');
     }
 
     const parcels =  data.parcels.map(p => ({amount: p.beforeAmount, shareClass: p.shareClass}));;
-    const holding = companyState.getMatchingHolding({holders: data.holders, holdingId: data.holdingId, parcels},
+    const holding = companyState.getMatchingHolding({holders: holders, holdingId: data.holdingId, parcels},
                                                     {ignoreCompanyNumber: true});
 
     if(!holding){
@@ -1022,7 +1028,7 @@ export const performAmend = Promise.method(function(data, companyState, previous
                 return  {amount: Math.abs(difference), shareClass: newParcel.shareClass};
             });
 
-            const newHolding = {holders: data.holders, parcels: parcels, holdingId: data.holdingId};
+            const newHolding = {holders: data.holders || data.afterHolders, parcels: parcels, holdingId: data.holdingId};
 
             if(!increase){
                 parcels.map(parcel => companyState.combineUnallocatedParcels(parcel));
@@ -1085,9 +1091,12 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
 };
 
 
-export  function performApplyShareClass(data, nextState, companyState, effectiveDate){
+export  function performApplyShareClass(data, nextState, companyState, effectiveDate, userId, isReplay){
     let index, holdingList;
-    // TODO, what if there is more than one match?
+    // FOR NOW, don't try to reapply
+    if(isReplay){
+        return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+    }
     return nextState.dataValues.holdingList.buildNext()
     .then(function(_holdingList){
         holdingList = _holdingList;
@@ -1099,8 +1108,13 @@ export  function performApplyShareClass(data, nextState, companyState, effective
         if(index < 0){
             throw new sails.config.exceptions.InvalidOperation('Cannot find holding to apply share class to')
         }
-        if(holdingList.dataValues.holdings[index].parcels.length > 1 || holdingList.dataValues.holdings[index].parcels[0].shareClass){
+        if(!isReplay && (holdingList.dataValues.holdings[index].parcels.length > 1 || holdingList.dataValues.holdings[index].parcels[0].shareClass)){
             throw new sails.config.exceptions.InvalidOperation('Share classes are all ready applied for this shareholding')
+        }
+        else if(isReplay){
+            // update this, may have changed
+            data.parcels = holdingList.dataValues.holdings[index].parcels.map(p => ({amount: p.amount, shareClass: p.shareClass}));
+            return holdingList.dataValues.holdings[index];
         }
         const sum = holdingList.dataValues.holdings[index].parcels.reduce((sum, p) => sum + p.amount, 0);
         const newSum = data.parcels.reduce((sum, p) => sum + p.amount, 0);
@@ -1214,11 +1228,11 @@ export function performHistoricHolderChange(data, nextState, previousState, effe
 }
 
 export function performInverseSeed(data, nextState, previousState, effectiveDate){
-    return Promise.resolve(Transaction.build({type: Transaction.types.SEED, effectiveDate: effectiveDate || new Date()}));
+    return Promise.resolve(Transaction.build({type: Transaction.types.SEED, effectiveDate: effectiveDate || data.effectiveDate }));
 }
 
 /**
-    Seed is a special cause, it doesn't care about previousState
+    Seed is a special cause, it doesn't care about previousState.  So not in normal transaction handler
 */
 export function performSeed(args, company, effectiveDate, userId){
     let state;
@@ -1333,9 +1347,9 @@ export function addActions(state, actionSet, company){
             }
         })
         .then(data => {
-            return Action.create(data);
+            return Action.findOrCreate({where: {id: actionSet.id}, defaults: data});
         })
-        .then(function(hA){
+        .spread(function(hA){
             state.set('historic_action_id', hA.id)
             state.dataValues.historicActions = hA;
             return state;
@@ -1588,7 +1602,7 @@ export function performInverseAll(company, state){
     }
     return sequelize.transaction(function(t){
             return Promise.resolve(state || company.getCurrentCompanyState())
-            .then(state => state.getPendingHistoricActions())
+            .then(state => state.getPendingActions())
         })
         .then(historicActions => historicActions && loop(historicActions.actions))
         .then(function(){
@@ -1753,6 +1767,9 @@ export function performInverseAllPendingUntil(company, endCondition){
         })
 }
 
+
+
+
 export function performInverseAllPending(company, endCondition, requireConfirmation){
     // if we specify endCondition, it should get there fine, as it will not be before SEED
     return new Promise((resolve, reject) => {
@@ -1769,6 +1786,7 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
             });
         });
 }
+
 
 
 function validateTransactionSet(data, companyState){
@@ -1817,9 +1835,10 @@ function validateTransactionSet(data, companyState){
 }
 
 
-export function performTransaction(data, company, companyState, resultingTransactions){
+export function performTransaction(data, company, companyState, resultingTransactions, isReplay){
 
     const PERFORM_ACTION_MAP = {
+        [Transaction.types.ANNUAL_RETURN]:          TransactionService.performAnnualReturn,
         [Transaction.types.ISSUE]:                  TransactionService.performIssue,
         [Transaction.types.ACQUISITION]:            TransactionService.performAcquisition,
         [Transaction.types.PURCHASE]:               TransactionService.performPurchase,
@@ -1846,14 +1865,18 @@ export function performTransaction(data, company, companyState, resultingTransac
     if(!data.actions || data.userSkip){
         return Promise.resolve(companyState);
     }
-    if(data.transactionType === Transaction.types.ANNUAL_RETURN){
+    const actions = data.actions.filter(a => !a.userSkip);
+    if(!actions.length){
+        return Promise.resolve(companyState);
+    }
+    /*if(data.transactionType === Transaction.types.ANNUAL_RETURN){
         return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             return PERFORM_ACTION_MAP[data.transactionType]({
                         ...data.actions[0], documentId: data.documentId
                     }, _state);
         })
-    }
+    }*/
     if(!data.id){
         data.id = uuid.v4();
     }
@@ -1864,20 +1887,20 @@ export function performTransaction(data, company, companyState, resultingTransac
     return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
         .then(function(_state){
             current = _state;
-            return current.buildNext({previousCompanyStateId: current.dataValues.id});
+            return current.buildNext({previousCompanyStateId: current.dataValues.id, pending_future_action_id: current.dataValues.pending_future_action_id});
         })
         .then(function(_nextState){
             nextState = _nextState;
             // TODO, serviously consider having EACH action create a persistant graph
             // OR, force each transaction set to be pre grouped
-            return Promise.reduce(data.actions, function(arr, action){
-                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
+            return Promise.reduce(actions, function(arr, action){
+                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId, isReplay);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, nextState, current, effectiveDate, company.get("ownerId"));
+                    }, nextState, current, effectiveDate, company.get("ownerId"), isReplay);
                 }
                 if(result){
                     return result.then(function(r){
@@ -1931,10 +1954,38 @@ export function performTransaction(data, company, companyState, resultingTransac
         })
 }
 
+export function performAllPending(company){
+    let state, actionSet;
+    return sequelize.transaction(function(t){
+        return company.getCurrentCompanyState()
+            .then(_state => {
+                state = _state;
+                return company.getPendingFutureActions()
+            })
+            .then(futureActions => {
+                return Promise.each(futureActions, (futureAction) => {
+                    actionSet = futureAction;
+                    return performAllInsertByEffectiveDate([futureAction.data], company)
+                });
+            })
+            .then(function() {
+                return company.getCurrentCompanyState()
+            })
+        })
+        .then(function(state) {
+            return state.update({'pending_future_action_id': null}, {fields: ['pending_future_action_id']});
+        })
+        .catch(e => {
+            e.context = e.context || {};
+            e.context.actionSet = actionSet;
+            throw e;
+        })
+}
+
 
 export function performAll(data, company, state, isReplay, resultingTransactions){
     return Promise.each(data, function(doc){
-        return TransactionService.performTransaction(doc, company, state, resultingTransactions)
+        return TransactionService.performTransaction(doc, company, state, resultingTransactions, isReplay)
             .then(_state => {
                 state = _state;
             })
@@ -2025,6 +2076,7 @@ export function performFilterOutTransactions(transactionIds, company){
             return state;
         });
 }
+
 
 export function createImplicitTransactions(state, transactions, effectiveDate){
     // remove empty allocations

@@ -208,7 +208,7 @@ function transactionRows(row, shareClassMap){
         return <tr><td colSpan="2"><em>No transaction history since { stringDateToFormattedString(row.startDate) } </em></td></tr>
     }
     results.sort((a, b) => a.generation - b.generation);
-    let total = row.last_amount;
+
     return results.map((r, i) =>{
         return <tr key={i}>
             <td className="date">{ stringDateToFormattedString(r.effectiveDate) }</td>

@@ -49,6 +49,23 @@ module.exports = {
         })
     },
 
+    checkCompaniesOffice: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                this.company = company;
+                return company.getNowCompanyState()
+            })
+            .then(function(companyState) {
+                return ImportService.checkCompaniesOfficeForUpdate(this.company, companyState)
+            })
+            .then(result => {
+                return res.json(result);
+            })
+            .catch(function(err) {
+                return res.serverError(err);
+            });
+    },
+
     getInfo: function(req, res) {
         Company.findById(req.params.id, {include: [{model: User, as: 'owner'}]})
             .then(function(company) {
@@ -77,7 +94,7 @@ module.exports = {
             })
             .then(function(company) {
                 const json = company.toJSON();
-                return res.json(json.sourceData);
+                return res.json({currentSourceData: json.sourceData});
             })
             .catch(function(err) {
                 return res.notFound(err);
@@ -184,27 +201,90 @@ module.exports = {
 
 
     updateSourceData: function(req, res){
-        let company;
+        let company, nextActionId;
         Company.findById(req.params.id, {
                 include: [{
                     model: SourceData,
                     as: 'sourceData'
+                },{
+                    model: CompanyState,
+                    as: 'currentCompanyState'
                 }]
             })
             .then(_company => {
                 company = _company;
-                return ScrapingService.fetch(company.sourceData.companyNumber)
+                return ScrapingService.fetch(company.sourceData.data.companyNumber)
             })
             .then(ScrapingService.parseNZCompaniesOffice)
-            .then(data => company.update({sourceData: data}))
-            .then(function(company) {
-                const json = company.toJSON();
-                return res.json(json.sourceData);
+            .then(data => ScrapingService.prepareSourceData(data, req.user.id))
+            .then(newData => {
+                // currently identifying new source data by comparing data
+                    const existing = company.sourceData.data.documents.reduce((acc, d) => {
+                        acc[d.documentId] = true;
+                        return acc;
+                    }, {});
+                    let processedDocs, state, directory;
+                    const documents = newData.documents.filter(d => !existing[d.documentId]);
+
+                    if(documents.length){
+                        return sequelize.transaction(() => {
+                            const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };
+                            return SourceData.create({data:newData})
+                                .then(data => company.setSourceData(data))
+                                .then(() => ScrapingService.getDocumentSummaries(docData))
+                                .then((readDocuments) => {
+                                    return ScrapingService.processDocuments(docData, readDocuments);
+                                })
+                                .then((docs) => {
+                                    processedDocs = docs.reverse();
+                                    return company.getPendingFutureActions()
+                                })
+                                .then(pendingActions => {
+                                    if(pendingActions.length){
+                                        nextActionId = _.last(pendingActions).id;
+                                    }
+                                    return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                                })
+                                .then((actions) => {
+                                    if(!nextActionId){
+                                        return company.currentCompanyState.update({'pending_future_action_id': processedDocs[0].id});
+                                    }
+                                    else{
+                                        return Action.update({previous_id: processedDocs[0].id}, {where: {id: nextActionId}})
+                                    }
+                                })
+                                .then(() => {
+                                    return company.getCurrentCompanyState({include: [{model: DocumentList, as: 'docList'}]})
+                                })
+                                .then(_state => {
+                                    state = _state;
+                                    return state.getDocumentDirectory();
+                                })
+                                .then(_directory => {
+                                    directory = _directory;
+                                    return ScrapingService.formatDocuments({documents, companyNumber: company.sourceData.data.companyNumber}, req.user.id)
+                                })
+                                .then(data => {
+                                    return Document.bulkCreate(data.docList.documents.map(d => ({...d, directoryId: directory.id})), {returning: true})
+                                })
+                                 .then((documents) => {
+                                    // mutate the company document list to contain the new docs
+                                    return state.docList.addDocuments(documents);
+                                })
+                                .then(() => {
+                                    return res.json({sourceDataUpdated: true})
+                                })
+                            })
+                    }
+                    else{
+                        return res.json({sourceDataUpdated: false});
+                    }
             })
             .catch(function(err) {
                 return res.notFound(err);
             });
     },
+
 
     history: function(req, res) {
         Company.findById(req.params.id)
@@ -492,79 +572,30 @@ module.exports = {
         })
     },
 
-    importPendingHistoryUntilAR: function(req, res){
+    importPendingFuture: function(req, res){
         let company, companyName;
         Company.findById(req.params.id)
         .then(function(_company){
             company  = _company;
-            return company.getNowCompanyState()
+            return company.getCurrentCompanyState()
         })
         .then(_state => {
             companyName = _state.get('companyName');
-            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => actionSet.data.transactionType === Transaction.types.ANNUAL_RETURN));
+            return TransactionService.performAllPending(company);
+        })
+        .then(function(result){
+            return res.json(result)
         })
         .then(() => {
-            return company.getPendingActions()
-        })
-        .then(pA => {
-            if(!pA.length){
-                res.json({complete: true});
-                return ActivityLog.create({
-                    type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
-                    userId: req.user.id,
-                    companyId: company.id,
-                    description: `Completed ${companyName} History Import`,
-                    data: {companyId: company.id}
-                });
-            }
-            else{
-                return res.json({complete: false})
-            }
+            return ActivityLog.create({
+                type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
+                userId: req.user.id,
+                companyId: company.id,
+                description: `Completed ${companyName} Reconciliation`,
+                data: {companyId: company.id}
+            });
         })
         .catch(function(e){
-            if(e.context){
-                e.context.CHUNK_IMPORT = true;
-            }
-            return res.serverError(e)
-        })
-    },
-
-    importPendingHistoryUntil: function(req, res){
-        let company, companyName;
-        const targetId = actionUtil.parseValues(req).target;
-        Company.findById(req.params.id)
-        .then(function(_company){
-            company  = _company;
-            return company.getNowCompanyState()
-        })
-        .then(_state => {
-            companyName = _state.get('companyName');
-            return TransactionService.performInverseAllPendingUntil(company, ((actionSet) => {
-                return actionSet.id === targetId;
-            }));
-        })
-        .then(() => {
-            return company.getPendingActions()
-        })
-        .then(pA => {
-            if(!pA.length){
-                res.json({complete: true});
-                return ActivityLog.create({
-                    type: ActivityLog.types.COMPLETE_IMPORT_HISTORY,
-                    userId: req.user.id,
-                    companyId: company.id,
-                    description: `Completed ${companyName} History Import`,
-                    data: {companyId: company.id}
-                });
-            }
-            else{
-                return res.json({complete: false})
-            }
-        })
-        .catch(function(e){
-            if(e.context){
-                e.context.CHUNK_IMPORT = true;
-            }
             return res.serverError(e)
         })
     },
@@ -579,7 +610,7 @@ module.exports = {
         })
         .then(_state => {
             state = _state;
-            return company.replacePendingActions(args.pendingActions);
+            return company.replacePendingHistoricActions(args.pendingActions);
         })
         .then(() => {
             const companyName = state.get('companyName');
@@ -587,6 +618,36 @@ module.exports = {
                 type: ActivityLog.types.UPDATE_PENDING_HISTORY,
                 userId: req.user.id,
                 description: `Updated ${companyName} History`,
+                data: {companyId: company.id}
+            });
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
+
+    updatePendingFuture: function(req, res){
+        console.log('updating pending')
+        const args = actionUtil.parseValues(req);
+        let company ,state;
+        Company.findById(req.params.id)
+        .then(function(_company){
+            company  = _company;
+            return company.getNowCompanyState()
+        })
+        .then(_state => {
+            state = _state;
+            return company.replacePendingFutureActions(args.pendingActions);
+        })
+        .then(() => {
+            const companyName = state.get('companyName');
+            return ActivityLog.create({
+                type: ActivityLog.types.UPDATE_PENDING_HISTORY,
+                userId: req.user.id,
+                description: `Updated ${companyName} Pending Transactions`,
                 data: {companyId: company.id}
             });
         })
@@ -712,7 +773,15 @@ module.exports = {
             return res.notFound(err);
         })
     },
-
+    getPendingFutureActions: function(req, res) {
+        Company.findById(req.params.id)
+        .then(company => company.getPendingFutureActions())
+       .then(function(matchingRecords) {
+            res.ok(matchingRecords);
+        }).catch(function(err) {
+            return res.notFound(err);
+        })
+    },
     getHistoricHolders: function(req, res) {
         Company.findById(req.params.id)
             .then(company => company.getHistoricHolders())

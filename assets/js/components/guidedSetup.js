@@ -124,7 +124,7 @@ export class GuidedSetup extends React.Component {
     calcSteps(props) {
         const warnings = getWarnings(props.companyState);
         const warningCount = Object.keys(warnings).reduce((acc, key) => {
-            return acc + (warnings[key] ? GuidedSetup.warningCounts[key] : 0);
+            return acc + (warnings[key] && GuidedSetup.warningCounts[key] ? GuidedSetup.warningCounts[key] : 0);
         }, 0);
         const warningSteps  =  Object.keys(GuidedSetup.warningCounts).reduce((acc, key) => {
             return acc + GuidedSetup.warningCounts[key];

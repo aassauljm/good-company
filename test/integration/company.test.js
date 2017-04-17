@@ -19,7 +19,6 @@ import { ShareClassesTable  } from "../../assets/js/components/shareClasses.js";
 import { CompanyAlertsWidget } from "../../assets/js/components/companyAlerts.js";
 import { ConnectedPlaceholderSearch } from '../../assets/js/components/search.js';
 import { ShareClassSelect } from '../../assets/js/components/transactions/applyShareClasses.js';
-import { ImportHistoryTransactionView } from '../../assets/js/components/transactions/importHistory.js';
 import Amend, { SubActions } from '../../assets/js/components/transactions/resolvers/amend';
 import { Confirmation } from '../../assets/js/components/modals';
 import { LoadingOverlay } from '../../assets/js/components/loading';

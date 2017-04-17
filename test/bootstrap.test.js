@@ -12,9 +12,8 @@ var chaiSubset = require('chai-subset');
 chai.use(chaiAsPromised);
 chai.use(chaiSubset);
 chai.should();
-var events = require("events"),
-EventEmitter = events.EventEmitter;
-EventEmitter.defaultMaxListeners = 30;
+var events = require("events");
+events.EventEmitter.prototype._maxListeners = 100;
 Error.stackTraceLimit = Infinity;
 var Utils = require("../assets/js/utils");
 var _fetch = require('isomorphic-fetch');
@@ -28,12 +27,14 @@ function stubs(){
     // lawbrowser links screw up in the testing tree
     LawBrowserContainer.default.prototype.forceNoLawLinks = true;
 
+    ScrapingService._testPath = 'test/fixtures/companies_office/';
+
     ScrapingService.fetch = function(companyNumber){
-        return fs.readFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', 'utf8');
+        return fs.readFileAsync(ScrapingService._testPath +companyNumber+'.html', 'utf8');
     }
 
     ScrapingService.fetchDocument = function(companyNumber, documentId){
-        return fs.readFileAsync('test/fixtures/companies_office/documents/'+documentId+'.html', 'utf8')
+        return fs.readFileAsync(ScrapingService._testPath + 'documents/'+documentId+'.html', 'utf8')
             .then(function(text){
                 return {text: text, documentId: documentId}
             });
@@ -134,7 +135,7 @@ function lift(cb){
         port: 1338,
         serverRender: true,
         log: {
-            level: 'error'
+            level: process.env.LOG || 'error'
         },
         models: {
             connection: 'pg_test',

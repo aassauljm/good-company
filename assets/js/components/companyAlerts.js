@@ -17,11 +17,13 @@ export function getWarnings(companyState) {
     const historyWarning = !!companyState.warnings.pendingHistory;
     const votingShareholderWarning = !!companyState.warnings.missingVotingShareholders;
     const applyShareClassWarning = !shareClassWarning && !!companyState.warnings.applyShareClassWarning
+    const pendingFuture = companyState.warnings.pendingFuture;
     return {
         shareClassWarning,
         historyWarning,
         votingShareholderWarning,
-        applyShareClassWarning
+        applyShareClassWarning,
+        pendingFuture
     }
 }
 
@@ -76,22 +78,23 @@ class ResolveAllWarnings extends React.Component {
 }
 
 @pureRender
-class PendingUpdate extends React.Component {
+class PendingFuture extends React.Component {
     render(){
-        return  <div><a  href="#" className="text-danger alert-entry">
-        <Glyphicon glyph="refresh" className="big-icon"/>
-        This company has pending updates queued.  You be unable to make changes until they are finished.</a>
+        return  <div><a  href="#" onClick={this.props.startFutureImport } className="text-danger alert-entry">
+        <Glyphicon glyph="transfer" className="big-icon"/>
+         New Companies Register records found. Click here to start reconciliation.</a>
         </div>
     }
 }
 
-export const AlertWarnings = {
+
+ export const AlertWarnings = {
     ApplyShareClasses: ApplyShareClasses,
     PopulateHistory: PopulateHistory,
     SpecifyShareClasses: SpecifyShareClasses,
     SpecifyVotingHolders: SpecifyVotingHolders,
     ResolveAllWarnings: ResolveAllWarnings,
-    PendingUpdate: PendingUpdate
+    PendingFuture: PendingFuture
 };
 
 
@@ -162,8 +165,8 @@ function hasAlerts(companyState, showTypes){
     const warn = getWarnings(companyState);
     const guide = warn.shareClassWarning || warn.historyWarning || warn.applyShareClassWarning || warn.votingShareholderWarning;
     const deadlines = hasDeadlines(companyState.deadlines, showTypes)
-    const pendingUpdates = companyState.hasPendingUpdates;
-    return pendingUpdates || guide || deadlines;
+    const pendingFuture = warn.pendingFuture;
+    return pendingFuture || guide || deadlines;
 }
 
 @connect(() => DEFAULT_OBJ, (dispatch, ownProps) => {
@@ -180,6 +183,11 @@ function hasAlerts(companyState, showTypes){
             dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
             dispatch(showTransactionView('votingShareholders', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
         },
+        startFutureImport: () => {
+            dispatch(push(`/company/view/${ownProps.companyId}/new_transaction`));
+            dispatch(showTransactionView('importFuture', {companyState: ownProps.companyState, companyId: ownProps.companyId}));
+        },
+
         resetTransactionViews: () => dispatch(resetTransactionViews())
     }
 })
@@ -201,10 +209,11 @@ export class CompanyAlertsBase extends React.Component {
     render() {
         const warn = getWarnings(this.props.companyState);
         const guide = warn.shareClassWarning || warn.historyWarning || warn.applyShareClassWarning || warn.votingShareholderWarning;
-        const deadlines = renderDeadlines(this.props.companyState.deadlines, this.props.showTypes, this.props.companyId)
-        const pendingUpdates = this.props.companyState.hasPendingUpdates;
+        const deadlines = renderDeadlines(this.props.companyState.deadlines, this.props.showTypes, this.props.companyId);
+        const pendingFuture = warn.pendingFuture;
+
         return <ul className="company-alerts">
-                { pendingUpdates && <li><AlertWarnings.PendingUpdate companyId={this.props.companyId} /></li> }
+                { pendingFuture && <li><AlertWarnings.PendingFuture companyId={this.props.companyId} startFutureImport={this.props.startFutureImport}/></li> }
                 { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetTransactionViews={this.props.resetTransactionViews}/></li>}
                 { deadlines }
                 { this.props.showAllWarnings && this.renderImportWarnings(warn) }
@@ -243,6 +252,7 @@ export class CompanyAlertsWidget extends React.Component {
 export const CompanyAlerts = (props) => {
     return <div className="container">
             <div className="row">
+            <div className="col-xs-12">
             <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -252,6 +262,7 @@ export const CompanyAlerts = (props) => {
                 <div className="widget-body">
                     <CompanyAlertsBase {...props} showTypes={['danger', 'warning', 'pending', 'safe']} showAllWarnings={true} />
                 </div>
+            </div>
             </div>
             </div>
         </div>

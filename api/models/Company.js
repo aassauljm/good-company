@@ -46,7 +46,7 @@ module.exports = {
                 name: 'currentCompanyStateId'
             }
         });
-        // represents foreign data
+        // represents foreign data, used by import
         Company.belongsTo(SourceData, {
             as: 'sourceData',
             foreignKey: {
@@ -54,8 +54,10 @@ module.exports = {
                 name: 'source_data_id'
             }
         });
+
+        // NOT the same as above.  is a list of processed_documents
         Company.belongsTo(SourceData, {
-            as: 'historicSourceData',
+            as: 'historicProcessedDocuments',
             foreignKey: {
                 as: 'historicSourceData',
                 name: 'historic_source_data_id'
@@ -220,13 +222,17 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}});
             },
-
+            getPendingFutureActions: function(){
+                return sequelize.query("select * from all_pending_future_actions(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId}});
+            },
             getHistoricHolders: function(){
                 return sequelize.query("select * from company_persons(:id) where current = FALSE",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}});
             },
-            replacePendingActions: function(pendingActions){
+            replacePendingHistoricActions: function(pendingActions){
                 // Find root, and replace next x pendingActions
                 let rootState;
                 pendingActions.map((pa, i) => {
@@ -254,12 +260,40 @@ module.exports = {
                         })
                     });
             },
+            replacePendingFutureActions: function(pendingActions){
+                // Find current and replace next x pendingActions
+                let currentState;
+                pendingActions.map((pa, i) => {
+                    pa.originalId = pa.id;
+                    pa.data.id = pa.id = uuid.v4();
+                    (pa.data.actions || []).map(a => a.id = uuid.v4());
 
+                    if(i >= 1){
+                        pendingActions[i-1].previous_id = pa.id;
+                    }
+                });
+
+                return sequelize.transaction(() => {
+                    return this.getCurrentCompanyState()
+                        .then(_currentState => {
+                            currentState = _currentState;
+                            return Action.bulkCreate(pendingActions);
+
+                        })
+                        .then(() => {
+                            return currentState.update({'pending_future_action_id': pendingActions[0].id})
+                        })
+                        .then(() => {
+                            // HUGE security risk.  Need to validate this pendingAction is owned by this user
+                            return Action.update({previous_id: pendingActions[0].id}, {where: {previous_id: pendingActions[0].originalId}, fields: ['previous_id']});
+                        })
+                    });
+            },
             resetPendingActions: function(){
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
                 let state, newRoot, pendingActions;
-                return this.getHistoricSourceData()
+                return this.getHistoricProcessedDocuments()
                     .then(dS => {
                         pendingActions = dS.data.map(d => ({data: d}))
 

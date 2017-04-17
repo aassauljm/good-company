@@ -35,7 +35,7 @@ const AMBIGUITY = 2;
 const FINISHED = 3;
 const CONTINUE = 4;
 
-const PAGES = [];
+
 
 
 @ScrollIntoViewOptional
@@ -85,7 +85,7 @@ function TransactionSummaries(props) {
     const pendingActions = props.pendingActions.filter((p, i) => {
         p.numberId = i;
         const actions = p.data.actions.filter(a => a.transactionType);
-        if(!actions.length || isNonDisplayedTransaction(p.data.transactionType)){
+        if(!actions.length || (!props.showAllTypes && isNonDisplayedTransaction(p.data.transactionType))){
             return false;
         }
         if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
@@ -97,9 +97,17 @@ function TransactionSummaries(props) {
         return true;
     });
     const className = props.loading ? 'button-loading' : 'loaded';
-    const message = pendingActions.length ?
+    let message;
+    if(props.future){
+        message = pendingActions.length ?
+        'Please Confirm or Edit the recent transactions listed below.  Please note that even confirmed transactions may require corrections.' :
+        "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
+    }
+    else{
+        message = pendingActions.length ?
         'Please Confirm or Edit the transactions from the last 10 years listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
         "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
+    }
 
     return <div className={className}>
         <p>{ message }</p>
@@ -113,7 +121,7 @@ function TransactionSummaries(props) {
         { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
         { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
         { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
-        {  <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button> }
+        {  !props.future  && <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button> }
 
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
@@ -177,7 +185,8 @@ function isNonDisplayedTransaction(transactionType){
     }[transactionType];
 }
 
-PAGES[EXPLAINATION] = function() {
+const HISTORY_PAGES = [];
+HISTORY_PAGES[EXPLAINATION] = function() {
     if(this.state.pendingHistory._status === 'fetching'){
         return  <Loading />
     }
@@ -215,7 +224,7 @@ PAGES[EXPLAINATION] = function() {
     return false;
 };
 
-PAGES[LOADING] = function() {
+HISTORY_PAGES[LOADING] = function() {
     if(this.props.importHistory._status === 'fetching'){
         return <div>
             <p className="text-center">Importing Transactions - This may take a few moments</p>
@@ -231,11 +240,67 @@ PAGES[LOADING] = function() {
 };
 
 
+const FUTURE_PAGES = [];
+FUTURE_PAGES[EXPLAINATION] = function() {
+    if(this.state.pendingFuture._status === 'fetching'){
+        return  <Loading />
+    }
+    if(this.state.pendingFuture._status === 'complete'){
+        const pendingYearActions = collectActions(this.state.pendingFuture.data);
+        if(pendingYearActions.length){
+            return <TransactionSummaries
+                future={true}
+                shareClassMap={generateShareClassMap(this.props.transactionViewData.companyState) }
+                pendingActions={pendingYearActions}
+                handleStart={this.handleStart}
+                handleAddNew={this.handleAddNew}
+                handleEdit={this.handleEdit}
+                handleReset={this.handleReset}
+                end={this.props.end}
+                handleConfirm={this.handleConfirm}
+                toggleConfirmed={this.toggleConfirmed}
+                loading={this.isLoading()}
+                scrollIndex={this.props.transactionViewData.editIndex}
+                showConfirmed={this.props.transactionViewData.showConfirmed}
+                showAllTypes={true}
+                />
+        }
+        else{
+           return <div>
+                <p>All transactions notified to the companies register have been reconciled.</p>
+            </div>
+        }
+    }
+    return false;
+};
+
+FUTURE_PAGES[LOADING] = function() {
+    if(this.props.importFuture._status === 'fetching'){
+        return <div>
+            <p className="text-center">Importing Transactions - This may take a few moments</p>
+                <Loading />
+        </div>
+    }
+    else if(this.props.importFuture._status === 'complete'){
+       return <div>
+        <p>All Companies Office documents have successfully been imported.</p>
+        </div>
+    }
+}
+
+FUTURE_PAGES[FINISHED] = function() {
+    return <div>
+        <p>All Companies Office change has been successfully reconciled.</p>
+        <div className="button-row">
+        <Link className="btn btn-primary" to={`/company/view/${this.props.transactionViewData.companyId}`}>Click here to return to your company page</Link>
+        </div>
+        </div>
+}
+
 @connect((state, ownProps) => {
     return {
         pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || {},
         importHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history`] || {},
-        importHistoryUntil: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until`] || {},
         updatePendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || {},
         companyState: state.resources[`/company/${ownProps.transactionViewData.companyId}`] || {},
     };
@@ -244,10 +309,6 @@ PAGES[LOADING] = function() {
         requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
         performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history`,
                                                      {}, {
-                                                        invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
-                                                     })),
-        performImportUntil: (id) => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_history_until`,
-                                                     {target: id}, {
                                                         invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
                                                      })),
         addNotification: (args) => dispatch(addNotification(args)),
@@ -311,7 +372,7 @@ export class ImportHistoryTransactionView extends React.Component {
     }
 
     renderBody() {
-        return  PAGES[this.props.index] && PAGES[this.props.index].call(this);
+        return  HISTORY_PAGES[this.props.index] && HISTORY_PAGES[this.props.index].call(this);
     }
 
     isLoading() {
@@ -359,6 +420,7 @@ export class ImportHistoryTransactionView extends React.Component {
         const id = error.context.actionSet.id;
         const index = pendingActions.findIndex((a) => a.id === id)
         pendingActions = pendingActions.slice(index);
+
         this.props.destroyForm('amend');
         this.props.show('resolveAmbiguity',
             {
@@ -389,7 +451,7 @@ export class ImportHistoryTransactionView extends React.Component {
         });
         this.props.updateAction({
             pendingActions: [...(pendingActions.slice(0, index)), pendingAction]
-        })
+        });
     }
 
 
@@ -403,6 +465,173 @@ export class ImportHistoryTransactionView extends React.Component {
         return  <TransactionView ref="transactionView" show={true} bsSize="large" backdrop={'static'}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>{ STRINGS.importCompanyHistory } </TransactionView.Title>
+              </TransactionView.Header>
+              <TransactionView.Body>
+                { this.renderBody() }
+              </TransactionView.Body>
+            </TransactionView>
+    }
+}
+
+
+@connect((state, ownProps) => {
+    return {
+        pendingFuture: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_future`] || {},
+        importFuture: state.resources[`/company/${ownProps.transactionViewData.companyId}/import_pending_future`] || {},
+        updatePendingFuture: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_future`] || {},
+        companyState: state.resources[`/company/${ownProps.transactionViewData.companyId}`] || {},
+    };
+}, (dispatch, ownProps) => {
+    return {
+        requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_future`)),
+        performImport: () => dispatch(createResource(`/company/${ownProps.transactionViewData.companyId}/import_pending_future`,
+                                                     {}, {
+                                                        invalidates: [`/company/${ownProps.transactionViewData.companyId}`, '/alerts']
+                                                     })),
+        addNotification: (args) => dispatch(addNotification(args)),
+        destroyForm: (args) => dispatch(destroy(args)),
+        updateAction: (args) => {
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_future`, args, {
+                invalidates: [`/company/${ownProps.transactionViewData.companyId}/pending_future`]
+            }))
+            .then((r) => {
+                dispatch(destroy('amend'));
+                //ownProps.end();
+                return r;
+            })
+        },
+    }
+})
+export class ImportFutureTransactionView extends React.Component {
+
+    constructor(props){
+        super(props);
+        this.handleStart = ::this.handleStart;
+        this.handleResolve = ::this.handleResolve;
+        this.handleEdit = ::this.handleEdit;
+        this.handleAddNew = ::this.handleAddNew;
+        this.handleConfirm = ::this.handleConfirm;
+        this.toggleConfirmed = ::this.toggleConfirmed;
+        this.state = {pendingFuture: props.pendingFuture};
+    };
+
+    fetch() {
+        return this.props.requestData();
+    };
+
+    componentDidMount() {
+        this.fetch();
+        this.checkContinue();
+    };
+
+    componentDidUpdate() {
+        this.fetch();
+        this.checkContinue();
+    };
+
+    componentWillReceiveProps(newProps) {
+        if(newProps.pendingFuture && newProps.pendingFuture.data){
+            this.setState({pendingFuture: newProps.pendingFuture})
+        }
+    }
+
+    checkContinue() {
+        if(this.props.index === CONTINUE){
+            this.handleStart();
+        }
+    }
+
+    renderBody() {
+        return  FUTURE_PAGES[this.props.index] && FUTURE_PAGES[this.props.index].call(this);
+    }
+
+    isLoading() {
+        return this.props.pendingFuture._status !== 'complete' || this.props.updatePendingFuture._status === 'fetching'
+    }
+
+    handleStart() {
+        this.props.next({index: LOADING});
+        this.props.performImport()
+            .then(action => {
+                this.props.next({index: FINISHED});
+            })
+            .catch(e => {
+                this.handleResolve(this.props.importFuture.error, CONTINUE);
+            })
+    }
+
+
+
+    handleEdit(actionSet, pendingActions, editIndex) {
+        this.props.destroyForm('amend');
+        this.props.show('editTransaction', {...this.props.transactionViewData,
+            startId: pendingActions[0].id,
+            endId: pendingActions[pendingActions.length-1].previous_id,
+            actionSet,
+            pendingActions,
+            isFuture: true,
+            afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION, editIndex}}}
+        });
+    }
+
+    handleAddNew(pendingActions) {
+        this.props.destroyForm('amend');
+        this.props.show('editTransaction', {...this.props.transactionViewData,
+            startId: pendingActions[0].id,
+            endId: pendingActions[pendingActions.length-1].previous_id,
+            otherActions: pendingActions,
+            isFuture: true,
+            afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+        });
+    }
+
+    handleResolve(error, afterIndex) {
+        const pendingActions = collectActions(this.state.pendingFuture.data || []);
+        this.props.destroyForm('amend');
+        this.props.show('resolveAmbiguity',
+            {
+                ...this.props.transactionViewData,
+                isFuture: true,
+                error: error,
+                 //open this transactionView again
+                afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}},
+                editTransactionData: {
+                    startId: pendingActions[0].id,
+                    isFuture: true,
+                    endId: pendingActions[pendingActions.length-1].previous_id,
+                    pendingActions,
+                    // other actions
+                    afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
+                }
+        });
+    }
+
+    handleConfirm(transaction, confirmState=true) {
+        if(this.isLoading()){
+            return false;
+        }
+        const pendingAction = {...transaction};
+        const pendingActions = collectActions(this.state.pendingFuture.data || []);
+        const index = pendingActions.findIndex(p => p.id === transaction.id);
+        pendingAction.data.actions = pendingAction.data.actions.map((a) => {
+            return {...a, userConfirmed: confirmState}
+        });
+        this.props.updateAction({
+            pendingActions: [...(pendingActions.slice(0, index)), pendingAction]
+        });
+    }
+
+
+    toggleConfirmed() {
+        this.props.show('importFuture',
+                        { ...this.props.transactionViewData,
+                        showConfirmed: !this.props.transactionViewData.showConfirmed});
+    }
+
+    render() {
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+              <TransactionView.Header closeButton>
+                <TransactionView.Title>{ STRINGS.importCompanyFuture } </TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
                 { this.renderBody() }

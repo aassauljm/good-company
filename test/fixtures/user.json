@@ -76,4 +76,11 @@
         "username": "eventstealer",
         "email": "eventstealer@email.com"
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 21,
+        "username": "future",
+        "email": "future@email.com"
+    }
 }]

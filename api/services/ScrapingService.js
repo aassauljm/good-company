@@ -7,7 +7,6 @@ const Promise = require("bluebird");
 const fetch = require("isomorphic-fetch");
 const fs = Promise.promisifyAll(require("fs"));
 const moment = require('moment');
-const uuid = require('node-uuid')
 const querystring = require('querystring');
 
 
@@ -411,13 +410,13 @@ const EXTRACT_DOCUMENT_MAP = {
                 afterName: cleanString($(el).find('.after .directorName').text()),
                 afterAddress: cleanString($(el).find('.after .directorAddress').text())
             }}).get(),
-            /*...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
+            ...$('#ceaseConfirm, #pendingConfirm').map((i, el)=>{
             return {
                 transactionType: transactionType($(el)),
                 name: cleanString($(el).find('.directorName').text()),
                 address: cleanString($(el).find('.directorAddress').text()),
-                effectiveDate: moment(cleanString(cleanString($(el).find('.directorAppointmentDate, .directorCessationDate').text())), 'DD/MM/YYYY'),
-            }}).get(),*/
+                effectiveDate: moment(cleanString(cleanString($(el).find('.directorAppointmentDate, .directorCeasedDate').text())), 'DD/MM/YYYY'),
+            }}).get()
             ]};
         // Currently ignoring new and remove, and instead using the directorship history
         if(results.actions.length && results.actions[0].effectiveDate){
@@ -1352,17 +1351,25 @@ const ScrapingService = {
             .then(function(company){
                 this.company = company;
                 sails.log.verbose('Company populated in DB');
-                return TransactionService.performSeed({
-                    ...data,
-                    ...ScrapingService.formatHoldings(data, userId),
-                    ...ScrapingService.formatDirectors(data, userId),
-                    ...ScrapingService.formatDocuments(data, userId),
-                }, company, new Date(), userId);
+                let date = new Date();
+                if(data.documents.length){
+                    date = moment(data.documents[0].date, 'DD MMM YYYY HH:mm').toDate()
+                }
+                return TransactionService.performSeed(ScrapingService.prepareSourceData(data, userId), company, date, userId);
             })
             .then(function(){
                 sails.log.verbose('CompanyState populated in DB');
                 return this.company;
             });
+    },
+
+    prepareSourceData: function(data, userId){
+        return {
+            ...data,
+            ...ScrapingService.formatHoldings(data, userId),
+            ...ScrapingService.formatDirectors(data, userId),
+            ...ScrapingService.formatDocuments(data, userId)
+        }
     },
 
     canonicalizeNZCompaniesData: function(data){
@@ -1451,17 +1458,17 @@ const ScrapingService = {
         }, {concurrency: 10});
     },
 
-    writeDocumentSummaries: function(data){
+    writeDocumentSummaries: function(data, path='test/fixtures/companies_office/'){
         return ScrapingService.getDocumentSummaries(data)
             .then(function(texts){
                 return Promise.map(texts, function(data){
-                    return fs.writeFileAsync('test/fixtures/companies_office/documents/'+data.documentId+'.html', data.text, 'utf-8');
+                    return fs.writeFileAsync(path+'documents/'+data.documentId+'.html', data.text, 'utf-8');
             });
         });
     },
 
-    writeRootDocument: function(companyNumber, data){
-        return fs.writeFileAsync('test/fixtures/companies_office/'+companyNumber+'.html', data.text, 'utf-8');
+    writeRootDocument: function(companyNumber, data, path='test/fixtures/companies_office/'){
+        return fs.writeFileAsync(path+companyNumber+'.html', data.text, 'utf-8');
     },
 
     processDocument: function(html, info={}){
@@ -1493,6 +1500,7 @@ const ScrapingService = {
         .then(function(extraActions){
             processedDocs = extraActions;
             processedDocs = InferenceService.segmentAndSortActions(processedDocs, data.companyNumber);
+
             sails.log.verbose('Processed ' + processedDocs.length + ' documents');
             return processedDocs;
         });

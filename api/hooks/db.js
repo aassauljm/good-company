@@ -7,11 +7,12 @@ const ORDERED_DB_SCRIPTS = [
     'config/db/functions.sql',
     'config/db/shareRegister.sql',
     'config/db/admin.sql',
+    'config/db/triggers.sql'
     ]
 
 
 function populate() {
-    return Promise.each(ORDERED_DB_SCRIPTS, (file) => fs.readFileAsync(file, 'utf8').then(sql => sequelize.query(sql)))
+    return sequelize.transaction(() => Promise.each(ORDERED_DB_SCRIPTS, (file) => fs.readFileAsync(file, 'utf8').then(sql => sequelize.query(sql))))
 }
 
 module.exports = function(sails) {

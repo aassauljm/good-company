@@ -14,7 +14,7 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ConnectedPlaceholderSearch } from './search';
 import { Link } from 'react-router';
 
-const REALME_LOGO = 'https://www.companiesoffice.govt.nz/companies/rm_logo.png';
+export const REALME_LOGO = 'https://www.companiesoffice.govt.nz/companies/rm_logo.png';
 
 
 const fields = [
@@ -204,7 +204,7 @@ export class RealMeConnect extends React.PureComponent {
         return (
             <div>
                 <p>Your RealMe® account is connected with this Good Companies account.</p>
-                
+
                 <div className="button-row">
                     <Link to={'/import/nzbn'} className="btn btn-primary">Click here to select your Companies</Link>
                     <Button bsStyle="warning" type="submit" onClick={this.props.disconnectNzbn}>Disconnect from RealMe®</Button>

@@ -342,6 +342,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/:id/pending_future': {
+        controller: 'CompanyController',
+        action: 'GetPendingFutureActions',
+        model: 'company'
+    },
+
     'GET /api/company/:id/foreign_permissions': {
         controller: 'CompanyController',
         action: 'getForeignPermissions',
@@ -396,16 +402,9 @@ module.exports.routes = {
         method: 'update'
     },
 
-    'POST /api/company/:id/import_pending_history_until_ar': {
+    'POST /api/company/:id/import_pending_future': {
         controller: 'CompanyController',
-        action: 'importPendingHistoryUntilAR',
-        model: 'company',
-        method: 'update'
-    },
-
-    'POST /api/company/:id/import_pending_history_until': {
-        controller: 'CompanyController',
-        action: 'importPendingHistoryUntil',
+        action: 'importPendingFuture',
         model: 'company',
         method: 'update'
     },
@@ -416,6 +415,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'PUT /api/company/:id/update_pending_future': {
+        controller: 'CompanyController',
+        action: 'updatePendingFuture',
+        model: 'company'
+    },
 
      'PUT /api/company/:id/reset_pending_history': {
         controller: 'CompanyController',

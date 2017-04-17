@@ -464,14 +464,18 @@ const DEFAULT_OBJ = {};
 @connect((state, ownProps) => {
     return {
         currentCompanyState: state.resources[`/company/${ownProps.transactionViewData.companyId}/get_info`] || DEFAULT_OBJ,
-        updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ,
-        pendingHistory: state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || DEFAULT_OBJ
+        updating: ownProps.transactionViewData.isFuture ?
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ :
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_future`] || DEFAULT_OBJ,
+        pendingHistory: ownProps.transactionViewData.isFuture ?
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_future`] || DEFAULT_OBJ :
+            state.resources[`/company/${ownProps.transactionViewData.companyId}/pending_history`] || DEFAULT_OBJ
     };
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
         updateAction: (args) => {
-            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/${ownProps.transactionViewData.isFuture ? 'update_pending_future' : 'update_pending_history'}`, args, {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
             .then(() => {
@@ -487,7 +491,9 @@ const DEFAULT_OBJ = {};
                 dispatch(destroy('amend'));
             })
         },
-        requestData: () => dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
+        requestData: () => ownProps.transactionViewData.isFuture ?
+            dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_future`)) :
+            dispatch(requestResource(`/company/${ownProps.transactionViewData.companyId}/pending_history`)),
         destroyForm: (args) => {
             return dispatch(destroy(args))
         }
@@ -526,18 +532,6 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             this.handleClose();
         }
 
-
-        if(!PAGES[context.importErrorType]){
-            return <div className="resolve">
-                { basicSummary(context, this.props.transactionViewData.companyState)}
-                    <hr/>
-                    <div><p>An unknown problem occured while importing.  Please Restart the import process.</p></div>
-                    <div className="button-row">
-                           <Button onClick={() => this.handleClose({cancelled: true, index: 0})} bsStyle="default">Cancel</Button>
-                        <Button onClick={this.props.resetAction} className="btn-danger">Restart Reconciliation</Button>
-                    </div>
-                </div>
-        }
         let edit;
         if(this.props.transactionViewData.editTransactionData){
             // if we are doing a year by year import, we have greater flexibility for importing
@@ -547,6 +541,19 @@ export class ResolveAmbiguityTransactionView extends React.Component {
                 this.props.show('editTransaction', {...this.props.transactionViewData.editTransactionData, actionSet: context.actionSet, otherActions});
                 this.props.destroyForm('amend');
             }
+        }
+
+        if(!PAGES[context.importErrorType]){
+            return <div className="resolve">
+                { basicSummary(context, this.props.transactionViewData.companyState)}
+                    <hr/>
+                    <div><p>An unknown problem occured while importing.  {!this.props.transactionViewData.isFuture &&  `Please Restart the import process.`}</p></div>
+                    <div className="button-row">
+                           <Button onClick={() => this.handleClose({cancelled: true, index: 0})} bsStyle="default">Cancel</Button>
+                        { !this.props.transactionViewData.isFuture && <Button onClick={this.props.resetAction} className="btn-danger">Restart Reconciliation</Button> }
+                        { this.props.transactionViewData.isFuture && <Button onClick={edit} className="btn-info">Edit Transaction</Button> }
+                    </div>
+                </div>
         }
 
         if(this.props.updating._status !== 'fetching' && this.props.pendingHistory.data && this.props.currentCompanyState._status === 'complete'){

@@ -1,4 +1,6 @@
 "use strict";
+import Promise from 'bluebird';
+
 
 export function importCompany(companyNumber, options) {
     let data, company, state, newRoot, processedDocs, companyName, pendingAction;
@@ -39,7 +41,7 @@ export function importCompany(companyNumber, options) {
                             return SourceData.create({data: processedDocs});
                         })
                         .then(function(sourceData){
-                            return company.setHistoricSourceData(sourceData);
+                            return company.setHistoricProcessedDocuments(sourceData);
                         })
                         .then(() => {
                             return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
@@ -79,6 +81,7 @@ export function importCompany(companyNumber, options) {
             throw e;
         })
 }
+
 
 export function checkNameCollision(ownerId, data) {
     return Company.findAll({

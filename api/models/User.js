@@ -139,15 +139,17 @@ module.exports = {
                     return User.findOne({where: {id: user.id}}, { include: 'roles'})
                     .then(function(_user) {
                         user = _user;
-                        return Role.findOne({where: {
-                            name: 'registered'
-                        }});
-                    })
-                    .then(function(role) {
-                        return user.addRole(role)
-                    })
-                    .then(function(updatedUser) {
-                        sails.log.verbose('role "registered" attached to user', user.username);
+                        if(!user.roles || !user.roles.length){
+                            return Role.findOne({where: {
+                                name: 'registered'
+                            }})
+                            .then(function(role) {
+                                return user.addRole(role)
+                            })
+                            .then(function(updatedUser) {
+                                sails.log.verbose('role "registered" attached to user', user.username);
+                            })
+                        }
                     })
                     .catch(function(e) {
                         sails.log.error(e);

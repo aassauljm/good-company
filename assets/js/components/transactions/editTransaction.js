@@ -69,15 +69,16 @@ export function reorderAllPending(pendingActions, newActions) {
 
 }
 
+
 @ScrollIntoView
 @connect((state, ownProps) => {
-    return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/update_pending_history`] || DEFAULT_OBJ};
+    return {updating: state.resources[`/company/${ownProps.transactionViewData.companyId}/${ownProps.transactionViewData.isFuture ? 'update_pending_future' : 'update_pending_history'}`] || DEFAULT_OBJ};
 }, (dispatch, ownProps) => {
     return {
         addNotification: (args) => dispatch(addNotification(args)),
         updateAction: (args) => {
             dispatch(showLoading({message: 'Saving'}))
-            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/update_pending_history`, args, {
+            return dispatch(updateResource(`/company/${ownProps.transactionViewData.companyId}/${ownProps.transactionViewData.isFuture ? 'update_pending_future' : 'update_pending_history'}`, args, {
                 invalidates: [`/company/${ownProps.transactionViewData.companyId}`]
             }))
             .then(() => {
@@ -100,6 +101,9 @@ export class EditTransactionView extends React.Component {
         const amendables = actionSet && collectAmendActions( actionSet.data.actions).concat(collectShareChangeActions(actionSet.data.actions));
         const updateAction = ({newActions}) => {
             const orderedActions = reorderAllPending(this.props.transactionViewData.pendingActions, newActions);
+            if(this.props.transactionViewData.isFuture){
+                orderedActions.reverse();
+            }
             orderedActions[0].id = this.props.transactionViewData.startId;
             orderedActions[orderedActions.length-1].previous_id = this.props.transactionViewData.endId;
             this.props.updateAction({pendingActions: orderedActions});

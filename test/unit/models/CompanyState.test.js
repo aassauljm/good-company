@@ -1,3 +1,7 @@
+"use strict";
+const uuid = require("node-uuid")
+
+
 describe('CompanyState Model', function() {
     describe('Create CompanyState Holdings', function() {
 
@@ -337,6 +341,249 @@ describe('CompanyState Model', function() {
                     done();
                 });
         });
+    });
+
+
+    describe('Test warnings ', function() {
+        let company, action, initialState = {
+            companyName: 'warning limited',
+                holdingList: {
+                    holdings: [{
+                        name: 'Allocation 1',
+                        parcels: [{
+                            amount: 1,
+                        }],
+                        holders: [{
+                            person:{ name: 'jimbo robinson'}
+                        },{
+                            person:{ name: 'janson rimblesnotch'}
+                        }]
+                    }]
+                }
+        };
+
+        before(() => {
+            return Company.create({})
+            .then((_c) => {
+                company = _c;
+                return CompanyState.createDedup(initialState)
+            })
+            .then((state) => {
+                return state.buildNext({previousCompanyStateId: state.dataValues.id})
+            })
+            .then((state) => {
+                return state.save();
+            })
+            .then((state) => {
+                return state.buildNext({previousCompanyStateId: state.dataValues.id})
+            })
+            .then((state) => {
+                return state.save();
+            })
+            .then((state) => {
+                return company.setCurrentCompanyState(state);
+            })
+            .then(() => {
+                return Action.create({id: uuid.v4(), data: {}})
+            })
+            .then((_action) => {
+                action = _action;
+            })
+        });
+/*
+        'pendingHistory', has_pending_historic_actions($1),
+        'pendingFuture', COALESCE(has_pending_future_actions($1), FALSE),
+        'missingVotingShareholders', has_missing_voting_shareholders($1),
+        'shareClassWarning', has_no_share_classes($1),
+        'applyShareClassWarning', has_no_applied_share_classes($1),
+        'extensiveWarning', has_extensive_shareholding($1),
+
+*/
+        describe('Initial warnings', () => {
+            it('current should have warnings', () => {
+                return company.getCurrentCompanyState()
+                    .then(state => {
+                        state.warnings.shareClassWarning.should.be.equal(true);
+                        state.warnings.missingVotingShareholders.should.be.equal(true);
+                        state.warnings.applyShareClassWarning.should.be.equal(true);
+                        state.warnings.pendingHistory.should.be.equal(false);
+                        state.warnings.pendingFuture.should.be.equal(false);
+                    })
+            })
+
+            it('root should have warnings', () => {
+                return company.getRootCompanyState()
+                    .then(state => {
+                        state.warnings.shareClassWarning.should.be.equal(true);
+                        state.warnings.missingVotingShareholders.should.be.equal(true);
+                        state.warnings.applyShareClassWarning.should.be.equal(true);
+                        state.warnings.pendingHistory.should.be.equal(false);
+                        state.warnings.pendingFuture.should.be.equal(false);
+                    })
+            });
+
+            it('middle state should have warnings', () => {
+                return company.getPreviousCompanyState(1)
+                    .then(state => {
+                        state.warnings.shareClassWarning.should.be.equal(true);
+                        state.warnings.missingVotingShareholders.should.be.equal(true);
+                        state.warnings.applyShareClassWarning.should.be.equal(true);
+                        state.warnings.pendingHistory.should.be.equal(false);
+                        state.warnings.pendingFuture.should.be.equal(false);
+                    })
+             });
+        });
+
+        describe('History warnings', () => {
+            it('updates root, expects warnings', () => {
+                return sequelize.transaction(() => {
+                    return company.getRootCompanyState()
+                        .then(state => {
+                            return state.update({pending_historic_action_id: action.id});
+                        })
+                        .then(() => {
+                            return company.getRootCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(true);
+                            return company.getPreviousCompanyState(1)
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(true);
+                            return company.getCurrentCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(true);
+                        })
+                    });
+            });
+            it('updates root again, expects warnings to be gone', () => {
+                return sequelize.transaction(() => {
+                    return company.getRootCompanyState()
+                        .then(state => {
+                            return state.update({pending_historic_action_id: null});
+                        })
+                        .then(() => {
+                            return company.getRootCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(false);
+                            return company.getPreviousCompanyState(1)
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(false);
+                            return company.getCurrentCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(false);
+                        })
+                    });
+            });
+            it('adds a root state with pending history', () => {
+                let newState, currentRootState;
+                return sequelize.transaction(() => {
+                    return company.getRootCompanyState()
+                        .then(state => {
+                            currentRootState = state;
+                            return state.buildPrevious({pending_historic_action_id: action.id})
+                        })
+                        .then((_newState) => {
+                            newState = _newState;
+                            return newState.save();
+                        })
+                        .then(() => {
+                            return currentRootState.setPreviousCompanyState(newState);
+                        })
+                        .then(() => {
+                            return company.getRootCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(true);
+                            return company.getPreviousCompanyState(2)
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(true);
+                            return company.getPreviousCompanyState(1)
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(true);
+                            return company.getCurrentCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(true);
+                            return currentRootState.update({'previousCompanyStateId': null})
+                        })
+                        .then(() => {
+                            return company.getRootCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(false);
+                            return company.getPreviousCompanyState(1)
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(false);
+                            return company.getCurrentCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingHistory.should.be.equal(false);
+                            return newState.destroy();
+                        })
+
+
+                    });
+            });
+        });
+
+        describe('Future warnings', () => {
+            it('updates root, expects warnings', () => {
+                return sequelize.transaction(() => {
+                    return company.getCurrentCompanyState()
+                        .then(state => {
+                            return state.update({pending_future_action_id: action.id});
+                        })
+                        .then(() => {
+                            return company.getRootCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingFuture.should.be.equal(true);
+                            return company.getPreviousCompanyState(1)
+                        })
+                        .then(state => {
+                            state.warnings.pendingFuture.should.be.equal(true);
+                            return company.getCurrentCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingFuture.should.be.equal(true);
+                        })
+                    });
+            });
+            it('updates root again, expects warnings to be gone', () => {
+                return sequelize.transaction(() => {
+                    return company.getCurrentCompanyState()
+                        .then(state => {
+                            return state.update({pending_future_action_id: null});
+                        })
+                        .then(() => {
+                            return company.getRootCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingFuture.should.be.equal(false);
+                            return company.getPreviousCompanyState(1)
+                        })
+                        .then(state => {
+                            state.warnings.pendingFuture.should.be.equal(false);
+                            return company.getCurrentCompanyState()
+                        })
+                        .then(state => {
+                            state.warnings.pendingFuture.should.be.equal(false);
+                        })
+                    });
+            });
+
+        });
+
+
+
     });
 
 
