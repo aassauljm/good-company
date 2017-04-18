@@ -369,6 +369,7 @@ module.exports = {
                 return AddressService.normalizeAddress(person.address)
                         .then(function(address){
                             // TODO, no, collapse this graph
+
                             return PersonService.findOne(userId, {where: removeUndefinedValues(person)})
                         })
                         .then(function(p){

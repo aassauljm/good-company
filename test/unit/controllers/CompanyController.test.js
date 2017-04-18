@@ -1113,11 +1113,45 @@ describe('Company Controller', function() {
             return req.post('/api/company/'+companyId+'/import_pending_history')
                 .expect(500)
                 .then((res) => {
-                    // this one is VERY tricky
+                    // this one is VERY tricky, requires reordering
                     done();
 
                 });
         });
     });
+
+   describe('Import with holder change (445086)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            return req.post('/api/company/import/companiesoffice/445086')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Imports history', function(done){
+            return req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then((res) => {
+                    done();
+                });
+        });
+        it('checks share register', function(done){
+            return req.get('/api/company/'+companyId+'/share_register')
+                .expect(200)
+                .then((res) => {
+                    res.body.shareRegister.length.should.be.equal(2);
+                    done();
+                })
+                .catch(done)
+        });
+    });
+
 
 });

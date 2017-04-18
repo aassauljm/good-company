@@ -914,11 +914,11 @@ export function performInverseNewDirector(data, companyState, previousState, eff
     });
 }
 
-export function performInverseRemoveDirector(data, companyState, previousState, effectiveDate){
+export function performInverseRemoveDirector(data, companyState, previousState, effectiveDate, userId){
     return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
         companyState.dataValues.directorList = dl;
-        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
+        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId}, userId)
     })
     .then(person => {
         const director = Director.build({
@@ -1141,12 +1141,12 @@ export function performRemoveDirector(data, companyState, previousState, effecti
     });
 }
 
-export function performNewDirector(data, companyState, previousState, effectiveDate){
+export function performNewDirector(data, companyState, previousState, effectiveDate, userId){
     // find them as a share holder? and vice versa?
     return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
         companyState.dataValues.directorList = dl;
-        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
+        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId}, userId)
     })
     .then(person => {
         if(data.personAttr){
