@@ -1347,7 +1347,7 @@ export function addActions(state, actionSet, company){
             }
         })
         .then(data => {
-            return Action.findOrCreate({where: {id: actionSet.id}, defaults: data});
+            return Action.findOrCreate({where: {id: data.id}, defaults: data});
         })
         .spread(function(hA){
             state.set('historic_action_id', hA.id)
@@ -1766,6 +1766,7 @@ export function performInverseAllPendingUntil(company, endCondition, autoResolve
                     return acc;
                 }, []);
             }
+            console.log(JSON.stringify(historicActions, null, 4))
             return historicActions.length && perform(historicActions)
         })
 }
@@ -1968,6 +1969,8 @@ export function performAllPending(company){
             .then(futureActions => {
                 return Promise.each(futureActions, (futureAction) => {
                     actionSet = futureAction;
+                    // NEW id, as future actions point FORWARD, not backwards
+                    futureAction.data.id = uuid.v4();
                     return performAllInsertByEffectiveDate([futureAction.data], company)
                 });
             })

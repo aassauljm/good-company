@@ -46,7 +46,7 @@ describe('Company Controller', function() {
     });
 
     describe('Test import from companies office (PRICEMAKER LIMITED)', function(){
-        var req, companyId;
+        var req, companyId, path, classes, holdings;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
             login(req).then(done);
@@ -71,13 +71,103 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/pending_history')
                 .expect(200)
                 .then(function(res){
-
                     _.find(res.body, action => {
                         return action.data &&  action.data.transactionType === Transaction.types.INCORPORATION;
                     }).should.not.be.equal(null);
                     done();
                 });
         });
+        it('Checks for updates', function(done){
+            path =  ScrapingService._testPath ;
+            ScrapingService._testPath = 'test/fixtures/companies_office/futures/1/';
+            return req
+                .put('/api/company/'+companyId+'/update_source_data')
+                .expect(200)
+                .then((res) => {
+                    done();
+                })
+                .catch(done)
+        });
+        it('Gets warnings', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(true);
+                    done();
+                })
+                .catch(done)
+        });
+
+
+        it('Updates futures', function(done){
+            return req.post('/api/company/'+companyId+'/import_pending_future')
+                .expect(200)
+                .then(function(res){
+                    done()
+                })
+        });
+
+
+       it('Creates share classes', function(done){
+            req.post('/api/company/'+companyId+'/share_classes/create')
+                .send({json: JSON.stringify({name: 'Class A'})})
+                .then(function(res){
+                    return req.post('/api/company/'+companyId+'/share_classes/create')
+                        .send({json: JSON.stringify({name: 'Class B'})})
+                })
+                .then(function(){
+                    done();
+                })
+                .catch(done);
+        });
+        it('Gets current stats', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    classes = _.reduce(res.body.currentCompanyState.shareClasses.shareClasses, (acc, item, key) => {
+                        acc[item.name] = item.id;
+                        return acc;
+                    }, {});
+                    holdings = _.reduce(res.body.currentCompanyState.holdingList.holdings, (acc, holding, key) => {
+                        acc[holding.name] = {id: holding.holdingId, amount: holding.parcels.reduce((sum, p) => sum + p.amount, 0)}
+                        return acc;
+                    }, {});
+                    done();
+                })
+                .catch(done);
+        });
+
+        it('Applies share classes', function(done){
+            req.post('/api/transaction/apply_share_classes/'+companyId)
+                .send({actions: Object.keys(holdings).map(k => ({
+                        transactionType: 'APPLY_SHARE_CLASS',
+                        parcels: [{shareClass: classes['Class A'], amount: holdings[k].amount}],
+                        holdingId: holdings[k].id,
+                }))})
+                .expect(200)
+                .then(function(res){
+                    done();
+                })
+                .catch(e => {
+                    done(e)
+                })
+            });
+        it('Gets warnings', function(done){
+            req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    res.body.currentCompanyState.warnings.pendingHistory.should.be.equal(true);
+                    done();
+                });
+        });
+
+
+
+        after(() => {
+            ScrapingService._testPath = path;
+        })
+
+
     });
 
     describe('Test import from companies office, pew holdings', function(){
@@ -820,6 +910,7 @@ describe('Company Controller', function() {
                     })
                     .catch(done)
             });
+
             it('Gets warnings', function(done){
                 return req.get('/api/company/'+companyId+'/get_info')
                     .expect(200)
@@ -842,7 +933,6 @@ describe('Company Controller', function() {
 
 
             it('Updates future, fails, then resolves', function(done){
-
                 return req.post('/api/company/'+companyId+'/import_pending_future')
                     .expect(500)
                     .then(function(res){
