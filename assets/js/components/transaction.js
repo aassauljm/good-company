@@ -119,7 +119,7 @@ const shareChange = props =>
             <span className="transaction-terse">
              { props.userSkip && <span className="transaction-terse-skip">SKIPPED</span> }
             { STRINGS.transactionTypes[props.transactionType] }
-            <span className="transaction-terse-description"> - { props.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') } </span>
+            <span className="transaction-terse-description"> - { props.parcels.map(p => `${numberWithCommas(p.amount)} shares`).join(', ') } (Update to { numberWithCommas(props.parcels.reduce((sum, p) => sum + p.afterAmount, 0)) } total shares) </span>
     </span>;
 
 

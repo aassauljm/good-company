@@ -68,6 +68,7 @@ export function compareAddresses(first, second){
 
     first = first.toLowerCase();
     second = second.toLowerCase();
+
     if(first === second){
         return true;
     }
@@ -80,6 +81,15 @@ export function compareAddresses(first, second){
     if(_.xor(firstParts, secondParts).length === 0 || _.xor(firstParts, secondParts).length === 1){
         return true;
     }
+
+    // drop postal codes
+    first =  first.replace(/(\d){4,6}/g, ' ').replace(/ +/g, ' ');
+    second = second.replace(/(\d){4,6}/g, ' ').replace(/ +/g, ' ');
+
+    if(first === second){
+        return true;
+    }
+
 
     // see if there are many tokens and one token has swapped
     if(firstParts.length > 4 && _.intersection(firstParts, secondParts).length === firstParts.length-1){

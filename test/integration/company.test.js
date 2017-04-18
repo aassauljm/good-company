@@ -485,8 +485,8 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
             })
             .then(() => {
                 return populateTransfer.call(this, {
-                    fromHolding: "Allocation 1:  Tamina Kelly CUNNINGHAM-ADAMS",
-                    toHolding: "Allocation 2:  Tamina Kelly CUNNINGHAM-ADAMS",
+                    fromHolding: "Shareholding 1:  Tamina Kelly CUNNINGHAM-ADAMS",
+                    toHolding: "Shareholding 2:  Tamina Kelly CUNNINGHAM-ADAMS",
                     parcels: [{amount: 1, shareClass: 'A'}]
                 })
             })

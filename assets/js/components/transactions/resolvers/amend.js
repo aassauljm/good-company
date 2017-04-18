@@ -352,8 +352,9 @@ class AmendOptions extends React.Component {
 
     renderAfterParcels(field) {
         const parcels = field.afterParcels;
-        return this.props.shareOptions.length > 1 &&
-                <Panel title="Share counts after all transactions">
+
+        //return (this.props.shareOptions.length > 1 || field.afterParcels.some(a => a.amount && a.amount.invalid))  &&
+        return  <Panel title="Share counts after all transactions">
                     { parcels.map((p, i) =>{
                         const remove = parcels.length > 1 && (() => parcels.removeField(i));
                         const add = parcels.length < this.props.shareOptions.length && (() => parcels.addField({}));

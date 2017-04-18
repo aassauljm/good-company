@@ -13,6 +13,7 @@ const querystring = require('querystring');
 const DOCUMENT_TYPES = {
     UPDATE : 'UPDATE',
     ISSUE: 'ISSUE',
+    PURCHASE: 'PURCHASE',
     PARTICULARS: 'PARTICULARS',
     NAME_CHANGE: 'NAME_CHANGE',
     ANNUAL_RETURN: 'ANNUAL_RETURN',
@@ -211,7 +212,8 @@ const EXTRACT_DOCUMENT_MAP = {
             'Conversion/Subdivision of Shares': Transaction.types.CONVERSION,
             'Acquisition': Transaction.types.ACQUISITION,
             'Purchase': Transaction.types.PURCHASE,
-            'Consolidation': Transaction.types.CONSOLIDATION
+            'Consolidation': Transaction.types.CONSOLIDATION,
+            'Redemption': Transaction.types.REDEMPTION,
         }
         let result = {};
         let regex = /^\s*Type of Change:\s*$/;
@@ -229,6 +231,12 @@ const EXTRACT_DOCUMENT_MAP = {
                 break;
             case(Transaction.types.ACQUISITION):
                 result = {...result, ...parseAcquisition($)}
+                break;
+            case(Transaction.types.REDEMPTION):
+                result = {...result, ...parseAcquisition($, 'Date of Redemption:')}
+                break;
+            case(Transaction.types.CANCELLATION):
+                result = {...result, ...parseAcquisition($, 'Date of Cancellation:')}
                 break;
             case(Transaction.types.PURCHASE):
                 result = {...result, ...parseAcquisition($, 'Date of Purchase:')}
@@ -1149,6 +1157,26 @@ const EXTRACT_BIZ_DOCUMENT_MAP= {
         result.increase = true;
         result.effectiveDate = moment(cleanString(match(/\s*Date of Issue\s*/).parent().next().text()), 'DD MMM YYYY').toDate();
         return {actions: [result], totalShares: result.increase ? -result.amount : result.amount};
+    },
+
+
+    [DOCUMENT_TYPES.PURCHASE]: ($) => {
+        const result = {};
+        result.transactionType = Transaction.types.ACQUISITION;
+        const match = (match) => {
+            return $('table td font').filter(function(){
+                return $(this).text().match(match);
+            });
+        }
+        const registeredDate = match(/Registration Date:/);
+        const regString = cleanString(registeredDate.text().replace('Registration Date:', ''));
+        result.registrationDate = moment(regString, 'DD MMM YYYY').toDate();
+        result.afterAmount = toInt(cleanString(match(/\s*Total Number of Company Shares\s*/).parent().next().text()));
+        result.amount = toInt(cleanString(match(/\s*Total Number of Shares Purchased or Acquired\s*/).parent().next().text()));
+        result.beforeAmount = result.afterAmount + result.amount;
+        result.increase = false;
+        result.effectiveDate = moment(cleanString(match(/\s*Date of Purchase\/Acquisition\s*/).parent().next().text()), 'DD MMM YYYY').toDate();
+        return {actions: [result], totalShares: result.increase ? -result.amount : result.amount};
     }
 
 }
@@ -1205,6 +1233,9 @@ const BIZ_DOCUMENT_TYPE_MAP = {
     },
     'Online Annual Return': {
         type: DOCUMENT_TYPES.ANNUAL_RETURN
+    },
+    'Purchase/Acquisition Of Shares': {
+        type: DOCUMENT_TYPES.PURCHASE
     }
 };
 
@@ -1225,7 +1256,6 @@ function processCompaniesOffice($){
 function processBizNet($, info){
     let result = {};
     let docType = BIZ_DOCUMENT_TYPE_MAP[info.documentType];
-
     if(docType && docType.type){
         result = {...result, ...EXTRACT_BIZ_DOCUMENT_MAP[docType.type]($)}
     }
@@ -1387,7 +1417,7 @@ const ScrapingService = {
                     holders: holding.holders.map((h) => {
                         return { person: h, data: {}}
                     }),
-                    name: holding.name
+                    name: holding.name.replace('Allocation', 'Shareholding')
                 }
             })
         }
@@ -1605,7 +1635,7 @@ const ScrapingService = {
                 if($el.find('td:nth-child(2) a').attr('href')){
                     documents.push({
                         'date': $el.find('td:nth-child(1)').text(),
-                        'documentType': $el.find('td:nth-child(2)').text(),
+                        'documentType': _.trim($el.find('td:nth-child(2)').text()),
                         'documentId': $el.find('td:nth-child(2) a').attr('href').match(docIDReg)[1]
                     })
                 }

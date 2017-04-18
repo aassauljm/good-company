@@ -280,17 +280,17 @@ describe('Company Controller', function() {
             req.post('/api/transaction/apply_share_classes/'+companyId)
                 .send({actions: [{
                         transactionType: 'APPLY_SHARE_CLASS',
-                        parcels: [{shareClass: classes['Class A'], amount: holdings['Allocation 1'].amount}],
-                        holdingId: holdings['Allocation 1'].id,
+                        parcels: [{shareClass: classes['Class A'], amount: holdings['Shareholding 1'].amount}],
+                        holdingId: holdings['Shareholding 1'].id,
 
                     },{
                         transactionType: 'APPLY_SHARE_CLASS',
-                        holdingId: holdings['Allocation 2'].id,
-                        parcels: [{shareClass: classes['Class B'], amount: holdings['Allocation 2'].amount}],
+                        holdingId: holdings['Shareholding 2'].id,
+                        parcels: [{shareClass: classes['Class B'], amount: holdings['Shareholding 2'].amount}],
                     },{
                         transactionType: 'APPLY_SHARE_CLASS',
-                        parcels: [{shareClass: classes['Class B'], amount: holdings['Allocation 3'].amount}],
-                        holdingId: holdings['Allocation 3'].id,
+                        parcels: [{shareClass: classes['Class B'], amount: holdings['Shareholding 3'].amount}],
+                        holdingId: holdings['Shareholding 3'].id,
                     }]
                 })
                 .expect(200)
@@ -319,9 +319,9 @@ describe('Company Controller', function() {
             .expect(200)
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
-                const oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
+                const oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 3');
                 const oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'LYSAGHT TRUSTEES LIMITED'})).person;
-                const newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 3');
+                const newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 3');
                 const newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'NEW PERSON'})).person;
                 oldHolder.personId.should.be.equal(newHolder.personId);
                 done();
@@ -343,15 +343,15 @@ describe('Company Controller', function() {
             .expect(200)
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
-                let oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
+                let oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 1');
                 let oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'Susan Ruth LYSAGHT'})).person;
-                let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
+                let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 1');
                 let newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directy'})).person;
                 oldHolder.personId.should.be.equal(newHolder.personId);
 
-                oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
+                oldHolding = _.find(initialState.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 2');
                 oldHolder = _.find(oldHolding.holders, h => _.isMatch(h.person, {name: 'Susan Ruth LYSAGHT'})).person;
-                newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
+                newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 2');
                 newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directy'})).person;
 
                 oldHolder.personId.should.be.equal(newHolder.personId);
@@ -377,10 +377,10 @@ describe('Company Controller', function() {
             .expect(200)
             .then(() => req.get('/api/company/'+companyId+'/get_info'))
             .then((res) => {
-                let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 1');
+                let newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 1');
                 let newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directio'})).person;;
 
-                newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Allocation 2');
+                newHolding = _.find(res.body.currentCompanyState.holdingList.holdings, (h) => h.name === 'Shareholding 2');
                 newHolder = _.find(newHolding.holders, h => _.isMatch(h.person, {name: 'Directio'})).person;;
 
                 res.body.currentCompanyState.directorList.directors[0].person.personId.should.be.equal(newHolder.personId);
@@ -1228,7 +1228,7 @@ describe('Company Controller', function() {
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)
                 .then(function(res){
-                    Object.keys(res.body.currentCompanyState.holdingList.holdings.find(h => h.name === 'Allocation 3').holders.reduce((acc, h) => {
+                    Object.keys(res.body.currentCompanyState.holdingList.holdings.find(h => h.name === 'Shareholding 3').holders.reduce((acc, h) => {
                         acc[h.person.personId] = true;
                         return acc;
                     }, {})).length.should.be.equal(3)
@@ -1278,6 +1278,7 @@ describe('Company Controller', function() {
                 .then((res) => {
                     done();
                     // TODO, resolve this crazy doc
+
                 });
         });
     });
@@ -1304,6 +1305,77 @@ describe('Company Controller', function() {
                     done();
                     // TODO, resolve this crazy doc
                 });
+        });
+    });
+
+
+   describe('Import with redemptions (1582925)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            return req.post('/api/company/import/companiesoffice/1582925')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Checked history', function(done){
+            req.get('/api/company/'+companyId+'/pending_history')
+                .then((res) => {
+                    const redemptions = res.body.reduce((sum, f) => sum + (f.data.actions||[]).filter(f => f.transactionType === Transaction.types.REDEMPTION).length, 0);
+                    const purchase = res.body.reduce((sum, f) => sum + (f.data.actions||[]).filter(f => f.transactionType === Transaction.types.ACQUISITION).length, 0);
+
+                    redemptions.should.be.equal(4);
+                    purchase.should.be.equal(5);
+                    done();
+                });
+        });
+        it('Imports history', function(done){
+            return req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(500)
+                .then((res) => {
+                    // this one is VERY tricky, requires reordering
+                    done();
+
+                });
+        });
+    });
+
+   describe('Import with holder change (445086)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            return req.post('/api/company/import/companiesoffice/445086')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+        it('Imports history', function(done){
+            return req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then((res) => {
+                    done();
+                });
+        });
+        it('checks share register', function(done){
+            return req.get('/api/company/'+companyId+'/share_register')
+                .expect(200)
+                .then((res) => {
+                    res.body.shareRegister.length.should.be.equal(2);
+                    done();
+                })
+                .catch(done)
         });
     });
 

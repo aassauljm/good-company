@@ -177,7 +177,7 @@ export function validateInverseChangeShares(data, companyState){
                 const shareStats = !newParcel.shareClass ? {amount: stats.totalShares}: (stats.shareCountByClass[newParcel.shareClass || null] || {amount: 0});
 
                 if(shareStats.amount !== newParcel.afterAmount && newParcel.afterAmount !== undefined){
-                    throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, issue', {
+                    throw new sails.config.exceptions.InvalidInverseOperation('After amount does not match, change shares', {
                         action: data,
                         importErrorType: sails.config.enums.INVERSE_INCREASE_SUM_MISMATCH,
                         companyState: companyState
@@ -919,11 +919,11 @@ export function performInverseNewDirector(data, companyState, previousState, eff
     });
 }
 
-export function performInverseRemoveDirector(data, companyState, previousState, effectiveDate){
+export function performInverseRemoveDirector(data, companyState, previousState, effectiveDate, userId){
     return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
         companyState.dataValues.directorList = dl;
-        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
+        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId}, userId)
     })
     .then(person => {
         const director = Director.build({
@@ -1155,12 +1155,12 @@ export function performRemoveDirector(data, companyState, previousState, effecti
     });
 }
 
-export function performNewDirector(data, companyState, previousState, effectiveDate){
+export function performNewDirector(data, companyState, previousState, effectiveDate, userId){
     // find them as a share holder? and vice versa?
     return companyState.dataValues.directorList.buildNext()
     .then(function(dl){
         companyState.dataValues.directorList = dl;
-        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId})
+        return CompanyState.findOrCreatePerson({name: data.name, address: data.address, personId: data.personId}, userId)
     })
     .then(person => {
         if(data.personAttr){
@@ -1695,7 +1695,7 @@ export function performInverseAllPendingResolve(company, root, endCondition){
 
 
 
-export function performInverseAllPendingUntil(company, endCondition){
+export function performInverseAllPendingUntil(company, endCondition, autoResolve=true){
     // unlike above this will commit all successful transactions, and complain when one fails
     let state, current, firstError;
 
@@ -1713,7 +1713,10 @@ export function performInverseAllPendingUntil(company, endCondition){
                 })
             })
             .catch(sails.config.exceptions.AmbiguousInverseOperation, e => {
-                sails.log.info('Ambiguous Transaction found, switching to automatic resolve mode');
+                if(!autoResolve){
+                    throw e;
+                }
+                sails.log.error('Ambiguous Transaction found, switching to automatic resolve mode');
                 firstError = e;
                 firstError.context = firstError.context || {};
                 firstError.context.actionSet = current;
@@ -1721,7 +1724,7 @@ export function performInverseAllPendingUntil(company, endCondition){
                 return Promise.all([state.fullPopulateJSON(true)])
                     .spread((fullState) => {
                         firstError.context.companyState = fullState;
-                        return performInverseAllPendingResolve(company, null, endCondition);
+                        return performInverseAllPendingResolve(company, null, (doc) => doc.data.transactionType === Transaction.types.ANNUAL_RETURN);
                     })
             })
             .catch(e => {
@@ -1775,7 +1778,7 @@ export function performInverseAllPending(company, endCondition, requireConfirmat
     return new Promise((resolve, reject) => {
         session.run(() => {
             session.set('REQUIRE_CONFIRMATION', !!requireConfirmation);
-            return performInverseAllPendingUntil(company, endCondition)
+            return performInverseAllPendingUntil(company, endCondition, true)
                 .then(result => {
                     if(!!result && !endCondition){
                         return performInverseAllPending(company, endCondition);
