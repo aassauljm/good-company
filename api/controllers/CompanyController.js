@@ -80,7 +80,6 @@ module.exports = {
                 var json = this.companyState.get();
                 return res.json({...this.company.toJSON(),  currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date(), permissions}, });
             }).catch(function(err) {
-                console.log(err)
                 return res.notFound();
             });
     },
@@ -163,7 +162,6 @@ module.exports = {
                     return Promise.map(uploadedFiles || [], f => {
                         return fs.readFileAsync(f.fd)
                             .then(readFile => {
-                                console.log('READ FILE', readFile)
                                 return Document.create({
                                     filename: f.filename,
                                     createdById: req.user.id,
@@ -630,7 +628,6 @@ module.exports = {
     },
 
     updatePendingFuture: function(req, res){
-        console.log('updating pending')
         const args = actionUtil.parseValues(req);
         let company ,state;
         Company.findById(req.params.id)

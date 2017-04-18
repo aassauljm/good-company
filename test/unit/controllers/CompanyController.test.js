@@ -88,6 +88,7 @@ describe('Company Controller', function() {
                 })
                 .catch(done)
         });
+
         it('Gets warnings', function(done){
             req.get('/api/company/'+companyId+'/get_info')
                 .expect(200)

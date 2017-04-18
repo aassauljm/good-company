@@ -1766,7 +1766,6 @@ export function performInverseAllPendingUntil(company, endCondition, autoResolve
                     return acc;
                 }, []);
             }
-            console.log(JSON.stringify(historicActions, null, 4))
             return historicActions.length && perform(historicActions)
         })
 }
