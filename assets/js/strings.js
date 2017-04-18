@@ -128,11 +128,12 @@ export default {
         ISSUE_TO: 'Issue',
         CONVERSION_TO: 'Conversion/Subdivision',
 
-        REDEMPTION_FORM: 'Redemption',
+        REDEMPTION_FROM: 'Redemption',
         ACQUISITION_FROM: 'Acquisition',
         CONSOLIDATION_FROM: 'Consolidation',
         PURCHASE_FROM: 'Purchase',
         CANCELLATION_FROM: 'Cancellation',
+
 
         TRANSFER_TO: 'Transfer',
         TRANSFER_FROM: 'Transfer',

@@ -23,7 +23,9 @@ module.exports = {
         freezeTableName: false,
         tableName: 'document_data',
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            IMMUTABLE: true
+        },
         hooks: {}
     }
 };

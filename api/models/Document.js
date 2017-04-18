@@ -84,7 +84,9 @@ module.exports = {
         freezeTableName: false,
         tableName: 'document', // Optional, but I suggest to set it
         classMethods: {},
-        instanceMethods: {},
+        instanceMethods: {
+            IMMUTABLE: true
+        },
         hooks: {}
     }
 };

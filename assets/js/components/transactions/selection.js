@@ -276,10 +276,10 @@ export class UpdateShares extends React.Component {
                 <span className="glyphicon glyphicon-envelope"></span>
                 <span className="transaction-button-text">Consolidate Shares</span>
             </div>
-            <div className="actionable select-button" onClick={() => this.props.show('subdivision')} >
+           { /* } <div className="actionable select-button" onClick={() => this.props.show('subdivision')} >
                 <span className="glyphicon glyphicon-resize-full"></span>
                 <span className="transaction-button-text">Subdivide Shares</span>
-            </div>
+            </div> */ }
             <div className="actionable select-button"  onClick={() => this.props.show('purchase')} >
                 <span className="glyphicon glyphicon-usd"></span>
                 <span className="transaction-button-text">Repurchase Shares</span>
