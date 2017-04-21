@@ -195,7 +195,7 @@ passport.connect = function (req, query, profile, next) {
                 .then(function() {
                     return updateAccess(user, profile)
                 })
-                .then(function (user) {
+                .then(function () {
                     if(user.email !== profile.email || user.username !== profile.username){
                         user.update({email: profile.email, username: profile.username})
                             .then(function() {

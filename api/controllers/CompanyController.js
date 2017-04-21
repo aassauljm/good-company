@@ -759,10 +759,10 @@ module.exports = {
             })
     },
 
-    inviteIserWithPermissions: function(req, res) {
+    inviteUserWithPermissions: function(req, res) {
         var data = actionUtil.parseValues(req);
         Promise.all([Company.findById(req.params.id), CatalexUserService.findOrCreateUserAndNotify(data)])
-            .spread((company, user => {
+            .spread((company, user) => {
                 return Promise.map(data.permissions, permission => {
                     return PermissionService.addPermissionCatalexUser(user.catalexId, company, permission, data.allow)
                 });

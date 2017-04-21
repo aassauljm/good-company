@@ -91,7 +91,7 @@ export default class Home extends React.PureComponent {
         const canCreateEvent = this.props.userInfo.permissions.event.indexOf('create') >= 0;
         const subscribed = this.props.userInfo.roles.find(r => r.name === 'subscribed');
         const orgAdmin = org && org.find(o => o.userId === this.props.userInfo.id).roles.indexOf('organisation_admin') >= 0;
-        const showImport = (!org && !subscribed) || (!subscribed && orgAdmin)
+        const showImport = canImport || (!org && !subscribed) || (!subscribed && orgAdmin)
         // show import with warning, if
         // (non org member, and nonsubscribed) OR (org admin, and nonsubscribed)
 

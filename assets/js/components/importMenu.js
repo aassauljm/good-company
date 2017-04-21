@@ -239,6 +239,7 @@ export class RealMeConnect extends React.PureComponent {
 export class ImportSingleWidget extends React.PureComponent {
 
     renderBody() {
+        const hasNZBN = this.props.userInfo.mbieServices.indexOf('nzbn') >= 0;
         return <div>
             <ImportSingle form='searchForm'/>
             <div className="button-row">
@@ -259,7 +260,6 @@ export class ImportSingleWidget extends React.PureComponent {
     }
 
     render() {
-        const hasNZBN = this.props.userInfo.mbieServices.indexOf('nzbn') >= 0;
         return  <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
