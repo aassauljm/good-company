@@ -3,7 +3,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
-import { endConfirmation, hideVersionWarning } from '../actions';
+import { endConfirmation, hideVersionWarning, hideBillingIssue } from '../actions';
 import { LoadingOverlay } from './loading';
 import EmailDocument from './modals/emailDocument';
 
@@ -70,8 +70,48 @@ export function Loading(props) {
     return <LoadingOverlay message={props.message} animationTime={props.animationTime}/>
 }
 
+
+function BillingIssueModal(props) {
+    const isOrgAdmin = props.userInfo.organisation && props.userInfo.organisation.find(o => o.userId === props.userInfo.id).roles.indexOf('organisation_admin') >= 0;
+    const isOwnedByOrgMember = props.userInfo.organisation &&  props.userInfo.organisation.find(o => o.userId === props.owner.id);
+    const isBillPayer = !props.userInfo.organisation || isOrgAdmin;
+    const showSelf = (props.selfOwned && isBillPayer) || (isOwnedByOrgMember && isOrgAdmin);
+
+    const contactEmails = isOwnedByOrgMember ?
+        props.userInfo.organisation.filter(o => o.roles.indexOf('organisation_admin') >= 0).map(o => ({name: o.name, email: o.email})) :
+        [{name: props.owner.name, email: props.owner.email}];
+
+    return (
+        <Modal show={true} onHide={props.hide}>
+            <Modal.Header closeButton>
+                <Modal.Title>Suspended Company</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+            <p>Access to <strong>{ props.companyName }</strong> has been suspending pending an update of billing information.</p>
+
+                { showSelf && <div className="button-row"><a className="btn btn-primary" href={props.upgradeUrl}>Click here to update billing</a></div> }
+                { !showSelf && isOwnedByOrgMember && <div>
+                    <p>Please contact your Organisation Administrator(s):</p>
+                    { contactEmails.map((c, i) => <div key={i}>{ c.name }: <a className="vanity-link" href={`mailto::${c.email}`}>{ c.email }</a></div>) }
+                    </div> }
+                { !showSelf && !isOwnedByOrgMember && <div>
+                    <p>Please contact the Administrator for this company:</p>
+                    { contactEmails.map((c, i) => <div key={i}>{ c.name }: <a className="vanity-link" href={`mailto::${c.email}`}>{ c.email }</a></div>) }
+                    </div> }
+            </Modal.Body>
+
+            <Modal.Footer>
+
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
+
 @connect(state => ({modals: state.modals}), {
     hideVersionWarning: () => hideVersionWarning(),
+    hideBillingIssue: () => hideBillingIssue()
 })
 export default class Modals extends React.Component {
     render() {
@@ -87,7 +127,9 @@ export default class Modals extends React.Component {
         else if (this.props.modals.versionWarning && this.props.modals.versionWarning.showing) {
             return <NewGCVersionModal hide={this.props.hideVersionWarning} />
         }
-
+        else if (this.props.modals.billingIssue && this.props.modals.billingIssue.showing) {
+            return <BillingIssueModal {...this.props.modals.billingIssue } hide={this.props.hideBillingIssue} />
+        }
         return false;
     }
 

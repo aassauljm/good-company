@@ -1,6 +1,6 @@
 "use strict";
 import React, {PropTypes} from 'react';
-import { requestResource, changeCompanyTab, showTransactionView, toggleWidget, resetTransactionViews } from '../actions';
+import { requestResource, changeCompanyTab, showTransactionView, toggleWidget, resetTransactionViews, showBillingIssue} from '../actions';
 import { pureRender, numberWithCommas, stringDateToFormattedString, analyseCompan, resourceIsForbidden } from '../utils';
 import { connect } from 'react-redux';
 import ButtonInput from './forms/buttonInput';
@@ -67,14 +67,15 @@ export class CompanyDated extends React.Component {
         companyPage: state.companyPage,
         widgets: state.widgets[ownProps.params.id] || DEFAULT_OBJ,
         transactionViews: state.transactionViews,
-        login: state.login
+        login: state.login,
+        userInfo: state.userInfo
     };
-
 },
 (dispatch, ownProps) => ({
     showTransactionView: (key, data) => { dispatch(push(`/company/view/${ownProps.params.id}/new_transaction`)); dispatch(showTransactionView(key, data)) },
     toggleWidget: (path, args) => dispatch(toggleWidget(path, args)),
     destroyForm: (args) => dispatch(destroyForm(args)),
+    showBillingIssue: (...args) => dispatch(showBillingIssue(...args)),
     push: (url) => dispatch(push(url))
 }))
 export class CompanyView extends React.Component {
@@ -82,6 +83,24 @@ export class CompanyView extends React.Component {
         companyPage: PropTypes.object.isRequired,
         data: PropTypes.object.isRequired
     };
+
+    constructor(props) {
+        super(props);
+        this.billingIssue = ::this.billingIssue;
+    }
+
+    billingIssue() {
+        const data = this.props.data || DEFAULT_OBJ;
+        const suspended = data.suspended;
+        const current = data.currentCompanyState || data.companyState;
+        this.props.showBillingIssue({
+            companyName: current.companyName,
+            owner: data.owner,
+            selfOwned: this.props.userInfo.id === data.ownerId,
+            userInfo: this.props.userInfo,
+            upgradeUrl: `${this.props.login.userUrl}/my-services?Good%2BCompanies=1`
+        })
+    }
 
     key() {
         return this.props.params.id
@@ -94,7 +113,6 @@ export class CompanyView extends React.Component {
         return (current.permissions || []).indexOf('update') >= 0;
     }
     renderBody(current) {
-
         if(!current){
              return <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
         }
@@ -112,8 +130,7 @@ export class CompanyView extends React.Component {
         }
         else{
             return <div className="container">
-
-            <div className="row">
+            <div className="row ">
                  <div className="col-md-6">
 
                      { this.canViewAlerts(current.permissions) && <CompanyAlertsWidget
@@ -210,6 +227,7 @@ export class CompanyView extends React.Component {
 
     render(){
         const data = this.props.data || DEFAULT_OBJ;
+        const suspended = data.suspended;
         const current = data.currentCompanyState || data.companyState;
 
         if(this.props._status === 'error'){
@@ -224,8 +242,14 @@ export class CompanyView extends React.Component {
                     <div className="container-fluid page-top">
                         <CompanyHeader companyId={this.key()} companyState={current || DEFAULT_OBJ} baseUrl={this.props.baseUrl} date={this.props.date} />
                         </div>
-                    <div className="container-fluid page-body">
-                        { this.renderBody(current || FAKE_COMPANY) }
+                      { suspended && <div className="container-fluid">
+                       { <div className="container"><div className="alert alert-danger suspend-info">
+                            This Company has been suspended, pending an update of billing information. <a className="vanity-link" onClick={this.billingIssue}>Click here to find out more</a> </div> </div> }
+                    </div>}
+
+
+                    <div className={"container-fluid page-body " + (suspended ? 'suspended ' : '')}>
+                        { this.renderBody(current || FAKE_COMPANY, suspended) }
                     </div>
             </div>
         </div>

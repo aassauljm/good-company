@@ -34,7 +34,8 @@ import {
     TOGGLE_WIDGET_SIZE,
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE,
     SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT, SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
-    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING
+    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
+    SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -555,4 +556,12 @@ export function showVersionWarning() {
 
 export function hideVersionWarning() {
     return { type: HIDE_VERSION_WARNING };
+}
+
+export function showBillingIssue(data) {
+    return { type: SHOW_BILLING_ISSUE, data };
+}
+
+export function hideBillingIssue() {
+    return { type: HIDE_BILLING_ISSUE };
 }

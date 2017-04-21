@@ -4,6 +4,41 @@ var passport = require('passport');
 var _ = require('lodash');
 
 /**
+ * Set the roles for a user, depending on their credentials
+ * if they are subscribed to Good Companies, then add subscribed
+ * else remove subscribed
+ *
+ */
+function setRoles(user, profile) {
+    return Role.findOne({where: {
+        name: 'subscribed'
+    }})
+    .then(role => {
+        if((profile.services || []).indexOf('Good Companies') >= 0){
+
+            return user.addRole(role);
+        }
+        else{
+            return user.removeRole(role);
+        }
+    })
+    .then(() => {
+        return user;
+    })
+}
+
+function updateAccess(user, profile) {
+    if((profile.services || []).indexOf('Good Companies') >= 0) {
+        return Company.update({suspended: false}, {where: {suspended: true, ownerId: user.id}})
+            .then(() => user)
+    }
+    else {
+        return Company.update({suspended: true}, {where: {suspended: false, ownerId: user.id}})
+            .then(() => user)
+    }
+}
+
+/**
  * Passport Service
  *
  * A painless Passport.js service for your Sails app that is guaranteed to
@@ -103,17 +138,15 @@ passport.connect = function (req, query, profile, next) {
     return next(new Error('Neither a username nor email was available'));
   }
   return sequelize.transaction(t => {
-    console.log(profile)
+
       return Organisation.updateOrganisation(profile.organisation)
       .then(() => {
-            console.log(profile)
           return sails.models.passport.findOne({ where: {
               provider: provider,
               identifier: query.identifier.toString()
             }})
         })
         .then(function (passport) {
-          if (!req.user || true) { // force this user to log in, again, if needed
             // Scenario: A new user is attempting to sign up using a third-party
             //           authentication provider.
             // Action:   Create a new user and assign them a passport.
@@ -128,10 +161,18 @@ passport.connect = function (req, query, profile, next) {
                   user = _user;
                   return sails.models.passport.create(_.extend({ userId: user.id }, query))
                 })
-                .then(function (passport) {
-                  next(null, user);
+                .then(function() {
+                    return setRoles(user, profile)
                 })
-                .catch(next);
+                .then(function() {
+                    return updateAccess(user, profile)
+                })
+                .then(function () {
+                    next(null, user);
+                })
+                .catch(e => {
+                    next(e)
+                });
             }
             // Scenario: An existing user is trying to log in using an already
             //           connected passport.
@@ -147,6 +188,13 @@ passport.connect = function (req, query, profile, next) {
                   // Fetch the user associated with the Passport
                   return sails.models.user.findOne({where: {id: passport.userId}});
                 })
+                .then(function(_user) {
+                     user = _user;
+                    return setRoles(user, profile)
+                })
+                .then(function() {
+                    return updateAccess(user, profile)
+                })
                 .then(function (user) {
                     if(user.email !== profile.email || user.username !== profile.username){
                         user.update({email: profile.email, username: profile.username})
@@ -158,26 +206,10 @@ passport.connect = function (req, query, profile, next) {
                         next(null, user);
                     }
                 })
-                .catch(next);
+                .catch(e => {
+                    next(e)
+                });
             }
-          }
-          else {
-            // Scenario: A user is currently logged in and trying to connect a new
-            //           passport.
-            // Action:   Create and assign a new passport to the user.
-            if (!passport) {
-              return sails.models.passport.create(_.extend({ userId: req.user.id }, query))
-                .then(function (passport) {
-                    next(null, req.user);
-                })
-                .catch(next);
-            }
-            // Scenario: The user is a nutjob or spammed the back-button.
-            // Action:   Simply pass along the already established session.
-            else {
-              next(null, req.user);
-            }
-          }
         })
         .catch(next)
     });

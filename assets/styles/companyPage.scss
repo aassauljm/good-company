@@ -26,3 +26,19 @@
         }
     }
 }
+
+.suspended{
+      filter: blur(2px);
+      filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius='2');
+      pointer-events: none;
+      user-select: none;
+}
+
+.suspend-info{
+    .vanity-link{
+        color: $alert-danger-text;
+        font-weight:bold;
+
+    }
+    margin:20px 0 0 0;
+}

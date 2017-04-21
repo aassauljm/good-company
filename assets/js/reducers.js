@@ -29,7 +29,8 @@ import {
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE,
     SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT,
     SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
-    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING
+    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
+    SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE
      } from './actionTypes';
 
 import {
@@ -456,7 +457,10 @@ function modals(state = {}, action) {
             return {...state, versionWarning: {showing: true}}
         case HIDE_VERSION_WARNING:
             return {...state, versionWarning: {showing: false}}
-
+        case SHOW_BILLING_ISSUE:
+            return {...state, billingIssue: {...action.data, showing: true}}
+        case HIDE_BILLING_ISSUE:
+            return {...state, billingIssue: {showing: false}}
         case RESOURCE_REQUEST:
         case RESOURCE_CREATE_REQUEST:
         case RESOURCE_UPDATE_REQUEST:

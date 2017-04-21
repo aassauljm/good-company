@@ -12,6 +12,10 @@ module.exports = {
         deleted: {
             type: Sequelize.BOOLEAN,
             defaultValue: false
+        },
+        suspended: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
         }
     },
     associations: function() {

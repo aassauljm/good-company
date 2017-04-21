@@ -63,21 +63,15 @@ module.exports.policies = {
         'update': false,
         'destroy': false
     },
-    DocumentController: {
-        //'delete': false,
-        /*'find': ['passport','sessionAuth', 'OwnerPolicy'],
-        'delete':  ['passport','sessionAuth', 'OwnerPolicy'],
-        'update':  ['passport','sessionAuth', 'OwnerPolicy'],
-        'uploadDocument': ['passport','sessionAuth'],
-        'getDocument': ['passport','sessionAuth', 'OwnerPolicy'],
-        'getDocumentPreview': ['passport','sessionAuth', 'OwnerPolicy'],*/
-    },
     CompanyController: {
         'populate': false,
         'lookup': simpleAuth,
         'lookupOwn': simpleAuth,
         'find': simpleAuth,
         'companyPermissionsCatalexUser': simpleAuth,
+    },
+    CompanyStateController: {
+        'create': standardAuth.concat(['SuspendedPolicy']),
     },
     FavouriteController: {
         '*': simpleAuth,

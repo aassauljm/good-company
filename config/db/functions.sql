@@ -214,7 +214,7 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended FROM (
         SELECT *, company_now(c.id) FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
@@ -266,7 +266,7 @@ CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", TRUE as "favourite" FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", TRUE as "favourite", suspended  FROM (
         SELECT c.*, company_now(c.id)
     FROM favourite f
         JOIN company c on f."companyId" = c.id

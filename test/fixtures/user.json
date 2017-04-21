@@ -3,28 +3,40 @@
     "data": {
         "id": 10,
         "username": "test-user",
-        "email": "test@email.com"
+        "email": "test@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 11,
         "username": "test-user-2",
-        "email": "testacular@email.com"
+        "email": "testacular@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 12,
         "username": "document-uploader",
-        "email": "documentuploader@email.com"
+        "email": "documentuploader@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 13,
         "username": "document-stealer",
-        "email": "documentstealer@email.com"
+        "email": "documentstealer@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
@@ -32,48 +44,66 @@
         "id": 14,
         "username": "admin-tester",
         "email": "admintester@email.com",
-        "roles": [{"name": "admin"}]
+        "roles": [{"name": "admin"}, {"name": "subscribed"}]
     }
 }, {
     "model": "user",
     "data": {
         "id": 15,
         "username": "company-creator",
-        "email": "companycreator@email.com"
+        "email": "companycreator@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 16,
         "username": "transactor",
-        "email": "transactor@email.com"
+        "email": "transactor@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 17,
         "username": "integrate",
-        "email": "integrate@email.com"
+        "email": "integrate@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 18,
         "username": "favourites",
-        "email": "favourites@email.com"
+        "email": "favourites@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 19,
         "username": "event",
-        "email": "event@email.com"
+        "email": "event@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }, {
     "model": "user",
     "data": {
         "id": 20,
         "username": "eventstealer",
-        "email": "eventstealer@email.com"
+        "email": "eventstealer@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
     }
 }]

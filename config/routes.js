@@ -354,6 +354,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'PUT /api/company/:id/invite_user_with_permission': {
+        controller: 'CompanyController',
+        action: 'inviteUserWithPermissions',
+        model: 'company'
+    },
+
     'PUT /api/company/:id/remove_permissions': {
         controller: 'CompanyController',
         action: 'removeForeignPermissions',

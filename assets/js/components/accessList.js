@@ -5,7 +5,7 @@ import STRINGS from '../strings'
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import { pureRender } from '../utils';
+import { formFieldProps, requireFields } from '../utils';
 import { updateResource, addNotification, showLoading, endLoading, requestResource } from '../actions';
 import { ContactFormConnected, contactDetailsFormatSubmit, immutableFields, defaultCustomFields } from './forms/contactDetails';
 import { replace, push } from 'react-router-redux'
@@ -173,6 +173,30 @@ function formatChange(value, catalexId, permission){
     return {addOrRemove, permissions: [permission], allow}
 }
 
+@reduxForm({
+    form: 'thirdPartyAccess',
+    fields: ['name', 'email'],
+    validate: requireFields('name', 'email')
+})
+@formFieldProps()
+class InviteThirdPartyForm extends React.PureComponent {
+    render() {
+        const { fields } = this.props;
+        return <form className="form">
+            <div className="row">
+                <div className="col-md-3 col-md-offset-2">
+                    <Input type="text" {...this.formFieldProps('name')} label='' placeholder="name"/>
+                </div>
+                <div className="col-md-3">
+                    <Input type="email" {...this.formFieldProps('email')} label='' placeholder="email"/>
+                </div>
+                 <div className="col-md-2">
+                    <Button type="submit" bsStyle="primary">Invite to View</Button>
+                </div>
+            </div>
+        </form>
+    }
+}
 
 @ForeignPermissionsHOC()
 @connect(state => ({
@@ -206,14 +230,11 @@ export default class AccessList extends React.Component {
         })
     }
 
-    renderBody() {
-        const foreignPermissions = (this.props.foreignPermissions && this.props.foreignPermissions.data) || [];
+    renderOrgAccess(foreignPermissions) {
         const members = (this.props.userInfo.organisation && this.props.userInfo.organisation)  || [];
         members.sort(firstBy(a => a.name.toLowerCase()));
-        return <div className="widget-body">
-            <div className="button-row">
-                <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Manage Organisation</a>
-            </div>
+        return <div>
+            <h4 className="text-center">Organisation Access</h4>
             <table className="table table-striped permissions">
                 <thead>
                     <tr>
@@ -233,8 +254,30 @@ export default class AccessList extends React.Component {
                     })}
                 </tbody>
             </table>
+            <div className="button-row">
+                <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Manage Organisation</a>
+            </div>
+            <hr/>
         </div>
-     }
+    }
+
+    renderThirdPartyAccess() {
+
+        return <div>
+            <h4 className="text-center">External View Access</h4>
+            <InviteThirdPartyForm />
+
+        </div>
+    }
+
+    renderBody() {
+        const foreignPermissions = (this.props.foreignPermissions && this.props.foreignPermissions.data) || [];
+
+        return <div className="widget-body">
+            { this.props.userInfo.organisation && this.renderOrgAccess(foreignPermissions) }
+            { this.renderThirdPartyAccess(foreignPermissions) }
+        </div>
+    }
 
     render() {
         return (
@@ -374,15 +417,14 @@ export class Organisation extends React.Component {
             <div className="button-row">
                 <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Invite Users to your Organisation</a>
             </div>
-            <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
-                { this.userSelect() }
+                <div className="row">
+                    <div className="col-md-6 col-md-offset-3">
+                    <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
+                    { this.userSelect() }
+                </div>
             </div>
-        </div>
 
         { this.props.fields.user.value && <PermissionTable catalexId={this.props.fields.user.value} userInfo={this.props.userInfo} /> }
-
         </div>
      }
 

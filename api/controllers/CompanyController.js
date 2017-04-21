@@ -744,12 +744,27 @@ module.exports = {
                 return res.badRequest(err);
             })
     },
+
     removeForeignPermissions: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.findById(req.params.id)
             .then(company => {
                 return Promise.map(data.permissions, permission => {
                     return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                });
+            })
+            .then(r => res.json({message: 'Permissions Updated'}))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
+    },
+
+    inviteIserWithPermissions: function(req, res) {
+        var data = actionUtil.parseValues(req);
+        Promise.all([Company.findById(req.params.id), CatalexUserService.findOrCreateUserAndNotify(data)])
+            .spread((company, user => {
+                return Promise.map(data.permissions, permission => {
+                    return PermissionService.addPermissionCatalexUser(user.catalexId, company, permission, data.allow)
                 });
             })
             .then(r => res.json({message: 'Permissions Updated'}))
