@@ -103,7 +103,6 @@ class EntryForm extends React.PureComponent {
         this.props.fields.documents.onChange(files)
     }
 
-
     render() {
         const {
             addValue,
@@ -141,7 +140,7 @@ class EntryForm extends React.PureComponent {
             <div className="button-row">
                 <ButtonInput onClick={() => this.props.dispatch(push(`/company/view/${this.props.companyId}/registers/interests_register`))}>Cancel</ButtonInput>
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
-                <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid}>Create</ButtonInput>
+                 <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid}>Create</ButtonInput>
             </div>
         </form>
     }
@@ -270,9 +269,13 @@ export class InterestsRegister extends React.PureComponent {
             </table>
              { this.props._status === 'fetching' && <Loading />}
             <div className="button-row">
-            <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary">Create New Entry</Link></div>
+            { this.canUpdate() && <div><Link to={this.props.location.pathname +'/create'} className="btn btn-primary">Create New Entry</Link></div> }
             </div>
         </div>
+    }
+
+    canUpdate() {
+        return (this.props.companyState.permissions || []).indexOf('update') >= 0;
     }
 
     fetch() {

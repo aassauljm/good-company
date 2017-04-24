@@ -69,32 +69,32 @@ module.exports = {
                 return model;
             })
     }),
-    addPermissionUser: function(user, model, permission, allow){
+    addPermissionUser: function(user, model, permission, allow, userDefined = false){
         const entityId = typeof model !== 'string' ? model.id : null;
         const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.create({
-            userId: user.id, modelId, action: permission, relation: 'user', entityId, allow
+            userId: user.id, modelId, action: permission, relation: 'user', entityId, allow, userDefined
         })
     },
-    addPermissionCatalexUser: function(catalexId, model, permission, allow){
+    addPermissionCatalexUser: function(catalexId, model, permission, allow, userDefined = false){
         const entityId = typeof model !== 'string' ? model.id : null;
         const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.create({
-            catalexId,  modelId, action: permission, relation: 'catalex', entityId, allow
+            catalexId,  modelId, action: permission, relation: 'catalex', entityId, allow, userDefined
         })
     },
-    removePermissionUser: function(user, model, permission, allow){
+    removePermissionUser: function(user, model, permission, allow, userDefined = false){
         const entityId = typeof model !== 'string' ? model.id : null;
         const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.destroy({where: {
-            userId: user.id, modelId, action: permission, relation: 'user', entityId: {$eq: typeof model !== 'string'  ? model.id : null}, allow
+            userId: user.id, modelId, action: permission, relation: 'user', entityId: {$eq: typeof model !== 'string'  ? model.id : null}, allow, userDefined
         }})
     },
-    removePermissionCatalexUser: function(catalexId, model, permission, allow){
+    removePermissionCatalexUser: function(catalexId, model, permission, allow, userDefined = false){
         const entityId = typeof model !== 'string' ? model.id : null;
         const modelId = sails.hooks['sails-permissions']._modelCache[typeof model !== 'string' ? model.$modelOptions.name.singular : model].id;
         return Permission.destroy({where: {
-            catalexId, modelId, action: permission, relation: 'catalex', entityId: {$eq: typeof model !== 'string'  ? model.id : null}, allow
+            catalexId, modelId, action: permission, relation: 'catalex', entityId: {$eq: typeof model !== 'string'  ? model.id : null}, allow, userDefined
         }})
     },
 }

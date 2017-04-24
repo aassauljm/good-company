@@ -28,6 +28,7 @@ const MAX_ITEMS = 20;
 
 
 @CompaniesHOC()
+@connect(state => ({ userInfo: state.userInfo }))
 export class Search extends React.Component {
     constructor(props){
         super();
@@ -62,11 +63,12 @@ export class Search extends React.Component {
     }
 
     results() {
+        const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         return  this.state.show && <div className="search-results" >
             { this.state.list.map((c, i) => {
                 return <Link key={i} className="result" to={this.props.target ? this.props.target(c.id) : `/company/view/${c.id}`} onClick={() => this.setAndClose(c.currentCompanyState.companyName)}><span className="title">{ highlightString(c.currentCompanyState.companyName, this.state.value) }</span></Link>
             }) }
-            { this.state.list.length === 0 && !!this.state.value && <div><div className="no-results">No results</div> <div><Link to='/import' query={{value: this.state.value}} className="result" onClick={this.setAndClose}>Search for '{ this.state.value }' on the Companies Register</Link></div></div> }
+            { canImport && this.state.list.length === 0 && !!this.state.value && <div><div className="no-results">No results</div> <div><Link to='/import' query={{value: this.state.value}} className="result" onClick={this.setAndClose}>Search for '{ this.state.value }' on the Companies Register</Link></div></div> }
             </div>
     }
 

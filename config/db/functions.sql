@@ -285,14 +285,30 @@ CREATE OR REPLACE FUNCTION get_all_company_permissions_json(entityId integer def
         AS $$
     SELECT array_to_json(array_agg(row_to_json(qq))) from (
 
-    SELECT "catalexId", "name", "userId", array_agg(perms) as permissions from (
-        SELECT "catalexId", o."name", "userId", get_permissions_catalex_user("catalexId", 'Company', $1) as perms
+    SELECT "catalexId", "name", email, "userId", array_agg(perms) as permissions, TRUE as organisation from (
+        SELECT "catalexId", o."name", email, "userId", get_permissions_catalex_user("catalexId", 'Company', $1) as perms
         FROM company c
         JOIN organisation o ON o."organisationId" = get_user_organisation(c."ownerId")
         LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and "userId" IS NOT NULL
         WHERE c.id = $1
         ) q
-        GROUP BY "catalexId", "name", "userId"
+        GROUP BY "catalexId", "name", "userId", email
+
+
+        UNION
+
+
+     SELECT "catalexId", "name", email, "userId", array_agg(perms) as permissions, FALSE as organisation from (
+        SELECT "catalexId", u."username" as name, email, p."userId", action::text as perms
+        FROM model m
+        LEFT OUTER JOIN permission pp on m.id = pp."modelId" and "entityId" = $1 and relation = 'catalex' and allow = true
+
+        LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and p."userId" IS NOT NULL
+        JOIN public.user u on u.id = p."userId"
+        ) q
+        GROUP BY "catalexId", "name", "userId", email
+
+
     ) qq
 
 $$ LANGUAGE SQL;

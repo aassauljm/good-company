@@ -15,7 +15,6 @@ function setRoles(user, profile) {
     }})
     .then(role => {
         if((profile.services || []).indexOf('Good Companies') >= 0){
-
             return user.addRole(role);
         }
         else{
@@ -31,10 +30,16 @@ function updateAccess(user, profile) {
     if((profile.services || []).indexOf('Good Companies') >= 0) {
         return Company.update({suspended: false}, {where: {suspended: true, ownerId: user.id}})
             .then(() => user)
+            .then(() => {
+                return PermissionService.removePermissionUser(user, 'Company', 'create', false, false)
+            })
     }
     else {
         return Company.update({suspended: true}, {where: {suspended: false, ownerId: user.id}})
             .then(() => user)
+            .then(() => {
+                return PermissionService.addPermissionUser(user, 'Company', 'create', false, false)
+            })
     }
 }
 
@@ -107,13 +112,11 @@ passport.connect = function (req, query, profile, next) {
 
   // Use profile.provider or fallback to the query.provider if it is undefined
   // as is the case for OpenID, for example
-  var provider = profile.provider || query.provider;
+
 
   // If the provider cannot be identified we cannot match it to a passport so
   // throw an error and let whoever's next in line take care of it.
-  if (!provider){
-    return next(new Error('No authentication provider was identified.'));
-  }
+
 
   sails.log.debug('auth profile', profile);
 
@@ -137,8 +140,13 @@ passport.connect = function (req, query, profile, next) {
   if (!user.username && !user.email) {
     return next(new Error('Neither a username nor email was available'));
   }
-  return sequelize.transaction(t => {
+  return passport.updatePassport(query, user, profile, next)
+};
 
+
+passport.updatePassport = function(query, user, profile, next){
+    var provider = profile.provider || query.provider;
+    return sequelize.transaction(t => {
       return Organisation.updateOrganisation(profile.organisation)
       .then(() => {
           return sails.models.passport.findOne({ where: {
@@ -171,6 +179,7 @@ passport.connect = function (req, query, profile, next) {
                     next(null, user);
                 })
                 .catch(e => {
+                    sails.log.error(e);
                     next(e)
                 });
             }
@@ -207,13 +216,18 @@ passport.connect = function (req, query, profile, next) {
                     }
                 })
                 .catch(e => {
+                    sails.log.error(e);
                     next(e)
                 });
             }
         })
-        .catch(next)
+        .catch(e => {
+            sails.log.error(e);
+            next(e)
+        });
     });
-};
+
+}
 
 /**
  * Create an authentication endpoint

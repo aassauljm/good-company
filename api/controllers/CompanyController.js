@@ -736,7 +736,7 @@ module.exports = {
         Company.findById(req.params.id)
             .then(company => {
                 return Promise.map(data.permissions, permission => {
-                    return PermissionService.addPermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                    return PermissionService.addPermissionCatalexUser(data.catalexId, company, permission, data.allow, true)
                 });
             })
             .then(r => res.json({message: 'Permissions Updated'}))
@@ -750,7 +750,7 @@ module.exports = {
         Company.findById(req.params.id)
             .then(company => {
                 return Promise.map(data.permissions, permission => {
-                    return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                    return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow, true)
                 });
             })
             .then(r => res.json({message: 'Permissions Updated'}))
@@ -760,11 +760,22 @@ module.exports = {
     },
 
     inviteUserWithPermissions: function(req, res) {
-        var data = actionUtil.parseValues(req);
-        Promise.all([Company.findById(req.params.id), CatalexUserService.findOrCreateUserAndNotify(data)])
-            .spread((company, user) => {
+        var data = actionUtil.parseValues(req), company, state;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then(_state => {
+                state = _state;
+                const userData = {name: data.name, email: data.email, senderName: req.user.username, companyName: state.companyName}
+                return CatalexUsersService.findOrCreateUserAndNotify(userData)
+            })
+            .then((user) => {
+                console.log(data.permissions, 'huh')
                 return Promise.map(data.permissions, permission => {
-                    return PermissionService.addPermissionCatalexUser(user.catalexId, company, permission, data.allow)
+
+                    return PermissionService.addPermissionCatalexUser(user.catalexId, company, permission, data.allow, true)
                 });
             })
             .then(r => res.json({message: 'Permissions Updated'}))
