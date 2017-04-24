@@ -19,7 +19,7 @@ import { ImportSingleWidget } from './importMenu'
 import { OrganisationWidget } from './accessList'
 
 @AsyncHOCFactory([COMPANIES])
-@connect(state => ({ userInfo: state.userInfo}))
+@connect(state => ({ userInfo: state.userInfo, login: state.login}))
 export class LandingPageView extends React.PureComponent {
 
     welcomeBack() {
@@ -44,17 +44,20 @@ export class LandingPageView extends React.PureComponent {
         </div>
     }
 
-   /*freeUser() {
+   freeUser() {
         return  <div className="welcome-back">
             Welcome <strong>{ this.props.userInfo.username }</strong><br/>To import and manage your own companies, click <a className="vanity-link" href={`${this.props.login.userUrl}/my-services?Good%2BCompanies=1`} >here</a> to upgrade your account.
         </div>
-    }*/
+    }
 
     banner() {
-
+        const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         const noCompanies = this.props.companies._status === 'complete' && this.props.companies.data.filter(d => !d.deleted).length === 0;
         if(noCompanies){
             return this.gettingStarted();
+        }
+        if(!canImport){
+            return this.freeUser();
         }
         else{
             return this.welcomeBack();
