@@ -48,7 +48,7 @@ module.exports.connections = {
     pg_test: {
         user: process.env.USER || 'postgres',
         password: '',
-        database: 'test',
+        database: 'goodcompany',
         dialect: 'postgres',
         options: {
             dialect: 'postgres',

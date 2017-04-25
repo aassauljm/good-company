@@ -53,10 +53,10 @@ export class LandingPageView extends React.PureComponent {
     banner() {
         const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         const noCompanies = this.props.companies._status === 'complete' && this.props.companies.data.filter(d => !d.deleted).length === 0;
-        if(noCompanies){
+        if(noCompanies && canImport){
             return this.gettingStarted();
         }
-        if(!canImport){
+        else if(!canImport){
             return this.freeUser();
         }
         else{
