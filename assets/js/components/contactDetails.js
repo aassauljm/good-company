@@ -172,9 +172,9 @@ export default class ContactDetails extends React.Component {
                             </dl>
                         </div>
 
-                    <div className="button-row">
+                    { this.props.canUpdate && <div className="button-row">
                         <Link to={`/company/view/${this.props.companyId}/contact/edit`} className="btn btn-info">Edit Contact Details</Link>
-                    </div>
+                    </div> }
                     </div>
                 </div>
             </LawBrowserContainer>

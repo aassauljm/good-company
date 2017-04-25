@@ -283,7 +283,7 @@ export class Shareholdings extends React.Component {
                             <Holding key={i} holding={holding}
                                 total={this.props.companyState.totalShares}
                                 shareClassMap={shareClassMap}
-                                select={this.editHolding} />
+                                select={this.props.canUpdate && this.editHolding} />
                         )}
                     </div>
                     <div className="col-md-6 col-xs-12 text-center">

@@ -1,7 +1,5 @@
-.well.actionable,
-.actionable .well{
-
-    position: relative;
+.well{
+        position: relative;
 
     .well-icon{
         font-size: 4em;
@@ -16,6 +14,11 @@
 
 
     }
+}
+
+
+.well.actionable,
+.actionable .well{
 
     transition: all ease-in-out 300ms;
 

@@ -196,7 +196,7 @@ export class CompaniesDelete extends React.Component {
             return this.props.addNotification({message: `${ids.length} companies deleted`})
         })
         .catch((e) => {
-
+            return this.props.addNotification({message: e.message, error: true})
         })
         .then(() => {
            this.props.resetResources();

@@ -77,7 +77,7 @@ export const NavLinks = (props) => {
             </li>,
             <li key={2} className="nav-item"><Link to={`/calendar`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Calendar</Link></li>,
             <li key={3} className="nav-item"><Link to={`/templates`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Templates</Link></li>,
-            <li key={4} className="nav-item"><Link to={`/import`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Import</Link></li>,
+            props.canImport && <li key={4} className="nav-item"><Link to={`/import`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Import</Link></li>,
             <li key={5} className="nav-item"><Link to={`/recent_activity`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Recent Activity</Link></li>
          ];
 }
@@ -93,7 +93,8 @@ export class Header extends React.PureComponent {
     }
 
     renderNavLinks() {
-        return NavLinks({closeMenu: this.closeMenu})
+         const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
+        return NavLinks({closeMenu: this.closeMenu, canImport})
     }
 
     renderFavourites() {

@@ -482,7 +482,7 @@ export class Organisation extends React.Component {
             </div>
                 <div className="row">
                     <div className="col-md-6 col-md-offset-3">
-                    <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
+                    <p>As an organisation administrator, you can control how users within your organisation access Good Companies.  Click the box below to select a user and determine their permissions.</p>
                     { this.userSelect() }
                 </div>
             </div>

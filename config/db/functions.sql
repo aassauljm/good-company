@@ -271,7 +271,7 @@ CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
     FROM favourite f
         JOIN company c on f."companyId" = c.id
 
-        WHERE c."ownerId" = $1 and f."userId" = $1 and c.deleted != true
+        WHERE  f."userId" = $1 and c.deleted != true and check_permission($1, 'read', 'Company', c.id)
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
         ORDER BY cs."companyName"

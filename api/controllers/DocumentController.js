@@ -127,7 +127,7 @@ module.exports = {
         });
     },
     getDocument: function(req, res){
-        Document.findOne({where: {id: req.param('id')}, include: [{model: DocumentData, as: 'documentData'}]})
+        Document.findOne({where: {id: req.param('document_id')}, include: [{model: DocumentData, as: 'documentData'}]})
             .then(function(doc){
                 if (!doc) return res.notFound();
                 res.attachment(doc.filename)
@@ -139,7 +139,7 @@ module.exports = {
             })
     },
     getDocumentPreview: function(req, res){
-        Document.findOne({where: {id: req.param('id')}, include: [{model: DocumentData, as: 'documentPreview'}]})
+        Document.findOne({where: {id: req.param('document_id')}, include: [{model: DocumentData, as: 'documentPreview'}]})
             .then(function(doc){
                 if (!doc) return res.notFound();
                 if(!doc.documentPreview && doc.sourceUrl){
@@ -162,9 +162,20 @@ module.exports = {
                return res.negotiate(err);
             })
     },
+    findOne: function(req, res) {
+        var pk = req.param('document_id');
+        Document.findById(pk)
+            .then(function(record) {
+                res.ok(record)
+            })
+            .catch(function(err){
+                sails.log.error(err)
+               return res.negotiate(err);
+            })
+    },
     update: function(req, res) {
-        var pk = actionUtil.requirePk(req);
-        var values = actionUtil.parseValues(req);
+        var pk = req.param('document_id');
+        var values = _.omit(actionUtil.parseValues(req), 'id', 'companyId');
         Document.update(values, { where: { id: pk }})
             .then(function(records) {
                 res.ok({'message': 'Document Updated'})

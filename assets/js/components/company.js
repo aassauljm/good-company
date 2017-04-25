@@ -125,6 +125,7 @@ export class CompanyView extends React.Component {
                         baseUrl: this.props.baseUrl,
                         destroyForm: this.props.destroyForm,
                         owner: this.props.data.owner,
+                        canUpdate: this.canUpdate(current),
                         showTransactionView: (key, data) => this.props.showTransactionView(key, data)
                 });
         }

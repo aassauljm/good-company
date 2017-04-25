@@ -144,16 +144,28 @@ module.exports.routes = {
         model: 'document'
     },
 
-    'GET /api/document/get_document/:id': {
+    'GET /api/document/get_document/:document_id': {
         controller: 'DocumentController',
         action: 'getDocument',
         model: 'document'
     },
 
-    'GET /api/document/get_document_preview/:id': {
+    'GET /api/document/get_document_preview/:document_id': {
         controller: 'DocumentController',
         action: 'getDocumentPreview',
         model: 'document'
+    },
+
+    'GET /api/company/:id/document/get_document/:document_id': {
+        controller: 'DocumentController',
+        action: 'getDocument',
+        model: 'company'
+    },
+
+    'GET /api/company/:id/document/get_document_preview/:document_id': {
+        controller: 'DocumentController',
+        action: 'getDocumentPreview',
+         model: 'company'
     },
 
     'GET /api/document': {
@@ -162,15 +174,27 @@ module.exports.routes = {
         action: 'find'
     },
 
-    'GET /api/document/:id': {
+    'GET /api/document/:document_id': {
         controller: 'DocumentController',
         model: 'document',
         action: 'findOne'
     },
 
-    'PUT /api/document/:id': {
+    'PUT /api/document/:document_id': {
         controller: 'DocumentController',
         model: 'document',
+        action: 'update'
+    },
+
+    'GET /api/company/:id/document/:document_id': {
+        controller: 'DocumentController',
+        model: 'company',
+        action: 'findOne'
+    },
+
+    'PUT /api/company/:id/document/:document_id': {
+        controller: 'DocumentController',
+        model: 'company',
         action: 'update'
     },
 
