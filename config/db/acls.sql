@@ -96,7 +96,7 @@ CREATE OR REPLACE FUNCTION generate_principals(userId integer)
 
         UNION
 
-        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember')
+        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember' LIMIT 1)
             WHERE get_user_organisation($1) IS NOT NULL
 
         UNION
@@ -130,7 +130,7 @@ CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
 
         UNION
 
-        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember')
+        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember' LIMIT 1)
         FROM organisation o
         WHERE o."catalexId" = $1
 

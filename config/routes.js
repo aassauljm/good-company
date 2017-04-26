@@ -147,13 +147,13 @@ module.exports.routes = {
     'GET /api/document/get_document/:document_id': {
         controller: 'DocumentController',
         action: 'getDocument',
-        model: 'document'
+        pk: 'document_id'
     },
 
     'GET /api/document/get_document_preview/:document_id': {
         controller: 'DocumentController',
         action: 'getDocumentPreview',
-        model: 'document'
+        pk: 'document_id'
     },
 
     'GET /api/company/:id/document/get_document/:document_id': {
@@ -177,13 +177,15 @@ module.exports.routes = {
     'GET /api/document/:document_id': {
         controller: 'DocumentController',
         model: 'document',
-        action: 'findOne'
+        action: 'findOne',
+        pk: 'document_id'
     },
 
     'PUT /api/document/:document_id': {
         controller: 'DocumentController',
         model: 'document',
-        action: 'update'
+        action: 'update',
+        pk: 'document_id'
     },
 
     'GET /api/company/:id/document/:document_id': {
@@ -406,6 +408,17 @@ module.exports.routes = {
         action: 'removePermissions'
     },
 
+    'GET /api/documents': {
+        controller: 'CompanyController',
+        action: 'getDocuments'
+    },
+
+    'POST /api/documents': {
+        controller: 'CompanyController',
+        action: 'createDocument',
+        method: 'update'
+    },
+
     'GET /api/company/:id/documents': {
         controller: 'CompanyController',
         action: 'getDocuments',
@@ -450,6 +463,12 @@ module.exports.routes = {
      'PUT /api/company/:id/reset_pending_history': {
         controller: 'CompanyController',
         action: 'resetPendingHistory',
+        model: 'company'
+    },
+
+     'PUT /api/company/:id/reparse_reset_pending_history': {
+        controller: 'CompanyController',
+        action: 'reparseResetPendingHistory',
         model: 'company'
     },
 
