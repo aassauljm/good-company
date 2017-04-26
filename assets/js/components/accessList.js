@@ -246,8 +246,8 @@ export default class AccessList extends React.Component {
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>{ Strings.permissions.read } </th>
-                        <th>{ Strings.permissions.update }</th>
+                        <th>{ STRINGS.permissions.read } </th>
+                        <th>{ STRINGS.permissions.update }</th>
                     </tr>
                 </thead>
                 <tbody>
