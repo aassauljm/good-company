@@ -24,7 +24,7 @@ import { CancellationTransactionView  } from './transactions/cancellation';
 import { ResolveAmbiguityTransactionView  } from './transactions/resolve';
 import { EditTransactionView } from './transactions/editTransaction';
 import { DeleteCompanyTransactionView  } from './transactions/deleteCompany';
-import { ResetHistoryTransactionView  } from './transactions/resetHistory';
+import { ResetHistoryTransactionView, ReparseResetHistoryTransactionView  } from './transactions/resetHistory';
 import { SelectCreateHoldingChangeTransactionView   } from './transactions/selectCreateHoldingChange';
 import { ChangeRegisteredOfficeTransactionView, ChangeAddressForServiceTransactionView  } from './transactions/changeAddress';
 import { VotingShareholdersTransactionView  } from './transactions/selectVotingShareholders';
@@ -150,6 +150,10 @@ export class TransactionViewSwitch extends React.PureComponent {
 
             case 'resetHistory':
                 return <ResetHistoryTransactionView {...props} />
+
+            case 'reparseResetHistory':
+                return <ReparseResetHistoryTransactionView {...props} />
+
 
             case 'resetDelete':
                 return <ResetDeleteTransactionView {...props} />

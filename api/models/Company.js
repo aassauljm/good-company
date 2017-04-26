@@ -185,7 +185,7 @@ module.exports = {
                 });
             },
 
-            getFilteredTransactionHistory: function(types){
+            ilteredTransactionHistory: function(types){
                 return sequelize.query("select company_state_type_filter_history_json(:id, :filter) as transaction",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId, filter: types}})
@@ -298,7 +298,18 @@ module.exports = {
 
             },
 
-           getTransactionsAfter: function(startId){
+            reparseResetPendingActions: function(){
+                return ImportService.refetchDocuments(this.id)
+                    .then(sourceData => {
+                        return this.setHistoricSourceData(sourceData);
+                    })
+                    .then(() => {
+                        return this.resetPendingActions();
+                    })
+
+            },
+
+            getTransactionsAfter: function(startId){
                 return sequelize.query("select future_transaction_range(:startId, :endId)",
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { startId: startId, endId: this.currentCompanyStateId}})

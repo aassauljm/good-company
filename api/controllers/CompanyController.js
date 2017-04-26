@@ -625,6 +625,33 @@ module.exports = {
         })
     },
 
+    reparseResetPendingHistory: function(req, res){
+        let company;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.reparseResetPendingActions();
+            })
+        .then(function(){
+            return company.getCurrentCompanyState()
+        })
+        .then(state => {
+            const companyName = state.get('companyName');
+            return ActivityLog.create({
+                type: ActivityLog.types.RESET_PENDING_HISTORY,
+                userId: req.user.id,
+                description: `Refetched and Reset ${companyName} History`,
+                data: {companyId: company.id}
+            });
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
+
     create: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.create({

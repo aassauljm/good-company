@@ -307,8 +307,6 @@ CREATE OR REPLACE FUNCTION get_all_company_permissions_json(entityId integer def
         JOIN public.user u on u.id = p."userId"
         ) q
         GROUP BY "catalexId", "name", "userId", email
-
-
     ) qq
 
 $$ LANGUAGE SQL;
@@ -322,15 +320,67 @@ CREATE OR REPLACE FUNCTION activity_log_json(userId integer default null, compan
      SELECT a."id", "type", "description", "data", a."createdAt", "userId", "companyId", u.username
      FROM "activity_log" a
      JOIN public.user u on u.id = "userId"
-
      WHERE
     ($1 IS NULL OR a."userId" = $1)
-    AND
-        ($2 is NULL OR a."companyId" = $2)
+     AND
+    ($2 is NULL OR a."companyId" = $2)
 
      ORDER BY a."createdAt" DESC
 
      LIMIT $3
+     ) q
+
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION activity_log_all_json(userId integer , maxLimit integer default null )
+    RETURNS JSON
+    STABLE AS $$
+      SELECT array_to_json(array_agg(row_to_json(q))) from (
+          SELECT a."id", "type", "description", "data", a."createdAt", "userId", "companyId", u.username
+          FROM activity_log a
+          JOIN (
+         SELECT a."id"
+         FROM "activity_log" a
+         WHERE a."userId" = $1
+
+         UNION
+
+         SELECT a."id"
+         FROM "activity_log" a
+         JOIN ( SELECT id FROM user_companies_by_permission($1)) q on a."companyId" = q.id
+
+         ) qq on qq.id = a.id
+
+         JOIN public.user u on u.id = "userId"
+
+         ORDER BY a."createdAt" DESC
+
+         LIMIT $2
+     ) q
+
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION events_json(userId integer)
+    RETURNS JSON
+    STABLE AS $$
+      SELECT array_to_json(array_agg(row_to_json(q))) from (
+          SELECT *
+          FROM event a
+          JOIN (
+         SELECT a."id"
+         FROM "event" a
+         WHERE a."ownerId" = 10097
+
+         UNION
+
+         SELECT a."id"
+         FROM "event" a
+         JOIN ( SELECT id FROM user_companies_by_permission(10097)) q on a."companyId" = q.id
+
+         ) qq on qq.id = a.id
+
+         JOIN public.user u on u.id = a."ownerId"
      ) q
 
 $$ LANGUAGE SQL;
