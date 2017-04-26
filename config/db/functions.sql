@@ -215,7 +215,7 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     )
     SELECT row_to_json(q) FROM (
 
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array($1, 'Company', q.id) FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array($1, 'Company', q.id) as permissions FROM (
         SELECT *, company_now(c.id)  FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
@@ -367,7 +367,7 @@ CREATE OR REPLACE FUNCTION events_json(userId integer)
     RETURNS JSON
     STABLE AS $$
       SELECT array_to_json(array_agg(row_to_json(q))) from (
-          SELECT *
+          SELECT a.*, u.username as username
           FROM event a
           JOIN (
          SELECT a."id"
