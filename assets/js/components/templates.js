@@ -326,7 +326,11 @@ export  class TemplateView extends React.Component {
 
     renderBody() {
         let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...jsonStringToValues(this.props.location.query.json)};
-
+        if(!this.props.canUpdate){
+            return <div className="alert alert-danger">
+                    Only users with Update Permissions can create templates for this company.
+            </div>
+        }
         if (TemplateMap[this.props.params.name]) {
             const template = TemplateMap[this.props.params.name];
             const context = makeContext(this.props.companyState);

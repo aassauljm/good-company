@@ -74,7 +74,9 @@ class SelectCompaniesTable extends React.PureComponent {
         { this.controls () }
             <div className="table-responsive">
                 <table className={className}>
-                    <thead><tr><th/>{ fieldNames.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
+                    <thead><tr><th/>
+                        { fieldNames.map(f => <th key={f}>{STRINGS[f]}</th>) }
+                        </tr></thead>
                     <tbody>
                     { this.props.fields.companies.map(
                         (row, i) => {
@@ -124,12 +126,20 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
         }
         return <div className="table-responsive">
         <table className={className}>
-            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
+            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }
+                    {!condensed && <th>{ STRINGS.permissions.read } </th> }
+                    {!condensed && <th>{ STRINGS.permissions.update } </th> }
+
+
+            </tr></thead>
             <tbody>
             { data.filter(d => !d.deleted).map(
                 (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
                     { fields.map(f => <td key={f}>{row[f]}</td>) }
-                </tr>) }
+                {!condensed && <td>{ row.permissions.indexOf('read') >= 0 ? 'Yes' : 'No' }</td> }
+                {!condensed && <td>{ row.permissions.indexOf('update') >= 0 ? 'Yes' : 'No'}</td> }
+                </tr> )
+            }
             </tbody>
         </table>
         </div>
@@ -207,6 +217,7 @@ export class CompaniesDelete extends React.Component {
 
         const filteredCompanies = (this.props.companies.data || [])
             .filter(c => !c.deleted)
+            .filter(c => c.permissions.indexOf('update') >= 0)
             .map(c => ({...c, ...c.currentCompanyState, companyId: c.id}));
 
         if(!filteredCompanies.length){

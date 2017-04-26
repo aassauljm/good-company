@@ -169,6 +169,11 @@ CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entit
 
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION get_permissions_array(userId integer, modelName text, entityId integer default NULL)
+    RETURNS TEXT[] AS $$
+    SELECT ARRAY_AGG(p) from get_permissions($1, $2, $3) p
+$$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION get_permissions_catalex_user(catalexId text, modelName text, entityId integer default NULL)
     RETURNS SETOF TEXT

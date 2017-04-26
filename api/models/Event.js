@@ -39,7 +39,7 @@ module.exports = {
                 return sequelize.query("select events_json(:userId)",
                            { type: sequelize.QueryTypes.SELECT,
                             replacements: {userId: userId || null}})
-                .then(r => r[0].events_json)
+                .then(r => r[0].events_json || [])
             }
         },
         instanceMethods: {},

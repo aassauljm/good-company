@@ -21,9 +21,10 @@ import firstBy from 'thenby';
 
 const permissionsToString = (permissions) => {
     if(permissions.indexOf('update') >= 0){
-        return 'Update Access';
+        return STRINGS.permissions.update;
     }
      if(permissions.indexOf('read') >= 0){
+        return STRINGS.permissions.readOnly;
         return 'View Only Access';
      }
      return 'No Access';
@@ -245,8 +246,8 @@ export default class AccessList extends React.Component {
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>View Access</th>
-                        <th>Make Changes</th>
+                        <th>{ Strings.permissions.read } </th>
+                        <th>{ Strings.permissions.update }</th>
                     </tr>
                 </thead>
                 <tbody>

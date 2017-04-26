@@ -105,7 +105,7 @@ export class DocumentsWidget extends React.Component {
                 <tbody>
                 { documents.filter(d => !d.deleted).slice(0, 15).map((d, i) => {
                     return <tr key={i}><td><span className={documentTypeClasses(d)}/> </td>
-                    <td><Link activeClassName="active" className="nav-link" to={`${this.props.baseUrl}/document/view/${d.id}`}>{ d.filename }</Link></td>
+                    <td><Link activeClassName="active" className="nav-link" to={`${this.props.baseUrl}/documents/view/${d.id}`}>{ d.filename }</Link></td>
                     <td>{stringDateToFormattedString(d.date)}</td></tr>
                 }) }
                 </tbody>
@@ -183,7 +183,7 @@ const fileTarget = {
         }
     },
     canDrop(props, monitor) {
-        return props.item.id === "root" || props.item.userUploaded;
+        return props.canUpdate && props.item.id === "root" || props.item.userUploaded;
     }
 
 

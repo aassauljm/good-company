@@ -214,14 +214,16 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended FROM (
-        SELECT *, company_now(c.id) FROM user_companies_by_permission($1) c
+
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array($1, 'Company', q.id) FROM (
+        SELECT *, company_now(c.id)  FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
         JOIN public.user u on q."ownerId" = u.id
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
+
 
 
 CREATE OR REPLACE FUNCTION get_company_permissions_json(entityId integer, catalexId text)
@@ -370,13 +372,13 @@ CREATE OR REPLACE FUNCTION events_json(userId integer)
           JOIN (
          SELECT a."id"
          FROM "event" a
-         WHERE a."ownerId" = 10097
+         WHERE a."ownerId" = $1
 
          UNION
 
          SELECT a."id"
          FROM "event" a
-         JOIN ( SELECT id FROM user_companies_by_permission(10097)) q on a."companyId" = q.id
+         JOIN ( SELECT id FROM user_companies_by_permission($1)) q on a."companyId" = q.id
 
          ) qq on qq.id = a.id
 

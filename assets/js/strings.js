@@ -124,6 +124,11 @@ export default {
         ADDRESS_CHANGE: 'Address Change',
         UPDATE_DIRECTOR: 'Update Director'
     },
+    permissions: {
+        update: 'Make Changes',
+        read: 'View Access',
+        readOnly: 'View Only Access',
+    },
     amendTypes: {
         ISSUE_TO: 'Issue',
         CONVERSION_TO: 'Conversion/Subdivision',
