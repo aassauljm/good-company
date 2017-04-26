@@ -45,7 +45,7 @@ export default class Documents extends React.Component {
         {this.props.data ? this.props.data.map(
             (row, i) => <tr key={i}>
                 { fields.map(f => <td key={f}>{row[f]}</td>) }
-                <td><Link activeClassName="active" className="nav-link" to={`/document/view/${d.id}`} >View</Link></td>
+                <td><Link activeClassName="active" className="nav-link" to={`/company/view/${this.props.companyId}/document/view/${d.id}`} >View</Link></td>
                 { /*<td><a href="#" type='button' value='Delete' onClick={this.submitDelete.bind(this, row.id)}  >Delete</a></td> */}
             </tr>)
 
@@ -105,7 +105,7 @@ export class DocumentsWidget extends React.Component {
                 <tbody>
                 { documents.filter(d => !d.deleted).slice(0, 15).map((d, i) => {
                     return <tr key={i}><td><span className={documentTypeClasses(d)}/> </td>
-                    <td><Link activeClassName="active" className="nav-link" to={`${this.props.baseUrl}/document/view/${d.id}`}>{ d.filename }</Link></td>
+                    <td><Link activeClassName="active" className="nav-link" to={`${this.props.baseUrl}/documents/view/${d.id}`}>{ d.filename }</Link></td>
                     <td>{stringDateToFormattedString(d.date)}</td></tr>
                 }) }
                 </tbody>
@@ -183,7 +183,7 @@ const fileTarget = {
         }
     },
     canDrop(props, monitor) {
-        return props.item.id === "root" || props.item.userUploaded;
+        return props.canUpdate && props.item.id === "root" || props.item.userUploaded;
     }
 
 
@@ -213,8 +213,8 @@ class RenderFile extends React.Component {
 
         const defaultView = () => {
             return  <span>{ item.type !== 'Directory' && <span onClick={() => push(link)} className="view">View</span> }
-                    { item.userUploaded && <span onClick={() => startRename(item.id)} className="view">Rename</span> }
-                    { item.userUploaded && <span onClick={() => deleteFile(item.id)} className="view">Delete</span> }</span>
+                    { this.props.canUpdate && item.userUploaded && <span onClick={() => startRename(item.id)} className="view">Rename</span> }
+                    { this.props.canUpdate && item.userUploaded && <span onClick={() => deleteFile(item.id)} className="view">Delete</span> }</span>
         }
 
         const submitRename = () => {
@@ -263,7 +263,7 @@ class RenderFile extends React.Component {
                 { this.props.renaming && <span onClick={() => endRename()} className="view">Cancel</span> }
                 </span>
 
-        const canCreateDirectory = item.id === "root" || item.userUploaded;
+        const canCreateDirectory = this.props.canUpdate && (item.id === "root" || item.userUploaded);
         const renderedFile = (<div className="file-sub-tree">
               <span className="expand-control">
                 { item.type === 'Directory'  && showingSubTree && <span className="fa fa-minus-square-o" onClick={() => props.hideSubTree()} /> }
@@ -391,7 +391,7 @@ class FileTree extends React.Component {
         directoryId && this.showSubTree(directoryId)
         this.props.upload(files, directoryId)
             .then((r) => {
-                if(r && r.response.documentIds && r.response.documentIds[0]){
+                if(r && r.response && r.response.documentIds && r.response.documentIds[0]){
                     this.setState({selected: r.response.documentIds[0]});
                 }
             })
@@ -400,7 +400,7 @@ class FileTree extends React.Component {
     render() {
         const loop = (data, path) => {
             return data.map((item) => {
-                const link = item.companyId ? `/company/view/${item.companyId}/documents/view/${item.id}` : `/documents/view/${item.id}`;
+                const link = this.props.companyId ? `/company/view/${this.props.companyId}/documents/view/${item.id}` : `/documents/view/${item.id}`;
                 const props = {
                     key: item.id,
                     item: item,
@@ -417,14 +417,15 @@ class FileTree extends React.Component {
                     move: this.move,
                     startRename: () => this.startRename(item.id),
                     endRename: () => this.endRename(),
-                    renameFile: this.renameFile,
-                    deleteFile: this.deleteFile,
+                    renameFile: this.props.renameFile && this.renameFile,
+                    deleteFile: this.props.deleteFile && this.deleteFile,
                     creatingFolder: this.state.creatingFolder === item.id,
                     startCreateFolder: () => this.startCreateFolder(item.id),
                     endCreateFolder: () => this.endCreateFolder(),
                     createDirectory: this.createDirectory,
                     upload: this.upload,
-                    path: path
+                    path: path,
+                    canUpdate: this.props.canUpdate
                 }
                 if (item.children && item.children.length) {
                     const newPath = [...path, item.id];
@@ -456,7 +457,7 @@ class FileTree extends React.Component {
             <div className="file-tree">
                 { loop(files, []) }
             </div>
-             <DocumentsForm documents={{onChange: (files) => this.upload(files)}} />
+            { this.props.canUpdate && <DocumentsForm documents={{onChange: (files) => this.upload(files)}} /> }
         </div>
     }
 }
@@ -545,28 +546,33 @@ export class CompanyDocuments extends React.Component {
                 this.props.addNotification({message: 'File uploaded'});
                 return result;
             })
+            .catch((e) => this.props.addNotification({message: e.message, error: true}))
 
     }
     move(documentId, directoryId) {
-        return this.props.updateDocument(`/document/${documentId}`, {directoryId: directoryId}, {loadingMessage: 'Moving File'})
+        return this.props.updateDocument(`/company/${this.props.companyId}/document/${documentId}`, {directoryId: directoryId}, {loadingMessage: 'Moving File'})
             .then(() => this.props.addNotification({message: 'File moved'}))
+            .catch((e) => this.props.addNotification({message: e.message, error: true}))
     }
 
     deleteFile(documentId) {
-        return this.props.softDeleteResource(`/document/${documentId}`, {loadingMessage: 'Deleting File'})
+        return this.props.softDeleteResource(`/company/${this.props.companyId}/document/${documentId}`, {loadingMessage: 'Deleting File'})
             .then(() => this.props.addNotification({message: 'File deleted'}))
+            .catch((e) => this.props.addNotification({message: e.message, error: true}))
     }
 
     renameFile(documentId, filename) {
-        return this.props.updateDocument(`/document/${documentId}`, {filename: filename}, {loadingMessage: 'Renaming File'})
+        return this.props.updateDocument(`/company/${this.props.companyId}/document/${documentId}`, {filename: filename}, {loadingMessage: 'Renaming File'})
             .then(() => this.props.addNotification({message: 'File renamed'}))
+            .catch((e) => this.props.addNotification({message: e.message, error: true}))
     }
 
     createDirectory(directoryId, name) {
         return this.props.createDocument({directoryId: directoryId, newDirectory: name})
             .then(() => {
-                this.props.addNotification({message: 'Directory Created'});
+                this.props.addNotification({message: 'Directory Created'})
             })
+            .catch((e) => this.props.addNotification({message: e.message, error: true}))
     }
 
     renderTree() {
@@ -579,10 +585,12 @@ export class CompanyDocuments extends React.Component {
                 flatFiles={files}
                 push={this.props.push}
                 move={this.move}
-                deleteFile={this.deleteFile}
-                renameFile={this.renameFile}
+                deleteFile={this.props.canUpdate && this.deleteFile}
+                renameFile={this.props.canUpdate && this.renameFile}
                 createDirectory={this.createDirectory}
                 upload={this.upload}
+                companyId={this.props.companyId}
+                canUpdate={this.props.canUpdate}
                 />
             { !files.length && <Loading/> }
         </div>

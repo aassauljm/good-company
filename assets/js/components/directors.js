@@ -170,7 +170,7 @@ export default class Directors extends React.Component {
             </div>
             <div className='widget-body'>
                 <h5 className="text-center">Current Directors</h5>
-                    <DirectorList directors={directors} holders={holders} editDirector={this.editDirector} />
+                 <DirectorList directors={directors} holders={holders} editDirector={this.props.canUpdate && this.editDirector} />
             </div>
         </div>
         </div>

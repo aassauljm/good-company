@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import {requestResource, updateResource, updateMenu} from '../actions';
+import {requestResource, updateResource, updateMenu, addNotification } from '../actions';
 import { pureRender, objectValues, stringDateToFormattedString, requireFields, formFieldProps } from '../utils';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
@@ -28,14 +28,15 @@ const RenameFormConnected = reduxForm({
 
 
 @connect((state, ownProps) => ({
-        document: state.resources['/document/'+ownProps.params.documentId ] || {data: {}},
-        menu: state.menus['document/'+ownProps.params.documentId] || {}
-    }), {
-    fetch: (id) => requestResource('/document/'+id),
-    showRename: (id) => updateMenu('document/'+id, {showRename: true}),
-    hideRename: (id) => updateMenu('document/'+id, {showRename: false}),
-    updateDocument: (id, values) => updateResource('/document/'+id, values)
-})
+        document: state.resources[`/company/${ownProps.companyId}/document/${ownProps.params.documentId}`] || {data: {}},
+        menu: state.menus[`/company/${ownProps.companyId}/document/${ownProps.params.documentId}`] || {}
+    }), (dispatch, ownProps) => ({
+    fetch: (id, refresh) => dispatch(requestResource(`/company/${ownProps.companyId}/document/${id}`, {refresh})),
+    showRename: (id) => dispatch(updateMenu(`/company/${ownProps.companyId}/document/${id}`, {showRename: true})),
+    hideRename: (id) => dispatch(updateMenu(`/company/${ownProps.companyId}/document/${id}`, {showRename: false})),
+    updateDocument: (id, values) => dispatch(updateResource(`/company/${ownProps.companyId}/document/${id}`, values)),
+    addNotification: (...args) => dispatch(addNotification(...args)),
+}))
 export default class Document extends React.Component {
 
     constructor() {
@@ -57,7 +58,12 @@ export default class Document extends React.Component {
 
     handleSubmit(values) {
         this.props.hideRename(this.key());
+
         this.props.updateDocument(this.key(), values)
+        .catch(e => {
+            this.props.fetch(this.key(), true)
+            this.props.addNotification({message: e.message, error: true})
+        })
     }
 
     rename(data) {
@@ -87,8 +93,8 @@ export default class Document extends React.Component {
               { data.sourceUrl && <dd><Link target="_blank" to={data.sourceUrl}>Companies Office</Link> </dd> }
             </dl>
           <div className="button-row">
-           { !data.sourceUrl && <Link target="_blank" className="btn btn-primary" to={`/api/document/get_document/${this.key()}`}>Download</Link> }
-           { !data.sourceUrl && <Button bsStyle="info" onClick={() => this.props.showRename(this.key())}>Rename</Button> }
+           { !data.sourceUrl && <Link target="_blank" className="btn btn-primary" to={`/api/company/${this.props.companyId}/document/get_document/${this.key()}`}>Download</Link> }
+           { this.props.canUpdate && !data.sourceUrl && <Button bsStyle="info" onClick={() => this.props.showRename(this.key())}>Rename</Button> }
             </div>
         </div>
     }
@@ -118,7 +124,7 @@ export default class Document extends React.Component {
                 </div>
                 <div className="col-md-12 col-lg-9 col-lg-pull-3">
                     <h5>Page One Preview</h5>
-                     <img className="image-loading" src={"/api/document/get_document_preview/"+ this.key()} />
+                     <img className="image-loading" src={`/api/company/${this.props.companyId}/document/get_document_preview/${this.key()}`} />
 
                 </div>
             </div>

@@ -237,8 +237,29 @@ export class RealMeConnect extends React.PureComponent {
 
 @connect(state => ({userInfo: state.userInfo}))
 export class ImportSingleWidget extends React.PureComponent {
-    render() {
+
+    renderBody() {
         const hasNZBN = this.props.userInfo.mbieServices.indexOf('nzbn') >= 0;
+        return <div>
+            <ImportSingle form='searchForm'/>
+            <div className="button-row">
+                <Link className="btn btn-info" to="/import">Bulk Import</Link>
+                { !hasNZBN && <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a> }
+                { hasNZBN && <Link to={'/import/nzbn'}><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></Link> }
+                </div>
+        </div>
+    }
+
+    renderUpgradeWarning() {
+        return <div>
+        <p>Please upgrade your CataLex account to import and manage your own companies.</p>
+                <div className="button-row">
+                <a className="btn btn-primary" href={this.props.upgradeUrl}>Click Here to Upgrade</a>
+                </div>
+        </div>
+    }
+
+    render() {
         return  <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
@@ -246,12 +267,8 @@ export class ImportSingleWidget extends React.PureComponent {
                     </div>
                 </div>
                 <div className="widget-body">
-                    <ImportSingle form='searchForm'/>
-                    <div className="button-row">
-                    <Link className="btn btn-info" to="/import">Bulk Import</Link>
-                    { !hasNZBN && <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a> }
-                    { hasNZBN && <Link to={'/import/nzbn'}><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></Link> }
-                    </div>
+                    { this.props.canImport && this.renderBody() }
+                    { !this.props.canImport && this.renderUpgradeWarning() }
                 </div>
             </div>
         }

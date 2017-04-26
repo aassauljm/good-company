@@ -234,6 +234,7 @@ const CalendarHOC = ComposedComponent => {
 }
 
 @CalendarHOC
+@connect(state => ({ userInfo: state.userInfo}))
 export default class CalendarFull extends React.PureComponent {
     constructor() {
         super();
@@ -275,6 +276,7 @@ export default class CalendarFull extends React.PureComponent {
     }
 
     showFullView() {
+        const canCreateEvent = this.props.userInfo.permissions.event.indexOf('create') >= 0;
         return <div className="row">
             <div className="col-md-6">
                 <div className="calendar-big">
@@ -288,9 +290,9 @@ export default class CalendarFull extends React.PureComponent {
                         today: moment().format('YYYY-MM-DD'),
                     })}  />
                     </div>
-                <div className="button-row">
+                { canCreateEvent && <div className="button-row">
                         <Link to={{ pathname: "/calendar/create" , query: { date: this.props.menu.selected || ''} }} className="btn btn-info">Create Event</Link>
-                    </div>
+                    </div> }
             </div>
             <div className="col-md-6">
                 { this.props.menu.selected && this.showSelected() }
@@ -361,9 +363,9 @@ export class CalendarWidget extends React.PureComponent {
                         companies: this.props.companies,
                         today: moment().format('YYYY-MM-DD'),
                     })}  />
-                <div className="button-row">
+                { this.props.canCreateEvent && <div className="button-row">
                     <Link to ="/calendar/create" className="btn btn-info">Create Event</Link>
-                </div>
+                </div> }
             </div>
         </div>
     }

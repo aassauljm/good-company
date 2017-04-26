@@ -326,7 +326,11 @@ export  class TemplateView extends React.Component {
 
     renderBody() {
         let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...jsonStringToValues(this.props.location.query.json)};
-
+        if(!this.props.canUpdate){
+            return <div className="alert alert-danger">
+                    Only users with Update Permissions can create templates for this company.
+            </div>
+        }
         if (TemplateMap[this.props.params.name]) {
             const template = TemplateMap[this.props.params.name];
             const context = makeContext(this.props.companyState);
@@ -352,6 +356,7 @@ const RenderTemplateList = (props) => {
     const { id } = props;
 
     return (
+
         <div>
             { Object.keys(TemplateMap).map((template, i) => {
                 const link = id ? `/company/view/${id}/templates/${template}` : `/templates/${template}`;
@@ -377,9 +382,14 @@ export default class TemplateList extends React.Component {
 
     renderBody() {
         const id = this.props.companyId;
+        if(!this.props.canUpdate){
+            return <div className="alert alert-danger">
+                    Only users with Update Permissions can create templates for this company.
+            </div>
+        }
         return (
             <div className="row">
-               <RenderTemplateList id={id}/>
+               { this.props.canUpdate && <RenderTemplateList id={id} /> }
             </div>
         );
     }

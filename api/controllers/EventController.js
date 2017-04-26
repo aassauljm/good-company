@@ -6,14 +6,12 @@
  */
 
 module.exports = {
+
+
     find: function(req, res) {
-        Event.findAll({
-            where: {
-                ownerId: req.user.id
-            }
-        }).then(function(matchingRecords) {
-            res.ok(matchingRecords.map(x => x.toJSON()));
-        }).catch(function(err) {
+        Event.getEvents(req.user.id)
+        .then(events => res.json(events))
+        .catch(function(err) {
             return res.notFound(err);
         });
     }

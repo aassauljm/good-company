@@ -53,6 +53,10 @@ module.exports = {
         allow: {
             type: Sequelize.BOOLEAN,
             defaultValue: true
+        },
+        userDefined: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
         }
     },
 

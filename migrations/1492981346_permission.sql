@@ -1,0 +1,1 @@
+ALTER TABLE permission ADD COLUMN "userDefined" BOOLEAN default FALSE;

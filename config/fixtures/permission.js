@@ -73,7 +73,7 @@ var permissions = [
     {model: 'User', action: 'update', relation: 'owner'},
     {model: 'User', action: 'update', relation: 'organisation_admin'},
 
-    {model: 'Document', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Document', action: 'create', relation: 'role', role: 'subscribed' },
     {model: 'Document', action: 'read', relation: 'owner' },
     {model: 'Document', action: 'update', relation: 'owner' },
     {model: 'Document', action: 'delete', relation: 'owner' },
@@ -81,7 +81,7 @@ var permissions = [
     {model: 'Document', action: 'update', relation: 'organisation' },
     {model: 'Document', action: 'delete', relation: 'organisation' },
 
-    {model: 'Company', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Company', action: 'create', relation: 'role', role: 'subscribed' },
     {model: 'Company', action: 'create', relation: 'role', role: 'organisationMember' },
     {model: 'Company', action: 'read', relation: 'owner'},
     {model: 'Company', action: 'update', relation: 'owner'},
@@ -89,124 +89,18 @@ var permissions = [
     {model: 'Company', action: 'read', relation: 'organisation'},
     {model: 'Company', action: 'update', relation: 'organisation'},
 
-    {model: 'Favourite', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Favourite', action: 'create', relation: 'role', role: 'subscribed' },
     {model: 'Favourite', action: 'read', relation: 'owner'},
     {model: 'Favourite', action: 'update', relation: 'owner'},
     {model: 'Favourite', action: 'delete', relation: 'owner'},
 
-    {model: 'Event', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'Event', action: 'create', relation: 'role', role: 'subscribed' },
     {model: 'Event', action: 'read', relation: 'owner'},
     {model: 'Event', action: 'update', relation: 'owner'},
     {model: 'Event', action: 'delete', relation: 'owner'},
 
-    {model: 'ApiCredential', action: 'create', relation: 'role', role: 'registered' },
+    {model: 'ApiCredential', action: 'create', relation: 'role', role: 'subscribed' },
     {model: 'ApiCredential', action: 'read', relation: 'owner'},
     {model: 'ApiCredential', action: 'delete', relation: 'owner'},
 ]
-
-/*
-var registered = {
-
-    'User': [
-        {
-            action: 'read',
-            relation: 'owner'
-        },
-        {
-            action: 'update',
-            relation: 'owner'
-        }
-    ],
-    'Document': [
-        {
-            action: 'create'
-        },
-        {
-            action: 'read',
-            relation: 'owner'
-        },
-        {
-            action: 'update',
-            relation: 'owner'
-        },
-        {
-            action: 'delete',
-            relation: 'owner'
-        }
-    ],
-    'Company': [
-        {
-            action: 'create'
-        },
-        {
-            action: 'read',
-            relation: 'owner'
-        },
-        {
-            action: 'update',
-            relation: 'owner'
-        },
-        {
-            action: 'delete',
-            relation: 'owner'
-        },
-        // DEFAULT RULES:  org members can read update
-        {
-            action: 'read',
-            relation: 'organisation'
-        },
-        {
-            action: 'update',
-            relation: 'organisation'
-        }
-    ],
-    'Favourite': [
-        {
-            action: 'create'
-        },
-        {
-            action: 'read',
-            relation: 'user'
-        },
-        {
-            action: 'update',
-            relation: 'user'
-        },
-        {
-            action: 'delete',
-            relation: 'user'
-        }
-    ],
-    'Event': [
-        {
-            action: 'create'
-        },
-        {
-            action: 'read',
-            relation: 'user'
-        },
-        {
-            action: 'update',
-            relation: 'user'
-        },
-        {
-            action: 'delete',
-            relation: 'user'
-        }
-    ],
-    'ApiCredential': [
-        {
-            action: 'create'
-        },
-        {
-            action: 'read',
-            relation: 'owner'
-        },
-        {
-            action: 'delete',
-            relation: 'owner'
-        }
-    ]
-};*/
-
 
