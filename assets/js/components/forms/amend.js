@@ -317,7 +317,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                         direction = isIncrease(action.transactionType)
                     }
                     else{
-                        direction = DECREASE_SHARE_CHANGES.indexOf(action.type) < 0;
+                        direction = DECREASE_SHARE_CHANGES.indexOf(action.transactionType) < 0;
                     }
                     p.beforeAmount = p.afterAmount + (direction ? -p.amount : p.amount);
                     afterParcels[parcelIndex] = {...afterParcels[parcelIndex]}

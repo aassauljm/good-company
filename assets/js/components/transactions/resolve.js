@@ -42,7 +42,7 @@ function skipOrRestart(props){
         { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
         <div className="button-row">
             { allowSkip && <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
-            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
+            { reset && <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button> }
         </div>
     </div>
 }
@@ -82,7 +82,7 @@ function AddressDifference(props){
         <div className="button-row">
             <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             { <Button onClick={skip} className="btn-primary">Update Address</Button> }
-            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
+            { reset && <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button> }
         </div>
     </div>
 }
@@ -104,7 +104,7 @@ function AnnualReturnHoldingDifference(props){
         <div className="button-row">
             <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
+            { reset && <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button> }
         </div>
     </div>
 }
@@ -129,7 +129,7 @@ function DirectorNotFound(props){
         <div className="button-row">
             <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
+            { reset && <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button> }
             { edit &&  <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>}
         </div>
     </div>
@@ -199,7 +199,7 @@ function MultipleDirectors(props){
         <div className="button-row">
         <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>
-            <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
+            { reset && <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button> }
             { edit &&  <Button onClick={edit} className="btn-info" onClick={edit}>Edit Transaction</Button>}
         </div>
     </div>
@@ -272,7 +272,7 @@ function HolderNotFound(props){
             <div className="col-md-12">
             <div className="button-row">
                 <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
-                <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button>
+                { reset && <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button> }
             </div>
             </div>
         </div>

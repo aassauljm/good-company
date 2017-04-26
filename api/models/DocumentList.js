@@ -22,6 +22,7 @@ module.exports = {
         tableName: 'doc_list',
         classMethods: {},
         instanceMethods: {
+            IMMUTABLE: true,
             buildNext: function(){
                 return this.getDocuments()
                     .then(function(documents){

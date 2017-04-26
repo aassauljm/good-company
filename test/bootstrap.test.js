@@ -13,7 +13,7 @@ chai.use(chaiAsPromised);
 chai.use(chaiSubset);
 chai.should();
 var events = require("events");
-events.EventEmitter.prototype._maxListeners = 100;
+events.EventEmitter.prototype._maxListeners = 40;
 Error.stackTraceLimit = Infinity;
 var Utils = require("../assets/js/utils");
 var _fetch = require('isomorphic-fetch');
