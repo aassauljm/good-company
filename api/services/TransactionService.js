@@ -600,6 +600,7 @@ export function performHoldingChange(data, companyState, previousState, effectiv
                 if(!newHolding){
                     const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
                     newHolding =  current.buildNext();
+                    newHolding.dataValues.transaction = transaction;
                     companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
                 }
                 return newHolding;
