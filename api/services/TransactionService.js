@@ -523,14 +523,21 @@ export function performInverseHoldingChange(data, companyState, previousState, e
             }))])
         })
         .then(() => {
+            let newHolding;
+            const makeNewHolding = () => {
+                if(!newHolding){
+                    const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
+                    newHolding =  current.buildNext();
+                    companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
+                }
+                return newHolding;
+            }
             current = inverseFindHolding(normalizedData, companyState);
             if(data.beforeName){
                 current.dataValues.name =  data.beforeName;
             }
             if(data.beforeVotingShareholder){
-                const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
-                const newHolding =  current.buildNext();
-                companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
+                makeNewHolding();
                 newHolding.dataValues.holders = newHolding.dataValues.holders.map(h => {
                     if(h.isEqual(data.beforeVotingShareholder)){
                         h.dataValues.data = {...h.dataValues.data, votingShareholder: true};
@@ -540,6 +547,14 @@ export function performInverseHoldingChange(data, companyState, previousState, e
                     }
                     return h;
                 });
+            }
+            if(data.beforeMetadata){
+                makeNewHolding();
+                if(data.beforeMetadata.capacity && data.beforeMetadata.capacity.length){
+                    data.beforeMetadata.capacity.map((c, i) => {
+                         newHolding.dataValues.holders[i].data = {...newHolding.dataValues.holders[i].data, ...c}
+                    })
+                }
             }
         })
         .then(() => {
@@ -580,28 +595,41 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             if(!current){
                 throw new sails.config.exceptions.InvalidOperation('Cannot find holding, holding change')
             }
-            if(data.afterVotingShareholder || data.afterName){
-                const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
-                if(data.afterName){
-                    current.dataValues.name =  data.afterName;
-                }
-                if(data.afterVotingShareholder){
-                    const newHolding = current.buildNext()
+            let newHolding;
+            const makeNewHolding = () => {
+                if(!newHolding){
+                    const index = companyState.dataValues.holdingList.dataValues.holdings.indexOf(current);
+                    newHolding =  current.buildNext();
                     companyState.dataValues.holdingList.dataValues.holdings[index] = newHolding;
-                    newHolding.dataValues.transaction = transaction;
-                    newHolding.dataValues.holders = newHolding.dataValues.holders.map(h => {
-                        if(h.isEqual(data.afterVotingShareholder)){
-                            h = h.buildNext();
-                            h.data = h.dataValues.data = {...h.dataValues.data, votingShareholder: true};
-                        }
-                        else if((h.dataValues.data || {}).votingShareholder){
-                            h = h.buildNext();
-                            h.data = h.dataValues.data = _.omit(h.dataValues.data || {}, 'votingShareholder');
-                        }
-                        return h;
-                    });
+                }
+                return newHolding;
+            }
+            if(data.afterName){
+                current.dataValues.name =  data.afterName;
+            }
+            if(data.afterVotingShareholder){
+                makeNewHolding();
+                newHolding.dataValues.holders = newHolding.dataValues.holders.map(h => {
+                    if(h.isEqual(data.afterVotingShareholder)){
+                        h = h.buildNext();
+                        h.data = h.dataValues.data = {...h.dataValues.data, votingShareholder: true};
+                    }
+                    else if((h.dataValues.data || {}).votingShareholder){
+                        h = h.buildNext();
+                        h.data = h.dataValues.data = _.omit(h.dataValues.data || {}, 'votingShareholder');
+                    }
+                    return h;
+                });
+            }
+            if(data.afterMetadata){
+                makeNewHolding();
+                if(data.afterMetadata.capacity && data.afterMetadata.capacity.length){
+                    data.afterMetadata.capacity.map((c, i) => {
+                         newHolding.dataValues.holders[i].data = {...newHolding.dataValues.holders[i].data, ...c}
+                    })
                 }
             }
+
         })
         .then(() => {
             return transaction;
@@ -1074,13 +1102,20 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
                 return {votingShareholder: true}
             }
         }
+        function metadata(index){
+            if(data.metadata && data.metadata.capacity && data.metadata.capacity[index]){
+                return data.metadata.capacity[index]
+            }
+        }
         const parcels = (data.parcels || []).map(p => ({amount: p.amount, shareClass: p.shareClass}));
 
         parcels.map(newParcel => {
             nextState.subtractUnallocatedParcels(newParcel)
         });
         const holding = Holding.buildDeep({
-            holders: personData.map(p => ({person: p, data: votingShareholder(p) })), name: data.name,
+            holders: personData.map((p, i) => ({person: p, data: {...votingShareholder(p), ...metadata(i)}})),
+            name: data.name,
+
             parcels: parcels
         });
         holding.dataValues.transaction = transaction;

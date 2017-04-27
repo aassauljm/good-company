@@ -17,6 +17,8 @@ import { ParcelWithRemove } from '../forms/parcel';
 import { newHoldingFormatAction, HoldingSelectWithNew } from '../forms/holding';
 import { Documents } from '../forms/documents';
 import LawBrowserLink from '../lawBrowserLink'
+import { enums as TransactionTypes } from '../../../../config/enums/transactions';
+
 
 const fields = [
     'effectiveDate',
@@ -160,8 +162,8 @@ export function transferFormatSubmit(values, companyState){
             beforeAmount: amounts[values.from][p.shareClass],
             afterAmount: (amounts[values.from][p.shareClass]) - amount
         }}),
-        transactionType: 'TRANSFER_FROM',
-        transactionMethod: 'AMEND'
+        transactionType: TransactionTypes.TRANSFER_FROM,
+        transactionMethod: TransactionTypes.AMEND
     });
     if(!values.newHolding){
         const toHoldingId = parseInt(values.to, 10);
@@ -178,8 +180,8 @@ export function transferFormatSubmit(values, companyState){
                     afterAmount: (amounts[values.to][p.shareClass] || 0) + amount
                 }
             }),
-            transactionType: 'TRANSFER_TO',
-            transactionMethod: 'AMEND'
+            transactionType: TransactionTypes.TRANSFER_TO,
+            transactionMethod: TransactionTypes.AMEND
         });
     }
     else{
@@ -194,15 +196,16 @@ export function transferFormatSubmit(values, companyState){
                     beforeAmount: 0,
                     afterAmount: amount
                 }}),
-            transactionType: 'TRANSFER_TO',
-            transactionMethod: 'NEW_ALLOCATION'
+            metadata: values.newHolding.metadata,
+            votingShareholder: values.newHolding.votingShareholder,
+            transactionType: TransactionTypes.TRANSFER_TO,
+            transactionMethod: TransactionTypes.NEW_ALLOCATION
         });
     }
 
-
     results.push({
         effectiveDate: values.effectiveDate,
-        transactionType: 'TRANSFER',
+        transactionType: TransactionTypes.TRANSFER,
         actions: actions
     })
 

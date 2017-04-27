@@ -308,7 +308,11 @@ export class ShareRegisterDocument extends React.Component {
                              </thead>
                         <tbody>
                             <tr>
-                            <td>{ holders.map((h, i) => <div key={i}>{h.person.name}{ ((h.data||{}).votingShareholder && holding.holders.length > 1) && <strong> (Voting Shareholder)</strong>}</div>) }</td>
+                            <td>{ holders.map((h, i) => <div key={i}>
+                                              {h.person.name}
+                                              { ((h.data||{}).votingShareholder && holding.holders.length > 1) && <strong> (Voting Shareholder) </strong>}
+                                              { (h.data||{}).heldPersonally === false && <span> ({h.data.onBehalfType} of {h.data.onBehalfDescription}) </span> }
+                                              </div>) }</td>
                                 <td className="share-register-amount">{ numberWithCommas(holding.parcels.filter(p => p.shareClass === k)[0].amount) }</td>
                             </tr>
                         </tbody>
