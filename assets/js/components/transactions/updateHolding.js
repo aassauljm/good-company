@@ -15,12 +15,13 @@ import { enums as TransactionTypes } from '../../../../config/enums/transactions
 import LawBrowserLink from '../lawBrowserLink';
 
 
-function holdingLawLinks(){
+export function holdingLawLinks(){
     return <div>
             <LawBrowserLink title="Companies Act 1993" definition="29994-DLM7144912" >Shareholder</LawBrowserLink>
             <LawBrowserLink title="Companies Act 1993" location="s 92" >Trusts</LawBrowserLink>
             <LawBrowserLink title="Companies Act 1993" location="s 93" >Personal representatives</LawBrowserLink>
             <LawBrowserLink title="Companies Act 1993" location="s 94" >Assignee of bankrupt</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 87" >Maintaining a share register</LawBrowserLink>
     </div>
 }
 

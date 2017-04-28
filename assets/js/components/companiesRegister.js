@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource, updateResource } from '../actions';
+import { requestResource, updateResource, resetResources } from '../actions';
 import { stringDateToFormattedString, stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -40,7 +40,8 @@ const fields = [
     return {sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {}, update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}}
 }, {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
-    updateData: (key) => updateResource(`/company/${key}/update_source_data`)
+    updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
+    refresh: () => resetResources()
 })
 export class CompaniesRegisterWidget extends React.Component {
 
@@ -56,28 +57,27 @@ export class CompaniesRegisterWidget extends React.Component {
         this.fetch();
     };
 
+    updateData() {
+        this.props.updateData(this.key())
+            .then(result => {
+                if(result.response.sourceDataUpdated){
+                    this.props.refresh();
+                }
+            });
+    }
+
     key() {
         return this.props.companyId;
     }
 
     renderBody() {
-        if(this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status ){
+        const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
+        const doingUpdate = this.props.update._status   === 'fetching'
+        if(fetching){
             return <div className="loading" key="loading">
                     <Glyphicon glyph="refresh" className="spin"/>
                 </div>
         }
-
-        if(this.props.update._status  === 'fetching' ){
-            return <div>
-                <div className="text-center">
-                 Checking Companies Office for changes...
-            </div>
-                <div className="loading" key="loading">
-                    <Glyphicon glyph="refresh" className="spin"/>
-                </div>
-                </div>
-        }
-
 
         const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         const data = source.data;
@@ -103,7 +103,8 @@ export class CompaniesRegisterWidget extends React.Component {
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
             </div> }
             <div className="button-row">
-                <Button bsStyle="info" onClick={() => this.props.updateData(this.props.companyId)}>Check Companies Office for Updates</Button>
+                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check Companies Office for Updates</Button> }
+                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking Companies Office for Updates</Button> }
             </div>
         </div>
     }
@@ -147,7 +148,8 @@ function renderValue(value){
     return {sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {}, update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}}
 }, {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
-    updateData: (key) => updateResource(`/company/${key}/update_source_data`)
+    updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
+    refresh: () => resetResources()
 })
 export default class CompaniesRegister extends React.Component {
     fetch() {
@@ -165,20 +167,22 @@ export default class CompaniesRegister extends React.Component {
         return this.props.companyId;
     }
 
+    updateData() {
+        this.props.updateData(this.key())
+            .then(result => {
+                if(result.response.sourceDataUpdated){
+                    this.props.refresh();
+                }
+            });
+    }
+
     renderBody() {
-        if(this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status ){
+        const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
+        const doingUpdate = this.props.update._status   === 'fetching'
+
+        if(fetching ){
             return <div className="loading" key="loading">
                     <Glyphicon glyph="refresh" className="spin"/>
-                </div>
-        }
-        if(this.props.update._status  === 'fetching' ){
-            return <div>
-                <div className="text-center">
-                 Checking Companies Office for changes...
-            </div>
-                <div className="loading" key="loading">
-                    <Glyphicon glyph="refresh" className="spin"/>
-                </div>
                 </div>
         }
 
@@ -194,7 +198,8 @@ export default class CompaniesRegister extends React.Component {
                  { source.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(source.createdAt) }</em></div> }
             </div>
             <div className="button-row">
-            <Button bsStyle="info" onClick={() => this.props.updateData(this.props.companyId)}>Check Companies Office for Updates</Button>
+                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check Companies Office for Updates</Button> }
+                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking Companies Office for Updates</Button> }
             </div>
         </div>
     }

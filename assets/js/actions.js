@@ -86,6 +86,7 @@ export function hideNotification(notificationId){
 export function resetResources(){
     return {type: RESOURCE_RESET}
 }
+
 export function requestLogin(credentials) {
     return {
         types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],

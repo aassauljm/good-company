@@ -168,19 +168,19 @@ export class HoldingNoParcels extends React.Component {
                             { !p.newPerson.value && !p.personId.value && <option value={CREATE_NEW_PERSON}>Create new Person</option>}
                         </Input> }
 
-                    { p.newPerson.value &&
-                        <Input type="static" label={'New Shareholder'} value={p.newPerson.value.name}
-                        buttonAfter={<button className="btn btn-default" onClick={(e) => {
-                            p.newPerson.onChange(null);
-                        }}><Glyphicon glyph='trash'/></button>} /> }
+                        { p.newPerson.value &&
+                            <Input type="static" label={'New Shareholder'} value={p.newPerson.value.name}
+                            buttonAfter={<button className="btn btn-default" onClick={(e) => {
+                                p.newPerson.onChange(null);
+                            }}><Glyphicon glyph='trash'/></button>} /> }
 
                           <Input type="checkbox" {...this.formFieldProps(['persons', i, 'heldPersonally'])} label={'Held Personally'} ></Input>
-                          {!heldPersonally && <Input type="select" {...this.formFieldProps(['persons', i, 'onBehalfType'])} label={'Held in Capacity'} >
+                          {!heldPersonally && <Input type="select" {...this.formFieldProps(['persons', i, 'onBehalfType'])} label={'Held as'} >
                               <option value="" disabled>Please Select...</option>
                               <option value="As Personal Representative">As Personal Representative</option>
-                              <option value="As Assignee of Bankrupt">As Assignee of Bankrupt</option>
+                              <option value="As Assignee of Bankrupt Estate">As Assignee of Bankrupt Estate</option>
                           </Input> }
-                          {!heldPersonally && <Input type="text" {...this.formFieldProps(['persons', i, 'onBehalfDescription'])} label={'For'} /> }
+                          {!heldPersonally && <Input type="text" {...this.formFieldProps(['persons', i, 'onBehalfDescription'])} label={'Of'} /> }
 
                     </div>
                     <div className="col-xs-3 right">

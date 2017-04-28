@@ -15,7 +15,7 @@ import { companyTransaction, addNotification, showTransactionView } from '../../
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from '../forms/staticField';
-
+import { holdingLawLinks } from './updateHolding';
 
 @connect(undefined)
 export class NewHoldingTransactionView extends React.Component {
@@ -74,7 +74,7 @@ export class NewHoldingTransactionView extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.handleClose} backdrop={'static'} lawLinks={ holdingLawLinks() }>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>New Shareholding</TransactionView.Title>
               </TransactionView.Header>
