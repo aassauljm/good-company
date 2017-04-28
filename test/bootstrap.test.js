@@ -156,7 +156,8 @@ function lift(cb){
         test: true,
         renderServiceUrl: 'localhost:5668',
         CACHE_DIR: '/tmp/.gc_test',
-        IMPORT_EXTENSIVE: true
+        IMPORT_EXTENSIVE: true,
+        csrf: false
     }, cb);
 }
 
