@@ -15,7 +15,7 @@
       <script id="version" type="application/json">
        <%- JSON.stringify({ASSET_HASH: sails.config.ASSET_HASH || false }) %>
       </script>
-
+      <script>window._csrf = '<%= _csrf %>';</script>
   </head>
 
   <body>

@@ -51,11 +51,13 @@ const serialize = function(obj) {
 
 const json_headers = {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-CSRF-Token': (typeof window !== 'undefined') && window._csrf
 };
 
 const accept_json_headers = {
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'X-CSRF-Token': (typeof window !== 'undefined') && window._csrf
 };
 
 function retryOnError(status){
@@ -87,7 +89,8 @@ export function resetResources(){
     return {type: RESOURCE_RESET}
 }
 
-export function requestLogin(credentials) {
+
+/*export function requestLogin(credentials) {
     return {
         types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],
         callAPI: () => fetch('/auth/local', {
@@ -97,11 +100,12 @@ export function requestLogin(credentials) {
             body: JSON.stringify(credentials)
         })
     };
-}
+}*/
+
 export function logout() {
     return {type: LOGOUT}
 }
-
+/*
 export function setPassword(data) {
     return {
         types: [SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE],
@@ -113,6 +117,8 @@ export function setPassword(data) {
         })
     };
 }
+*/
+
 
 export function requestUserInfo(options = {}) {
     return {
