@@ -29,26 +29,40 @@ function stubs(){
 
     ScrapingService._testPath = 'test/fixtures/companies_office/';
 
-    ScrapingService.fetch = function(companyNumber){
+    ScrapingService.fetch = function(companyNumber) {
         return fs.readFileAsync(ScrapingService._testPath +companyNumber+'.html', 'utf8');
     }
 
-    ScrapingService.fetchDocument = function(companyNumber, documentId){
+    ScrapingService.fetchDocument = function(companyNumber, documentId) {
         return fs.readFileAsync(ScrapingService._testPath + 'documents/'+documentId+'.html', 'utf8')
             .then(function(text){
                 return {text: text, documentId: documentId}
             });
     }
 
-    ScrapingService.fetchSearchResults = function(query){
+    ScrapingService.fetchSearchResults = function(query) {
         return fs.readFileAsync('test/fixtures/companies_office/queries/'+query+'.html', 'utf8')
     }
 
-    ScrapingService.getDocumentSummaries = function(data){
+    ScrapingService.getDocumentSummaries = function(data) {
         return Promise.map(data.documents, function(document){
             return ScrapingService.fetchDocument(data.companyNumber, document.documentId);
         }, {concurrency: 5});
     }
+
+    MbieSyncService.fetchState = function(user, company, state) {
+        const nzbn = state.nzbn;
+        const basePath = `test/fixtures/companies_office/api/${nzbn}/`;
+        const general = fs.readFileAsync(`${basePath}general.json`, 'utf8');
+        const directors = fs.readFileAsync(`${basePath}directors.json`, 'utf8');
+        const shareholdings = fs.readFileAsync(`${basePath}shareholdings.json`, 'utf8');
+        return Promise.all([general, directors, shareholdings])
+            .map(JSON.parse)
+            .spread((general, directors, shareholdings) => {
+                return {general, directors, shareholdings}
+            })
+    }
+
 
     MailService.getTransport = function(){
         return nodemailer.createTransport(stubTransport());

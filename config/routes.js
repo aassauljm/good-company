@@ -525,9 +525,9 @@ module.exports.routes = {
         action: 'companyDetails'
     },
 
-    'POST /api/company/:id/sync_companies_office': {
+    'POST /api/company/:id/merge_companies_office': {
         controller: 'CompanyController',
-        action: 'syncComapaniesOffice',
+        action: 'mergeCompaniesOffice',
         model: 'company'
     },
 

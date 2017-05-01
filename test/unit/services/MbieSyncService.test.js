@@ -32,15 +32,12 @@ describe('MBIE Sync Service', function() {
                     done();
                 });
         });
-        it('Syncs', function(done){
-            req.post('/api/company/'+companyId+'/sync_companies_office')
+        it('Merges with co', function(done){
+            req.post('/api/company/'+companyId+'/merge_companies_office')
                 .expect(200)
                 .then(function(res){
                     done();
-                })
-                .catch(() =>{
-                    done();
-                })
+                });
         });
     })
 })

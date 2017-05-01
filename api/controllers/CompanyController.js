@@ -887,7 +887,7 @@ module.exports = {
     },
 
 
-    syncCompaniesOffice: function(req, res) {
+    mergeCompaniesOffice: function(req, res) {
         let company;
         Company.findById(req.params.id)
             .then(function(_company){
@@ -895,7 +895,7 @@ module.exports = {
                 return company.getNowCompanyState();
             })
             .then(state => {
-                return MbieSyncService.sync(req.user, company, state);
+                return MbieSyncService.merge(req.user, company, state);
             })
             .then(result =>{
                 return res.ok(result);

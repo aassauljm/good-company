@@ -1265,15 +1265,15 @@ function processBizNet($, info){
 
 
 function documentUrl(companyNumber, documentId){
-    return 'http://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
+    return sails.config.COMPANIES_OFFICE_URL + 'companies/app/ui/pages/companies/'+companyNumber+'/'+documentId+'/entityFilingRequirement'
 }
 
 
 
 const ScrapingService = {
-    companiesOfficeURL: 'https://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/',
+
     fetch: function(companyNumber){
-        const url = ScrapingService.companiesOfficeURL+companyNumber+'/detail';
+        const url = sails.config.COMPANIES_OFFICE_URL + '/companies/app/ui/pages/companies/' +companyNumber+ '/detail';
         sails.log.verbose('Getting url', url);
         return new Promise(function(resolve, reject){
                     fetch(url)
@@ -1333,7 +1333,7 @@ const ScrapingService = {
 
     fetchSearchResults: function(query){
         const qs = typeof query === 'object' ? 'companies/search?'+querystring.stringify(query) : 'search?q='+encodeURIComponent(query)
-        const url = 'https://www.companiesoffice.govt.nz/companies/app/ui/pages/'+ qs +'&type=entities';
+        const url = sails.config.COMPANIES_OFFICE_URL + 'companies/app/ui/pages/'+ qs +'&type=entities';
         sails.log.verbose('Getting url', url);
         return fetch(url)
             .then(function(res){
