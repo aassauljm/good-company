@@ -525,13 +525,18 @@ module.exports.routes = {
         action: 'companyDetails'
     },
 
+    'POST /api/company/:id/sync_companies_office': {
+        controller: 'CompanyController',
+        action: 'syncComapaniesOffice',
+        model: 'company'
+    },
+
+
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
     'GET /api/event/:id': {controller: 'EventController', event: 'event', action: 'findOne'},
     'PUT /api/event/:id': {controller: 'EventController', event: 'event', action: 'update'},
     'DELETE /api/event/:id': {controller: 'EventController', event: 'event', action: 'destroy'},
-
-
 
     'GET /api/model': {controller: 'ModelController', model: 'model', action: 'find'},
     'POST /api/model': {controller: 'ModelController', model: 'model', action: 'create'},

@@ -1271,9 +1271,9 @@ function documentUrl(companyNumber, documentId){
 
 
 const ScrapingService = {
-
+    companiesOfficeURL: 'https://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/',
     fetch: function(companyNumber){
-        const url = 'https://www.companiesoffice.govt.nz/companies/app/ui/pages/companies/'+companyNumber+'/detail';
+        const url = ScrapingService.companiesOfficeURL+companyNumber+'/detail';
         sails.log.verbose('Getting url', url);
         return new Promise(function(resolve, reject){
                     fetch(url)

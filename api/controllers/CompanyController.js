@@ -885,4 +885,22 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
+
+    syncCompaniesOffice: function(req, res) {
+        let company;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then(state => {
+                return MbieSyncService.sync(req.user, company, state);
+            })
+            .then(result =>{
+                return res.ok(result);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    }
 };
