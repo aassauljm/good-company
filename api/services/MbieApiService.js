@@ -1,3 +1,6 @@
+import https from 'https';
+import fetch from "isomorphic-fetch";
+
 /**
  * Take a base URI and an object of parameters.
  * Return a URI with the base URI and all the parameters form the object.
@@ -18,72 +21,159 @@ function buildUri(baseUri, parameters={}) {
     return baseUri + queryString;
 }
 
-const authWithNzbn = (req, res) => {
+function generateUrlForOauthLogin(url, clientId, callbackRoute, extraQueryParameters) {
+    const queryParameters = {
+        client_id: clientId,
+        redirect_uri: sails.config.APP_URL + callbackRoute,
+        response_type: 'code',
+        ...extraQueryParameters
+    }
+
+    return buildUri(url, queryParameters);
+}
+
+function requestOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, consumerSecret, serviceName, userId}) {
+    const url = buildUri(oauthRoute, {
+        code: code,
+        grant_type: 'authorization_code',
+        client_id: clientId,
+        redirect_uri: sails.config.APP_URL + callbackRoute
+    });
+
+    let tokenRequestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': UtilService.makeBasicAuthHeader(consumerKey, consumerSecret)
+        }
+    };
+
+    if (__DEV__) {
+        tokenRequestOptions.agent = new https.Agent({
+            rejectUnauthorized: false
+        });
+    }
+
+    return fetch(url, tokenRequestOptions)
+        .then(response => response.json())
+        .then(oauthResponse => {
+            console.log('dadada');
+            console.log(oauthResponse);
+
+            if (oauthResponse.error) {
+                throw new Error(oauthResponse);
+            }
+
+            // Add token to database
+            const data = {
+                accessToken: oauthResponse.access_token,
+                tokenType: oauthResponse.token_type,
+                refreshToken: oauthResponse.refresh_token,
+                expiresIn: oauthResponse.expires_in,
+                service: serviceName,
+                ownerId: userId
+            };
+
+            return ApiCredential.create(data)
+                .then(apiCredential => {
+                    const scopes = oauthResponse.scope.split(' ');
+                    apiCredential.addScopes(scopes);
+                })
+        });
+}
+
+function authWithNzbn(req, res) {
     const service = 'nzbn';
     const callbackRoute = `/api/auth-with/${service}`;
 
     if (req.query.code) {
-        const code = req.query.code;
-
-        const uri = buildUri(sails.config.mbie.oauthURI + 'token', {
-            code,
-            grant_type: 'authorization_code',
-            client_id: sails.config.mbie.nzbn.clientId,
-            scopes: 'updateNZBNPBD',
-            redirect_uri: sails.config.APP_URL + callbackRoute
-        });
-
-        fetch(uri, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.basicAuthUser, sails.config.mbie.nzbn.basicAuthPass)
-                }
+        requestOauthToken({
+                oauthRoute: sails.config.mbie.oauthURI + 'token',
+                callbackRoute,
+                code: req.query.code,
+                clientId: sails.config.mbie.nzbn.clientId,
+                consumerKey: sails.config.mbie.nzbn.basicAuthUser,
+                consumerSecret: sails.config.mbie.nzbn.basicAuthPass,
+                serviceName: service,
+                userId: req.user.id
             })
-            .then(response => {
-                return response.text()
-            })
-            .then(result => {
-                const authDetails = JSON.parse(result);
-                const data = {
-                    accessToken: authDetails.access_token,
-                    tokenType: authDetails.token_type,
-                    refreshToken: authDetails.refresh_token,
-                    expiresIn: authDetails.expires_in,
-                    service: service,
-                    ownerId: req.user.id
-                };
-
-                return ApiCredential.create(data)
-                    .then(apiCredential => {
-                        const scopes = authDetails.scope.split(' ');
-                        apiCredential.addScopes(scopes);
-                    });
-            })
-            .then(() => {
-               res.redirect('/import/nzbn');
-            })
-            .catch(e => {
-                sails.log.error(e);
+            .then(() => res.redirect('/import/nzbn'))
+            .catch((error) => {
+                sails.log.error(error);
                 res.json({message: ['Something went wrong']});
-            })
+            });
     }
     else if (req.query.error) {
         sails.log.error(req.query.error)
-        res.redirect('/import/nzbn');
+        res.redirect('/');
     }
     else {
-        const url = buildUri(sails.config.mbie.oauthURI + 'authorize', {
-            client_id: sails.config.mbie.nzbn.clientId,
-            redirect_uri: sails.config.APP_URL + callbackRoute,
-            response_type: 'code'
-        });
+        const redirectUrl = generateUrlForOauthLogin(
+            sails.config.mbie.oauthURI + 'authorize',
+            sails.config.mbie.nzbn.clientId,
+            callbackRoute,
+        );
 
-        res.redirect(url);
+        return res.redirect(redirectUrl);
     }
 }
 
-const removeNzbnAuth = (req, res) => {
+const authWithCompaniesOffice = (req, res) => {
+    const service = 'companies-office';
+    const callbackRoute = `/api/auth-with/${service}`;
+
+    if (req.query.code) {
+        requestOauthToken({
+                oauthRoute: sails.config.mbie.companiesOffice.oauthURI + 'token',
+                callbackRoute,
+                code: req.query.code,
+                clientId: sails.config.mbie.companiesOffice.consumerKey,
+                consumerKey: sails.config.mbie.companiesOffice.consumerKey,
+                consumerSecret: sails.config.mbie.companiesOffice.consumerSecret,
+                serviceName: service,
+                userId: req.user.id
+            })
+            .then(() => res.redirect('/'))
+            .catch((error) => {
+                sails.log.error(error);
+                res.json({message: ['Something went wrong']});
+            });
+    }
+    else if (req.query.error) {
+        sails.log.error(req.query.error)
+        res.redirect('/');
+    }
+    else {
+        const redirectUrl = generateUrlForOauthLogin(
+            sails.config.mbie.companiesOffice.oauthURI + 'authorize',
+            sails.config.mbie.companiesOffice.consumerKey,
+            callbackRoute,
+            { scope: 'openid' }
+        );
+
+        return res.redirect(redirectUrl);
+    }
+}
+
+export function authWith(req, res) {
+    let authFunction = null;
+
+    switch (req.params.service) {
+        case 'nzbn':
+            authFunction = authWithNzbn;
+        case 'companies-office':
+            authFunction = authWithCompaniesOffice;
+            break;
+    }
+
+    if (!authFunction) {
+        throw new Error("MBIE auth service '${req.params.service}' not found");
+    }
+    
+    authFunction(req, res);
+}
+
+export function removeAuth(req, res) {
     ApiCredential.destroy({
         where: {
             service: req.params.service,
@@ -97,30 +187,6 @@ const removeNzbnAuth = (req, res) => {
 
         return res.json({message: ['RealMe disconnected']});
     });
-}
-
-const nzbn = {
-    authWith: authWithNzbn,
-    removeAuth: removeNzbnAuth
-}
-
-function getService(service) {
-    switch (service) {
-        case 'nzbn':
-            return nzbn;
-        default:
-            throw new Error("MBIE auth service '${service}' not found");
-    }
-}
-
-export function authWith(req, res) {
-    const service = getService(req.params.service);
-    service.authWith(req, res);
-}
-
-export function removeAuth(req, res) {
-    const service = getService(req.params.service);
-    service.removeAuth(req, res);
 }
 
 export function lookupByNzbn(nzbn) {
