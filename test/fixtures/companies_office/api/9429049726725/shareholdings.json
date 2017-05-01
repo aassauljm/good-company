@@ -1,0 +1,141 @@
+{
+    "header": {
+          "date": "Mon, 01 May 2017 01:20:50 GMT",
+          "content-encoding": "gzip",
+          "api-business-govt-nz-request-id": "2eadcaa0-9d4e-4fae-9ec0-3bf2147c7efe",
+          "x-powered-by": "Servlet/2.5 JSP/2.1",
+          "etag": "14ba8be0-04d2-3c34-8056-47da6849e723",
+          "vary": "Accept-Encoding",
+          "access-control-allow-methods": "PUT,GET",
+          "content-language": "en",
+          "access-control-allow-origin": "*",
+          "connection": "Keep-Alive",
+          "content-type": "application/json;charset=UTF-8; charset=UTF-8",
+          "access-control-allow-headers": "authorization,Access-Control-Allow-Origin,Content-Type",
+          "content-length": "674"
+    },
+    "body": {
+      "shareholders": [
+        {
+          "shareholderId": "4406022",
+          "shareholderType": "Person",
+          "link": {
+            "rel": "self",
+            "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/shareholders/4406022"
+          },
+          "personShareholder": {
+            "name": {
+              "firstName": "Jack",
+              "lastName": "TRADER"
+            }
+          },
+          "contacts": {
+            "phoneContacts": [],
+            "physicalOrPostalAddresses": [
+              {
+                "addressType": "Physical",
+                "addressPurpose": "Residential address",
+                "dpid": "1376891",
+                "address1": "20b Harwood Road",
+                "address2": "Mount Wellington",
+                "address3": "Auckland",
+                "postCode": "1060",
+                "countryCode": "NZ",
+                "effectiveDate": "2016-10-13T15:03:04",
+                "link": {
+                  "rel": "self",
+                  "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14505624"
+                },
+                "addressId": "14505624"
+              }
+            ],
+            "emailAddresses": [
+              {
+                "emailPurpose": "Email",
+                "emailAddress": "tester@test.co.nz",
+                "emailAddressId": "14505623",
+                "link": {
+                  "rel": "self",
+                  "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14505623"
+                }
+              }
+            ]
+          },
+          "appointmentDate": "2016-10-13"
+        },
+        {
+          "shareholderId": "4406023",
+          "shareholderType": "Person",
+          "link": {
+            "rel": "self",
+            "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/shareholders/4406023"
+          },
+          "personShareholder": {
+            "name": {
+              "firstName": "James",
+              "lastName": "DEAN"
+            }
+          },
+          "contacts": {
+            "phoneContacts": [],
+            "physicalOrPostalAddresses": [
+              {
+                "addressType": "Physical",
+                "addressPurpose": "Residential address",
+                "dpid": "2982341",
+                "address1": "21 Harwood Road",
+                "address2": "Mount Wellington",
+                "address3": "Auckland",
+                "postCode": "1060",
+                "countryCode": "NZ",
+                "effectiveDate": "2016-10-13T15:03:05",
+                "link": {
+                  "rel": "self",
+                  "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14505626"
+                },
+                "addressId": "14505626"
+              }
+            ],
+            "emailAddresses": [
+              {
+                "emailPurpose": "Email",
+                "emailAddress": "tester1@test.co.nz",
+                "emailAddressId": "14505625",
+                "link": {
+                  "rel": "self",
+                  "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14505625"
+                }
+              }
+            ]
+          },
+          "appointmentDate": "2016-10-13"
+        }
+      ],
+      "shareholdersInAllocations": [
+        {
+          "shareholderId": "4406022",
+          "allocationId": "1668085"
+        },
+        {
+          "shareholderId": "4406023",
+          "allocationId": "1668086"
+        }
+      ],
+      "shareAllocations": [
+        {
+          "numSharesInAllocation": 7000,
+          "allocationId": "1668085"
+        },
+        {
+          "numSharesInAllocation": 3000,
+          "allocationId": "1668086"
+        }
+      ],
+      "link": {
+        "rel": "self",
+        "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/shareholding"
+      },
+      "numberOfShares": 10000,
+      "hasExtensiveShareholding": false
+    }
+}

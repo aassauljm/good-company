@@ -1,0 +1,143 @@
+{
+    "header": {
+  "date": "Mon, 01 May 2017 01:20:18 GMT",
+  "content-encoding": "gzip",
+  "api-business-govt-nz-request-id": "5ade629a-7ec1-4164-bd4b-ceecf573cf6b",
+  "x-powered-by": "Servlet/2.5 JSP/2.1",
+  "etag": "14ba8be0-04d2-3c34-8056-47da6849e723",
+  "vary": "Accept-Encoding",
+  "access-control-allow-methods": "PUT,GET",
+  "content-language": "en",
+  "access-control-allow-origin": "*",
+  "connection": "Keep-Alive",
+  "content-type": "application/json; charset=UTF-8",
+  "access-control-allow-headers": "authorization,Access-Control-Allow-Origin,Content-Type",
+  "content-length": "865"
+},
+"body": {
+  "link": {
+    "rel": "self",
+    "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725"
+  },
+  "companyStatusDescription": "Registered",
+  "companyName": "AR TEST 1476323989359 LIMITED",
+  "nzbn": "9429049726725",
+  "entityType": "NZ Limited Company",
+  "isUltimateHoldingCompany": false,
+  "annualReturnFilingMonth": 2,
+  "shareholdingLink": {
+    "rel": "self",
+    "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/shareholding"
+  },
+  "contacts": {
+    "phoneContacts": [
+      {
+        "phoneContactId": "14716413",
+        "phoneNumber": "23232323",
+        "areaCode": "09",
+        "link": {
+          "rel": "self",
+          "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14716413"
+        },
+        "phonePurpose": "Phone",
+        "countryCode": "64"
+      },
+      {
+        "phoneContactId": "14716415",
+        "phoneNumber": "23232323",
+        "areaCode": "09",
+        "link": {
+          "rel": "self",
+          "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14716415"
+        },
+        "phonePurpose": "Fax",
+        "countryCode": "64"
+      },
+      {
+        "phoneContactId": "14716414",
+        "phoneNumber": "23232323",
+        "areaCode": "09",
+        "link": {
+          "rel": "self",
+          "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14716414"
+        },
+        "phonePurpose": "Mobile",
+        "countryCode": "64"
+      }
+    ],
+    "physicalOrPostalAddresses": [
+      {
+        "addressType": "Physical",
+        "addressPurpose": "Registered office address",
+        "dpid": "3232591",
+        "careOf": "Messrs AR roa",
+        "address1": "135 Albert Street",
+        "address2": "Auckland Central",
+        "address3": "Auckland",
+        "postCode": "1010",
+        "countryCode": "NZ",
+        "effectiveDate": "2015-10-13T00:00:00",
+        "link": {
+          "rel": "self",
+          "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14716409"
+        },
+        "addressId": "14716409"
+      },
+      {
+        "addressType": "Physical",
+        "addressPurpose": "Address for service",
+        "dpid": "2982840",
+        "careOf": "Messrs AR afs",
+        "address1": "Flat 2, 190a Upland Road",
+        "address2": "Remuera",
+        "address3": "Auckland",
+        "postCode": "1050",
+        "countryCode": "NZ",
+        "effectiveDate": "2015-10-13T00:00:00",
+        "link": {
+          "rel": "self",
+          "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14716410"
+        },
+        "addressId": "14716410"
+      },
+      {
+        "addressType": "Physical",
+        "addressPurpose": "Address for communication",
+        "dpid": "2816919",
+        "careOf": "Messrs AR afc",
+        "address1": "17 Carnock Road",
+        "address2": "Harwood",
+        "address3": "Dunedin",
+        "postCode": "9077",
+        "countryCode": "NZ",
+        "effectiveDate": "2015-10-13T00:00:00",
+        "link": {
+          "rel": "self",
+          "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14716411"
+        },
+        "addressId": "14716411"
+      }
+    ],
+    "emailAddresses": [
+      {
+        "emailPurpose": "Email",
+        "emailAddress": "tester@mbie.govt.nz",
+        "emailAddressId": "14716412",
+        "link": {
+          "rel": "self",
+          "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14716412"
+        }
+      }
+    ]
+  },
+  "companyStatusCode": "50",
+  "registrationDate": "2015-10-13",
+  "isConstitutionFiled": true,
+  "directorLinks": [
+    {
+      "rel": "self",
+      "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/directors/4414315"
+    }
+  ]
+}
+}

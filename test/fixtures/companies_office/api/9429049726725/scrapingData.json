@@ -1,0 +1,38 @@
+{
+    "companyName": "AR TEST 1476323989359 LIMITED",
+    "companyNumber": "x",
+    "nzbn": "9429049726725",
+    "entityType": "NZ Limited Company",
+    "companyStatus": "Registered",
+    "incorporationDate": "2015-10-13",
+    "arFilingMonth": "February",
+
+
+    "ultimateHoldingCompany": false,
+
+    "holdings": {
+        "allocations": [{
+            "holders": [{
+                "name": "James DEAN",
+                "address": "21 Harwood Road, Mount Wellington, Auckland, 1060, NZ"
+            }],
+            "shares": 3000
+        }, {
+            "holders": [{
+                "name": "Jack Trader",
+                "address": "21b Harwood Road, Mount Wellington, Auckland, 1060, NZ"
+            }],
+            "shares": 7000
+        }]
+    },
+    "documents": [],
+    "directors": [{
+        "fullName": "Daniel CARTER",
+        "residentialAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, 3300, NZ",
+        "appointmentDate": "2015-10-13",
+        "ceasedDate": null
+    }],
+    "formerDirectors": [],
+    "previousNames": []
+
+}

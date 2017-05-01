@@ -1,0 +1,72 @@
+{
+    "header": {
+      "date": "Mon, 01 May 2017 01:26:21 GMT",
+      "content-encoding": "gzip",
+      "api-business-govt-nz-request-id": "55f598aa-a464-41a0-9ff0-fc9c2f169689",
+      "x-powered-by": "Servlet/2.5 JSP/2.1",
+      "etag": "14ba8be0-04d2-3c34-8056-47da6849e723",
+      "vary": "Accept-Encoding",
+      "access-control-allow-methods": "POST,GET",
+      "content-language": "en",
+      "access-control-allow-origin": "*",
+      "connection": "Keep-Alive",
+      "content-type": "application/json; charset=UTF-8",
+      "access-control-allow-headers": "authorization,Access-Control-Allow-Origin,Content-Type",
+      "content-length": "483"
+    },
+"body": {
+  "items": [
+    {
+      "appointedDate": "2015-10-13",
+      "roleStatus": "active",
+      "link": {
+        "rel": "self",
+        "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/directors/4406021"
+      },
+      "directorSpecific": {
+        "directorNotOneOf": []
+      },
+      "roleType": "Director",
+      "personInRole": {
+        "name": {
+          "firstName": "Daniel",
+          "lastName": "CARTER"
+        }
+      },
+      "roleId": "4406021",
+      "contacts": {
+        "phoneContacts": [],
+        "physicalOrPostalAddresses": [
+          {
+            "addressType": "Physical",
+            "addressPurpose": "Residential address",
+            "dpid": "1268021",
+            "address1": "19 Victoria Avenue",
+            "address2": "Morrinsville",
+            "address3": "Morrinsville",
+            "postCode": "3300",
+            "countryCode": "NZ",
+            "effectiveDate": "2016-10-13T15:03:04",
+            "link": {
+              "rel": "self",
+              "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14505622"
+            },
+            "addressId": "14505622"
+          }
+        ],
+        "emailAddresses": [
+          {
+            "emailPurpose": "Email",
+            "emailAddress": "tester@mbie.govt.nz",
+            "emailAddressId": "14505621",
+            "link": {
+              "rel": "self",
+              "href": "http://app.eat.internal/companies/app/service/services/api/9429049726725/contacts/14505621"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+}

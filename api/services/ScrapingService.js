@@ -1417,7 +1417,7 @@ const ScrapingService = {
                     holders: holding.holders.map((h) => {
                         return { person: h, data: {}}
                     }),
-                    name: holding.name.replace('Allocation', 'Shareholding')
+                    name: (holding.name || '').replace('Allocation', 'Shareholding')
                 }
             })
         }
