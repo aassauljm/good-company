@@ -161,6 +161,7 @@ export function authWith(req, res) {
     switch (req.params.service) {
         case 'nzbn':
             authFunction = authWithNzbn;
+            break;
         case 'companies-office':
             authFunction = authWithCompaniesOffice;
             break;
