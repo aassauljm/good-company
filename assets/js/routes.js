@@ -42,6 +42,7 @@ import Account from './components/account';
 import AccessList from './components/accessList';
 import { CompanyHOCFromRoute, Injector } from './hoc/resources';
 import { Organisation } from './components/accessList';
+import CompaniesOfficeIntegration from './components/companiesOfficeIntegration';
 
 const Status = (props) => {
     return <div className="container-fluid page-top">
@@ -155,10 +156,10 @@ export default (store) => {
                     <Router path=":name" component={ TemplateSelectCompany }/>
                  </Route>
                 <Route path="organisation" component={ Organisation } />
+                <Route path="companies_office_integration" component={CompaniesOfficeIntegration} />
             </Route>
             <Route path="company/view/:id" component={ Company } children={CompanyChildren} />
             <Route path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
-
         </Route>
          <Route path='status' component={ Status } />
         <Route path="*" component={ NotFound } />

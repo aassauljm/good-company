@@ -17,6 +17,7 @@ import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS, FAVOURITES
 import { HeaderSubControls } from './header';
 import { ImportSingleWidget } from './importMenu'
 import { OrganisationWidget } from './accessList'
+import { CompaniesOfficeIntegrationWidget } from './companiesOfficeIntegration'
 
 @AsyncHOCFactory([COMPANIES])
 @connect(state => ({ userInfo: state.userInfo, login: state.login}))
@@ -107,6 +108,7 @@ export default class Home extends React.PureComponent {
                     </div>
                     <div className="col-md-6">
                         { showImport && <ImportSingleWidget canImport={canImport} upgradeUrl={`${this.props.login.userUrl}/my-services?Good%2BCompanies=1`}/> }
+                        <CompaniesOfficeIntegrationWidget />
                         <AlertsWidget />
                         <FavouritesWidget />
                         <RecentActivityWidget />
