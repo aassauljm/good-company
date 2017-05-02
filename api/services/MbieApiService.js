@@ -175,18 +175,20 @@ export function authWith(req, res) {
 }
 
 export function removeAuth(req, res) {
+    const service = req.params.service;
+    
     ApiCredential.destroy({
         where: {
-            service: req.params.service,
+            service,
             ownerId: req.user.id
         }
     })
     .then(result => {
         if (result === 0) {
-            return res.json({message: ['No existing RealMe connection']});
+            return res.json({message: ['No existing integration with that service']});
         }
 
-        return res.json({message: ['RealMe disconnected']});
+        return res.json({message: ['Integration disconnected']});
     });
 }
 

@@ -82,45 +82,57 @@ export class RealMeConnect extends React.PureComponent {
     }
 }
 
-@connect(state => ({userInfo: state.userInfo}))
-export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
-
-    renderBody() {
-        const hasNZBN = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
-        return <div>
-            <div className="button-row">
-                <Link className="btn btn-info" to="/import">Bulk Import</Link>
-                { !hasNZBN && <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a> }
-
-                </div>
-        </div>
+@connect(state => ({userInfo: state.userInfo}), (dispatch) => ({
+    disconnectCompaniesOffice: () => {
+        dispatch(deleteResource('/auth-with/companies-office', {
+                confirmation: {
+                    title: 'Confirm Disconnection of Companies Office account',
+                    description: 'Please confirm the disconnecting of Companies Office account from your Good Companies account.',
+                    resolveMessage: 'Confirm Disconnection',
+                    resolveBsStyle: 'warning'
+                }
+            }))
+            .then(result => dispatch(requestUserInfo({ refresh: true })))
+            .then(result => dispatch(addNotification({ message: 'Your Companies Office account has been disconnected from your Good Companies account' })))
     }
-
-
+}))
+export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
     render() {
-        return  <div className="widget">
+        const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
+
+        return (
+            <div className="widget">
                 <div className="widget-header">
-                    <div className="widget-title">
-                       Companies Office Integration
-                    </div>
+                    <div className="widget-title">Companies Office Integration</div>
                 </div>
                 <div className="widget-body">
-                  <div className="button-row">
-                    <Link className="btn btn-info" to={`/companies_office_integration`}>Click here to Integrate</Link>
-                </div>
+                <div className="button-row">
+                    { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice /> }
+                    { hasCompaniesOfficeIntegration && <DisconnectCompaniesOffice disconnect={this.props.disconnectCompaniesOffice}/>}
+                    </div>
                 </div>
             </div>
-        }
+        );
+    }
 }
 
+const ConnectCompaniesOffice = () => {
+    return <a className="btn btn-info" href="/api/auth-with/companies-office">Connect with Companies Office</a>;
+}
+
+const DisconnectCompaniesOffice = ({ disconnect }) => {
+    return <Button bsStyle="warning" type="submit" onClick={disconnect}>Disconnect from Companies Office</Button>;
+}
 
 
 
 
 export default class CompaniesOfficeIntegration extends React.Component {
     render() {
-        return <div>
-            <RealMeConnect />
-        </div>
+        return (
+            <div className="container">
+                <CompaniesOfficeIntegrationWidget />
+            </div>
+        );
     }
 }
