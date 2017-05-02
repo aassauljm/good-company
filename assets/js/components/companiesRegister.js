@@ -36,9 +36,11 @@ const fields = [
 'ultimateHoldingCompany'];
 
 
-@connect((state, ownProps) => {
-    return {sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {}, update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}}
-}, {
+@connect((state, ownProps) => ({
+    userInfo: state.userInfo,
+    sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {},
+    update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}
+}), {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
     updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
     refresh: () => resetResources()
@@ -70,6 +72,7 @@ export class CompaniesRegisterWidget extends React.Component {
         return this.props.companyId;
     }
 
+
     renderBody() {
         const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
         const doingUpdate = this.props.update._status   === 'fetching'
@@ -83,7 +86,7 @@ export class CompaniesRegisterWidget extends React.Component {
         const data = source.data;
 
         return <div className="row" key="body">
-
+            
             <div className="col-xs-6">
                     <div><strong>Name</strong> {renderValue(data.companyName) }</div>
                     <div><strong>{STRINGS.companyNumber}</strong> { renderValue(data.companyNumber) }</div>
@@ -99,7 +102,7 @@ export class CompaniesRegisterWidget extends React.Component {
                     { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
             { data.createdAt && <div className="col-xs-12 text-center">
-                 { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
+                { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
             </div> }
             <div className="button-row">
