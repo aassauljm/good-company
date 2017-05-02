@@ -2,6 +2,7 @@
 import Promise from 'bluebird';
 import moment from 'moment';
 import fetch from "isomorphic-fetch";
+import https from 'https';
 
 const AR = {
   "declaration": "I declare that this annual return is being filed in accordance with the Companies Act.",
@@ -137,9 +138,36 @@ function formatPerson(person){
 
 module.exports = {
     fetchState: function(user, company, state) {
-        const nzbn = state.nzbn;
         // get auth token,
         // fetch all api endpoints, join together
+
+        const urls = [
+            sails.config.mbie.companiesOffice.url + '/companies/' + state.nzbn
+        ];
+
+        let fetchOptions = {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer xxx'
+            }
+        };
+
+        if (__DEV__) {
+            fetchOptions.agent = new https.Agent({
+                rejectUnauthorized: false
+            });
+        }
+
+        return Promise.all(urls.map(url => fetch(url, fetchOptions)))
+            // .spread(response => response.json())
+            .map(r => r.json())
+            .spread((general) => {
+                console.log(general);
+                return {
+                    general
+                };
+            });
     },
     flatten: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
@@ -206,7 +234,8 @@ module.exports = {
         return MbieSyncService.flatten(user, company, state);
     },
     arSummary: function(user, company, state){
-        return SAMPLE_DATA;
+        return MbieSyncService.flatten(user, company, state);
+        // return SAMPLE_DATA;
     }
 
 }
