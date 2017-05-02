@@ -38,7 +38,7 @@ _.merge(exports, {
             if (action === 'register') {
                 res.redirect('/register');
             } else if (action === 'login') {
-                res.redirect('/login');
+                res.redirect('/');
             } else if (action === 'disconnect') {
                 res.redirect('back');
             } else {

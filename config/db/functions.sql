@@ -230,14 +230,16 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner FROM (
-        SELECT *, company_now(c.id) FROM user_companies_by_permission($1) c
+
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array($1, 'Company', q.id) as permissions FROM (
+        SELECT *, company_now(c.id)  FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
         JOIN public.user u on q."ownerId" = u.id
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
+
 
 
 CREATE OR REPLACE FUNCTION get_company_permissions_json(entityId integer, catalexId text)
@@ -282,12 +284,12 @@ CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
     SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", TRUE as "favourite" FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", TRUE as "favourite", suspended  FROM (
         SELECT c.*, company_now(c.id)
     FROM favourite f
         JOIN company c on f."companyId" = c.id
 
-        WHERE c."ownerId" = $1 and f."userId" = $1 and c.deleted != true
+        WHERE  f."userId" = $1 and c.deleted != true and check_permission($1, 'read', 'Company', c.id)
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
         ORDER BY cs."companyName"
@@ -301,14 +303,28 @@ CREATE OR REPLACE FUNCTION get_all_company_permissions_json(entityId integer def
         AS $$
     SELECT array_to_json(array_agg(row_to_json(qq))) from (
 
-    SELECT "catalexId", "name", "userId", array_agg(perms) as permissions from (
-        SELECT "catalexId", o."name", "userId", get_permissions_catalex_user("catalexId", 'Company', $1) as perms
+    SELECT "catalexId", "name", email, "userId", array_agg(perms) as permissions, TRUE as organisation from (
+        SELECT "catalexId", o."name", email, "userId", get_permissions_catalex_user("catalexId", 'Company', $1) as perms
         FROM company c
         JOIN organisation o ON o."organisationId" = get_user_organisation(c."ownerId")
         LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and "userId" IS NOT NULL
         WHERE c.id = $1
         ) q
-        GROUP BY "catalexId", "name", "userId"
+        GROUP BY "catalexId", "name", "userId", email
+
+
+        UNION
+
+
+     SELECT "catalexId", "name", email, "userId", array_agg(perms) as permissions, FALSE as organisation from (
+        SELECT "catalexId", u."username" as name, email, p."userId", action::text as perms
+        FROM model m
+        LEFT OUTER JOIN permission pp on m.id = pp."modelId" and "entityId" = $1 and relation = 'catalex' and allow = true
+
+        LEFT OUTER JOIN passport p on identifier = "catalexId" and provider = 'catalex' and p."userId" IS NOT NULL
+        JOIN public.user u on u.id = p."userId"
+        ) q
+        GROUP BY "catalexId", "name", "userId", email
     ) qq
 
 $$ LANGUAGE SQL;
@@ -322,15 +338,67 @@ CREATE OR REPLACE FUNCTION activity_log_json(userId integer default null, compan
      SELECT a."id", "type", "description", "data", a."createdAt", "userId", "companyId", u.username
      FROM "activity_log" a
      JOIN public.user u on u.id = "userId"
-
      WHERE
     ($1 IS NULL OR a."userId" = $1)
-    AND
-        ($2 is NULL OR a."companyId" = $2)
+     AND
+    ($2 is NULL OR a."companyId" = $2)
 
      ORDER BY a."createdAt" DESC
 
      LIMIT $3
+     ) q
+
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION activity_log_all_json(userId integer , maxLimit integer default null )
+    RETURNS JSON
+    STABLE AS $$
+      SELECT array_to_json(array_agg(row_to_json(q))) from (
+          SELECT a."id", "type", "description", "data", a."createdAt", "userId", "companyId", u.username
+          FROM activity_log a
+          JOIN (
+         SELECT a."id"
+         FROM "activity_log" a
+         WHERE a."userId" = $1
+
+         UNION
+
+         SELECT a."id"
+         FROM "activity_log" a
+         JOIN ( SELECT id FROM user_companies_by_permission($1)) q on a."companyId" = q.id
+
+         ) qq on qq.id = a.id
+
+         JOIN public.user u on u.id = "userId"
+
+         ORDER BY a."createdAt" DESC
+
+         LIMIT $2
+     ) q
+
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION events_json(userId integer)
+    RETURNS JSON
+    STABLE AS $$
+      SELECT array_to_json(array_agg(row_to_json(q))) from (
+          SELECT a.*, u.username as username
+          FROM event a
+          JOIN (
+         SELECT a."id"
+         FROM "event" a
+         WHERE a."ownerId" = $1
+
+         UNION
+
+         SELECT a."id"
+         FROM "event" a
+         JOIN ( SELECT id FROM user_companies_by_permission($1)) q on a."companyId" = q.id
+
+         ) qq on qq.id = a.id
+
+         JOIN public.user u on u.id = a."ownerId"
      ) q
 
 $$ LANGUAGE SQL;

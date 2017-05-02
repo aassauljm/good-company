@@ -26,6 +26,8 @@ CREATE OR REPLACE FUNCTION get_user(_tbl regclass, id integer, OUT result intege
     INTO result;
     END
 $func$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION get_user_organisation(userId integer)
     RETURNS INTEGER
     STABLE AS $$
@@ -57,11 +59,11 @@ CREATE OR REPLACE FUNCTION generate_aces(modelName text,  entityId integer defau
             SELECT action::text as permission,
              CASE
         WHEN p."relation" = 'role' THEN 'role:' || p."roleId"
-        WHEN  p."relation" = 'organisation' and $2 IS NOT NULL THEN 'org:' || get_org(m.identity, $2)
-        WHEN  p."relation" = 'organisation_admin' and $2 IS NOT NULL THEN 'org:' || get_org(m.identity, $2)
-        WHEN  p."relation" = 'user' and (($2 IS NOT NULL  AND "entityId" = $2) OR ($2 IS NULL AND entityId is NULL))   THEN 'id:' || p."userId"
-        WHEN  p."relation" = 'owner' and $2 IS NOT NULL  THEN 'id:' || get_owner(m.identity, $2)
-        WHEN  p."relation" = 'catalex' and (($2 IS NOT NULL  AND "entityId" = $2) OR ($2 IS NULL AND entityId is NULL)) THEN 'catalexId:' || p."catalexId"
+        WHEN p."relation" = 'organisation' and $2 IS NOT NULL THEN 'org:' || get_org(m.identity, $2)
+        WHEN p."relation" = 'organisation_admin' and $2 IS NOT NULL THEN 'orgAdmin:' || get_org(m.identity, $2)
+        WHEN p."relation" = 'user' and (($2 IS NOT NULL  AND "entityId" = $2) OR ($2 IS NULL AND entityId is NULL))   THEN 'id:' || p."userId"
+        WHEN p."relation" = 'owner' and $2 IS NOT NULL  THEN 'id:' || get_owner(m.identity, $2)
+        WHEN p."relation" = 'catalex' and (($2 IS NOT NULL  AND "entityId" = $2) OR ($2 IS NULL AND entityId is NULL)) THEN 'catalexId:' || p."catalexId"
          END as principal,
          allow
             FROM model m
@@ -94,8 +96,8 @@ CREATE OR REPLACE FUNCTION generate_principals(userId integer)
 
         UNION
 
-        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember')
-        WHERE get_user_organisation($1) IS NOT NULL
+        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember' LIMIT 1)
+            WHERE get_user_organisation($1) IS NOT NULL
 
         UNION
 
@@ -116,7 +118,7 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
     RETURNS SETOF text
     AS $$
-        SELECT 'id:' || p."userId"
+        SELECT generate_principals(p."userId")
         FROM passport p
         WHERE p.identifier = $1 and provider = 'catalex'
 
@@ -128,7 +130,7 @@ CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
 
         UNION
 
-        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember')
+        SELECT 'role:' || (SELECT id::text FROM role where name = 'organisationMember' LIMIT 1)
         FROM organisation o
         WHERE o."catalexId" = $1
 
@@ -165,6 +167,11 @@ CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entit
     FROM first_permissions
     WHERE index = 1 and allow = TRUE
 
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION get_permissions_array(userId integer, modelName text, entityId integer default NULL)
+    RETURNS TEXT[] AS $$
+    SELECT ARRAY_AGG(p) from get_permissions($1, $2, $3) p
 $$ LANGUAGE SQL;
 
 

@@ -1,6 +1,6 @@
 "use strict";
 import React from 'react';
-import {requestResource, updateResource, createResource, addNotification, requestUserInfo} from '../actions';
+import {requestResource, updateResource, createResource, addNotification, requestUserInfo, showLoading, endLoading } from '../actions';
 import { pureRender, objectValues } from '../utils';
 import { connect } from 'react-redux';
 import Input from './forms/input';
@@ -32,16 +32,26 @@ export class AccountSettingsForm extends React.Component {
 @connect(state => ({
     userInfo: state.userInfo
 }), {
+    showLoading: () => showLoading(),
+    endLoading: () => endLoading(),
     update: (data) => updateResource('/account_settings', {settings:data}),
     addNotification: (...args) => addNotification(...args),
     refreshUserInfo: () => requestUserInfo({refresh: true})
 })
 export default class AccountSettings extends React.Component {
+
     handleSubmit(values) {
+        this.props.showLoading();
         this.props.update(values)
             .then((r) => {
                 this.props.addNotification({message: r.response.message})
-                return this.props.refreshUserInfo()
+                return this.props.refreshUserInfo();
+            })
+            .then(() => {
+                this.props.endLoading();
+            })
+            .catch(() => {
+                this.props.endLoading();
             })
 
     }

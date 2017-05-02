@@ -5,8 +5,8 @@ import STRINGS from '../strings'
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
-import { pureRender } from '../utils';
-import { updateResource, addNotification, showLoading, endLoading, requestResource } from '../actions';
+import { formFieldProps, requireFields } from '../utils';
+import { updateResource, addNotification, showLoading, endLoading, requestResource, createResource } from '../actions';
 import { ContactFormConnected, contactDetailsFormatSubmit, immutableFields, defaultCustomFields } from './forms/contactDetails';
 import { replace, push } from 'react-router-redux'
 import LawBrowserContainer from './lawBrowserContainer'
@@ -21,10 +21,10 @@ import firstBy from 'thenby';
 
 const permissionsToString = (permissions) => {
     if(permissions.indexOf('update') >= 0){
-        return 'Update Access';
+        return STRINGS.permissions.update;
     }
     if(permissions.indexOf('read') >= 0){
-        return 'View Only Access';
+        return STRINGS.permissions.readOnly;
     }
     return 'No Access';
 }
@@ -40,7 +40,6 @@ export class OrganisationWidget extends React.Component {
     static propTypes = {
 
     };
-
 
     renderBody() {
         const MAX_ROWS = 5;
@@ -149,7 +148,7 @@ function getPermissionValue(permission, member, foreignPermissions){
 
 function formatChange(value, catalexId, permission){
     // currently assumming that by default, org members get read
-    let addOrRemove ='add_permissions';
+    let addOrRemove = 'add_permissions';
     let allow = value;
 
     //if(permission === 'read'){
@@ -173,6 +172,31 @@ function formatChange(value, catalexId, permission){
     return {addOrRemove, permissions: [permission], allow}
 }
 
+@reduxForm({
+    form: 'thirdPartyAccess',
+    fields: ['name', 'email'],
+    validate: requireFields('name', 'email')
+})
+@formFieldProps()
+class InviteThirdPartyForm extends React.PureComponent {
+    render() {
+        const { fields } = this.props;
+        return <form className="form" onSubmit={this.props.handleSubmit}>
+            <div className="row">
+                <div className="col-md-3 col-md-offset-2">
+                    <Input type="text" {...this.formFieldProps('name')} label='' placeholder="name"/>
+                </div>
+                <div className="col-md-3">
+                    <Input type="email" {...this.formFieldProps('email')} label='' placeholder="email"/>
+                </div>
+                 <div className="col-md-2">
+                    <Button type="submit" bsStyle="primary">Invite to View</Button>
+                </div>
+            </div>
+        </form>
+    }
+}
+
 
 @ForeignPermissionsHOC()
 @connect(state => ({
@@ -185,6 +209,11 @@ function formatChange(value, catalexId, permission){
     hideLoading: (...args) => endLoading(...args)
 })
 export default class AccessList extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.addThirdParty = ::this.addThirdParty;
+    }
 
     onChange(event, member, permission) {
         const value = event.target.checked;
@@ -206,20 +235,18 @@ export default class AccessList extends React.Component {
         })
     }
 
-    renderBody() {
-        const foreignPermissions = (this.props.foreignPermissions && this.props.foreignPermissions.data) || [];
+    renderOrgAccess(foreignPermissions) {
         const members = (this.props.userInfo.organisation && this.props.userInfo.organisation)  || [];
         members.sort(firstBy(a => a.name.toLowerCase()));
-        return <div className="widget-body">
-            <div className="button-row">
-                <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Manage Organisation</a>
-            </div>
+        return <div>
+            <h4 className="text-center">Organisation</h4>
             <table className="table table-striped permissions">
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>View Access</th>
-                        <th>Make Changes</th>
+                        <th>Email</th>
+                        <th>{ STRINGS.permissions.read } </th>
+                        <th>{ STRINGS.permissions.update }</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -227,14 +254,93 @@ export default class AccessList extends React.Component {
                         const disabled = member.catalexId === this.props.userInfo.catalexId || member.userId === (this.props.owner || {}).id;
                         return <tr key={i}>
                             <td> { member.name } </td>
+                            <td> { member.email } </td>
                             <td> <Input type="checkbox" checked={getPermissionValue('read', member, foreignPermissions )} disabled={disabled} onChange={(e) => this.onChange(e, member, 'read') }/></td>
                             <td> <Input type="checkbox" checked={getPermissionValue('update', member, foreignPermissions )} disabled={disabled} onChange={(e) => this.onChange(e, member, 'update')}/></td>
                         </tr>
                     })}
                 </tbody>
             </table>
+            <div className="button-row">
+                <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Manage Organisation</a>
+            </div>
+            <hr/>
         </div>
-     }
+    }
+
+    addThirdParty(data) {
+        this.props.showLoading({message: 'Updating'});
+        this.props.updatePermission(`/company/${this.props.companyId}/invite_user_with_permission`, {permissions: ['read'], name: data.name, email: data.email }, {
+            invalidates: []//[`/company/${this.props.companyId}/foreign_permissions`]
+        })
+        .then((r) => {
+            this.props.addNotification({message: r.response.message});
+            return this.props.fetch(true);
+        })
+        .then(() =>{
+            this.props.hideLoading();
+        })
+        .catch(error => {
+            this.props.addNotification({message: 'Unable to update permissions', error: true})
+            this.props.hideLoading();
+        })
+    }
+
+    removeThirdParty(catalexId) {
+        this.props.showLoading({message: 'Updating'});
+        this.props.updatePermission(`/company/${this.props.companyId}/remove_permissions`, {permissions: ['read'], allow: true, catalexId: catalexId }, {
+            invalidates: []//[`/company/${this.props.companyId}/foreign_permissions`]
+        })
+        .then((r) => {
+            this.props.addNotification({message: r.response.message});
+            return this.props.fetch(true);
+        })
+        .then(() =>{
+            this.props.hideLoading();
+        })
+        .catch(error => {
+            this.props.addNotification({message: 'Unable to update permissions', error: true})
+            this.props.hideLoading();
+        })
+    }
+
+    renderThirdPartyAccess() {
+        const thirdParties = (this.props.foreignPermissions.data || []) .filter(d => !d.organisation)
+        return <div>
+            <h4 className="text-center">External View Access</h4>
+            <table className="table table-striped permissions">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    { thirdParties.map((member, i) => {
+                        return <tr key={i}>
+                            <td> { member.name } </td>
+                            <td> { member.email } </td>
+                            <td> <Button bsStyle={'danger'} bsSize="small" onClick={() => this.removeThirdParty(member.catalexId)}>Remove</Button></td>
+                        </tr>
+                    })}
+                </tbody>
+            </table>
+
+
+            <InviteThirdPartyForm onSubmit={this.addThirdParty} />
+
+        </div>
+    }
+
+    renderBody() {
+        const foreignPermissions = (this.props.foreignPermissions && this.props.foreignPermissions.data) || [];
+
+        return <div className="widget-body">
+            { this.props.userInfo.organisation && this.renderOrgAccess(foreignPermissions) }
+            { this.renderThirdPartyAccess(foreignPermissions) }
+        </div>
+    }
 
     render() {
         return (
@@ -374,15 +480,14 @@ export class Organisation extends React.Component {
             <div className="button-row">
                 <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Invite Users to your Organisation</a>
             </div>
-            <div className="row">
-                <div className="col-md-6 col-md-offset-3">
-                <p>You can control access to companies by users within your organisation by selecting them in the control below</p>
-                { this.userSelect() }
+                <div className="row">
+                    <div className="col-md-6 col-md-offset-3">
+                    <p>As an organisation administrator, you can control how users within your organisation access Good Companies.  Click the box below to select a user and determine their permissions.</p>
+                    { this.userSelect() }
+                </div>
             </div>
-        </div>
 
         { this.props.fields.user.value && <PermissionTable catalexId={this.props.fields.user.value} userInfo={this.props.userInfo} /> }
-
         </div>
      }
 

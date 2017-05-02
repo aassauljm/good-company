@@ -4,7 +4,7 @@ import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';
 import { connect } from 'react-redux';
-import { reduxForm, change, destroy } from 'redux-form';
+import { reduxForm, change, destroy as destroyForm } from 'redux-form';
 import { personOptionsFromState, populatePerson } from '../../utils';
 import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
@@ -12,8 +12,18 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons, updateHoldingSubmit } from '../forms/holding';
 import { Documents } from '../forms/documents';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
+import LawBrowserLink from '../lawBrowserLink';
 
 
+export function holdingLawLinks(){
+    return <div>
+            <LawBrowserLink title="Companies Act 1993" definition="29994-DLM7144912" >Shareholder</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 92" >Trusts</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 93" >Personal representatives</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 94" >Assignee of bankrupt</LawBrowserLink>
+            <LawBrowserLink title="Companies Act 1993" location="s 87" >Maintaining a share register</LawBrowserLink>
+    </div>
+}
 
 @connect(undefined)
 export class UpdateHoldingTransactionView extends React.Component {
@@ -37,19 +47,23 @@ export class UpdateHoldingTransactionView extends React.Component {
     }
 
     handleClose(data={}) {
-        this.props.dispatch(destroy('holding'));
         this.props.end(data);
+        this.props.dispatch(destroyForm('holding'));
     }
 
     renderBody(){
         const personOptions = personOptionsFromState(this.props.transactionViewData.companyState);
 
-        return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
-                <HoldingNoParcelsConnected
+        return <HoldingNoParcelsConnected
                     ref="form"
                     initialValues={{effectiveDate: new Date(),
-                        persons: this.props.transactionViewData.holding.holders.map(p => ({...p.person, personId: p.person.personId + '', votingShareholder: (p.data || {}).votingShareholder})),
+                        persons: this.props.transactionViewData.holding.holders
+                            .map(p => ({...p.person,
+                                personId: p.person.personId + '',
+                                votingShareholder: (p.data || {}).votingShareholder,
+                                heldPersonally: (p.data || {}).heldPersonally === false ? false : true,
+                                onBehalfType: (p.data || {}).onBehalfType || 'As Personal Representative',
+                                onBehalfDescription:  (p.data || {}).onBehalfDescription })),
                         holdingName: this.props.transactionViewData.holding.name}}
                     personOptions={personOptions}
                     holding={this.props.transactionViewData.holding}
@@ -62,8 +76,6 @@ export class UpdateHoldingTransactionView extends React.Component {
                         }
                     }))}
                     onSubmit={this.submit}/>
-                </div>
-            </div>
     }
 
     submit(values) {
@@ -74,6 +86,8 @@ export class UpdateHoldingTransactionView extends React.Component {
         if(previous.length){
             values.previousVotingShareholder = populatePerson(previous[0].person, this.props.transactionViewData.companyState)
         }
+        values.beforeMetadata = {};
+        values.afterMetadata = {capacity: values.persons.map(p => ({heldPersonally: p.heldPersonally, onBehalfType: p.onBehalfType, onBehalfDescription: p.onBehalfDescription}))};
         values.persons = reformatPersons(values, this.props.transactionViewData.companyState);
         const transactions = updateHoldingSubmit(values, this.props.transactionViewData.holding)
         if(transactions.length){
@@ -100,7 +114,7 @@ export class UpdateHoldingTransactionView extends React.Component {
 
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={holdingLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Update Shareholding</TransactionView.Title>
               </TransactionView.Header>

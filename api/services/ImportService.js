@@ -68,6 +68,7 @@ export function importCompany(companyNumber, options) {
             return ActivityLog.create({
                 type: ActivityLog.types.IMPORT_COMPANY,
                 userId: options.userId,
+                companyId: company.id,
                 description: `Imported ${companyName} from Companies Office`,
                 data: {companyId: company.id
                 }
@@ -124,3 +125,21 @@ export function checkEntityType(data) {
     }
 }
 
+
+export function refetchDocuments(companyId) {
+    let data;
+    return Company.findById(companyId, {
+                include: [{
+                    model: SourceData,
+                    as: 'sourceData'
+                }]
+            })
+            .then(function(company) {
+                data = company.sourceData.data;
+                return ScrapingService.getDocumentSummaries(data);
+            })
+            .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
+            .then((processedDocs) => {
+                return SourceData.create({data: processedDocs});
+            })
+}

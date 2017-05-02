@@ -144,16 +144,28 @@ module.exports.routes = {
         model: 'document'
     },
 
-    'GET /api/document/get_document/:id': {
+    'GET /api/document/get_document/:document_id': {
         controller: 'DocumentController',
         action: 'getDocument',
-        model: 'document'
+        pk: 'document_id'
     },
 
-    'GET /api/document/get_document_preview/:id': {
+    'GET /api/document/get_document_preview/:document_id': {
         controller: 'DocumentController',
         action: 'getDocumentPreview',
-        model: 'document'
+        pk: 'document_id'
+    },
+
+    'GET /api/company/:id/document/get_document/:document_id': {
+        controller: 'DocumentController',
+        action: 'getDocument',
+        model: 'company'
+    },
+
+    'GET /api/company/:id/document/get_document_preview/:document_id': {
+        controller: 'DocumentController',
+        action: 'getDocumentPreview',
+         model: 'company'
     },
 
     'GET /api/document': {
@@ -162,15 +174,29 @@ module.exports.routes = {
         action: 'find'
     },
 
-    'GET /api/document/:id': {
+    'GET /api/document/:document_id': {
         controller: 'DocumentController',
         model: 'document',
+        action: 'findOne',
+        pk: 'document_id'
+    },
+
+    'PUT /api/document/:document_id': {
+        controller: 'DocumentController',
+        model: 'document',
+        action: 'update',
+        pk: 'document_id'
+    },
+
+    'GET /api/company/:id/document/:document_id': {
+        controller: 'DocumentController',
+        model: 'company',
         action: 'findOne'
     },
 
-    'PUT /api/document/:id': {
+    'PUT /api/company/:id/document/:document_id': {
         controller: 'DocumentController',
-        model: 'document',
+        model: 'company',
         action: 'update'
     },
 
@@ -360,6 +386,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'PUT /api/company/:id/invite_user_with_permission': {
+        controller: 'CompanyController',
+        action: 'inviteUserWithPermissions',
+        model: 'company'
+    },
+
     'PUT /api/company/:id/remove_permissions': {
         controller: 'CompanyController',
         action: 'removeForeignPermissions',
@@ -380,6 +412,17 @@ module.exports.routes = {
     'PUT /api/user/remove_permissions': {
         controller: 'UserController',
         action: 'removePermissions'
+    },
+
+    'GET /api/documents': {
+        controller: 'CompanyController',
+        action: 'getDocuments'
+    },
+
+    'POST /api/documents': {
+        controller: 'CompanyController',
+        action: 'createDocument',
+        method: 'update'
     },
 
     'GET /api/company/:id/documents': {
@@ -424,6 +467,12 @@ module.exports.routes = {
      'PUT /api/company/:id/reset_pending_history': {
         controller: 'CompanyController',
         action: 'resetPendingHistory',
+        model: 'company'
+    },
+
+     'PUT /api/company/:id/reparse_reset_pending_history': {
+        controller: 'CompanyController',
+        action: 'reparseResetPendingHistory',
         model: 'company'
     },
 
@@ -476,13 +525,18 @@ module.exports.routes = {
         action: 'companyDetails'
     },
 
+    'POST /api/company/:id/merge_companies_office': {
+        controller: 'CompanyController',
+        action: 'mergeCompaniesOffice',
+        model: 'company'
+    },
+
+
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
     'GET /api/event/:id': {controller: 'EventController', event: 'event', action: 'findOne'},
     'PUT /api/event/:id': {controller: 'EventController', event: 'event', action: 'update'},
     'DELETE /api/event/:id': {controller: 'EventController', event: 'event', action: 'destroy'},
-
-
 
     'GET /api/model': {controller: 'ModelController', model: 'model', action: 'find'},
     'POST /api/model': {controller: 'ModelController', model: 'model', action: 'create'},

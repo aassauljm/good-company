@@ -116,6 +116,9 @@ export const fields = [
     'persons[].personId',
     'persons[].newPerson',
     'persons[].votingShareholder',
+    'persons[].heldPersonally',
+    'persons[].onBehalfType',
+    'persons[].onBehalfDescription',
     'documents'
 ]
 
@@ -142,7 +145,7 @@ export class HoldingNoParcels extends React.Component {
             { !this.props.noEffectiveDate && <DateInput {...this.formFieldProps([ 'effectiveDate'])} time={true}/> }
             <Input type='text' {...this.formFieldProps([ 'holdingName'])} />
             { this.props.fields.persons.map((p, i) =>{
-
+                const heldPersonally = this.props.fields.persons[i].heldPersonally.value;
                 const onChange = p.personId.onChange;
                 const interceptChange =  (event) => {
                     const value = event.target ? event.target.value : event.value;
@@ -153,11 +156,11 @@ export class HoldingNoParcels extends React.Component {
                         onChange(event);
                     }
                 }
-                return <div className="row " key={i}>
+                return <div key={i}>
                 <div className="col-full-h">
                     <div className="col-xs-9 left">
-                        { this.props.fields.persons.length > 1 &&  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'votingShareholder'])} label={'Voting Shareholder'} >
-                        </Input> }
+
+                        { this.props.fields.persons.length > 1 &&  <Input type="checkbox" {...this.formFieldProps(['persons', i, 'votingShareholder'])} label={'Voting Shareholder'} ></Input> }
 
                         { !p.newPerson.value && <Input type="select" {...this.formFieldProps(['persons', i, 'personId'])}  onChange={interceptChange} label={'Current Shareholder'} >
                             <option></option>
@@ -165,11 +168,19 @@ export class HoldingNoParcels extends React.Component {
                             { !p.newPerson.value && !p.personId.value && <option value={CREATE_NEW_PERSON}>Create new Person</option>}
                         </Input> }
 
-                    { p.newPerson.value &&
-                        <Input type="static" label={'New Shareholder'} value={p.newPerson.value.name}
-                        buttonAfter={<button className="btn btn-default" onClick={(e) => {
-                            p.newPerson.onChange(null);
-                        }}><Glyphicon glyph='trash'/></button>} /> }
+                        { p.newPerson.value &&
+                            <Input type="static" label={'New Shareholder'} value={p.newPerson.value.name}
+                            buttonAfter={<button className="btn btn-default" onClick={(e) => {
+                                p.newPerson.onChange(null);
+                            }}><Glyphicon glyph='trash'/></button>} /> }
+
+                          <Input type="checkbox" {...this.formFieldProps(['persons', i, 'heldPersonally'])} label={'Held Personally'} ></Input>
+                          {!heldPersonally && <Input type="select" {...this.formFieldProps(['persons', i, 'onBehalfType'])} label={'Held as'} >
+                              <option value="" disabled>Please Select...</option>
+                              <option value="As Personal Representative">As Personal Representative</option>
+                              <option value="As Assignee of Bankrupt Estate">As Assignee of Bankrupt Estate</option>
+                          </Input> }
+                          {!heldPersonally && <Input type="text" {...this.formFieldProps(['persons', i, 'onBehalfDescription'])} label={'Of'} /> }
 
                     </div>
                     <div className="col-xs-3 right">
@@ -182,7 +193,7 @@ export class HoldingNoParcels extends React.Component {
                 </div>
             })}
             <div className="button-row"><ButtonInput onClick={() => {
-                this.props.fields.persons.addField();
+                this.props.fields.persons.addField({heldPersonally: true});
             }}>Add Person</ButtonInput></div>
 
 
@@ -213,6 +224,9 @@ const validate = (values, props) => {
         errors.votingShareholder = p.votingShareholder && values.persons.reduce((acc, p) => {
             return acc + (p.votingShareholder ? 1 : 0)
         }, 0) > 1 ? ['Only one Voting Shareholder allowed'] : null;
+
+        errors.onBehalfType = !p.heldPersonally && !p.onBehalfType && ['Required'];
+        errors.onBehalfDescription = !p.heldPersonally && !p.onBehalfDescription && ['Required'];
         return errors;
     });
     if(!values.persons.length){
@@ -259,6 +273,8 @@ export function updateHoldingFormatAction(values, oldHolding, beforeHolders){
         holdingId: oldHolding.holdingId,
         afterVotingShareholder: values.votingShareholder,
         beforeVotingShareholder: values.previousVotingShareholder,
+        beforeMetadata: values.beforeMetadata,
+        afterMetadata: values.afterMetadata
     }
     return action;
 }
@@ -287,6 +303,7 @@ export function holdingTransferFormatActionSet(values, oldHolding, beforeHolders
                     amount: p.amount,
                     beforeAmount: 0,
                     votingShareholder: values.votingShareholder,
+                    metadata: values.metadata,
                     afterAmount: p.amount,
                     shareClass: p.shareClass
                 }
@@ -303,19 +320,7 @@ export function updateHoldingSubmit(values, oldHolding){
     const beforeHolders = oldHolding.holders.map(p =>
             ({name: p.person.name, address: p.person.address, personId: p.person.personId, companyNumber: p.person.companyNumber}));
     if(holdersChanged(values, oldHolding)){
-        return [
-            ...holdingTransferFormatActionSet(values, oldHolding, beforeHolders).map(h => ({...h, transactionSetId: id})),
-        /*{
-            transactionType: TransactionTypes.COMPOUND_REMOVALS,
-            effectiveDate: values.effectiveDate,
-            transactionSetId: id,
-            actions: [{
-                transactionType: TransactionTypes.REMOVE_ALLOCATION,
-                effectiveDate: values.effectiveDate,
-                holders: beforeHolders,
-                holdingId: oldHolding.holdingId,
-            }]
-        }*/]
+        return holdingTransferFormatActionSet(values, oldHolding, beforeHolders).map(h => ({...h, transactionSetId: id}))
     }
     return [{
         transactionType: TransactionTypes.HOLDING_CHANGE,

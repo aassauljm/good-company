@@ -9,13 +9,13 @@ import Input from '../forms/input';
 import Address from '../forms/address';
 import PersonName from '../forms/personName';
 import { HoldingNoParcelsConnected, reformatPersons } from '../forms/holding';
-import { formFieldProps, requireFields, joinAnd, personOptionsFromState } from '../../utils';
+import { formFieldProps, requireFields, joinAnd, personOptionsFromState, populatePerson } from '../../utils';
 import { Link } from 'react-router';
 import { companyTransaction, addNotification, showTransactionView } from '../../actions';
 import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import StaticField from '../forms/staticField';
-
+import { holdingLawLinks } from './updateHolding';
 
 @connect(undefined)
 export class NewHoldingTransactionView extends React.Component {
@@ -37,7 +37,11 @@ export class NewHoldingTransactionView extends React.Component {
     submit(values) {
         if(this.props.transactionViewData.afterClose){
             const persons = reformatPersons(values, this.props.transactionViewData.companyState);
-            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, {...values, persons: persons}));
+            if(values.persons.length > 1){
+                values.votingShareholder = populatePerson(values.persons.filter(p => p.votingShareholder)[0], this.props.transactionViewData.companyState);
+            }
+            values.metadata = {capacity: values.persons.map(p => ({heldPersonally: p.heldPersonally, onBehalfType: p.onBehalfType, onBehalfDescription: p.onBehalfDescription}))};
+            this.props.dispatch(change(this.props.transactionViewData.formName, this.props.transactionViewData.field, {...values, persons: persons, metadata: values.metadata, votingShareholder: values.votingShareholder}));
             this.handleClose();
             return;
         }
@@ -51,7 +55,7 @@ export class NewHoldingTransactionView extends React.Component {
                 <HoldingNoParcelsConnected
                     ref="form"
                     form='newHolding'
-                    initialValues={{persons: [{}]}}
+                    initialValues={{persons: [{heldPersonally: true}]}}
                     personOptions={personOptions}
                     noEffectiveDate={this.props.transactionViewData.noEffectiveDate}
                     noDocuments={this.props.transactionViewData.noDocuments}
@@ -70,7 +74,7 @@ export class NewHoldingTransactionView extends React.Component {
     }
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" animation={!this.props.transactionViewData.afterClose} onHide={this.handleClose} backdrop={'static'} lawLinks={ holdingLawLinks() }>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>New Shareholding</TransactionView.Title>
               </TransactionView.Header>

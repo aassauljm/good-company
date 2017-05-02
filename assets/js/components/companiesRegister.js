@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource, updateResource } from '../actions';
+import { requestResource, updateResource, resetResources } from '../actions';
 import { stringDateToFormattedString, stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -42,7 +42,8 @@ const fields = [
     update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}
 }), {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
-    updateData: (key) => updateResource(`/company/${key}/update_source_data`)
+    updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
+    refresh: () => resetResources()
 })
 export class CompaniesRegisterWidget extends React.Component {
 
@@ -58,76 +59,57 @@ export class CompaniesRegisterWidget extends React.Component {
         this.fetch();
     };
 
+    updateData() {
+        this.props.updateData(this.key())
+            .then(result => {
+                if(result.response.sourceDataUpdated){
+                    this.props.refresh();
+                }
+            });
+    }
+
     key() {
         return this.props.companyId;
     }
 
 
     renderBody() {
-        if(this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status ){
+        const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
+        const doingUpdate = this.props.update._status   === 'fetching'
+        if(fetching){
             return <div className="loading" key="loading">
                     <Glyphicon glyph="refresh" className="spin"/>
                 </div>
         }
 
-        if(this.props.update._status  === 'fetching' ){
-            return <div>
-                <div className="text-center">
-                 Checking Companies Office for changes...
-            </div>
-                <div className="loading" key="loading">
-                    <Glyphicon glyph="refresh" className="spin"/>
-                </div>
-                </div>
-        }
-
-
         const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         const data = source.data;
-        const hasCompaniesIntegration = this.props.userInfo.mbieServices.indexOf('companies_office') >= 0;
 
-        return (
-            <div className="row" key="body">
-                <div className="col-xs-6">
-                        <div><strong>Name</strong> {renderValue(data.companyName) }</div>
-                        <div><strong>{STRINGS.companyNumber}</strong> { renderValue(data.companyNumber) }</div>
-                        <div><strong>{STRINGS.nzbn}</strong> { renderValue(data.nzbn) }</div>
-                        <div><strong>{STRINGS.incorporationDate}</strong> {renderValue(data.incorporationDate) } </div>
-                        </div>
-                <div className="col-xs-6">
-                        <div><strong>{ STRINGS.arFilingMonth}</strong> {renderValue(data.arFilingMonth) }</div>
-                        <div><strong>{ STRINGS.entityType}</strong> { renderValue(data.entityType) }</div>
-                        <div><strong>{ STRINGS.compayStatus}</strong> { renderValue(data.companyStatus) }</div>
-                        <div><strong>{ STRINGS.ultimateHoldingCompany}</strong> { renderValue(data.ultimateHoldingCompany)}</div>
-                        <div><strong>{STRINGS.constitutionFiled}</strong> { renderValue(data.constitutionFiled) } </div>
-                        { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
-                </div>
-                { data.createdAt && <div className="col-xs-12 text-center">
-                    { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
-                    <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
-                </div> }
-                <div className="col-xs-12">
-                    <hr />
-                    { !hasCompaniesIntegration &&
-                        <div className="text-center">
-                            <button className="btn btn-info">Connect with Companies Office</button>
-                        </div>
-                    }
-                    { hasCompaniesIntegration &&
-                        <div className="text-center">
-                            <div>
-                                <Glyphicon glyph="ok" />&nbsp;&nbsp;
-                                <strong>Connected with Companies Office</strong>
-                            </div>
-                            <button className='btn btn-warning'>Disconnect from Companies Office</button>
-                        </div>
-                    }
-                </div>
-                <div className="button-row">
-                    <Button bsStyle="info" onClick={() => this.props.updateData(this.props.companyId)}>Check Companies Office for Updates</Button>
-                </div>
+        return <div className="row" key="body">
+            
+            <div className="col-xs-6">
+                    <div><strong>Name</strong> {renderValue(data.companyName) }</div>
+                    <div><strong>{STRINGS.companyNumber}</strong> { renderValue(data.companyNumber) }</div>
+                    <div><strong>{STRINGS.nzbn}</strong> { renderValue(data.nzbn) }</div>
+                    <div><strong>{STRINGS.incorporationDate}</strong> {renderValue(data.incorporationDate) } </div>
+                    </div>
+            <div className="col-xs-6">
+                    <div><strong>{ STRINGS.arFilingMonth}</strong> {renderValue(data.arFilingMonth) }</div>
+                    <div><strong>{ STRINGS.entityType}</strong> { renderValue(data.entityType) }</div>
+                    <div><strong>{ STRINGS.compayStatus}</strong> { renderValue(data.companyStatus) }</div>
+                    <div><strong>{ STRINGS.ultimateHoldingCompany}</strong> { renderValue(data.ultimateHoldingCompany)}</div>
+                    <div><strong>{STRINGS.constitutionFiled}</strong> { renderValue(data.constitutionFiled) } </div>
+                    { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
-        )
+            { data.createdAt && <div className="col-xs-12 text-center">
+                { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
+                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
+            </div> }
+            <div className="button-row">
+                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check Companies Office for Updates</Button> }
+                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking Companies Office for Updates</Button> }
+            </div>
+        </div>
     }
 
     render() {
@@ -169,7 +151,8 @@ function renderValue(value){
     return {sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {}, update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}}
 }, {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
-    updateData: (key) => updateResource(`/company/${key}/update_source_data`)
+    updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
+    refresh: () => resetResources()
 })
 export default class CompaniesRegister extends React.Component {
     fetch() {
@@ -187,20 +170,22 @@ export default class CompaniesRegister extends React.Component {
         return this.props.companyId;
     }
 
+    updateData() {
+        this.props.updateData(this.key())
+            .then(result => {
+                if(result.response.sourceDataUpdated){
+                    this.props.refresh();
+                }
+            });
+    }
+
     renderBody() {
-        if(this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status ){
+        const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
+        const doingUpdate = this.props.update._status   === 'fetching'
+
+        if(fetching ){
             return <div className="loading" key="loading">
                     <Glyphicon glyph="refresh" className="spin"/>
-                </div>
-        }
-        if(this.props.update._status  === 'fetching' ){
-            return <div>
-                <div className="text-center">
-                 Checking Companies Office for changes...
-            </div>
-                <div className="loading" key="loading">
-                    <Glyphicon glyph="refresh" className="spin"/>
-                </div>
                 </div>
         }
 
@@ -216,7 +201,8 @@ export default class CompaniesRegister extends React.Component {
                  { source.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(source.createdAt) }</em></div> }
             </div>
             <div className="button-row">
-            <Button bsStyle="info" onClick={() => this.props.updateData(this.props.companyId)}>Check Companies Office for Updates</Button>
+                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check Companies Office for Updates</Button> }
+                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking Companies Office for Updates</Button> }
             </div>
         </div>
     }

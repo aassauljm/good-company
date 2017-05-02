@@ -281,7 +281,7 @@ export function renderHolders(h, i, voting){
     if(h.person && !h.name){
         h = h.person;
     }
-    if(voting && voting.personId === h.personId){
+    if(voting && voting.personId && voting.personId === h.personId){
         votingShareholder = true;
     }
     return <div key={i}>

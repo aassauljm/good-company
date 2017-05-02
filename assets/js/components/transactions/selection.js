@@ -149,6 +149,11 @@ export class ResetDeleteTransactionView extends React.Component {
                 <span className="transaction-button-text">{ STRINGS.resetCompanyHistory }</span>
 
             </div>
+            <div className="actionable select-button" onClick={() => this.props.show('reparseResetHistory')} >
+                <span className="glyphicon glyphicon-refresh"></span>
+                <span className="transaction-button-text">Reimport Source Data and Reset</span>
+            </div>
+
             <div className="actionable select-button" onClick={() => this.props.show('deleteCompany')} >
                 <span className="glyphicon glyphicon-trash"></span>
                 <span className="transaction-button-text">Delete Company</span>

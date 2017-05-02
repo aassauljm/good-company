@@ -4,8 +4,7 @@ var _ = require('lodash');
 
 var UserRoles = sequelize.define('userRoles', {});
 var UserPermissions = sequelize.define('userPermissions', {});
-
-
+var Promise = require('bluebird');
 
 module.exports = {
 
@@ -89,8 +88,8 @@ module.exports = {
                 return ActivityLog.query(id);
             },
             permissions: function(id){
-                return PermissionService.getPermissions(id, 'Company')
-                    .then(permissions => ({company: permissions}))
+                return Promise.all([PermissionService.getPermissions(id, 'Company'), PermissionService.getPermissions(id, 'Event')])
+                    .spread((company, event) => ({company, event}))
             },
         },
         instanceMethods: {

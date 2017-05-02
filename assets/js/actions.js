@@ -34,7 +34,8 @@ import {
     TOGGLE_WIDGET_SIZE,
     WORKING_DAY_REQUEST, WORKING_DAY_SUCCESS, WORKING_DAY_FAILURE,
     SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT, SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
-    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING
+    SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
+    SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -50,11 +51,13 @@ const serialize = function(obj) {
 
 const json_headers = {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-CSRF-Token': (typeof window !== 'undefined') && window._csrf
 };
 
 const accept_json_headers = {
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'X-CSRF-Token': (typeof window !== 'undefined') && window._csrf
 };
 
 function retryOnError(status){
@@ -85,7 +88,9 @@ export function hideNotification(notificationId){
 export function resetResources(){
     return {type: RESOURCE_RESET}
 }
-export function requestLogin(credentials) {
+
+
+/*export function requestLogin(credentials) {
     return {
         types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],
         callAPI: () => fetch('/auth/local', {
@@ -95,11 +100,12 @@ export function requestLogin(credentials) {
             body: JSON.stringify(credentials)
         })
     };
-}
+}*/
+
 export function logout() {
     return {type: LOGOUT}
 }
-
+/*
 export function setPassword(data) {
     return {
         types: [SET_PASSWORD_REQUEST, SET_PASSWORD_SUCCESS, SET_PASSWORD_FAILURE],
@@ -111,6 +117,8 @@ export function setPassword(data) {
         })
     };
 }
+*/
+
 
 export function requestUserInfo(options = {}) {
     return {
@@ -555,4 +563,12 @@ export function showVersionWarning() {
 
 export function hideVersionWarning() {
     return { type: HIDE_VERSION_WARNING };
+}
+
+export function showBillingIssue(data) {
+    return { type: SHOW_BILLING_ISSUE, data };
+}
+
+export function hideBillingIssue() {
+    return { type: HIDE_BILLING_ISSUE };
 }

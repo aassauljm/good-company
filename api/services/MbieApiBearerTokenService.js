@@ -4,7 +4,7 @@ const curl = Promise.promisifyAll(require('curlrequest'));
 module.exports = {
     getToken: function() {
         const query = `SELECT * from mbie_api_bearer_token WHERE service = 'nzbn' AND  now() < "createdAt" + ( "expiresIn" * interval '1 second')`;
-        
+
         return sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
             .spread(result => result ? result.token : null)
             .then(mbieBearerToken => {
@@ -26,7 +26,7 @@ module.exports = {
                     grant_type: 'client_credentials'
                 }
             })
-            .then(result => JSON.parse(result))
+            .then(JSON.parse)
             .then(json => {
                 const defaults = {
                     token: json.access_token,

@@ -683,6 +683,33 @@ module.exports = {
         })
     },
 
+    reparseResetPendingHistory: function(req, res){
+        let company;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.reparseResetPendingActions();
+            })
+        .then(function(){
+            return company.getCurrentCompanyState()
+        })
+        .then(state => {
+            const companyName = state.get('companyName');
+            return ActivityLog.create({
+                type: ActivityLog.types.RESET_PENDING_HISTORY,
+                userId: req.user.id,
+                description: `Refetched and Reset ${companyName} History`,
+                data: {companyId: company.id}
+            });
+        })
+        .then(function(result){
+            return res.json(result)
+        })
+        .catch(function(e){
+            return res.serverError(e)
+        })
+    },
+
     create: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.create({
@@ -802,7 +829,7 @@ module.exports = {
         Company.findById(req.params.id)
             .then(company => {
                 return Promise.map(data.permissions, permission => {
-                    return PermissionService.addPermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                    return PermissionService.addPermissionCatalexUser(data.catalexId, company, permission, data.allow, true)
                 });
             })
             .then(r => res.json({message: 'Permissions Updated'}))
@@ -810,12 +837,38 @@ module.exports = {
                 return res.badRequest(err);
             })
     },
+
     removeForeignPermissions: function(req, res) {
         var data = actionUtil.parseValues(req);
         Company.findById(req.params.id)
             .then(company => {
                 return Promise.map(data.permissions, permission => {
-                    return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow)
+                    return PermissionService.removePermissionCatalexUser(data.catalexId, company, permission, data.allow, true)
+                });
+            })
+            .then(r => res.json({message: 'Permissions Updated'}))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
+    },
+
+    inviteUserWithPermissions: function(req, res) {
+        var data = actionUtil.parseValues(req), company, state;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then(_state => {
+                state = _state;
+                const userData = {name: data.name, email: data.email, senderName: req.user.username, companyName: state.companyName}
+                return CatalexUsersService.findOrCreateUserAndNotify(userData)
+            })
+            .then((user) => {
+                console.log(data.permissions, 'huh')
+                return Promise.map(data.permissions, permission => {
+
+                    return PermissionService.addPermissionCatalexUser(user.catalexId, company, permission, data.allow, true)
                 });
             })
             .then(r => res.json({message: 'Permissions Updated'}))
@@ -832,4 +885,22 @@ module.exports = {
                 return res.badRequest(err);
             });
     },
+
+
+    mergeCompaniesOffice: function(req, res) {
+        let company;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then(state => {
+                return MbieSyncService.merge(req.user, company, state);
+            })
+            .then(result =>{
+                return res.ok(result);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    }
 };

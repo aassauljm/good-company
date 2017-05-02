@@ -19,7 +19,7 @@ import { ImportSingleWidget } from './importMenu'
 import { OrganisationWidget } from './accessList'
 
 @AsyncHOCFactory([COMPANIES])
-@connect(state => ({ userInfo: state.userInfo}))
+@connect(state => ({ userInfo: state.userInfo, login: state.login}))
 export class LandingPageView extends React.PureComponent {
 
     welcomeBack() {
@@ -44,8 +44,28 @@ export class LandingPageView extends React.PureComponent {
         </div>
     }
 
-    render() {
+   freeUser() {
+        return  <div className="welcome-back">
+            Welcome <strong>{ this.props.userInfo.username }</strong><br/>To import and manage your own companies, click <a className="vanity-link" href={`${this.props.login.userUrl}/my-services?Good%2BCompanies=1`} >here</a> to upgrade your account.
+        </div>
+    }
+
+    banner() {
+        const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         const noCompanies = this.props.companies._status === 'complete' && this.props.companies.data.filter(d => !d.deleted).length === 0;
+        if(noCompanies && canImport){
+            return this.gettingStarted();
+        }
+        else if(!canImport){
+            return this.freeUser();
+        }
+        else{
+            return this.welcomeBack();
+        }
+    }
+
+    render() {
+
         if(this.props.routes.some(r => r.childrenOnly)){
             return this.props.children
         }
@@ -54,8 +74,7 @@ export class LandingPageView extends React.PureComponent {
         return  <div>
             <div className="container-fluid page-top">
                 <div className="container">
-                { !noCompanies && this.welcomeBack() }
-                { noCompanies && this.gettingStarted() }
+                    { this.banner() }
                 </div>
             </div>
                 <div className="container-fluid page-body">
@@ -67,23 +86,31 @@ export class LandingPageView extends React.PureComponent {
 
 
 @AsyncHOCFactory([COMPANIES, FAVOURITES, ALERTS, EVENTS, RECENT_ACTIVITY])
-@connect(state => ({ userInfo: state.userInfo}))
+@connect(state => ({ userInfo: state.userInfo, login: state.login}))
 export default class Home extends React.PureComponent {
     render() {
+        const org = ((this.props.userInfo || {}).organisation);
         const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
+        const canCreateEvent = this.props.userInfo.permissions.event.indexOf('create') >= 0;
+        const subscribed = this.props.userInfo.roles.find(r => r.name === 'subscribed');
+        const orgAdmin = org && org.find(o => o.userId === this.props.userInfo.id).roles.indexOf('organisation_admin') >= 0;
+        const showImport = canImport || (!org && !subscribed) || (!subscribed && orgAdmin)
+        // show import with warning, if
+        // (non org member, and nonsubscribed) OR (org admin, and nonsubscribed)
+
         return <div className="container">
                 <div className="row">
                     <div className="col-md-6">
-                        <CalendarWidget />
+                        <CalendarWidget canCreateEvent={canCreateEvent}/>
                         <CompaniesWidget />
                         <TemplateWidget />
                     </div>
                     <div className="col-md-6">
-                        { canImport && <ImportSingleWidget /> }
+                        { showImport && <ImportSingleWidget canImport={canImport} upgradeUrl={`${this.props.login.userUrl}/my-services?Good%2BCompanies=1`}/> }
                         <AlertsWidget />
                         <FavouritesWidget />
                         <RecentActivityWidget />
-                        { (this.props.userInfo || {}).organisation && <OrganisationWidget /> }
+                        { org && <OrganisationWidget /> }
                     </div>
                 </div>
             </div>
