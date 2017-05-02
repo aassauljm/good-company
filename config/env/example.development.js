@@ -50,7 +50,7 @@ module.exports = {
     APP_URL: 'http://localhost:5667',
     EMAIL_URL: 'http://localhost:8000/mail/send',
     ADMIN_KEY: 'gc',
-
+    COMPANIES_OFFICE_URL: 'https://www.companiesoffice.govt.nz/',
     mbie: {
         oauthURI: 'https://www.eat.nzbn.govt.nz/oauth-service/oauth/',
         uri: 'https://sandbox.api.business.govt.nz/services/',

@@ -21,14 +21,19 @@ function ARLinks() {
 }
 
 const ARSummary = (props) => {
-    const leftColumn = 'col-md-4 left';
-    const rightColumn = 'col-md-8 right';
+    const leftColumn = 'col-xs-4 left';
+    const rightColumn = 'col-xs-8 right';
     const row = "row";
     const titleRow = "row title-row";
     const condensedRow = "row";
     return <div className="annual-return">
-            <h4 className="text-center">Annual Return</h4>
+            <h3 className="text-center">Annual Return</h3>
 
+        <div className={ titleRow }>
+            <div className={ leftColumn }>
+                 Details
+            </div>
+        </div>
 
         <div className={ row }>
             <div className={ leftColumn }>
