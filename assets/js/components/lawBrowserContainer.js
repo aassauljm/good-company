@@ -19,7 +19,7 @@ class Law extends React.Component {
         return <div className={"widget law-browser " + sizeClass}>
                         <div className="widget-header">
                             <div className="widget-title">
-                                Law Browser
+                                <i className="fa fa-legal"/> Law Browser
                             </div>
                             <div className="widget-control">
                                 <span className="actionable" onClick={() => this.setState({expanded: !this.state.expanded})}>

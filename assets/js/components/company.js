@@ -229,6 +229,7 @@ export class CompanyView extends React.Component {
     render(){
         const data = this.props.data || DEFAULT_OBJ;
         const suspended = data.suspended;
+        const deleted = data.deleted;
         const current = data.currentCompanyState || data.companyState;
 
         if(this.props._status === 'error'){
@@ -248,8 +249,12 @@ export class CompanyView extends React.Component {
                             This Company has been suspended, pending an update of billing information. <a className="vanity-link" onClick={this.billingIssue}>Click here to find out more</a> </div> </div> }
                     </div>}
 
+                      { deleted && <div className="container-fluid">
+                       { <div className="container"><div className="alert alert-danger suspend-info">
+                            This Company has been deleted </div> </div> }
+                    </div>}
 
-                    <div className={"container-fluid page-body " + (suspended ? 'suspended ' : '')}>
+                    <div className={"container-fluid page-body " + ((suspended || deleted) ? 'suspended ' : '')}>
                         { this.renderBody(current || FAKE_COMPANY, suspended) }
                     </div>
             </div>
