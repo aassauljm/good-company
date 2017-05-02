@@ -17,10 +17,10 @@ module.exports = {
 
     requestToken: function() {
         return curl.requestAsync({
-                url: `${sails.config.mbie.uri}token`,
+                url: `${sails.config.mbie.nzbn.url}token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.consumer_key, sails.config.mbie.consumer_secret)
+                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.consumer_key, sails.config.mbie.nzbn.consumer_secret)
                 },
                 data: {
                     grant_type: 'client_credentials'

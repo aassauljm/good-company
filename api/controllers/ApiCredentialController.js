@@ -37,7 +37,7 @@ function getAuthorisedCompanies(user) {
             })
             .then(_headers => {
                 headers = _headers;
-                const url = sails.config.mbie.uri + 'v3/nzbn/users';
+                const url = sails.config.mbie.nzbn.url + 'v3/nzbn/users';
 
                 sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);
 
@@ -54,7 +54,7 @@ function getAuthorisedCompanies(user) {
                 sails.log.verbose('MBIE user: ', JSON.stringify(users));
                 return users.users[0].userId;
             })
-            .then(userNzbnId => fetch(sails.config.mbie.uri + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: headers }))
+            .then(userNzbnId => fetch(sails.config.mbie.nzbn.url + 'v3/nzbn/authorities?user-id=' + userNzbnId, { headers: headers }))
             .then(response => response.text())
             .then(text => {
                 sails.log.verbose('Authority List: ', text);
