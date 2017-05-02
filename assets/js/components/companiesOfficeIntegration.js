@@ -14,77 +14,10 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ConnectedPlaceholderSearch } from './search';
 import { Link } from 'react-router';
 
-export const REALME_LOGO = 'https://www.companiesoffice.govt.nz/companies/rm_logo.png';
-
-
-
-export const realMeActions = (dispatch) => ({
-    disconnectNzbn: () => {
-        dispatch(deleteResource('/auth-with/nzbn', {
-                confirmation: {
-                    title: 'Confirm Disconnection of RealMe®',
-                    description: 'Please confirm the disconnecting of RealMe® from your Good Companies account.',
-                    resolveMessage: 'Confirm Disconnection',
-                    resolveBsStyle: 'warning'
-                }
-            }))
-            .then(result => dispatch(requestUserInfo({ refresh: true })))
-            .then(result => dispatch(addNotification({ message: 'Your RealMe® account has been disconnected from your Good Companies account' })))
-    }
-});
-
-@connect(state => ({userInfo: state.userInfo}), realMeActions)
-export class RealMeConnect extends React.PureComponent {
-
-    renderConnect() {
-        return  (
-            <div>
-                <p>Retrieve a list of companies you have authority over using your RealMe® account.</p>
-                <div className="button-row">
-                    <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a>
-                </div>
-            </div>
-        );
-    }
-
-    renderLink() {
-        return (
-            <div>
-                <p>Your RealMe® account is connected with this Good Companies account.</p>
-
-                <div className="button-row">
-                    <Link to={'/import/nzbn'} className="btn btn-primary">Click here to select your Companies</Link>
-                    <Button bsStyle="warning" type="submit" onClick={this.props.disconnectNzbn}>Disconnect from RealMe®</Button>
-                </div>
-            </div>
-        );
-    }
-
-    render() {
-        const hasNZBN = this.props.userInfo.mbieServices.indexOf('nzbn') >= 0;
-        return <div className="container">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                       Import with RealMe®
-                    </div>
-                </div>
-                <div className="widget-body">
-                     <div className="row">
-                     <div className="col-md-6 col-md-offset-3">
-                     { hasNZBN && this.renderLink() }
-                     { !hasNZBN && this.renderConnect() }
-                     </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-}
 
 @connect(state => ({userInfo: state.userInfo}), (dispatch) => ({
     disconnectCompaniesOffice: () => {
-        dispatch(deleteResource('/auth-with/companies-office', {
+        return dispatch(deleteResource('/auth-with/companies-office', {
                 confirmation: {
                     title: 'Confirm Disconnection of Companies Office account',
                     description: 'Please confirm the disconnecting of Companies Office account from your Good Companies account.',
@@ -103,25 +36,40 @@ export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
         return (
             <div className="widget">
                 <div className="widget-header">
-                    <div className="widget-title">Companies Office Integration</div>
+                    <div className="widget-title"><i className="fa fa-cogs" /> Companies Office Integration</div>
                 </div>
                 <div className="widget-body">
-                <div className="button-row">
+
                     { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice /> }
-                    { hasCompaniesOfficeIntegration && <DisconnectCompaniesOffice disconnect={this.props.disconnectCompaniesOffice}/>}
+                    { hasCompaniesOfficeIntegration && !this.props.showDisconnect && <div>
+                            <p>You have connected your RealMe account, allowing submission of company changes and annual returns.</p>
+                            <div className="button-row">
+                            <Link to='/companies_office_integration' className="btn btn-info">Manage My Integration</Link>
+                                </div>
+                        </div> }
+                    { hasCompaniesOfficeIntegration && this.props.showDisconnect && <DisconnectCompaniesOffice disconnect={this.props.disconnectCompaniesOffice} /> }
                     </div>
-                </div>
             </div>
         );
     }
 }
 
 const ConnectCompaniesOffice = () => {
-    return <a className="btn btn-info" href="/api/auth-with/companies-office">Connect with Companies Office</a>;
+    return  <div>
+            <p>Connect your RealMe with the Companies to enable the submission of company changes and annual returns.</p>
+            <div className="button-row">
+                <a className="btn btn-info" href="/api/auth-with/companies-office">Connect with Companies Office</a>
+                </div>
+        </div>
 }
 
 const DisconnectCompaniesOffice = ({ disconnect }) => {
-    return <Button bsStyle="warning" type="submit" onClick={disconnect}>Disconnect from Companies Office</Button>;
+    return  <div>
+       <p>You have connected your RealMe account, allowing submission of company changes and annual returns.  You can disconnect your account by clicking the link below.</p>
+        <div className="button-row">
+        <Button bsStyle="warning" type="submit" onClick={disconnect}>Disconnect from Companies Office</Button>
+        </div>
+        </div>
 }
 
 
@@ -131,7 +79,7 @@ export default class CompaniesOfficeIntegration extends React.Component {
     render() {
         return (
             <div className="container">
-                <CompaniesOfficeIntegrationWidget />
+                <CompaniesOfficeIntegrationWidget showDisconnect={true}/>
             </div>
         );
     }

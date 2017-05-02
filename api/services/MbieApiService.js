@@ -133,7 +133,7 @@ const authWithCompaniesOffice = (req, res) => {
                 serviceName: service,
                 userId: req.user.id
             })
-            .then(() => res.redirect('/'))
+            .then(() => res.redirect('/companies_office_integration'))
             .catch((error) => {
                 sails.log.error(error);
                 res.json({message: ['Something went wrong']});
@@ -170,13 +170,13 @@ export function authWith(req, res) {
     if (!authFunction) {
         throw new Error("MBIE auth service '${req.params.service}' not found");
     }
-    
+
     authFunction(req, res);
 }
 
 export function removeAuth(req, res) {
     const service = req.params.service;
-    
+
     ApiCredential.destroy({
         where: {
             service,

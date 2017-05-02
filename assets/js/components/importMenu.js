@@ -263,7 +263,7 @@ export class ImportSingleWidget extends React.PureComponent {
         return  <div className="widget">
                 <div className="widget-header">
                     <div className="widget-title">
-                       Import from the Companies Register
+                     <i className="fa fa-download" /> Import from the Companies Register
                     </div>
                 </div>
                 <div className="widget-body">
