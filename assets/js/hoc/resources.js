@@ -127,6 +127,8 @@ export const COMPANIES = {resource: 'companies', location: 'companies'};
 export const COMPANY = {resource: props => `/company/${props.companyId}/get_info`, location: props => `/company/${props.companyId}/get_info`, postProcess: analyseCompany};
 export const DOCUMENTS = {resource: props => `/company/${props.params.id}/documents`, location: props => `/company/${props.params.id}/documents`, propName: 'documents'};
 export const FOREIGN_PERMISSIONS = {resource: props => `/company/${props.companyId}/foreign_permissions`, location: props => `/company/${props.companyId}/foreign_permissions`, propName: 'foreignPermissions'};
+export const ANNUAL_RETURN = {resource: props => `/company/${props.companyId}/ar_summary`, location: props => `/company/${props.companyId}/ar_summary`, propName: 'arSummary'};
+export const ANNUAL_RETURN_FROM_ROUTE = {resource: props => `/company/${props.params.id}/ar_summary`, location: props => `/company/${props.params.id}/ar_summary`, propName: 'arSummary'};
 export const COMPANY_FROM_ROUTE = {resource: props => `/company/${props.params.id}/get_info`, location: props => `/company/${props.params.id}/get_info`, postProcess: analyseCompany};
 export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.params.id}/at_date/${props.params.date}`, location: props => `/company/${props.params.id}/at_date/${props.params.date}`, postProcess: analyseCompany};
 
@@ -139,6 +141,8 @@ export const ForeignPermissionsHOC = (async) => HOCFactory(FOREIGN_PERMISSIONS, 
 export const CompanyHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_ROUTE, async);
 export const CompanyDatedHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_DATED_ROUTE, async);
 export const DocumentsHOCFromRoute = (async) => HOCFactory(DOCUMENTS, async);
+export const AnnualReturnHOC = (async) => HOCFactory(ANNUAL_RETURN, async);
+export const AnnualReturnFromRouteHOC = (async) => HOCFactory(ANNUAL_RETURN_FROM_ROUTE, async);
 
 export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };
 

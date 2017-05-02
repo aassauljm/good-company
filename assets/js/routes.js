@@ -36,7 +36,7 @@ import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
 import Calendar, { CreateEvent, EditEvent } from './components/calendar';
 import Alerts from './components/alerts';
-import AnnualReturn from './components/annualReturn';
+import AnnualReturn, { ReviewAnnualReturn, AnnualReturnLoader } from './components/annualReturn';
 import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
 import AccessList from './components/accessList';
@@ -99,6 +99,7 @@ const CompanyChildren = [
     <Route path="guided_setup" component={ GuidedSetup } />,
     <Route path="notifications" component={ CompanyAlerts } />,
     <Route path="annual_returns" component={ AnnualReturn } />,
+    <Route path="review_annual_return" component={ ReviewAnnualReturn } />,
     <Route path="*" component={ NotFound } />
 ];
 
@@ -145,6 +146,7 @@ export default (store) => {
                 <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyHOCFromRoute(true)(Injector) } >
                     <Route path="share_register" component={ ShareRegisterDocumentLoader } />
                     <Route path="director_register" component={ DirectorRegisterDocumentLoader  } />
+                    <Route path="annual_return" component={ AnnualReturnLoader } />
                 </Route>
                 <Route path="favourites" component={ Favourites } />
                 <Route path="alerts" component={ Alerts } />

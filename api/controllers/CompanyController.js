@@ -886,7 +886,6 @@ module.exports = {
             });
     },
 
-
     mergeCompaniesOffice: function(req, res) {
         let company;
         Company.findById(req.params.id)
@@ -899,6 +898,23 @@ module.exports = {
             })
             .then(result =>{
                 return res.ok(result);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
+
+    requestARSummary: function(req, res) {
+        let company;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then(state => {
+                return MbieSyncService.arSummary(req.user, company, state);
+            })
+            .then(result =>{
+                return res.json(result);
             }).catch(function(err) {
                 return res.badRequest(err);
             });

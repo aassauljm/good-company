@@ -321,6 +321,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/render/:id/annual_return': {
+        controller: 'RenderController',
+        action: 'renderAnnualReturn',
+        model: 'company'
+    },
+
     'POST /api/render_template': {
         controller: 'RenderController',
         action: 'renderTemplate',
@@ -531,6 +537,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/:id/ar_summary': {
+        controller: 'CompanyController',
+        action: 'requestARSummary',
+        model: 'company'
+    },
 
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},

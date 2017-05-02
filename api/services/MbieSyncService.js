@@ -15,8 +15,88 @@ const AR = {
 }
 
 
+const SAMPLE_DATA = {
+    "holdingList": {
+        "holdings": [
+            {
+                "parcels": [
+                    {
+                        "amount": 7000
+                    }
+                ],
+                "holders": [
+                    {
+                        "person": {
+                            "name": "Jack",
+                            "address": "20b Harwood Road, Mount Wellington, Auckland, 1060, NZ"
+                        },
+                        "data": {
+                            "companiesOffice": {
+                                "shareholderId": "4406022"
+                            }
+                        }
+                    }
+                ],
+                "data": {
+                    "companiesOffice": {
+                        "allocationId": "1668085"
+                    }
+                }
+            },
+            {
+                "parcels": [
+                    {
+                        "amount": 3000
+                    }
+                ],
+                "holders": [
+                    {
+                        "person": {
+                            "name": "James",
+                            "address": "21 Harwood Road, Mount Wellington, Auckland, 1060, NZ"
+                        },
+                        "data": {
+                            "companiesOffice": {
+                                "shareholderId": "4406023"
+                            }
+                        }
+                    }
+                ],
+                "data": {
+                    "companiesOffice": {
+                        "allocationId": "1668086"
+                    }
+                }
+            }
+        ]
+    },
+    "directorList": {
+        "directors": [
+            {
+                "appointment": "2015-10-12T11:00:00.000Z",
+                "person": {
+                    "name": "Daniel",
+                    "address": "19 Victoria Avenue, Morrinsville, Morrinsville, 3300, NZ"
+                },
+                "data": {
+                    "companiesOffice": {
+                        "roleId": "4406021"
+                    }
+                }
+            }
+        ]
+    },
+    "companyName": "AR TEST 1476323989359 LIMITED",
+    "nzbn": "9429049726725",
+    "ultimateHoldingCompany": false,
+    "registeredCompanyAddress": "135 Albert Street, Auckland Central, Auckland, 1010, NZ",
+    "addressForService": "Flat 2, 190a Upland Road, Remuera, Auckland, 1050, NZ",
+    "addressForCommunication": "17 Carnock Road, Harwood, Dunedin, 9077, NZ"
+}
+
+
 function joinName(nameObj){
-    return [nameObj.firstName, nameObj.middleNames, name.lastName].filter(f => f).join(' ')
+    return [nameObj.firstName, nameObj.middleNames, nameObj.lastName].filter(f => f).join(' ')
 }
 
 function joinAddress(address){
@@ -75,8 +155,17 @@ module.exports = {
                     return {
                         parcels: [{amount: a.numSharesInAllocation}],
                         holders: shareholdings.shareholdersInAllocations.filter(s => s.allocationId === a.allocationId).map(a => {
-                            return {person: formatPerson(persons[a.shareholderId])}
-                        })
+                            return {person: formatPerson(persons[a.shareholderId]), data: {
+                                     companiesOffice: {
+                                        shareholderId: a.shareholderId
+                                    }
+                            }}
+                        }),
+                        data: {
+                             companiesOffice: {
+                                allocationId: a.allocationId
+                            }
+                        }
                     }
                 });
                 company.companyName = results.general.body.companyName;
@@ -102,15 +191,22 @@ module.exports = {
                         person: {
                             name: joinName(person.name),
                             address: getResidentialAddress(director.contacts.physicalOrPostalAddresses)
+                        },
+                        data: {
+                            companiesOffice: {
+                                roleId: director.roleId
+                            }
                         }
                     }
                 });
                 return company;
             })
-
     },
     merge: function(user, company, state) {
         return MbieSyncService.flatten(user, company, state);
+    },
+    arSummary: function(user, company, state){
+        return SAMPLE_DATA;
     }
 
 }
