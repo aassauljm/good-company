@@ -1,0 +1,1 @@
+ALTER TABLE company_state ADD COLUMN "coVersion" TEXT;

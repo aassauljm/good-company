@@ -74,13 +74,16 @@ module.exports = {
             type: Sequelize.BOOLEAN
         },
         "contactFields": {
-            "type": Sequelize.JSON
+            type: Sequelize.JSON
         },
         "reportingFields": {
-            "type": Sequelize.JSON
+            type: Sequelize.JSON
         },
         "warnings": {
-            "type": Sequelize.JSONB
+            type: Sequelize.JSONB
+        },
+        "coVersion": {
+            type: Sequelize.TEXT
         }
     },
     associations: function(n) {
@@ -617,7 +620,7 @@ module.exports = {
                 sails.log.info('Building next company state');
                 return this.populateIfNeeded()
                     .then(() => {
-                        return CompanyState.build(_.merge({}, this.toJSON(), attr, {id: null}),
+                        return CompanyState.build(_.merge({}, this.toJSON(), attr, {id: null, coVersion: null}),
                             {include:
                                 CompanyState.includes.fullNoJunctions()
                                     .concat(CompanyState.includes.docList())

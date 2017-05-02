@@ -82,22 +82,22 @@ function requestOauthToken({oauthRoute, callbackRoute, code, clientId, consumerK
         });
 }
 
-function authWithNzbn(req, res) {
-    const service = 'nzbn';
+const authWithService = (config) => (req, res) => {
+    const service = config.service
     const callbackRoute = `/api/auth-with/${service}`;
 
     if (req.query.code) {
         requestOauthToken({
-                oauthRoute: sails.config.mbie.nzbn.oauth.url + 'token',
+                oauthRoute: config.oauth.url + 'token',
                 callbackRoute,
                 code: req.query.code,
-                clientId: sails.config.mbie.nzbn.oauth.clientId,
-                consumerKey: sails.config.mbie.nzbn.oauth.consumerKey,
-                consumerSecret: sails.config.mbie.nzbn.oauth.consumerSecret,
+                clientId: config.oauth.clientId,
+                consumerKey: config.oauth.consumerKey,
+                consumerSecret: config.oauth.consumerSecret,
                 serviceName: service,
                 userId: req.user.id
             })
-            .then(() => res.redirect('/import/nzbn'))
+            .then(() => res.redirect(config.redirect))
             .catch((error) => {
                 sails.log.error(error);
                 res.json({message: ['Something went wrong']});
@@ -109,51 +109,36 @@ function authWithNzbn(req, res) {
     }
     else {
         const redirectUrl = generateUrlForOauthLogin(
-            sails.config.mbie.nzbn.oauth.url + 'authorize',
-            sails.config.mbie.nzbn.oauth.clientId,
+            config.oauth.url + 'authorize',
+            config.oauth.clientId,
             callbackRoute,
+            config.scope
         );
-
         return res.redirect(redirectUrl);
     }
 }
+
+const authWithNzbn = (req, res) => {
+    return authWithService({
+        ...sails.config.mbie.nzbn,
+        service: 'nzbn',
+        scope: {},
+        redirect: '/import/nzbn'
+    })(req, res);
+}
+
 
 const authWithCompaniesOffice = (req, res) => {
-    const service = 'companies-office';
-    const callbackRoute = `/api/auth-with/${service}`;
-
-    if (req.query.code) {
-        requestOauthToken({
-                oauthRoute: sails.config.mbie.companiesOffice.oauth.url + 'token',
-                callbackRoute,
-                code: req.query.code,
-                clientId: sails.config.mbie.companiesOffice.oauth.consumerKey,
-                consumerKey: sails.config.mbie.companiesOffice.oauth.consumerKey,
-                consumerSecret: sails.config.mbie.companiesOffice.oauth.consumerSecret,
-                serviceName: service,
-                userId: req.user.id
-            })
-            .then(() => res.redirect('/companies_office_integration'))
-            .catch((error) => {
-                sails.log.error(error);
-                res.json({message: ['Something went wrong']});
-            });
-    }
-    else if (req.query.error) {
-        sails.log.error(req.query.error)
-        res.redirect('/');
-    }
-    else {
-        const redirectUrl = generateUrlForOauthLogin(
-            sails.config.mbie.companiesOffice.oauth.url + 'authorize',
-            sails.config.mbie.companiesOffice.oauth.consumerKey,
-            callbackRoute,
-            { scope: 'openid' }
-        );
-
-        return res.redirect(redirectUrl);
-    }
+    return authWithService({
+        ...sails.config.mbie.companiesOffice,
+        service: 'companies-office',
+        scope: { scope: 'openid' },
+        redirect: '/'
+    })(req, res);
 }
+
+
+
 
 export function authWith(req, res) {
     let authFunction = null;

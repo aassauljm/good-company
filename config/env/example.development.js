@@ -69,6 +69,7 @@ module.exports = {
         companiesOffice: {
             oauth: {
                 url: 'https://api.eat.business.govt.nz/oauth2/',
+                clientId: 'xxxxx',
                 consumerKey: 'xxxxx',
                 consumerSecret: 'xxxxx'
             }
