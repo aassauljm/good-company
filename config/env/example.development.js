@@ -51,22 +51,27 @@ module.exports = {
     EMAIL_URL: 'http://localhost:8000/mail/send',
     ADMIN_KEY: 'gc',
     COMPANIES_OFFICE_URL: 'https://www.companiesoffice.govt.nz/',
-    mbie: {
-        oauthURI: 'https://www.eat.nzbn.govt.nz/oauth-service/oauth/',
-        uri: 'https://sandbox.api.business.govt.nz/services/',
-        consumer_key: 'xxxxxx',
-        consumer_secret: 'xxxxxx',
 
+    mbie: {
         nzbn: {
-            basicAuthUser: 'xxxxxx',
-            basicAuthPass: 'xxxxxx',
-            clientId: 'xxxxxx'
+            url: 'https://sandbox.api.business.govt.nz/services/',
+            consumerKey: 'xxxxx',
+            consumerSecret: 'xxxxx',
+
+            oauth: {
+                url: 'https://www.eat.nzbn.govt.nz/oauth-service/oauth/',
+                clientId: 'xxxxx',
+                consumerKey: 'xxxxx',
+                consumerSecret: 'xxxxx'
+            },
         },
 
         companiesOffice: {
-            oauthURI: 'https://api.eat.business.govt.nz/oauth2/',
-            consumerKey: 'xxxxx',
-            consumerSecret: 'xxxxx'
+            oauth: {
+                url: 'https://api.eat.business.govt.nz/oauth2/',
+                consumerKey: 'xxxxx',
+                consumerSecret: 'xxxxx'
+            }
         }
     }
 };

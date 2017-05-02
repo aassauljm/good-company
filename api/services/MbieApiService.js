@@ -88,12 +88,12 @@ function authWithNzbn(req, res) {
 
     if (req.query.code) {
         requestOauthToken({
-                oauthRoute: sails.config.mbie.oauthURI + 'token',
+                oauthRoute: sails.config.mbie.nzbn.oauth.url + 'token',
                 callbackRoute,
                 code: req.query.code,
-                clientId: sails.config.mbie.nzbn.clientId,
-                consumerKey: sails.config.mbie.nzbn.basicAuthUser,
-                consumerSecret: sails.config.mbie.nzbn.basicAuthPass,
+                clientId: sails.config.mbie.nzbn.oauth.clientId,
+                consumerKey: sails.config.mbie.nzbn.oauth.consumerKey,
+                consumerSecret: sails.config.mbie.nzbn.oauth.consumerSecret,
                 serviceName: service,
                 userId: req.user.id
             })
@@ -109,8 +109,8 @@ function authWithNzbn(req, res) {
     }
     else {
         const redirectUrl = generateUrlForOauthLogin(
-            sails.config.mbie.oauthURI + 'authorize',
-            sails.config.mbie.nzbn.clientId,
+            sails.config.mbie.nzbn.oauth.url + 'authorize',
+            sails.config.mbie.nzbn.oauth.clientId,
             callbackRoute,
         );
 
@@ -124,12 +124,12 @@ const authWithCompaniesOffice = (req, res) => {
 
     if (req.query.code) {
         requestOauthToken({
-                oauthRoute: sails.config.mbie.companiesOffice.oauthURI + 'token',
+                oauthRoute: sails.config.mbie.companiesOffice.oauth.url + 'token',
                 callbackRoute,
                 code: req.query.code,
-                clientId: sails.config.mbie.companiesOffice.consumerKey,
-                consumerKey: sails.config.mbie.companiesOffice.consumerKey,
-                consumerSecret: sails.config.mbie.companiesOffice.consumerSecret,
+                clientId: sails.config.mbie.companiesOffice.oauth.consumerKey,
+                consumerKey: sails.config.mbie.companiesOffice.oauth.consumerKey,
+                consumerSecret: sails.config.mbie.companiesOffice.oauth.consumerSecret,
                 serviceName: service,
                 userId: req.user.id
             })
@@ -145,8 +145,8 @@ const authWithCompaniesOffice = (req, res) => {
     }
     else {
         const redirectUrl = generateUrlForOauthLogin(
-            sails.config.mbie.companiesOffice.oauthURI + 'authorize',
-            sails.config.mbie.companiesOffice.consumerKey,
+            sails.config.mbie.companiesOffice.oauth.url + 'authorize',
+            sails.config.mbie.companiesOffice.oauth.consumerKey,
             callbackRoute,
             { scope: 'openid' }
         );
@@ -203,7 +203,7 @@ export function lookupByNzbn(nzbn) {
             return this.headers;
         })
         .then(headers => {
-            const url = `${sails.config.mbie.uri}v3/nzbn/entities/${nzbn}`;
+            const url = `${sails.config.mbie.nzbn.url}v3/nzbn/entities/${nzbn}`;
             UtilService.logRequest(url, this.headers);
             return fetch(url, { headers: this.headers });
         })
