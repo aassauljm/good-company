@@ -61,6 +61,12 @@ module.exports = {
             basicAuthUser: 'xxxxxx',
             basicAuthPass: 'xxxxxx',
             clientId: 'xxxxxx'
+        },
+
+        companiesOffice: {
+            oauthURI: 'https://api.eat.business.govt.nz/oauth2/',
+            consumerKey: 'xxxxx',
+            consumerSecret: 'xxxxx'
         }
     }
 };
