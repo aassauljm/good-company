@@ -74,10 +74,75 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id), this.company.authorities(), this.company.hasAuthority(req.user.id)])
+                return Promise.all([companyState.fullPopulateJSON(),
+                                   this.company.hasPendingJob(),
+                                   this.company.getTransactionsAfter(companyState.id),
+                                   this.company.permissions(req.user.id),
+                                   this.company.authorities(),
+                                   this.company.hasAuthority(req.user.id)])
             })
             .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority) {
-                return res.json({...this.company.toJSON(),  currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date(), permissions, authorities, authority}});
+                return res.json({...this.company.toJSON(),  currentCompanyState: {
+                    ...currentCompanyState,
+                    hasPendingJob,
+                    futureTransactions,
+                    dateOfState: new Date(),
+                    permissions,
+                    authorities,
+                    authority }});
+            }).catch(function(err) {
+                return res.notFound();
+            });
+    },
+
+    history: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                this.company = company;
+                return company.getPreviousCompanyState(req.params.generation)
+            })
+            .then(function(companyState) {
+                this.companyState = companyState;
+                return Promise.all([companyState.stats(),
+                                   this.company.hasPendingJob(),
+                                   this.company.permissions(req.user.id),
+                                   this.company.authorities(),
+                                   this.company.hasAuthority(req.user.id)
+                                   ])
+            })
+            .spread(function(stats, hasPendingJob,  permissions, authorities, authority) {
+                var json = this.companyState.get();
+                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions, authorities, authority})});
+            }).catch(function(err) {
+                return res.notFound();
+            });
+    },
+
+   atDate: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                this.company = company;
+                return  company.getDatedCompanyState(moment(req.params.date, 'D-M-YYYY').toDate())
+            })
+            .then(function(companyState) {
+                this.companyState = companyState;
+                return Promise.all([companyState.fullPopulateJSON(),
+                                   this.company.hasPendingJob(),
+                                   this.company.getTransactionsAfter(companyState.id),
+                                   this.company.permissions(req.user.id),
+                                   this.company.authorities(),
+                                   this.company.hasAuthority(req.user.id)])
+            })
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority) {
+                var json = this.companyState.get();
+                return res.json({...this.company.toJSON(),  currentCompanyState: {
+                    ...currentCompanyState,
+                    hasPendingJob,
+                    futureTransactions,
+                    dateOfState: new Date(),
+                    permissions,
+                    authorities,
+                    authority }});
             }).catch(function(err) {
                 return res.notFound();
             });
@@ -279,43 +344,6 @@ module.exports = {
             })
             .catch(function(err) {
                 return res.notFound(err);
-            });
-    },
-
-
-    history: function(req, res) {
-        Company.findById(req.params.id)
-            .then(function(company) {
-                this.company = company;
-                return company.getPreviousCompanyState(req.params.generation)
-            })
-            .then(function(companyState) {
-                this.companyState = companyState;
-                return Promise.all([companyState.stats(), this.company.hasPendingJob(), this.company.permissions(req.user.id)])
-            })
-            .spread(function(stats, hasPendingJob,  permissions) {
-                var json = this.companyState.get();
-                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions})});
-            }).catch(function(err) {
-                return res.notFound();
-            });
-    },
-
-   atDate: function(req, res) {
-        Company.findById(req.params.id)
-            .then(function(company) {
-                this.company = company;
-                return  company.getDatedCompanyState(moment(req.params.date, 'D-M-YYYY').toDate())
-            })
-            .then(function(companyState) {
-                this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id)])
-            })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions) {
-                var json = this.companyState.get();
-                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, permissions} });
-            }).catch(function(err) {
-                return res.notFound();
             });
     },
 
