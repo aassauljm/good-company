@@ -543,6 +543,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'PUT /api/company/:id/update_authority': {
+        controller: 'CompanyController',
+        action: 'updateUserAuthority',
+        model: 'company'
+    },
+
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
     'GET /api/event/:id': {controller: 'EventController', event: 'event', action: 'findOne'},

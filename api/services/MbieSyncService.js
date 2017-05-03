@@ -106,12 +106,10 @@ module.exports = {
             .then(result => {
                 return hasPriviledgedInfo(result.body)
             })
+            .catch(e => false)
             .tap(() => COAuthority.destroy({where: {userId: user.id, companyId: company.id}}))
             .tap(hasAuthority => {
-                if(hasAuthority){
-                    return COAuthority.create({where: {userId: user.id, companyId: company.id, allowed: true}}))
-                }
-                return COAuthority.create({where: {userId: user.id, companyId: company.id, allowed: false}}))
+                return COAuthority.create({userId: user.id, companyId: company.id, allowed: hasAuthority})
             })
     },
 

@@ -16,7 +16,7 @@ module.exports = {
     },
     associations: function() {
         COAuthority.belongsTo(User, {
-            as: 'user,
+            as: 'user',
             foreignKey: {
                 onDelete: 'cascade',
                 as: 'user',
