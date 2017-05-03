@@ -74,11 +74,10 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id)])
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id), this.company.authorities(), this.company.hasAuthority(req.user.id)])
             })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions) {
-                var json = this.companyState.get();
-                return res.json({...this.company.toJSON(),  currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date(), permissions}, });
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority) {
+                return res.json({...this.company.toJSON(),  currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date(), permissions, authorities, authority}});
             }).catch(function(err) {
                 return res.notFound();
             });

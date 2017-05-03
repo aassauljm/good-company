@@ -59,7 +59,7 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: req.user.id }});
 
-        const connectedApiServices = sequelize.query(`select service from api_credential where "ownerId" = :id and  now() < "createdAt" + ( "expiresIn" * interval '1 second') group by service`,
+        const connectedApiServices = sequelize.query(`select service from api_credential where "ownerId" = :id  group by service`,
                                                 { type: sequelize.QueryTypes.SELECT,
                                                   replacements: { id: req.user.id }});
 

@@ -991,3 +991,15 @@ CREATE OR REPLACE FUNCTION user_is_organisation_admin_of_catalex_user(userId int
 
      and oo."catalexId" = $2 and not( 'organisation_admin' = any(oo.roles)))
 $$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION company_co_authorities("companyId" integer)
+    RETURNS JSON
+        AS $$
+    SELECT array_to_json(array_agg(row_to_json(qq))) FROM (
+    SELECT u.id, u.username, u.email
+    FROM co_authority
+    JOIN public.user u on u.id = "userId"
+    WHERE "companyId" = $1 and allowed = true
+    ) qq
+$$ LANGUAGE SQL;

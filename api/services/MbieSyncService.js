@@ -73,6 +73,7 @@ function fetchUrl(bearerToken, url){
     return Promise.bind({})
         .then(() => fetch(url, fetchOptions))
         .then(response => {
+            console.log(response)
             if(response.status === 200){
                 return response;
             }
@@ -136,8 +137,9 @@ module.exports = {
     flatten: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(results => {
+                console.log(JSON.stringify(results, null ,4))
                 const company = {holdingList: {}, directorList:{}};
-                const etag = results.general.header.etag;
+                const etag = results.general.header.etag[0];
                 const shareholdings = results.shareholdings.body;
                 const persons = shareholdings.shareholders.reduce((acc, s) => {
                     acc[s.shareholderId] = s;

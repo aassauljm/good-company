@@ -417,6 +417,18 @@ module.exports = {
             },
             foreignPermissions: function(userId){
                 return Company.foreignPermissions(this.id)
+            },
+            authorities: function(){
+                return sequelize.query("select company_co_authorities(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.id}})
+                    .spread(result => result.company_co_authorities || [])
+            },
+            hasAuthority: function(userId){
+                return sequelize.query('select allowed FROM co_authority WHERE "companyId" = :companyId AND "userId" = :userId',
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { companyId: this.id, userId}})
+                    .spread(result => !result ? null : result.allowed)
             }
         },
 
