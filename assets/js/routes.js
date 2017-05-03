@@ -43,6 +43,7 @@ import AccessList from './components/accessList';
 import { CompanyHOCFromRoute, Injector } from './hoc/resources';
 import { Organisation } from './components/accessList';
 import CompaniesOfficeIntegration from './components/companiesOfficeIntegration';
+import ErrorPage from './components/error'
 
 const Status = (props) => {
     return <div className="container-fluid page-top">

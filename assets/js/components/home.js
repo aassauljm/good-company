@@ -18,6 +18,8 @@ import { HeaderSubControls } from './header';
 import { ImportSingleWidget } from './importMenu'
 import { OrganisationWidget } from './accessList'
 import { CompaniesOfficeIntegrationWidget } from './companiesOfficeIntegration'
+import ErrorPage from './error';
+
 
 @AsyncHOCFactory([COMPANIES])
 @connect(state => ({ userInfo: state.userInfo, login: state.login}))
@@ -66,7 +68,7 @@ export class LandingPageView extends React.PureComponent {
     }
 
     render() {
-
+        const errorType = this.props.location.query['error'];
         if(this.props.routes.some(r => r.childrenOnly)){
             return this.props.children
         }
@@ -79,6 +81,7 @@ export class LandingPageView extends React.PureComponent {
                 </div>
             </div>
                 <div className="container-fluid page-body">
+                      { errorType && <ErrorPage type={errorType} /> }
                         { this.props.children }
                 </div>
         </div>

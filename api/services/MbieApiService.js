@@ -77,12 +77,12 @@ const authWithService = (config) => (req, res) => {
             .then(() => res.redirect(config.redirect))
             .catch((error) => {
                 sails.log.error(error);
-                res.json({message: ['Something went wrong']});
+                res.redirect(`/?error=${config.errorType}`);
             });
     }
     else if (req.query.error) {
         sails.log.error(req.query.error)
-        res.redirect('/');
+        res.redirect(`/?error=${config.errorType}`);
     }
     else {
         const redirectUrl = generateUrlForOauthLogin(
@@ -100,7 +100,9 @@ const authWithNzbn = (req, res) => {
         ...sails.config.mbie.nzbn,
         service: 'nzbn',
         scope: {},
-        redirect: '/import/nzbn'
+        redirect: '/import/nzbn',
+        errorType: 'FAIL_NZBN',
+
     })(req, res);
 }
 
@@ -110,7 +112,8 @@ const authWithCompaniesOffice = (req, res) => {
         ...sails.config.mbie.companiesOffice,
         service: 'companies-office',
         scope: { scope: 'openid' },
-        redirect: '/'
+        redirect: '/',
+        errorType: 'FAIL_COMPANIES_OFFICE'
     })(req, res);
 }
 

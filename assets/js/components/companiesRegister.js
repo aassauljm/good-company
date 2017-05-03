@@ -39,10 +39,12 @@ const fields = [
 @connect((state, ownProps) => ({
     userInfo: state.userInfo,
     sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {},
-    update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}
+    update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {},
+    authority: state.resources[`/company/${ownProps.companyId}/update_authority`] || {}
 }), {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
     updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
+    updateAuthority: (key) => updateResource(`/company/${key}/update_authority`, {}, {invalidates: []}),
     refresh: () => resetResources()
 })
 export class CompaniesRegisterWidget extends React.Component {
@@ -68,14 +70,39 @@ export class CompaniesRegisterWidget extends React.Component {
             });
     }
 
+    updateAuthority(existing) {
+        this.props.updateAuthority(this.key())
+            .then(result => {
+                if(result.response.hasAuthority !== existing){
+                    this.props.refresh();
+                }
+            });
+    }
+
     key() {
         return this.props.companyId;
     }
 
+    authority(hasAuthority) {
+        const doingAuthorityUpdate = this.props.authority._status === 'fetching';
+        if(doingAuthorityUpdate){
+            return <Button bsStyle="info"> <Glyphicon glyph="refresh" className="spin"/> Updating Authority</Button>
+        }
+        const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
+        if(!hasCompaniesOfficeIntegration){
+            return <Link className="btn btn-info" to={'/companies_office_integration'}>Connect with Companies Office</Link>
+        }
+
+        if(hasAuthority === false){
+            return <Button bsStyle="info" onClick={() => this.updateAuthority(hasAuthority)}>Recheck Authority</Button>
+        }
+        return <Button bsStyle="info" onClick={() => this.updateAuthority(hasAuthority)}>Check Authority</Button>
+    }
 
     renderBody() {
         const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
-        const doingUpdate = this.props.update._status   === 'fetching'
+        const doingUpdate = this.props.update._status   === 'fetching';
+
         if(fetching){
             return <div className="loading" key="loading">
                     <Glyphicon glyph="refresh" className="spin"/>
@@ -84,9 +111,9 @@ export class CompaniesRegisterWidget extends React.Component {
 
         const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         const data = source.data;
-
+        const authority = this.props.companyState.authority;
         return <div className="row" key="body">
-            
+
             <div className="col-xs-6">
                     <div><strong>Name</strong> {renderValue(data.companyName) }</div>
                     <div><strong>{STRINGS.companyNumber}</strong> { renderValue(data.companyNumber) }</div>
@@ -105,9 +132,17 @@ export class CompaniesRegisterWidget extends React.Component {
                 { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
             </div> }
+            <div className="col-xs-12 text-center"><p></p>
+                <p>
+                     { authority && <strong className="text-success">You have authority to update on the Companies Register</strong>}
+                     { authority === false && <strong className="text-danger">You do not have authority to update on the Companies Register</strong>}
+                     { authority === null && <strong className="text-warning">Your Authority to update on the Companies Register is unknown</strong>}
+                </p>
+            </div>
             <div className="button-row">
-                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check Companies Office for Updates</Button> }
-                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking Companies Office for Updates</Button> }
+                { this.authority(authority) }
+                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check for Updates</Button> }
+                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking for Updates</Button> }
             </div>
         </div>
     }
@@ -147,11 +182,15 @@ function renderValue(value){
 }
 
 
-@connect((state, ownProps) => {
-    return {sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {}, update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {}}
-}, {
+@connect((state, ownProps) => ({
+    userInfo: state.userInfo,
+    sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {},
+    update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {},
+    authority: state.resources[`/company/${ownProps.companyId}/update_authority`] || {}
+}), {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
     updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
+    updateAuthority: (key) => updateResource(`/company/${key}/update_authority`, {}, {invalidates: []}),
     refresh: () => resetResources()
 })
 export default class CompaniesRegister extends React.Component {
@@ -178,6 +217,29 @@ export default class CompaniesRegister extends React.Component {
                 }
             });
     }
+    updateAuthority(existing) {
+        this.props.updateAuthority(this.key())
+            .then(result => {
+                if(result.response.hasAuthority !== existing){
+                    this.props.refresh();
+                }
+            });
+    }
+    authority(hasAuthority) {
+        const doingAuthorityUpdate = this.props.authority._status === 'fetching';
+        if(doingAuthorityUpdate){
+            return <Button bsStyle="info"> <Glyphicon glyph="refresh" className="spin"/> Updating Authority</Button>
+        }
+        const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
+        if(!hasCompaniesOfficeIntegration){
+            return <Link className="btn btn-info" to={'/companies_office_integration'}>Connect with Companies Office</Link>
+        }
+
+        if(hasAuthority === false){
+            return <Button bsStyle="info" onClick={() => this.updateAuthority(hasAuthority)}>Recheck Authority</Button>
+        }
+        return <Button bsStyle="info" onClick={() => this.updateAuthority(hasAuthority)}>Check Authority</Button>
+    }
 
     renderBody() {
         const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
@@ -188,7 +250,7 @@ export default class CompaniesRegister extends React.Component {
                     <Glyphicon glyph="refresh" className="spin"/>
                 </div>
         }
-
+        const authority = this.props.companyState.authority;
         const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         return <div key="body">
             <div className="text-center">
@@ -200,9 +262,19 @@ export default class CompaniesRegister extends React.Component {
             <div className="text-center">
                  { source.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(source.createdAt) }</em></div> }
             </div>
+
+            <div className="text-center"><p></p>
+                <p>
+                     { authority && <strong className="text-success">You have authority to update on the Companies Register</strong>}
+                     { authority === false && <strong className="text-danger">You do not have authority to update on the Companies Register</strong>}
+                     { authority === null && <strong className="text-warning">Your Authority to update on the Companies Register is unknown</strong>}
+                </p>
+            </div>
+
             <div className="button-row">
-                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check Companies Office for Updates</Button> }
-                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking Companies Office for Updates</Button> }
+                { this.authority(authority) }
+                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check for Updates</Button> }
+                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking for Updates</Button> }
             </div>
         </div>
     }

@@ -106,7 +106,6 @@ module.exports = {
                 return hasPriviledgedInfo(result.body)
             })
             .catch(e => {
-                console.log(e)
                 return false;
             })
             .tap(() => COAuthority.destroy({where: {userId: user.id, companyId: company.id}}))
@@ -147,7 +146,7 @@ module.exports = {
         return MbieSyncService.fetchState(user, company, state)
             .then(results => {
                 const company = {holdingList: {}, directorList:{}};
-                const etag = results.general.header.etag;
+                const etag = results.general.header.etag[0];
                 const shareholdings = results.shareholdings.body;
                 const persons = shareholdings.shareholders.reduce((acc, s) => {
                     acc[s.shareholderId] = s;
