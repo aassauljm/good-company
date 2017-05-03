@@ -16,11 +16,12 @@ module.exports = {
     },
 
     requestToken: function() {
+        // using curl for some reason, please record why here
         return curl.requestAsync({
-                url: `${sails.config.mbie.nzbn.url}token`,
+                url: `${sails.config.mbie.uri}token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.consumerKey, sails.config.mbie.nzbn.consumerSecret)
+                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.consumer_key, sails.config.mbie.consumer_secret)
                 },
                 data: {
                     grant_type: 'client_credentials'
@@ -42,6 +43,16 @@ module.exports = {
                         defaults
                     })
                     .spread(record => record.token);
+            });
+    },
+
+
+    getUserToken: function(userId, service) {
+        const query = `SELECT "accessToken", "refreshToken" from api_credential WHERE "ownerId" = :userId AND "service" = :service`;
+        return  sequelize.query(query, {type: sequelize.QueryTypes.SELECT,
+                                replacements: { userId, service }})
+            .spread(result => {
+                return result.accessToken;
             });
     }
 }

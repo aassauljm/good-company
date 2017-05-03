@@ -57,9 +57,6 @@ function requestOauthToken({oauthRoute, callbackRoute, code, clientId, consumerK
     return fetch(url, tokenRequestOptions)
         .then(response => response.json())
         .then(oauthResponse => {
-            console.log('dadada');
-            console.log(oauthResponse);
-
             if (oauthResponse.error) {
                 throw new Error(oauthResponse);
             }
@@ -67,7 +64,7 @@ function requestOauthToken({oauthRoute, callbackRoute, code, clientId, consumerK
             // Add token to database
             const data = {
                 accessToken: oauthResponse.access_token,
-                tokenType: oauthResponse.token_type,
+                tokenType: oauthResponse.token_type.toLowerCase(),
                 refreshToken: oauthResponse.refresh_token,
                 expiresIn: oauthResponse.expires_in,
                 service: serviceName,
@@ -192,6 +189,6 @@ export function lookupByNzbn(nzbn) {
             UtilService.logRequest(url, this.headers);
             return fetch(url, { headers: this.headers });
         })
-        .then(response => response.json())
+        .then(response => response.json()) //DANGER< swallows error
         .catch(sails.log.error);
 }

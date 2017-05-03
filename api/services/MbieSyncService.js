@@ -16,85 +16,6 @@ const AR = {
 }
 
 
-const SAMPLE_DATA = {
-    "holdingList": {
-        "holdings": [
-            {
-                "parcels": [
-                    {
-                        "amount": 7000
-                    }
-                ],
-                "holders": [
-                    {
-                        "person": {
-                            "name": "Jack",
-                            "address": "20b Harwood Road, Mount Wellington, Auckland, 1060, NZ"
-                        },
-                        "data": {
-                            "companiesOffice": {
-                                "shareholderId": "4406022"
-                            }
-                        }
-                    }
-                ],
-                "data": {
-                    "companiesOffice": {
-                        "allocationId": "1668085"
-                    }
-                }
-            },
-            {
-                "parcels": [
-                    {
-                        "amount": 3000
-                    }
-                ],
-                "holders": [
-                    {
-                        "person": {
-                            "name": "James",
-                            "address": "21 Harwood Road, Mount Wellington, Auckland, 1060, NZ"
-                        },
-                        "data": {
-                            "companiesOffice": {
-                                "shareholderId": "4406023"
-                            }
-                        }
-                    }
-                ],
-                "data": {
-                    "companiesOffice": {
-                        "allocationId": "1668086"
-                    }
-                }
-            }
-        ]
-    },
-    "directorList": {
-        "directors": [
-            {
-                "appointment": "2015-10-12T11:00:00.000Z",
-                "person": {
-                    "name": "Daniel",
-                    "address": "19 Victoria Avenue, Morrinsville, Morrinsville, 3300, NZ"
-                },
-                "data": {
-                    "companiesOffice": {
-                        "roleId": "4406021"
-                    }
-                }
-            }
-        ]
-    },
-    "companyName": "AR TEST 1476323989359 LIMITED",
-    "nzbn": "9429049726725",
-    "ultimateHoldingCompany": false,
-    "registeredCompanyAddress": "135 Albert Street, Auckland Central, Auckland, 1010, NZ",
-    "addressForService": "Flat 2, 190a Upland Road, Remuera, Auckland, 1050, NZ",
-    "addressForCommunication": "17 Carnock Road, Harwood, Dunedin, 9077, NZ"
-}
-
 
 function joinName(nameObj){
     return [nameObj.firstName, nameObj.middleNames, nameObj.lastName].filter(f => f).join(' ')
@@ -136,39 +57,57 @@ function formatPerson(person){
 
 }
 
+function fetchUrl(bearerToken, url){
+    let fetchOptions = {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${bearerToken}`
+        }
+    };
+    if (__DEV__) {
+        fetchOptions.agent = new https.Agent({
+            rejectUnauthorized: false
+        });
+    }
+    return Promise.bind({})
+        .then(() => fetch(url, fetchOptions))
+        .then(response => {
+            console.log(response)
+            if(response.status === 200){
+                return response;
+            }
+            else{
+                throw Error({status: response.status, response: response})
+            }
+        })
+        .then(response => {
+            return Promise.all([response.text(), response.headers.raw()])
+        })
+        .spread((body, header) => {
+            return {body: JSON.parse(body), header}
+        });
+}
+
+
 module.exports = {
     fetchState: function(user, company, state) {
         // get auth token,
         // fetch all api endpoints, join together
-
         const urls = [
-            sails.config.mbie.companiesOffice.url + '/companies/' + state.nzbn
+            `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}`,
+            `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/shareholding`,
+            `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/directors`,
         ];
-
-        let fetchOptions = {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer xxx'
-            }
-        };
-
-        if (__DEV__) {
-            fetchOptions.agent = new https.Agent({
-                rejectUnauthorized: false
-            });
-        }
-
-        return Promise.all(urls.map(url => fetch(url, fetchOptions)))
-            // .spread(response => response.json())
-            .map(r => r.json())
-            .spread((general) => {
-                console.log(general);
-                return {
-                    general
-                };
-            });
+        return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
+            .then(bearerToken => {
+                return Promise.all(urls.map(url => fetchUrl(bearerToken, url)))
+            })
+            .spread((general, shareholdings, directors) => {
+                return {general, shareholdings, directors}
+            })
     },
+
     flatten: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(results => {
@@ -234,8 +173,7 @@ module.exports = {
         return MbieSyncService.flatten(user, company, state);
     },
     arSummary: function(user, company, state){
-        return MbieSyncService.flatten(user, company, state);
-        // return SAMPLE_DATA;
+        return MbieSyncService.flatten(user, company, state);;
     }
 
 }

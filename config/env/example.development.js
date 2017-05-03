@@ -67,6 +67,7 @@ module.exports = {
         },
 
         companiesOffice: {
+            url: "https://api.eat.business.govt.nz/services/v0.5/companies-office/companies-register/",
             oauth: {
                 url: 'https://api.eat.business.govt.nz/oauth2/',
                 clientId: 'xxxxx',
