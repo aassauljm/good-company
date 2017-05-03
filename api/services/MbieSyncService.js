@@ -90,7 +90,32 @@ function fetchUrl(bearerToken, url){
 }
 
 
+function hasPrivilgedInfo(companyInfo) {
+    return !!result.body.physicalOrPostalAddresses.find(a => {
+        return a.addressPurpose === "Address for communication"
+    })
+}
+
+
 module.exports = {
+    updateAuthority: function(user, company, state) {
+        return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
+            .then(bearerToken => {
+                return fetchUrl(`${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}`, bearerToken)
+            })
+            .then(result => {
+                return hasPriviledgedInfo(result.body)
+            })
+            .tap(() => COAuthority.destroy({where: {userId: user.id, companyId: company.id}}))
+            .tap(hasAuthority => {
+                if(hasAuthority){
+                    return COAuthority.create({where: {userId: user.id, companyId: company.id, allowed: true}}))
+                }
+                return COAuthority.create({where: {userId: user.id, companyId: company.id, allowed: false}}))
+            })
+    },
+
+
     fetchState: function(user, company, state) {
         // get auth token,
         // fetch all api endpoints, join together
