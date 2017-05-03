@@ -543,6 +543,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/bla': {
+        controller: 'ApiCredentialController',
+        action: 'refreshUserToken'
+    },
+
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
     'GET /api/event/:id': {controller: 'EventController', event: 'event', action: 'findOne'},
