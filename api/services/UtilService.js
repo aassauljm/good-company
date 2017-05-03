@@ -62,6 +62,26 @@ export function makeBasicAuthHeader(username, password) {
     return header;
 }
 
+/**
+ * Take a base URI and an object of parameters.
+ * Return a URI with the base URI and all the parameters form the object.
+ */
+export function buildUrl(baseUri, parameters={}) {
+    // Build the parameters list
+    let queryString = Object.keys(parameters).reduce((acc, key) => {
+        const parameter = encodeURIComponent(parameters[key]);
+        const queryValue = key + '=' + parameter + '&';
+
+        return acc + queryValue;
+    }, '?');
+
+    // Remove the final '&' or '?' added by adding the parameters
+    queryString = queryString.slice(0, -1);
+
+    // Return the base uri plus the query string
+    return baseUri + queryString;
+}
+
 
 // na, this sucks due to large targetSums
 export function subsetSumMemoFail(items, targetSum) {

@@ -100,6 +100,11 @@ module.exports = {
                 sails.log.error(error);
                 res.serverError(error);
             });
+    },
+
+    refreshUserToken: function(req, res) {
+        MbieApiBearerTokenService.refreshUserToken("41b2217fe105a3255e2805e2e9814a78")
+            .then(result => res.end(result));
     }
 
 };

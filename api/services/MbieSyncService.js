@@ -131,7 +131,7 @@ module.exports = {
             })
             .spread((general, shareholdings, directors) => {
                 return {general, shareholdings, directors}
-            })
+            });
     },
 
     flatten: function(user, company, state) {

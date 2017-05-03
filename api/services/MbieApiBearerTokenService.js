@@ -1,4 +1,5 @@
 import Promise from 'bluebird';
+import https from 'https';
 const curl = Promise.promisifyAll(require('curlrequest'));
 
 module.exports = {
@@ -21,7 +22,7 @@ module.exports = {
                 url: `${sails.config.mbie.uri}token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.consumer_key, sails.config.mbie.consumer_secret)
+                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.consumer_key, sails.config.mbie.nzbn.consumer_secret)
                 },
                 data: {
                     grant_type: 'client_credentials'
@@ -48,11 +49,76 @@ module.exports = {
 
 
     getUserToken: function(userId, service) {
-        const query = `SELECT "accessToken", "refreshToken" from api_credential WHERE "ownerId" = :userId AND "service" = :service`;
-        return  sequelize.query(query, {type: sequelize.QueryTypes.SELECT,
-                                replacements: { userId, service }})
+        const query = `SELECT "accessToken", "refreshToken", now() < "createdAt" + ( "expiresIn" * interval '1 second') AS valid from api_credential WHERE "ownerId" = :userId AND "service" = :service`;
+        const queryOptions = {
+            type: sequelize.QueryTypes.SELECT,
+            replacements: { userId, service }
+        };
+
+        return sequelize.query(query, queryOptions)
             .spread(result => {
+                if (!result.valid) {
+                    return MbieApiBearerTokenService.refreshUserToken(result.refreshToken);
+                }
+
                 return result.accessToken;
+            })
+    },
+
+    refreshUserToken: function(refreshToken, userId) {
+        const serviceName = 'companies-office';
+
+        const url = UtilService.buildUrl(`${sails.config.mbie.companiesOffice.oauth.url}token`, {
+            refresh_token: refreshToken,
+            grant_type: 'refresh_token',
+            scope: 'openid'
+        });
+
+        let fetchOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': UtilService.makeBasicAuthHeader(sails.config.mbie.companiesOffice.oauth.consumer_key, sails.config.mbie.companiesOffice.oauth.consumer_secret)
+            }
+        };
+        
+        if (__DEV__) {
+            fetchOptions.agent = new https.Agent({
+                rejectUnauthorized: false
+            });
+        }
+
+        return fetch(url, fetchOptions)
+            .then(response => response.json())
+            .then(oauthResponse => {
+                return ApiCredential.destroy({
+                        where: {
+                            service,
+                            ownerId: iserId
+                        }
+                    })
+                    .then(() => {
+                        const data = {
+                            accessToken: oauthResponse.access_token,
+                            tokenType: oauthResponse.token_type.toLowerCase(),
+                            refreshToken: oauthResponse.refresh_token,
+                            expiresIn: oauthResponse.expires_in,
+                            service: serviceName,
+                            ownerId: userId
+                        };
+
+                        return ApiCredential.create(data)
+                    })
+                    .then(apiCredential => {
+                        const scopes = oauthResponse.scope.split(' ');
+                        apiCredential.addScopes(scopes);
+
+                        return result.access_token;
+                    });
+            })
+            .catch(error => {
+                console.log('error');
+                console.log(error);
             });
     }
 }
