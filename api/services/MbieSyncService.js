@@ -73,7 +73,6 @@ function fetchUrl(bearerToken, url){
     return Promise.bind({})
         .then(() => fetch(url, fetchOptions))
         .then(response => {
-            console.log(response)
             if(response.status === 200){
                 return response;
             }
@@ -90,8 +89,8 @@ function fetchUrl(bearerToken, url){
 }
 
 
-function hasPrivilgedInfo(companyInfo) {
-    return !!result.body.physicalOrPostalAddresses.find(a => {
+function hasPriviledgedInfo(companyInfo) {
+    return !!companyInfo.contacts.physicalOrPostalAddresses.find(a => {
         return a.addressPurpose === "Address for communication"
     })
 }
@@ -101,12 +100,15 @@ module.exports = {
     updateAuthority: function(user, company, state) {
         return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
             .then(bearerToken => {
-                return fetchUrl(`${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}`, bearerToken)
+                return fetchUrl(bearerToken, `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}`)
             })
             .then(result => {
                 return hasPriviledgedInfo(result.body)
             })
-            .catch(e => false)
+            .catch(e => {
+                console.log(e)
+                return false;
+            })
             .tap(() => COAuthority.destroy({where: {userId: user.id, companyId: company.id}}))
             .tap(hasAuthority => {
                 return COAuthority.create({userId: user.id, companyId: company.id, allowed: hasAuthority})
