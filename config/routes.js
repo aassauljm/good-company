@@ -547,7 +547,7 @@ module.exports.routes = {
     'GET /api/bla': {
         controller: 'ApiCredentialController',
         action: 'refreshUserToken'
-    }
+    },
 
     'PUT /api/company/:id/update_authority': {
         controller: 'CompanyController',
