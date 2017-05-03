@@ -461,15 +461,10 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
                 })
                 .then(() => {
                     Simulate.submit(this.dom.querySelector('.resolve form'));
-                     //Simulate.click(this.dom.querySelector('.amend-submit'), {button: 0});
-                    // return waitFor('For import chunk page to display again', () => this.dom.querySelectorAll('.loaded .submit-import').length, null, 20000);
                 });
         });
 
         it('Imports final chunks', function(){
-           /* let modal;
-            const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
-            Simulate.click(button, {button: 0}); */
             return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
 
@@ -510,5 +505,7 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
 
 
     });
+
+
 
 });

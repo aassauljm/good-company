@@ -251,5 +251,10 @@ export default {
         comment: 'Comment',
         name: 'Name',
         email: 'Email'
+    },
+    "errors": {
+        "_": "The action could not be completed at this time",
+        "FAIL_NZBN": "Could not connect to the NZBN API",
+        "FAIL_COMPANIES_OFFICE": "Could not connect to the Companies Office API",
     }
 }

@@ -82,7 +82,7 @@ function login(state = {
     }
 }
 
-function userInfo(state = {permissions:{ company: [], event: []}}, action){
+function userInfo(state = {permissions:{ company: [], event: []}, roles: [], mbieServices: []}, action){
     switch(action.type){
         case USER_INFO_REQUEST:
             return {...state, _status: 'fetching'};
