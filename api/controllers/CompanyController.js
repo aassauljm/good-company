@@ -447,8 +447,6 @@ module.exports = {
                     query: list,
                     queryType: args.listType
                 })
-                //.attempts(5)
-                //.backoff( {type:'exponential'} )
                 .removeOnComplete( true )
                 .on('complete', () => {resolveJob(1);})
                 .on('failed', () => {resolveJob(0)})
@@ -915,6 +913,22 @@ module.exports = {
             })
             .then(result =>{
                 return res.json(result);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
+    updateUserAuthority: function(req, res) {
+        let company;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then(state => {
+                return MbieSyncService.updateAuthority(req.user, company, state);
+            })
+            .then(result =>{
+                return res.json({hasAuthority: result});
             }).catch(function(err) {
                 return res.badRequest(err);
             });

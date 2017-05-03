@@ -15,12 +15,12 @@ module.exports = {
         }
     },
     associations: function() {
-        COAuthority.belongsTo(ApiCredential, {
-            as: 'APICredential',
+        COAuthority.belongsTo(User, {
+            as: 'user',
             foreignKey: {
                 onDelete: 'cascade',
-                as: 'APICredential',
-                name: 'APICredentialId'
+                as: 'user',
+                name: 'userId'
             }
         });
         COAuthority.belongsTo(Company, {
@@ -40,7 +40,7 @@ module.exports = {
         indexes: [{
             unique: true,
             name: 'co_authority_idx',
-            fields: ['APICredentialId', 'companyId']
+            fields: ['userId', 'companyId']
         }]
     }
 }
