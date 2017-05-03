@@ -212,7 +212,7 @@ export class CompanyView extends React.Component {
 
                     { this.canUpdate(current) && <AccessListWidget
                         toggle={(expanded) => this.props.toggleWidget([this.key(), 'accessList'], expanded) }
-                        expanded={(this.props.widgets.directors || {}).expanded}
+                        expanded={(this.props.widgets.accessList || {}).expanded}
                         companyState={current}
                         companyId={this.props.params.id}
                         baseUrl={this.props.baseUrl}

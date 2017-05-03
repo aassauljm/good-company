@@ -81,6 +81,9 @@ export class OrganisationWidget extends React.Component {
 
 
 @ForeignPermissionsHOC()
+@connect(state => ({
+    userInfo: state.userInfo
+}))
 export class AccessListWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
@@ -99,6 +102,9 @@ export class AccessListWidget extends React.Component {
                 return <div key={i}>{ perm.name } <RenderPermissionType perm={perm} /></div>
             })
         }
+        else{
+            return <div>None</div>
+        }
     }
 
     renderBody() {
@@ -106,7 +112,7 @@ export class AccessListWidget extends React.Component {
         if(this.props.expanded){
             bodyClass += "expanded ";
         }
-
+        const hasOrg = !!this.props.userInfo.organisation
         const data = this.props.companyState;
         return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body" >
@@ -114,7 +120,7 @@ export class AccessListWidget extends React.Component {
             <dt>{ STRINGS.accessControl.owner }</dt>
             <dd>{ this.props.owner && this.props.owner.username }</dd>
 
-            <dt>{ STRINGS.accessControl.organisation }</dt>
+            <dt>{ STRINGS.accessControl.accessList }</dt>
             <dd>{ this.renderAccessList() }</dd>
 
             </dl>
