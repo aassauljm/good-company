@@ -11,7 +11,8 @@ import { fieldStyle, fieldHelp, requiredFields, formFieldProps } from '../utils'
 import { push } from 'react-router-redux'
 import LookupCompany from './lookupCompany';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
-
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
 
 
 
@@ -64,19 +65,12 @@ export class ImportCompany extends React.Component {
 
     render() {
         const valid = false;
-        return <div className="container">
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                            Import from the New Zealand Companies Office
-                        </div>
-                    </div>
-                    <div className="widget-body">
-                        { this.props.importCompany._status === 'fetching' ? this.renderLoading() : this.renderSummary() }
-                    </div>
-                </div>
-            </div>
-    }
+        return <LawBrowserContainer>
+            <Widget title="Import from the New Zealand Companies Office">
+                    { this.props.importCompany._status === 'fetching' ? this.renderLoading() : this.renderSummary() }
+            </Widget>
+            </LawBrowserContainer>
+        }
 }
 
 const ImportCompanyConnected = connect(state => ({importCompany: state.importCompany}))(ImportCompany);

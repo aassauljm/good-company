@@ -941,7 +941,7 @@ module.exports = {
             .then(result =>{
                 return res.json(result);
             }).catch(function(err) {
-                return res.badRequest(err);
+                return res.badRequest({message:  'Could not get Annual Return'});
             });
     },
     updateUserAuthority: function(req, res) {

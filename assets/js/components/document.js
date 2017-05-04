@@ -9,6 +9,8 @@ import { fieldStyle } from '../utils';
 import AutoAffix from 'react-overlays/lib/AutoAffix'
 import Button from 'react-bootstrap/lib/Button'
 import Input from './forms/input';
+import Widget from './widget';
+
 
 @formFieldProps()
 class RenameForm extends React.Component {
@@ -102,17 +104,11 @@ export default class Document extends React.Component {
 
 
     renderDetails(data) {
-        return <div className={"widget"}>
-                <div className="widget-header">
-                    <div className="widget-title">
-                        File Details
-                    </div>
-                </div>
-                <div className="widget-body">
+        return <Widget title="File Details">
                     { this.props.menu.showRename && this.rename(data) }
                     { !this.props.menu.showRename && this.info(data) }
-                </div>
-        </div>
+        </Widget>
+
     }
     render(){
         return <div className="container">

@@ -8,6 +8,9 @@ import { stringDateToFormattedStringTime } from '../utils';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
 import { FavouritesHOC, CompaniesHOC } from '../hoc/resources';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
 
 @connect(undefined, {
     navigate: (url) => push(url)
@@ -53,20 +56,9 @@ export class FavouritesWidget extends React.PureComponent {
     }
 
     render() {
-        return <div className="widget favourites">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-star-o"/> Favourites
-                </div>
-                <div className="widget-control">
-                <Link to="/favourites" >View All</Link>
-                </div>
-            </div>
-
-            <div className="widget-body">
+        return <Widget className="favourites" title="Favourites" iconClass="fa fa-star-o" link="/favourites">
                 { this.renderTable() }
-            </div>
-        </div>
+                </Widget>
     }
 }
 
@@ -100,21 +92,12 @@ export default class Favourites extends React.PureComponent {
     }
 
     render() {
-
-        return <div className="container">
-        <div className="widget favourites">
-            <div className="widget-header">
-                <div className="widget-title">
-                    Favourites
+        return <LawBrowserContainer>
+            <Widget className="favourites" title="Favourites" iconClass="fa fa-star-o">
+               <div className="table-responsive">
+                { this.renderTable() }
                 </div>
-            </div>
-
-            <div className="widget-body">
-                <div className="table-responsive">
-                 { this.renderTable() }
-                </div>
-            </div>
-        </div>
-        </div>
+                </Widget>
+            </LawBrowserContainer>
     }
 }

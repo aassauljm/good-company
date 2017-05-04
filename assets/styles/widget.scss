@@ -10,6 +10,13 @@ $widget-verticle-padding:8px;
         border-bottom: 1px solid $widget-border;
         float:left;
         width:100%;
+        & > a {
+            display:inline-block;
+            width: 100%;
+            .widget-title{
+                margin-bottom:0;
+            }
+        }
         .widget-title{
             color:$deep-red;
             font-size:1.1em;

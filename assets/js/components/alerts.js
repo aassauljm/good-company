@@ -10,6 +10,9 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import moment from 'moment';
 import { sortAlerts } from '../utils';
 import { AlertsHOC } from '../hoc/resources'
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
 
 export const requestAlerts = () => requestResource('/alerts', {postProcess: sortAlerts})
 
@@ -154,26 +157,16 @@ export class AlertsWidget extends React.PureComponent {
 
     render() {
         const activities = this.props.data || [];
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-exclamation-circle"/> Notifications
-                </div>
-                { !this.props.full && <div className="widget-control">
-                    <Link to="/alerts" >View All</Link>
-                </div> }
-            </div>
-
-            <div className="widget-body">
+        return <Widget iconClass="fa fa-exclamation-circle" title="Notifications" link={this.props.link !== false && "/alerts"}>
                 { this.renderBody() }
-            </div>
-        </div>
+                </Widget>
     }
 }
 
 const Alerts = (props) => {
-    return <div className="container">
-                <AlertsWidget full={true}/>
-        </div>
+    return <LawBrowserContainer>
+                <AlertsWidget full={true} link={false}/>
+        </LawBrowserContainer>
 };
+
 export default Alerts;

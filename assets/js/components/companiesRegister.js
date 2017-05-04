@@ -12,6 +12,8 @@ import STRINGS from '../strings';
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink';
 import Button from 'react-bootstrap/lib/Button';
+import Widget from './widget';
+
 
 const companiesRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location=" s 360(1)+(4)">Registrar to keep companies register</LawBrowserLink>
@@ -149,22 +151,9 @@ export class CompaniesRegisterWidget extends React.Component {
 
     render() {
         const data = (this.props.data || {}).data || {};
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-bank" /> Companies Register
-                </div>
-                <div className="widget-control">
-                 { <Link to={`/company/view/${this.key()}/source_data`} >View All</Link>  }
-                </div>
-            </div>
-
-            <div className="widget-body">
-                <ReactCSSTransitionGroup component="div" transitionName="widget-transition" transitionEnterTimeout={transition} transitionLeaveTimeout={transition}>
+        return <Widget iconClass="fa fa-bank" title="Companies Register" link={`/company/view/${this.key()}/source_data`}>
                 { this.renderBody() }
-               </ReactCSSTransitionGroup>
-            </div>
-        </div>
+                </Widget>
     }
 }
 
@@ -281,17 +270,9 @@ export default class CompaniesRegister extends React.Component {
 
     render() {
         return <LawBrowserContainer lawLinks={companiesRegisterLawLinks()}>
-            <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    Companies Register
-                </div>
-            </div>
-
-            <div className="widget-body">
+            <Widget iconClass="fa fa-bank" title="Companies Register">
                 { this.renderBody() }
-            </div>
-        </div>
+                </Widget>
         </LawBrowserContainer>
     }
 }

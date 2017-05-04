@@ -18,6 +18,7 @@ import FormData from 'form-data';
 import Combobox from 'react-widgets/lib/Combobox';
 import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
+import Widget from './widget';
 
 
 export const shareClassLawLinks = () => <div>
@@ -346,13 +347,7 @@ export class ShareClassesTable extends React.Component {
     render() {
         const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
         return <LawBrowserContainer lawLinks={shareClassLawLinks()}>
-            <div className="widget share-classes">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Share Classes
-                    </div>
-                </div>
-                <div className="widget-body">
+            <Widget title="Share Classes">
                     { !this.props.children && this.renderList(classes) }
                      { this.props.children && React.cloneElement(this.props.children, {
                             companyId: this.key(),
@@ -360,8 +355,7 @@ export class ShareClassesTable extends React.Component {
                             shareClasses: classes,
                             end: () => this.props.navigate(`/company/view/${this.key()}/share_classes`)
                     }) }
-                </div>
-            </div>
+                     </Widget>
             </LawBrowserContainer>
         }
 }

@@ -13,6 +13,8 @@ import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { CompanyHOCFromRoute } from '../hoc/resources';
 import { CompanyAlertsBase } from './companyAlerts';
+import Widget from './widget';
+
 
 const shareRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location="s 87">Share register maintenance</LawBrowserLink>
@@ -475,19 +477,12 @@ export class ShareRegister extends React.Component {
         }
         if(this.props.menu.view === 'document'){
             return <LawBrowserContainer lawLinks={shareRegisterLawLinks()} >
-                      <div className="widget">
-                        <div className="widget-header">
-                            <div className="widget-title">
-                                Share Register
-                            </div>
-                        </div>
-                        <div className="widget-body">
+                <Widget title="Share Register">
                         { this.renderWarnings() }
-                            { this.renderControls() }
-                                <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
-                        </div>
-                    </div>
-                    </LawBrowserContainer>
+                        { this.renderControls() }
+                        <ShareRegisterDocument shareRegister={shareRegister} shareClassMap={shareClassMap} companyState={this.props.companyState}/>
+                </Widget>
+            </LawBrowserContainer>
         }
         else if(this.props.menu.view === 'table'){
             return <ShareRegisterTable shareRegister={shareRegister} shareClassMap={shareClassMap} />

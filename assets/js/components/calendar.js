@@ -22,7 +22,8 @@ import Tooltip from 'react-bootstrap/lib/Tooltip';
 import exportICS from './ics'
 import Loading from './loading';
 import { requestAlerts } from './alerts';
-
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
 
 const DEFAULT_OBJ = {};
 const DEFAULT_DEADLINE_HOUR = 11;
@@ -306,25 +307,14 @@ export default class CalendarFull extends React.PureComponent {
 
     render() {
         return <LawContainer>
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                    <span className="fa fa-calendar"/> { STRINGS.calendar.calendar }
-                   <div className="widget-control">
-                    </div>
-
-                    </div>
-                </div>
-
-                <div className="widget-body calendar-full">
+            <Widget iconClass="fa fa-calendar" title={ STRINGS.calendar.calendar }  bodyClass="calendar-full">
                     { this.props.children && React.cloneElement(this.props.children, {
                             close: this.close,
                             events: this.props.events,
                             companies: this.props.companies
                     })}
                     { !this.props.children && this.showFullView() }
-                </div>
-            </div>
+            </Widget>
         </LawContainer>
     }
 }
@@ -343,18 +333,7 @@ export class CalendarWidget extends React.PureComponent {
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                <span className="fa fa-calendar"/> { STRINGS.calendar.calendar }
-
-                </div>
-                 <div className="widget-control">
-                 <Link to={`/calendar`} >View All</Link>
-                </div>
-            </div>
-
-            <div className="widget-body">
+        return <Widget iconClass="fa fa-calendar" title={ STRINGS.calendar.calendar } link={`/calendar`} >
                 <Calendar
                     onChange={this.selectDay}
                     dayComponent={DayWithData({
@@ -366,8 +345,7 @@ export class CalendarWidget extends React.PureComponent {
                 { this.props.canCreateEvent && <div className="button-row">
                     <Link to ="/calendar/create" className="btn btn-info">Create Event</Link>
                 </div> }
-            </div>
-        </div>
+        </Widget>
     }
 }
 

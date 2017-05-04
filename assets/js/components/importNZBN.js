@@ -11,6 +11,9 @@ import { fieldStyle, fieldHelp, requiredFields, formFieldProps } from '../utils'
 import { push } from 'react-router-redux'
 import Loading from './loading';
 import { realMeActions } from './importMenu';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
 
 const DEFAULT_OBJ = {};
 
@@ -170,17 +173,10 @@ export default class ImportNZBN extends React.PureComponent {
     }
 
     render() {
-        return <div className="container">
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                             Import with RealMe®
-                        </div>
-                    </div>
-                    <div className="widget-body">
-                        { this.renderBody() }
-                    </div>
-                </div>
-            </div>
+        return <LawBrowserContainer>
+            <Widget title="Import with RealMe®">
+                    { this.renderBody() }
+            </Widget>
+            </LawBrowserContainer>
     }
 }

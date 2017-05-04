@@ -69,6 +69,7 @@ export default {
     accessControl: {
         "owner": "Owner",
         "organisation": "Organisation",
+        "accessList": "Account Access",
         "other": "Other"
     },
     transactionTypes: {

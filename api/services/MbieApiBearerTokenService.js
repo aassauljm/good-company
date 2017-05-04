@@ -96,7 +96,7 @@ module.exports = {
                 'Authorization': UtilService.makeBasicAuthHeader(sails.config.mbie.companiesOffice.oauth.consumer_key, sails.config.mbie.companiesOffice.oauth.consumer_secret)
             }
         };
-        
+
         if (__DEV__) {
             fetchOptions.agent = new https.Agent({
                 rejectUnauthorized: false
@@ -116,7 +116,7 @@ module.exports = {
                     ownerId: userId
                 };
 
-                return ApiCredential.create(data)
+                ApiCredential.create(data)
                     .then(apiCredential => {
                         // Add the scopes to the new record
                         const scopes = oauthResponse.scope.split(' ');
@@ -127,9 +127,5 @@ module.exports = {
                             .then(() => apiCredential);
                     });
             })
-            .catch(error => {
-                console.log('error');
-                console.log(error);
-            });
     }
 }

@@ -12,7 +12,7 @@ import { replace, push } from 'react-router-redux'
 import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink'
 import TransactionView from './forms/transactionView';
-
+import Widget from './widget';
 
 export function contactLawLinks(){
     return <div>
@@ -41,13 +41,10 @@ export class ContactDetailsWidget extends React.Component {
         return this.props.companyId;
     }
     renderBody() {
-        let bodyClass = "widget-body expandable ";
-        if(this.props.expanded){
-            bodyClass += "expanded ";
-        }
+
 
         const data = this.props.companyState, contactFields = data.contactFields || [];
-        return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body" >
             <dl>
                 { immutableFields.map((f, i) =>  <div key={i}><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
@@ -58,17 +55,13 @@ export class ContactDetailsWidget extends React.Component {
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-envelope-o"/> Contact
-                </div>
-                <div className="widget-control">
-                 <Link to={`/company/view/${this.key()}/contact`} >View All</Link>
-                </div>
-            </div>
+        let bodyClass = " expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+        return <Widget iconClass="fa fa-envelope-o" title="Contact"  link={`/company/view/${this.key()}/contact`} bodyClass={bodyClass}>
             { this.renderBody() }
-        </div>
+            </Widget>
     }
 }
 
@@ -123,22 +116,15 @@ export class ContactEditDetails extends React.Component {
         }));
 
         return <LawBrowserContainer lawLinks={contactLawLinks()}>
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                            Contact
-                        </div>
-                    </div>
-                    <div className="widget-body">
-                            <ContactFormConnected
-                                initialValues={{...data, contactFields : contactFields}}
-                                onSubmit={::this.handleSubmit}
-                                handleClickImmutable={::this.handleSelectAddressChange}
-                                cancel={() => this.props.navigate(`/company/view/${this.props.companyId}/contact`)}
-                                controls={true}
-                            />
-                    </div>
-                </div>
+                <Widget iconClass="fa fa-envelope-o" title="Contact">
+                    <ContactFormConnected
+                        initialValues={{...data, contactFields : contactFields}}
+                        onSubmit={::this.handleSubmit}
+                        handleClickImmutable={::this.handleSelectAddressChange}
+                        cancel={() => this.props.navigate(`/company/view/${this.props.companyId}/contact`)}
+                        controls={true}
+                    />
+                </Widget>
             </LawBrowserContainer>
 
     }
@@ -157,14 +143,7 @@ export default class ContactDetails extends React.Component {
         const wrapperClassName = 'col-sm-8';
 
         return <LawBrowserContainer lawLinks={contactLawLinks()}>
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                            Contact
-                        </div>
-                    </div>
-                    <div className="widget-body">
-
+                <Widget iconClass="fa fa-envelope-o" title="Contact">
                         <div key="body" >
                         <dl className="dl-horizontal dl-spacing">
                             { immutableFields.map((f, i) =>  <div key={i} className="dl-row"><dt>{ STRINGS[f] }</dt><dd>{data[f] }</dd></div>) }
@@ -175,8 +154,7 @@ export default class ContactDetails extends React.Component {
                     { this.props.canUpdate && <div className="button-row">
                         <Link to={`/company/view/${this.props.companyId}/contact/edit`} className="btn btn-info">Edit Contact Details</Link>
                     </div> }
-                    </div>
-                </div>
+                    </Widget>
             </LawBrowserContainer>
 
     }

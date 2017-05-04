@@ -6,6 +6,8 @@ import { asyncConnect } from 'redux-connect';
 import { requestResource } from '../actions';
 import { stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
 
 
 @connect((state, ownProps) => {
@@ -35,25 +37,14 @@ export class RecentActivityWidget extends React.Component {
 
     render() {
         const activities = this.props.data || [];
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-clock-o"/> Recent Activity
-                </div>
-                <div className="widget-control">
-                <Link to="/recent_activity" >View All</Link>
-                </div>
-            </div>
-
-            <div className="widget-body">
+        return <Widget title="Recent Activity" iconClass="fa fa-clock-o" link="/recent_activity">
                 <ul>
                 { activities.map((a, i) => <li key={i} className="actionable" onClick={() => this.handleClick(a)}>
                         <span className="date">{stringDateToFormattedStringTime(a.createdAt)}</span> {a.description}
                 </li>)}
                  { !activities.length && <li>No Recent Activity </li>}
                 </ul>
-            </div>
-        </div>
+        </Widget>
     }
 }
 
@@ -82,25 +73,15 @@ export class RecentCompanyActivityWidget extends React.Component {
 
     render() {
         const activities = this.props.data || [];
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-clock-o"/> Recent Activity
-                </div>
-                <div className="widget-control">
-                { /* <Link to={`/company/view/${this.key()}/recent_activity`}>View All</Link> */ }
-                </div>
-            </div>
+        return <Widget title="Recent Activity" iconClass="fa fa-clock-o">
 
-            <div className="widget-body">
                 <ul>
                 { activities.map((a, i) => <li key={i}>
                     <span className="date">{stringDateToFormattedStringTime(a.createdAt)}</span> {a.description}
                 </li>)}
                 { !activities.length && <li>No Recent Activity </li>}
                 </ul>
-            </div>
-        </div>
+        </Widget>
     }
 }
 
@@ -123,15 +104,8 @@ export default class RecentActivity extends React.Component {
 
     render() {
         const activities = this.props.data || [];
-        return <div className="container">
-            <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                     Recent Activity
-                </div>
-            </div>
-
-            <div className="widget-body">
+        return  <LawBrowserContainer>
+            <Widget title="Recent Activity" iconClass="fa fa-clock-o">
                 <div className="table-responsive">
                 <table className="table table-hover">
                 <thead><tr><th>Time & Date</th><th>User</th><th>Description</th></tr></thead>
@@ -145,8 +119,8 @@ export default class RecentActivity extends React.Component {
                     </tbody>
                 </table>
                 </div>
-            </div>
-            </div>
-        </div>
+                </Widget>
+            </LawBrowserContainer>
+
     }
 }

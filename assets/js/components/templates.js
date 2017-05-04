@@ -17,6 +17,9 @@ import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
 import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel } from 'json-schemer';
 import Raven from 'raven-js';
+import Widget from './widget';
+
+
 
 
 function createLawLinks(list){
@@ -395,18 +398,9 @@ export default class TemplateList extends React.Component {
     }
 
     renderWidget(title) {
-        return (
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        { title }
-                    </div>
-                </div>
-                <div className="widget-body">
-                    { this.props.children ?  React.cloneElement(this.props.children, this.props) : this.renderBody() }
-                </div>
-            </div>
-        );
+        return <Widget title={title} iconClass='fa fa-file-text-o'>
+             { this.props.children ?  React.cloneElement(this.props.children, this.props) : this.renderBody() }
+        </Widget>
     }
 
     render() {
@@ -436,24 +430,11 @@ export class TemplateWidget extends React.Component {
 
     render() {
         const id = this.props.companyId;
-
-        return (
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        <span className="fa fa-file-text-o"/>  Templates
-                    </div>
-                    <div className="widget-control">
-                     <Link to={id ? `/companies/${ic}/templates` : `/templates`} >View All</Link>
-                    </div>
-                </div>
-                <div className="widget-body">
+        return <Widget title="Templates" iconClass='fa fa-file-text-o' link={id ? `/companies/${ic}/templates` : `/templates`}>
                     <div className="icon-action-page-sml">
                     <RenderTemplateList />
                     </div>
-                </div>
-            </div>
-        );
+        </Widget>
     }
 }
 
@@ -463,20 +444,14 @@ export class TemplateSelectCompany extends React.Component {
     render() {
         return (
             <LawBrowserContainer>
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">Templates</div>
-                    </div>
-
-                    <div className="widget-body">
-                        <div className="row">
-                            <div className="col-md-6 col-md-offset-3">
-                                <p className="text-center">Please select a company:</p>
-                                <Search target={(id) => this.props.params.name ? `/company/view/${id}/templates/${this.props.params.name}` : `/company/view/${id}/templates`} />
-                            </div>
+                <Widget title="Templates" iconClass='fa fa-file-text-o'>
+                    <div className="row">
+                        <div className="col-md-6 col-md-offset-3">
+                            <p className="text-center">Please select a company:</p>
+                            <Search target={(id) => this.props.params.name ? `/company/view/${id}/templates/${this.props.params.name}` : `/company/view/${id}/templates`} />
                         </div>
                     </div>
-                </div>
+                </Widget>
             </LawBrowserContainer>
         );
     }

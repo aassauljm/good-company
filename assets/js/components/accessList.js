@@ -16,7 +16,7 @@ import Loading from './loading';
 import Input from './forms/input';
 import { ForeignPermissionsHOC } from '../hoc/resources';
 import firstBy from 'thenby';
-
+import Widget from './widget';
 
 
 const permissionsToString = (permissions) => {
@@ -43,11 +43,10 @@ export class OrganisationWidget extends React.Component {
 
     renderBody() {
         const MAX_ROWS = 5;
-        let bodyClass = "widget-body";
         const fullList = (this.props.userInfo.organisation || []);
         const members = fullList.slice(0, MAX_ROWS);
         members.sort(firstBy('name'))
-        return  <div className="widget-body"  className={bodyClass} >
+        return  <div  >
             <div key="body" >
                 <table className="table table-striped table-no-margin" >
                 <tbody>
@@ -65,22 +64,17 @@ export class OrganisationWidget extends React.Component {
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-yuers"/> Organisation
-                </div>
-                <div className="widget-control">
-                 <Link to={`/organisation`} >View All</Link>
-                </div>
-            </div>
+        return <Widget iconClass="fa fa-users" title="Organisation" link="/organisation">
             { this.renderBody() }
-        </div>
+        </Widget>
     }
 }
 
 
 @ForeignPermissionsHOC()
+@connect(state => ({
+    userInfo: state.userInfo
+}))
 export class AccessListWidget extends React.Component {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
@@ -99,22 +93,22 @@ export class AccessListWidget extends React.Component {
                 return <div key={i}>{ perm.name } <RenderPermissionType perm={perm} /></div>
             })
         }
+        else{
+            return <div>None</div>
+        }
     }
 
     renderBody() {
-        let bodyClass = "widget-body expandable ";
-        if(this.props.expanded){
-            bodyClass += "expanded ";
-        }
 
+        const hasOrg = !!this.props.userInfo.organisation
         const data = this.props.companyState;
-        return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div onClick={() => this.props.toggle(!this.props.expanded)}>
             <div key="body" >
             <dl className="dl-horizontal">
             <dt>{ STRINGS.accessControl.owner }</dt>
             <dd>{ this.props.owner && this.props.owner.username }</dd>
 
-            <dt>{ STRINGS.accessControl.organisation }</dt>
+            <dt>{ STRINGS.accessControl.accessList }</dt>
             <dd>{ this.renderAccessList() }</dd>
 
             </dl>
@@ -123,17 +117,13 @@ export class AccessListWidget extends React.Component {
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-key"/> Access List
-                </div>
-                <div className="widget-control">
-                 <Link to={`/company/view/${this.key()}/access_list`} >View All</Link>
-                </div>
-            </div>
+        let bodyClass = "expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+        return  <Widget iconClass="fa fa-key" title="Access List" link={`/company/view/${this.key()}/access_list`} bodyClass={bodyClass}>
             { this.renderBody() }
-        </div>
+        </Widget>
     }
 }
 
@@ -335,30 +325,18 @@ export default class AccessList extends React.Component {
 
     renderBody() {
         const foreignPermissions = (this.props.foreignPermissions && this.props.foreignPermissions.data) || [];
-
-        return <div className="widget-body">
+        return <div>
             { this.props.userInfo.organisation && this.renderOrgAccess(foreignPermissions) }
             { this.renderThirdPartyAccess(foreignPermissions) }
         </div>
     }
 
     render() {
-        return (
-            <div className="container">
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="widget">
-                            <div className="widget-header">
-                                <div className="widget-title">
-                                    <span className="fa fa-key"/> Access List
-                                </div>
-                            </div>
-                            { this.renderBody() }
-                        </div>
-                    </div>
-                </div>
-            </div>
-        )
+        return <LawBrowserContainer>
+            <Widget iconClass="fa fa-key" title="Access List">
+                { this.renderBody() }
+            </Widget>
+        </LawBrowserContainer>
     }
 }
 
@@ -476,7 +454,7 @@ export class Organisation extends React.Component {
     }
 
      renderBody() {
-        return <div className="widget-body">
+        return <div>
             <div className="button-row">
                 <a className="btn btn-info" href={`${this.props.login.userUrl}/organisation`}>Invite Users to your Organisation</a>
             </div>
@@ -492,20 +470,10 @@ export class Organisation extends React.Component {
      }
 
     render() {
-        return (
-            <div className="container">
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="widget">
-                            <div className="widget-header">
-                                <div className="widget-title">
-                                    <span className="fa fa-users"/> Organisation
-                                </div>
-                            </div>
-                              { this.renderBody() }
-                        </div>
-                    </div>
-                </div>
-            </div>)
+        return <LawBrowserContainer>
+            <Widget iconClass="fa fa-users" title="Organisation">
+                { this.renderBody() }
+            </Widget>
+        </LawBrowserContainer>
     }
 }

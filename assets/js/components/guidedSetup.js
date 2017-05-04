@@ -17,6 +17,9 @@ import { getWarnings } from './companyAlerts'
 import { nextContextualTransactionView, previousContextualTransactionView, endContextualTransactionView, showContextualTransactionView, requestResource } from '../actions';
 import { TransactionViewSwitch }  from './transactionViews';
 import { requestAlerts } from './alerts';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
 
 const DEFAULT_OBJ = {};
 
@@ -169,26 +172,19 @@ export class GuidedSetup extends React.Component {
         return <div className="transactionViews">
             <div>
                 <div className="container">
-                    <div className="row">
-                    <div className="col-md-12">
-                    <div className="widget">
-                        <div className="widget-header">
-                        <div className="widget-title">
-                            Guided Setup
-                        </div>
-                        </div>
-                         <div className="widget-body">
-                            <h5 className="text-center">Share Register Setup - Step {this.state.warningSteps - this.state.warningCount} of {this.state.warningSteps}</h5>
-                            <ProgressBar now={this.state.now} striped bsStyle="success" /></div>
-                            { this.state.warningCount === 0 && <div>
-                                <p className="congratulations">Congratulations, { this.props.companyState.companyName } has succesfully been set up. </p>
-                                <div className="button-row"><Link className="btn btn-primary" to={`/company/view/${this.props.companyId}/registers/shareregister`}>View Share Register</Link></div>
-                                </div> }
-                        </div>
-                    </div>
-                    </div>
+                <Widget title="Guided Setup">
+                 <h5 className="text-center">Share Register Setup - Step {this.state.warningSteps - this.state.warningCount} of {this.state.warningSteps}</h5>
+                <ProgressBar now={this.state.now} striped bsStyle="success" />
+                { this.state.warningCount === 0 && <div>
+                    <p className="congratulations">Congratulations, { this.props.companyState.companyName } has succesfully been set up. </p>
+                    <div className="button-row"><Link className="btn btn-primary" to={`/company/view/${this.props.companyId}/registers/shareregister`}>View Share Register</Link></div>
+                    </div> }
+                </Widget>
                 </div>
+
+
                 { !!this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
+
             </div>
             { showNext && <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={this.state.warningCount !== 0}/> }
         </div>
