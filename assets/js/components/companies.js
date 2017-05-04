@@ -14,6 +14,8 @@ import { requestAlerts } from './alerts';
 import { CompanyAlertsBase } from './companyAlerts';
 import Input from './forms/input'
 import Promise from 'bluebird';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
 
 
 const DEFAULT_OBJ = {};
@@ -238,19 +240,12 @@ export class CompaniesDelete extends React.Component {
     }
 
     render() {
-        return <div className="container">
 
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Companies
-                    </div>
-                </div>
-                <div className="widget-body">
-                    { this.renderBody() }
-                </div>
-            </div>
-        </div>
+    return <LawBrowserContainer>
+            <Widget iconClass="fa fa-institution" title="Companies">
+                   { this.renderBody() }
+            </Widget>
+        </LawBrowserContainer>
     }
 }
 
@@ -289,19 +284,11 @@ export default class Companies extends React.Component {
     }
 
     render() {
-        return <div className="container">
-
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Companies
-                    </div>
-                </div>
-                <div className="widget-body">
-                    { this.renderBody() }
-                </div>
-            </div>
-        </div>
+    return <LawBrowserContainer>
+            <Widget iconClass="fa fa-institution" title="Companies">
+                   { this.renderBody() }
+            </Widget>
+        </LawBrowserContainer>
     }
 }
 
@@ -335,24 +322,13 @@ export class CompaniesWidget extends React.Component {
 
     renderBody() {
         const data = (this.props.companies.data || []).filter(c => !c.deleted).map(c => ({...c.currentCompanyState, ...c}))
-        return  <div className="widget-body">
+        return this.props.renderTable(data.slice(0, 6), true)
 
-            { this.props.renderTable(data.slice(0, 6), true) }
-
-        </div>
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-institution"/> Companies
-                </div>
-                <div className="widget-control">
-                 <Link to={`/companies`} >View All</Link>
-                </div>
-            </div>
-            { this.renderBody() }
-        </div>
+    return <Widget iconClass="fa fa-institution" title="Companies" link="/companies">
+                   { this.renderBody() }
+            </Widget>
     }
 }

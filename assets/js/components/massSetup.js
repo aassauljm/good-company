@@ -13,7 +13,7 @@ import ButtonInput from './forms/buttonInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { enums as BulkTransactionTypes } from '../../../config/enums/bulkTransactions';
 import LawBrowserContainer from './lawBrowserContainer'
-
+import Widget from './widget';
 
 const CREATE_SHARE = 0;
 const SELECT_COMPANIES = 1;
@@ -68,47 +68,26 @@ const SelectCompaniesConnected = reduxForm({
 
 const MassSetupLoading = (props) => {
     return <LawBrowserContainer>
-                    <div className="widget">
-                        <div className="widget-header">
-                            <div className="widget-title">
-                                Mass Share Register Setup
-                            </div>
-                        </div>
-                        <div className="widget-body">
-                                <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
-                        </div>
-                    </div>
+                <Widget title="Mass Share Register Setup">
+                    <div className="loading"> <Glyphicon glyph="refresh" className="spin"/></div>
+                    </Widget>
             </LawBrowserContainer>
 }
 
 const PAGES = {
     [CREATE_SHARE]: (props) => {
         return <div>
-              <LawBrowserContainer>
-                    <div className="widget">
-                        <div className="widget-header">
-                            <div className="widget-title">
-                                Mass Share Register Setup
-                            </div>
-                        </div>
-                        <div className="widget-body">
+                <LawBrowserContainer>
+                    <Widget title="Mass Share Register Setup">
                             This tool is designed to create and assign similiar share classes to many companies that have only a single type of share.<br/>
                             To begin, fill out the details for the share class below.
-                        </div>
-                    </div>
+                            </Widget>
                 </LawBrowserContainer>
 
               <LawBrowserContainer lawLinks={shareClassLawLinks()}>
-                    <div className="widget">
-                        <div className="widget-header">
-                            <div className="widget-title">
-                                Mass Create Share Class
-                            </div>
-                        </div>
-                        <div className="widget-body">
+                    <Widget title="Mass Share Register Setup">
                             <ShareClassCreate submit={(values) => props.next({index: SELECT_COMPANIES, shareClass: values} )}  noDocuments={true}/>
-                        </div>
-                    </div>
+                            </Widget>
                     </LawBrowserContainer>
         </div>
     },
@@ -125,32 +104,18 @@ const PAGES = {
         return <div>
 
             <LawBrowserContainer>
-                    <div className="widget">
-                        <div className="widget-header">
-                            <div className="widget-title">
-                                Mass Share Register Setup
-                            </div>
-                        </div>
-                        <div className="widget-body">
+                <Widget title="Mass Share Register Setup">
                         Next, select each company that has the "<strong>{props.massSetup.data.shareClass.name}</strong>" share class.
-                        </div>
-                    </div>
+                        </Widget>
             </LawBrowserContainer>
 
 
              <LawBrowserContainer>
-                    <div className="widget">
-                        <div className="widget-header">
-                            <div className="widget-title">
-                                Select Companies
-                            </div>
-                        </div>
-                        <div className="widget-body">
-                            <SelectCompaniesConnected initialValues={initialValues} companyData={filteredCompanies}
+             <Widget title="Select Companies">
+                    <SelectCompaniesConnected initialValues={initialValues} companyData={filteredCompanies}
                                 onSubmit={(values) => props.next({index: FINALIZE, companies: values.companies.filter(c => c.selected)} )}
                                 />
-                        </div>
-                    </div>
+                </Widget>
             </LawBrowserContainer>
         </div>
     },
@@ -163,13 +128,7 @@ const PAGES = {
             return acc;
         }, {});
         return <LawBrowserContainer>
-                    <div className="widget">
-                        <div className="widget-header">
-                            <div className="widget-title">
-                                Mass Share Register Setup
-                            </div>
-                        </div>
-                        <div className="widget-body">
+                   <Widget title="Mass Share Register Setup">
                             <p>Clicking submit will add a new share class "<strong>{props.massSetup.data.shareClass.name}</strong>"
                             to the companies show before, apply the share class to every current share allocation, then being the historic transaction import process.</p>
                             <p>Importing historic transactions can take some time, so you will be emailed when the process is complete.</p>
@@ -185,8 +144,7 @@ const PAGES = {
                                 <div className="button-row">
                                     <ButtonInput type="submit" bsStyle="primary" onClick={() => props.submit(props.massSetup.data).then(props.done).catch(props.error) }>Submit</ButtonInput>
                                 </div>
-                        </div>
-                    </div>
+                        </Widget>
                     </LawBrowserContainer>
         }
 

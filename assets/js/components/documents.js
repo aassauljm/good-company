@@ -20,6 +20,8 @@ import Loading from './loading';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import firstBy from 'thenby';
 import { DocumentsHOCFromRoute } from '../hoc/resources';
+import Widget from './widget';
+
 
 
 
@@ -90,16 +92,12 @@ const documentTypeClasses = (doc, showingSubTree) => {
 export class DocumentsWidget extends React.Component {
 
     renderBody() {
-        let bodyClass = "widget-body expandable ";
-        if(this.props.expanded){
-            bodyClass += "expanded ";
-        }
 
         const docList = this.props.companyState.docList || [];
         const documents = [...(docList.documents || [])].map(d => ({...d, date: new Date(d.date || d.createdAt) })).filter(d => d.type !== 'Directory');
         documents.sort((a, b) => b.date - a.date);
 
-        return  <div className="widget-body"  className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div  onClick={() => this.props.toggle(!this.props.expanded)}>
                 <div className="text-center"><em>Latest Documents:</em></div>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <tbody>
@@ -114,17 +112,13 @@ export class DocumentsWidget extends React.Component {
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-files-o"/> File Cabinet
-                </div>
-                <div className="widget-control">
-                 <Link to={`${this.props.baseUrl}/documents`} >View All</Link>
-                </div>
-            </div>
+        let bodyClass = "expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+        return <Widget iconClass="fa fa-files-o" title="File Cabinet" link={`${this.props.baseUrl}/documents`} bodyClass={bodyClass}>
             { this.renderBody() }
-        </div>
+        </Widget>
     }
 }
 
@@ -598,16 +592,9 @@ export class CompanyDocuments extends React.Component {
 
     render() {
         return <LawBrowserContainer lawLinks={documentLawLinks()}>
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        <span className="fa fa-files-o"/> File Cabinet
-                    </div>
-                </div>
-                <div className="widget-body documents">
+                <Widget iconClass="fa fa-files-o" title="File Cabinet" bodyClass="documents">
                     { this.renderTree() }
-                </div>
-            </div>
+                </Widget>
             </LawBrowserContainer>
     }
 }

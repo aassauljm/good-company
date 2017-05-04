@@ -13,6 +13,9 @@ import LookupCompany from './lookupCompany';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ConnectedPlaceholderSearch } from './search';
 import { Link } from 'react-router';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
 
 export const REALME_LOGO = 'https://www.companiesoffice.govt.nz/companies/rm_logo.png';
 
@@ -153,22 +156,16 @@ export class ImportSingle extends React.Component {
 }
 
 export const ImportSingleFull = (props) => {
-    return <div className="container">
-        <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                   Search the Companies Register
-                </div>
-            </div>
-            <div className="widget-body">
+    return <LawBrowserContainer>
+        <Widget title="Search the Companies Register">
                  <div className="row">
                  <div className="col-md-6 col-md-offset-3">
                         <ImportSingle initialValue={props.initialValue} form='searchFormBig'/>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+            </Widget>
+        </LawBrowserContainer>
+
 }
 
 export const realMeActions = (dispatch) => ({
@@ -215,24 +212,17 @@ export class RealMeConnect extends React.PureComponent {
 
     render() {
         const hasNZBN = this.props.userInfo.mbieServices.indexOf('nzbn') >= 0;
-        return <div className="container">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                       Import with RealMe®
-                    </div>
-                </div>
-                <div className="widget-body">
-                     <div className="row">
-                     <div className="col-md-6 col-md-offset-3">
-                     { hasNZBN && this.renderLink() }
-                     { !hasNZBN && this.renderConnect() }
-                     </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
+        return <LawBrowserContainer>
+                <Widget title="Import with RealMe®">
+                    <div className="row">
+                         <div className="col-md-6 col-md-offset-3">
+                         { hasNZBN && this.renderLink() }
+                         { !hasNZBN && this.renderConnect() }
+                         </div>
+                        </div>
+                </Widget>
+            </LawBrowserContainer>
+        }
 }
 
 @connect(state => ({userInfo: state.userInfo}))
@@ -260,17 +250,10 @@ export class ImportSingleWidget extends React.PureComponent {
     }
 
     render() {
-        return  <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                     <i className="fa fa-download" /> Import from the Companies Register
-                    </div>
-                </div>
-                <div className="widget-body">
+        return  <Widget title="Import from the Companies Register" iconClass="fa fa-download">
                     { this.props.canImport && this.renderBody() }
                     { !this.props.canImport && this.renderUpgradeWarning() }
-                </div>
-            </div>
+                </Widget>
         }
 }
 
@@ -298,24 +281,17 @@ export class ImportBulk extends React.Component {
 
     render() {
         const valid = false;
-        return <div className="container">
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                            Bulk Import from the New Zealand Companies Register
-                        </div>
-                    </div>
-                    <div className="widget-body">
-                    <p>Copy and paste your company identifiers into the field below, with each identifier on a new line.</p>
+        return <LawBrowserContainer>
+            <Widget title="Bulk Import from the New Zealand Companies Register">
+                <p>Copy and paste your company identifiers into the field below, with each identifier on a new line.</p>
                     <p>Your companies will be imported in the background, and you will get an email when it is finished.</p>
                        <div className="row">
                          <div className="col-md-6 col-md-offset-3">
                             <BulkImportConnected onSubmit={::this.handleSubmit}/>
                         </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+            </Widget>
+        </LawBrowserContainer>
     }
 
 }

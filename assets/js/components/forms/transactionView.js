@@ -12,16 +12,11 @@ export default class GCTransactionView extends React.Component {
             </LawBrowserContainer>
         }
 
-        return <div className="container">
-            <div className="row">
-            <div className="col-md-12">
-
+        return <LawBrowserContainer>
             <div className="widget">
                 { this.props.children }
             </div>
-            </div>
-            </div>
-        </div>
+            </LawBrowserContainer>
     }
 }
 

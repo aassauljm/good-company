@@ -9,6 +9,8 @@ import AutoAffix from 'react-overlays/lib/AutoAffix';
 import d3 from 'd3';
 import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
+import Widget from './widget';
+
 
 const shareholdingLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM320462/28784-DLM319977">Definition of shareholder</LawBrowserLink>
@@ -86,24 +88,16 @@ export class ShareholdingsWidget extends React.Component {
         const shareClassMap = generateShareClassMap(this.props.companyState);;
         const classCount = Object.keys(shareCountByClass || {}).length
 
-        let bodyClass = "widget-body ";
+        let bodyClass = " ";
         if(this.props.toggle){
             bodyClass += "expandable "
         }
         if(this.props.expanded){
             bodyClass += "expanded ";
         }
-        return <div className="widget shareholding-widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-group"/> Shareholdings
-                </div>
-                <div className="widget-control">
-                <Link to={`${this.props.baseUrl}/shareholdings`}>View All</Link>
-                </div>
-            </div>
+        return <Widget className="shareholding-widget" title="Shareholdings" iconClass="fa fa-group" link={`${this.props.baseUrl}/shareholdings`} bodyClass={bodyClass}>
 
-            <div className={bodyClass} onClick={() => this.props.toggle && this.props.toggle(!this.props.expanded)}>
+            <div  onClick={() => this.props.toggle && this.props.toggle(!this.props.expanded)}>
                 <div className="row">
                     <div className="col-sm-6 summary">
                             <div className="col-xs-6 col-sm-12">
@@ -147,7 +141,7 @@ export class ShareholdingsWidget extends React.Component {
                     </div>
                 </div>
                 </div>
-        </div>
+        </Widget>
     }
 
 }
@@ -249,14 +243,7 @@ export class Shareholdings extends React.Component {
         const classCount = Object.keys(shareClassMap || {}).length;
 
         return <LawBrowserContainer lawLinks={shareholdingLawLinks()}>
-
-        <div className="widget shareholding-widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    Shareholdings
-                </div>
-            </div>
-            <div className="widget-body">
+            <Widget className="shareholding-widget" title="Shareholdings" iconClass="fa fa-group">
                 <div className="row summary big-summary">
 
                         <div className="col-sm-6">
@@ -309,8 +296,7 @@ export class Shareholdings extends React.Component {
 
                     </div>
                 </div>
-            </div>
-        </div>
+                </Widget>
         </LawBrowserContainer>
     }
 }

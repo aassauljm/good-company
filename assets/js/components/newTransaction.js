@@ -8,6 +8,10 @@ import LawBrowserLink from './lawBrowserLink'
 import TransactionViews from './transactionViews';
 import { withRouter } from 'react-router'
 import { push } from 'react-router-redux'
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
+
 
 
 
@@ -56,17 +60,9 @@ export class NewTransaction extends React.Component {
 
     renderBody() {
         const id = this.props.companyId;
-        return <div className="container">
-            <div className="row">
-              <div className="col-xs-12">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Update Company
-                    </div>
-                </div>
-                <div className="widget-body">
-                    <div className="row">
+        return <LawBrowserContainer>
+            <Widget title="Update Company">
+                <div className="row">
                     <div className="actionable select-button" onClick={() => this.startTransaction('addAssignShares') } >
                             <span className="glyphicon glyphicon-list-alt"></span>
                             <span className="transaction-button-text">Add & Assign Share Classes</span>
@@ -109,12 +105,10 @@ export class NewTransaction extends React.Component {
 
                     </div>
 
-                </div>
-            </div>
-            </div>
-            </div>
-        </div>
-    }
+                    </Widget>
+            </LawBrowserContainer>
+        }
+
 
     render() {
         if(this.props.children){

@@ -7,6 +7,9 @@ import { Link } from 'react-router';
 import { AnnualReturnHOC,  AnnualReturnFromRouteHOC } from '../hoc/resources';
 import { stringDateToFormattedString, numberWithCommas } from '../utils';
 import moment from 'moment';
+import Widget from './widget';
+
+
 
 function ARLinks() {
     return <div>
@@ -223,17 +226,10 @@ export class ReviewAnnualReturn extends React.PureComponent {
 
     render() {
         return <LawBrowserContainer lawLinks={ARLinks()}>
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Review Annual Return
-                    </div>
-                </div>
-                <div className="widget-body">
+              <Widget title="Review Annual Return">
                     { this.renderControls() }
                     { this.props.arSummary && this.props.arSummary.data && <ARSummary company={this.props.arSummary.data} /> }
-                </div>
-            </div>
+                    </Widget>
         </LawBrowserContainer>
     }
 }
@@ -242,18 +238,11 @@ export class ReviewAnnualReturn extends React.PureComponent {
 export default class AnnualReturn extends React.PureComponent {
     render() {
         return <LawBrowserContainer lawLinks={ARLinks()}>
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Annual Returns
-                    </div>
-                </div>
-                <div className="widget-body">
+            <Widget title="Annual Return">
                     <p>If you have connected your RealMe with the Companies Office, and the Companies Office records are up to date, you can submit an Annual Return.</p>
                     <p>Click the button below to generate an Annual Return for review and submission.</p>
                     <div className="button-row"><Link to={`/company/view/${this.props.companyId}/review_annual_return`} className="btn btn-primary">Show Annual Return</Link></div>
-                </div>
-            </div>
+                    </Widget>
         </LawBrowserContainer>
     }
 }

@@ -9,6 +9,8 @@ import { pureRender, stringDateToFormattedString } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
 import { replace } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
 
 /*
   Interests? (yes/no – if yes, link to Interests Register),
@@ -97,13 +99,10 @@ export class DirectorsWidget extends React.Component {
         if(!this.props.companyState || !this.props.companyState.directorList){
             return false;
         }
-        let bodyClass = "widget-body expandable ";
-        if(this.props.expanded){
-            bodyClass += "expanded ";
-        }
+
         const directors = this.props.companyState.directorList.directors;
         const holders = this.props.companyState.holders;
-        return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div  onClick={() => this.props.toggle(!this.props.expanded)}>
             <div  key="body">
             { directors.length > 1 && <dl className="dl-horizontal">
                 <dt>Number of Directors</dt>
@@ -118,17 +117,13 @@ export class DirectorsWidget extends React.Component {
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                <span className="fa fa-address-card-o"/> Directors
-                </div>
-                <div className="widget-control">
-                 <Link to={`/company/view/${this.key()}/directors`} >View All</Link>
-                </div>
-            </div>
+        let bodyClass = " expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+        return <Widget iconClass="fa fa-address-card-o" title="Directors" link={`/company/view/${this.key()}/directors`} bodyClass={bodyClass}>
             { this.renderBody() }
-        </div>
+        </Widget>
     }
 }
 
@@ -161,19 +156,12 @@ export default class Directors extends React.Component {
         }
         const directors = this.props.companyState.directorList.directors;
         const holders = this.props.companyState.holders;
-        return <div className="container">
-            <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    Directors
-                </div>
-            </div>
-            <div className='widget-body'>
+        return <LawBrowserContainer>
+               <Widget iconClass="fa fa-address-card-o" title="Directors">
                 <h5 className="text-center">Current Directors</h5>
                  <DirectorList directors={directors} holders={holders} editDirector={this.props.canUpdate && this.editDirector} />
-            </div>
-        </div>
-        </div>
+               </Widget>
+        </LawBrowserContainer>
     }
 }
 
@@ -269,19 +257,11 @@ export class DirectorRegister extends React.Component {
         }
         const directors = this.props.companyState.directorList.directors;
         const holders = this.props.companyState.holders;
-        return <div className="container">
-            <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    Director Registers
-                </div>
-            </div>
-            <div className='widget-body'>
+        return <LawBrowserContainer>
+               <Widget iconClass="fa fa-address-card-o" title="Director Registers">
                     { this.renderControls() }
-               <DirectorRegisterDocument {...this.props} />
-
-            </div>
-        </div>
-        </div>
+                    <DirectorRegisterDocument {...this.props} />
+                    </Widget>
+                </LawBrowserContainer>
     }
 }

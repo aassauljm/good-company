@@ -13,6 +13,8 @@ import LookupCompany from './lookupCompany';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { ConnectedPlaceholderSearch } from './search';
 import { Link } from 'react-router';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
 
 
 @connect(state => ({userInfo: state.userInfo}), (dispatch) => ({
@@ -34,12 +36,7 @@ export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
         const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
 
         return (
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title"><i className="fa fa-cogs" /> Companies Office Integration</div>
-                </div>
-                <div className="widget-body">
-
+            <Widget iconClass="fa fa-cogs" title="Companies Office Integration">
                     { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice /> }
                     { hasCompaniesOfficeIntegration && !this.props.showDisconnect && <div>
                             <p>You have connected your RealMe account, allowing submission of company changes and annual returns.</p>
@@ -48,8 +45,7 @@ export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
                                 </div>
                         </div> }
                     { hasCompaniesOfficeIntegration && this.props.showDisconnect && <DisconnectCompaniesOffice disconnect={this.props.disconnectCompaniesOffice} /> }
-                    </div>
-            </div>
+            </Widget>
         );
     }
 }
@@ -78,9 +74,9 @@ const DisconnectCompaniesOffice = ({ disconnect }) => {
 export default class CompaniesOfficeIntegration extends React.Component {
     render() {
         return (
-            <div className="container">
+            <LawBrowserContainer>
                 <CompaniesOfficeIntegrationWidget showDisconnect={true}/>
-            </div>
+            </LawBrowserContainer>
         );
     }
 }

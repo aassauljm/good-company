@@ -9,7 +9,8 @@ import Panel from './panel';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import { push } from 'react-router-redux'
-
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
 
 function subTransactionCounts(subTransactions){
     if(!subTransactions || !subTransactions.length){
@@ -115,22 +116,11 @@ export class CompanyTransactions extends React.Component {
     }
 
     render() {
-        return <div className="container">
-            <div className="row">
-            <div className="col-xs-12">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Transactions
-                    </div>
-                </div>
-                <div className="widget-body">
-                    { this.props.children ? this.renderChildren() : <TransactionsTable {...this.props}  show={(id) => this.show(id)} /> }
-                </div>
-            </div>
-            </div>
-            </div>
-        </div>
+        return <LawBrowserContainer>
+            <Widget title="Transactions" iconClass="fa fa-balance-scale">
+                 { this.props.children ? this.renderChildren() : <TransactionsTable {...this.props}  show={(id) => this.show(id)} /> }
+            </Widget>
+        </LawBrowserContainer>
     }
 }
 
@@ -152,25 +142,14 @@ export class PendingTransactions extends React.Component {
     }
 
     render() {
-        return <div className="container">
-            <div className="row">
-                   <div className="col-xs-12">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Upcoming Transactions
-                    </div>
-                </div>
-                <div className="widget-body">
+        return  <LawBrowserContainer>
+            <Widget title="Upcoming Transactions" iconClass="fa fa-hourglass-end">
                     { this.props.children ? this.renderChildren() : <TransactionsTable
                         {...this.props}
                         data={{transactions: ((this.props.companyState || {}).futureTransactions || []).map(t => ({transaction: t}))}}
                         show={(id) => this.show(id)} /> }
-                </div>
-            </div>
-            </div>
-            </div>
-        </div>
+            </Widget>
+        </LawBrowserContainer>
     }
 }
 
@@ -181,13 +160,9 @@ export class TransactionWidget extends React.Component {
         companyId: PropTypes.string.isRequired,
     };
     renderBody() {
-        let bodyClass = "widget-body expandable ";
-        if(this.props.expanded){
-            bodyClass += "expanded ";
-        }
 
         const transactions = (this.props.companyState.transactions || []).filter(t => t);
-        return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div  onClick={() => this.props.toggle(!this.props.expanded)}>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <thead><tr><th>Type</th><th>Date</th></tr></thead>
                 <tbody>
@@ -200,17 +175,13 @@ export class TransactionWidget extends React.Component {
     }
 
     render(){
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <span className="fa fa-balance-scale"/> Completed Transactions
-                </div>
-                <div className="widget-control">
-                    <Link to={`${this.props.baseUrl}/transactions`} >View All</Link>
-                </div>
-            </div>
-            { this.renderBody() }
-        </div>
+        let bodyClass = "expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+        return  <Widget title="Completed Transactions" iconClass="fa fa-balance-scale" link={`${this.props.baseUrl}/transactions`} bodyClass={bodyClass}>
+                   { this.renderBody() }
+            </Widget>
     }
 }
 
@@ -223,16 +194,13 @@ export class PendingTransactionsWidget extends React.Component {
         companyId: PropTypes.string.isRequired,
     };
     renderBody() {
-        let bodyClass = "widget-body expandable ";
-        if(this.props.expanded){
-            bodyClass += "expanded ";
-        }
+
 
         const transactions = (this.props.companyState.futureTransactions || []).filter(t => t);
         if(!transactions.length){
             return <span>No Upcoming Transactions</span>
         }
-        return  <div className={bodyClass} onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div  onClick={() => this.props.toggle(!this.props.expanded)}>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <thead><tr><th>Type</th><th>Date</th></tr></thead>
                 <tbody>
@@ -245,21 +213,14 @@ export class PendingTransactionsWidget extends React.Component {
     }
 
     render(){
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                <span className="fa fa-hourglass-end"/> Upcoming Transactions
-                </div>
-                <div className="widget-control">
-                <Link to={`${this.props.baseUrl}/upcoming_transactions`} >View All</Link>
-                </div>
+        let bodyClass = "expandable ";
+        if(this.props.expanded){
+            bodyClass += "expanded ";
+        }
+        return  <Widget title="Upcoming Transactions" iconClass="fa fa-hourglass-end" link={`${this.props.baseUrl}/upcoming_transactions`} bodyClass={bodyClass}>
+                   { this.renderBody() }
+            </Widget>
 
-            </div>
-
-            <div className="widget-body">
-                { this.renderBody() }
-            </div>
-        </div>
     }
 }
 

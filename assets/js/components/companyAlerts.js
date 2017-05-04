@@ -9,6 +9,9 @@ import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import STRINGS from '../strings';
 import { push } from 'react-router-redux'
 import moment from 'moment';
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
 
 const DEFAULT_OBJ = {};
 
@@ -232,38 +235,16 @@ export class CompanyAlertsWidget extends React.Component {
         if(!hasAlerts(this.props.companyState, ['danger', 'warning'])){
             return false;
         }
-        return <div className="widget company-alerts-widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    <i className="fa fa-flag"/> Notifications
-                </div>
-                <div className="widget-control">
-                    <Link to={`/company/view/${this.props.companyId}/notifications`} >View All</Link>
-                </div>
-            </div>
-
-            <div className="widget-body">
-                <CompanyAlertsBase {...this.props} showTypes={['danger', 'warning']} />
-            </div>
-        </div>
+        return <Widget className=" company-alerts-widget" iconClass="fa fa-exclamation-circle" title="Notifications" link={`/company/view/${this.props.companyId}/notifications`}>
+             <CompanyAlertsBase {...this.props} showTypes={['danger', 'warning']} />
+        </Widget>
     }
 }
 
 export const CompanyAlerts = (props) => {
-    return <div className="container">
-            <div className="row">
-            <div className="col-xs-12">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        All Notifications
-                    </div>
-                </div>
-                <div className="widget-body">
-                    <CompanyAlertsBase {...props} showTypes={['danger', 'warning', 'pending', 'safe']} showAllWarnings={true} />
-                </div>
-            </div>
-            </div>
-            </div>
-        </div>
+    return <LawBrowserContainer>
+            <Widget iconClass="fa fa-exclamation-circle" title="All Notifications">
+                <CompanyAlertsBase {...props} showTypes={['danger', 'warning', 'pending', 'safe']} showAllWarnings={true} />
+            </Widget>
+        </LawBrowserContainer>
 }

@@ -10,6 +10,8 @@ import { reset} from 'redux-form';
 import { Link } from 'react-router';
 import { fieldStyle } from '../utils';
 import LawBrowserContainer from './lawBrowserContainer'
+import Widget from './widget';
+
 
 @reduxForm({
   form: 'accountSettings',
@@ -65,16 +67,9 @@ export default class AccountSettings extends React.Component {
             state.transactionEmail = true;
         }
         return <LawBrowserContainer>
-                <div className="widget">
-                    <div className="widget-header">
-                        <div className="widget-title">
-                            Account Settings
-                        </div>
-                    </div>
-                    <div className="widget-body">
-                        <AccountSettingsForm initialValues={state } onSubmit={::this.handleSubmit}/>
-                    </div>
-                </div>
+            <Widget title="Account Settings">
+                 <AccountSettingsForm initialValues={state } onSubmit={::this.handleSubmit}/>
+            </Widget>
             </LawBrowserContainer>
     }
 }

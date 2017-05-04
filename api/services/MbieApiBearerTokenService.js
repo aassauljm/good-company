@@ -81,7 +81,7 @@ module.exports = {
                 'Authorization': UtilService.makeBasicAuthHeader(sails.config.mbie.companiesOffice.oauth.consumer_key, sails.config.mbie.companiesOffice.oauth.consumer_secret)
             }
         };
-        
+
         if (__DEV__) {
             fetchOptions.agent = new https.Agent({
                 rejectUnauthorized: false
@@ -93,7 +93,7 @@ module.exports = {
             .then(oauthResponse => {
                 return ApiCredential.destroy({
                         where: {
-                            service,
+                            serviceName: service,
                             ownerId: iserId
                         }
                     })
@@ -116,9 +116,5 @@ module.exports = {
                         return result.access_token;
                     });
             })
-            .catch(error => {
-                console.log('error');
-                console.log(error);
-            });
     }
 }

@@ -18,6 +18,8 @@ import StaticField from './forms/staticField';
 import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
 import Loading from './loading';
+import Widget from './widget';
+
 
 const interestRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM319933">Keeping of interests register</LawBrowserLink>
@@ -297,21 +299,14 @@ export class InterestsRegister extends React.PureComponent {
     render() {
         const interestsRegister = (this.props.data || []);
         return <LawBrowserContainer lawLinks={interestRegisterLawLinks()}>
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Interests Register
-                    </div>
-                </div>
-                <div className="widget-body">
+                <Widget title="Interests Register">
                         { !this.props.children && this.renderList(interestsRegister) }
                          { this.props.companyState && this.props.children && React.cloneElement(this.props.children, {
                                 companyId: this.key(),
                                 companyState: this.props.companyState,
                                 interestsRegister: interestsRegister
                         }) }
-                </div>
-            </div>
+                        </Widget>
             </LawBrowserContainer>
     }
 }

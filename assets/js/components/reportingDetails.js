@@ -9,6 +9,9 @@ import { pureRender } from '../utils';
 import { companyTransaction, addNotification } from '../actions';
 import { ReportingFormConnected, reportingDetailsFormatSubmit, standardFields, defaultCustomFields } from './forms/reportingDetails';
 import { replace } from 'react-router-redux'
+import Widget from './widget';
+import LawBrowserContainer from './lawBrowserContainer';
+
 
 export class ReportingDetailsWidget extends React.Component {
     static propTypes = {
@@ -41,17 +44,9 @@ export class ReportingDetailsWidget extends React.Component {
     }
 
     render() {
-        return <div className="widget">
-            <div className="widget-header">
-                <div className="widget-title">
-                    Reporting
-                </div>
-                <div className="widget-control">
-                 <Link to={`/company/view/${this.key()}/reporting`} >View All</Link>
-                </div>
-            </div>
+        return   <Widget title="Reporting" link={`/company/view/${this.key()}/reporting`}>
             { this.renderBody() }
-        </div>
+        </Widget>
     }
 }
 
@@ -89,22 +84,13 @@ export default class ReportingDetails extends React.Component {
             value: '',
             label: f
         }));
-        return <div className="container">
-            <div className="row">
-            <div className="widget">
-                <div className="widget-header">
-                    <div className="widget-title">
-                        Reporting
-                    </div>
-                </div>
-                <div className="widget-body">
-                    <ReportingFormConnected
+        return <LawBrowserContainer>
+            <Widget title="Reporting">
+                <ReportingFormConnected
                         initialValues={{...data, reportingFields : reportingFields}}
                         onSubmit={::this.handleSubmit}
                     />
-                </div>
-            </div>
-            </div>
-        </div>
+                    </Widget>
+            </LawBrowserContainer>
     }
 }
