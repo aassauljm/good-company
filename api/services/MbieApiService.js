@@ -101,8 +101,7 @@ const authWithNzbn = (req, res) => {
         service: 'nzbn',
         scope: {},
         redirect: '/import/nzbn',
-        errorType: 'FAIL_NZBN',
-
+        errorType: 'FAIL_NZBN'
     })(req, res);
 }
 

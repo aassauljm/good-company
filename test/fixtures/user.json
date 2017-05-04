@@ -113,4 +113,11 @@
         "username": "future",
         "email": "future@email.com"
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 22,
+        "username": "mbie-services",
+        "email": "mbie-services@email.com"
+    }
 }]
