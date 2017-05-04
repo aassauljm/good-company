@@ -6,17 +6,20 @@ $widget-verticle-padding:8px;
     border: 1px solid $widget-border;
     border-radius: 3px;
     margin-bottom: 20px;
+    & > a {
+        display:inline-block;
+        width: 100%;
+
+        .widget-title{
+            margin-bottom:0;
+
+        }
+
+    }
     .widget-header{
         border-bottom: 1px solid $widget-border;
         float:left;
         width:100%;
-        & > a {
-            display:inline-block;
-            width: 100%;
-            .widget-title{
-                margin-bottom:0;
-            }
-        }
         .widget-title{
             color:$deep-red;
             font-size:1.1em;
@@ -30,9 +33,7 @@ $widget-verticle-padding:8px;
             border-left: 1px solid $widget-border;
             padding-left:12px;
             font-style: italic;
-            a{
-                 color:$gray-light;
-            }
+            color:$gray-light;
 
         }
     }
