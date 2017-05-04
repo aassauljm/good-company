@@ -30,7 +30,8 @@ module.exports = {
         return sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
             .spread(result => result ? result.token : null)
             .then(mbieBearerToken => {
-                if (!mbieBearerToken) {
+                if (!mbieBearerToken) { 
+    console.log('dadada');
                     return MbieApiBearerTokenService.requestToken();
                 }
                 return mbieBearerToken;
@@ -40,7 +41,7 @@ module.exports = {
     requestToken: function() {
         // using curl for some reason, please record why here
         return curl.requestAsync({
-                url: `${sails.config.mbie.uri}token`,
+                url: `${sails.config.mbie.nzbn.url}token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.consumer_key, sails.config.mbie.nzbn.consumer_secret)
