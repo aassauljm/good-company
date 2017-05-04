@@ -12,14 +12,7 @@ function generateUrlForOauthLogin(url, clientId, callbackRoute, extraQueryParame
     return UtilService.buildUrl(url, queryParameters);
 }
 
-function requestOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, consumerSecret, serviceName, userId}) {
-    const url = UtilService.buildUrl(oauthRoute, {
-        code: code,
-        grant_type: 'authorization_code',
-        client_id: clientId,
-        redirect_uri: sails.config.APP_URL + callbackRoute
-    });
-
+export function requestOauthToken(url, consumerKey, consumerSecret) {
     let tokenRequestOptions = {
         method: 'POST',
         headers: {
@@ -36,6 +29,17 @@ function requestOauthToken({oauthRoute, callbackRoute, code, clientId, consumerK
 
     return fetch(url, tokenRequestOptions)
         .then(response => response.json())
+}
+
+function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, consumerSecret, serviceName, userId}) {
+    const url = UtilService.buildUrl(oauthRoute, {
+        code: code,
+        grant_type: 'authorization_code',
+        client_id: clientId,
+        redirect_uri: sails.config.APP_URL + callbackRoute
+    });
+
+    return MbieApiService.requestOauthToken(url, consumerKey, consumerSecret)
         .then(oauthResponse => {
             if (oauthResponse.error) {
                 throw new Error(oauthResponse);
@@ -64,7 +68,7 @@ const authWithService = (config) => (req, res) => {
     const callbackRoute = `/api/auth-with/${service}`;
 
     if (req.query.code) {
-        requestOauthToken({
+        getOauthToken({
                 oauthRoute: config.oauth.url + 'token',
                 callbackRoute,
                 code: req.query.code,

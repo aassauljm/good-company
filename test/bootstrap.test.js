@@ -63,6 +63,15 @@ function stubs(){
             })
     }
 
+    MbieApiService.requestOauthToken = function(url, consumerKey, consumerSecret) {
+        return {
+            accessToken: 'access_token_random_string',
+            tokenType: 'bearer',
+            refreshToken: 'refresh_token_random_string',
+            expiresIn: 3600
+        };
+    }
+
 
     MailService.getTransport = function(){
         return nodemailer.createTransport(stubTransport());
