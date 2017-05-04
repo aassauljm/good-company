@@ -2,6 +2,27 @@ import Promise from 'bluebird';
 import https from 'https';
 const curl = Promise.promisifyAll(require('curlrequest'));
 
+function getUserTokenRecord(userId, service) {
+    const query = `SELECT "accessToken", "refreshToken", now() < "createdAt" + ( "expiresIn" * interval '1 second') AS valid from api_credential WHERE "ownerId" = :userId AND "service" = :service`;
+    const queryOptions = {
+        type: sequelize.QueryTypes.SELECT,
+        replacements: { userId, service }
+    };
+
+    return sequelize.query(query, queryOptions)
+        .spread(result => {
+            if (!result) {
+                throw new Error('User not connected with Companies Office')
+            }
+
+            if (!result.valid) {
+                return MbieApiBearerTokenService.refreshUserToken(userId, result.refreshToken);
+            }
+
+            return result;
+        })
+}
+
 module.exports = {
     getToken: function() {
         const query = `SELECT * from mbie_api_bearer_token WHERE service = 'nzbn' AND  now() < "createdAt" + ( "expiresIn" * interval '1 second')`;
@@ -9,7 +30,8 @@ module.exports = {
         return sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
             .spread(result => result ? result.token : null)
             .then(mbieBearerToken => {
-                if (!mbieBearerToken) {
+                if (!mbieBearerToken) { 
+    console.log('dadada');
                     return MbieApiBearerTokenService.requestToken();
                 }
                 return mbieBearerToken;
@@ -19,7 +41,7 @@ module.exports = {
     requestToken: function() {
         // using curl for some reason, please record why here
         return curl.requestAsync({
-                url: `${sails.config.mbie.uri}token`,
+                url: `${sails.config.mbie.nzbn.url}token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.consumer_key, sails.config.mbie.nzbn.consumer_secret)
@@ -49,24 +71,17 @@ module.exports = {
 
 
     getUserToken: function(userId, service) {
-        const query = `SELECT "accessToken", "refreshToken", now() < "createdAt" + ( "expiresIn" * interval '1 second') AS valid from api_credential WHERE "ownerId" = :userId AND "service" = :service`;
-        const queryOptions = {
-            type: sequelize.QueryTypes.SELECT,
-            replacements: { userId, service }
-        };
-
-        return sequelize.query(query, queryOptions)
-            .spread(result => {
-                if (!result.valid) {
-                    return MbieApiBearerTokenService.refreshUserToken(result.refreshToken);
-                }
-
-                return result.accessToken;
-            })
+        return getUserTokenRecord(userId, service)
+            .then(result => result.accessToken);
     },
 
-    refreshUserToken: function(refreshToken, userId) {
+    refreshUserToken: function(userId, refreshToken=null) {
         const serviceName = 'companies-office';
+
+        if (!refreshToken) {
+            const tokenRecord = getUserTokenRecord(userId, serviceName);
+            refreshToken = tokenRecord.refreshToken;
+        }
 
         const url = UtilService.buildUrl(`${sails.config.mbie.companiesOffice.oauth.url}token`, {
             refresh_token: refreshToken,
@@ -91,29 +106,25 @@ module.exports = {
         return fetch(url, fetchOptions)
             .then(response => response.json())
             .then(oauthResponse => {
-                return ApiCredential.destroy({
-                        where: {
-                            serviceName: service,
-                            ownerId: iserId
-                        }
-                    })
-                    .then(() => {
-                        const data = {
-                            accessToken: oauthResponse.access_token,
-                            tokenType: oauthResponse.token_type.toLowerCase(),
-                            refreshToken: oauthResponse.refresh_token,
-                            expiresIn: oauthResponse.expires_in,
-                            service: serviceName,
-                            ownerId: userId
-                        };
+                // Create the new record
+                const data = {
+                    accessToken: oauthResponse.access_token,
+                    tokenType: oauthResponse.token_type.toLowerCase(),
+                    refreshToken: oauthResponse.refresh_token,
+                    expiresIn: oauthResponse.expires_in,
+                    service: serviceName,
+                    ownerId: userId
+                };
 
-                        return ApiCredential.create(data)
-                    })
+                ApiCredential.create(data)
                     .then(apiCredential => {
+                        // Add the scopes to the new record
                         const scopes = oauthResponse.scope.split(' ');
                         apiCredential.addScopes(scopes);
 
-                        return result.access_token;
+                        // Delete the old record, then return the newly created record
+                        return ApiCredential.destroy({ where: { refreshToken } })
+                            .then(() => apiCredential);
                     });
             })
     }

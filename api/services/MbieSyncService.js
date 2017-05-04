@@ -77,7 +77,7 @@ function fetchUrl(bearerToken, url){
                 return response;
             }
             else{
-                throw Error({status: response.status, response: response})
+                throw {status: response.status, response: response}
             }
         })
         .then(response => {
@@ -123,13 +123,23 @@ module.exports = {
             `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/shareholding`,
             `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/directors`,
         ];
+
+        const fetchAndRetry = (bearerToken, url, userId) => {
+            return fetchUrl(bearerToken, url)
+                .catch(error => {
+                    if (error.status === 401) {
+                        MbieApiBearerTokenService.refreshUserToken(userId)
+                        return fetchUrl(bearerToken, url);
+                    }
+                    
+                    throw error;
+                });
+        }
+
         return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
-            .then(bearerToken => {
-                return Promise.all(urls.map(url => fetchUrl(bearerToken, url)))
-            })
-            .spread((general, shareholdings, directors) => {
-                return {general, shareholdings, directors}
-            });
+            .then(bearerToken => Promise.all(urls.map(url => fetchAndRetry(bearerToken, url, user.id))))
+            .spread((general, shareholdings, directors) => ({general, shareholdings, directors}))
+            
     },
 
     flatten: function(user, company, state) {
