@@ -5,16 +5,16 @@ import { Link } from 'react-router';
 
 export const NavWidget = (props) => {
     return <div className={"widget " + (props.className ? props.className : '')}>
-            <div className="widget-header">
              <Link to={props.link} >
+            <span className="widget-header">
                 <span className="widget-title">
                     <i className={props.iconClass ? props.iconClass : ''}/> { props.title }
                 </span>
                 <span className="widget-control">
                     View All
                 </span>
+            </span>
                 </Link>
-            </div>
             <div className={"widget-body " + (props.bodyClass ? props.bodyClass : '')}>
                { props.children }
             </div>
