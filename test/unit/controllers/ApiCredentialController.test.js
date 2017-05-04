@@ -55,6 +55,9 @@ describe('API Credential Controller', function() {
                 .catch(error => {})
                 .then(() => done());
         });
+
+        // TODO: test '/api/auth-with/companies-office?code=some_random_code'
+
     });
 
     describe('NZBN', function() {
@@ -94,6 +97,8 @@ describe('API Credential Controller', function() {
                 .catch(error => {})
                 .then(() => done());
         });
+
+        // TODO: test '/api/auth-with/nzbn?code=some_random_code'
     });
 
 });
