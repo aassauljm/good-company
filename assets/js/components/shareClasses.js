@@ -347,7 +347,7 @@ export class ShareClassesTable extends React.Component {
     render() {
         const classes = ((this.props.companyState.shareClasses || {}).shareClasses || []);
         return <LawBrowserContainer lawLinks={shareClassLawLinks()}>
-            <Widget title="Share Classes">
+            <Widget title="Share Classes" bodyClass="share-classes">
                     { !this.props.children && this.renderList(classes) }
                      { this.props.children && React.cloneElement(this.props.children, {
                             companyId: this.key(),
