@@ -64,12 +64,14 @@ function stubs(){
     }
 
     MbieApiService.requestOauthToken = function(url, consumerKey, consumerSecret) {
-        return {
-            accessToken: 'access_token_random_string',
-            tokenType: 'bearer',
-            refreshToken: 'refresh_token_random_string',
-            expiresIn: 3600
-        };
+        return new Promise((resolve, reject) => {
+            resolve({
+                accessToken: 'access_token_random_string',
+                tokenType: 'bearer',
+                refreshToken: 'refresh_token_random_string',
+                expiresIn: 3600
+            });
+        });
     }
 
 

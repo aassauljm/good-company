@@ -56,8 +56,17 @@ describe('API Credential Controller', function() {
                 .then(() => done());
         });
 
-        // TODO: test '/api/auth-with/companies-office?code=some_random_code'
+        it('should retrieve oauth token from companies office', function(done) {
+            req.get('/api/auth-with/companies-office?code=some_random_code')
+                .expect(302)
+                .then(response => {
+                    const expectedRedirectUrl = sails.config.APP_URL;
+                    return response.headers.location.should.be.equal(expectedRedirectUrl);
+                })
+                .catch(error => {})
+                .then(() => done());
 
+        });
     });
 
     describe('NZBN', function() {
