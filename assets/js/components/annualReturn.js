@@ -223,9 +223,12 @@ export class ReviewAnnualReturn extends React.PureComponent {
     }
 
     renderControls() {
-        return  <div className="button-row">
-                <Link className="btn btn-info" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download</Link>
-                <Link className="btn btn-success" onClick={this.submit}>Confirm and Submit</Link>
+        const deadline = this.props.companyState.deadlines.annualReturn;
+        return  <div><div className="button-row">
+                { this.props.arSummary && this.props.arSummary.data && <Link className="btn btn-info" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download</Link> }
+                { deadline &&  this.props.arSummary && this.props.arSummary.data && <Button bsStyle="success" onClick={this.submit}>Confirm and Submit</Button> }
+            </div>
+            { !deadline && <div className="alert alert-warning">Annual Return is not due</div> }
             </div>
 
     }
@@ -233,6 +236,13 @@ export class ReviewAnnualReturn extends React.PureComponent {
     submit() {
 
     }
+
+    renderError() {
+        return <div className="alert alert-danger">
+            Could not request info from the Companies Office.  Please try again later.
+        </div>
+    }
+
 
     renderLoading() {
         return <div>
@@ -246,9 +256,10 @@ export class ReviewAnnualReturn extends React.PureComponent {
     render() {
         return <LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Review Annual Return">
-                    { this.props.arSummary && this.props.arSummary.data && this.renderControls() }
+                    { this.renderControls() }
                     { this.props.arSummary && this.props.arSummary.data && <ARSummary company={this.props.arSummary.data} /> }
                     { this.props.arSummary && this.props.arSummary._status === 'fetching' && this.renderLoading() }
+                    { this.props.arSummary && this.props.arSummary._status === 'error' && this.renderError() }
                     </Widget>
         </LawBrowserContainer>
     }
