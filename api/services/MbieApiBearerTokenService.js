@@ -78,11 +78,15 @@ module.exports = {
     refreshUserToken: function(userId, refreshToken=null) {
         const serviceName = 'companies-office';
 
+        // If the user didn't pass the refresh token, go get it
         if (!refreshToken) {
             const tokenRecord = getUserTokenRecord(userId, serviceName);
             refreshToken = tokenRecord.refreshToken;
         }
 
+        sails.log.info(`Refreshing ${serviceName} oauth token for user: ${userId}. Using refresh token: ${refreshToken}.`);
+
+        // Build the url for getting the new access token using the refresh token
         const url = UtilService.buildUrl(`${sails.config.mbie.companiesOffice.oauth.url}token`, {
             refresh_token: refreshToken,
             grant_type: 'refresh_token',
@@ -97,26 +101,33 @@ module.exports = {
             }
         };
 
+        // Companies Office pre-production API has a bad cert - ignore it in development
         if (__DEV__) {
-            fetchOptions.agent = new https.Agent({
-                rejectUnauthorized: false
-            });
+            sails.log.info('Refreshing oauth token using insecure request.');
+            fetchOptions.agent = new https.Agent({ rejectUnauthorized: false });
         }
 
+        // Fetch the new access token
         return fetch(url, fetchOptions)
             .then(response => response.json())
             .then(oauthResponse => {
-                // Create the new record
-                const data = {
-                    accessToken: oauthResponse.access_token,
-                    tokenType: oauthResponse.token_type.toLowerCase(),
-                    refreshToken: oauthResponse.refresh_token,
-                    expiresIn: oauthResponse.expires_in,
-                    service: serviceName,
-                    ownerId: userId
-                };
+                if (oauthResponse.error) {
+                    // Something wen't wrong - log and throw error
+                    const errorDescription = `Error refreshing oauth token for ${serviceName}: ${JSON.stringify(oauthResponse)}`;
 
-                ApiCredential.create(data)
+                    sails.log.error(errorDescription);
+                    throw new Error(errorDescription);
+                }
+
+                // Create the new api credentials record with the new access_token, refresh_token, etc.
+                return ApiCredential.create({
+                        accessToken: oauthResponse.access_token,
+                        tokenType: oauthResponse.token_type.toLowerCase(),
+                        refreshToken: oauthResponse.refresh_token,
+                        expiresIn: oauthResponse.expires_in,
+                        service: serviceName,
+                        ownerId: userId
+                    })
                     .then(apiCredential => {
                         // Add the scopes to the new record
                         const scopes = oauthResponse.scope.split(' ');
@@ -124,8 +135,11 @@ module.exports = {
 
                         // Delete the old record, then return the newly created record
                         return ApiCredential.destroy({ where: { refreshToken } })
-                            .then(() => apiCredential);
+                            .then(() => {
+                                sails.log.info(`Finished refreshing oauth token for ${serviceName}`);
+                                return apiCredential
+                            });
                     });
-            })
+            });
     }
 }
