@@ -63,6 +63,30 @@ function stubs(){
             })
     }
 
+    MbieApiService.requestOauthToken = function(url, consumerKey, consumerSecret) {
+        return new Promise((resolve, reject) => {
+            let response;
+
+            if (url.includes('error')) {
+                response = {
+                    error: 'error!',
+                    description: 'An error has occured :('
+                };
+            }
+            else {
+                response = {
+                    access_token: 'access_token_random_string',
+                    token_type: 'bearer',
+                    refresh_token: 'refresh_token_random_string',
+                    expires_in: 3600,
+                    scope: 'SCOPE_ONE SCOPE_TWO'
+                };
+            }
+
+            resolve(response);
+        });
+    }
+
 
     MailService.getTransport = function(){
         return nodemailer.createTransport(stubTransport());

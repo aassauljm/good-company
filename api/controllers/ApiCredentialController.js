@@ -103,7 +103,7 @@ module.exports = {
     },
 
     refreshUserToken: function(req, res) {
-        MbieApiBearerTokenService.refreshUserToken("41b2217fe105a3255e2805e2e9814a78")
+        MbieApiBearerTokenService.refreshUserToken(req.user.id)
             .then(result => res.end(result));
     }
 
