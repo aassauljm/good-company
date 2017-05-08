@@ -5,17 +5,39 @@ import fetch from "isomorphic-fetch";
 import https from 'https';
 
 const AR = {
-  "declaration": "I declare that this annual return is being filed in accordance with the Companies Act.",
+  "declaration": "I certify that the information contained in this annual return is correct.",
   "name": {
-    "title": "Dr",
     "firstName": "Joe",
     "middleNames": "string",
     "lastName": "Bloggs"
   },
-  "designation": "Authorised Person"
+  "phoneContact": {
+    "phoneContactId": "123456789",
+    "phoneNumber": "1234567",
+    "areaCode": "4",
+    "link": {
+      "rel": "self",
+      "href": "http://api.business.govt.nz/services/v1/companies-office/companies-register/companies/123456789"
+    },
+    "phonePurpose": "Mobile",
+    "countryCode": "64"
+  },
+  "emailAddress": {
+    "emailPurpose": "Email",
+    "emailAddress": "Joe.Bloggs@mycompany.co.nz",
+    "emailAddressId": "123456789",
+    "link": {
+      "rel": "self",
+      "href": "http://api.business.govt.nz/services/v1/companies-office/companies-register/companies/123456789"
+    }
+  },
+  "designation": "Authorised Person",
+  "companyDetailsConfirmedCorrectAsOfETag": "2703b543-d6a2-4c27-a699-c0157fefc30a",
+  "annualReturnConsentDocumentRef": "686897696a7c8776b7e",
+  "annualReturnShareholderListDocumentRef": "686897696a7c8776b7e"
 }
 
-
+//https://www.companiesoffice.govt.nz/companies/learn-about/create-manage-logon/payment-options#establish-dd
 
 function joinName(nameObj){
     return [nameObj.firstName, nameObj.middleNames, nameObj.lastName].filter(f => f).join(' ')
@@ -131,7 +153,7 @@ module.exports = {
                         MbieApiBearerTokenService.refreshUserToken(userId)
                         return fetchUrl(bearerToken, url);
                     }
-                    
+
                     throw error;
                 });
         }
@@ -139,12 +161,13 @@ module.exports = {
         return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
             .then(bearerToken => Promise.all(urls.map(url => fetchAndRetry(bearerToken, url, user.id))))
             .spread((general, shareholdings, directors) => ({general, shareholdings, directors}))
-            
+
     },
 
     flatten: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(results => {
+                console.log(JSON.stringify(results, null, 4))
                 const company = {holdingList: {}, directorList:{}};
                 const etag = results.general.header.etag[0];
                 const shareholdings = results.shareholdings.body;
@@ -172,6 +195,7 @@ module.exports = {
                 company.companyName = results.general.body.companyName;
                 company.nzbn = results.general.body.nzbn;
                 company.ultimateHoldingCompany = results.general.body.isUltimateHoldingCompany;
+                company.arFilingMoth = moment().month(resutls.general.body.annualReturnFilingMonth + 1).format('MMMM')
                 const addressMap = {
                     'Registered office address': 'registeredCompanyAddress',
                     'Address for service': 'addressForService',

@@ -8,7 +8,7 @@ import { AnnualReturnHOC,  AnnualReturnFromRouteHOC } from '../hoc/resources';
 import { stringDateToFormattedString, numberWithCommas } from '../utils';
 import moment from 'moment';
 import Widget from './widget';
-
+import Loading from './loading';
 
 
 function ARLinks() {
@@ -217,18 +217,38 @@ export class AnnualReturnLoader extends React.Component {
 @AnnualReturnHOC()
 export class ReviewAnnualReturn extends React.PureComponent {
 
+    constructor(props) {
+        super(props);
+        this.submit = ::this.submit;
+    }
+
     renderControls() {
         return  <div className="button-row">
-                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download</Link>
+                <Link className="btn btn-info" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download</Link>
+                <Link className="btn btn-success" onClick={this.submit}>Confirm and Submit</Link>
             </div>
 
+    }
+
+    submit() {
+
+    }
+
+    renderLoading() {
+        return <div>
+                <p className="text-center">
+                    Fetching Annual Return data from the Companies Office
+                </p>
+                <Loading />
+            </div>
     }
 
     render() {
         return <LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Review Annual Return">
-                    { this.renderControls() }
+                    { this.props.arSummary && this.props.arSummary.data && this.renderControls() }
                     { this.props.arSummary && this.props.arSummary.data && <ARSummary company={this.props.arSummary.data} /> }
+                    { this.props.arSummary && this.props.arSummary._status === 'fetching' && this.renderLoading() }
                     </Widget>
         </LawBrowserContainer>
     }
