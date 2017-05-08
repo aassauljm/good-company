@@ -45,7 +45,7 @@ describe('API Credential Controller', function() {
                 .then(() => done()); // .then() after a catch is the closest to a .finally() we can get
         });
 
-        it('should redirect to home page with error when Companies Office returns an error', function() {
+        it('should redirect to home page with error when login process returns an error', function() {
             req.get('/api/auth-with/companies-office?error=SOME_RANDOM_ERROR_MESSAGE')
                 .expect(302)
                 .then(response => {
@@ -65,7 +65,17 @@ describe('API Credential Controller', function() {
                 })
                 .catch(error => {})
                 .then(() => done());
+        });
 
+        it('should redirect to home page \with error when retrieving oauth token returns an error', function() {
+            req.get('/api/auth-with/companies-office?code=code_that_will_error')
+                .expect(302)
+                .then(response => {
+                    const expectedRedirectUrl = `${sails.config.APP_URL}/?error=FAIL_COMPANIES_OFFICE`;
+                    return response.headers.location.should.be.equal(expectedRedirectUrl);
+                })
+                .catch(error => {})
+                .then(() => done());
         });
     });
 
@@ -93,10 +103,10 @@ describe('API Credential Controller', function() {
                     return response.headers.location.should.be.equal(expectedRedirectUrl);
                 })
                 .catch(() => {})
-                .then(() => done()); // .then() after a catch is the closest to a .finally() we can get
+                .then(() => done());
         });
 
-        it('should redirect to home page with error when NZBN returns an error', function() {
+        it('should redirect to home page with error when login process returns an error', function() {
             req.get('/api/auth-with/nzbn?error=SOME_RANDOM_ERROR_MESSAGE')
                 .expect(302)
                 .then(response => {
@@ -107,7 +117,28 @@ describe('API Credential Controller', function() {
                 .then(() => done());
         });
 
-        // TODO: test '/api/auth-with/nzbn?code=some_random_code'
+
+        it('should retrieve oauth token from nzbn', function(done) {
+            req.get('/api/auth-with/nzbn?code=some_random_code')
+                .expect(302)
+                .then(response => {
+                    const expectedRedirectUrl = sails.config.APP_URL;
+                    return response.headers.location.should.be.equal(expectedRedirectUrl);
+                })
+                .catch(error => {})
+                .then(() => done());
+        });
+
+        it('should redirect to home page \with error when retrieving oauth token returns an error', function() {
+            req.get('/api/auth-with/nzbn?code=code_that_will_error')
+                .expect(302)
+                .then(response => {
+                    const expectedRedirectUrl = `${sails.config.APP_URL}/?error=FAIL_NZBN`;
+                    return response.headers.location.should.be.equal(expectedRedirectUrl);
+                })
+                .catch(error => {})
+                .then(() => done());
+        });
     });
 
 });

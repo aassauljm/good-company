@@ -59,7 +59,7 @@ function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, 
                 .then(apiCredential => {
                     const scopes = oauthResponse.scope.split(' ');
                     apiCredential.addScopes(scopes);
-                })
+                });
         });
 }
 
@@ -79,10 +79,7 @@ const authWithService = (config) => (req, res) => {
                 userId: req.user.id
             })
             .then(() => res.redirect(config.redirect))
-            .catch((error) => {
-                sails.log.error(error);
-                res.redirect(`/?error=${config.errorType}`);
-            });
+            .catch(error => res.redirect(`/?error=${config.errorType}`));
     }
     else if (req.query.error) {
         sails.log.error(req.query.error)
