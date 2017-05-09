@@ -54,7 +54,10 @@ function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, 
                 service: serviceName,
                 ownerId: userId
             };
-
+            sails.log.verbose(JSON.stringify({
+                message: 'oauth requested',
+                ...data
+            }))
             return ApiCredential.create(data)
                 .then(apiCredential => {
                     const scopes = oauthResponse.scope.split(' ');

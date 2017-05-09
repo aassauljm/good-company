@@ -5,11 +5,17 @@ import LawBrowserContainer from './lawBrowserContainer'
 import LawBrowserLink from './lawBrowserLink';
 import { Link } from 'react-router';
 import { AnnualReturnHOC,  AnnualReturnFromRouteHOC } from '../hoc/resources';
-import { stringDateToFormattedString, numberWithCommas } from '../utils';
+import { stringDateToFormattedString, numberWithCommas, formFieldProps, requireFields } from '../utils';
+import { createResource, addNotification } from '../actions';
 import moment from 'moment';
 import Widget from './widget';
 import Loading from './loading';
-
+import Button from 'react-bootstrap/lib/Button';
+import Input from './forms/input';
+import { PersonNameFull } from './forms/personName';
+import { reduxForm } from 'redux-form';
+import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 
 function ARLinks() {
     return <div>
@@ -22,6 +28,8 @@ function ARLinks() {
         <LawBrowserLink title="Companies Act 1993 Regulations 1994" location="sch 1 cl 12">Form of annual return</LawBrowserLink>
         </div>
 }
+
+const DECLARATION = "I certify that the information contained in this annual return is correct.";
 
 const ARSummary = (props) => {
     const leftColumn = 'col-xs-4 left';
@@ -58,10 +66,10 @@ const ARSummary = (props) => {
 
         <div className={ row }>
             <div className={ leftColumn }>
-                { STRINGS.effectiveDate }
+                { STRINGS.effectiveDateString }
             </div>
             <div className={ rightColumn }>
-                { moment().format('D MMM YYYY') }
+                { props.company.effectiveDate }
             </div>
         </div>
 
@@ -70,7 +78,7 @@ const ARSummary = (props) => {
                 Filing Year
             </div>
             <div className={ rightColumn }>
-                { (new Date()).getFullYear() }
+                { props.companyFilingYear }
             </div>
         </div>
 
@@ -215,6 +223,10 @@ export class AnnualReturnLoader extends React.Component {
 
 
 @AnnualReturnHOC()
+@reduxForm({
+    fields: ['confirm'],
+    form: 'confirmAR'
+})
 export class ReviewAnnualReturn extends React.PureComponent {
 
     constructor(props) {
@@ -223,18 +235,25 @@ export class ReviewAnnualReturn extends React.PureComponent {
     }
 
     renderControls() {
-        const deadline = this.props.companyState.deadlines.annualReturn;
-        return  <div><div className="button-row">
-                { this.props.arSummary && this.props.arSummary.data && <Link className="btn btn-info" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download</Link> }
-                { deadline &&  this.props.arSummary && this.props.arSummary.data && <Button bsStyle="success" onClick={this.submit}>Confirm and Submit</Button> }
+        const { fields: {confirm} } = this.props;
+        const deadline = this.props.companyState.deadlines.annualReturn || true
+        const ready = deadline &&  this.props.arSummary && this.props.arSummary.data;
+
+        return  <div>
+                <div className="button-row">
+                    { ready && <Input type="checkbox" {...confirm} label={DECLARATION} /> }
+                </div>
+                <div className="button-row">
+                { this.props.arSummary && this.props.arSummary.data && <Link className="btn btn-info" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download as PDF</Link> }
+                { ready && <Button bsStyle="success" onClick={() => this.submit(this.props.arSummary.data.etag)} disabled={!confirm.value}>Continue</Button> }
             </div>
             { !deadline && <div className="alert alert-warning">Annual Return is not due</div> }
             </div>
 
     }
 
-    submit() {
-
+    submit(etag) {
+        this.props.push(`/company/view/${this.props.companyId}/ar_details/${etag}`)
     }
 
     renderError() {
@@ -256,15 +275,131 @@ export class ReviewAnnualReturn extends React.PureComponent {
     render() {
         return <LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Review Annual Return">
-                    { this.renderControls() }
                     { this.props.arSummary && this.props.arSummary.data && <ARSummary company={this.props.arSummary.data} /> }
                     { this.props.arSummary && this.props.arSummary._status === 'fetching' && this.renderLoading() }
                     { this.props.arSummary && this.props.arSummary._status === 'error' && this.renderError() }
+                    { this.renderControls() }
                     </Widget>
         </LawBrowserContainer>
     }
 }
 
+
+const FIELDS = [
+        'designation',
+        'email',
+        //'name.title',
+        'name.firstName',
+        'name.middleNames',
+        'name.lastName',
+        //'phone.number',
+        //'phone.purpose',
+        //'phone.areaCode',
+        //'phone.countryCode'
+        ];
+
+const baseValidate =  requireFields('designation');
+const nameValidate = requireFields('firstName', 'lastName');
+
+@reduxForm({
+    fields: FIELDS,
+    form: 'arSubmission',
+    validate: (values) => {
+        const errors = baseValidate(values);
+        errors.name = nameValidate(values.name);
+        return errors;
+    }
+})
+@formFieldProps({
+    labelClassName: 'col-md-3',
+    wrapperClassName: 'col-md-9'
+})
+export class AnnualReturnSubmissionForm extends React.PureComponent {
+
+    render() {
+        return <form className="form form-horizontal"  onSubmit={this.props.handleSubmit}>
+                    <div className="form-group">
+                    <div className="control-label col-md-3">
+                    <label>{ STRINGS.annualReturns.fullName}</label>
+                    </div>
+                    <div className="col-md-9">
+                        <div className="col-xs-12">
+                        <PersonNameFull {...this.props.fields.name} />
+                        </div>
+                    </div>
+                    </div>
+                    <Input type="select" {...this.formFieldProps('designation', STRINGS.annualReturns)} >
+                         <option value="" disabled>Please select...</option>
+                        <option value="Authorised Person">Authorised Person</option>
+                        <option value="Director">Director</option>
+                    </Input>
+                    <Input type="email" {...this.formFieldProps('email', STRINGS.annualReturns)} />
+                    <div className="button-row">
+                    <Link className="btn btn-default" to={`/company/view/${this.props.companyId}/review_annual_return`}>Back</Link>
+                        <Button type="submit" bsStyle="primary">Submit Annual Return</Button>
+                    </div>
+                </form>
+    }
+}
+
+
+@connect((state, ownProps) => ({
+    userInfo: state.userInfo,
+    arSubmitRequest: state.resources[`/company/${ownProps.companyId}/ar_submit`]
+}), {
+    submitAR: (url, data) => createResource(url, data, {
+        confirmation: {
+            title: 'Confirm Annual Return Submission',
+            description: 'If submission is successful, you will be charged to your direct debit acccount',
+            resolveMessage: 'Confirm Submission',
+            resolveBsStyle: 'danger'
+        },
+        loadingMessage: 'Submitting Annual Return'
+    }),
+    addNotification: (...args) => addNotification(...args)
+})
+export class AnnualReturnSubmission extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.submit = ::this.submit;
+    }
+
+    submit(values) {
+        const url = `/company/${this.props.companyId}/ar_submit`;
+        return this.props.submitAR(url, {
+            designation: values.designation,
+            name: values.name,
+            "emailAddress": {
+                "emailPurpose": "Email",
+                "emailAddress": values.email
+            },
+            declaration: DECLARATION,
+            companyDetailsConfirmedCorrectAsOfETag: this.props.params.etag
+        })
+        .then(() => {
+            this.props.addNotification({message: 'Annual Return Submitted'})
+            this.props.push(`/company/view/${this.props.companyId}`)
+        })
+    }
+
+    error() {
+        if(this.props.arSubmitRequest && this.props.arSubmitRequest._status === 'error'){
+            return <div className="alert alert-danger">
+                { this.props.arSubmitRequest.error.message }
+            </div>
+        }
+    }
+
+    render() {
+
+        return <LawBrowserContainer lawLinks={ARLinks()}>
+              <Widget title="Review Annual Return">
+                { this.error() }
+                <AnnualReturnSubmissionForm initialValues={{email: this.props.userInfo.email}} onSubmit={this.submit} companyId={this.props.companyId}/>
+            </Widget>
+        </LawBrowserContainer>
+    }
+}
 
 export default class AnnualReturn extends React.PureComponent {
     render() {

@@ -23,6 +23,9 @@ function getUserTokenRecord(userId, service) {
         })
 }
 
+const TOKEN_WAITING_TIME = 5000;
+
+
 module.exports = {
     getToken: function() {
         const query = `SELECT * from mbie_api_bearer_token WHERE service = 'nzbn' AND  now() < "createdAt" + ( "expiresIn" * interval '1 second')`;
@@ -30,8 +33,7 @@ module.exports = {
         return sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
             .spread(result => result ? result.token : null)
             .then(mbieBearerToken => {
-                if (!mbieBearerToken) { 
-    console.log('dadada');
+                if (!mbieBearerToken) {
                     return MbieApiBearerTokenService.requestToken();
                 }
                 return mbieBearerToken;
@@ -44,7 +46,7 @@ module.exports = {
                 url: `${sails.config.mbie.nzbn.url}token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.consumer_key, sails.config.mbie.nzbn.consumer_secret)
+                    Authorization: UtilService.makeBasicAuthHeader(sails.config.mbie.nzbn.consumerKey, sails.config.mbie.nzbn.consumerSecret)
                 },
                 data: {
                     grant_type: 'client_credentials'
@@ -97,20 +99,21 @@ module.exports = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': UtilService.makeBasicAuthHeader(sails.config.mbie.companiesOffice.oauth.consumer_key, sails.config.mbie.companiesOffice.oauth.consumer_secret)
+                'Authorization': UtilService.makeBasicAuthHeader(sails.config.mbie.companiesOffice.oauth.consumerKey, sails.config.mbie.companiesOffice.oauth.consumerSecret)
             }
         };
-
         // Companies Office pre-production API has a bad cert - ignore it in development
         if (__DEV__) {
             sails.log.info('Refreshing oauth token using insecure request.');
             fetchOptions.agent = new https.Agent({ rejectUnauthorized: false });
         }
-
+        let oauthResponse, accessToken;
         // Fetch the new access token
-        return fetch(url, fetchOptions)
+        return sequelize.transaction(() => {
+            return fetch(url, fetchOptions)
             .then(response => response.json())
-            .then(oauthResponse => {
+            .then(_oauthResponse => {
+                oauthResponse = _oauthResponse;
                 if (oauthResponse.error) {
                     // Something wen't wrong - log and throw error
                     const errorDescription = `Error refreshing oauth token for ${serviceName}: ${JSON.stringify(oauthResponse)}`;
@@ -118,28 +121,30 @@ module.exports = {
                     sails.log.error(errorDescription);
                     throw new Error(errorDescription);
                 }
-
-                // Create the new api credentials record with the new access_token, refresh_token, etc.
+                return ApiCredential.destroy({ where: { refreshToken } })
+            })
+            .then(() => {
+            // Create the new api credentials record with the new access_token, refresh_token, etc.
                 return ApiCredential.create({
-                        accessToken: oauthResponse.access_token,
-                        tokenType: oauthResponse.token_type.toLowerCase(),
-                        refreshToken: oauthResponse.refresh_token,
-                        expiresIn: oauthResponse.expires_in,
-                        service: serviceName,
-                        ownerId: userId
-                    })
-                    .then(apiCredential => {
-                        // Add the scopes to the new record
-                        const scopes = oauthResponse.scope.split(' ');
-                        apiCredential.addScopes(scopes);
-
-                        // Delete the old record, then return the newly created record
-                        return ApiCredential.destroy({ where: { refreshToken } })
-                            .then(() => {
-                                sails.log.info(`Finished refreshing oauth token for ${serviceName}`);
-                                return apiCredential
-                            });
-                    });
+                    accessToken: oauthResponse.access_token,
+                    tokenType: oauthResponse.token_type.toLowerCase(),
+                    refreshToken: oauthResponse.refresh_token,
+                    expiresIn: oauthResponse.expires_in,
+                    service: serviceName,
+                    ownerId: userId
+                })
+            })
+            .then(apiCredential => {
+                accessToken = apiCredential.accessToken;
+                // Add the scopes to the new record
+                const scopes = oauthResponse.scope.split(' ');
+                return apiCredential.addScopes(scopes);
+            })
+            .delay(TOKEN_WAITING_TIME)
+            .then(() => {
+                sails.log.info(`Finished refreshing oauth token for ${serviceName}`);
+                return accessToken;
             });
+        })
     }
 }

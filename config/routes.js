@@ -327,6 +327,8 @@ module.exports.routes = {
         model: 'company'
     },
 
+
+
     'POST /api/render_template': {
         controller: 'RenderController',
         action: 'renderTemplate',
@@ -543,6 +545,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'POST /api/company/:id/ar_submit': {
+        controller: 'CompanyController',
+        action: 'submitAR',
+        model: 'company'
+    },
 
     'GET /api/bla': {
         controller: 'ApiCredentialController',

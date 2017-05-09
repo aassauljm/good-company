@@ -81,8 +81,11 @@ module.exports = {
     authorisedCompanies: function (req, res) {
         function getCompaniesTask() {
              return getAuthorisedCompanies(req.user)
-                .then(authorisedCompanies => Promise.resolve(authorisedCompanies))
-                .catch(error => Promise.reject(error));
+                //.then(authorisedCompanies => Promise.resolve(authorisedCompanies))
+                .catch(error => {
+                    console.log(error)
+                    return Promise.reject(error)
+                });
         }
 
         promiseRetry(getCompaniesTask, { max_tries: 5, interval: 1000, backoff: 1.5 })

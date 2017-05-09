@@ -1,4 +1,6 @@
 "use strict";
+const https = require('https');
+import url from 'url'
 
 export function subsetSum(items, targetSum) {
     //exponential implementation, sucks.
@@ -58,7 +60,6 @@ export function subsetSum(items, targetSum) {
 export function makeBasicAuthHeader(username, password) {
     const hash = new Buffer(username + ':' + password).toString('base64');
     const header = 'Basic ' + hash;
-
     return header;
 }
 
@@ -129,4 +130,48 @@ export function subsetSumMemoFail(items, targetSum) {
 
 export function logRequest(url, headers) {
     sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);
+}
+
+
+export function httpsRequest(params, postData) {
+    const urlParts = url.parse(params.url);
+    return new Promise(function(resolve, reject) {
+        var req = https.request({
+                ...params,
+                ...urlParts,
+            }, function(res) {
+            // reject on bad status
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+               failedStatus = res.statusCode;
+            }
+            // cumulate data
+            var body = [];
+            var failedStatus;
+            res.on('data', function(chunk) {
+                body.push(chunk);
+            });
+            // resolve on end
+            res.on('end', function() {
+                try {
+                    body = JSON.parse(Buffer.concat(body).toString());
+                } catch(e) {
+                    return reject(new sails.config.exceptions.BadRequest('Request failed', {status: failedStatus,  body: {}}));
+                }
+                if(failedStatus){
+                    return reject(new sails.config.exceptions.BadRequest('Request failed', {status: failedStatus,  body: body}));
+                }
+                resolve(body);
+            });
+        });
+        // reject on request error
+        req.on('error', function(err) {
+            // This is not a "Second reject", just a different sort of failure
+            reject(err);
+        });
+        if (postData) {
+            req.write(postData);
+        }
+        // IMPORTANT
+        req.end();
+    });
 }

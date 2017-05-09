@@ -2,7 +2,12 @@
 import Promise from 'bluebird';
 import moment from 'moment';
 import fetch from "isomorphic-fetch";
-import https from 'https';
+import https from 'https'
+import FormData from 'form-data';
+
+const curl = Promise.promisifyAll(require('curlrequest'));
+
+
 
 const AR = {
   "declaration": "I certify that the information contained in this annual return is correct.",
@@ -44,6 +49,9 @@ function joinName(nameObj){
 }
 
 function joinAddress(address){
+    if(!address){
+        return null;
+    }
     return [address.address1, address.address2, address.address3, address.postCode, address.countryCode].filter(f => f).join(', ');
 }
 
@@ -79,19 +87,27 @@ function formatPerson(person){
 
 }
 
-function fetchUrl(bearerToken, url){
+function fetchUrl(bearerToken, url, options = {}, headers = {}){
     let fetchOptions = {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json',
-            'Authorization': `Bearer ${bearerToken}`
-        }
+            'Authorization': `Bearer ${bearerToken}`,
+            ...headers
+        },
+        ...options
     };
     if (__DEV__) {
         fetchOptions.agent = new https.Agent({
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            keepAlive: true
         });
     }
+    sails.log.verbose(JSON.stringify({
+        message: 'fetching',
+        url,
+        fetchOptions
+    }))
     return Promise.bind({})
         .then(() => fetch(url, fetchOptions))
         .then(response => {
@@ -111,10 +127,30 @@ function fetchUrl(bearerToken, url){
 }
 
 
+
+
 function hasPriviledgedInfo(companyInfo) {
     return !!companyInfo.contacts.physicalOrPostalAddresses.find(a => {
         return a.addressPurpose === "Address for communication"
     })
+}
+
+
+const getUserTokenAndRetry = (user, action) => {
+    return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
+        .then(bearerToken => {
+            return action(bearerToken);
+        })
+        .catch(error => {
+            if (error.status === 401) {
+                return MbieApiBearerTokenService.refreshUserToken(user.id)
+                .then((accessToken) => {
+                    return action(bearerToken);
+                })
+            }
+
+            throw error;
+        });
 }
 
 
@@ -146,28 +182,13 @@ module.exports = {
             `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/directors`,
         ];
 
-        const fetchAndRetry = (bearerToken, url, userId) => {
-            return fetchUrl(bearerToken, url)
-                .catch(error => {
-                    if (error.status === 401) {
-                        MbieApiBearerTokenService.refreshUserToken(userId)
-                        return fetchUrl(bearerToken, url);
-                    }
-
-                    throw error;
-                });
-        }
-
-        return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
-            .then(bearerToken => Promise.all(urls.map(url => fetchAndRetry(bearerToken, url, user.id))))
-            .spread((general, shareholdings, directors) => ({general, shareholdings, directors}))
-
+        return Promise.mapSeries(urls, url => getUserTokenAndRetry(user, (token) => fetchUrl(token, url)))
+         .spread((general, shareholdings, directors) => ({general, shareholdings, directors}))
     },
 
     flatten: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(results => {
-                console.log(JSON.stringify(results, null, 4))
                 const company = {holdingList: {}, directorList:{}};
                 const etag = results.general.header.etag[0];
                 const shareholdings = results.shareholdings.body;
@@ -192,10 +213,13 @@ module.exports = {
                         }
                     }
                 });
+                company.etag = etag;
                 company.companyName = results.general.body.companyName;
                 company.nzbn = results.general.body.nzbn;
                 company.ultimateHoldingCompany = results.general.body.isUltimateHoldingCompany;
-                company.arFilingMoth = moment().month(resutls.general.body.annualReturnFilingMonth + 1).format('MMMM')
+                company.arFilingMoth = moment().month(results.general.body.annualReturnFilingMonth + 1).format('MMMM');
+                company.effectiveDateString = moment().format('D MMM YYYY')
+                company.filingYear = (new Date()).getFullYear();
                 const addressMap = {
                     'Registered office address': 'registeredCompanyAddress',
                     'Address for service': 'addressForService',
@@ -230,8 +254,104 @@ module.exports = {
     merge: function(user, company, state) {
         return MbieSyncService.flatten(user, company, state);
     },
-    arSummary: function(user, company, state){
-        return MbieSyncService.flatten(user, company, state);;
+    arSummary: function(user, company, state) {
+        return MbieSyncService.flatten(user, company, state);
+    },
+    /*arSubmitff: function(user, company, state, values) {
+        const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
+        return getUserTokenAndRetry(user, (token) => {
+            return curl.requestAsync({
+                    url: url,
+                    method: 'POST',
+                    //fail: true,
+                    include: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    data: JSON.stringify(_.pick(values, 'declaration', 'name', 'phoneContact', 'emailAddress', 'designation',
+                                                'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
+                                                'annualReturnShareholderListDocumentRef' ))
+                })
+        })
+        .tap((result, x) => {
+            console.log(result, x);
+            sails.log.verbose(result)
+        })
+        .then(JSON.parse)
+        .catch((result) => {
+            console.log(result)
+            if(result.status === 400){
+                sails.log.error(JSON.stringify(result))
+                throw sails.config.exceptions.COFailValidation()
+            }
+            if(result.status === 403){
+                throw sails.config.exceptions.COUnauthorised()
+            }
+            console.log(result);
+            throw Error()
+        })
+
+    },*/
+    /*
+    arSubmitWTF: function(user, company, state, values) {
+        const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
+        const body =  JSON.stringify(_.pick(values, 'declaration', 'name', 'phoneContact', 'emailAddress', 'designation',
+                                            'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
+                                        'annualReturnShareholderListDocumentRef' ));
+        return getUserTokenAndRetry(user, (token) => {
+            return fetchUrl(token, url, {
+                method: 'POST',
+                body: body
+            }, {'Content-Type': 'application/json', 'Content-Length': null})
+        })
+        .then((result) => {
+            console.log(result)
+            if(result.status === 400){
+                sails.log.error(JSON.stringify(result))
+                throw sails.config.exceptions.COFailValidation()
+            }
+            if(result.status === 403){
+                throw sails.config.exceptions.COUnauthorised()
+            }
+            return result.response.text()
+        })
+        .then(JSON.parse)
+
+    },*/
+    arSubmit: function(user, company, state, values) {
+        const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
+        return getUserTokenAndRetry(user, (token) => {
+            return UtilService.httpsRequest({
+                url,
+                headers: {
+                    'accept': 'application/json',
+                    'content-type': 'application/json',
+                    'authorization': `Bearer ${token}`,
+                },
+                rejectUnauthorized: false,
+                method: 'POST'
+            },  JSON.stringify(_.pick(values, 'declaration', 'name', 'phoneContact', 'emailAddress', 'designation',
+                                            'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
+                                            'annualReturnShareholderListDocumentRef' )))
+        })
+        .then(response => {
+            return response.text()
+        })
+        .then(JSON.parse)
+        .tap((result) => console.log(result))
+        .catch((error) => {
+            console.log(error)
+            if(error.context.status === 400){
+                const message = error.context.body.items[0].message;
+                throw sails.config.exceptions.COFailValidation(message)
+            }
+            if(error.context.status === 401 || error.context.status === 403){
+                throw sails.config.exceptions.COUnauthorised()
+            }
+            throw Error(error)
+        })
+
     }
 
 }

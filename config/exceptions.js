@@ -18,7 +18,10 @@ module.exports.exceptions = _.defaults({
     NameExistsException: errorFactory('NameExistsException', [ 'message', 'context' ]),
     AmbiguousInverseOperation: errorFactory('AmbiguousInverseOperation', [ 'message', 'context' ]),
     UnsupportedCompanyException: errorFactory('UnsupportedCompanyException', [ 'message', 'context' ]),
-    NoValidTransactions: errorFactory('NoValidTransactions', [ 'message', 'context' ])
+    NoValidTransactions: errorFactory('NoValidTransactions', [ 'message', 'context' ]),
+    COUnauthorised: errorFactory('COUnauthorised', [ 'message', 'context' ]),
+    COFailValidation: errorFactory('COFailValidation', [ 'message', 'context' ]),
+    BadRequest: errorFactory('COFailValidation', [ 'message', 'context' ]),
 }, require('sequelize/lib/errors'));
 
 

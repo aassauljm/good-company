@@ -660,19 +660,19 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default '
         FROM (
             SELECT "arFilingMonth", date,
          EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland') as "incorporatedThisYear",
-                EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM now()) as "filedThisYear",
+                EXTRACT(YEAR FROM COALESCE(date, "incorporationDate")) = EXTRACT(YEAR FROM now()) as "filedThisYear",
                 make_timestamptz(
-                    EXTRACT(YEAR FROM date AT TIME ZONE 'Pacific/Auckland')::integer + 1,
+                    EXTRACT(YEAR FROM COALESCE(date, "incorporationDate") AT TIME ZONE 'Pacific/Auckland')::integer + 1,
                     EXTRACT(MONTH FROM TO_TIMESTAMP("arFilingMonth"::text, 'Month'))::integer,
                     1,
                     0,0,0.0, $2) + INTERVAL '1 month - 1 second' as "due"
             FROM company_state cs
             LEFT OUTER JOIN doc_list_j dlj on cs.doc_list_id = dlj.doc_list_id
-            LEFT OUTER JOIN document d on d.id = dlj.document_id
+            LEFT OUTER JOIN document d on d.id = dlj.document_id and  type = 'Companies Office' and (filename = 'File Annual Return' or filename = 'Online Annual Return' or filename = 'Annual Return Filed')
 
-            WHERE cs.id = $1 and type = 'Companies Office' and (filename = 'File Annual Return' or filename = 'Online Annual Return' or filename = 'Annual Return Filed')
+            WHERE cs.id = $1
 
-            ORDER BY d.date DESC LIMIT 1
+            ORDER BY d.date DESC NULLS LAST LIMIT 1
         ) qq
     ) q
 $$ LANGUAGE SQL;

@@ -275,73 +275,9 @@ module.exports = {
             })
             .then(_company => {
                 company = _company;
-                return ScrapingService.fetch(company.sourceData.data.companyNumber)
+                return company.updateSoureData()
             })
-            .then(ScrapingService.parseNZCompaniesOffice)
-            .then(data => ScrapingService.prepareSourceData(data, req.user.id))
-            .then(newData => {
-                // currently identifying new source data by comparing data
-                    const existing = company.sourceData.data.documents.reduce((acc, d) => {
-                        acc[d.documentId] = true;
-                        return acc;
-                    }, {});
-                    let processedDocs, state, directory;
-                    const documents = newData.documents.filter(d => !existing[d.documentId]);
-
-                    if(documents.length){
-                        return sequelize.transaction(() => {
-                            const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };
-                            return SourceData.create({data:newData})
-                                .then(data => company.setSourceData(data))
-                                .then(() => ScrapingService.getDocumentSummaries(docData))
-                                .then((readDocuments) => {
-                                    return ScrapingService.processDocuments(docData, readDocuments);
-                                })
-                                .then((docs) => {
-                                    processedDocs = docs.reverse();
-                                    return company.getPendingFutureActions()
-                                })
-                                .then(pendingActions => {
-                                    if(pendingActions.length){
-                                        nextActionId = _.last(pendingActions).id;
-                                    }
-                                    return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
-                                })
-                                .then((actions) => {
-                                    if(!nextActionId){
-                                        return company.currentCompanyState.update({'pending_future_action_id': processedDocs[0].id});
-                                    }
-                                    else{
-                                        return Action.update({previous_id: processedDocs[0].id}, {where: {id: nextActionId}})
-                                    }
-                                })
-                                .then(() => {
-                                    return company.getCurrentCompanyState({include: [{model: DocumentList, as: 'docList'}]})
-                                })
-                                .then(_state => {
-                                    state = _state;
-                                    return state.getDocumentDirectory();
-                                })
-                                .then(_directory => {
-                                    directory = _directory;
-                                    return ScrapingService.formatDocuments({documents, companyNumber: company.sourceData.data.companyNumber}, req.user.id)
-                                })
-                                .then(data => {
-                                    return Document.bulkCreate(data.docList.documents.map(d => ({...d, directoryId: directory.id})), {returning: true})
-                                })
-                                 .then((documents) => {
-                                    // mutate the company document list to contain the new docs
-                                    return state.docList.addDocuments(documents);
-                                })
-                                .then(() => {
-                                    return res.json({sourceDataUpdated: true})
-                                })
-                            })
-                    }
-                    else{
-                        return res.json({sourceDataUpdated: false});
-                    }
-            })
+            .then(res.json)
             .catch(function(err) {
                 return res.notFound(err);
             });
@@ -941,9 +877,46 @@ module.exports = {
             .then(result =>{
                 return res.json(result);
             }).catch(function(err) {
+                sails.log.error(err)
                 return res.badRequest({message:  'Could not get Annual Return'});
             });
     },
+
+    submitAR: function(req, res) {
+        let company, companyName;
+        const values = actionUtil.parseValues(req);;
+        Company.findById(req.params.id)
+            .then(function(_company){
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then(state => {
+                companyName = state.companyName;
+                return MbieSyncService.arSubmit(req.user, company, state, values);
+            })
+            .then(() => {
+                return ActivityLog.create({
+                    type: ActivityLog.types.ANNUAL_RETURN_SUBMITTED,
+                    userId: req.user.id,
+                    description: `${companyName} Annual Return Submitted`,
+                    data: {companyId: company.id}
+                });
+            })
+            .tap(result => {
+                return company.updateSourceData();
+            })
+            .then(result =>{
+                return res.json(result);
+            }).catch(sails.config.exceptions.COUnauthorised, function(err) {
+                return res.badRequest({message: 'You are not authorized to submit an Annual Return for this company'});
+            }).catch(sails.config.exceptions.COFailValidation, function(err) {
+                return res.badRequest({message: err.message});
+            }).catch(function(err) {
+                sails.log.error(err)
+                return res.badRequest({message:  'Could not submit Annual Return'});
+            });
+    },
+
     updateUserAuthority: function(req, res) {
         let company;
         Company.findById(req.params.id)
