@@ -431,18 +431,18 @@ module.exports = {
                     .spread(result => !result ? null : result.allowed)
             },
 
-            updateSoureData: function(){
+            updateSoureData: function(userId){
                 const company = this;
                 return ScrapingService.fetch(this.sourceData.data.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
-                .then(data => ScrapingService.prepareSourceData(data, req.user.id))
+                .then(data => ScrapingService.prepareSourceData(data, userId))
                 .then(newData => {
                     // currently identifying new source data by comparing data
                         const existing = company.sourceData.data.documents.reduce((acc, d) => {
                             acc[d.documentId] = true;
                             return acc;
                         }, {});
-                        let processedDocs, state, directory;
+                        let processedDocs, state, directory, nextActionId;
                         const documents = newData.documents.filter(d => !existing[d.documentId]);
 
                         if(documents.length){
@@ -481,7 +481,7 @@ module.exports = {
                                     })
                                     .then(_directory => {
                                         directory = _directory;
-                                        return ScrapingService.formatDocuments({documents, companyNumber: company.sourceData.data.companyNumber}, req.user.id)
+                                        return ScrapingService.formatDocuments({documents, companyNumber: company.sourceData.data.companyNumber}, userId)
                                     })
                                     .then(data => {
                                         return Document.bulkCreate(data.docList.documents.map(d => ({...d, directoryId: directory.id})), {returning: true})

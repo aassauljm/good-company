@@ -263,7 +263,7 @@ module.exports = {
 
 
     updateSourceData: function(req, res){
-        let company, nextActionId;
+        let company;
         Company.findById(req.params.id, {
                 include: [{
                     model: SourceData,
@@ -275,10 +275,11 @@ module.exports = {
             })
             .then(_company => {
                 company = _company;
-                return company.updateSoureData()
+                return company.updateSoureData(req.user.id)
             })
-            .then(res.json)
+            .then(r => res.json(r))
             .catch(function(err) {
+                console.log(err)
                 return res.notFound(err);
             });
     },
