@@ -877,9 +877,13 @@ module.exports = {
             })
             .then(result =>{
                 return res.json(result);
-            }).catch(function(err) {
+            })
+            .catch(sails.config.exceptions.UserNotConnected, function(err) {
+                return res.badRequest(err);
+            })
+            .catch(function(err) {
                 sails.log.error(err)
-                return res.badRequest({message:  'Could not get Annual Return'});
+                return res.badRequest({message:  'Could not get Annual Return from the Companies Office. Please try again later.'});
             });
     },
 

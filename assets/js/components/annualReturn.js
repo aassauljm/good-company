@@ -16,7 +16,8 @@ import { PersonNameFull } from './forms/personName';
 import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
-
+import { enums as ErrorTypes } from '../../../config/enums/errors';
+import { ConnectCompaniesOffice } from './companiesOfficeIntegration';
 function ARLinks() {
     return <div>
         <LawBrowserLink title="Companies Act 1993" location="s 214(1)+(6)+(7)">Board to file annual return</LawBrowserLink>
@@ -257,9 +258,15 @@ export class ReviewAnnualReturn extends React.PureComponent {
     }
 
     renderError() {
-        return <div className="alert alert-danger">
-            Could not request info from the Companies Office.  Please try again later.
-        </div>
+        return <div>
+            <div className="alert alert-danger">
+                { this.props.arSummary.error.message }
+            </div>
+            { this.props.arSummary.error.errorCode === ErrorTypes.USER_NOT_CONNECTED  && <div className="button-row">
+
+                <a className="btn btn-info" href="/api/auth-with/companies-office">Connect with Companies Office</a>
+            </div>}
+            </div>
     }
 
 
@@ -401,13 +408,17 @@ export class AnnualReturnSubmission extends React.PureComponent {
     }
 }
 
+@connect(state => ({userInfo: state.userInfo}))
 export default class AnnualReturn extends React.PureComponent {
     render() {
+        const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
         return <LawBrowserContainer lawLinks={ARLinks()}>
             <Widget title="Annual Return">
-                    <p>If you have connected your RealMe with the Companies Office, and the Companies Office records are up to date, you can submit an Annual Return.</p>
-                    <p>Click the button below to generate an Annual Return for review and submission.</p>
+                    <p>If you have connected your RealMe with the Companies Office, you have authourity over this company, and the Companies Office records are up to date, you can submit an Annual Return.</p>
+                    { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an Annual Return for review and submission.</p>
                     <div className="button-row"><Link to={`/company/view/${this.props.companyId}/review_annual_return`} className="btn btn-primary">Show Annual Return</Link></div>
+                    </div> }
+                    { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice /> }
                     </Widget>
         </LawBrowserContainer>
     }

@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
-import { requestResource, updateResource, resetResources } from '../actions';
+import { requestResource, updateResource, resetResources, addNotification } from '../actions';
 import { stringDateToFormattedString, stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -47,7 +47,8 @@ const fields = [
     requestData: (key) => requestResource(`/company/${key}/source_data`),
     updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
     updateAuthority: (key) => updateResource(`/company/${key}/update_authority`, {}, {invalidates: []}),
-    refresh: () => resetResources()
+    refresh: () => resetResources(),
+    addNotification: (...args) => addNotification(...args)
 })
 export class CompaniesRegisterWidget extends React.Component {
 
@@ -67,8 +68,15 @@ export class CompaniesRegisterWidget extends React.Component {
         this.props.updateData(this.key())
             .then(result => {
                 if(result.response.sourceDataUpdated){
+                    this.props.addNotification({message: 'New company records found'})
                     this.props.refresh();
                 }
+                else{
+                    this.props.addNotification({message: 'This company is up to date'})
+                }
+            })
+            .catch(() => {
+                this.props.addNotification({message: 'Failed to update data from Companies Register', error: true})
             });
     }
 
@@ -243,7 +251,7 @@ export default class CompaniesRegister extends React.Component {
         const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         return <div key="body">
             <div className="text-center">
-                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${source.data.companyNumber}`} target="blank">View at Companies Office</a>
+                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${source.data.companyNumber}`} target="blank">View at Companies Office <Glyphicon glyph="new-window"/></a>
             </div>
             { fields.map((f, i) => {
                 return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(source.data[f])}</div></div>

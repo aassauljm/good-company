@@ -66,6 +66,7 @@ function getAuthorisedCompanies(user) {
 module.exports = {
 
     mbie: function (req, res) {
+        req.session.redirect = req.referrer;
         MbieApiService.authWith(req, res);
     },
 

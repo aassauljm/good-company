@@ -50,7 +50,7 @@ export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
     }
 }
 
-const ConnectCompaniesOffice = () => {
+export const ConnectCompaniesOffice = () => {
     return  <div>
             <p>Connect your RealMe with the Companies to enable the submission of company changes and annual returns.</p>
             <div className="button-row">

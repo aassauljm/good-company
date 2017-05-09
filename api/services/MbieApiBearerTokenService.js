@@ -2,6 +2,8 @@ import Promise from 'bluebird';
 import https from 'https';
 const curl = Promise.promisifyAll(require('curlrequest'));
 
+
+
 function getUserTokenRecord(userId, service) {
     const query = `SELECT "accessToken", "refreshToken", now() < "createdAt" + ( "expiresIn" * interval '1 second') AS valid from api_credential WHERE "ownerId" = :userId AND "service" = :service`;
     const queryOptions = {
@@ -12,7 +14,7 @@ function getUserTokenRecord(userId, service) {
     return sequelize.query(query, queryOptions)
         .spread(result => {
             if (!result) {
-                throw new Error('User not connected with Companies Office')
+                throw sails.config.exceptions.UserNotConnected('Current user is not connected to this service', {errorCode: sails.config.enums.USER_NOT_CONNECTED});
             }
 
             if (!result.valid) {

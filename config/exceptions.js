@@ -21,7 +21,8 @@ module.exports.exceptions = _.defaults({
     NoValidTransactions: errorFactory('NoValidTransactions', [ 'message', 'context' ]),
     COUnauthorised: errorFactory('COUnauthorised', [ 'message', 'context' ]),
     COFailValidation: errorFactory('COFailValidation', [ 'message', 'context' ]),
-    BadRequest: errorFactory('COFailValidation', [ 'message', 'context' ]),
+    BadRequest: errorFactory('BadRequest', [ 'message', 'context' ]),
+    UserNotConnected: errorFactory('UserNotConnected', [ 'message', 'context' ]),
 }, require('sequelize/lib/errors'));
 
 
