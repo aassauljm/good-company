@@ -1085,9 +1085,12 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
 };
 
 
-export  function performApplyShareClass(data, nextState, companyState, effectiveDate){
+export  function performApplyShareClass(data, nextState, companyState, effectiveDate, userId, isReplay){
     let index, holdingList;
     // TODO, what if there is more than one match?
+    if(isReplay){
+        return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+    }
     return nextState.dataValues.holdingList.buildNext()
     .then(function(_holdingList){
         holdingList = _holdingList;
@@ -1820,7 +1823,7 @@ function validateTransactionSet(data, companyState){
 }
 
 
-export function performTransaction(data, company, companyState, resultingTransactions){
+export function performTransaction(data, company, companyState, resultingTransactions, isReplay){
 
     const PERFORM_ACTION_MAP = {
         [Transaction.types.ISSUE]:                  TransactionService.performIssue,
@@ -1874,13 +1877,13 @@ export function performTransaction(data, company, companyState, resultingTransac
             // TODO, serviously consider having EACH action create a persistant graph
             // OR, force each transaction set to be pre grouped
             return Promise.reduce(data.actions, function(arr, action){
-                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId);
+                sails.log.info('Performing action: ', JSON.stringify(action, null, 4), data.effectiveDate, data.documentId, isReplay);
                 let result;
                 const method = action.transactionMethod || action.transactionType;
                 if(PERFORM_ACTION_MAP[method]){
                     result = PERFORM_ACTION_MAP[method]({
                         ...action, documentId: data.documentId
-                    }, nextState, current, effectiveDate, company.get("ownerId"));
+                    }, nextState, current, effectiveDate, company.get("ownerId"), isReplay);
                 }
                 if(result){
                     return result.then(function(r){
@@ -1937,7 +1940,7 @@ export function performTransaction(data, company, companyState, resultingTransac
 
 export function performAll(data, company, state, isReplay, resultingTransactions){
     return Promise.each(data, function(doc){
-        return TransactionService.performTransaction(doc, company, state, resultingTransactions)
+        return TransactionService.performTransaction(doc, company, state, resultingTransactions, isReplay)
             .then(_state => {
                 state = _state;
             })
