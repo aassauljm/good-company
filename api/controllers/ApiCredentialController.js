@@ -66,8 +66,12 @@ function getAuthorisedCompanies(user) {
 module.exports = {
 
     mbie: function (req, res) {
-        req.session.redirect = req.referrer;
-        MbieApiService.authWith(req, res);
+        if(req.query.redirect){
+            req.session.redirect = req.get('referrer');
+            req.session.save();
+        }
+        return MbieApiService.authWith(req, res)
+
     },
 
     removeAuth: function(req, res) {
@@ -84,7 +88,6 @@ module.exports = {
              return getAuthorisedCompanies(req.user)
                 //.then(authorisedCompanies => Promise.resolve(authorisedCompanies))
                 .catch(error => {
-                    console.log(error)
                     return Promise.reject(error)
                 });
         }

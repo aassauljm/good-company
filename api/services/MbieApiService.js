@@ -81,7 +81,19 @@ const authWithService = (config) => (req, res) => {
                 serviceName: service,
                 userId: req.user.id
             })
-            .then(() => res.redirect(config.redirect))
+            .then(() => {
+                let url;
+                console.log('this', req.session)
+                if(req.session.redirect){
+                    url = req.session.redirect;
+                    delete req.session.redirect;
+                }
+                else{
+                    url = config.redirect;
+                }
+                console.log('redirecting')
+                res.redirect(url);
+            })
             .catch(error => res.redirect(`/?error=${config.errorType}`));
     }
     else if (req.query.error) {

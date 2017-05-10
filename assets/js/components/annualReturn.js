@@ -264,7 +264,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
             </div>
             { this.props.arSummary.error.errorCode === ErrorTypes.USER_NOT_CONNECTED  && <div className="button-row">
 
-                <a className="btn btn-info" href="/api/auth-with/companies-office">Connect with Companies Office</a>
+                <a className="btn btn-info" href="/api/auth-with/companies-office?redirect=true">Connect with Companies Office</a>
             </div>}
             </div>
     }
@@ -418,7 +418,7 @@ export default class AnnualReturn extends React.PureComponent {
                     { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an Annual Return for review and submission.</p>
                     <div className="button-row"><Link to={`/company/view/${this.props.companyId}/review_annual_return`} className="btn btn-primary">Show Annual Return</Link></div>
                     </div> }
-                    { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice /> }
+                    { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice redirect={true}/> }
                     </Widget>
         </LawBrowserContainer>
     }

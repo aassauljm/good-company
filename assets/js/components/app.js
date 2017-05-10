@@ -13,7 +13,7 @@ import { DragDropContext, DropTarget } from 'react-dnd';
 import { POPOVER_DRAGGABLE } from './lawBrowserLink';
 import Promise from 'bluebird';
 import { connect } from 'react-redux';
-import { AsyncHOCFactory, ALERTS, FAVOURITES, COMPANIES } from '../hoc/resources';
+import { AsyncHOCFactory, ALERTS, COMPANIES } from '../hoc/resources';
 import UserFeedback from './userFeedback';
 
 
@@ -85,7 +85,7 @@ export default class App extends React.Component {
 
 
 
-@AsyncHOCFactory([ALERTS, COMPANIES, FAVOURITES])
+@AsyncHOCFactory([ALERTS, COMPANIES])
 @connect(undefined, {
     mounted: () => mounted()
 })

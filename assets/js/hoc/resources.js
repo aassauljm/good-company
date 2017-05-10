@@ -119,7 +119,7 @@ export const FromRouteHOC = (mappingFunction) => (ComposedComponent) => {
     }
 }*/
 
-export const FAVOURITES = {resource: 'favourites', location: '/favourites'};
+
 export const EVENTS = {resource: 'events', location: '/events', postProcess: processEvents};
 export const ALERTS = {resource: 'alerts', location: '/alerts', postProcess: alertPostProcess};
 export const RECENT_ACTIVITY = {resource: 'recent_activity', location: '/recent_activity' };
@@ -133,7 +133,7 @@ export const COMPANY_FROM_ROUTE = {resource: props => `/company/${props.params.i
 export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.params.id}/at_date/${props.params.date}`, location: props => `/company/${props.params.id}/at_date/${props.params.date}`, postProcess: analyseCompany};
 
 
-export const FavouritesHOC = (async) => HOCFactory(FAVOURITES, async);
+
 export const AlertsHOC = (async) => HOCFactory(ALERTS, async);
 export const CompaniesHOC = (async) => HOCFactory(COMPANIES,  async);
 export const CompanyHOC = (async) => HOCFactory(COMPANY, async);
