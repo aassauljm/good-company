@@ -832,20 +832,6 @@ SELECT array_to_json(array_agg(row_to_json(qq))) FROM
 $$ LANGUAGE SQL STABLE;
 
 
-CREATE OR REPLACE FUNCTION find_persons(userId integer, personId integer)
-RETURNS SETOF JSON
-AS $$
-SELECT array_to_json(array_agg(row_to_json(qqq))) FROM
-
-    (SELECT id, "companyName", "personId" FROM (
-    SELECT q.id, "companyName", (company_persons(q.csid))."personId" as "personId"  FROM
-
-    (select company_now(id) as csid, id from user_companies_by_permission($1, 'update')) q
-    JOIN company_state cs on cs.id = q.csid
-
-    ) qq
-    WHERE "personId" = $2) qqq
-$$ LANGUAGE SQL STABLE;
 
 
 
@@ -918,6 +904,20 @@ WINDOW wnd AS (
 
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION find_persons(userId integer, personId integer)
+RETURNS SETOF JSON
+AS $$
+SELECT array_to_json(array_agg(row_to_json(qqq))) FROM
+
+    (SELECT id, "companyName", "personId" FROM (
+    SELECT q.id, "companyName", (company_persons(q.csid))."personId" as "personId"  FROM
+
+    (select company_now(id) as csid, id from user_companies_by_permission($1, 'update')) q
+    JOIN company_state cs on cs.id = q.csid
+
+    ) qq
+    WHERE "personId" = $2) qqq
+$$ LANGUAGE SQL STABLE;
 
 DROP FUNCTION IF EXISTS historic_user_persons("userId" integer);
 DROP FUNCTION IF EXISTS historic_company_persons("companyStateId" integer);
