@@ -20,7 +20,7 @@ CREATE TABLE co_authority
   CONSTRAINT "co_authority_companyId_fkey" FOREIGN KEY ("companyId")
       REFERENCES public.company (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE SET NULL
-)
+);
 
 
 CREATE UNIQUE INDEX co_authority_idx
