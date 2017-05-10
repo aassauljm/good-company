@@ -18,6 +18,7 @@ import { ImportSingleWidget } from './importMenu'
 import { OrganisationWidget } from './accessList'
 import { CompaniesOfficeIntegrationWidget } from './companiesOfficeIntegration'
 import ErrorPage from './error';
+import ChangeLog from './changeLog';
 
 
 @AsyncHOCFactory([COMPANIES])
@@ -110,10 +111,11 @@ export default class Home extends React.PureComponent {
 
                     </div>
                     <div className="col-md-6">
+                        <ChangeLog />
                         { showImport && <ImportSingleWidget canImport={canImport} upgradeUrl={`${this.props.login.userUrl}/my-services?Good%2BCompanies=1`}/> }
                         <CompaniesOfficeIntegrationWidget />
                         <AlertsWidget />
-                              <RecentActivityWidget />
+                        <RecentActivityWidget />
 
                         { org && <OrganisationWidget /> }
                     </div>

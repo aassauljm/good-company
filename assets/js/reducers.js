@@ -231,7 +231,7 @@ function contextualTransactionViews(state = {}, action){
                     case SHOW_CONTEXTUAL_TRANSACTION_VIEW:
                         return {...state, showing: action.transactionView, [action.transactionView]: {index: (action.data||{}).index || 0, data: action.data}};
                     case END_CONTEXTUAL_TRANSACTION_VIEW:
-                        return {...state, showing: null, [action.transactionView]: {null }};
+                        return {...state, showing: null, [action.transactionView]: {}};
                     case NEXT_CONTEXTUAL_TRANSACTION_VIEW:
                         const index = action.data && action.data.index !== undefined ? action.data.index : state[action.transactionView].index + 1;
                         return {...state,  [action.transactionView]: {index: index, data: {...(state[action.transactionView] || {}).data, ...action.data}}};

@@ -1,0 +1,13 @@
+.widget .widget-body{
+    .change-log{
+        padding: 0 16px;
+        ul.bulleted{
+            li {
+                padding: 2px;
+                &:hover{
+                    color: $text-color;
+                }
+            }
+        }
+    }
+}
