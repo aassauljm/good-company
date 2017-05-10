@@ -33,7 +33,7 @@ export default class FavouriteControl extends React.Component {
     }
 
     toggleFavourite(e) {
-        if(!this.props.action){
+        if(this.props.action === false){
             return;
         }
         e.preventDefault();
