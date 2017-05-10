@@ -22,8 +22,10 @@ export default class GCTransactionView extends React.Component {
 
 class Header extends React.Component {
     render() {
-        return  <div className="widget-header">
+        return  <div className="widget-header-wrap">
+            <div className="widget-header">
             { this.props.children }
+            </div>
             </div>
     }
 }
@@ -39,8 +41,10 @@ class Title extends React.Component {
 
 class Body extends React.Component {
     render() {
-        return  <div className="widget-body">
+        return  <div className="widget-body-wrap">
+            <div className="widget-body">
             { this.props.children }
+            </div>
             </div>
     }
 }

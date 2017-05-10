@@ -17,6 +17,7 @@ class Law extends React.Component {
             sizeClass = 'expanded';
         }
         return <div className={"widget law-browser " + sizeClass}>
+                        <div className="widget-header-wrap">
                         <div className="widget-header">
                             <div className="widget-title">
                                 <i className="fa fa-legal"/> Law Browser
@@ -27,10 +28,13 @@ class Law extends React.Component {
                                 </span>
                             </div>
                         </div>
+                        </div>
+                        <div className="widget-body-wrap">
                         <div className="widget-body">
                             <div className="link-sea">
                                 { this.props.children }
                             </div>
+                        </div>
                         </div>
                 </div>
     }

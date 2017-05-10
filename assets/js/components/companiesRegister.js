@@ -250,9 +250,10 @@ export default class CompaniesRegister extends React.Component {
         const authority = this.props.companyState.authority;
         const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         return <div key="body">
-            <div className="text-center">
+            <p><div className="text-center">
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${source.data.companyNumber}`} target="blank">View at Companies Office <Glyphicon glyph="new-window"/></a>
             </div>
+            </p>
             { fields.map((f, i) => {
                 return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(source.data[f])}</div></div>
             })}
