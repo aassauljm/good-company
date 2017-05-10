@@ -2,30 +2,64 @@ $widget-border: #ccc;
 $widget-verticle-padding:8px;
 .widget{
     background-color:white;
-    padding:8px 15px;
+    //padding:8px 15px;
     border: 1px solid $widget-border;
     border-radius: 3px;
     margin-bottom: 20px;
     & > a {
-        display:inline-block;
+        border-radius: 4px 4px 0 0 ;
+        display:block;
         width: 100%;
+        float:left;
+        transition: 150ms ease-in 0s;
 
         .widget-title{
             margin-bottom:0;
 
         }
 
+
+
+        &:hover{
+            background-color: $deep-red;
+            .widget-header{
+                .widget-title, .widget-control{
+                    color: white;
+                    //text-shadow: -1px 1px 8px #ccc, 1px -1px 8px #ccc;
+                }
+                border-bottom: 1px solid $deep-red;
+
+            }
+        }
+
     }
+    .widget-header-wrap{
+        display:block;
+        width:100%;
+        padding: 8px 15px 0px 15px;
+        float:left;
+
+    }
+    .widget-body-wrap{
+        display:block;
+        width:100%;
+        padding: 0px 15px 8px 15px;
+
+    }
+
     .widget-header{
         border-bottom: 1px solid $widget-border;
         float:left;
         width:100%;
+        transition: 200ms linear 0s;
+
         .widget-title{
             color:$deep-red;
             font-size:1.1em;
             font-weight:bold;
             float:left;
             margin-bottom:6px;
+            transition: 500ms linear 0s;
         }
         .widget-control{
             float: right;
@@ -34,6 +68,7 @@ $widget-verticle-padding:8px;
             padding-left:12px;
             font-style: italic;
             color:$gray-light;
+            transition: 200ms linear 0s;
 
         }
     }
@@ -129,8 +164,5 @@ $widget-verticle-padding:8px;
             }
         }
     }
-
-
-
 
 }
