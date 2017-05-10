@@ -67,6 +67,7 @@ module.exports.policies = {
         'populate': false,
         'lookup': simpleAuth,
         'lookupOwn': simpleAuth,
+        'findPerson': simpleAuth,
         'find': simpleAuth,
         'companyPermissionsCatalexUser': simpleAuth,
     },

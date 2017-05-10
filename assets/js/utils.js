@@ -276,6 +276,14 @@ export function personList(companyState, filter=() => true){
             return acc;
         }, acc);
     }, {});
+
+    companyState.directorList.directors.reduce((acc, p) => {
+        if(!acc[p.person.personId]){
+            acc[p.person.personId] = {...p.person}
+        }
+        return acc;
+    }, persons);
+
     const orderedPersons = Object.keys(persons).map(k => {
         return {id: k, ...persons[k]};
     })

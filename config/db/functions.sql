@@ -838,9 +838,26 @@ SELECT array_to_json(array_agg(row_to_json(qq))) FROM
 $$ LANGUAGE SQL STABLE;
 
 
+CREATE OR REPLACE FUNCTION find_persons(userId integer, personId integer)
+RETURNS SETOF JSON
+AS $$
+SELECT array_to_json(array_agg(row_to_json(qqq))) FROM
+
+    (SELECT id, "companyName", "personId" FROM (
+    SELECT q.id, "companyName", (company_persons(q.csid))."personId" as "personId"  FROM
+
+    (select company_now(id) as csid, id from user_companies_by_permission($1, 'update')) q
+    JOIN company_state cs on cs.id = q.csid
+
+    ) qq
+    WHERE "personId" = $2) qqq
+$$ LANGUAGE SQL STABLE;
+
+
+
 DROP FUNCTION IF EXISTS company_persons("companyStateId" integer);
 CREATE OR REPLACE FUNCTION company_persons("companyStateId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean, "director" boolean)
 AS $$
 
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
@@ -851,15 +868,15 @@ AS $$
         WHERE t.id = tt."previousCompanyStateId"
     ),
     historic_persons(id, "personId", "effectiveDate") as (
-    SELECT p.id, "personId", t."effectiveDate"
-    FROM company_State cs
-    JOIN h_person_list pl on pl.id = cs.h_person_list_id
-    LEFT OUTER JOIN h_person_list_j plj on plj.h_person_list_id = pl.id
-    LEFT OUTER JOIN person p on p.id = plj.person_id
-    LEFT OUTER JOIN transaction t on t.id = p."transactionId"
-    WHERE cs.id = $1
+        SELECT p.id, "personId", t."effectiveDate"
+        FROM company_State cs
+        JOIN h_person_list pl on pl.id = cs.h_person_list_id
+        LEFT OUTER JOIN h_person_list_j plj on plj.h_person_list_id = pl.id
+        LEFT OUTER JOIN person p on p.id = plj.person_id
+        LEFT OUTER JOIN transaction t on t.id = p."transactionId"
+        WHERE cs.id = $1
     )
-SELECT p."id", p."personId", "name", "address", "companyNumber", "attr", "lastEffectiveDate", "current" FROM
+SELECT p."id", p."personId", "name", "address", "companyNumber", "attr", "lastEffectiveDate", "current", "director" FROM
 (
 SELECT *, rank() OVER wnd
     FROM (
@@ -868,7 +885,8 @@ SELECT *, rank() OVER wnd
         "personId",
         "lastEffectiveDate",
         "generation",
-        "generation" = 0 as "current"
+        "generation" = 0 as "current",
+        false as "director"
         FROM (
              SELECT DISTINCT ON ("personId")
             "personId",
@@ -888,11 +906,15 @@ SELECT *, rank() OVER wnd
              )
         ) as q
         GROUP BY "personId", generation, "id", "lastEffectiveDate"
-    UNION
-    SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", false as "current" FROM
-    historic_persons hp
 
-        ) as qq
+    UNION
+
+    SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", false as "current", false as "director"
+    FROM historic_persons hp
+
+
+
+    ) as qq
 
 WINDOW wnd AS (
     PARTITION BY "personId" ORDER BY generation asc
@@ -908,7 +930,7 @@ DROP FUNCTION IF EXISTS historic_company_persons("companyStateId" integer);
 
 
 CREATE OR REPLACE FUNCTION historic_company_persons("companyStateId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "director" boolean)
 AS $$
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
         SELECT t.id, t."previousCompanyStateId", 0 FROM company_state as t where t.id =  $1
@@ -922,14 +944,16 @@ AS $$
         "personId",
         "name",
         "address",
-        "companyNumber"
+        "companyNumber",
+        "director"
         FROM (
              SELECT
             "personId",
             p.name as name,
             p."companyNumber" as "companyNumber",
             p.address as address,
-            p.id as id
+            p.id as id,
+            false as director
             from prev_company_states pt
             join company_state cs on pt.id = cs.id
             join h_list_j hlj on hlj.holdings_id = cs."h_list_id"
@@ -944,7 +968,8 @@ AS $$
             p.name as name,
             p."companyNumber" as "companyNumber",
             p.address as address,
-            p.id as id
+            p.id as id,
+            true as director
             from prev_company_states pt
             join company_state cs on pt.id = cs.id
             join director_list dl on dl.id = cs.director_list_id
@@ -954,12 +979,12 @@ AS $$
 
 
         ) as q
-        GROUP BY "personId", q.name, q."companyNumber", q.address, "id"  ORDER BY "personId"
+        GROUP BY "personId", q.name, q."companyNumber", q.address, "id", director  ORDER BY "personId"
 $$ LANGUAGE SQL;
 
 DROP FUNCTION IF EXISTS latest_user_persons("userId" integer);
 CREATE OR REPLACE FUNCTION latest_user_persons("userId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean, "director" boolean)
 AS $$
     SELECT f.*
     FROM   company c, company_persons(c."currentCompanyStateId") f
@@ -968,7 +993,7 @@ $$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION historic_user_persons("userId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "director" boolean)
 AS $$
     SELECT f.*
     FROM   company c, historic_company_persons(c."currentCompanyStateId") f

@@ -490,6 +490,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/find_person/:personId': {
+        controller: 'CompanyController',
+        action: 'findPerson'
+    },
+
     'GET /api/pending_jobs': {
         controller: 'UserController',
         model: 'user',

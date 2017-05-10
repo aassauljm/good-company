@@ -70,9 +70,26 @@ export class Transfer extends React.Component {
                     <ParcelWithRemove fields={p} remove={() => this.props.fields.parcels.removeField(i)} shareOptions={this.props.shareOptions}/>
                 </div>
             }) }
-            <div className="button-row"><ButtonInput className="add-parcel" onClick={() => {
-                this.props.fields.parcels.addField();    // pushes empty child field onto the end of the array
-            }}>Add Parcel</ButtonInput></div>
+            <div className="button-row">
+
+            <ButtonInput className="add-parcel" onClick={() => {
+                this.props.fields.parcels.addField();
+            }}>Add Parcel</ButtonInput>
+
+            {this.props.fields.from.value && <ButtonInput onClick={() => {
+                const parcels = this.props.holdingMap[this.props.fields.from.value];
+                let length = this.props.fields.parcels.length;
+                while(length){
+                    this.props.fields.parcels.removeField(length-1);
+                    length--;
+                }
+                parcels.map(p => this.props.fields.parcels.addField(p));
+            }}>All Shares</ButtonInput> }
+
+            </div>
+
+
+
 
             <Input type="text" {...this.formFieldProps('consideration', STRINGS.transfer) } />
 
