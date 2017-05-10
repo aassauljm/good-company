@@ -383,6 +383,12 @@ module.exports = {
             },
             foreignPermissions: function(userId){
                 return Company.foreignPermissions(this.id)
+            },
+            isFavourite: function(userId){
+                return sequelize.query('SELECT EXISTS(SELECT * FROM favourite WHERE "userId" = :userId AND "companyId" = :companyId)',
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { userId, companyId: this.id}})
+                    .spread(r => r.exists)
             }
         },
 

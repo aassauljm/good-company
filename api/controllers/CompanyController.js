@@ -57,11 +57,11 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id)])
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id), this.company.isFavourite(req.user.id)])
             })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions) {
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, favourite) {
                 var json = this.companyState.get();
-                return res.json({...this.company.toJSON(),  currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date(), permissions}, });
+                return res.json({...this.company.toJSON(),  currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, dateOfState: new Date(), permissions, favourite}, });
             }).catch(function(err) {
                 console.log(err)
                 return res.notFound();
@@ -214,11 +214,11 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.stats(), this.company.hasPendingJob(), this.company.permissions(req.user.id)])
+                return Promise.all([companyState.stats(), this.company.hasPendingJob(), this.company.permissions(req.user.id),  this.company.isFavourite(req.user.id)])
             })
-            .spread(function(stats, hasPendingJob,  permissions) {
+            .spread(function(stats, hasPendingJob,  permissions, isFavourite) {
                 var json = this.companyState.get();
-                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions})});
+                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions, favourite})});
             }).catch(function(err) {
                 return res.notFound();
             });
@@ -232,11 +232,11 @@ module.exports = {
             })
             .then(function(companyState) {
                 this.companyState = companyState;
-                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id)])
+                return Promise.all([companyState.fullPopulateJSON(), this.company.hasPendingJob(), this.company.getTransactionsAfter(companyState.id), this.company.permissions(req.user.id), this.company.isFavourite(req.user.id)])
             })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions) {
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, favourite) {
                 var json = this.companyState.get();
-                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, permissions} });
+                return res.json({...this.company.toJSON(), currentCompanyState: {...currentCompanyState,  hasPendingJob, futureTransactions, permissions, favourite} });
             }).catch(function(err) {
                 return res.notFound();
             });

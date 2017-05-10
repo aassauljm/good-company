@@ -77,7 +77,7 @@ export class Transfer extends React.Component {
             {this.props.fields.from.value && <ButtonInput onClick={() => {
                 const parcels = this.props.holdingMap[this.props.fields.from.value];
                 let length = this.props.fields.parcels.length;
-                while(length){
+                while(length) {
                     this.props.fields.parcels.removeField(length-1);
                     length--;
                 }

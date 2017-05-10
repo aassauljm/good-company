@@ -6,7 +6,6 @@ import Home, { LandingPageView } from './components/home';
 import NotFound from './components/notFound';
 import Users from './components/users';
 import Roles from './components/roles';
-import Favourites from './components/favourites';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies, { CompaniesDelete } from './components/companies';
@@ -146,7 +145,6 @@ export default (store) => {
                     <Route path="share_register" component={ ShareRegisterDocumentLoader } />
                     <Route path="director_register" component={ DirectorRegisterDocumentLoader  } />
                 </Route>
-                <Route path="favourites" component={ Favourites } />
                 <Route path="alerts" component={ Alerts } />
                 <Route path="annual_returns" component={ AnnualReturn } />
                  <Route path="templates" component={ TemplateSelectCompany } >
