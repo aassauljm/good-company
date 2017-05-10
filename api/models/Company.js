@@ -418,6 +418,7 @@ module.exports = {
             foreignPermissions: function(userId){
                 return Company.foreignPermissions(this.id)
             },
+
             authorities: function(){
                 return sequelize.query("select company_co_authorities(:id)",
                                { type: sequelize.QueryTypes.SELECT,
@@ -499,6 +500,14 @@ module.exports = {
                             return {sourceDataUpdated: false};
                         }
                 })
+            },
+
+            isFavourite: function(userId){
+                return sequelize.query('SELECT EXISTS(SELECT * FROM favourite WHERE "userId" = :userId AND "companyId" = :companyId)',
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { userId, companyId: this.id}})
+                    .spread(r => r.exists)
+
             }
         },
 

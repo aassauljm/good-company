@@ -283,22 +283,22 @@ nav.navbar{
 
     }
 
-    .favourite{
+
+}
+.favourite{
+    text-decoration: none;
+    color: $text-color;
+    &:hover, &:active{
         text-decoration: none;
-        color: $text-color;
-        &:hover, &:active{
-            text-decoration: none;
-        }
-         .fa {
-            top: 3px;
-            margin-left:4px;
-            font-size:17px;
-            &.fa-star{
-                color: $deep-red;
-            }
+    }
+     .fa {
+        top: 3px;
+        margin-left:4px;
+        font-size:17px;
+        &.fa-star{
+            color: $deep-red;
         }
     }
-
 }
 
 .calendar-toggle{

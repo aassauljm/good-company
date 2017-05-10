@@ -79,7 +79,8 @@ module.exports = {
                                    this.company.getTransactionsAfter(companyState.id),
                                    this.company.permissions(req.user.id),
                                    this.company.authorities(),
-                                   this.company.hasAuthority(req.user.id)])
+                                   this.company.hasAuthority(req.user.id),
+                                   ])
             })
             .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority) {
                 return res.json({...this.company.toJSON(),  currentCompanyState: {

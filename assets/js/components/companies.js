@@ -14,8 +14,12 @@ import { requestAlerts } from './alerts';
 import { CompanyAlertsBase } from './companyAlerts';
 import Input from './forms/input'
 import Promise from 'bluebird';
+
 import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
+import FavouriteControl from './favourites'
+import firstBy from 'thenby';
+
 
 
 const DEFAULT_OBJ = {};
@@ -112,12 +116,12 @@ const SelectCompaniesTableConnected = reduxForm({
 
 const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
 
-    renderTable(data, condensed) {
+    renderTable(data, condensed, favouriteAction) {
         const handleClick = (event, id) => {
             event.preventDefault();
             this.props.push(id);
         }
-        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
+        const fields = ['companyName', 'companyNumber', 'nzbn'];
 
         let className = "table table-striped table-hover ";
         if(condensed){
@@ -128,7 +132,9 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
         }
         return <div className="table-responsive">
         <table className={className}>
-            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }
+            <thead><tr>
+                    <th></th>
+                    { fields.map(f => <th key={f}>{STRINGS[f]}</th>) }
                     {!condensed && <th>{ STRINGS.permissions.read } </th> }
                     {!condensed && <th>{ STRINGS.permissions.update } </th> }
 
@@ -137,7 +143,8 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
             <tbody>
             { data.filter(d => !d.deleted).map(
                 (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
-                    { fields.map(f => <td key={f}>{row[f]}</td>) }
+                <td><FavouriteControl isFavourite={row.favourite} companyId={row.id} action={favouriteAction}/></td>
+                { fields.map(f => <td key={f}>{row[f]}</td>) }
                 {!condensed && <td>{ row.permissions.indexOf('read') >= 0 ? 'Yes' : 'No' }</td> }
                 {!condensed && <td>{ row.permissions.indexOf('update') >= 0 ? 'Yes' : 'No'}</td> }
                 </tr> )
@@ -278,7 +285,7 @@ export default class Companies extends React.Component {
                 <Link to="/companies/manage" className="btn btn-danger">Manage Companies</Link>
                 {canImport && <Link to="/import" className="btn btn-info">Import Companies</Link> }
             </div>
-             { this.props.renderTable(filteredCompanies) }
+             { this.props.renderTable(filteredCompanies, false, true) }
         </div>
 
     }
@@ -321,14 +328,17 @@ export class CompaniesWidget extends React.Component {
     };
 
     renderBody() {
-        const data = (this.props.companies.data || []).filter(c => !c.deleted).map(c => ({...c.currentCompanyState, ...c}))
-        return this.props.renderTable(data.slice(0, 6), true)
 
+        const data = (this.props.companies.data || []).filter(c => !c.deleted).map(c => ({...c.currentCompanyState, ...c}));
+        data.sort(firstBy('favourite', -1).thenBy(c => c.currentCompanyState.companyName))
+        return this.props.renderTable(data.slice(0, 6), true, false);
     }
 
+
+
     render() {
-    return <Widget iconClass="fa fa-institution" title="Companies" link="/companies">
-                   { this.renderBody() }
-            </Widget>
+        return <Widget iconClass="fa fa-institution" title="Companies" link="/companies">
+                       { this.renderBody() }
+                </Widget>
     }
 }

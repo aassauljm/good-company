@@ -116,11 +116,6 @@ module.exports.routes = {
         method: 'read'
     },
 
-    'GET /api/favourites': {
-        controller: 'FavouriteController',
-        action: 'favourites'
-    },
-
 
     'DELETE /api/favourites/:id': {
         controller: 'FavouriteController',

@@ -7,97 +7,60 @@ import { requestResource } from '../actions';
 import { stringDateToFormattedStringTime } from '../utils';
 import { Link } from 'react-router';
 import STRINGS from '../strings';
-import { FavouritesHOC, CompaniesHOC } from '../hoc/resources';
-import Widget from './widget';
-import LawBrowserContainer from './lawBrowserContainer';
+import { addNotification, createResource, deleteResource } from '../actions';
+import { CompaniesHOC } from '../hoc/resources';
 
 
-@connect(undefined, {
-    navigate: (url) => push(url)
-})
-@FavouritesHOC(false)
-@CompaniesHOC(false)
-export class FavouritesWidget extends React.PureComponent {
-    renderList() {
-        const favourites = this.props.favourites.data || [];
-        return <ul>
-                {favourites.map((f, i) => <li key={i}>
-                    <Link to={`/company/view/${f.id}`}>
-                    <span className="company-name">{f.currentCompanyState.companyName } </span>
-                    <span className="extra">Company Number: {f.currentCompanyState.companyNumber } </span>
-                    <span className="extra">NZBN: {f.currentCompanyState.nzbn } </span>
-                    </Link>
 
-                </li>)}
-                </ul>
+@CompaniesHOC()
+@connect((state, ownProps) => ({favourite: state.resources[`/favourites/${ownProps.companyId}`]}),
+    (dispatch) => ({
+        navigate: (url) => { dispatch(push(url)); dispatch(endTransactionView()) },
+        addFavourite: (id) => dispatch(createResource(`/favourites/${id}`,  null, {invalidates: []})),
+        removeFavourite: (id) => dispatch(deleteResource(`/favourites/${id}`, {invalidates: []})),
+        addNotification: (...args) => dispatch(addNotification(...args))
+    })
+)
+export default class FavouriteControl extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {}
+    }
+    isFavourite() {
+        const companyIdInt = parseInt(this.props.companyId, 10);
+        // save result maybe
+        return (this.props.companies.data || []).filter(f => f.id === companyIdInt && f.favourite).length;
     }
 
-    renderTable() {
-        const handleClick = (event, id) => {
-            event.preventDefault();
-            this.props.navigate(`/company/view/${id}`);
+    toggleFavourite(e) {
+        if(!this.props.action){
+            return;
         }
-        let favourites = this.props.favourites.data || [];
-        if(this.props.favourites._status === 'complete' && !favourites.length){
-            favourites = (this.props.companies.data || []).slice(0, 10)
-        }
-        favourites = favourites.slice(0, 6);
-
-        const fields = ['id', 'companyName', 'companyNumber', 'nzbn'];
-        return <table className="table table-striped table-hover table-condensed">
-            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
-            <tbody>
-            { favourites.map(
-                (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
-                    { fields.map(f => <td key={f}>{{...row.currentCompanyState, ...row}[f]}</td>) }
-                </tr>) }
-            </tbody>
-        </table>
+        e.preventDefault();
+        e.stopPropagation();
+        this.setState({loading: true});
+        (this.isFavourite() ? this.props.removeFavourite(this.props.companyId) : this.props.addFavourite(this.props.companyId))
+            .then(response => {
+                return this.props.fetch(true)
+                    .then(() => {
+                        this.setState({loading: false})
+                    })
+            })
+            .catch(e => {
+                this.props.addNotification({error: true, message: this.isFavourite() ? 'Could not remove Favourite' : 'Could not add Favourite.'})
+            })
     }
 
     render() {
-        return <Widget className="favourites" title="Favourites" iconClass="fa fa-star-o" link="/favourites">
-                { this.renderTable() }
-                </Widget>
-    }
-}
+        let glyph = this.isFavourite() ? 'fa fa-star' : 'fa fa-star-o';
+        let className = ''
+        if(this.state.loading || (this.props.favourite && this.props.favourite._status === 'fetching')){
+            glyph = 'fa fa-spinner spin';
 
-
-@connect(undefined, {
-    navigate: (url) => push(url)
-})
-@FavouritesHOC(true)
-@CompaniesHOC(true)
-export default class Favourites extends React.PureComponent {
-
-    renderTable() {
-        const handleClick = (event, id) => {
-            event.preventDefault();
-            this.props.navigate(`/company/view/${id}`);
         }
-        let favourites = this.props.favourites.data || [];
-        if(this.props.favourites._status === 'complete' && !favourites.length){
-            favourites = (this.props.companies.data || []).slice(0, 10)
-        }
-        const fields = ['companyName', 'companyNumber', 'nzbn'];
-        return <table className="table table-striped table-hover">
-            <thead><tr>{ fields.map(f => <th key={f}>{STRINGS[f]}</th>) }</tr></thead>
-            <tbody>
-            { favourites.map(
-                (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
-                    { fields.map(f => <td key={f}>{row.currentCompanyState[f]}</td>) }
-                </tr>) }
-            </tbody>
-        </table>
-    }
-
-    render() {
-        return <LawBrowserContainer>
-            <Widget className="favourites" title="Favourites" iconClass="fa fa-star-o">
-               <div className="table-responsive">
-                { this.renderTable() }
-                </div>
-                </Widget>
-            </LawBrowserContainer>
+        return <a className="favourite actionable" href="#" onClick={(e) => this.toggleFavourite(e)}>
+                { this.props.showLabel && <span className="visible-lg-inline">Favourite</span> }
+                <span className={glyph}/>
+                </a>
     }
 }

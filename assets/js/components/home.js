@@ -9,11 +9,10 @@ import { Link } from 'react-router';
 import { showTransactionView } from '../actions';
 import { RecentActivityWidget } from './recentActivity';
 import { AlertsWidget } from './alerts';
-import { FavouritesWidget } from './favourites';
 import { CompaniesWidget } from './companies';
 import { TemplateWidget } from './templates';
 import { CalendarWidget } from './calendar';
-import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS, FAVOURITES } from '../hoc/resources';
+import { AsyncHOCFactory, EVENTS, RECENT_ACTIVITY, COMPANIES, ALERTS } from '../hoc/resources';
 import { HeaderSubControls } from './header';
 import { ImportSingleWidget } from './importMenu'
 import { OrganisationWidget } from './accessList'
@@ -89,7 +88,7 @@ export class LandingPageView extends React.PureComponent {
 }
 
 
-@AsyncHOCFactory([COMPANIES, FAVOURITES, ALERTS, EVENTS, RECENT_ACTIVITY])
+@AsyncHOCFactory([COMPANIES, ALERTS, EVENTS, RECENT_ACTIVITY])
 @connect(state => ({ userInfo: state.userInfo, login: state.login}))
 export default class Home extends React.PureComponent {
     render() {
@@ -114,7 +113,8 @@ export default class Home extends React.PureComponent {
                         { showImport && <ImportSingleWidget canImport={canImport} upgradeUrl={`${this.props.login.userUrl}/my-services?Good%2BCompanies=1`}/> }
                         <CompaniesOfficeIntegrationWidget />
                         <AlertsWidget />
-                        <FavouritesWidget />
+                        <RecentActivityWidget />
+
                         { org && <OrganisationWidget /> }
                     </div>
                 </div>

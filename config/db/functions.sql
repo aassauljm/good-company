@@ -231,11 +231,12 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     )
     SELECT row_to_json(q) FROM (
 
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array($1, 'Company', q.id) as permissions FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array(15, 'Company', q.id) as permissions, f."companyId" IS NOT NULL as favourite FROM (
         SELECT *, company_now(c.id)  FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
         JOIN public.user u on q."ownerId" = u.id
+        LEFT OUTER JOIN favourite f ON q.id = f."companyId" and f."userId" = $1
         ORDER BY cs."companyName"
     ) q
 $$ LANGUAGE SQL;
@@ -277,24 +278,6 @@ CREATE OR REPLACE FUNCTION user_companies_catalex_user_permissions("userId" inte
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION user_favourites_now("userId" integer)
-    RETURNS SETOF json
-    AS $$
-    WITH basic_company_state as (
-        SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
-    )
-    SELECT row_to_json(q) FROM (
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", TRUE as "favourite", suspended  FROM (
-        SELECT c.*, company_now(c.id)
-    FROM favourite f
-        JOIN company c on f."companyId" = c.id
-
-        WHERE  f."userId" = $1 and c.deleted != true and check_permission($1, 'read', 'Company', c.id)
-        ) q
-        JOIN basic_company_state cs on cs.id = q.company_now
-        ORDER BY cs."companyName"
-    ) q
-$$ LANGUAGE SQL;
 
 
 
@@ -838,20 +821,6 @@ SELECT array_to_json(array_agg(row_to_json(qq))) FROM
 $$ LANGUAGE SQL STABLE;
 
 
-CREATE OR REPLACE FUNCTION find_persons(userId integer, personId integer)
-RETURNS SETOF JSON
-AS $$
-SELECT array_to_json(array_agg(row_to_json(qqq))) FROM
-
-    (SELECT id, "companyName", "personId" FROM (
-    SELECT q.id, "companyName", (company_persons(q.csid))."personId" as "personId"  FROM
-
-    (select company_now(id) as csid, id from user_companies_by_permission($1, 'update')) q
-    JOIN company_state cs on cs.id = q.csid
-
-    ) qq
-    WHERE "personId" = $2) qqq
-$$ LANGUAGE SQL STABLE;
 
 
 
@@ -924,6 +893,20 @@ WINDOW wnd AS (
 
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION find_persons(userId integer, personId integer)
+RETURNS SETOF JSON
+AS $$
+SELECT array_to_json(array_agg(row_to_json(qqq))) FROM
+
+    (SELECT id, "companyName", "personId" FROM (
+    SELECT q.id, "companyName", (company_persons(q.csid))."personId" as "personId"  FROM
+
+    (select company_now(id) as csid, id from user_companies_by_permission($1, 'update')) q
+    JOIN company_state cs on cs.id = q.csid
+
+    ) qq
+    WHERE "personId" = $2) qqq
+$$ LANGUAGE SQL STABLE;
 
 DROP FUNCTION IF EXISTS historic_user_persons("userId" integer);
 DROP FUNCTION IF EXISTS historic_company_persons("companyStateId" integer);

@@ -14,7 +14,7 @@ import Dropdown from 'react-bootstrap/lib/Dropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { numberWithCommas } from '../utils';
-import { FavouritesHOC, AlertsHOC } from '../hoc/resources';
+import { CompaniesHOC, AlertsHOC } from '../hoc/resources';
 import { Search } from './search';
 import { alertList } from './alerts';
 
@@ -83,7 +83,7 @@ export const NavLinks = (props) => {
 }
 
 
-@FavouritesHOC()
+@CompaniesHOC()
 @AlertsHOC()
 export class Header extends React.PureComponent {
 
@@ -98,7 +98,7 @@ export class Header extends React.PureComponent {
     }
 
     renderFavourites() {
-        const items = this.props.favourites && (this.props.favourites.data || []);
+        const items = (this.props.companies && (this.props.companies.data || [])).filter(f => f.favourite);
         if(items && items.length){
            return [<li key={-1} className="separator" />].concat(items.map((f, i) => {
                 return <li key={i}><Link to={`/company/view/${f.id}`} onClick={this.closeMenu}>{f.currentCompanyState.companyName}</Link></li>

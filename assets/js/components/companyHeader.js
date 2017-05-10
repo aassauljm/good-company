@@ -15,10 +15,11 @@ import { connect } from 'react-redux';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { push } from 'react-router-redux';
 import moment from 'moment'
-import { FavouritesHOC } from '../hoc/resources';
 import Calendar from 'react-widgets/lib/Calendar'
 import { OverlayTrigger, OverlayPosition, Popover }   from './lawBrowserLink';
 import Raven from 'raven-js';
+import FavouriteControl from './favourites';
+
 
 const DropdownToggle = (props) => {
     return <Link to={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}} activeClassName="active" className={props.className} >
@@ -26,13 +27,9 @@ const DropdownToggle = (props) => {
       </Link>
 }
 
-@FavouritesHOC()
-@connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing, favourite: state.resources[`/favourites/${ownProps.companyId}`]}),
-
+@connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing}),
     (dispatch) => ({
         navigate: (url) => { dispatch(push(url)); dispatch(endTransactionView()) },
-        addFavourite: (id) => dispatch(createResource(`/favourites/${id}`,  null, {invalidates: ['/favourites']})),
-        removeFavourite: (id) => dispatch(deleteResource(`/favourites/${id}`, {invalidates: ['/favourites']}))
     })
 )
 export default class CompanyHeader extends React.Component {
@@ -58,33 +55,9 @@ export default class CompanyHeader extends React.Component {
         return (this.props.companyState.permissions || []).indexOf('update') >= 0;
     }
 
-    isFavourite() {
-        const companyIdInt = parseInt(this.props.companyId, 10);
-        // save result maybe
-        return (this.props.favourites.data || []).filter(f => f.id === companyIdInt && f.favourite).length;
-    }
-
-    toggleFavourite() {
-        (this.isFavourite() ? this.props.removeFavourite(this.props.companyId) : this.props.addFavourite(this.props.companyId))
-            .then(response => {
-
-            })
-            .catch(e => {
-                this.props.addNotification({error: true, message: this.isFavourite() ? 'Could not remove Favourite' : 'Could not add Favourite.'})
-            })
-    }
-
     renderRightActions() {
-        let glyph = this.isFavourite() ? 'fa fa-star' : 'fa fa-star-o';
-        let className = ''
-        if(this.props.favourites._status === 'fetching' || (this.props.favourite && this.props.favourite._status === 'fetching')){
-            glyph = 'fa fa-spinner spin';
-        }
         return [<div key={0} className="favourite">
-            <a className="favourite actionable" href="#" onClick={() => this.toggleFavourite()}>
-            <span className="visible-lg-inline">Favourite</span>
-            <span className={glyph}/>
-            </a>
+                <FavouriteControl showLabel={true} companyId={this.props.companyId}/>
         </div>]
     }
 

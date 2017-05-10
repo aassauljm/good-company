@@ -1,11 +1,11 @@
-CREATE SEQUENCE public."COAuthorities_id_seq"
+CREATE SEQUENCE IF NOT EXISTS public."COAuthorities_id_seq"
   INCREMENT 1
   MINVALUE 1
   MAXVALUE 9223372036854775807
   START 10000
   CACHE 1;
 
-CREATE TABLE co_authority
+CREATE TABLE IF NOT EXISTS co_authority
 (
   id integer NOT NULL DEFAULT nextval('co_authority_id_seq'::regclass),
   allowed boolean DEFAULT true,

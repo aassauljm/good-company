@@ -7,7 +7,7 @@
 
 module.exports = {
 
-    favourites: function(req, res) {
+    /*favourites: function(req, res) {
          return sequelize.query("select user_favourites_now(:id)",
                        { type: sequelize.QueryTypes.SELECT,
                         replacements: { id: req.user.id}})
@@ -18,7 +18,7 @@ module.exports = {
                     .catch((e) => {
                         res.serverError(e)
                     })
-    },
+    },*/
 
     addFavourite: function(req, res) {
         const args = {userId: req.user.id, companyId: req.params.id};
