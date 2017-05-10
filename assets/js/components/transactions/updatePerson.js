@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
-import { companyTransaction, addNotification } from '../../actions';
+import { companyTransaction, addNotification, requestResource } from '../../actions';
 import { UpdatePersonConnected, DirectorPersonConnected, updatePersonSubmit, updateHistoricPersonSubmit } from '../forms/person';
 import LawBrowserLink from '../lawBrowserLink';
 import { change } from 'redux-form';

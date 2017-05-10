@@ -811,6 +811,17 @@ module.exports = {
             })
     },
 
+
+    findPerson: function(req, user) {
+        return sequelize.query("select find_persons(:id, :personId)",
+                       { type: sequelize.QueryTypes.SELECT,
+                        replacements: { id: userId, personId: parseInt(req.params.personId, 10)}})
+            .then(r => res.json(r[0].find_persons))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
+    },
+
     companyPermissionsCatalexUser: function(req, res) {
         return Company.companyPermissionsUser(req.user.id, req.params.catalexId)
             .then(result =>{
