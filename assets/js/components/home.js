@@ -107,13 +107,13 @@ export default class Home extends React.PureComponent {
                         <CalendarWidget canCreateEvent={canCreateEvent}/>
                         <CompaniesWidget />
                         <TemplateWidget />
-                        <RecentActivityWidget />
+
                     </div>
                     <div className="col-md-6">
                         { showImport && <ImportSingleWidget canImport={canImport} upgradeUrl={`${this.props.login.userUrl}/my-services?Good%2BCompanies=1`}/> }
                         <CompaniesOfficeIntegrationWidget />
                         <AlertsWidget />
-                        <RecentActivityWidget />
+                              <RecentActivityWidget />
 
                         { org && <OrganisationWidget /> }
                     </div>
