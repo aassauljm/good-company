@@ -18,10 +18,10 @@ describe('FavouriteController', function() {
     });
     describe('add and remove favourites', () => {
         it('checks that favourites is just the company list', () => {
-            return req.get('/api/favourites')
+            return req.get('/api/companies')
                 .expect(200)
                 .then(function(res){
-                    res.body.length.should.be.equal(0);
+                    res.body.filter(b => b.favourite).length.should.be.equal(0);
                 });
         });
 
@@ -29,17 +29,17 @@ describe('FavouriteController', function() {
             return req.post('/api/favourites/'+ OWNED_COMPANY)
                 .expect(200)
                 .then(function(res){
-                   return req.get('/api/favourites');
+                   return req.get('/api/companies');
                 })
                 .then(function(res){
-                    res.body.length.should.be.equal(1);
+                    res.body.filter(b => b.favourite).length.should.be.equal(1);
                     return req.delete('/api/favourites/'+ OWNED_COMPANY)
                 })
                 .then(function(res){
-                   return req.get('/api/favourites');
+                   return req.get('/api/companies');
                 })
                 .then(function(res){
-                    res.body.length.should.be.equal(0);
+                    res.body.filter(b => b.favourite).length.should.be.equal(0);
                 })
         });
 
