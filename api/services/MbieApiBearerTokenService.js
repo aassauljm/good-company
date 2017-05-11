@@ -112,7 +112,8 @@ module.exports = {
         let oauthResponse, accessToken;
         // Fetch the new access token
         return sequelize.transaction(() => {
-            return fetch(url, fetchOptions)
+            return Promise.bind({})
+            .then(() => fetch(url, fetchOptions))
             .then(response => response.json())
             .then(_oauthResponse => {
                 oauthResponse = _oauthResponse;

@@ -53,7 +53,17 @@ export class LandingPageView extends React.PureComponent {
         </div>
     }
 
+   redirecting() {
+        const { loggedIn, loginUrl } = this.props.login;
+        return  <div className="welcome-back text-center">
+            Redirecting to <a href={loginUrl} className="vanity-link">CataLex Users</a>.
+        </div>
+    }
+
     banner() {
+        if(!this.props.login.loggedIn){
+            return this.redirecting();
+        }
         const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         const noCompanies = this.props.companies._status === 'complete' && this.props.companies.data.filter(d => !d.deleted).length === 0;
         if(noCompanies && canImport){
@@ -82,7 +92,7 @@ export class LandingPageView extends React.PureComponent {
             </div>
                 <div className="container-fluid page-body">
                       { errorType && <ErrorPage type={errorType} /> }
-                        { this.props.children }
+                      {  this.props.children }
                 </div>
         </div>
     }

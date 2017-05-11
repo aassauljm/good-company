@@ -226,7 +226,7 @@ export class AnnualReturnLoader extends React.Component {
 }
 
 
-@AnnualReturnHOC()
+@AnnualReturnHOC(false, true)
 @reduxForm({
     fields: ['confirm'],
     form: 'confirmAR'
@@ -237,6 +237,8 @@ export class ReviewAnnualReturn extends React.PureComponent {
         super(props);
         this.submit = ::this.submit;
     }
+
+
 
     renderControls() {
         const { fields: {confirm} } = this.props;

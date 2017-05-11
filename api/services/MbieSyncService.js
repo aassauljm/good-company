@@ -257,68 +257,6 @@ module.exports = {
     arSummary: function(user, company, state) {
         return MbieSyncService.flatten(user, company, state);
     },
-    /*arSubmitff: function(user, company, state, values) {
-        const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
-        return getUserTokenAndRetry(user, (token) => {
-            return curl.requestAsync({
-                    url: url,
-                    method: 'POST',
-                    //fail: true,
-                    include: true,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    data: JSON.stringify(_.pick(values, 'declaration', 'name', 'phoneContact', 'emailAddress', 'designation',
-                                                'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
-                                                'annualReturnShareholderListDocumentRef' ))
-                })
-        })
-        .tap((result, x) => {
-            console.log(result, x);
-            sails.log.verbose(result)
-        })
-        .then(JSON.parse)
-        .catch((result) => {
-            console.log(result)
-            if(result.status === 400){
-                sails.log.error(JSON.stringify(result))
-                throw sails.config.exceptions.COFailValidation()
-            }
-            if(result.status === 403){
-                throw sails.config.exceptions.COUnauthorised()
-            }
-            console.log(result);
-            throw Error()
-        })
-
-    },*/
-    /*
-    arSubmitWTF: function(user, company, state, values) {
-        const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
-        const body =  JSON.stringify(_.pick(values, 'declaration', 'name', 'phoneContact', 'emailAddress', 'designation',
-                                            'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
-                                        'annualReturnShareholderListDocumentRef' ));
-        return getUserTokenAndRetry(user, (token) => {
-            return fetchUrl(token, url, {
-                method: 'POST',
-                body: body
-            }, {'Content-Type': 'application/json', 'Content-Length': null})
-        })
-        .then((result) => {
-            console.log(result)
-            if(result.status === 400){
-                sails.log.error(JSON.stringify(result))
-                throw sails.config.exceptions.COFailValidation()
-            }
-            if(result.status === 403){
-                throw sails.config.exceptions.COUnauthorised()
-            }
-            return result.response.text()
-        })
-        .then(JSON.parse)
-
-    },*/
     arSubmit: function(user, company, state, values) {
         const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
         return getUserTokenAndRetry(user, (token) => {
@@ -335,9 +273,7 @@ module.exports = {
                                             'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
                                             'annualReturnShareholderListDocumentRef' )))
         })
-        .tap((result) => console.log(result))
         .catch((error) => {
-            console.log(error)
             if(error.context.status === 400){
                 const message = error.context.body.items[0].message;
                 throw sails.config.exceptions.COFailValidation(message)

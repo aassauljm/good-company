@@ -141,25 +141,16 @@ export class Header extends React.PureComponent {
                                 <Dropdown.Menu>
                                      { this.renderNavLinks() }
                                     { this.renderFavourites() }
-                                    {/* }<li className="separator" />
-                                    <li>
-                                        <a href={this.props.login.userUrl}>{this.props.userInfo.username}
-                                        </a>
-                                    </li>
-                                    <li><a href="/logout">Log out</a></li> */ }
-
                                 </Dropdown.Menu>
                             </Dropdown>
                         </Navbar.Brand>
                     </Navbar.Header>
+                     <ul  className="nav navbar-nav navbar-right control-icons">
+                        { this.status() }
+                        <AccountControls {...this.props} />
+                    </ul>
 
-
-                         <ul  className="nav navbar-nav navbar-right control-icons">
-                            { this.status() }
-                            <AccountControls {...this.props} />
-                        </ul>
-
-                       <Search />
+                   <Search />
 
 
 

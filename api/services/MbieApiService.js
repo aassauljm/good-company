@@ -83,7 +83,6 @@ const authWithService = (config) => (req, res) => {
             })
             .then(() => {
                 let url;
-                console.log('this', req.session)
                 if(req.session.redirect){
                     url = req.session.redirect;
                     delete req.session.redirect;
@@ -91,7 +90,6 @@ const authWithService = (config) => (req, res) => {
                 else{
                     url = config.redirect;
                 }
-                console.log('redirecting')
                 res.redirect(url);
             })
             .catch(error => res.redirect(`/?error=${config.errorType}`));

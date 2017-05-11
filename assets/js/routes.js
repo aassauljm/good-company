@@ -111,7 +111,6 @@ export default (store) => {
         function checkAuth() {
             const { login: { loggedIn, loginUrl }} = store.getState();
             if (!loggedIn) {
-                //replace({pathname: '/login', query:  {next: nextState.location.pathname}});
                 const query = encodeURIComponent(nextState.location.pathname);
                 window.location.href = `${loginUrl}?next=${nextState.location.pathname}`
                 cb();

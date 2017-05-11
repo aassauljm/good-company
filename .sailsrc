@@ -1,18 +1,11 @@
 {
-    "generators": {
-        "modules": {
-            "permissions-api": "sails-permissions/generator"
-        }
-    },
     "hooks": {
         "blueprints": false,
         "orm": false,
         "permissions": false,
         "pubsub": false
     },
-    "log": {
-        "level": "error"
-    },
+
     "models": {
 
     },
