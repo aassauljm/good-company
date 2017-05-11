@@ -145,8 +145,8 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
                 (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
                 <td><FavouriteControl isFavourite={row.favourite} companyId={row.id} action={favouriteAction}/></td>
                 { fields.map(f => <td key={f}>{row[f]}</td>) }
-                {!condensed && <td>{ row.permissions.indexOf('read') >= 0 ? 'Yes' : 'No' }</td> }
-                {!condensed && <td>{ row.permissions.indexOf('update') >= 0 ? 'Yes' : 'No'}</td> }
+                {!condensed && <td>{ (row.permissions || []).indexOf('read') >= 0 ? 'Yes' : 'No' }</td> }
+                {!condensed && <td>{ (row.permissions || []).indexOf('update') >= 0 ? 'Yes' : 'No'}</td> }
                 </tr> )
             }
             </tbody>

@@ -93,6 +93,9 @@ export class LandingPageView extends React.PureComponent {
 @connect(state => ({ userInfo: state.userInfo, login: state.login}))
 export default class Home extends React.PureComponent {
     render() {
+        if(!login.loggedIn){
+            return <div className="container"></div>
+        }
         const org = ((this.props.userInfo || {}).organisation);
         const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
         const canCreateEvent = this.props.userInfo.permissions.event.indexOf('create') >= 0;
