@@ -128,6 +128,36 @@ function TransactionSummaries(props) {
     </div>
 }
 
+
+function FutureTransactionSummaries(props) {
+let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType === TransactionTypes.INCORPORATION);
+    const pendingActions = props.pendingActions.filter((p, i) => {
+        if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
+            return false;
+        }
+        return true;
+    });
+    const className = props.loading ? 'button-loading' : 'loaded';
+    let message = pendingActions.length ?
+        'Please Confirm or Edit the recent transactions listed below.  Please note that even confirmed transactions may require corrections.' :
+        "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import.";
+
+    return <div className={className}>
+        <p>{ message }</p>
+        <hr/>
+        <Shuffle>
+            { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
+        </Shuffle>
+        <div className="button-row">
+        <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
+        { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }
+        { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
+        { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
+        { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
+        </div>
+    </div>
+}
+
 function requiresEdit(data){
     const actions = data.actions;
 

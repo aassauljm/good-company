@@ -335,9 +335,9 @@ module.exports = {
                                             'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
                                             'annualReturnShareholderListDocumentRef' )))
         })
-        .then(response => {
-            return response.text()
-        })
+        //.then(response => {
+        //    return response.text()
+        //})
         .then(JSON.parse)
         .tap((result) => console.log(result))
         .catch((error) => {
