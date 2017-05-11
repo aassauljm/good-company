@@ -93,7 +93,7 @@ export class LandingPageView extends React.PureComponent {
 @connect(state => ({ userInfo: state.userInfo, login: state.login}))
 export default class Home extends React.PureComponent {
     render() {
-        if(!login.loggedIn){
+        if(!this.props.login.loggedIn){
             return <div className="container"></div>
         }
         const org = ((this.props.userInfo || {}).organisation);
