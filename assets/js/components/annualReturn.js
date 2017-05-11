@@ -18,6 +18,9 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { enums as ErrorTypes } from '../../../config/enums/errors';
 import { ConnectCompaniesOffice } from './companiesOfficeIntegration';
+import { CompaniesOfficeLink } from './companiesRegister';
+
+
 function ARLinks() {
     return <div>
         <LawBrowserLink title="Companies Act 1993" location="s 214(1)+(6)+(7)">Board to file annual return</LawBrowserLink>
@@ -269,6 +272,14 @@ export class ReviewAnnualReturn extends React.PureComponent {
             </div>
     }
 
+    renderWarning() {
+        return <div>
+            <div className="alert alert-warning">
+                If the details below are incorrect, please update them at the <CompaniesOfficeLink companyNumber={this.props.companyState.companyNumber} text="Companies Office website"/>.
+                Automated updates from Good Companies to the Companies Office will be released shortly.
+            </div>
+        </div>
+    }
 
     renderLoading() {
         return <div>
@@ -282,6 +293,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
     render() {
         return <LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Review Annual Return">
+                    { this.renderWarning()  }
                     { this.props.arSummary && this.props.arSummary.data && <ARSummary company={this.props.arSummary.data} /> }
                     { this.props.arSummary && this.props.arSummary._status === 'fetching' && this.renderLoading() }
                     { this.props.arSummary && this.props.arSummary._status === 'error' && this.renderError() }

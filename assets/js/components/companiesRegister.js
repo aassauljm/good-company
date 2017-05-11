@@ -140,7 +140,7 @@ export class CompaniesRegisterWidget extends React.Component {
             </div>
             { data.createdAt && <div className="col-xs-12 text-center">
                 { data.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(data.createdAt) }</em></div> }
-                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Register</a>
+                <CompaniesOfficeLink companyNumber={data.companyNumber} text={'View at Companies Office'}/>
             </div> }
             <div className="col-xs-12 text-center"><p></p>
                 <p>
@@ -284,4 +284,9 @@ export default class CompaniesRegister extends React.Component {
                 </Widget>
         </LawBrowserContainer>
     }
+}
+
+
+export const CompaniesOfficeLink = (props) => {
+    return <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${props.companyNumber}`} target="blank">{props.text}</a>
 }
