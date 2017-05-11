@@ -39,16 +39,51 @@ const fields = [
 
 
 @connect((state, ownProps) => ({
+    update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {},
+}), {
+    updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
+    refresh: () => resetResources(),
+    addNotification: (...args) => addNotification(...args)
+})
+export class UpdateSourceData extends React.PureComponent {
+    updateData() {
+        this.props.updateData(this.key())
+            .then(result => {
+                if(result.response.sourceDataUpdated){
+                    this.props.addNotification({message: 'New company records found'})
+                    this.props.refresh();
+                }
+                else{
+                    this.props.addNotification({message: 'This company is up to date'})
+                }
+            })
+            .catch(() => {
+                this.props.addNotification({message: 'Failed to update data from Companies Register', error: true})
+            });
+    }
+
+    key() {
+        return this.props.companyId;
+    }
+
+    render(){
+        const doingUpdate = this.props.update._status   === 'fetching';
+        if(!doingUpdate){
+            return <Button bsStyle="info" onClick={() => this.updateData()}>Check for Updates</Button>
+        }
+        return <Button bsStyle="info"> <Glyphicon glyph="refresh" className="spin"/> Checking for Updates</Button>
+    }
+}
+
+
+@connect((state, ownProps) => ({
     userInfo: state.userInfo,
     sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {},
-    update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {},
     authority: state.resources[`/company/${ownProps.companyId}/update_authority`] || {}
 }), {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
-    updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
     updateAuthority: (key) => updateResource(`/company/${key}/update_authority`, {}, {invalidates: []}),
-    refresh: () => resetResources(),
-    addNotification: (...args) => addNotification(...args)
+    refresh: () => resetResources()
 })
 export class CompaniesRegisterWidget extends React.Component {
 
@@ -111,7 +146,6 @@ export class CompaniesRegisterWidget extends React.Component {
 
     renderBody() {
         const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
-        const doingUpdate = this.props.update._status   === 'fetching';
 
         if(fetching){
             return <div className="loading" key="loading">
@@ -151,8 +185,7 @@ export class CompaniesRegisterWidget extends React.Component {
             </div>
             <div className="button-row">
                 { this.authority(authority) }
-                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check for Updates</Button> }
-                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking for Updates</Button> }
+                 <UpdateSourceData companyId={this.props.companyId} />
             </div>
         </div>
     }
@@ -179,18 +212,17 @@ function renderValue(value){
 }
 
 
+
 @connect((state, ownProps) => ({
     userInfo: state.userInfo,
     sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {},
-    update: state.resources[`/company/${ownProps.companyId}/update_source_data`] || {},
     authority: state.resources[`/company/${ownProps.companyId}/update_authority`] || {}
 }), {
     requestData: (key) => requestResource(`/company/${key}/source_data`),
-    updateData: (key) => updateResource(`/company/${key}/update_source_data`, {}, {invalidates: []}),
     updateAuthority: (key) => updateResource(`/company/${key}/update_authority`, {}, {invalidates: []}),
     refresh: () => resetResources()
 })
-export default class CompaniesRegister extends React.Component {
+export default class CompaniesRegister extends React.PureComponent {
     fetch() {
         return this.props.requestData(this.props.companyId);
     };
@@ -206,14 +238,6 @@ export default class CompaniesRegister extends React.Component {
         return this.props.companyId;
     }
 
-    updateData() {
-        this.props.updateData(this.key())
-            .then(result => {
-                if(result.response.sourceDataUpdated){
-                    this.props.refresh();
-                }
-            });
-    }
     updateAuthority(existing) {
         this.props.updateAuthority(this.key())
             .then(result => {
@@ -222,6 +246,7 @@ export default class CompaniesRegister extends React.Component {
                 }
             });
     }
+
     authority(hasAuthority) {
         const doingAuthorityUpdate = this.props.authority._status === 'fetching';
         if(doingAuthorityUpdate){
@@ -240,7 +265,7 @@ export default class CompaniesRegister extends React.Component {
 
     renderBody() {
         const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
-        const doingUpdate = this.props.update._status   === 'fetching'
+
 
         if(fetching ){
             return <div className="loading" key="loading">
@@ -250,10 +275,10 @@ export default class CompaniesRegister extends React.Component {
         const authority = this.props.companyState.authority;
         const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
         return <div key="body">
-            <p><div className="text-center">
+            <div className="text-center">
                 <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${source.data.companyNumber}`} target="blank">View at Companies Office <Glyphicon glyph="new-window"/></a>
             </div>
-            </p>
+
             { fields.map((f, i) => {
                 return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(source.data[f])}</div></div>
             })}
@@ -271,8 +296,7 @@ export default class CompaniesRegister extends React.Component {
 
             <div className="button-row">
                 { this.authority(authority) }
-                {!doingUpdate && <Button bsStyle="info" onClick={() => this.updateData()}>Check for Updates</Button> }
-                { doingUpdate && <Button bsStyle="info">   <Glyphicon glyph="refresh" className="spin"/> Checking for Updates</Button> }
+                <UpdateSourceData companyId={this.props.companyId} />
             </div>
         </div>
     }

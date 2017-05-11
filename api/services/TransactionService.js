@@ -1008,7 +1008,10 @@ export function validateAmend(data, companyState){
                                                     {ignoreCompanyNumber: true});
 
     if(!holding){
-        throw new sails.config.exceptions.InvalidOperation('Matching Holding not found')
+        throw new sails.config.exceptions.InvalidOperation('Matching Holding not found', {
+            action: data,
+            companyState: companyState
+        })
     }
 
     data.parcels.map(newParcel => {
@@ -1057,7 +1060,7 @@ export const performAmend = Promise.method(function(data, companyState, previous
                 return  {amount: Math.abs(difference), shareClass: newParcel.shareClass};
             });
 
-            const newHolding = {holders: data.holders || data.afterHolders, parcels: parcels, holdingId: data.holdingId};
+            const newHolding = {holders: data.holders || data.afterHolders, parcels: parcels, holdingId: data.holdingId || holding.holdingId};
 
             if(!increase){
                 parcels.map(parcel => companyState.combineUnallocatedParcels(parcel));

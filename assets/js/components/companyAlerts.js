@@ -127,6 +127,16 @@ const Deadlines = (props) => {
 
 }
 
+export function arDue(deadlines){
+    const thisMonth = moment().format('MMMM')
+    if(!deadlines.annualReturn){
+        return false;
+    }
+    if(deadlines.annualReturn.overdue || (!deadlines.annualReturn.filedThisYear && thisMonth === deadlines.annualReturn.arFilingMonth)){
+        return true;
+    }
+}
+
 export function renderDeadlines(deadlines, showTypes, companyId) {
     let i = 0;
     const results = [];

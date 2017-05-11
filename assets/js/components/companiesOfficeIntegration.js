@@ -59,6 +59,7 @@ export const ConnectCompaniesOffice = (props) => {
             <p>Connect your RealMe with the Companies to enable the submission of company changes and annual returns.</p>
             <div className="button-row">
                 <a className="btn btn-info" href={url}>Connect with Companies Office</a>
+                { props.children }
                 </div>
         </div>
 }

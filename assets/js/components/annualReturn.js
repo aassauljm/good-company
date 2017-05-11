@@ -18,8 +18,8 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { enums as ErrorTypes } from '../../../config/enums/errors';
 import { ConnectCompaniesOffice } from './companiesOfficeIntegration';
-import { CompaniesOfficeLink } from './companiesRegister';
-
+import { CompaniesOfficeLink, UpdateSourceData } from './companiesRegister';
+import { arDue } from './companyAlerts';
 
 function ARLinks() {
     return <div>
@@ -240,7 +240,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
 
     renderControls() {
         const { fields: {confirm} } = this.props;
-        const deadline = this.props.companyState.deadlines.annualReturn || true
+        const deadline = arDue(this.props.companyState.deadlines);
         const ready = deadline &&  this.props.arSummary && this.props.arSummary.data;
 
         return  <div>
@@ -424,14 +424,23 @@ export class AnnualReturnSubmission extends React.PureComponent {
 export default class AnnualReturn extends React.PureComponent {
     render() {
         const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
+        const due = arDue(this.props.companyState.deadlines);
         return <LawBrowserContainer lawLinks={ARLinks()}>
             <Widget title="Annual Return">
-                    <p>If you have connected your RealMe with the Companies Office, you have authourity over this company, and the Companies Office records are up to date, you can submit an Annual Return.</p>
-                    { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an Annual Return for review and submission.</p>
-                    <div className="button-row"><Link to={`/company/view/${this.props.companyId}/review_annual_return`} className="btn btn-primary">Show Annual Return</Link></div>
-                    </div> }
-                    { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice redirect={true}/> }
-                    </Widget>
+
+                { !due && <div className="alert alert-warning">The Annual Return for this company is not yet due.</div> }
+                <p>If you have connected your RealMe with the Companies Office, you have authourity over this company, and the Companies Office records are up to date, you can submit an Annual Return.  </p>
+                <p>If you have already submitted an Annual Return independently, please click 'Check for Updates' below to update our records.</p>
+                { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an Annual Return for review and submission.</p>
+                    <div className="button-row">
+                        <UpdateSourceData companyId={this.props.companyId} />
+                        <Link to={`/company/view/${this.props.companyId}/review_annual_return`} className="btn btn-primary">Show Annual Return</Link>
+                        </div>
+                </div> }
+                { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice redirect={true} >
+                    <UpdateSourceData companyId={this.props.companyId} />
+                </ConnectCompaniesOffice> }
+            </Widget>
         </LawBrowserContainer>
     }
 }
