@@ -231,7 +231,7 @@ CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
     )
     SELECT row_to_json(q) FROM (
 
-        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array(15, 'Company', q.id) as permissions, f."companyId" IS NOT NULL as favourite FROM (
+        SELECT q.id, "currentCompanyStateId", row_to_json(cs.*) as "currentCompanyState", q."ownerId", u.username as owner, suspended, get_permissions_array($1, 'Company', q.id) as permissions, f."companyId" IS NOT NULL as favourite FROM (
         SELECT *, company_now(c.id)  FROM user_companies_by_permission($1) c
         ) q
         JOIN basic_company_state cs on cs.id = q.company_now
