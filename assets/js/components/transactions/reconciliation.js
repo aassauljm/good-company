@@ -36,6 +36,71 @@ const FINISHED = 3;
 const CONTINUE = 4;
 
 
+@ScrollIntoViewOptional
+class PendingFutureAction extends React.Component {
+    render() {
+        const props = this.props;
+        const p = this.props.action;
+        const required = requiresEdit(p.data);
+        const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed) && !p.data.historic;
+        const showConfirm = !required && !showUnconfirm && !p.data.historic;;
+        const editable = (isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed)) || required;
+        let className = "panel panel-default"
+        if(required){
+            className = "panel panel-danger"
+        }
+
+        return <div className="row">
+            <div className="col-md-6">
+             <div  className={className}>
+                   <div className="panel-heading">
+                <div className="transaction-terse-date ">
+                    { stringDateToFormattedStringTime(p.data.effectiveDate) }
+                </div>
+                { p.data.actions.map((action, i) => {
+                    const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
+                    return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
+                }) }
+                </div>
+
+            </div>
+            </div>
+            <div className="col-md-6">
+                    <div classname="button-row">
+                       { editable && <Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button>}
+                                    { showConfirm &&  <Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button> }
+                                    { showUnconfirm &&  <Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button> }
+                    </div>
+
+            </div>
+
+        </div>
+        /*
+        return <div key={p.numberId}>
+
+                    <div className="panel-heading">
+                        <div className="row transaction-table">
+                            <
+                            <div className="col-md-8">
+                            { p.data.historic && <strong>Historic Transaction</strong> }
+                            { p.data.actions.map((action, i) => {
+                                const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
+                                return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
+                            }) }
+                            </div>
+                            <div className="col-md-1">{
+                                editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button></div>
+                            }</div>
+                            <div className="col-md-1">
+                                { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button></div> }
+                                { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button></div> }
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>*/
+    }
+}
 
 
 @ScrollIntoViewOptional
@@ -97,17 +162,10 @@ function TransactionSummaries(props) {
         return true;
     });
     const className = props.loading ? 'button-loading' : 'loaded';
-    let message;
-    if(props.future){
-        message = pendingActions.length ?
-        'Please Confirm or Edit the recent transactions listed below.  Please note that even confirmed transactions may require corrections.' :
-        "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
-    }
-    else{
-        message = pendingActions.length ?
+    let message = pendingActions.length ?
         'Please Confirm or Edit the transactions from the last 10 years listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
         "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
-    }
+
 
     return <div className={className}>
         <p>{ message }</p>
@@ -121,7 +179,7 @@ function TransactionSummaries(props) {
         { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
         { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
         { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
-        {  !props.future  && <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button> }
+       <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button>
 
          { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
         </div>
@@ -130,8 +188,10 @@ function TransactionSummaries(props) {
 
 
 function FutureTransactionSummaries(props) {
-let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType === TransactionTypes.INCORPORATION);
+    let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType === TransactionTypes.INCORPORATION);
     const pendingActions = props.pendingActions.filter((p, i) => {
+        const actions = p.data.actions.filter(a => a.transactionType);
+        p.numberId = i;
         if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
             return false;
         }
@@ -142,11 +202,13 @@ let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType ===
         'Please Confirm or Edit the recent transactions listed below.  Please note that even confirmed transactions may require corrections.' :
         "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import.";
 
+    const transactionOptions  = props.companyState.transactions.filter(t => !t.documentId && t.type !== TransactionTypes.SEED);
+
     return <div className={className}>
         <p>{ message }</p>
         <hr/>
         <Shuffle>
-            { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
+            { pendingActions.map((p, i) => <div key={p.numberId} ><PendingFutureAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
         </Shuffle>
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
@@ -276,12 +338,12 @@ FUTURE_PAGES[EXPLAINATION] = function() {
         return  <Loading />
     }
     if(this.state.pendingFuture._status === 'complete'){
-        const pendingYearActions = collectActions(this.state.pendingFuture.data);
-        if(pendingYearActions.length){
-            return <TransactionSummaries
-                future={true}
+        const pendingActions = collectActions(this.state.pendingFuture.data);
+        if(pendingActions.length){
+            return <FutureTransactionSummaries
                 shareClassMap={generateShareClassMap(this.props.transactionViewData.companyState) }
-                pendingActions={pendingYearActions}
+                companyState={this.props.transactionViewData.companyState}
+                pendingActions={pendingActions}
                 handleStart={this.handleStart}
                 handleAddNew={this.handleAddNew}
                 handleEdit={this.handleEdit}
@@ -292,7 +354,7 @@ FUTURE_PAGES[EXPLAINATION] = function() {
                 loading={this.isLoading()}
                 scrollIndex={this.props.transactionViewData.editIndex}
                 showConfirmed={this.props.transactionViewData.showConfirmed}
-                showAllTypes={true}
+
                 />
         }
         else{

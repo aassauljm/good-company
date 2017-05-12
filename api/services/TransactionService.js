@@ -2062,8 +2062,12 @@ export function transactionsToActions(transactions){
 export function performAllInsertByEffectiveDate(data, company){
     const date = data[0].effectiveDate;
     let state, futureTransactions;
-    let completedTransactions = [];
-    return company.getDatedCompanyState(date)
+    let completedTransactions = [], pendingFuture;
+    return company.getCurrentCompanyState()
+        .then(state => {
+            pendingFuture = state.pending_future_action_id
+            return company.getDatedCompanyState(date)
+        })
         .then(_state => {
             state = _state;
             return company.getTransactionsAfter(state.id)
@@ -2084,6 +2088,11 @@ export function performAllInsertByEffectiveDate(data, company){
                 return performAll(transactionsToActions(futureTransactions), company, state, true)
             }
             return state;
+        })
+        .tap(state => {
+            if(pendingFuture){
+                return state.update({'pending_future_action_id': pendingFuture});
+            }
         })
         .then(state => {
             return {companyState: state, transaction: completedTransactions[0]}
