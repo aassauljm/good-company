@@ -45,6 +45,7 @@ class PendingFutureAction extends React.Component {
         const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed) && !p.data.historic;
         const showConfirm = !required && !showUnconfirm && !p.data.historic;;
         const editable = (isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed)) || required;
+        const showSkip = !p.data.actions.every(a => a.userSkip)
         let className = "panel panel-default"
         if(required){
             className = "panel panel-danger"
@@ -66,39 +67,19 @@ class PendingFutureAction extends React.Component {
             </div>
             </div>
             <div className="col-md-6">
-                    <div classname="button-row">
-                       { editable && <Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button>}
-                                    { showConfirm &&  <Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button> }
-                                    { showUnconfirm &&  <Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button> }
+                    <div className="button-row">
+
+                        { !showSkip && <Button bsStyle="warning" onClick={() => props.handleSkip(p, false)}>Unskip</Button> }
+                        { showSkip && <Button bsStyle="warning" onClick={() => props.handleSkip(p)}>Skip</Button> }
+                        { editable && <Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button>}
+                        { showConfirm &&  <Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button> }
+                        { showUnconfirm &&  <Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button> }
                     </div>
 
             </div>
-
+            <div className="col-xs-12"><hr/></div>
         </div>
-        /*
-        return <div key={p.numberId}>
 
-                    <div className="panel-heading">
-                        <div className="row transaction-table">
-                            <
-                            <div className="col-md-8">
-                            { p.data.historic && <strong>Historic Transaction</strong> }
-                            { p.data.actions.map((action, i) => {
-                                const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
-                                return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
-                            }) }
-                            </div>
-                            <div className="col-md-1">{
-                                editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button></div>
-                            }</div>
-                            <div className="col-md-1">
-                                { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button></div> }
-                                { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button></div> }
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>*/
     }
 }
 
@@ -202,7 +183,10 @@ function FutureTransactionSummaries(props) {
         'Please Confirm or Edit the recent transactions listed below.  Please note that even confirmed transactions may require corrections.' :
         "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import.";
 
-    const transactionOptions  = props.companyState.transactions.filter(t => !t.documentId && t.type !== TransactionTypes.SEED);
+   /*const existingTransactionOptions  = props.companyState.transactions.filter(t => !t.documentId && t.type !== TransactionTypes.SEED).map((t) => {
+        return <option key={t.id} value={t.id}></option>
+    })*/
+
 
     return <div className={className}>
         <p>{ message }</p>
@@ -350,6 +334,7 @@ FUTURE_PAGES[EXPLAINATION] = function() {
                 handleReset={this.handleReset}
                 end={this.props.end}
                 handleConfirm={this.handleConfirm}
+                handleSkip={this.handleSkip}
                 toggleConfirmed={this.toggleConfirmed}
                 loading={this.isLoading()}
                 scrollIndex={this.props.transactionViewData.editIndex}
@@ -601,8 +586,8 @@ export class ImportFutureTransactionView extends React.Component {
         this.handleStart = ::this.handleStart;
         this.handleResolve = ::this.handleResolve;
         this.handleEdit = ::this.handleEdit;
-        this.handleAddNew = ::this.handleAddNew;
         this.handleConfirm = ::this.handleConfirm;
+        this.handleSkip= ::this.handleSkip;
         this.toggleConfirmed = ::this.toggleConfirmed;
         this.state = {pendingFuture: props.pendingFuture};
     };
@@ -653,7 +638,6 @@ export class ImportFutureTransactionView extends React.Component {
     }
 
 
-
     handleEdit(actionSet, pendingActions, editIndex) {
         this.props.destroyForm('amend');
         this.props.show('editTransaction', {...this.props.transactionViewData,
@@ -663,17 +647,6 @@ export class ImportFutureTransactionView extends React.Component {
             pendingActions,
             isFuture: true,
             afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION, editIndex}}}
-        });
-    }
-
-    handleAddNew(pendingActions) {
-        this.props.destroyForm('amend');
-        this.props.show('editTransaction', {...this.props.transactionViewData,
-            startId: pendingActions[0].id,
-            endId: pendingActions[pendingActions.length-1].previous_id,
-            otherActions: pendingActions,
-            isFuture: true,
-            afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
         });
     }
 
@@ -695,6 +668,22 @@ export class ImportFutureTransactionView extends React.Component {
                     // other actions
                     afterClose: { showTransactionView: {key: 'importFuture', data: {...this.props.transactionViewData, index: EXPLAINATION}}}
                 }
+        });
+    }
+
+    handleSkip(transaction, skipState=true) {
+        if(this.isLoading()){
+            return false;
+        }
+        const pendingAction = {...transaction};
+        const pendingActions = collectActions(this.state.pendingFuture.data || []);
+        const index = pendingActions.findIndex(p => p.id === transaction.id);
+        pendingAction.data.actions = pendingAction.data.actions.map((a) => {
+            return {...a, userConfirmed: true, userSkip: skipState}
+        });
+
+        this.props.updateAction({
+            pendingActions: [...(pendingActions.slice(0, index)), pendingAction]
         });
     }
 
