@@ -156,11 +156,11 @@ function renderField(fieldProps, componentProps, index){
         return renderList(fieldProps, componentProps);
     }
     else if (fieldProps.type === 'object'){
-        return <div>{ renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf) }</div>
+        return <div>{ renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf, null, fieldProps.title) }</div>
     }
 }
 
-function renderFormSet(schemaProps, fields, oneOfs, listIndex) {
+function renderFormSet(schemaProps, fields, oneOfs, listIndex, title) {
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
     };
@@ -172,10 +172,11 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex) {
     });
     return (
         <fieldset>
+         { title && <legend>{title}</legend>}
             { Object.keys(schemaProps).map((key, i) => {
                 return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
             }) }
-            { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields) }
+            { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields, null, null, ) }
         </fieldset>
     );
 }
@@ -215,6 +216,7 @@ export class RenderForm extends React.Component {
                 { this.props.error && <div className="alert alert-danger">
                     { this.props.error.map((e, i) => <div key={i}> { e } </div>) }
                 </div> }
+                <hr />
                 { this.controls() }
             </form>
         );
