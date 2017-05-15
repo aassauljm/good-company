@@ -41,7 +41,7 @@ function skipOrRestart(props){
     return <div>
         { !allowSkip &&  <p className="instructions">Sorry, we are unable to continue importing past this point while continuing to verify transactions.</p> }
         <div className="button-row">
-            { allowSkip && <Button onClick={skip} className="btn-primary">Skip Validation</Button> }
+            { allowSkip && <Button onClick={skip} className="btn-primary">Skip</Button> }
             { reset && <Button onClick={startOver} className="btn-danger">Restart Reconciliation</Button> }
         </div>
     </div>
@@ -522,6 +522,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
     renderBody() {
         const context = {message: this.props.transactionViewData.error.message, ...this.props.transactionViewData.error.context, pendingActions: this.props.pendingHistory.data};
         const action = context.action;
+        const isFuture = this.props.transactionViewData.isFuture;
         context.shareClassMap = generateShareClassMap(this.props.transactionViewData.companyState);
 
         const updateAction = ({newActions}) => {
@@ -560,7 +561,7 @@ export class ResolveAmbiguityTransactionView extends React.Component {
             return <div className="resolve">
                 { basicSummary(context, this.props.transactionViewData.companyState )}
                 <hr/>
-                { PAGES[context.importErrorType]({context: context, submit: updateAction, reset: this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: () => this.handleClose({cancelled: true, index: 0}), ...this.props}) }
+                { PAGES[context.importErrorType]({context: context, submit: updateAction, reset: !isFuture && this.props.resetAction, edit: edit, viewName: 'resolveAmbiguity', resolving: true, cancel: () => this.handleClose({cancelled: true, index: 0}), ...this.props}) }
             </div>
         }
         else{

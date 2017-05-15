@@ -1176,7 +1176,11 @@ export const validateRemoveDirector = Promise.method(function(data, companyState
         return d.person.isEqual(data, {skipAddress: true});
     })
     if(!director){
-        throw new sails.config.exceptions.InvalidOperation('Could not find expected new director')
+        throw new sails.config.exceptions.InvalidOperation('Could not find expected new director', {
+            action: data,
+            importErrorType: sails.config.enums.DIRECTOR_NOT_FOUND,
+            companyState: companyState
+        })
     }
 });
 
@@ -1209,7 +1213,11 @@ export function performNewDirector(data, companyState, previousState, effectiveD
     })
     .then(person => {
         if(_.find(companyState.dataValues.directorList.dataValues.directors, d => d.person.isEqual(person))){
-            throw new sails.config.exceptions.InvalidOperation('Directorship already appointed')
+            throw new sails.config.exceptions.InvalidOperation('Directorship already appointed', {
+                action: data,
+                importErrorType: sails.config.enums.DIRECTOR_ALREADY_APPOINTED,
+                companyState: companyState
+            });
         }
         const director = Director.build({
             appointment: effectiveDate, personId: person.id});
@@ -1238,7 +1246,11 @@ export function performUpdateDirector(data, companyState, previousState, effecti
         })
         .catch((e) => {
             sails.log.error(e);
-            throw new sails.config.exceptions.InvalidOperation('Could not update director');
+            throw new sails.config.exceptions.InvalidOperation('Could not update director', {
+                action: data,
+                importErrorType: sails.config.enums.DIRECTOR_NOT_FOUND,
+                companyState: companyState
+            })
         });
 };
 

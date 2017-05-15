@@ -35,7 +35,7 @@ function ARLinks() {
 
 const DECLARATION = "I certify that the information contained in this annual return is correct.";
 
-const ARSummary = (props) => {
+export const ARSummary = (props) => {
     const leftColumn = 'col-xs-4 left';
     const rightColumn = 'col-xs-8 right';
     const row = "row";
@@ -55,7 +55,7 @@ const ARSummary = (props) => {
                 { STRINGS.companyName }
             </div>
             <div className={ rightColumn }>
-                { props.company.companyName }
+                { props.companyState.companyName }
             </div>
         </div>
 
@@ -64,7 +64,7 @@ const ARSummary = (props) => {
                 { STRINGS.nzbn }
             </div>
             <div className={ rightColumn }>
-                { props.company.nzbn }
+                { props.companyState.nzbn }
             </div>
         </div>
 
@@ -73,7 +73,7 @@ const ARSummary = (props) => {
                 { STRINGS.effectiveDateString }
             </div>
             <div className={ rightColumn }>
-                { props.company.effectiveDate }
+                { props.companyState.effectiveDate }
             </div>
         </div>
 
@@ -82,7 +82,7 @@ const ARSummary = (props) => {
                 Filing Year
             </div>
             <div className={ rightColumn }>
-                { props.companyFilingYear }
+                { props.companyState.companyFilingYear }
             </div>
         </div>
 
@@ -91,7 +91,7 @@ const ARSummary = (props) => {
                  { STRINGS.ultimateHoldingCompany }
             </div>
             <div className={ rightColumn }>
-                { props.company.ultimateHoldingCompany ? 'Yes' : 'No' }
+                { props.companyState.ultimateHoldingCompany ? 'Yes' : 'No' }
             </div>
         </div>
 
@@ -106,7 +106,7 @@ const ARSummary = (props) => {
                  { STRINGS.registeredCompanyAddress }
             </div>
             <div className={ rightColumn }>
-                { props.company.registeredCompanyAddress }
+                { props.companyState.registeredCompanyAddress }
             </div>
         </div>
 
@@ -115,7 +115,7 @@ const ARSummary = (props) => {
                  { STRINGS.addressForService }
             </div>
             <div className={ rightColumn }>
-                { props.company.addressForService }
+                { props.companyState.addressForService }
             </div>
         </div>
 
@@ -130,7 +130,7 @@ const ARSummary = (props) => {
                  { STRINGS.addressForShareRegister}
             </div>
             <div className={ rightColumn }>
-                { props.company.addressForShareRegister }
+                { props.companyState.addressForShareRegister }
             </div>
         </div> */ }
         <hr/>
@@ -140,7 +140,7 @@ const ARSummary = (props) => {
             </div>
         </div>
 
-        { props.company.directorList.directors.map((director, i) => {
+        { props.companyState.directorList.directors.map((director, i) => {
             return <div key={i}>
                 <div className={ condensedRow }>
                     <div className={ leftColumn }>
@@ -181,7 +181,7 @@ const ARSummary = (props) => {
                  Total Number of Shares
             </div>
             <div className={ rightColumn }>
-               { numberWithCommas(props.company.holdingList.holdings.reduce((sum, h) => {
+               { numberWithCommas(props.companyState.holdingList.holdings.reduce((sum, h) => {
                     return sum + h.parcels[0].amount
                }, 0))}
             </div>
@@ -191,7 +191,7 @@ const ARSummary = (props) => {
 
         <hr/>
 
-        { props.company.holdingList.holdings.map((holding, i) => {
+        { props.companyState.holdingList.holdings.map((holding, i) => {
             return <div key={i}>
                 <div className={ row }>
                     <div className={ leftColumn }>
@@ -218,7 +218,7 @@ export class AnnualReturnLoader extends React.Component {
     render() {
         if(this.props.arSummary && this.props.arSummary.data) {
             return <div className="container annual-return-document">
-                <ARSummary company={this.props.arSummary.data} />
+                <ARSummary companyState={this.props.arSummary.data} />
                 </div>
         }
         return null;

@@ -12,7 +12,7 @@ import { enums as TransactionTypes } from '../../../config/enums/transactions';
 import { actionAmountDirection } from './transactions/resolvers/summaries';
 import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary, holdingChangeSummary, addressChange, nameChange, addRemoveDirector } from './transactions/resolvers/summaries';
 import { push } from 'react-router-redux'
-
+import { ARSummary } from './annualReturn'
 
 const TEMPLATABLE = {
     [TransactionTypes.TRANSFER]: {
@@ -94,10 +94,6 @@ const ShareHoldingChange = (props) => {
     return beforeAndAfterSummary({actionSet: props.parentTransaction, action: {...props.data, effectiveDate: props.effectiveDate}, shareClassMap: props.shareClassMap}, props.companyState, true)
 }
 
-
-
-
-//const TerseHolders = (action) => joinAnd(h.holders.map(h => h.person), {prop: 'name'})
 
 
 
@@ -246,8 +242,19 @@ export const TransactionRenderMap = {
     },
 
     [TransactionTypes.ANNUAL_RETURN]: (props) => {
-        return <BaseTransaction {...props}>
-        </BaseTransaction>
+        const companyState = props.data.holdings && {
+            ...props.data,
+            holdingList: {holdings: props.data.holdings.map(h => {
+                return {...h, holders: h.holders.map((h) => ({person: h}))}
+            })},
+            directorList: {directors: props.data.directors.map(d => {
+                return {...d, person: d}
+            })}
+        }
+        if(companyState){
+            return <ARSummary companyState={props.companyState} />;
+        }
+        return <BasicLoop {...props} />
     },
 
     [TransactionTypes.COMPOUND]: BasicLoop,
@@ -296,6 +303,7 @@ export const TransactionRenderMap = {
 
     [TransactionTypes.INFERRED_REMOVE_DIRECTOR]: BasicLoop,
     [TransactionTypes.INFERRED_NEW_DIRECTOR]: BasicLoop,
+    [TransactionTypes.INFERRED_UPDATE_DIRECTOR]: BasicLoop,
 
     [TransactionTypes.TRANSFER]: BasicLoop,
     [TransactionTypes.TRANSFER_TO]: ShareHoldingChange,
