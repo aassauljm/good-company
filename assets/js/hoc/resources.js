@@ -125,7 +125,8 @@ export const ALERTS = {resource: 'alerts', location: '/alerts', postProcess: ale
 export const RECENT_ACTIVITY = {resource: 'recent_activity', location: '/recent_activity' };
 export const COMPANIES = {resource: 'companies', location: 'companies'};
 export const COMPANY = {resource: props => `/company/${props.companyId}/get_info`, location: props => `/company/${props.companyId}/get_info`, postProcess: analyseCompany};
-export const DOCUMENTS = {resource: props => `/company/${props.params.id}/documents`, location: props => `/company/${props.params.id}/documents`, propName: 'documents'};
+export const DOCUMENTS = {resource: props => `/company/${props.companyId}/documents`, location: props => `/company/${props.companyId}/documents`, propName: 'documents'};
+export const DOCUMENTS_FROM_ROUTE = {resource: props => `/company/${props.params.id}/documents`, location: props => `/company/${props.params.id}/documents`, propName: 'documents'};
 export const FOREIGN_PERMISSIONS = {resource: props => `/company/${props.companyId}/foreign_permissions`, location: props => `/company/${props.companyId}/foreign_permissions`, propName: 'foreignPermissions'};
 export const ANNUAL_RETURN = {resource: props => `/company/${props.companyId}/ar_summary`, location: props => `/company/${props.companyId}/ar_summary`, propName: 'arSummary'};
 export const ANNUAL_RETURN_FROM_ROUTE = {resource: props => `/company/${props.params.id}/ar_summary`, location: props => `/company/${props.params.id}/ar_summary`, propName: 'arSummary'};
@@ -140,7 +141,8 @@ export const CompanyHOC = (async, refreshOnMount) => HOCFactory(COMPANY, async, 
 export const ForeignPermissionsHOC = (async, refreshOnMount) => HOCFactory(FOREIGN_PERMISSIONS, async, refreshOnMount);
 export const CompanyHOCFromRoute = (async, refreshOnMount) => HOCFactory(COMPANY_FROM_ROUTE, async, refreshOnMount);
 export const CompanyDatedHOCFromRoute = (async, refreshOnMount) => HOCFactory(COMPANY_FROM_DATED_ROUTE, async, refreshOnMount);
-export const DocumentsHOCFromRoute = (async, refreshOnMount) => HOCFactory(DOCUMENTS, async, refreshOnMount);
+export const DocumentsHOC = (async, refreshOnMount) => HOCFactory(DOCUMENTS, async, refreshOnMount);
+export const DocumentsHOCFromRoute = (async, refreshOnMount) => HOCFactory(DOCUMENTS_FROM_ROUTE, async, refreshOnMount);
 export const AnnualReturnHOC = (async, refreshOnMount) => HOCFactory(ANNUAL_RETURN, async, refreshOnMount);
 export const AnnualReturnFromRouteHOC = (async, refreshOnMount) => HOCFactory(ANNUAL_RETURN_FROM_ROUTE, async, refreshOnMount);
 

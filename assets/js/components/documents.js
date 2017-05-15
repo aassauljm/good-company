@@ -19,7 +19,7 @@ import { DragSource, DropTarget } from 'react-dnd';
 import Loading from './loading';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import firstBy from 'thenby';
-import { DocumentsHOCFromRoute } from '../hoc/resources';
+import { DocumentsHOCFromRoute, DocumentsHOC } from '../hoc/resources';
 import Widget from './widget';
 
 
@@ -88,13 +88,14 @@ const documentTypeClasses = (doc, showingSubTree) => {
 }
 
 
-@pureRender
-export class DocumentsWidget extends React.Component {
+@DocumentsHOC()
+export class DocumentsWidget extends React.PureComponent {
 
     renderBody() {
-
-        const docList = this.props.companyState.docList || [];
-        const documents = [...(docList.documents || [])].map(d => ({...d, date: new Date(d.date || d.createdAt) })).filter(d => d.type !== 'Directory');
+        const companyStateDocs = (this.props.companyState.docList && this.props.companyState.docList.documents) || [];
+        const companyDocs = (this.props.documents.data && this.props.documents.data.documents) || [];
+        const files = [...companyStateDocs, ...companyDocs]
+        const documents = [...(files || [])].map(d => ({...d, date: new Date(d.date || d.createdAt) })).filter(d => d.type !== 'Directory');
         documents.sort((a, b) => b.date - a.date);
 
         return  <div  onClick={() => this.props.toggle(!this.props.expanded)}>
