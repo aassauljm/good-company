@@ -127,6 +127,8 @@ export class DirectorsWidget extends React.Component {
     }
 }
 
+const DEFAULT_OBJ = {};
+
 
 export default class Directors extends React.Component {
     static propTypes = {
@@ -137,6 +139,8 @@ export default class Directors extends React.Component {
     constructor(props){
         super();
         this.editDirector = ::this.editDirector;
+        this.newDirector = ::this.newDirector;
+        this.removeDirector = ::this.removeDirector;
     }
 
     editDirector(director) {
@@ -144,6 +148,26 @@ export default class Directors extends React.Component {
             companyId: this.props.companyId,
             companyState: this.props.companyState,
             director: director,
+            afterClose: {
+                location: this.props.location.pathname
+            }
+        });
+    }
+
+    newDirector() {
+        this.props.showTransactionView('newDirector', {
+            companyId: this.props.companyId,
+            companyState: this.props.companyState,
+            afterClose: {
+                location: this.props.location.pathname
+            }
+        });
+    }
+
+    removeDirector() {
+        this.props.showTransactionView('selectDirectorRemove', {
+            companyId: this.props.companyId,
+            companyState: this.props.companyState,
             afterClose: {
                 location: this.props.location.pathname
             }
@@ -160,6 +184,10 @@ export default class Directors extends React.Component {
                <Widget iconClass="fa fa-address-card-o" title="Directors">
                 <h5 className="text-center">Current Directors</h5>
                  <DirectorList directors={directors} holders={holders} editDirector={this.props.canUpdate && this.editDirector} />
+                <div className="button-row">
+                    <Button bsStyle="primary" onClick={this.newDirector}>Appoint Director</Button>
+                    <Button bsStyle="danger" onClick={this.removeDirector}>Remove Director</Button>
+                </div>
                </Widget>
         </LawBrowserContainer>
     }

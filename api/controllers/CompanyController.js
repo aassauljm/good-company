@@ -924,11 +924,14 @@ module.exports = {
             })
             .then(result =>{
                 return res.json(result);
-            }).catch(sails.config.exceptions.COUnauthorised, function(err) {
+            })
+            .catch(sails.config.exceptions.COUnauthorised, function(err) {
                 return res.badRequest({message: 'You are not authorized to submit an Annual Return for this company'});
-            }).catch(sails.config.exceptions.COFailValidation, function(err) {
+            })
+            .catch(sails.config.exceptions.COFailValidation, function(err) {
                 return res.badRequest({message: err.message});
-            }).catch(function(err) {
+            })
+            .catch(function(err) {
                 sails.log.error(err)
                 return res.badRequest({message:  'Could not submit Annual Return'});
             });
