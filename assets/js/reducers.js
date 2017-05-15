@@ -190,16 +190,17 @@ function transactionViews(state = {}, action){
         case START_CREATE_COMPANY:
             return {...state, showing: 'createCompany', createCompany: {index: 0}};
         case END_CREATE_COMPANY:
-            if(state.showing === 'createCompany')
+            if(state.showing === 'createCompany'){
                 return {...state, showing: null};
+            }
             return state;
         case START_IMPORT_COMPANY:
             return {...state, showing: 'importCompany', importCompany: {index: 0}};
         case END_IMPORT_COMPANY:
-            if(state.showing === 'importCompany')
+            if(state.showing === 'importCompany'){
                 return {...state, showing: null};
+            }
             return state;
-
         case SHOW_TRANSACTION_VIEW:
             return {...state, showing: action.transactionView, [action.transactionView]: {index: (action.data||{}).index || 0, data: action.data}};
         case END_TRANSACTION_VIEW:
@@ -210,7 +211,7 @@ function transactionViews(state = {}, action){
         case PREVIOUS_TRANSACTION_VIEW:
             return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
         case RESET_TRANSACTION_VIEWS:
-            return {} ;
+            return {};
 
         //case LOCATION_CHANGE:
         //    return {...state, showing: false}
