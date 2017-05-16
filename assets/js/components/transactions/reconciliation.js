@@ -18,7 +18,6 @@ import { TransactionTerseRenderMap } from '../transaction';
 import Shuffle from 'react-shuffle';
 
 
-
 function companiesOfficeDocumentUrl(companyState, documentId){
     const companyNumber = companyState.companyNumber;
     return `http://www.business.govt.nz/companies/app/ui/pages/companies/${companyNumber}/${documentId}/entityFilingRequirement`;
@@ -43,7 +42,7 @@ class PendingFutureAction extends React.Component {
         const p = this.props.action;
         const required = requiresEdit(p.data);
         const showUnconfirm = !required && p.data.actions.every(a => a.userConfirmed) && !p.data.historic;
-        const showConfirm = !required && !showUnconfirm && !p.data.historic;;
+        const showConfirm = !showUnconfirm && !p.data.historic;;
         const editable = (isEditable(p.data) && !p.data.actions.every(a => a.userConfirmed)) || required;
         const showSkip = !p.data.actions.every(a => a.userSkip)
         let className = "panel panel-default"
@@ -51,36 +50,42 @@ class PendingFutureAction extends React.Component {
             className = "panel panel-danger"
         }
 
-        return <div className="row">
-            <div className="col-md-6">
-             <div  className={className}>
+        return  <div  className={className}>
                    <div className="panel-heading">
-                <div className="transaction-terse-date ">
-                    { stringDateToFormattedStringTime(p.data.effectiveDate) }
-                </div>
-                { p.data.actions.map((action, i) => {
-                    const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
-                    return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
-                }) }
-                </div>
+                   <div className="row">
+                        <div className="col-md-9">
+                            <div className="transaction-terse-date ">
+                                { stringDateToFormattedStringTime(p.data.effectiveDate) }
+                            </div>
+                            { p.data.actions.map((action, i) => {
+                                const Terse =  TransactionTerseRenderMap[action.transactionType] || TransactionTerseRenderMap.DEFAULT;
+                                return  action.transactionType && Terse && <Terse {...action} shareClassMap={props.shareClassMap} key={i}/>
+                            }) }
+                        </div>
 
-            </div>
-            </div>
-            <div className="col-md-6">
-                    <div className="button-row">
+                        <div className="col-md-3 col-xs-12 text-right">
+                        <div className="btn-group">
+                            <Button bsStyle="info" disabled={!editable} onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button>
 
-                        { !showSkip && <Button bsStyle="warning" onClick={() => props.handleSkip(p, false)}>Unskip</Button> }
-                        { showSkip && <Button bsStyle="warning" onClick={() => props.handleSkip(p)}>Skip</Button> }
-                        { editable && <Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button>}
-                        { showConfirm &&  <Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button> }
-                        { showUnconfirm &&  <Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button> }
+                            { !showSkip &&  <Button bsStyle="warning" onClick={() => props.handleSkip(p, false)}>Unskip All</Button> }
+                            { showSkip &&  <Button bsStyle="primary" onClick={() => props.handleSkip(p)}>Skip All</Button> }
+
+                            { showConfirm &&  <Button bsStyle="success" disabled={required} onClick={() => props.handleConfirm(p) }>Confirm</Button> }
+                            { showUnconfirm &&  <Button bsStyle="danger" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button> }
+                          </div>
+                          </div>
+                    </div>
                     </div>
 
-            </div>
-            <div className="col-xs-12"><hr/></div>
-        </div>
 
+            </div>
     }
+}
+
+const PendingFutureActions = (props) => {
+    return <Shuffle>
+            { props.pendingActions.map((p, i) => <div key={p.numberId} ><PendingFutureAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
+        </Shuffle>
 }
 
 
@@ -183,17 +188,10 @@ function FutureTransactionSummaries(props) {
         'Please Confirm or Edit the recent transactions listed below.  Please note that even confirmed transactions may require corrections.' :
         "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import.";
 
-   /*const existingTransactionOptions  = props.companyState.transactions.filter(t => !t.documentId && t.type !== TransactionTypes.SEED).map((t) => {
-        return <option key={t.id} value={t.id}></option>
-    })*/
-
-
     return <div className={className}>
         <p>{ message }</p>
         <hr/>
-        <Shuffle>
-            { pendingActions.map((p, i) => <div key={p.numberId} ><PendingFutureAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
-        </Shuffle>
+        <PendingFutureActions scrollIndex={props.scrollIndex} pendingActions={pendingActions} handleEdit={props.handleEdit} handleConfirm={props.handleConfirm} handleSkip={props.handleSkip} />
         <div className="button-row">
         <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
         { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }

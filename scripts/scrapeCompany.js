@@ -9,7 +9,9 @@ global.sails = {
         error: console.log,
         info: console.log,
     },
-    config: {}
+    config: {
+        COMPANIES_OFFICE_URL: process.argv[4] || 'https://www.companiesoffice.govt.nz/'
+    }
 }
 
 const ScrapingService = require('../api/services/ScrapingService');
@@ -17,7 +19,7 @@ const ScrapingService = require('../api/services/ScrapingService');
 const companyNumber = process.argv[2];
 
 let path = process.argv[3] || 'test/fixtures/companies_office/';
-ScrapingService.companiesOfficeURL = process.argv[4] || ScrapingService.companiesOfficeURL
+
 if(path[path.length-1] !== '/'){
     path += '/'
 }
