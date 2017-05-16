@@ -324,7 +324,7 @@ InputBase.defaultProps = {
 
 export function getValidInputProps(props){
     const {initialValue, autofill, onUpdate, valid, invalid, dirty, pristine, error, active,
-        touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName,
+        touched, visited, autofilled, help, hasFeedback, bsStyle, labelClassName, bsSize, standalone,
         wrapperClassName, groupClassName, buttonAfter, comboData, ...elementProps} = props;
     return elementProps;
 }

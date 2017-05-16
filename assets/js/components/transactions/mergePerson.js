@@ -11,33 +11,9 @@ import { ShareholderLawLinks } from './updatePerson';
 import { AllPersonsHOC } from '../../hoc/resources';
 import Input from '../forms/input';
 import { Holder } from './selectPerson';
-import { reduxForm } from 'redux-form';
+import { reduxForm, reset } from 'redux-form';
 import Loading from '../loading';
 
-
-@reduxForm({
-    fields: ['personIds[]'],
-    form: 'duplicateSelect'
-})
-@formFieldProps()
-class PersonListx extends React.PureComponent {
-    render() {
-        return <div> { this.props.persons.filter(p => (p.personId+'') !== this.props.selected).map((p, i) => {
-            return <div className="row">
-                <div className="col-xs-1">
-                        <Input type="checkbox" {...this.formFieldProps(['personIds', i])} />
-                </div>
-                <div className="col-xs-11">
-                    <Holder key={i} person={p}>
-                    <dt>Last recorded at</dt>
-                    <dd>{ stringDateToFormattedString(p.lastEffectiveDate) }</dd>
-                </Holder>
-                </div>
-                </div>
-        }) }
-        </div>
-    }
-}
 
 @reduxForm({
     fields: ['personIds[]'],
@@ -47,19 +23,27 @@ class PersonListx extends React.PureComponent {
 class PersonList extends React.PureComponent {
     render() {
         return <div> { this.props.persons.filter(p => (p.personId+'') !== this.props.selected).map((p, i) => {
-            return  <Input type="checkbox" {...this.formFieldProps(['personIds', i])}  label={
-
-                    <Holder key={i} person={p}>
+            return <div className="row" key={i}>
+                <div className="col-xs-2 text-right">
+                        <Input type="checkbox" standalone={true} {...this.formFieldProps(['personIds', i])} label={null} style={{marginTop: 20}}/>
+                </div>
+                <div className="col-xs-9">
+                    <Holder key={p.personId} person={p} selectPerson={() => this.props.fields.personIds[i].onChange(!this.props.fields.personIds[i].value) }>
                     <dt>Last recorded at</dt>
                     <dd>{ stringDateToFormattedString(p.lastEffectiveDate) }</dd>
                 </Holder>
-                } />
+                </div>
+                </div>
         }) }
         </div>
     }
 }
 
 
+
+@connect(undefined, {
+    resetSubForm: () => reset('duplicateSelect')
+})
 @reduxForm({
     fields: ['personSelect'],
     form: 'mergeSelect'
@@ -78,10 +62,15 @@ class MergePerson extends React.PureComponent {
         });
         const selected = this.props.fields.personSelect.value;
 
+        const onChange = (...args) => {
+            this.props.fields.personSelect.onChange(...args);
+            this.props.resetSubForm();
+        }
+
         return  <div>
             <div className="row">
                     <div className="col-md-6 col-md-offset-3">
-                    <Input type="select" {...this.formFieldProps('personSelect')} label={'Please select the person to keep'}>
+                    <Input type="select" {...this.formFieldProps('personSelect')} label={'Please select the person to keep'} onChange={onChange}>
                     <option value="" disabled>Please Select</option>
                         { options }
                     </Input>
