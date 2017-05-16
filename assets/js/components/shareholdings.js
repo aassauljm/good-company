@@ -84,7 +84,7 @@ export class ShareholdingsWidget extends React.Component {
         const holderCount = this.countHolders();
         const shareCountByClass = this.props.companyState.shareCountByClass;
         const shareClassMap = generateShareClassMap(this.props.companyState);
-        const classCount = Object.keys(shareCountByClass || {}).length
+        const classCount = Object.keys(shareCountByClass || {}).length;
 
         let bodyClass = "widget-body ";
         if(this.props.toggle){
@@ -241,12 +241,13 @@ export class Shareholdings extends React.Component {
     }
     render() {
         const holdings = [...this.props.companyState.holdingList.holdings];
+        const shareCountByClass = this.props.companyState.shareCountByClass;
         const shareClassMap = generateShareClassMap(this.props.companyState);
 
         holdings.sort((a, b) => (a.name||'').localeCompare(b.name));
 
         const holderCount =  Object.keys(this.props.companyState.holders || {}).length;
-        const classCount = Object.keys(shareClassMap || {}).length;
+        const classCount = Object.keys(shareCountByClass || {}).length;
 
         return <LawBrowserContainer lawLinks={shareholdingLawLinks()}>
 
