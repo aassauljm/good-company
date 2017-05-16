@@ -1,5 +1,5 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React, { PropTypes } from 'react';
 import TransactionView from '../forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import ButtonInput from '../forms/buttonInput';

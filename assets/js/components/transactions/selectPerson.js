@@ -11,17 +11,22 @@ import { ShareholderLawLinks } from './updatePerson';
 
 
 
-function Holder(props) {
+export function Holder(props) {
     const icon = isNaturalPerson(props.person) ? 'fa-user-circle' : 'fa-university';
-    return <div className="holding well actionable" onClick={() => props.selectPerson(props.person) }>
+    let className= 'holding well ';
+    if(props.selectPerson){
+        className += 'actionable '
+    }
+    return <div className={className} onClick={() => props.selectPerson && props.selectPerson(props.person) }>
          <i className={`fa well-icon ${icon}`} />
                 <dl className="dl-horizontal">
                     <dt>Name</dt>
                     <dd>{ props.person.name}</dd>
                     <dt>Address</dt>
                     <dd><span className="address">{ props.person.address}</span></dd>
-                    {/* props.person.companyNumber && <dt>Company Number</dt> }
-                    { props.person.companyNumber && <dd>{ props.person.companyNumber}</dd> */}
+                    { props.person.companyNumber && <dt>Company #</dt> }
+                    { props.person.companyNumber && <dd>{ props.person.companyNumber}</dd> }
+                    { props.children }
                 </dl>
             </div>
 }
@@ -30,7 +35,7 @@ function Holder(props) {
 @connect(undefined, (dispatch, ownProps) => ({
     selectPerson: (person) => dispatch(showTransactionView('updatePerson', {...ownProps.transactionViewData, person}))
 }))
-export class SelectPersonTransactionView extends React.Component {
+export class SelectPersonTransactionView extends React.PureComponent {
     constructor(props) {
         super(props);
         this.handleClose = ::this.handleClose;
