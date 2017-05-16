@@ -478,6 +478,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/:id/all_persons': {
+        controller: 'CompanyController',
+        action: 'getAllPersons',
+        model: 'company'
+    },
+
     'GET /api/company/find_person/:personId': {
         controller: 'CompanyController',
         action: 'findPerson'

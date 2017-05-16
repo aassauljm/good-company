@@ -890,10 +890,7 @@ SELECT *, rank() OVER wnd
     UNION
 
     SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", false as "current", false as "director"
-    FROM historic_persons hp
-
-
-
+        FROM historic_persons hp
     ) as qq
 
 WINDOW wnd AS (

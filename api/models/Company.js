@@ -230,6 +230,13 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}});
             },
+
+            getAllPersons: function(){
+                return sequelize.query("select * from company_persons(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId}});
+            },
+
             replacePendingActions: function(pendingActions){
                 // Find root, and replace next x pendingActions
                 let rootState;

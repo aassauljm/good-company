@@ -750,6 +750,16 @@ module.exports = {
             })
     },
 
+    getAllPersons: function(req, res) {
+        Company.findById(req.params.id)
+            .then(company => company.getAllPersons())
+            .then(function(matchingRecords) {
+                res.ok(matchingRecords);
+            }).catch(function(err) {
+                return res.notFound(err);
+            })
+    },
+
     getForeignPermissions: function(req, res) {
         Company.foreignPermissions(req.params.id)
             .then(r => res.json(r))

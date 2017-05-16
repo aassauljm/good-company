@@ -131,6 +131,9 @@ export const COMPANY_FROM_ROUTE = {resource: props => `/company/${props.params.i
 export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.params.id}/at_date/${props.params.date}`, location: props => `/company/${props.params.id}/at_date/${props.params.date}`, postProcess: analyseCompany};
 
 
+export const ALL_PERSONS = {resource: props => `/company/${props.companyId}/all_persons`, location: props => `/company/${props.companyId}/all_persons`};
+
+
 export const FavouritesHOC = (async) => HOCFactory(FAVOURITES, async);
 export const AlertsHOC = (async) => HOCFactory(ALERTS, async);
 export const CompaniesHOC = (async) => HOCFactory(COMPANIES,  async);
@@ -139,6 +142,7 @@ export const ForeignPermissionsHOC = (async) => HOCFactory(FOREIGN_PERMISSIONS, 
 export const CompanyHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_ROUTE, async);
 export const CompanyDatedHOCFromRoute = (async) => HOCFactory(COMPANY_FROM_DATED_ROUTE, async);
 export const DocumentsHOCFromRoute = (async) => HOCFactory(DOCUMENTS, async);
+export const AllPersonsHOC = (async) => HOCFactory(ALL_PERSONS, async);
 
 export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };
 
