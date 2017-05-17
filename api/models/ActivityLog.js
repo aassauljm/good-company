@@ -14,6 +14,7 @@ const types = {
     IMPORT_HISTORY_FAIL: 'IMPORT_HISTORY_FAIL',
     RESET_PENDING_HISTORY: 'RESET_PENDING_HISTORY',
     DELETE_COMPANY: 'DELETE_COMPANY',
+    MERGE_PERSONS: 'MERGE_PERSONS',
     ...require('../../config/enums/transactions').enums
 };
 

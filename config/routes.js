@@ -472,6 +472,12 @@ module.exports.routes = {
         model: 'company'
     },
 
+     'PUT /api/company/:id/merge_persons': {
+        controller: 'CompanyController',
+        action: 'mergePersons',
+        model: 'company'
+    },
+
     'GET /api/company/:id/historic_holders': {
         controller: 'CompanyController',
         action: 'getHistoricHolders',

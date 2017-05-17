@@ -822,13 +822,40 @@ module.exports = {
     },
 
 
-    findPerson: function(req, user) {
+    findPerson: function(req, res) {
         return sequelize.query("select find_persons(:id, :personId)",
                        { type: sequelize.QueryTypes.SELECT,
                         replacements: { id: userId, personId: parseInt(req.params.personId, 10)}})
             .then(r => res.json(r[0].find_persons))
             .catch(function(err){
                 return res.badRequest(err);
+            })
+    },
+
+    mergePersons: function(req, res) {
+        const data = actionUtil.parseValues(req);
+        let company;
+        sequelize.transaction(() => {
+            return Company.findById(req.params.id)
+                .then(function(_company){
+                    company  = _company;
+                    return Person.update({personId: data.source.personId}, {where: {personId: { $any: data.targets.map(t => t.personId)} }});
+                })
+                .then(function(){
+                    return company.getNowCompanyState();
+                })
+                .then((state) => {
+                    return ActivityLog.create({
+                        type: ActivityLog.types.MERGE_PERSONS,
+                        userId: req.user.id,
+                        description: `Merge perons into ${data.source.name}`,
+                        data: {companyId: company.id}
+                    });
+                })
+                .then(r => res.json({message: 'Persons Merged'}))
+                .catch(function(err){
+                    return res.badRequest(err);
+                })
             })
     },
 
