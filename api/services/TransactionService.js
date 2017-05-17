@@ -624,6 +624,17 @@ export const performInverseHolderChange = function(data, companyState, previousS
             normalizedData.beforeHolder.address = beforeAddress;
             return companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder, null, userId);
         })
+        .catch(e => {
+             // find holder with same name
+             companyState.dataValues.holdingList.dataValues.holdings.map(h => {
+                h.holders.map(h => {
+                    if(h.person.name === normalizedData.afterHolder.name){
+                        normalizedData.afterHolder.personId = h.person.personId;
+                    }
+                })
+             })
+            return companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder, null, userId);
+        })
         .then(function(){
             return transaction.save();
         })
@@ -1059,7 +1070,7 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
     .then(function(holdingList){
         nextState.dataValues.holdingList = holdingList;
         nextState.dataValues.h_list_id = null;
-        return CompanyState.populatePersonIds(data.holder, userIds)
+        return CompanyState.populatePersonIds(data.holders, userId)
     })
     .then(function(personData){
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});

@@ -839,7 +839,7 @@ module.exports = {
             return Company.findById(req.params.id)
                 .then(function(_company){
                     company  = _company;
-                    return Person.update({personId: data.source.personId}, {where: {personId: { $any: data.targets.map(t => t.personId)} }});
+                    return company.replaceAllPersons(data);
                 })
                 .then(function(){
                     return company.getNowCompanyState();

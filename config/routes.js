@@ -459,7 +459,6 @@ module.exports.routes = {
         model: 'company'
     },
 
-
      'PUT /api/company/:id/reset_pending_history': {
         controller: 'CompanyController',
         action: 'resetPendingHistory',
