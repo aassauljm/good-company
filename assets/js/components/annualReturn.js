@@ -279,6 +279,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
             <div className="alert alert-warning">
                 If the details below are incorrect, please update them at the <CompaniesOfficeLink companyNumber={this.props.companyState.companyNumber} text="Companies Office website"/>.
                 Automated updates from Good Companies to the Companies Office will be released shortly.
+                <DirectDebit />
             </div>
         </div>
     }
@@ -363,6 +364,9 @@ export class AnnualReturnSubmissionForm extends React.PureComponent {
     }
 }
 
+const DirectDebit = () => {
+    return <p>You also must have set up a direct debit with the Companies Office.  <a href="https://www.companiesoffice.govt.nz/companies/learn-about/create-manage-logon/payment-options#establish-dd" className="external-link" target="_blank">Click here to learn more.</a> </p>;
+}
 
 @connect((state, ownProps) => ({
     userInfo: state.userInfo,
@@ -430,8 +434,9 @@ export default class AnnualReturn extends React.PureComponent {
         return <LawBrowserContainer lawLinks={ARLinks()}>
             <Widget title="Annual Return">
 
-                { !due && <div className="alert alert-warning">The Annual Return for this company is not yet due.</div> }
-                <p>If you have connected your RealMe with the Companies Office, you have authourity over this company, and the Companies Office records are up to date, you can submit an Annual Return.  </p>
+                { !due && <div className="alert alert-warning">According to our records, the Annual Return for this company is not yet due.</div> }
+                <p>If you have connected your RealMe with the Companies Office, and you have authourity over this company, you can submit an Annual Return.  </p>
+                <DirectDebit />
                 <p>If you have already submitted an Annual Return independently, please click 'Check for Updates' below to update our records.</p>
                 { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an Annual Return for review and submission.</p>
                     <div className="button-row">

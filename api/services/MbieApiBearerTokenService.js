@@ -79,13 +79,18 @@ module.exports = {
             .then(result => result.accessToken);
     },
 
-    refreshUserToken: function(userId, refreshToken=null) {
+    refreshUserToken: function(userId, refreshToken=null, attemptNumber = 0) {
         const serviceName = 'companies-office';
-
         // If the user didn't pass the refresh token, go get it
         if (!refreshToken) {
-            const tokenRecord = getUserTokenRecord(userId, serviceName);
-            refreshToken = tokenRecord.refreshToken;
+            if(attemptNumber > 5){
+                throw Error('Giving up, cannot get refresh token')
+            }
+            return getUserTokenRecord(userId, serviceName)
+                .then(tokenRecord => {
+                    const refreshToken = tokenRecord.refreshToken;
+                    return MbieApiBearerTokenService.refreshUserToken(userId, serviceName, attemptNumber+1)
+                })
         }
 
         sails.log.info(`Refreshing ${serviceName} oauth token for user: ${userId}. Using refresh token: ${refreshToken}.`);
