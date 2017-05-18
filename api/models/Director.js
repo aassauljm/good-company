@@ -52,12 +52,25 @@ module.exports = {
         tableName: 'director',
         classMethods: {},
         instanceMethods: {
-            buildNext: function(){
+            buildNext: function(newPerson){
                 if(this.isNewRecord){
                     return this;
                 }
-                return Director.build(_.merge({}, this.get(), {id: null}), {include: [{model: Person, as: 'person'}]})
-            }
+                const director = Director.build(_.merge({}, this.get(), {id: null}), {include: [{model: Person, as: 'person'}]})
+
+                if(director.dataValues.person && !newPerson){
+                    director.dataValues.person.isNewRecord = false;
+                    director.dataValues.person._changed = {};
+                }
+                else if(newPerson){
+                    director.dataValues.person.isNewRecord = true;
+                    director.dataValues.person.id = director.dataValues.person.dataValues.id  = null;
+                }
+                return director;
+            },
+            isEqual: function(other, options={}){
+                return this.dataValues.person.isEqual(other.person ? other.person : other);
+            },
         },
         hooks: {}
     }

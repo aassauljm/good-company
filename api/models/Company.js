@@ -390,6 +390,29 @@ module.exports = {
             },
             foreignPermissions: function(userId){
                 return Company.foreignPermissions(this.id)
+            },
+            mergePersons: function({source, targets}){
+                return this.getCurrentCompanyState()
+                    .then(state => state.mergePersons(source, targets))
+                    .then(state => state.save())
+                    .then(state => this.setCurrentCompanyState(state).then(() => state))
+                    .then(state => state.getPreviousCompanyState())
+                    .then(state => {
+                        var c = 0;
+                        return UtilService.promiseWhile(() => !!state.previousCompanyStateId,
+                            () => state.getPreviousCompanyState()
+                                .then(state => {
+                                    return state.mergePersons(source, targets);
+                                })
+                                .then(state => state.save())
+                                .then(newState => {
+                                    return state.setPreviousCompanyState(newState)
+                                    .then(() => {
+                                        state = newState;
+                                    })
+                                }))
+                    });
+
             }
         },
 

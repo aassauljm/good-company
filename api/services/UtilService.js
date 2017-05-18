@@ -110,3 +110,12 @@ export function subsetSumMemoFail(items, targetSum) {
 export function logRequest(url, headers) {
     sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);
 }
+
+
+export function promiseWhile(predicate, action) {
+    function loop() {
+        if (!predicate()) return;
+        return Promise.resolve(action()).then(loop);
+    }
+    return Promise.resolve().then(loop);
+}

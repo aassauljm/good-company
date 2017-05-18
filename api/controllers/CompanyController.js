@@ -834,12 +834,13 @@ module.exports = {
 
     mergePersons: function(req, res) {
         const data = actionUtil.parseValues(req);
-        let company;
+        let company, originalState;
         sequelize.transaction(() => {
             return Company.findById(req.params.id)
                 .then(function(_company){
                     company  = _company;
-                    return company.replaceAllPersons(data);
+                    originalState = company.currentCompanyStateId;
+                    return company.mergePersons(data);
                 })
                 .then(function(){
                     return company.getNowCompanyState();
@@ -849,13 +850,13 @@ module.exports = {
                         type: ActivityLog.types.MERGE_PERSONS,
                         userId: req.user.id,
                         description: `Merge perons into ${data.source.name}`,
-                        data: {companyId: company.id}
+                        data: {companyId: company.id, originalStateId: originalState}
                     });
                 })
-                .then(r => res.json({message: 'Persons Merged'}))
-                .catch(function(err){
-                    return res.badRequest(err);
-                })
+            })
+            .then(r => res.json({message: 'Persons Merged'}))
+            .catch(function(err){
+                return res.badRequest(err);
             })
     },
 

@@ -187,15 +187,6 @@ export class UpdatePeople extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update People" >
-            <div className="row">
-                <div className="col-xs-12">
-                    <div className="text-center"><h5>Reconciliation</h5></div>
-                    <div className="actionable select-button" onClick={() => this.props.show('mergePerson')} >
-                        <span className="fa fa-users"></span>
-                        <span className="transaction-button-text">Merge Duplicate Persons</span>
-                    </div>
-                </div>
-            </div>
 
             <div className="row">
                 <div className="col-xs-12">
@@ -234,6 +225,15 @@ export class UpdatePeople extends React.Component {
             </div>
 
             </div>
+            </div>
+            <div className="row">
+                <div className="col-xs-12">
+                    <div className="text-center"><h5>Reconciliation</h5></div>
+                    <div className="actionable select-button" onClick={() => this.props.show('mergePerson')} >
+                        <span className="fa fa-users"></span>
+                        <span className="transaction-button-text">Merge Duplicate Persons</span>
+                    </div>
+                </div>
             </div>
         </SelectionBase>
     }
