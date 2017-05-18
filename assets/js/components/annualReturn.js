@@ -296,7 +296,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
         return <LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Review Annual Return">
                     { this.renderWarning()  }
-                    { this.props.arSummary && this.props.arSummary.data && <ARSummary company={this.props.arSummary.data} /> }
+                    { this.props.arSummary && this.props.arSummary.data && <ARSummary companyState={this.props.arSummary.data} /> }
                     { this.props.arSummary && this.props.arSummary._status === 'fetching' && this.renderLoading() }
                     { this.props.arSummary && this.props.arSummary._status === 'error' && this.renderError() }
                     { this.renderControls() }
