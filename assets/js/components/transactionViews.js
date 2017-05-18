@@ -17,6 +17,7 @@ import { ImportHistoryTransactionView, ImportFutureTransactionView } from './tra
 import { NewPersonTransactionView, NewDirectorPersonTransactionView } from './transactions/newPerson';
 import { UpdatePersonTransactionView, UpdateDirectorPersonTransactionView, UpdateHistoricPersonTransactionView } from './transactions/updatePerson';
 import { SelectPersonTransactionView, SelectHistoricPersonTransactionView  } from './transactions/selectPerson';
+import { MergePersonTransactionView } from './transactions/mergePerson';
 import { SelectDirectorRemoveTransactionView, SelectDirectorUpdateTransactionView  } from './transactions/selectDirector';
 import { NewDirectorTransactionView, UpdateDirectorTransactionView, RemoveDirectorTransactionView  } from './transactions/updateDirector';
 import { SubdivisionTransactionView  } from './transactions/subdivision';
@@ -188,6 +189,8 @@ export class TransactionViewSwitch extends React.PureComponent {
             case 'selectCreateHoldingChange':
                 return <SelectCreateHoldingChangeTransactionView {...props} />
 
+            case 'mergePerson':
+                return <MergePersonTransactionView {...props} />
             default:
                 return false;
         }

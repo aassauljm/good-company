@@ -653,6 +653,17 @@ export const performInverseHolderChange = function(data, companyState, previousS
             normalizedData.beforeHolder.address = beforeAddress;
             return companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder, null, userId);
         })
+        .catch(e => {
+             // find holder with same name
+             companyState.dataValues.holdingList.dataValues.holdings.map(h => {
+                h.holders.map(h => {
+                    if(h.person.name === normalizedData.afterHolder.name){
+                        normalizedData.afterHolder.personId = h.person.personId;
+                    }
+                })
+             })
+            return companyState.replaceHolder(normalizedData.afterHolder, normalizedData.beforeHolder, null, userId);
+        })
         .then(function(){
             return transaction.save();
         })
@@ -771,12 +782,12 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
         });
 };
 
-export function performInverseRemoveAllocation(data, companyState, previousState, effectiveDate){
+export function performInverseRemoveAllocation(data, companyState, previousState, effectiveDate, userId){
     return companyState.dataValues.holdingList.buildNext()
     .then(function(holdingList){
         companyState.dataValues.holdingList = holdingList;
         companyState.dataValues.h_list_id = null;
-        return CompanyState.populatePersonIds(data.holders || data.afterHolders);
+        return CompanyState.populatePersonIds(data.holders || data.afterHolders, userId);
     })
     .then(function(personData){
         if(!personData.length){
@@ -1092,12 +1103,12 @@ export function performRemoveAllocation(data, nextState, companyState, effective
     })
 }
 
-export  function performNewAllocation(data, nextState, companyState, effectiveDate){
+export  function performNewAllocation(data, nextState, companyState, effectiveDate, userId){
     return nextState.dataValues.holdingList.buildNext()
     .then(function(holdingList){
         nextState.dataValues.holdingList = holdingList;
         nextState.dataValues.h_list_id = null;
-        return CompanyState.populatePersonIds(data.holders)
+        return CompanyState.populatePersonIds(data.holders, userId)
     })
     .then(function(personData){
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
@@ -1441,7 +1452,7 @@ function cleanupCompanyState(state, effectiveDate){
 }
 
 
-export function performImplicitInverseRemovals(actions, companyState){
+export function performImplicitInverseRemovals(actions, companyState, userId){
     const removals = actions.filter(a => {
         return (a.transactionMethod === Transaction.types.AMEND &&
                                                (a.parcels.reduce((sum, p) => sum + p.afterAmount, 0) === 0));
@@ -1461,7 +1472,7 @@ export function performImplicitInverseRemovals(actions, companyState){
                 prevState.dataValues.h_list_id = null;
                 prevState.dataValues.holdingList = holdingList;
                 return Promise.all(removals.map(action => {
-                    return CompanyState.populatePersonIds(action.holders || action.afterHolders)
+                    return CompanyState.populatePersonIds(action.holders || action.afterHolders, userId)
                     .then(function(personData){
                         if(!personData.length){
                             throw new sails.config.exceptions.InvalidInverseOperation('Allocation missing holders');
@@ -1530,7 +1541,7 @@ export function performInverseTransaction(data, company, rootState){
     }
     return (rootState ? Promise.resolve(rootState) : company.getRootCompanyState())
         .then((_prevState) => {
-            return performImplicitInverseRemovals(actions, _prevState)
+            return performImplicitInverseRemovals(actions, _prevState, company.get('ownerId'))
         })
         .then(function(_rootState){
             currentRoot = _rootState;

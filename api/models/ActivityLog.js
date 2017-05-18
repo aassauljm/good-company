@@ -16,6 +16,7 @@ const types = {
     DELETE_COMPANY: 'DELETE_COMPANY',
     ANNUAL_RETURN_SUBMITTED: 'ANNUAL_RETURN_SUBMITTED',
     UPDATE_SUBMITTED_CO: 'UPDATE_SUBMITTED_CO',
+    MERGE_PERSONS: 'MERGE_PERSONS',
     ...require('../../config/enums/transactions').enums
 };
 

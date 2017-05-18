@@ -236,7 +236,13 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { id: this.currentCompanyStateId}});
             },
+            getAllPersons: function(){
+                return sequelize.query("select * from company_persons(:id)",
+                               { type: sequelize.QueryTypes.SELECT,
+                                replacements: { id: this.currentCompanyStateId}});
+            },
             replacePendingHistoricActions: function(pendingActions){
+
                 // Find root, and replace next x pendingActions
                 let rootState;
                 pendingActions.map((pa, i) => {
@@ -507,8 +513,30 @@ module.exports = {
                                { type: sequelize.QueryTypes.SELECT,
                                 replacements: { userId, companyId: this.id}})
                     .spread(r => r.exists)
+            },
 
-            }
+            mergePersons: function({source, targets}){
+                return this.getCurrentCompanyState()
+                    .then(state => state.mergePersons(source, targets))
+                    .then(state => state.save())
+                    .then(state => this.setCurrentCompanyState(state).then(() => state))
+                    .then(state => state.getPreviousCompanyState())
+                    .then(state => {
+                        return UtilService.promiseWhile(() => !!state.previousCompanyStateId,
+                            () => state.getPreviousCompanyState()
+                                .then(state => {
+                                    return state.mergePersons(source, targets);
+                                })
+                                .then(state => state.save())
+                                .then(newState => {
+                                    return state.setPreviousCompanyState(newState)
+                                    .then(() => {
+                                        state = newState;
+                                    })
+                                }))
+                    });
+                }
+
         },
 
         hooks: {

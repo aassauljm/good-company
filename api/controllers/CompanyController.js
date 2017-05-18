@@ -779,6 +779,16 @@ module.exports = {
             })
     },
 
+    getAllPersons: function(req, res) {
+        Company.findById(req.params.id)
+            .then(company => company.getAllPersons())
+            .then(function(matchingRecords) {
+                res.ok(matchingRecords);
+            }).catch(function(err) {
+                return res.notFound(err);
+            })
+    },
+
     getForeignPermissions: function(req, res) {
         Company.foreignPermissions(req.params.id)
             .then(r => res.json(r))
@@ -841,11 +851,39 @@ module.exports = {
     },
 
 
-    findPerson: function(req, user) {
+    findPerson: function(req, res) {
         return sequelize.query("select find_persons(:id, :personId)",
                        { type: sequelize.QueryTypes.SELECT,
                         replacements: { id: userId, personId: parseInt(req.params.personId, 10)}})
             .then(r => res.json(r[0].find_persons))
+            .catch(function(err){
+                return res.badRequest(err);
+            })
+    },
+
+    mergePersons: function(req, res) {
+        const data = actionUtil.parseValues(req);
+        let company, originalState;
+        sequelize.transaction(() => {
+            return Company.findById(req.params.id)
+                .then(function(_company){
+                    company  = _company;
+                    originalState = company.currentCompanyStateId;
+                    return company.mergePersons(data);
+                })
+                .then(function(){
+                    return company.getNowCompanyState();
+                })
+                .then((state) => {
+                    return ActivityLog.create({
+                        type: ActivityLog.types.MERGE_PERSONS,
+                        userId: req.user.id,
+                        description: `Merge perons into ${data.source.name}`,
+                        data: {companyId: company.id, originalStateId: originalState}
+                    });
+                })
+            })
+            .then(r => res.json({message: 'Persons Merged'}))
             .catch(function(err){
                 return res.badRequest(err);
             })

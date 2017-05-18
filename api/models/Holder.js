@@ -42,15 +42,19 @@ module.exports = {
         tableName: 'holder',
         classMethods: {},
         instanceMethods: {
-            buildNext: function(){
+            buildNext: function(newPerson){
                 if(this.isNewRecord){
                     return this;
                 }
                 const holder = Holder.build(_.merge({}, this.get(), {id: null, holdingId: null, holderId: null}), {include: [{model: Person, as: 'person'}]});
 
-                if(holder.dataValues.person){
+                if(holder.dataValues.person && !newPerson){
                     holder.dataValues.person.isNewRecord = false;
                     holder.dataValues.person._changed = {};
+                }
+                else if(newPerson){
+                    holder.dataValues.person.isNewRecord = true;
+                    holder.dataValues.person.id = holder.dataValues.person.dataValues.id  = null;
                 }
                 return holder;
             },

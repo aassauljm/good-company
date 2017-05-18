@@ -1,6 +1,8 @@
 "use strict";
 const https = require('https');
 import url from 'url'
+import Promise from 'bluebird';
+
 
 export function subsetSum(items, targetSum) {
     //exponential implementation, sucks.
@@ -133,6 +135,7 @@ export function logRequest(url, headers) {
 }
 
 
+
 export function httpsRequest(params, postData) {
     const urlParts = url.parse(params.url);
     return new Promise(function(resolve, reject) {
@@ -174,4 +177,12 @@ export function httpsRequest(params, postData) {
         // IMPORTANT
         req.end();
     });
+}
+
+export function promiseWhile(predicate, action) {
+    function loop() {
+        if (!predicate()) return;
+        return Promise.resolve(action()).then(loop);
+    }
+    return Promise.resolve().then(loop);
 }

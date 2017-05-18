@@ -1,5 +1,5 @@
 
-DROP INDEX co_authority_idx;
+DROP INDEX co_authority_idx IF EXISTS;
 
 
 ALTER TABLE co_authority DROP CONSTRAINT  IF EXISTS "co_authority_APICredentialId_fkey";

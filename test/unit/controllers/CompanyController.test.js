@@ -1187,6 +1187,123 @@ describe('Company Controller', function() {
         })
     });
 
+   describe('Import then merge persons WAM PROPERTIES (585415)', function(){
+        var req, companyId, context, classes, holdings, secondCompanyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+
+        it('Does a stubbed import', function(done){
+            return req.post('/api/company/import/companiesoffice/585415')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+
+        it('Imports history', function(done){
+            return req.post('/api/company/'+companyId+'/import_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+        it('Renames company', function(done){
+            req.post('/api/transaction/details/'+companyId)
+                .send({companyName: 'WAM PROPERTIES BACKUP'})
+                .expect(200, done)
+        });
+
+
+        it('Does a stubbed import of the same company again', function(done){
+            return req.post('/api/company/import/companiesoffice/585415')
+                .expect(200)
+                .then(function(res){
+                    secondCompanyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+
+        it('Imports history of second company', function(done){
+            return req.post('/api/company/'+secondCompanyId+'/import_pending_history')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+
+        it('Gets people, then merges', function(done){
+            return req.get('/api/company/'+companyId+'/all_persons')
+                .expect(200)
+                .then(function(res){
+                    const persons = res.body;
+                    const mikes = persons.filter(p => p.name.toLowerCase().indexOf('michael') === 0);
+                    mikes.length.should.be.equal(3);
+                    mikes.sort((a, b) => {
+                        return new Date(b.lastEffectiveDate) - new Date(a.lastEffectiveDate);
+                    })
+                    return req.put('/api/company/'+companyId+'/merge_persons')
+                        .send({
+                            source: mikes[0],
+                            targets: mikes.slice(1)
+                        })
+                        .expect(200)
+                })
+                .then(() => {
+                    return req.get('/api/company/'+companyId+'/all_persons')
+                })
+                .then((res) => {
+                    const persons = res.body;
+                    const mikes = persons.filter(p => p.name.toLowerCase().indexOf('michael') === 0);
+                    mikes.length.should.be.equal(1);
+                    done();
+                })
+                .catch(done)
+
+        });
+
+        it('confirms second company is unchanged', function(done) {
+            return req.get('/api/company/'+secondCompanyId+'/all_persons')
+                .expect(200)
+                .then(function(res){
+                    const persons = res.body;
+                    const mikes = persons.filter(p => p.name.toLowerCase().indexOf('michael') === 0);
+                    mikes.sort((a, b) => {
+                        return new Date(b.lastEffectiveDate) - new Date(a.lastEffectiveDate);
+                    });
+                    mikes.length.should.be.equal(3);
+                    done();
+                })
+                .catch(done)
+        });
+
+        it('Tries an invalid person merge', function(done){
+            return req.get('/api/company/'+companyId+'/get_info')
+                .expect(200)
+                .then(function(res){
+                    const directors = res.body.currentCompanyState.directorList.directors;
+                    return req.put('/api/company/'+companyId+'/merge_persons')
+                    .send({
+                        source: directors[0].person,
+                        targets: [directors[1].person]
+                    })
+                    .expect(400)
+
+                })
+                .then(() => done())
+                .catch(done)
+            });
+
+
+    });
+
+
    describe('Director appointed and removed on incorporation day (1522101)', function(){
         var req, companyId, context, classes, holdings;
         it('should login successfully', function(done) {
@@ -1356,14 +1473,16 @@ describe('Company Controller', function() {
         });
         it('Imports history', function(done){
             req.post('/api/company/'+companyId+'/import_pending_history')
-                .expect(500)
+                .expect(200)
                 .then((res) => {
                     context = res.body.context;
+                    // REEVALUATE THIS
                     // currently this is fine
                     //context.importErrorType.should.be.equal('MULTIPLE_DIRECTORS_FOUND');
                     done();
                     // TODO, resolve this crazy doc
-                });
+                })
+                .catch(done)
         });
     });
 
@@ -1489,6 +1608,10 @@ describe('Company Controller', function() {
                 .catch(done)
         });
     });
+
+
+
+
 
 
 });

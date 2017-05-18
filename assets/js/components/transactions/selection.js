@@ -187,28 +187,31 @@ export class UpdatePeople extends React.Component {
 
     render() {
         return <SelectionBase {...this.props} title="Update People" >
-            <div>
-            <div className="text-center"><h5>Shareholdings & Shareholders</h5></div>
-            <div className="actionable select-button" onClick={() => this.props.show('selectPerson')} >
-                <span className="glyphicon glyphicon-user"></span>
-                <span className="transaction-button-text">Shareholders</span>
-            </div>
-            <div className="actionable select-button" onClick={() => this.props.show('selectHistoricPerson')} >
-                <span className="glyphicon glyphicon-hourglass"></span>
-                <span className="transaction-button-text">Historic Shareholder</span>
-            </div>
 
-            <div className="actionable select-button"  onClick={() => this.props.show('selectHolding')} >
-                <span className="glyphicon glyphicon-briefcase"></span>
-                <span className="transaction-button-text">Update Shareholding</span>
-            </div>
+            <div className="row">
+                <div className="col-xs-12">
+                    <div className="text-center"><h5>Shareholdings & Shareholders</h5></div>
+                    <div className="actionable select-button" onClick={() => this.props.show('selectPerson')} >
+                        <span className="glyphicon glyphicon-user"></span>
+                        <span className="transaction-button-text">Shareholders</span>
+                    </div>
+                    <div className="actionable select-button" onClick={() => this.props.show('selectHistoricPerson')} >
+                        <span className="glyphicon glyphicon-hourglass"></span>
+                        <span className="transaction-button-text">Historic Shareholder</span>
+                    </div>
+
+                    <div className="actionable select-button"  onClick={() => this.props.show('selectHolding')} >
+                        <span className="glyphicon glyphicon-briefcase"></span>
+                        <span className="transaction-button-text">Update Shareholding</span>
+                    </div>
+                </div>
             </div>
 
             <div className="row">
             <div className="col-xs-12">
             <div className="text-center"><h5>Directors</h5></div>
             <div className="actionable select-button" onClick={() => this.props.show('newDirector')  } >
-                    <span className="glyphicon glyphicon-user"></span>
+                    <span className="fa fa-user-plus"></span>
                     <span className="transaction-button-text">Appoint Director</span>
             </div>
             <div className="actionable select-button" onClick={() => this.props.show('selectDirectorUpdate')  } >
@@ -217,11 +220,20 @@ export class UpdatePeople extends React.Component {
             </div>
 
             <div className="actionable select-button" onClick={() => this.props.show('selectDirectorRemove')  } >
-                    <span className="glyphicon glyphicon-user"></span>
+                    <span className="fa fa-user-times"></span>
                     <span className="transaction-button-text">Remove Director</span>
             </div>
 
             </div>
+            </div>
+            <div className="row">
+                <div className="col-xs-12">
+                    <div className="text-center"><h5>Reconciliation</h5></div>
+                    <div className="actionable select-button" onClick={() => this.props.show('mergePerson')} >
+                        <span className="fa fa-users"></span>
+                        <span className="transaction-button-text">Merge Duplicate Persons</span>
+                    </div>
+                </div>
             </div>
         </SelectionBase>
     }

@@ -461,11 +461,13 @@ module.exports.routes = {
         model: 'company'
     },
 
+
     'PUT /api/company/:id/update_pending_future': {
         controller: 'CompanyController',
         action: 'updatePendingFuture',
         model: 'company'
     },
+
 
      'PUT /api/company/:id/reset_pending_history': {
         controller: 'CompanyController',
@@ -479,9 +481,21 @@ module.exports.routes = {
         model: 'company'
     },
 
+     'PUT /api/company/:id/merge_persons': {
+        controller: 'CompanyController',
+        action: 'mergePersons',
+        model: 'company'
+    },
+
     'GET /api/company/:id/historic_holders': {
         controller: 'CompanyController',
         action: 'getHistoricHolders',
+        model: 'company'
+    },
+
+    'GET /api/company/:id/all_persons': {
+        controller: 'CompanyController',
+        action: 'getAllPersons',
         model: 'company'
     },
 

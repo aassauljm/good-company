@@ -826,7 +826,7 @@ $$ LANGUAGE SQL STABLE;
 
 DROP FUNCTION IF EXISTS company_persons("companyStateId" integer);
 CREATE OR REPLACE FUNCTION company_persons("companyStateId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean, "director" boolean)
+RETURNS TABLE( "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" jsonb, "lastEffectiveDate" timestamp with time zone, current boolean)
 AS $$
 
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
@@ -845,7 +845,7 @@ AS $$
         LEFT OUTER JOIN transaction t on t.id = p."transactionId"
         WHERE cs.id = $1
     )
-SELECT p."id", p."personId", "name", "address", "companyNumber", "attr", "lastEffectiveDate", "current", "director" FROM
+SELECT  p."personId", "name", "address", "companyNumber", "attr", "lastEffectiveDate", current FROM
 (
 SELECT *, rank() OVER wnd
     FROM (
@@ -854,8 +854,7 @@ SELECT *, rank() OVER wnd
         "personId",
         "lastEffectiveDate",
         "generation",
-        "generation" = 0 as "current",
-        false as "director"
+        generation = 0 as current
         FROM (
              SELECT DISTINCT ON ("personId")
             "personId",
@@ -878,19 +877,45 @@ SELECT *, rank() OVER wnd
 
     UNION
 
-    SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", false as "current", false as "director"
-    FROM historic_persons hp
+    SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", false as current
+        FROM historic_persons hp
 
+    UNION
 
-
-    ) as qq
-
+    SELECT
+        "id",
+        "personId",
+        "lastEffectiveDate",
+        "generation",
+        generation = 0 as current
+        FROM (
+             SELECT DISTINCT ON ("personId")
+            p."personId",
+            first_value(p.id) OVER wnd as "id",
+            first_value(t."effectiveDate") OVER wnd as "lastEffectiveDate",
+            generation,
+            generation = 0 as current
+            from prev_company_states pt
+            join company_state cs on pt.id = cs.id
+            join transaction t on cs."transactionId" = t.id
+            join director_list dl on dl.id = cs.director_list_id
+            left outer join d_d_j ddj on ddj.directors_id = dl.id
+            left outer join director d on d.id = ddj.director_id
+            left outer join person p on d."personId" = p.id
+             WINDOW wnd AS (
+               PARTITION BY p."personId" ORDER BY generation asc RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+             )
+        ) as q
+        GROUP BY "id", "personId", generation,  "lastEffectiveDate"
+  ) as qq
 WINDOW wnd AS (
-    PARTITION BY "personId" ORDER BY generation asc
+    PARTITION BY "personId" ORDER BY generation asc, id desc
 )) q
  LEFT OUTER JOIN person p on q.id = p.id
- WHERE rank = 1;
+ WHERE rank = 1
 
+GROUP BY p."personId", name, address, "companyNumber", attr, "lastEffectiveDate", current
+ ORDER BY name
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION find_persons(userId integer, personId integer)
@@ -959,17 +984,15 @@ AS $$
             left outer join d_d_j ddj on ddj.directors_id = dl.id
             left outer join director d on d.id = ddj.director_id
             left outer join person p on d."personId" = p.id
-
-
         ) as q
         GROUP BY "personId", q.name, q."companyNumber", q.address, "id", director  ORDER BY "personId"
 $$ LANGUAGE SQL;
 
 DROP FUNCTION IF EXISTS latest_user_persons("userId" integer);
 CREATE OR REPLACE FUNCTION latest_user_persons("userId" integer)
-RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" json, "lastEffectiveDate" timestamp with time zone, "current" boolean, "director" boolean)
+RETURNS TABLE("personId" integer, "name" text, "address" text, "companyNumber" text, "attr" jsonb, "lastEffectiveDate" timestamp with time zone)
 AS $$
-    SELECT f.*
+    SELECT f."personId", f."name", f."address", f."companyNumber", f."attr", f."lastEffectiveDate"
     FROM   company c, company_persons(c."currentCompanyStateId") f
     where c."ownerId" = $1 and deleted = FALSE
 $$ LANGUAGE SQL;

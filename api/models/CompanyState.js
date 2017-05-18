@@ -883,13 +883,13 @@ module.exports = {
                         // TODO, think of better way
                         if(index < 0){
                             index = _.findIndex(directors, function(d, i){
-                                    return d.dataValues.person.isEqual(currentDirector, {skipAddress: true});
+                                return d.dataValues.person.isEqual(currentDirector, {skipAddress: true});
                             });
                         }
 
                         if(index > -1){
                             directors[index] = directors[index].buildNext();
-                            directors[index].dataValues.person = directors[index].dataValues.person.replaceWith(newDirector);
+                            directors[index].dataValues.person = directors[index].dataValues.person.replaceWith(newPerson);
                             if(transaction){
                                 directors[index].person.dataValues.transaction = transaction
                             }
@@ -897,6 +897,72 @@ module.exports = {
                         else{
                             throw new sails.config.exceptions.InvalidOperation('Unknown director to replace');
                         }
+                        return state;
+                    })
+            },
+
+
+            mergePersons: function(source, targets) {
+                /* This function sets the personId of all matching targets equal to the source personId */
+                let state;
+                return this.buildNext()
+                    .then(_state => {
+                        state = _state;
+                        return state.dataValues.holdingList.buildNext();
+                    })
+                    .then((holdingList) => {
+                        state.holdingList = state.dataValues.holdingList = holdingList;
+                        state.dataValues.h_list_id = null;
+                        return holdingList.dataValues.holdings.map((h, j) => {
+                            const holding = holdingList.dataValues.holdings[j];
+                            return targets.map(target => {
+                                let found = false;
+                                return holding.dataValues.holders.map((h, i) => {
+                                    if(h.isEqual(source)){
+                                        found = true;
+                                    }
+                                    if(h.isEqual(target)){
+                                        if(found){
+                                            throw Error('Cannot have two identical holders in same holding')
+                                        }
+                                        found = true;
+                                        const newHolding = holding.buildNext();
+                                        holdingList.holdings[j] = holdingList.dataValues.holdings[j] = newHolding;
+                                        const holder = newHolding.dataValues.holders[i].buildNext(true);
+                                        holder.person.personId = source.personId;
+                                        newHolding.holders[i] = newHolding.dataValues.holders[i] = holder;
+                                    }
+                                })
+
+                            })
+                        })
+                    })
+                    .then(() => {
+                        return state.dataValues.directorList.buildNext()
+                    })
+                    .then(directorList => {
+                        state.directorList = state.dataValues.directorList = directorList;
+                        state.dataValues.director_list_id = null;
+                        let found = false;
+                        return targets.map(target => {
+                            return directorList.dataValues.directors.map((d, j) => {
+                                const director = directorList.dataValues.directors[j];
+                                if(d.isEqual(source)){
+                                    found = true;
+                                }
+                                if(d.isEqual(target)){
+                                    if(found){
+                                        throw Error('Cannot have two identical directors')
+                                    }
+                                    found = true;
+                                    const newDirector = director.buildNext(true);
+                                    directorList.dataValues.directors[j] = newDirector;
+                                    newDirector.person.personId = source.personId;
+                                }
+                            })
+                        })
+                    })
+                    .then(() => {
                         return state;
                     })
             },

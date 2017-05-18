@@ -19,7 +19,7 @@ module.exports = {
             type: Sequelize.TEXT
         },
         attr: {
-            type: Sequelize.JSON
+            type: Sequelize.JSONB
         }
     },
     associations: function(){
@@ -97,8 +97,8 @@ module.exports = {
             },
 
             isEqual: function(other, options={}){
-                if(other.personId && other.personId === this.dataValues.personId){
-                    return true;
+                if(other.personId){
+                    return this.dataValues.personId === other.personId;
                 }
                 if(this.dataValues.companyNumber && other.companyNumber){
                     return this.dataValues.name.toLowerCase() === other.name.toLowerCase() && this.dataValues.companyNumber === other.companyNumber

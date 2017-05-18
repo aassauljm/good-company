@@ -209,7 +209,7 @@ function transactionViews(state = {}, action){
             const index = action.data && action.data.index !== undefined ? action.data.index : state[action.transactionView].index + 1;
             return {...state,  [action.transactionView]: {index: index, data: {...(state[action.transactionView] || {}).data, ...action.data}}};
         case PREVIOUS_TRANSACTION_VIEW:
-            return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
+            return {...state,  [action.transactionView]: {...state[action.transactionView], index: state[action.transactionView].index - 1}};
         case RESET_TRANSACTION_VIEWS:
             return {};
 
@@ -237,7 +237,7 @@ function contextualTransactionViews(state = {}, action){
                         const index = action.data && action.data.index !== undefined ? action.data.index : state[action.transactionView].index + 1;
                         return {...state,  [action.transactionView]: {index: index, data: {...(state[action.transactionView] || {}).data, ...action.data}}};
                     case PREVIOUS_CONTEXTUAL_TRANSACTION_VIEW:
-                        return {...state,  [action.transactionView]: {index: state[action.transactionView].index - 1}};
+                        return {...state,  [action.transactionView]: {...state[action.transactionView], index: state[action.transactionView].index - 1}};
                     default:
                         return state;
                 }
