@@ -234,7 +234,7 @@ module.exports = {
                 },
                 rejectUnauthorized: false,
                 method: 'POST'
-            },  JSON.stringify(_.pick(values, //'declaration',
+            },  JSON.stringify(_.pick(values, 'declaration',
                                         'name', 'phoneContact', 'emailAddress', 'designation',
                                             'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
                                             'annualReturnShareholderListDocumentRef' )))
