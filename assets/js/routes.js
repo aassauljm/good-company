@@ -4,8 +4,6 @@ import React from 'react';
 import App, { LoggedInApp } from './components/app';
 import Home, { LandingPageView } from './components/home';
 import NotFound from './components/notFound';
-import Users from './components/users';
-import Roles from './components/roles';
 import Documents, { CompanyDocuments } from './components/documents';
 import Document from './components/document';
 import Companies, { CompaniesDelete } from './components/companies';
@@ -133,8 +131,8 @@ export default (store) => {
                     <Route path="create" component={ CreateEvent }/>
                     <Route path="edit/:eventId" component={ EditEvent }/>
                 </Route>
-                <Route path="users" component={ Users }  />
-                <Route path="roles" component={ Roles }  />
+
+
                 <Route path="account_settings" component={ Account }  />
 
                 <Route path="documents/view/:documentId" component={ Document }  />

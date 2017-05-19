@@ -5,42 +5,7 @@ import fetch from "isomorphic-fetch";
 import https from 'https'
 import FormData from 'form-data';
 
-const curl = Promise.promisifyAll(require('curlrequest'));
 
-
-
-const AR = {
-  "declaration": "I certify that the information contained in this annual return is correct.",
-  "name": {
-    "firstName": "Joe",
-    "middleNames": "string",
-    "lastName": "Bloggs"
-  },
-  "phoneContact": {
-    "phoneContactId": "123456789",
-    "phoneNumber": "1234567",
-    "areaCode": "4",
-    "link": {
-      "rel": "self",
-      "href": "http://api.business.govt.nz/services/v1/companies-office/companies-register/companies/123456789"
-    },
-    "phonePurpose": "Mobile",
-    "countryCode": "64"
-  },
-  "emailAddress": {
-    "emailPurpose": "Email",
-    "emailAddress": "Joe.Bloggs@mycompany.co.nz",
-    "emailAddressId": "123456789",
-    "link": {
-      "rel": "self",
-      "href": "http://api.business.govt.nz/services/v1/companies-office/companies-register/companies/123456789"
-    }
-  },
-  "designation": "Authorised Person",
-  "companyDetailsConfirmedCorrectAsOfETag": "2703b543-d6a2-4c27-a699-c0157fefc30a",
-  "annualReturnConsentDocumentRef": "686897696a7c8776b7e",
-  "annualReturnShareholderListDocumentRef": "686897696a7c8776b7e"
-}
 
 //https://www.companiesoffice.govt.nz/companies/learn-about/create-manage-logon/payment-options#establish-dd
 
@@ -269,11 +234,13 @@ module.exports = {
                 },
                 rejectUnauthorized: false,
                 method: 'POST'
-            },  JSON.stringify(_.pick(values, 'declaration', 'name', 'phoneContact', 'emailAddress', 'designation',
+            },  JSON.stringify(_.pick(values, //'declaration',
+                                        'name', 'phoneContact', 'emailAddress', 'designation',
                                             'companyDetailsConfirmedCorrectAsOfETag', 'annualReturnConsentDocumentRef',
                                             'annualReturnShareholderListDocumentRef' )))
         })
         .catch((error) => {
+            sails.log.error(error)
             if(error.context.status === 400){
                 const message = error.context.body.items[0].message;
                 throw sails.config.exceptions.COFailValidation(message)
