@@ -18,7 +18,8 @@ function getUserTokenRecord(userId, service) {
             }
 
             if (!result.valid) {
-                return MbieApiBearerTokenService.refreshUserToken(userId, result.refreshToken);
+                return MbieApiBearerTokenService.refreshUserToken(userId, result.refreshToken)
+
             }
 
             return result;
@@ -91,8 +92,10 @@ module.exports = {
                 'Authorization': UtilService.makeBasicAuthHeader(config.oauth.consumerKey, config.oauth.consumerSecret)
             }
         };
-        return fetch(url, fetchOptions)
-            //.catch(() => {}) //swallow
+        // fire and forget
+        fetch(url, fetchOptions)
+            .catch(() => {}) //swallow
+        return Promise.resolve({});
     },
 
     refreshUserToken: function(userId, refreshToken=null, attemptNumber = 0) {
@@ -105,7 +108,7 @@ module.exports = {
             return getUserTokenRecord(userId, serviceName)
                 .then(tokenRecord => {
                     const refreshToken = tokenRecord.refreshToken;
-                    return MbieApiBearerTokenService.refreshUserToken(userId, serviceName, attemptNumber+1)
+                    return MbieApiBearerTokenService.refreshUserToken(userId, refreshToken, attemptNumber+1)
                 })
         }
 
@@ -130,7 +133,7 @@ module.exports = {
             sails.log.info('Refreshing oauth token using insecure request.');
             fetchOptions.agent = new https.Agent({ rejectUnauthorized: false });
         }
-        let oauthResponse, accessToken;
+        let oauthResponse, apiCredential;
         // Fetch the new access token
         return sequelize.transaction(() => {
             return Promise.bind({})
@@ -143,6 +146,8 @@ module.exports = {
                     const errorDescription = `Error refreshing oauth token for ${serviceName}: ${JSON.stringify(oauthResponse)}`;
 
                     sails.log.error(errorDescription);
+                    sails.log.error(JSON.stringify(url));
+                    sails.log.error(JSON.stringify(fetchOptions));
                     throw new Error(errorDescription);
                 }
                 return ApiCredential.destroy({ where: { refreshToken } })
@@ -158,8 +163,8 @@ module.exports = {
                     ownerId: userId
                 })
             })
-            .then(apiCredential => {
-                accessToken = apiCredential.accessToken;
+            .then(_apiCredential => {
+                apiCredential = _apiCredential;
                 // Add the scopes to the new record
                 const scopes = oauthResponse.scope.split(' ');
                 return apiCredential.addScopes(scopes);
@@ -167,7 +172,7 @@ module.exports = {
             .delay(TOKEN_WAITING_TIME)
             .then(() => {
                 sails.log.info(`Finished refreshing oauth token for ${serviceName}`);
-                return accessToken;
+                return apiCredential;
             });
         })
     }

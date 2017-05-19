@@ -128,9 +128,14 @@ module.exports = {
             .then(result => {
                 return hasPriviledgedInfo(result.body)
             })
+            .catch(e => {
+                return null;
+            })
             .tap(() => COAuthority.destroy({where: {userId: user.id, companyId: company.id}}))
             .tap(hasAuthority => {
-                return COAuthority.create({userId: user.id, companyId: company.id, allowed: hasAuthority})
+                if(hasAuthority !== null ){
+                    return COAuthority.create({userId: user.id, companyId: company.id, allowed: hasAuthority});
+                }
             })
             .catch(e => {
                 return null;
@@ -247,6 +252,10 @@ module.exports = {
             }
             if(error.context.status === 401 || error.context.status === 403){
                 throw sails.config.exceptions.COUnauthorised()
+            }
+            if(error.context.status === 500 && error.context.body.errorMessage){
+
+                throw sails.config.exceptions.COFailValidation(error.context.body.errorMessage)
             }
             throw Error(error)
         })

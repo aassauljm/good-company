@@ -138,7 +138,6 @@ export function logRequest(url, headers) {
 
 export function httpsRequest(params, postData) {
     const urlParts = url.parse(params.url);
-    console.log(params, urlParts, postData)
     return new Promise(function(resolve, reject) {
         var req = https.request({
                 ...params,
