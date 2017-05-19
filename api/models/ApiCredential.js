@@ -1,5 +1,5 @@
 // api/models/ApiCredential.js
-
+const Promise = require('bluebird');
 module.exports = {
 
     attributes: {
@@ -41,12 +41,12 @@ module.exports = {
         tableName: 'api_credential',
         classMethods: {},
         instanceMethods: {
-            addScopes(scopes) {
-                scopes.map(scope => {
-                    ApiCredentialScope
+            addScopes: function(scopes) {
+                return Promise.all(scopes.map(scope => {
+                    return ApiCredentialScope
                         .findOrCreate({ where: { scope } })
                         .then(scopeInstances => this.addScope(scopeInstances[0]));
-                });
+                }));
             }
         },
         hooks: {}

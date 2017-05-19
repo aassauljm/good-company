@@ -1,5 +1,7 @@
 import https from 'https';
 import fetch from "isomorphic-fetch";
+import Promise from 'bluebird';
+
 
 function generateUrlForOauthLogin(url, clientId, callbackRoute, extraQueryParameters) {
     const queryParameters = {
@@ -27,9 +29,12 @@ export function requestOauthToken(url, consumerKey, consumerSecret) {
         });
     }
 
-    return fetch(url, tokenRequestOptions)
+    return Promise.resolve({})
+        .then(() => fetch(url, tokenRequestOptions))
         .then(response => response.json())
 }
+
+
 
 function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, consumerSecret, serviceName, userId}) {
     const url = UtilService.buildUrl(oauthRoute, {
@@ -58,11 +63,16 @@ function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, 
                 message: 'oauth requested',
                 ...data
             }))
-            return ApiCredential.create(data)
-                .then(apiCredential => {
-                    const scopes = oauthResponse.scope.split(' ');
-                    apiCredential.addScopes(scopes);
-                });
+            return sequelize.transaction(() => {
+                return ApiCredential.create(data)
+                    .then(apiCredential => {
+                        const scopes = oauthResponse.scope.split(' ');
+                        return apiCredential.addScopes(scopes);
+                    })
+                })
+                    .catch(e => {
+                        console.log(e)
+                    })
         });
 }
 
@@ -71,7 +81,7 @@ const authWithService = (config) => (req, res) => {
     const callbackRoute = `/api/auth-with/${service}`;
 
     if (req.query.code) {
-        getOauthToken({
+        return getOauthToken({
                 oauthRoute: config.oauth.url + 'token',
                 callbackRoute,
                 code: req.query.code,
@@ -131,8 +141,6 @@ const authWithCompaniesOffice = (req, res) => {
 }
 
 
-
-
 export function authWith(req, res) {
     let authFunction = null;
 
@@ -155,19 +163,18 @@ export function authWith(req, res) {
 export function removeAuth(req, res) {
     const service = req.params.service;
 
-    ApiCredential.destroy({
+    return ApiCredential.findAll({
         where: {
             service,
             ownerId: req.user.id
         }
     })
-    .then(result => {
-        if (result === 0) {
-            return res.json({message: ['No existing integration with that service']});
-        }
-
-        return res.json({message: ['Integration disconnected']});
-    });
+    .then(creds => {
+        return Promise.all(creds.map(c => {
+            return MbieApiBearerTokenService.revoke(service, c.accessToken).then(() => c.destroy())
+        }))
+    })
+    .then(() => res.json({message: ['Integration disconnected']}));
 }
 
 export function lookupByNzbn(nzbn) {

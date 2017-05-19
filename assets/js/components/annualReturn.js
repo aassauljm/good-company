@@ -375,7 +375,7 @@ const DirectDebit = () => {
     submitAR: (url, data) => createResource(url, data, {
         confirmation: {
             title: 'Confirm Annual Return Submission',
-            description: 'If submission is successful, you will be charged to your direct debit acccount',
+            description: 'If submission is successful, the annual return filing fee will be charged to your direct debit account',
             resolveMessage: 'Confirm Submission',
             resolveBsStyle: 'danger'
         },

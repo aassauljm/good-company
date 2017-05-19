@@ -79,6 +79,22 @@ module.exports = {
             .then(result => result.accessToken);
     },
 
+    revoke: function(service, token) {
+        const config = service === 'nzbn'  ? sails.config.mbie.nzbn : sails.config.mbie.companiesOffice;
+        const url = UtilService.buildUrl(`${config.oauth.url}revoke`, {
+            token
+        });
+        let fetchOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': UtilService.makeBasicAuthHeader(config.oauth.consumerKey, config.oauth.consumerSecret)
+            }
+        };
+        return fetch(url, fetchOptions)
+            //.catch(() => {}) //swallow
+    },
+
     refreshUserToken: function(userId, refreshToken=null, attemptNumber = 0) {
         const serviceName = 'companies-office';
         // If the user didn't pass the refresh token, go get it
