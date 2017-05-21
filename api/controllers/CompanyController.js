@@ -276,7 +276,7 @@ module.exports = {
             })
             .then(_company => {
                 company = _company;
-                return company.updateSoureData(req.user.id)
+                return company.updateSourceData(req.user.id)
             })
             .then(r => res.json(r))
             .catch(function(err) {
