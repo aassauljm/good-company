@@ -87,6 +87,7 @@ const BasicLoop = (props) => {
                     return <Comp key={i} {...t} parentTransaction={props} companyState={props.companyState} shareClassMap={props.shareClassMap} noSummary={true}/>
                 }
             }).filter(f => f) }
+           { props.children }
         </BaseTransaction>
 }
 
@@ -232,12 +233,17 @@ export const TransactionRenderMap = {
     },
 
     [TransactionTypes.CREATE_SHARE_CLASS]: (props) => {
-        return <BaseTransaction {...props}>
-        </BaseTransaction>
+        return <BasicLoop {...props}>
+          { props.data.name && <div className="transaction-row">
+             <div className="transaction-label">Share Class Created</div>
+             <div className="transaction-value">{ props.data.name }</div>
+            </div> }
+        </BasicLoop>
     },
 
     [TransactionTypes.SEED]: (props) => {
         return <BaseTransaction {...props}>
+
         </BaseTransaction>
     },
 
@@ -335,7 +341,7 @@ export class TransactionViewBody extends React.Component {
                     className="btn btn-primary">Share Transfer Form</Link> }
                 { this.props.cancel &&  <Button bsStyle="danger" onClick={() => this.props.cancel(transaction.id) }>Cancel Transaction</Button>}
             </div>
-            <hr/>
+             { (template || this.props.cancel) && <hr/> }
             { transaction.documents && transaction.documents.map((d, i) => {
                 return <div key={i}><Link to={`/documents/view/${d.id}`} onClick={this.props.end}>{ d.filename }</Link></div>
             }) }
@@ -344,8 +350,9 @@ export class TransactionViewBody extends React.Component {
 
              { false &&  <div className="button-row"><Button onClick={() => this.setState({showingData: !this.state.showingData})}>Toggle Data View</Button></div> }
             { this.state.showingData && <pre>{JSON.stringify(transaction, null, 4)}</pre> }
+                <hr/>
                 <div className="button-row">
-            <Link className="btn btn-default" to={`/company/view/${this.props.companyId}/transactions`}>View All Transactions</Link>
+            <Link className="btn btn-default transaction-return" to={`/company/view/${this.props.companyId}/transactions`}>View All Transactions</Link>
             </div>
         </div>
     };

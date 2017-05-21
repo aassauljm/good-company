@@ -121,7 +121,7 @@ export class DirectorsWidget extends React.Component {
         if(this.props.expanded){
             bodyClass += "expanded ";
         }
-        return <Widget iconClass="fa fa-address-card-o" title="Directors" link={`/company/view/${this.key()}/directors`} bodyClass={bodyClass}>
+        return <Widget className=" directors-widget" iconClass="fa fa-address-card-o" title="Directors" link={`/company/view/${this.key()}/directors`} bodyClass={bodyClass}>
             { this.renderBody() }
         </Widget>
     }

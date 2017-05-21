@@ -303,13 +303,14 @@ var transactions = {
     },
     createShareClass: function(data, company){
         let companyState, shareClasses;
-        let effectiveDate = new Date();
-        const actions = [{..._.omit(data, 'documents'), id: uuid.v4(), transactionType: Transaction.types.CREATE_SHARE_CLASS}]
-        return company.getCurrentCompanyState()
+        let effectiveDate;
+        const actions = [{..._.omit(data, 'documents', 'json'), id: uuid.v4(), transactionType: Transaction.types.CREATE_SHARE_CLASS}]
+
+        return company.getCurrentCompanyState({include: [{model: Transaction, as: 'transaction'}]})
         .then(function(currentCompanyState){
+            effectiveDate = currentCompanyState.transaction ? currentCompanyState.transaction.effectiveDate : new Date();
             return currentCompanyState.buildNext({
-                previousCompanyStateId: currentCompanyState.dataValues.id,
-                transaction: {type: Transaction.types.CREATE_SHARE_CLASS, data: actions[0], effectiveDate: effectiveDate }
+                previousCompanyStateId: currentCompanyState.dataValues.id
             });
         })
         .then(function(cs){
@@ -364,6 +365,10 @@ var transactions = {
             },  company);
         })
         .then(() => {
+            return Transaction.create({type: Transaction.types.CREATE_SHARE_CLASS, data: actions[0], effectiveDate: effectiveDate })
+        })
+        .then((transaction) => {
+            companyState.dataValues.transactionId = transaction.id;
             return companyState.save();
         })
         .then(function(){
@@ -421,6 +426,7 @@ const selfManagedTransactions = {
             * import historic actions, until SEED
         */
         let state, companyName, historic_action_id, newRoot;
+        console.time('pew');
         return sequelize.transaction(function(){
             return company.getCurrentCompanyState()
                 .then(currentState => {
@@ -466,6 +472,7 @@ const selfManagedTransactions = {
                 }
             })
             .then(function(messages){
+
                 return {messages}
             })
     },

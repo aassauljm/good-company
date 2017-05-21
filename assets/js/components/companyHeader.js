@@ -66,7 +66,7 @@ export default class CompanyHeader extends React.Component {
 
         return [ <li key={-1} className="nav-item separator" />,
                 <li key={0} className="nav-item">
-                    <IndexLink to={this.props.baseUrl} activeClassName="active" className="nav-link"  onClick={this.closeMenu}>Dashboard</IndexLink>
+                    <IndexLink to={this.props.baseUrl} activeClassName="active" className="nav-link dashboard"  onClick={this.closeMenu}>Dashboard</IndexLink>
                 </li>,
 
              <Dropdown key={1} id="register-dropdown" className="nav-item" componentClass="li" >
@@ -74,9 +74,9 @@ export default class CompanyHeader extends React.Component {
                         Registers
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
-                        <MenuItem  onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
-                        <MenuItem  onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/director_register`)}><span className="fa fa-book"/>Director Register</MenuItem>
+                        <MenuItem className="share-register" onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/shareregister`)}><span className="fa fa-book"/>Share Register</MenuItem>
+                        <MenuItem className="interests-register" onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/interests_register`)}><span className="fa fa-book"/>Interests Register</MenuItem>
+                        <MenuItem className="director-register" onClick={() => this.props.navigate(`${this.props.baseUrl}/registers/director_register`)}><span className="fa fa-book"/>Director Register</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown> ,
 
@@ -91,7 +91,7 @@ export default class CompanyHeader extends React.Component {
                         <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown> ,
-              this.canUpdate() && <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={this.closeMenu} activeClassName="active" className="nav-link">Templates</Link></li>,
+              this.canUpdate() && <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={this.closeMenu} activeClassName="active" className="nav-link templates">Templates</Link></li>,
              ]
     }
 

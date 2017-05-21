@@ -117,7 +117,7 @@ export class DocumentsWidget extends React.PureComponent {
         if(this.props.expanded){
             bodyClass += "expanded ";
         }
-        return <Widget iconClass="fa fa-files-o" title="File Cabinet" link={`${this.props.baseUrl}/documents`} bodyClass={bodyClass}>
+        return <Widget className=" company-documents" iconClass="fa fa-files-o" title="File Cabinet" link={`${this.props.baseUrl}/documents`} bodyClass={bodyClass}>
             { this.renderBody() }
         </Widget>
     }

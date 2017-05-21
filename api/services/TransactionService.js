@@ -587,6 +587,7 @@ export function performHoldingChange(data, companyState, previousState, effectiv
             }))])
         })
         .then(() => {
+
             let current = companyState.getMatchingHoldings({holdingId: data.holdingId, holders: normalizedData.beforeHolders});
             if(current && current.length > 1){
                 throw new sails.config.exceptions.InvalidOperation('Multiple holdings found, holding change')
@@ -1007,6 +1008,9 @@ export function performInverseUpdateDirector(data, companyState, previousState, 
         });
 };
 
+export function performInverseCreateShareClass(data, companyState, previousState, effectiveDate) {
+    return Promise.resolve(Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate}));
+}
 
 export function validateAmend(data, companyState){
     const holders = data.holders || data.afterHolders;
@@ -1525,7 +1529,8 @@ export function performInverseTransaction(data, company, rootState){
         [Transaction.types.NEW_DIRECTOR]: TransactionService.performInverseNewDirector,
         [Transaction.types.REMOVE_DIRECTOR]: TransactionService.performInverseRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]: TransactionService.performInverseUpdateDirector,
-        [Transaction.types.ANNUAL_RETURN]: TransactionService.performAnnualReturn
+        [Transaction.types.ANNUAL_RETURN]: TransactionService.performAnnualReturn,
+        [Transaction.types.CREATE_SHARE_CLASS]: TransactionService.performInverseCreateShareClass,
     };
 
     if(!data || !data.actions || data.userSkip){

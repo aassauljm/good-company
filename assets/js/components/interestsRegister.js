@@ -253,7 +253,7 @@ export class InterestsRegister extends React.PureComponent {
     renderList(data) {
         const companyId = this.props.companyId;
         return <div>
-            <table className="table table-hover table-striped">
+            <table className="table table-hover table-striped interests-register-table">
                 <thead>
                 <tr>{ InterestsRegister.fields.map((f, i) => {
                     return <th key={i}>{STRINGS.interestsRegister[f]}</th>

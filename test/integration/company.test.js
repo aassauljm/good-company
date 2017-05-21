@@ -468,6 +468,128 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
             return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
 
+        it('Views transaction page', function(){
+            const link = this.dom.querySelector('a.dashboard');
+            Simulate.click(link, {button: 0});
+            return  waitFor('Landing page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
+            .then(() => {
+                const link = this.dom.querySelector('.company-transactions a');
+                Simulate.click(link, {button: 0});
+                return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.widget-body table tbody tr').length, null, 2000)
+            })
+            .then(rows => {
+                let index = 0;
+                return UtilService.promiseWhile(() => {
+                    return index < rows
+                }, () => {
+                    const link = this.dom.querySelectorAll('.widget-body table tbody tr')[index++];
+                    Simulate.click(link, {button: 0});
+                    return waitFor('Transaction to render', () => this.dom.querySelectorAll('.transaction-return').length, null, 2000)
+                    .then(() => {
+                        const link = this.dom.querySelectorAll('.transaction-return')[0];
+                        Simulate.click(link, {button: 0});
+                        return waitFor('Transactions to load', () => this.dom.querySelectorAll('.widget-body table tbody tr').length, null, 2000);
+                    });
+                })
+            });
+        });
+
+        it('Views documents page', function(){
+            const link = this.dom.querySelector('a.dashboard');
+            Simulate.click(link, {button: 0});
+            return  waitFor('Landing page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
+            .then(() => {
+                const link = this.dom.querySelector('.company-documents > a');
+                Simulate.click(link, {button: 0});
+                return  waitFor('Documents to load', () => this.dom.querySelectorAll('.documents .file-tree').length, null, 5000)
+            })
+        });
+
+        it('Views share register', function(){
+            const link = this.dom.querySelector('.share-register a');
+            Simulate.click(link, {button: 0});
+             return waitFor('Share register to display', () => this.dom.querySelectorAll('.share-register-document .transaction-history').length, null, 2000)
+        });
+
+        it('Views interest register', function(){
+            const link = this.dom.querySelector('.interests-register a');
+            Simulate.click(link, {button: 0});
+             return waitFor('Interest register to display', () => this.dom.querySelectorAll('.interests-register-table').length, null, 2000)
+        });
+
+        it('Views director register', function(){
+            const link = this.dom.querySelector('.director-register a');
+            Simulate.click(link, {button: 0});
+             return waitFor('Director register to display', () => this.dom.querySelectorAll('.directors-register-document').length, null, 2000)
+        });
+
+        it('Views shareholdings page', function(){
+            const link = this.dom.querySelector('a.dashboard');
+            Simulate.click(link, {button: 0});
+            return  waitFor('Landing page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
+            .then(() => {
+                const link = this.dom.querySelector('.shareholding-widget> a');
+                Simulate.click(link, {button: 0});
+                return  waitFor('Shareholding page to load', () => this.dom.querySelectorAll('.shareholding').length === 4, null, 5000)
+            });
+        });
+
+        it('Views directors page', function(){
+            const link = this.dom.querySelector('a.dashboard');
+            Simulate.click(link, {button: 0});
+            return  waitFor('Landing page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
+            .then(() => {
+                const link = this.dom.querySelector('.directors-widget> a');
+                Simulate.click(link, {button: 0});
+                return  waitFor('Directors page to load', () => this.dom.querySelectorAll('.director').length === 2, null, 5000)
+            });
+        });
+
+        it('Views all templates', function(){
+            const link = this.dom.querySelector('a.templates');
+            Simulate.click(link, {button: 0});
+            return  waitFor('Templates to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+            .then(rows => {
+                let index = 0;
+                return UtilService.promiseWhile(() => {
+                    return index < rows
+                }, () => {
+                    const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
+                    Simulate.click(link, {button: 0});
+                    return waitFor('Template form to render', () => this.dom.querySelectorAll('.generated-form').length, null, 2000)
+                    .then(() => {
+                        const link = this.dom.querySelector('a.templates');
+                        Simulate.click(link, {button: 0});
+                        return  waitFor('Templates to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+                    });
+                })
+            });
+        });
+
+       /* it('Views all share updates', function(){
+             const link = this.dom.querySelector('.update-shares a');
+            Simulate.click(link, {button: 0});
+            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.new-transaction').length, null, 2000)
+            .then(rows => {
+                let index = 0;
+                return UtilService.promiseWhile(() => {
+                    return index < rows
+                }, () => {
+                    const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
+                    console.log(index)
+                    Simulate.click(link, {button: 0});
+                    return waitFor('Transaction form to render', () => this.dom.querySelectorAll('.transaction-views .widget-footer .btn.btn-default').length, null, 2000)
+                    .then(() => {
+                        const link = this.dom.querySelectorAll('.transaction-views .widget-footer .btn.btn-default')
+                        Simulate.click(link, {button: 0});
+                        return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+                    });
+                })
+            });
+        });*/
+
+
+
         it('Does a transfer', function(){
             const link = this.dom.querySelector('.update-shares a');
             Simulate.click(link, {button: 0});
@@ -486,11 +608,15 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
                 })
             })
         });
+
         it('Goes to template page', function(){
            const generate = this.dom.querySelector('.btn.btn-primary');
            Simulate.click(generate, {button: 0});
            return waitFor('Template page to appear', '.generated-form', this.dom);
         });
+
+
+
 
 
         /*it('Generates transfer document', function(){

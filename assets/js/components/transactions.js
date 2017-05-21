@@ -179,7 +179,7 @@ export class TransactionWidget extends React.Component {
         if(this.props.expanded){
             bodyClass += "expanded ";
         }
-        return  <Widget title="Completed Transactions" iconClass="fa fa-balance-scale" link={`${this.props.baseUrl}/transactions`} bodyClass={bodyClass}>
+        return  <Widget className=" company-transactions" title="Completed Transactions" iconClass="fa fa-balance-scale" link={`${this.props.baseUrl}/transactions`} bodyClass={bodyClass}>
                    { this.renderBody() }
             </Widget>
     }
