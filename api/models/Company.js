@@ -438,7 +438,7 @@ module.exports = {
                     .spread(result => !result ? null : result.allowed)
             },
 
-            updateSoureData: function(userId){
+            updateSourceData: function(userId){
                 const company = this;
                 return ScrapingService.fetch(this.sourceData.data.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)

@@ -958,7 +958,7 @@ module.exports = {
                 });
             })
             .tap(result => {
-                return company.updateSourceData();
+                return company.updateSourceData(req.user.id);
             })
             .then(result =>{
                 return res.json(result);
