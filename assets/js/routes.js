@@ -50,56 +50,56 @@ const Status = (props) => {
 
 
 const CompanyChildren = [
-    <Route path="shareholdings" component={ Shareholdings } />,
-    <Route path="details" component={ CompanyDetails } />,
-    <Route path="transactions" component={ CompanyTransactions }>
-        <Route path=":transactionId" component={ TransactionView }/>
+    <Route name="Shareholdings" path="shareholdings" component={ Shareholdings } />,
+    <Route name="Company Details" path="details" component={ CompanyDetails } />,
+    <Route name="Company Transactions" path="transactions" component={ CompanyTransactions }>
+        <Route name="Transaction"  path=":transactionId" component={ TransactionView }/>
     </Route>,
 
-    <Route path="upcoming_transactions" component={ PendingTransactions }>
-        <Route path=":transactionId" component={ PendingTransactionView }/>
+    <Route name="Upcoming Transactions" path="upcoming_transactions" component={ PendingTransactions }>
+        <Route  name="Transaction" path=":transactionId" component={ PendingTransactionView }/>
     </Route>,
 
-    <Route path="shareholders" component={ Shareholders } />,
-    <Route path="documents" component={ CompanyDocuments } />,
-    <Route path="documents/view/:documentId" component={ Document }  />,
-    <Route path="templates" component={ Templates }>
+    <Route name="Shareholders" path="shareholders" component={ Shareholders } />,
+    <Route name="File Cabinet" path="documents" component={ CompanyDocuments } />,
+    <Route name="Document" path="documents/view/:documentId" component={ Document }  />,
+    <Route name="Templates" path="templates" component={ Templates }>
         <Router path=":name" component={ TemplateView }/>
     </Route>,
-    <Route path="contact" component={ ContactDetails } />,
-    <Route path="contact/edit" component={ ContactEditDetails } />,
-    <Route path="reporting" component={ ReportingDetails } />,
-    <Route path="source_data" component={ CompaniesRegister } />,
-    <Route path="directors" component={ Directors } />,
-    <Route path="graph" component={ CompanyGraph } />,
-    <Route path="access_list" component={ AccessList } />,
+    <Route name="Contact Details" path="contact" component={ ContactDetails } />,
+    <Route name="Edit" path="contact/edit" component={ ContactEditDetails } />,
+    <Route name="Reporting" path="reporting" component={ ReportingDetails } />,
+    <Route name="Companies Register" path="source_data" component={ CompaniesRegister } />,
+    <Route name="directors" path="directors" component={ Directors } />,
+    <Route name="Graph" path="graph" component={ CompanyGraph } />,
+    <Route name="Access List" path="access_list" component={ AccessList } />,
 
-    <Route path="share_classes" component={ ShareClasses } >
-        <Route path="create" component={ ShareClassCreate } />
-        <Route path="view/:shareClassId" component={ ShareClassEdit } />
+    <Route name="Share Classes" path="share_classes" component={ ShareClasses } >
+        <Route name="Create" path="create" component={ ShareClassCreate } />
+        <Route name="View" path="view/:shareClassId" component={ ShareClassEdit } />
     </Route>,
 
     <Route path="registers">
-        <Route path="shareregister" component={ ShareRegister } />,
-        <Route path="interests_register" component={ InterestsRegister } >
-            <Route path="create" component={ InterestsRegisterCreate } />
-            <Route path="view/:entryId" component={ InterestsRegisterView } />
+        <Route name="Share Register" path="shareregister" component={ ShareRegister } />,
+        <Route name="Interests Register" path="interests_register" component={ InterestsRegister } >
+            <Route name="Create" path="create" component={ InterestsRegisterCreate } />
+            <Route name="View" path="view/:entryId" component={ InterestsRegisterView } />
         </Route>
-        <Route path="director_register" component={ DirectorRegister } />
+        <Route name="Director Register" path="director_register" component={ DirectorRegister } />
 
     </Route>,
 
-    <Route path="new_transaction" component={ NewTransaction } >
-        <Route path="contact" component={ UpdateContact } />
-        <Route path="people" component={ UpdatePeople } />
-        <Route path="shares" component={ UpdateShares } />
-        <Route path="reset_delete" component={ UpdateResetDelete } />
+    <Route name="Update" path="new_transaction" component={ NewTransaction } >
+        <Route name="Contact" path="contact" component={ UpdateContact } />
+        <Route name="People" path="people" component={ UpdatePeople } />
+        <Route name="Shares"  path="shares" component={ UpdateShares } />
+        <Route name="Reset and Delete" path="reset_delete" component={ UpdateResetDelete } />
     </Route>,
-    <Route path="guided_setup" component={ GuidedSetup } />,
-    <Route path="notifications" component={ CompanyAlerts } />,
-    <Route path="annual_returns" component={ AnnualReturn } />,
-    <Route path="review_annual_return" component={ ReviewAnnualReturn } />,
-    <Route path="ar_details/:etag" component={ AnnualReturnSubmission } />,
+    <Route name="Guided Setup" path="guided_setup" component={ GuidedSetup } />,
+    <Route name="Notifications" path="notifications" component={ CompanyAlerts } />,
+    <Route name="Annual Returns" path="annual_returns" component={ AnnualReturn } />,
+    <Route name="Review Annual Return" path="review_annual_return" component={ ReviewAnnualReturn } />,
+    <Route name="Review Annual Submission" path="ar_details/:etag" component={ AnnualReturnSubmission } />,
     <Route path="*" component={ NotFound } />
 ];
 
@@ -121,42 +121,41 @@ export default (store) => {
     };
 
 
-    return <Route path="/" component={ App }>
+    return <Route name="Home" path="/" component={ App }>
 
         <Route onEnter={requireLogin} component={ LoggedInApp }>
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
-                <Route path="recent_activity" component={ RecentActivity }  />
-                <Route path="calendar" component={ Calendar }>
-                    <Route path="create" component={ CreateEvent }/>
-                    <Route path="edit/:eventId" component={ EditEvent }/>
+                <Route name="Recent Activity" path="recent_activity" component={ RecentActivity }  />
+                <Route name="Calendar" path="calendar" component={ Calendar }>
+                    <Route name="Create" path="create" component={ CreateEvent }/>
+                    <Route name="View" path="edit/:eventId" component={ EditEvent }/>
                 </Route>
 
 
-                <Route path="account_settings" component={ Account }  />
+                <Route name="Account Settings" path="account_settings" component={ Account }  />
 
-                <Route path="documents/view/:documentId" component={ Document }  />
-                <Route path="companies" component={ Companies }  />
-                <Route path="companies/manage" component={ CompaniesDelete  }  />
-                <Route path="mass_setup" component={ MassSetup }  />
-                <Route path="import" component={ ImportMenu } />
-                <Route path="import/nzbn" component={ ImportNZBN } />
-                <Route path="import/:companyNumber" component={ ImportCompany } />
+                <Route name="Document" path="documents/view/:documentId" component={ Document }  />
+                <Route name="Companeis" path="companies" component={ Companies }  />
+                <Route name="Manage Companies" path="companies/manage" component={ CompaniesDelete  }  />
+                <Route name="Mass Setup" path="mass_setup" component={ MassSetup }  />
+                <Route name="Import" path="import" component={ ImportMenu } />
+                <Route name="Import NZBN" path="import/nzbn" component={ ImportNZBN } />
+                <Route name="Import" path="import/:companyNumber" component={ ImportCompany } />
                 <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyHOCFromRoute(true)(Injector) } >
                     <Route path="share_register" component={ ShareRegisterDocumentLoader } />
                     <Route path="director_register" component={ DirectorRegisterDocumentLoader  } />
                     <Route path="annual_return" component={ AnnualReturnLoader } />
                 </Route>
-                <Route path="alerts" component={ Alerts } />
-                <Route path="annual_returns" component={ AnnualReturn } />
-                 <Route path="templates" component={ TemplateSelectCompany } >
+                <Route name="Notifications" path="alerts" component={ Alerts } />
+                 <Route name="Templates" path="templates" component={ TemplateSelectCompany } >
                     <Router path=":name" component={ TemplateSelectCompany }/>
                  </Route>
-                <Route path="organisation" component={ Organisation } />
-                <Route path="companies_office_integration" component={CompaniesOfficeIntegration} />
+                <Route name="Organisations" path="organisation" component={ Organisation } />
+                <Route name="Companies Office Integration" path="companies_office_integration" component={CompaniesOfficeIntegration} />
             </Route>
-            <Route path="company/view/:id" component={ Company } children={CompanyChildren} />
-            <Route path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
+            <Route name="View" path="company/view/:id" component={ Company } children={CompanyChildren} />
+            <Route name="View" path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
         </Route>
          <Route path='status' component={ Status } />
         <Route path="*" component={ NotFound } />

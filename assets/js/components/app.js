@@ -49,6 +49,7 @@ export class DragContainer extends React.Component {
 @DragDropContext(HTML5Backend)
 export default class App extends React.Component {
     render() {
+        console.log(this.props);
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDragOver={prevent}>
              <DragContainer>
