@@ -195,6 +195,7 @@ function renderField(key, data, row, shareClassMap) {
         case 'amount':
         case 'sum':
             return numberWithCommas(data);
+
         default:
             return data;
     }

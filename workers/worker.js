@@ -239,11 +239,10 @@ sails.load({
 
 
     function createThenApplyShareClassAllHoldings(company, companyId, companyName, userId, data){
-        console.log(data)
         return sails.controllers.companystate.selfManagedTransactions.createThenApplyShareClassAllHoldings(data, company)
             .then((result) => ActivityLog.create({
                 userId: userId,
-                description: result.message,
+                description: `Create and appled share classes for ${companyName}`,
                 companyId: companyId,
                 data: {companyId: companyId}
             }))

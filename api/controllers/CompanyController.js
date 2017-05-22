@@ -963,6 +963,7 @@ module.exports = {
                     type: ActivityLog.types.ANNUAL_RETURN_SUBMITTED,
                     userId: req.user.id,
                     description: `${companyName} Annual Return Submitted`,
+                    companyId: company.id,
                     data: {companyId: company.id}
                 });
             })

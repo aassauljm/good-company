@@ -500,7 +500,7 @@ const selfManagedTransactions = {
                 const actions = holdingList.dataValues.holdings.map(function(h){
                     return {
                         holdingId: h.holdingId,
-                        shareClass: shareClass,
+                        parcels: h.parcels.map(p => ({amount: p.amount, shareClass})),
                         transactionType: Transaction.types.APPLY_SHARE_CLASS
                     };
                 });

@@ -114,9 +114,9 @@ const EventSummary = (props) => {
         { location &&<p>{ location }</p> }
 
         <div className="controls">
-        <Link to={`/calendar/edit/${id}`}>edit</Link>
-            <a href="#" onClick={() => props.deleteEvent(id)}>delete</a>
-            <a href="#" onClick={() => exportICS({title: fullTitle, date: new Date(date), description, reminder})}>export</a>
+        <Link to={`/calendar/edit/${id}`} className="edit-event">edit</Link>
+            <a  className="delete-event" href="#" onClick={() => props.deleteEvent(id)}>delete</a>
+            <a  className="export-event" href="#" onClick={() => exportICS({title: fullTitle, date: new Date(date), description, reminder})}>export</a>
         </div>
     </div>
 }
@@ -292,7 +292,7 @@ export default class CalendarFull extends React.PureComponent {
                     })}  />
                     </div>
                 { canCreateEvent && <div className="button-row">
-                        <Link to={{ pathname: "/calendar/create" , query: { date: this.props.menu.selected || ''} }} className="btn btn-info">Create Event</Link>
+                        <Link to={{ pathname: "/calendar/create" , query: { date: this.props.menu.selected || ''} }} className="btn btn-info  create-event">Create Event</Link>
                     </div> }
             </div>
             <div className="col-md-6">
@@ -343,7 +343,7 @@ export class CalendarWidget extends React.PureComponent {
                         today: moment().format('YYYY-MM-DD'),
                     })}  />
                 { this.props.canCreateEvent && <div className="button-row">
-                    <Link to ="/calendar/create" className="btn btn-info">Create Event</Link>
+                    <Link to ="/calendar/create" className="btn btn-info create-event">Create Event</Link>
                 </div> }
         </Widget>
     }
@@ -364,7 +364,7 @@ class EventForm extends React.PureComponent {
             <Input type="select" {...this.formFieldProps('companyId', STRINGS.calendar) }>
                 { this.props.companyOptions }
             </Input>
-            <Input type="text" {...this.formFieldProps('title', STRINGS.calendar) } />
+            <Input type="text" className="event-title" {...this.formFieldProps('title', STRINGS.calendar) } />
             <Input type="textarea" rows="3" {...this.formFieldProps('description', STRINGS.calendar) } />
             <Input type="text" {...this.formFieldProps('location', STRINGS.calendar) } />
             <Input type="select" {...this.formFieldProps('reminder', STRINGS.calendar) }>
