@@ -70,7 +70,7 @@ const CompanyChildren = [
     <Route name="Edit" path="contact/edit" component={ ContactEditDetails } />,
     <Route name="Reporting" path="reporting" component={ ReportingDetails } />,
     <Route name="Companies Register" path="source_data" component={ CompaniesRegister } />,
-    <Route name="directors" path="directors" component={ Directors } />,
+    <Route name="Directors" path="directors" component={ Directors } />,
     <Route name="Graph" path="graph" component={ CompanyGraph } />,
     <Route name="Access List" path="access_list" component={ AccessList } />,
 
@@ -136,7 +136,7 @@ export default (store) => {
                 <Route name="Account Settings" path="account_settings" component={ Account }  />
 
                 <Route name="Document" path="documents/view/:documentId" component={ Document }  />
-                <Route name="Companeis" path="companies" component={ Companies }  />
+                <Route name="Companies" path="companies" component={ Companies }  />
                 <Route name="Manage Companies" path="companies/manage" component={ CompaniesDelete  }  />
                 <Route name="Mass Setup" path="mass_setup" component={ MassSetup }  />
                 <Route name="Import" path="import" component={ ImportMenu } />
@@ -154,8 +154,8 @@ export default (store) => {
                 <Route name="Organisations" path="organisation" component={ Organisation } />
                 <Route name="Companies Office Integration" path="companies_office_integration" component={CompaniesOfficeIntegration} />
             </Route>
-            <Route name="View" path="company/view/:id" component={ Company } children={CompanyChildren} />
-            <Route name="View" path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
+            <Route name="View Company" path="company/view/:id" component={ Company } children={CompanyChildren} />
+            <Route name="View Company" path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
         </Route>
          <Route path='status' component={ Status } />
         <Route path="*" component={ NotFound } />

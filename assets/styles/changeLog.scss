@@ -3,6 +3,7 @@
         padding: 0 16px;
         ul.bulleted{
             li {
+                white-space:normal;
                 padding: 2px;
                 &:hover{
                     color: $text-color;

@@ -88,13 +88,17 @@ describe('Landing Integration tests', () => {
                 .then(() => {
                     this.dom.querySelector('.summary .title').innerHTML.should.be.equal('test event editted');
                    const linkNode = this.dom.querySelector('.summary .controls .delete-event')
-                   Simulate.click(linkNode, {button: 0});
+                    Simulate.click(linkNode, {button: 0});
                     return waitFor('summary to disappear', () => this.dom.querySelectorAll('.summary').length === 0, null, 5000)
                 })
-
         });
 
 
+        it('Calendar', function(){
+            const linkNode = this.dom.querySelector('.companies-widget > a');
+            Simulate.click(linkNode, {button: 0});
+            return waitFor('companies page to show',  () => this.dom.querySelectorAll('.company-list-body tbody tr').length, null, 5000)
+        });
     });
 
 

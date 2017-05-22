@@ -8,7 +8,7 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 $input-border-width: 2px;
 $brand-primary: #2C3E50;
 $border-light: #ccc;
-
+$breadcrumb-bg: transparent;
 $well-bg: #fff;
 $well-border: $border-light;
 $popover-max-width: 500px;
@@ -177,4 +177,16 @@ a, a:hover{
     color: $text-color;
 }
 
+.breadcrumb{
+    padding: 0 4px;
+    margin-bottom:0;
+    li a{
+        padding:0;
+        padding-right: 8px;
+
+        &.active{
+            color: $text-color;
+        }
+    }
+}
 

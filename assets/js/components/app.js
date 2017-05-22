@@ -15,6 +15,30 @@ import Promise from 'bluebird';
 import { connect } from 'react-redux';
 import { AsyncHOCFactory, ALERTS, COMPANIES } from '../hoc/resources';
 import UserFeedback from './userFeedback';
+import { Link } from 'react-router';
+
+
+const Breadcrumbs = (props) => {
+    let url = '';
+    const routes = props.routes.filter(r => !!r.name);
+    if(routes.length < 2){
+        return false;
+    }
+    return <div className="container">
+        <ol className="breadcrumb">
+        {routes.map((r, i) => {
+            if(url.length && url[url.length-1] !== '/'){
+                url += '/';
+            }
+            url += r.path;
+            Object.keys(props.params).map((k) => {
+                url = url.replace(':'+k, props.params[k]);
+            });
+        return <li key={i}><Link to={url} activeClassName={i === routes.length -1 ? 'active' : ''} className="btn btn-link">{ r.name }</Link></li>
+        }) }
+        </ol>
+    </div>
+}
 
 
 function prevent(e){
@@ -32,7 +56,7 @@ const transition = __SERVER__ ? 0 : 200;
 }, (connect, monitor) => ({
     connectDropTarget: connect.dropTarget()
 }))
-export class DragContainer extends React.Component {
+export class DragContainer extends React.PureComponent {
     render(){
         return this.props.connectDropTarget(<div className="drop-container">{this.props.children}</div>);
     }
@@ -47,9 +71,8 @@ export class DragContainer extends React.Component {
   }
 }])
 @DragDropContext(HTML5Backend)
-export default class App extends React.Component {
+export default class App extends React.PureComponent {
     render() {
-        console.log(this.props);
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDragOver={prevent}>
              <DragContainer>
@@ -59,7 +82,7 @@ export default class App extends React.Component {
             </div>
         }
         let name = this.props.location.pathname;
-        name = name.split('/')[1] || 'root'
+        name = name.split('/')[1] || 'root';
         return <div>
             <Header />
                  <Notifications />
@@ -70,7 +93,7 @@ export default class App extends React.Component {
                     <div key={name}>
                         { this.props.children }
                     </div>
-
+                    <Breadcrumbs routes={this.props.routes} params={this.props.params} />
                     <UserFeedback
                         style={{
                             textAlign: 'center',
@@ -90,7 +113,7 @@ export default class App extends React.Component {
 @connect(undefined, {
     mounted: () => mounted()
 })
-export class LoggedInApp extends React.Component {
+export class LoggedInApp extends React.PureComponent {
     componentDidMount() {
         this.props.mounted();
     }

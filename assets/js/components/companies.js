@@ -337,7 +337,7 @@ export class CompaniesWidget extends React.Component {
 
 
     render() {
-        return <Widget iconClass="fa fa-institution" title="Companies" link="/companies">
+        return <Widget className="companies-widget" iconClass="fa fa-institution" title="Companies" link="/companies">
                        { this.renderBody() }
                 </Widget>
     }
