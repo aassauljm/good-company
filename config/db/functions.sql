@@ -135,10 +135,10 @@ CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp wi
         WHERE t.id = tt."previousCompanyStateId"
     )
     SELECT id FROM
-        (SELECT pvs.id, generation, "effectiveDate" FROM prev_company_states pvs
+        (SELECT pvs.id, generation, "effectiveDate", "previousCompanyStateId" FROM prev_company_states pvs
          LEFT OUTER JOIN transaction t on t.id = pvs."transactionId"
          ORDER BY generation ASC) q
-    WHERE q."effectiveDate" < $2 AND q."effectiveDate" is NOT NULL
+    WHERE (q."effectiveDate" IS NOT NULL and q."effectiveDate" < $2) OR  (q."previousCompanyStateId" IS NULL)
     LIMIT 1
 $$ LANGUAGE SQL;
 

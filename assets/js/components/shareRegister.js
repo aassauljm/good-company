@@ -40,7 +40,12 @@ function transferHolders(filter, siblings){
     }
     else{
         return joinAnd(siblings.filter(s => s.type === filter).map(s => {
-            return joinAnd((s.holding_persons).map(h => h.name))
+            return joinAnd((s.holding_persons).map(h => {
+                if((h.data||{}).heldPersonally === false){
+                    return `${h.name} (${h.data.onBehalfType} of ${h.data.onBehalfDescription})`
+                }
+                return h.name;
+            }))
         }))
     }
 }
