@@ -940,7 +940,16 @@ module.exports = {
     submitAR: function(req, res) {
         let company, companyName;
         const values = actionUtil.parseValues(req);;
-        Company.findById(req.params.id)
+
+        Company.findById(req.params.id, {
+                include: [{
+                    model: SourceData,
+                    as: 'sourceData'
+                },{
+                    model: CompanyState,
+                    as: 'currentCompanyState'
+                }]
+            })
             .then(function(_company){
                 company  = _company;
                 return company.getNowCompanyState();

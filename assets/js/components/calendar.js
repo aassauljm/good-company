@@ -333,7 +333,7 @@ export class CalendarWidget extends React.PureComponent {
     }
 
     render() {
-        return <Widget iconClass="fa fa-calendar" title={ STRINGS.calendar.calendar } link={`/calendar`} >
+        return <Widget className="calendar-widget" iconClass="fa fa-calendar" title={ STRINGS.calendar.calendar } link={`/calendar`} >
                 <Calendar
                     onChange={this.selectDay}
                     dayComponent={DayWithData({

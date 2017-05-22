@@ -6,26 +6,6 @@ var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
 var moment = require('moment');
 
 
-function checkNameCollision(data) {
-    return User.findAll({
-            where: {
-                $or: {
-                    email: {
-                        $iLike:data.email
-                    },
-                    username: {
-                        $iLike: data.username
-                    }
-                }
-            }
-        })
-        .then(function(results) {
-            if (results.length) {
-                throw new sails.config.exceptions.ValidationException('A User with that name or email number already exists');
-            }
-        })
-}
-
 function changePermissions(changeFunction, req, res){
     const data = actionUtil.parseValues(req);
     return sequelize.query(`SELECT user_is_organisation_admin_of_catalex_user(:userId, :catalexId)`,
@@ -86,17 +66,6 @@ module.exports = {
     recentActivityFull: function(req, res) {
         ActivityLog.query(req.user.id)
         .then(activities => res.json(activities));
-    },
-
-    validateUser: function(req, res){
-        var data = actionUtil.parseValues(req);
-        checkNameCollision(data)
-            .then(function(){
-                res.ok({})
-            })
-            .catch(function(err){
-                res.badRequest(err);
-            })
     },
 
     pendingJobs: function(req, res) {

@@ -484,7 +484,7 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
                 }, () => {
                     const link = this.dom.querySelectorAll('.widget-body table tbody tr')[index++];
                     Simulate.click(link, {button: 0});
-                    return waitFor('Transaction to render', () => this.dom.querySelectorAll('.transaction-return').length, null, 2000)
+                    return waitFor('Transaction to render', () => this.dom.querySelectorAll('.transaction-return').length, null, 5000)
                     .then(() => {
                         const link = this.dom.querySelectorAll('.transaction-return')[0];
                         Simulate.click(link, {button: 0});
@@ -556,7 +556,7 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
                 }, () => {
                     const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
                     Simulate.click(link, {button: 0});
-                    return waitFor('Template form to render', () => this.dom.querySelectorAll('.generated-form').length, null, 2000)
+                    return waitFor('Template form to render', () => this.dom.querySelectorAll('.generated-form').length, null, 5000)
                     .then(() => {
                         const link = this.dom.querySelector('a.templates');
                         Simulate.click(link, {button: 0});
@@ -566,28 +566,110 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
             });
         });
 
-       /* it('Views all share updates', function(){
-             const link = this.dom.querySelector('.update-shares a');
+       it('Views all contact updates', function(){
+             const link = this.dom.querySelector('.update-contact a');
             Simulate.click(link, {button: 0});
-            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.new-transaction').length, null, 2000)
+            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
             .then(rows => {
                 let index = 0;
                 return UtilService.promiseWhile(() => {
                     return index < rows
                 }, () => {
                     const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
-                    console.log(index)
                     Simulate.click(link, {button: 0});
-                    return waitFor('Transaction form to render', () => this.dom.querySelectorAll('.transaction-views .widget-footer .btn.btn-default').length, null, 2000)
+                    return waitFor('Transaction form to render', () => this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default').length, null, 5000)
                     .then(() => {
-                        const link = this.dom.querySelectorAll('.transaction-views .widget-footer .btn.btn-default')
+                        const link = _.last(this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default'));
                         Simulate.click(link, {button: 0});
-                        return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+                        return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 5000)
                     });
                 })
             });
-        });*/
+        });
 
+       it('Views all person updates', function(){
+             const link = this.dom.querySelector('.update-people a');
+            Simulate.click(link, {button: 0});
+            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+            .then(rows => {
+                let index = 0;
+                return UtilService.promiseWhile(() => {
+                    return index < rows
+                }, () => {
+                    const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
+                    Simulate.click(link, {button: 0});
+                    return waitFor('Transaction form to render', () => this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default').length, null, 5000)
+                    .then(() => {
+                        const link = _.last(this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default'));
+                        Simulate.click(link, {button: 0});
+                        return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 5000)
+                    });
+                })
+            });
+        });
+
+       it('Views all manage company updates', function(){
+             const link = this.dom.querySelector('.update-manage a');
+            Simulate.click(link, {button: 0});
+            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+            .then(rows => {
+                let index = 0;
+                return UtilService.promiseWhile(() => {
+                    return index < rows
+                }, () => {
+                    const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
+                    Simulate.click(link, {button: 0});
+                    return waitFor('Transaction form to render', () => this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default').length, null, 5000)
+                    .then(() => {
+                        const link = _.last(this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default'));
+                        Simulate.click(link, {button: 0});
+                        return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 5000)
+                    });
+                })
+            });
+        });
+
+       it('Views all share updates', function(){
+             const link = this.dom.querySelector('.update-shares a');
+            Simulate.click(link, {button: 0});
+            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+            .then(rows => {
+                let index = 0;
+                return UtilService.promiseWhile(() => {
+                    return index < rows
+                }, () => {
+                    const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
+                    Simulate.click(link, {button: 0});
+                    return waitFor('Transaction form to render', () => this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default').length, null, 5000)
+                    .then(() => {
+                        const link = _.last(this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default'));
+                        Simulate.click(link, {button: 0});
+                        return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 5000)
+                    });
+                })
+            });
+        });
+
+       it('Views all share updates', function(){
+             const link = this.dom.querySelector('.update-shares a');
+            Simulate.click(link, {button: 0});
+            return waitFor('For transaction page to display', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 2000)
+            .then(rows => {
+                let index = 0;
+                return UtilService.promiseWhile(() => {
+                    return index < rows
+                }, () => {
+                    const link = this.dom.querySelectorAll('.actionable.select-button')[index++];
+                    Simulate.click(link, {button: 0});
+                    return waitFor('Transaction form to render', () => this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default').length, null, 5000)
+                    .then(() => {
+                        const link = _.last(this.dom.querySelectorAll('.transaction-views .button-row .btn.btn-default'));
+                        Simulate.click(link, {button: 0});
+                        return  waitFor('Transactions to load', () => this.dom.querySelectorAll('.actionable.select-button').length, null, 5000)
+                    });
+                })
+            });
+        });
 
 
         it('Does a transfer', function(){

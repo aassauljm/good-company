@@ -85,10 +85,10 @@ export default class CompanyHeader extends React.Component {
                         Update
                    </DropdownToggle>
                     <Dropdown.Menu bsRole="menu">
-                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
-                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
+                        <MenuItem className="update-contact" onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/contact`) }><span className="fa fa-envelope"/> Contact</MenuItem>
+                        <MenuItem className="update-people" onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/people`) }><span className="fa fa-users"/> People</MenuItem>
                         <MenuItem className="update-shares" onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/shares`) }><span className="fa fa-exchange"/> Shares</MenuItem>
-                        <MenuItem onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
+                        <MenuItem className="update-manage" onClick={() => this.props.navigate(`${this.props.baseUrl}/new_transaction/reset_delete`) }><span className="fa fa-trash-o"/> Reset or Delete</MenuItem>
                         </Dropdown.Menu>
                 </Dropdown> ,
               this.canUpdate() && <li key={4} className="nav-item"><Link to={`${this.props.baseUrl}/templates`} onClick={this.closeMenu} activeClassName="active" className="nav-link templates">Templates</Link></li>,
