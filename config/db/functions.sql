@@ -138,7 +138,7 @@ CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp wi
         (SELECT pvs.id, generation, "effectiveDate" FROM prev_company_states pvs
          LEFT OUTER JOIN transaction t on t.id = pvs."transactionId"
          ORDER BY generation ASC) q
-    WHERE q."effectiveDate" < $2 OR q."effectiveDate" is NULL
+    WHERE q."effectiveDate" < $2 AND q."effectiveDate" is NOT NULL
     LIMIT 1
 $$ LANGUAGE SQL;
 
@@ -386,16 +386,6 @@ CREATE OR REPLACE FUNCTION events_json(userId integer)
 
 $$ LANGUAGE SQL;
 
-
-
---CREATE OR REPLACE FUNCTION future_transactions(companyId integer)
---    RETURNS SETOF json
---    AS $$
---    SELECT row_to_json(t.*) from transaction t
---    JOIN
---    (SELECT future_transactions_from_company_state("currentCompanyStateId") id FROM company
---    WHERE company.id = $1) q on q.id = t.id
---$$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION future_transaction_range(startId integer, endId integer)
