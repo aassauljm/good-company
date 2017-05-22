@@ -282,7 +282,7 @@ export default class Companies extends React.Component {
                                     .map(c => ({companyName: c.companyName, companyId: c.companyId}) )}
         return <div className="company-list-body">
            <div className="button-row">
-                <Link to="/companies/manage" className="btn btn-danger">Manage Companies</Link>
+                <Link to="/companies/manage" className="btn btn-warning manage-companies">Manage Companies</Link>
                 {canImport && <Link to="/import" className="btn btn-info">Import Companies</Link> }
             </div>
              { this.props.renderTable(filteredCompanies, false, true) }

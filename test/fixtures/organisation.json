@@ -1,0 +1,9 @@
+[{
+    "model": "organisation",
+    "data": {
+        "organisationId": 0,
+        "catalexId": "0",
+        "name": "integrate-landing",
+        "roles": ["registered_user", "organisation_admin"]
+    }
+}]

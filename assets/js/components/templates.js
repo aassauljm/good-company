@@ -432,7 +432,7 @@ export class TemplateWidget extends React.Component {
 
     render() {
         const id = this.props.companyId;
-        return <Widget title="Templates" iconClass='fa fa-file-text-o' link={id ? `/companies/${ic}/templates` : `/templates`}>
+        return <Widget title="Templates" className="templates-widget" iconClass='fa fa-file-text-o' link={id ? `/companies/${ic}/templates` : `/templates`}>
                     <div className="icon-action-page-sml">
                     <RenderTemplateList />
                     </div>

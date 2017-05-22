@@ -37,7 +37,7 @@ export class RecentActivityWidget extends React.Component {
 
     render() {
         const activities = this.props.data || [];
-        return <Widget title="Recent Activity" iconClass="fa fa-clock-o" link="/recent_activity">
+        return <Widget className="recent-activity-widget"  title="Recent Activity" iconClass="fa fa-clock-o" link="/recent_activity">
                 <ul>
                 { activities.map((a, i) => <li key={i} className="actionable" onClick={() => this.handleClick(a)}>
                         <span className="date">{stringDateToFormattedStringTime(a.createdAt)}</span> {a.description}
@@ -105,9 +105,9 @@ export default class RecentActivity extends React.Component {
     render() {
         const activities = this.props.data || [];
         return  <LawBrowserContainer>
-            <Widget title="Recent Activity" iconClass="fa fa-clock-o">
+            <Widget  title="Recent Activity" iconClass="fa fa-clock-o">
                 <div className="table-responsive">
-                <table className="table table-hover">
+                <table className="table table-hover recent-activity-table">
                 <thead><tr><th>Time & Date</th><th>User</th><th>Description</th></tr></thead>
                     <tbody>
                     {activities.map(

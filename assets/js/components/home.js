@@ -115,7 +115,7 @@ export default class Home extends React.PureComponent {
         // show import with warning, if
         // (non org member, and nonsubscribed) OR (org admin, and nonsubscribed)
 
-        return <div className="container">
+        return <div className="container home">
                 <div className="row">
                     <div className="col-md-6">
                         <CalendarWidget canCreateEvent={canCreateEvent}/>

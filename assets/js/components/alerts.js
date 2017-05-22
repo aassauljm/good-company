@@ -157,7 +157,7 @@ export class AlertsWidget extends React.PureComponent {
 
     render() {
         const activities = this.props.data || [];
-        return <Widget iconClass="fa fa-exclamation-circle" title="Notifications" link={this.props.link !== false && "/alerts"}>
+        return <Widget className="alerts-widget" iconClass="fa fa-exclamation-circle" title="Notifications" link={this.props.link !== false && "/alerts"}>
                 { this.renderBody() }
                 </Widget>
     }

@@ -64,7 +64,7 @@ export class OrganisationWidget extends React.Component {
     }
 
     render() {
-        return <Widget iconClass="fa fa-users" title="Organisation" link="/organisation">
+        return <Widget className="organisation-widget" iconClass="fa fa-users" title="Organisation" link="/organisation">
             { this.renderBody() }
         </Widget>
     }

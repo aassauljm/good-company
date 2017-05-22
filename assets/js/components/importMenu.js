@@ -129,7 +129,7 @@ export class ImportSingle extends React.Component {
         if(this.state.company){
             return this.renderSummary(this.state.company);
         }
-        return  <ConnectedPlaceholderSearch  form={this.props.form} placeholder='Type to find a company'
+        return  <ConnectedPlaceholderSearch  form={this.props.form} placeholder='Type to find a company...'
             onlyCompaniesOffice={true} onSelect={this.handleSelect} initialValues={{input: this.props.initialValue}}/>
     }
 
@@ -157,7 +157,7 @@ export class ImportSingle extends React.Component {
 
 export const ImportSingleFull = (props) => {
     return <LawBrowserContainer>
-        <Widget title="Search the Companies Register">
+        <Widget  className="import-full-widget" title="Search the Companies Register">
                  <div className="row">
                  <div className="col-md-6 col-md-offset-3">
                         <ImportSingle initialValue={props.initialValue} form='searchFormBig'/>
@@ -233,7 +233,7 @@ export class ImportSingleWidget extends React.PureComponent {
         return <div>
             <ImportSingle form='searchForm'/>
             <div className="button-row">
-                <Link className="btn btn-info" to="/import">Bulk Import</Link>
+                <Link className="btn btn-info bulk-import" to="/import">Bulk Import</Link>
                 { !hasNZBN && <a href="/api/auth-with/nzbn"><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></a> }
                 { hasNZBN && <Link to={'/import/nzbn'}><img alt="Lookup Companies with RealMe" src={REALME_LOGO}/></Link> }
                 </div>
@@ -250,7 +250,7 @@ export class ImportSingleWidget extends React.PureComponent {
     }
 
     render() {
-        return  <Widget title="Import from the Companies Register" iconClass="fa fa-download">
+        return  <Widget className="import-widget" title="Import from the Companies Register" iconClass="fa fa-download">
                     { this.props.canImport && this.renderBody() }
                     { !this.props.canImport && this.renderUpgradeWarning() }
                 </Widget>

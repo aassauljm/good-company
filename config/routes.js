@@ -128,11 +128,6 @@ module.exports.routes = {
         action: 'recentActivityFull'
     },
 
-    'POST /api/user/validate': {
-        controller: 'UserController',
-        action: 'validateUser'
-    },
-
     'POST /api/document/upload_document': {
         controller: 'DocumentController',
         action: 'uploadDocument',

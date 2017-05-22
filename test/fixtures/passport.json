@@ -103,4 +103,12 @@
         "password": "testtest",
         "userId": 23
     }
+},{
+    "model": "passport",
+    "data": {
+        "protocol": "oauth2",
+        "provider": "catalex",
+        "userId": 23,
+        "identifier": "0"
+    }
 }]
