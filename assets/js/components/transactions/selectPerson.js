@@ -46,7 +46,7 @@ export class SelectPersonTransactionView extends React.PureComponent {
     }
 
     renderBody() {
-        const persons = personList(this.props.transactionViewData.companyState)
+        const persons = personList(this.props.transactionViewData.companyState, () => true, false)
         return <div >
             { persons.map((p, i) => <Holder key={i} person={p} selectPerson={this.props.selectPerson} />) }
         </div>

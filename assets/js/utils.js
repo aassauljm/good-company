@@ -269,7 +269,7 @@ export function newHoldingString(newHolding){
     return 'New Shareholding: ' + (newHolding.holdingName ? newHolding.holdingName + ' - ' + names :  names);
 }
 
-export function personList(companyState, filter=() => true){
+export function personList(companyState, filter=() => true, directors = true){
     const persons = companyState.holdingList.holdings.reduce((acc, h) => {
         return h.holders.filter(filter).reduce((acc, p) => {
             acc[p.person.personId] = {...p.person}
@@ -277,13 +277,14 @@ export function personList(companyState, filter=() => true){
         }, acc);
     }, {});
 
-    companyState.directorList.directors.reduce((acc, p) => {
-        if(!acc[p.person.personId]){
-            acc[p.person.personId] = {...p.person}
-        }
-        return acc;
-    }, persons);
-
+    if(directors){
+        companyState.directorList.directors.reduce((acc, p) => {
+            if(!acc[p.person.personId]){
+                acc[p.person.personId] = {...p.person}
+            }
+            return acc;
+        }, persons);
+    }
     const orderedPersons = Object.keys(persons).map(k => {
         return {id: k, ...persons[k]};
     })

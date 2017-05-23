@@ -117,6 +117,7 @@ FROM
     first_value(p."companyNumber") OVER wnd as "companyNumber",
     first_value(h."companyStateId") OVER wnd = $1 as current,
     first_value(p.address) OVER wnd as address,
+    hj.data as "holderData",
     CASE WHEN first_value(h."companyStateId") OVER wnd = $1 THEN first_value(pp.amount) OVER wnd ELSE 0 END as amount,
     first_value(pp.amount) OVER wnd as last_amount,
     pp."shareClass" as  "shareClass",

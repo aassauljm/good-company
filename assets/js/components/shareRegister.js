@@ -200,6 +200,11 @@ function renderField(key, data, row, shareClassMap) {
         case 'amount':
         case 'sum':
             return numberWithCommas(data);
+        case 'name':
+            if((row.holderData||{}).heldPersonally === false){
+                return `${data} (${row.holderData.onBehalfType} of ${row.holderData.onBehalfDescription})`
+            };
+            return data;
 
         default:
             return data;
@@ -380,7 +385,17 @@ export class ShareRegisterDocument extends React.Component {
         return <div>
             <h3>Transaction History</h3>
             { shareRegister.map((s, i) => {
-                const title = `${s.name} ${ s.holdingName ? `(${s.holdingName})` : '' } - ${renderShareClass(s.shareClass, shareClassMap)} Shares`;
+                let title = s.name;
+
+
+                if((s.holderData||{}).heldPersonally === false){
+                    title += ` (${s.holderData.onBehalfType} of ${s.holderData.onBehalfDescription})`
+                };
+                if(s.holdingName){
+                    title += ` (${s.holdingName})`
+                }
+
+                title+= ` - ${renderShareClass(s.shareClass, shareClassMap)} Shares`;
                 return <table key={i} className="table share-register transaction-history">
                         <thead>
                             <tr><th colSpan="2">{ title }</th><th className="total">Total</th></tr>
