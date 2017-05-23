@@ -70,8 +70,14 @@ export class DragContainer extends React.PureComponent {
     return Promise.all(promises);
   }
 }])
+@connect(undefined, {
+    mounted: () => mounted()
+})
 @DragDropContext(HTML5Backend)
 export default class App extends React.PureComponent {
+    componentDidMount() {
+        this.props.mounted();
+    }
     render() {
         if(this.props.routes.some(r => r.childrenOnly)){
             return <div onDragOver={prevent}>
@@ -110,13 +116,8 @@ export default class App extends React.PureComponent {
 
 
 @AsyncHOCFactory([ALERTS, COMPANIES])
-@connect(undefined, {
-    mounted: () => mounted()
-})
+
 export class LoggedInApp extends React.PureComponent {
-    componentDidMount() {
-        this.props.mounted();
-    }
     render() {
         return this.props.children
     }
