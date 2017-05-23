@@ -64,6 +64,10 @@ export function alertList(props){
 }
 
 
+export function alertListSummaries(props){
+    return false;
+}
+
 @AlertsHOC(true)
 @connect((state, ownProps) => {
     return {pendingJobs:  state.resources['/pending_jobs'] || {}};
@@ -121,6 +125,9 @@ export class AlertsWidget extends React.PureComponent {
 
     renderAlerts() {
         if(this.props.alerts.data){
+            if(this.props.listCreator){
+                return this.props.listCreator(this.props)
+            }
             const {danger, warnings} = alertList(this.props);
             const results = [...danger, ...warnings]
             if(!this.props.full){
@@ -161,6 +168,10 @@ export class AlertsWidget extends React.PureComponent {
                 { this.renderBody() }
                 </Widget>
     }
+}
+
+export const AlertsSummaryWidget = (props) => {
+    return <AlertsWidget {...props} listCreator={alertListSummaries} />
 }
 
 const Alerts = (props) => {
