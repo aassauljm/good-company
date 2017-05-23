@@ -196,7 +196,11 @@ function lift(cb){
         renderServiceUrl: 'localhost:5668',
         CACHE_DIR: '/tmp/.gc_test',
         IMPORT_EXTENSIVE: true,
-        csrf: false
+        csrf: false,
+        mbie: {
+            nzbn: {},
+            companiesOffice: {}
+        }
     }, cb);
 }
 
