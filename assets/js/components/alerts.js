@@ -65,7 +65,26 @@ export function alertList(props){
 
 
 export function alertListSummaries(props){
-    return false;
+    if(props.alerts.data){
+        return alertList(props);
+
+
+        const counts = props.alerts.data.map((acc, alert) => {
+            Object.keys(alert.warnings).reduce((acc, key) => {
+                if(alert.warnings[key]){
+                    acc[key] = acc[key] ? acc[key]+1 : 1;
+                }
+                return acc;
+            }, acc)
+            Object.keys(alert.deadlines).reduce((acc, key) => {
+                if(alert.deadlines[key]){
+                    acc[key] = acc[key] ? acc[key]+1 : 1;
+                }
+                return acc;
+            }, acc)
+        }, {});
+
+    }
 }
 
 @AlertsHOC(true)
