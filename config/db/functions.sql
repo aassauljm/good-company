@@ -629,7 +629,8 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default '
         "filedThisYear",
         EXTRACT(EPOCH FROM now() AT TIME ZONE $2 - due) as "seconds",
         not "filedThisYear" and due < now() and not "incorporatedThisYear" as "overdue",
-        format_iso_date(due) as "dueDate"
+        format_iso_date(due) as "dueDate",
+        NOT "filedThisYear" AND EXTRACT(MONTH FROM now() AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueThisMonth"
         FROM (
             SELECT "arFilingMonth", date,
          EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland') as "incorporatedThisYear",
@@ -675,6 +676,7 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
         WHERE c."ownerId" = $1 and c.deleted != true
         ) c
         JOIN company_state cs on cs.id = c.company_now
+        ORDER BY "companyName"
     ) q;
 $$ LANGUAGE SQL;
 

@@ -8,7 +8,7 @@ import { push } from 'react-router-redux';
 import { Link } from 'react-router';
 import { showTransactionView } from '../actions';
 import { RecentActivityWidget } from './recentActivity';
-import { AlertsWidget } from './alerts';
+import { AlertsSummaryWidget as AlertsWidget } from './alerts';
 import { CompaniesWidget } from './companies';
 import { TemplateWidget } from './templates';
 import { CalendarWidget } from './calendar';

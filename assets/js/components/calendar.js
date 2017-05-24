@@ -16,12 +16,11 @@ import Input from './forms/input';
 import { reduxForm } from 'redux-form';
 import WorkingDayNotice from './forms/workingDays';
 import STRINGS from '../strings';
-import { formFieldProps, requireFields, stringDateToFormattedStringTime, companyListToOptions, processEvents } from '../utils';
+import { formFieldProps, requireFields, stringDateToFormattedStringTime, companyListToOptions, processEvents,sortAlerts } from '../utils';
 import { OverlayTrigger } from './lawBrowserLink';
 import Tooltip from 'react-bootstrap/lib/Tooltip';
 import exportICS from './ics'
 import Loading from './loading';
-import { requestAlerts } from './alerts';
 import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
 
@@ -225,7 +224,7 @@ const CalendarHOC = ComposedComponent => {
         }), {
         push: (location) => push(location),
         requestEvents: (args) => requestResource('/events', {postProcess: processEvents}),
-        requestAlerts: requestAlerts,
+        requestAlerts: (args) => requestResource('/alerts', {postProcess: sortAlerts}),
         requestCompanies: () => requestResource('companies'),
         deleteEvent: (id) => deleteResource(`/event/${id}`),
         addNotification: (args) => addNotification(args),

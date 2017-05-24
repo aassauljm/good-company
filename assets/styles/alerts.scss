@@ -17,3 +17,32 @@
 .alert.no-margin{
     margin-bottom:0;
 }
+
+
+.alerts-full .alert-list li{
+    font-weight:bold;
+    .big-icon{
+        font-weight:normal;
+    }
+    li + li{
+        padding-top: 12px;
+    }
+    &.singular{
+        padding-top: 0;
+        font-weight:normal;
+        margin-left:36px;
+        .alert-entry{
+            line-height: 24px;
+            height: 24px;
+            .big-icon{
+                display:none;
+            }
+        }
+        .alert-entry:before{
+            content: '●';
+            padding-right: 16px;
+        }
+    }
+}
+
+

@@ -43,7 +43,7 @@ function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, 
         client_id: clientId,
         redirect_uri: sails.config.APP_URL + callbackRoute
     });
-
+    sails.log.verbose('Requesting url: ' + url)
     return MbieApiService.requestOauthToken(url, consumerKey, consumerSecret)
         .then(oauthResponse => {
             if (oauthResponse.error) {
@@ -115,6 +115,7 @@ const authWithService = (config) => (req, res) => {
             callbackRoute,
             config.scope
         );
+        sails.log.verbose('Redirecting to: ' +redirectUrl)
         return res.redirect(redirectUrl);
     }
 }

@@ -19,6 +19,9 @@ import { TransactionViewSwitch }  from './transactionViews';
 import { requestAlerts } from './alerts';
 import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
+import { AlertsHOC } from '../hoc/resources'
+import Dropdown from 'react-bootstrap/lib/Dropdown';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
 
 
 const DEFAULT_OBJ = {};
@@ -30,20 +33,11 @@ const BASE_GUIDED_SETUP_PAGES = [
 'importHistory']
 
 
-@connect(state => ({alerts: state.resources['/alerts'] ||  DEFAULT_OBJ}))
+@connect(undefined, {
+    nav: (args) => push(args)
+})
+@AlertsHOC()
 export class NextCompanyControls extends React.Component {
-
-    componentWillMount() {
-        this.fetch();
-    }
-
-    componentDidUpdate() {
-        this.fetch();
-    }
-
-    fetch() {
-        return this.props.dispatch(requestAlerts());
-    }
 
     render() {
         if(this.props.alerts._status !== 'complete'){
@@ -51,13 +45,13 @@ export class NextCompanyControls extends React.Component {
         }
         const name = this.props.companyName || '';
         const comp = {companyName: name};
-        const data = [...this.props.alerts.data.alertList.filter(a => Object.keys(a.warnings || {}).some(k => a.warnings[k])), comp]
+        // this company might be no longer in list
+        const data = [...this.props.alerts.data.alertList.filter(this.props.filter), comp]
         data.sort((a, b) => {
             return a.companyName.localeCompare(b.companyName);
         })
 
 
-        //const index = (data.findIndex(a => a === comp) + 1) % data.length;
         let index = (data.findIndex(a => a === comp) + 1)  % data.length;;
         let count = 0;
         while(data[index].companyName === name && count++ < data.length){
@@ -71,14 +65,27 @@ export class NextCompanyControls extends React.Component {
                     <div className="row">
                     <div className="col-md-12">
                          <div className="button-row">
-                            <Link className="btn btn-info" to={`/company/view/${data[index].id}/guided_setup?show_next=true`}>{ this.props.showSkip && 'Skip and '}Set up {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
+                            <div className="btn-group">
+                               <Dropdown id="next-control" >
+
+                               <Button  bsRole="toggle" className="btn btn-info"><span className="caret"></span></Button>
+
+                                <Dropdown.Menu bsRole="menu" >
+                                     { data.filter(d => d.id).map((d, i) =>
+                                        <MenuItem key={d.id} onClick={() => this.props.nav(`/company/view/${d.id}/${this.props.subPath}?show_next=true`)}>{ d.companyName }</MenuItem>
+                                        )}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                            <Link className="btn btn-info" to={`/company/view/${data[index].id}/${this.props.subPath}?show_next=true`}>{ this.props.showSkip && 'Skip and '}{this.props.verb} {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
+
+
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
     }
-
 }
 
 
@@ -186,7 +193,14 @@ export class GuidedSetup extends React.Component {
                 { !!this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
 
             </div>
-            { showNext && <NextCompanyControls companyId={this.props.companyId} companyName={this.props.companyState.companyName} showSkip={this.state.warningCount !== 0}/> }
+            { showNext && <NextCompanyControls
+                companyId={this.props.companyId}
+                subPath={'guided_setup'}
+                companyName={this.props.companyState.companyName}
+                showSkip={this.state.warningCount !== 0}
+                verb='Set up'
+                filter={a => Object.keys(a.warnings || {}).some(k => a.warnings[k]) }
+                /> }
         </div>
     }
 }

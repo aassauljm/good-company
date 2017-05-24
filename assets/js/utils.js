@@ -11,6 +11,11 @@ export function resourceIsForbidden(response){
     return response && response.status === 403;
 }
 
+export const DropdownToggle = (props) => {
+    return <Link to={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}} activeClassName="active" className={props.className} >
+        {props.children}
+      </Link>
+}
 
 export function fieldStyle(field){
     if(!field.touched){
@@ -441,9 +446,9 @@ export function formatString(formatted) {
 
 export function sortAlerts(response) {
     const data = (response || [])
-    data.sort((a, b) => {
+    /*data.sort((a, b) => {
         return ((a.deadlines || {}).overdue ? 1 : -1) - ((b.deadlines || {}).overdue ? 1 : -1)
-    });
+    });*/
     const companyMap = (data || []).reduce((acc, entry) => {
         acc[entry.id] = entry;
         return acc;
