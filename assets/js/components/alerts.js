@@ -111,7 +111,7 @@ export function alertListSummaries(props){
                 orderedResults.push(<li key={'annualReturn-overdue-bulk'}>
                                     <Link  className="singular" to={url} className='text-danger alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                     { counts['annualReturn-overdue'].length } Annual returns are overdue.  { full ? 'Click here step through.' : 'Click here to view.'}</Link>
+                                     { counts['annualReturn-overdue'].length } Annual returns are overdue. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
                                     </li>);
             }
             if(counts['annualReturn-overdue'].length && (props.full || counts['annualReturn-overdue'].length === 1)) {
@@ -131,7 +131,7 @@ export function alertListSummaries(props){
                 orderedResults.push(<li key={'annualReturn-dueThisMonth-bulk'}>
                                     <Link to={url} className='text-warning alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                     { counts['annualReturn-dueThisMonth'].length } Annual returns are due this month.  Click here to resolve.</Link>
+                                     { counts['annualReturn-dueThisMonth'].length } Annual returns are due this month. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
                                     </li>);
             }
             if(counts['annualReturn-dueThisMonth'].length && (props.full || counts['annualReturn-dueThisMonth'].length === 1)) {
@@ -159,7 +159,7 @@ export function alertListSummaries(props){
             orderedResults.push(<li key='guidedsetup'>
                         <div>
                         <Link to={url} onClick={props.resetTransactionViews} className={'text-success alert-entry'}>
-                        <Glyphicon glyph="repeat" className="big-icon"/>{ requiresSetup } companies require share registers. { full ? 'Click here step through.' : 'Click here to view.'}</Link>
+                        <Glyphicon glyph="repeat" className="big-icon"/>{ requiresSetup } companies require share registers. { full ? 'Click here to step through.' : 'Click here to view.'}</Link>
                         </div></li>);
         }
 
