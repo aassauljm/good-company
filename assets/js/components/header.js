@@ -78,7 +78,8 @@ export const NavLinks = (props) => {
             <li key={2} className="nav-item"><Link to={`/calendar`} activeClassName="active" className="nav-link"  onClick={props.closeMenu}>Calendar</Link></li>,
             <li key={3} className="nav-item"><Link to={`/templates`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Templates</Link></li>,
             props.canImport && <li key={4} className="nav-item"><Link to={`/import`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Import</Link></li>,
-            <li key={5} className="nav-item"><Link to={`/recent_activity`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Recent Activity</Link></li>
+            <li key={5} className="nav-item"><Link to={`/recent_activity`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Recent Activity</Link></li>,
+            <li key={6} className="nav-item"><Link to={`/alerts`} activeClassName="active" className="nav-link" onClick={props.closeMenu}>Notifications</Link></li>
          ];
 }
 

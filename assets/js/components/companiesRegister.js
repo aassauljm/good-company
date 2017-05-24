@@ -76,6 +76,14 @@ export class UpdateSourceData extends React.PureComponent {
 }
 
 
+const renderLastARFiled = (companyState) => {
+    const date = companyState.deadlines.annualReturn && companyState.deadlines.annualReturn.lastFiling;
+    if(date){
+        return stringDateToFormattedString(date)
+    }
+    return 'Never'
+}
+
 @connect((state, ownProps) => ({
     userInfo: state.userInfo,
     sourceData: state.resources[`/company/${ownProps.companyId}/source_data`] || {},
@@ -163,13 +171,14 @@ export class CompaniesRegisterWidget extends React.Component {
                     <div><strong>{STRINGS.companyNumber}</strong> { renderValue(data.companyNumber) }</div>
                     <div><strong>{STRINGS.nzbn}</strong> { renderValue(data.nzbn) }</div>
                     <div><strong>{STRINGS.incorporationDate}</strong> {renderValue(data.incorporationDate) } </div>
+                    <div><strong>{STRINGS.constitutionFiled}</strong> { renderValue(data.constitutionFiled) } </div>
                     </div>
             <div className="col-xs-6">
                     <div><strong>{ STRINGS.arFilingMonth}</strong> {renderValue(data.arFilingMonth) }</div>
+                    <div><strong>Last AR Filed</strong> { renderLastARFiled(this.props.companyState) }</div>
                     <div><strong>{ STRINGS.entityType}</strong> { renderValue(data.entityType) }</div>
                     <div><strong>{ STRINGS.compayStatus}</strong> { renderValue(data.companyStatus) }</div>
                     <div><strong>{ STRINGS.ultimateHoldingCompany}</strong> { renderValue(data.ultimateHoldingCompany)}</div>
-                    <div><strong>{STRINGS.constitutionFiled}</strong> { renderValue(data.constitutionFiled) } </div>
                     { data.fraReportingMonth && <div><strong> { STRINGS.fraReportingMonth}</strong> {data.fraReportingMonth }</div> }
             </div>
             { data.createdAt && <div className="col-xs-12 text-center">
@@ -282,6 +291,7 @@ export default class CompaniesRegister extends React.PureComponent {
             { fields.map((f, i) => {
                 return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(source.data[f])}</div></div>
             })}
+            <div className="row"><div className="col-md-3 "><strong>Last AR Filed</strong></div><div className="col-md-9">{ renderLastARFiled(this.props.companyState) }</div></div>
             <div className="text-center">
                  { source.createdAt && <div><em>Data sourced from the Companies Register at { stringDateToFormattedStringTime(source.createdAt) }</em></div> }
             </div>

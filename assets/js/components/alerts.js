@@ -159,7 +159,7 @@ export function alertListSummaries(props){
             orderedResults.push(<li key='guidedsetup'>
                         <div>
                         <Link to={url} onClick={props.resetTransactionViews} className={'text-success alert-entry'}>
-                        <Glyphicon glyph="repeat" className="big-icon"/>{ requiresSetup } companies require share registers.  Click here to step through.</Link>
+                        <Glyphicon glyph="repeat" className="big-icon"/>{ requiresSetup } companies require share registers. { full ? 'Click here step through.' : 'Click here to view.'}</Link>
                         </div></li>);
         }
 
