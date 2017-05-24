@@ -18,7 +18,7 @@ var login = function(req, username='companycreator@email.com'){
 
 describe('MBIE Sync Service', function() {
 
-    describe('Merges IDs in', function(){
+    describe('Merges IDs in 3048297', function(){
         var req, companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -39,5 +39,30 @@ describe('MBIE Sync Service', function() {
                     done();
                 });
         });
-    })
+    });
+
+
+    describe('Merges IDs in 2135118', function(){
+        var req, companyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/2135118')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+        it('Merges with co', function(done){
+            req.post('/api/company/'+companyId+'/merge_companies_office')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+    });
+
 })
