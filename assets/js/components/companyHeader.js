@@ -1,7 +1,7 @@
 "use strict"
 import React, { PropTypes } from 'react'
 import ReactDOM  from 'react-dom'
-import { pureRender }  from '../utils';
+import { pureRender, DropdownToggle }  from '../utils';
 import { Link, IndexLink, withRouter } from 'react-router';
 import Navbar from 'react-bootstrap/lib/Navbar'
 import Collapse from 'react-bootstrap/lib/Collapse'
@@ -21,11 +21,6 @@ import Raven from 'raven-js';
 import FavouriteControl from './favourites';
 
 
-const DropdownToggle = (props) => {
-    return <Link to={props.href} onClick={(e) => {e.preventDefault(); props.onClick(e);}} activeClassName="active" className={props.className} >
-        {props.children}
-      </Link>
-}
 
 @connect((state, ownProps) => ({login: state.login, userInfo: state.userInfo, routing: state.routing}),
     (dispatch) => ({

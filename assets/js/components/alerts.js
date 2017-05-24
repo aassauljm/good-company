@@ -63,6 +63,7 @@ export function alertList(props){
 
 
 export function alertListSummaries(props){
+    const full = props.full;
     if(props.alerts.data){
         let firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup = 0;
         const orderedResults = [];
@@ -104,13 +105,13 @@ export function alertListSummaries(props){
             return acc;
         }, {});
 
-        if(counts['annualReturn-overdue']){
+        if(counts['annualReturn-overdue'] && props.include.annualReturns){
             if(counts['annualReturn-overdue'].length > 1){
-                const url =  `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true`;
+                const url =  full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` : `/annual_return_alerts`;
                 orderedResults.push(<li key={'annualReturn-overdue-bulk'}>
                                     <Link  className="singular" to={url} className='text-danger alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                     { counts['annualReturn-overdue'].length } Annual Returns are overdue.  Click here to resolve.</Link>
+                                     { counts['annualReturn-overdue'].length } Annual Returns are overdue.  { full ? 'Click here step through.' : 'Click here to view.'}</Link>
                                     </li>);
             }
             if(counts['annualReturn-overdue'].length && (props.full || counts['annualReturn-overdue'].length === 1)) {
@@ -124,9 +125,9 @@ export function alertListSummaries(props){
             }
         }
 
-        if(counts['annualReturn-dueThisMonth']){
+        if(counts['annualReturn-dueThisMonth'] && props.include.annualReturns){
             if(counts['annualReturn-dueThisMonth'].length > 1){
-                const url =  `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true`;
+                const url = full ? `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true` :  `/annual_return_alerts`;
                 orderedResults.push(<li key={'annualReturn-dueThisMonth-bulk'}>
                                     <Link to={url} className='text-warning alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>
@@ -145,7 +146,7 @@ export function alertListSummaries(props){
             }
         }
 
-        if(counts['shareClassWarning'] && counts['shareClassWarning'].length > 1){
+        if(counts['shareClassWarning'] && counts['shareClassWarning'].length > 1  && props.include.bulkSetup){
             orderedResults.push(<li key='bulk'>
                                 <div>
                                 <Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={props.resetTransactionViews} >
@@ -153,15 +154,16 @@ export function alertListSummaries(props){
                                 </div></li>);
         }
 
-        if(firstWarningCompanyId && requiresSetup > 1){
+        if(firstWarningCompanyId && requiresSetup > 1 && props.include.guidedSetup){
+            const url = full ? `/company/view/${firstWarningCompanyId}/guided_setup?show_next=true` : `/share_register_alerts`;
             orderedResults.push(<li key='guidedsetup'>
                         <div>
-                        <Link to={`/company/view/${firstWarningCompanyId}/guided_setup?show_next=true`} onClick={props.resetTransactionViews} className={'text-success alert-entry'}>
+                        <Link to={url} onClick={props.resetTransactionViews} className={'text-success alert-entry'}>
                         <Glyphicon glyph="repeat" className="big-icon"/>{ requiresSetup } companies require share registers.  Click here to step through.</Link>
                         </div></li>);
         }
 
-        if(props.full || requiresSetup === 1){
+        if((props.full || requiresSetup === 1) && props.include.guidedSetup){
             props.alerts.data.alertList.map(alert => {
                 if(Object.keys(alert.warnings).some(warning => alert.warnings[warning])){
                     orderedResults.push(<li  className={requiresSetup > 1 ? "singular" : ''} key={orderedResults.length}><AlertWarnings.ResolveAllWarnings companyId={alert.id} resetTransactionViews={props.resetTransactionViews} companyName={alert.companyName}/></li>)
@@ -269,19 +271,44 @@ export class AlertsWidget extends React.PureComponent {
 
     render() {
         const activities = this.props.data || [];
-        return <Widget className={"alerts-widget " + (this.props.className || '')}  iconClass="fa fa-exclamation-circle" title="Notifications" link={this.props.link !== false && "/alerts"}>
+        return <Widget className={"alerts-widget " + (this.props.className || '')}  iconClass="fa fa-exclamation-circle" title={ this.props.title || "Notifications"} link={this.props.link !== false && "/alerts"}>
                 { this.renderBody() }
                 </Widget>
     }
 }
 
 export const AlertsSummaryWidget = (props) => {
-    return <AlertsWidget {...props} listCreator={alertListSummaries} />
+    return <AlertsWidget {...props} listCreator={alertListSummaries} include={{
+        annualReturns: true,
+        bulkSetup: true,
+        guidedSetup: true
+    }}/>
 }
+
+
+export const AnnualReturnAlerts = (props) => {
+    return <LawBrowserContainer>
+                <AlertsWidget className="alerts-full" title="Annual Return Notifications"  include={{
+        annualReturns: true
+    }} full={true} link={false} listCreator={alertListSummaries} />
+        </LawBrowserContainer>
+};
+
+export const ShareRegisterAlerts = (props) => {
+    return <LawBrowserContainer>
+                <AlertsWidget className="alerts-full" title="Share Register Notifications"  include={{
+       guidedSetup: true
+    }} full={true} link={false} listCreator={alertListSummaries} />
+        </LawBrowserContainer>
+};
 
 const Alerts = (props) => {
     return <LawBrowserContainer>
-                <AlertsWidget className="alerts-full" full={true} link={false} listCreator={alertListSummaries} />
+                <AlertsWidget className="alerts-full" full={true} link={false} listCreator={alertListSummaries} include={{
+        annualReturns: true,
+        bulkSetup: true,
+        guidedSetup: true
+    }}/>
         </LawBrowserContainer>
 };
 

@@ -20,6 +20,9 @@ import { requestAlerts } from './alerts';
 import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
 import { AlertsHOC } from '../hoc/resources'
+import Dropdown from 'react-bootstrap/lib/Dropdown';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
+
 
 const DEFAULT_OBJ = {};
 
@@ -30,6 +33,9 @@ const BASE_GUIDED_SETUP_PAGES = [
 'importHistory']
 
 
+@connect(undefined, {
+    nav: (args) => push(args)
+})
 @AlertsHOC()
 export class NextCompanyControls extends React.Component {
 
@@ -39,10 +45,12 @@ export class NextCompanyControls extends React.Component {
         }
         const name = this.props.companyName || '';
         const comp = {companyName: name};
+        // this company might be no longer in list
         const data = [...this.props.alerts.data.alertList.filter(this.props.filter), comp]
         data.sort((a, b) => {
             return a.companyName.localeCompare(b.companyName);
         })
+
 
         let index = (data.findIndex(a => a === comp) + 1)  % data.length;;
         let count = 0;
@@ -57,7 +65,21 @@ export class NextCompanyControls extends React.Component {
                     <div className="row">
                     <div className="col-md-12">
                          <div className="button-row">
+                            <div className="btn-group">
+                               <Dropdown id="next-control" >
+
+                               <Button  bsRole="toggle" className="btn btn-info"><span className="caret"></span></Button>
+
+                                <Dropdown.Menu bsRole="menu" >
+                                     { data.filter(d => d.id).map((d, i) =>
+                                        <MenuItem key={d.id} onClick={() => this.props.nav(`/company/view/${d.id}/${this.props.subPath}?show_next=true`)}>{ d.companyName }</MenuItem>
+                                        )}
+                                </Dropdown.Menu>
+                            </Dropdown>
                             <Link className="btn btn-info" to={`/company/view/${data[index].id}/${this.props.subPath}?show_next=true`}>{ this.props.showSkip && 'Skip and '}{this.props.verb} {data[index].companyName} <Glyphicon glyph="forward" className="big-icon"/></Link>
+
+
+                            </div>
                         </div>
                     </div>
                 </div>
