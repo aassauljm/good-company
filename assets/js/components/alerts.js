@@ -14,8 +14,6 @@ import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
 
 
-export const requestAlerts = () => requestResource('/alerts', {postProcess: sortAlerts})
-
 
 export function alertList(props){
      if(props.alerts.data){
@@ -66,24 +64,112 @@ export function alertList(props){
 
 export function alertListSummaries(props){
     if(props.alerts.data){
-        return alertList(props);
-
-
-        const counts = props.alerts.data.map((acc, alert) => {
+        let firstWarningCompanyId, firstDeadlineCompanyId, requiresSetup = 0;
+        const orderedResults = [];
+        const counts = props.alerts.data.alertList.reduce((acc, alert) => {
+            let warningFound = false;
             Object.keys(alert.warnings).reduce((acc, key) => {
                 if(alert.warnings[key]){
-                    acc[key] = acc[key] ? acc[key]+1 : 1;
+                    if(!firstWarningCompanyId){
+                        firstWarningCompanyId = alert.id;
+                    }
+                    warningFound = true;
+                    acc[key] = acc[key] || []
+                    acc[key].push(alert);
                 }
                 return acc;
-            }, acc)
+            }, acc);
+            if(warningFound){
+                requiresSetup++;
+            }
             Object.keys(alert.deadlines).reduce((acc, key) => {
-                if(alert.deadlines[key]){
-                    acc[key] = acc[key] ? acc[key]+1 : 1;
+                if(alert.deadlines[key] && alert.deadlines[key].dueThisMonth){
+                    if(!firstDeadlineCompanyId){
+                        firstDeadlineCompanyId = alert.id;
+                    }
+                    const k = `${key}-dueThisMonth`;
+                    acc[k] = acc[k] || [];
+                    acc[k].push(alert)
+                }
+                else if(alert.deadlines[key] && alert.deadlines[key].overdue){
+                    if(!firstDeadlineCompanyId){
+                        firstDeadlineCompanyId = alert.id;
+                    }
+                    const k = `${key}-overdue`;
+                    acc[k] = acc[k] || []
+                    acc[k].push(alert)
                 }
                 return acc;
             }, acc)
+            return acc;
         }, {});
 
+        if(counts['annualReturn-overdue']){
+            if(counts['annualReturn-overdue'].length > 1){
+                const url =  `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true`;
+                orderedResults.push(<li key={'annualReturn-overdue-bulk'}>
+                                    <Link  className="singular" to={url} className='text-danger alert-entry'>
+                                    <Glyphicon glyph="warning-sign" className="big-icon"/>
+                                     { counts['annualReturn-overdue'].length } Annual Returns are overdue.  Click here to resolve.</Link>
+                                    </li>);
+            }
+            if(counts['annualReturn-overdue'].length && (props.full || counts['annualReturn-overdue'].length === 1)) {
+                counts['annualReturn-overdue'].map((alert) => {
+                    const dueDiff = moment.duration(-alert.deadlines.annualReturn.seconds, 'seconds').humanize(true);
+                    const url = `/company/view/${alert.id}/annual_returns`;
+
+                    orderedResults.push(<li  className={counts['annualReturn-overdue'].length > 1  ? "singular" : ""} key={orderedResults.length}>
+                                        <div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { alert.companyName } is overdue ({dueDiff}).</Link></div></li>);
+                });
+            }
+        }
+
+        if(counts['annualReturn-dueThisMonth']){
+            if(counts['annualReturn-dueThisMonth'].length > 1){
+                const url =  `/company/view/${firstDeadlineCompanyId}/annual_returns?show_next=true`;
+                orderedResults.push(<li key={'annualReturn-dueThisMonth-bulk'}>
+                                    <Link to={url} className='text-warning alert-entry'>
+                                    <Glyphicon glyph="warning-sign" className="big-icon"/>
+                                     { counts['annualReturn-dueThisMonth'].length } Annual Returns are due this month.  Click here to resolve.</Link>
+                                    </li>);
+            }
+            if(counts['annualReturn-dueThisMonth'].length && (props.full || counts['annualReturn-dueThisMonth'].length === 1)) {
+                const alert = counts['annualReturn-dueThisMonth'].map(alert => {
+                    const url = `/company/view/${alert.id}/annual_returns`;
+                    orderedResults.push(<li  className={counts['annualReturn-dueThisMonth'].length > 1 ? "singular" : ''} key={orderedResults.length}>
+                                        <div>
+                                        <Link to={url} className={'text-warning alert-entry'}>
+                                        <Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { alert.companyName } is due this month.</Link>
+                                        </div></li>);
+                });
+            }
+        }
+
+        if(counts['shareClassWarning'].length > 1){
+            orderedResults.push(<li key='bulk'>
+                                <div>
+                                <Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={props.resetTransactionViews} >
+                                <Glyphicon glyph="cog" className="big-icon"/>{ counts['shareClassWarning'].length } companies require share classes.  Click here for bulk setup.</Link>
+                                </div></li>);
+        }
+
+        if(firstWarningCompanyId && requiresSetup > 1){
+            orderedResults.push(<li key='guidedsetup'>
+                        <div>
+                        <Link to={`/company/view/${firstWarningCompanyId}/guided_setup?show_next=true`} onClick={props.resetTransactionViews} className={'text-success alert-entry'}>
+                        <Glyphicon glyph="repeat" className="big-icon"/>{ requiresSetup } companies require share registers.  Click here to step through.</Link>
+                        </div></li>);
+        }
+
+        if(props.full || requiresSetup === 1){
+            props.alerts.data.alertList.map(alert => {
+                if(Object.keys(alert.warnings).some(warning => alert.warnings[warning])){
+                    orderedResults.push(<li  className={requiresSetup > 1 ? "singular" : ''} key={orderedResults.length}><AlertWarnings.ResolveAllWarnings companyId={alert.id} resetTransactionViews={props.resetTransactionViews} companyName={alert.companyName}/></li>)
+                }
+            })
+        }
+
+        return orderedResults;
     }
 }
 
@@ -175,7 +261,7 @@ export class AlertsWidget extends React.PureComponent {
     }
 
     renderBody() {
-        return <ul>
+        return <ul className="alert-list">
         { this.renderPendingJobs() }
         { this.renderAlerts() }
         </ul>
@@ -183,7 +269,7 @@ export class AlertsWidget extends React.PureComponent {
 
     render() {
         const activities = this.props.data || [];
-        return <Widget className="alerts-widget" iconClass="fa fa-exclamation-circle" title="Notifications" link={this.props.link !== false && "/alerts"}>
+        return <Widget className={"alerts-widget " + (this.props.className || '')}  iconClass="fa fa-exclamation-circle" title="Notifications" link={this.props.link !== false && "/alerts"}>
                 { this.renderBody() }
                 </Widget>
     }
@@ -195,7 +281,7 @@ export const AlertsSummaryWidget = (props) => {
 
 const Alerts = (props) => {
     return <LawBrowserContainer>
-                <AlertsWidget full={true} link={false}/>
+                <AlertsWidget className="alerts-full" full={true} link={false} listCreator={alertListSummaries} />
         </LawBrowserContainer>
 };
 

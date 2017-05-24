@@ -20,6 +20,8 @@ import { enums as ErrorTypes } from '../../../config/enums/errors';
 import { ConnectCompaniesOffice } from './companiesOfficeIntegration';
 import { CompaniesOfficeLink, UpdateSourceData } from './companiesRegister';
 import { arDue } from './companyAlerts';
+import { NextCompanyControls } from './guidedSetup';
+
 
 function ARLinks() {
     return <div>
@@ -32,6 +34,23 @@ function ARLinks() {
         <LawBrowserLink title="Companies Act 1993 Regulations 1994" location="sch 1 cl 12">Form of annual return</LawBrowserLink>
         </div>
 }
+
+const ShowNext = (props) => {
+    const showNext = props.location.query.show_next;
+
+    if(showNext) {
+        return <NextCompanyControls
+            companyId={props.companyId}
+            subPath={'annual_returns'}
+            companyName={props.companyState.companyName}
+            showSkip={!props.complete}
+            verb='File Annual Return for'
+            filter={a => a.deadlines.annualReturn && (a.deadlines.annualReturn.dueThisMonth || a.deadlines.annualReturn.overdue) }
+            />
+    }
+    return null;
+}
+
 
 const DECLARATION = "I certify that the information contained in this annual return is correct.";
 
@@ -259,7 +278,10 @@ export class ReviewAnnualReturn extends React.PureComponent {
     }
 
     submit(etag) {
-        this.props.push(`/company/view/${this.props.companyId}/ar_details/${etag}`)
+        this.props.push({
+                pathname: `/company/view/${this.props.companyId}/ar_details/${etag}`,
+                query: this.props.location.query
+            })
     }
 
     renderError() {
@@ -294,7 +316,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
     }
 
     render() {
-        return <LawBrowserContainer lawLinks={ARLinks()}>
+        return <div><LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Review Annual Return">
                     { this.renderWarning()  }
                     { this.props.arSummary && this.props.arSummary.data && <ARSummary companyState={this.props.arSummary.data} /> }
@@ -303,6 +325,8 @@ export class ReviewAnnualReturn extends React.PureComponent {
                     { this.renderControls() }
                     </Widget>
         </LawBrowserContainer>
+           <ShowNext {...this.props} />
+           </div>
     }
 }
 
@@ -403,7 +427,10 @@ export class AnnualReturnSubmission extends React.PureComponent {
         })
         .then(() => {
             this.props.addNotification({message: 'Annual Return Submitted'})
-            this.props.push(`/company/view/${this.props.companyId}`)
+            this.props.push({
+                pathname: `/company/view/${this.props.companyId}/annual_return_submitted`,
+                query: this.props.location.query
+            })
         })
     }
 
@@ -417,21 +444,41 @@ export class AnnualReturnSubmission extends React.PureComponent {
 
     render() {
 
-        return <LawBrowserContainer lawLinks={ARLinks()}>
+        return <div><LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Review Annual Return">
                 { this.error() }
                 <AnnualReturnSubmissionForm initialValues={{email: this.props.userInfo.email}} onSubmit={this.submit} companyId={this.props.companyId}/>
             </Widget>
         </LawBrowserContainer>
+           <ShowNext {...this.props} />
+           </div>
     }
 }
+
+export class AnnualReturnSubmitted extends React.PureComponent {
+    render() {
+
+        return <div><LawBrowserContainer lawLinks={ARLinks()}>
+              <Widget title="Annual Return Submitted">
+              <p>Congratulations, the Annual Return for {this.props.companyState.companyName} has been submitted.</p>
+              <div className="button-row">
+                    <Link className="btn btn-info" to={{pathname: `/company/view/${this.props.companyId}`}}>View Company</Link>
+              </div>
+            </Widget>
+        </LawBrowserContainer>
+           <ShowNext {...this.props} />
+           </div>
+    }
+}
+
 
 @connect(state => ({userInfo: state.userInfo}))
 export default class AnnualReturn extends React.PureComponent {
     render() {
         const hasCompaniesOfficeIntegration = this.props.userInfo.mbieServices.indexOf('companies-office') >= 0;
         const due = arDue(this.props.companyState.deadlines);
-        return <LawBrowserContainer lawLinks={ARLinks()}>
+        return <div>
+            <LawBrowserContainer lawLinks={ARLinks()}>
             <Widget title="Annual Return">
 
                 { !due && <div className="alert alert-warning">According to our records, the Annual Return for this company is not yet due.</div> }
@@ -441,7 +488,7 @@ export default class AnnualReturn extends React.PureComponent {
                 { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an Annual Return for review and submission.</p>
                     <div className="button-row">
                         <UpdateSourceData companyId={this.props.companyId} />
-                        <Link to={`/company/view/${this.props.companyId}/review_annual_return`} className="btn btn-primary">Show Annual Return</Link>
+                        <Link to={{pathname: `/company/view/${this.props.companyId}/review_annual_return`, query: this.props.location.query}} className="btn btn-primary">Show Annual Return</Link>
                         </div>
                 </div> }
                 { !hasCompaniesOfficeIntegration && <ConnectCompaniesOffice redirect={true} >
@@ -449,5 +496,7 @@ export default class AnnualReturn extends React.PureComponent {
                 </ConnectCompaniesOffice> }
             </Widget>
         </LawBrowserContainer>
+            <ShowNext {...this.props} />
+        </div>
     }
 }

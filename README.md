@@ -1,6 +1,9 @@
 #Sailsjs, Sequelize Project
 
+# TO WORKER TESTS
 
+
+# TO PUSH
 
 
 // Type or select from the following

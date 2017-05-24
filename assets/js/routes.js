@@ -33,7 +33,7 @@ import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
 import Calendar, { CreateEvent, EditEvent } from './components/calendar';
 import Alerts from './components/alerts';
-import AnnualReturn, { ReviewAnnualReturn, AnnualReturnSubmission, AnnualReturnLoader } from './components/annualReturn';
+import AnnualReturn, { ReviewAnnualReturn, AnnualReturnSubmission, AnnualReturnLoader, AnnualReturnSubmitted } from './components/annualReturn';
 import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
 import AccessList from './components/accessList';
@@ -100,6 +100,7 @@ const CompanyChildren = [
     <Route name="Annual Returns" path="annual_returns" component={ AnnualReturn } />,
     <Route name="Review Annual Return" path="review_annual_return" component={ ReviewAnnualReturn } />,
     <Route name="Review Annual Submission" path="ar_details/:etag" component={ AnnualReturnSubmission } />,
+    <Route name="Review Annual Submitted" path="annual_return_submitted" component={ AnnualReturnSubmitted } />,
     <Route path="*" component={ NotFound } />
 ];
 

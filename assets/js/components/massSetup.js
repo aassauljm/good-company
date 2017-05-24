@@ -4,10 +4,9 @@ import { ShareClassCreate, shareClassLawLinks } from './shareClasses';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'
 import { requestResource, resetTransactionViews, nextTransactionView, showTransactionView, transactionBulk, addNotification } from '../actions';
-import { formFieldProps } from '../utils';
+import { formFieldProps, sortAlerts } from '../utils';
 import { Link } from 'react-router';
 import Input from './forms/input';
-import { requestAlerts } from './alerts';
 import { reduxForm } from 'redux-form';
 import ButtonInput from './forms/buttonInput';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
@@ -154,7 +153,7 @@ const PAGES = {
 @connect((state, ownProps) => {
     return {alerts: state.resources['/alerts'] || {}, massSetup: state.transactionViews.massSetup || {}, transactionBulk: state.transactionBulk};
 }, (dispatch, props) => ({
-        requestData: (key) => dispatch(requestAlerts()),
+        requestData: (key) => dispatch(requestResource('/alerts', {postProcess: sortAlerts})),
         next: (data) => dispatch(nextTransactionView('massSetup', data)),
         showTransactionView: () => dispatch(showTransactionView('massSetup')),
         submit: (data) => {
