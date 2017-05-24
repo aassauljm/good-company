@@ -145,7 +145,7 @@ export function alertListSummaries(props){
             }
         }
 
-        if(counts['shareClassWarning'].length > 1){
+        if(counts['shareClassWarning'] && counts['shareClassWarning'].length > 1){
             orderedResults.push(<li key='bulk'>
                                 <div>
                                 <Link to={`/mass_setup`} className={'text-success alert-entry'} onClick={props.resetTransactionViews} >
