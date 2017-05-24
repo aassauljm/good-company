@@ -140,16 +140,15 @@ export function arDue(deadlines){
 export function renderDeadlines(deadlines, showTypes, companyId) {
     let i = 0;
     const results = [];
-    const thisMonth = moment().format('MMMM')
     if(!deadlines.annualReturn){
         return [];
     }
     const url = `/company/view/${companyId}/annual_returns`;
     if(showTypes.indexOf('danger') > -1 && deadlines.annualReturn.overdue){
-        const dueDiff = moment(deadlines.annualReturn.dueDate).from(moment());
+        const dueDiff = moment.duration(-deadlines.annualReturn.seconds, 'seconds').humanize(true);
         results.push(<li key={i++}><div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return is overdue ({dueDiff}).</Link></div></li>);
     }
-    if(showTypes.indexOf('warning') > -1  && !deadlines.annualReturn.filedThisYear && thisMonth === deadlines.annualReturn.arFilingMonth){
+    if(showTypes.indexOf('warning') > -1  && deadlines.annualReturn.dueThisMonth){
         results.push(<li key={i++}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return is due this month.</Link></div></li>);
     }
     if(showTypes.indexOf('safe') > -1  && deadlines.annualReturn.filedThisYear){
