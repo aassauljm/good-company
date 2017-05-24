@@ -15,6 +15,7 @@ import Button from 'react-bootstrap/lib/Button';
 import Widget from './widget';
 
 
+
 const companiesRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" location=" s 360(1)+(4)">Registrar to keep companies register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 360A">Rectification or correction of companies register</LawBrowserLink>
@@ -189,7 +190,8 @@ export class CompaniesRegisterWidget extends React.Component {
                 <p>
                      { authority && <strong className="text-success">You have authority to update on the Companies Register</strong>}
                      { authority === false && <strong className="text-danger">You do not have authority to update on the Companies Register</strong>}
-                     { authority === null && <strong className="text-warning">Your Authority to update on the Companies Register is unknown</strong>}
+                     { authority === null && <span><strong className="text-warning">Your authority for this company is unknown. </strong>
+                     <a className="external-link" href="https://www.companiesoffice.govt.nz/companies/learn-about/company-authority" target="_blank">Learn more <Glyphicon glyph="new-window"/></a></span>}
                 </p>
             </div>
             <div className="button-row">
@@ -300,7 +302,8 @@ export default class CompaniesRegister extends React.PureComponent {
                 <p>
                      { authority && <strong className="text-success">You have authority to update on the Companies Register</strong>}
                      { authority === false && <strong className="text-danger">You do not have authority to update on the Companies Register</strong>}
-                     { authority === null && <strong className="text-warning">Your Authority to update on the Companies Register is unknown</strong>}
+                     { authority === null && <span><strong className="text-warning">Your authority for this company is unknown. </strong>
+                     <a className="external-link" href="https://www.companiesoffice.govt.nz/companies/learn-about/company-authority" target="_blank">Learn more <Glyphicon glyph="new-window"/></a></span>}
                 </p>
             </div>
 

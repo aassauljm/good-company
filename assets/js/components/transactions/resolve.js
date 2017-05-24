@@ -100,7 +100,7 @@ function AnnualReturnHoldingDifference(props){
         return reset();
     }
     return <div>
-         <p className="instructions">Sorry, the Shareholdings described in the Annual Return linked above do not match our records.</p>
+         <p className="instructions">Sorry, the Shareholdings described in the annual return linked above do not match our records.</p>
         <div className="button-row">
             <Button onClick={props.cancel} bsStyle="default">Cancel</Button>
             <Button onClick={skip} className="btn-primary">Skip Validation</Button>

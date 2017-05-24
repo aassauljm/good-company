@@ -44,7 +44,7 @@ const ShowNext = (props) => {
             subPath={'annual_returns'}
             companyName={props.companyState.companyName}
             showSkip={!props.complete}
-            verb='File Annual Return for'
+            verb='File annual return for'
             filter={a => a.deadlines.annualReturn && (a.deadlines.annualReturn.dueThisMonth || a.deadlines.annualReturn.overdue) }
             />
     }
@@ -460,7 +460,7 @@ export class AnnualReturnSubmitted extends React.PureComponent {
 
         return <div><LawBrowserContainer lawLinks={ARLinks()}>
               <Widget title="Annual Return Submitted">
-              <p>Congratulations, the Annual Return for {this.props.companyState.companyName} has been submitted.</p>
+              <p>Congratulations, the annual return for {this.props.companyState.companyName} has been submitted.</p>
               <div className="button-row">
                     <Link className="btn btn-info" to={{pathname: `/company/view/${this.props.companyId}`}}>View Company</Link>
               </div>
@@ -481,11 +481,11 @@ export default class AnnualReturn extends React.PureComponent {
             <LawBrowserContainer lawLinks={ARLinks()}>
             <Widget title="Annual Return">
 
-                { !due && <div className="alert alert-warning">According to our records, the Annual Return for this company is not yet due.</div> }
+                { !due && <div className="alert alert-warning">According to our records, the annual return for this company is not yet due.</div> }
                 <p>If you have connected your RealMe with the Companies Office, and you have authourity over this company, you can submit an Annual Return.  </p>
                 <DirectDebit />
-                <p>If you have already submitted an Annual Return independently, please click 'Check for Updates' below to update our records.</p>
-                { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an Annual Return for review and submission.</p>
+                <p>If you have already submitted an annual return independently, please click 'Check for Updates' below to update our records.</p>
+                { hasCompaniesOfficeIntegration && <div><p>Click the button below to generate an annual return for review and submission.</p>
                     <div className="button-row">
                         <UpdateSourceData companyId={this.props.companyId} />
                         <Link to={{pathname: `/company/view/${this.props.companyId}/review_annual_return`, query: this.props.location.query}} className="btn btn-primary">Show Annual Return</Link>

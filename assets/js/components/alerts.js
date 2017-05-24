@@ -46,13 +46,13 @@ export function alertList(props){
                     const url = `/company/view/${a.id}/annual_returns`;
                     if(a.deadlines.annualReturn.overdue){
                         const dueDiff = moment(a.deadlines.annualReturn.dueDate).from(moment());
-                        danger.push(<li key={i+'.1'}><div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is overdue ({dueDiff}).</Link></div></li>);
+                        danger.push(<li key={i+'.1'}><div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { a.companyName } is overdue ({dueDiff}).</Link></div></li>);
                     }
                     if(!a.deadlines.annualReturn.filedThisYear && thisMonth === a.deadlines.annualReturn.arFilingMonth){
-                        warnings.push(<li key={i+'.2'}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { a.companyName } is due this month.</Link></div></li>);
+                        warnings.push(<li key={i+'.2'}><div><Link to={url} className={'text-warning alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { a.companyName } is due this month.</Link></div></li>);
                     }
                     if(a.deadlines.annualReturn.filedThisYear){
-                        safe.push(<li key={i+'.3'}><div><Link to={url} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual Return for { a.companyName } already filed this year.</Link></div></li>);
+                        safe.push(<li key={i+'.3'}><div><Link to={url} className={'text-success alert-entry'}><Glyphicon glyph="ok-sign" className="big-icon"/>Annual return for { a.companyName } already filed this year.</Link></div></li>);
                     }
                 }
 
@@ -111,7 +111,7 @@ export function alertListSummaries(props){
                 orderedResults.push(<li key={'annualReturn-overdue-bulk'}>
                                     <Link  className="singular" to={url} className='text-danger alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                     { counts['annualReturn-overdue'].length } Annual Returns are overdue.  { full ? 'Click here step through.' : 'Click here to view.'}</Link>
+                                     { counts['annualReturn-overdue'].length } Annual returns are overdue.  { full ? 'Click here step through.' : 'Click here to view.'}</Link>
                                     </li>);
             }
             if(counts['annualReturn-overdue'].length && (props.full || counts['annualReturn-overdue'].length === 1)) {
@@ -120,7 +120,7 @@ export function alertListSummaries(props){
                     const url = `/company/view/${alert.id}/annual_returns`;
 
                     orderedResults.push(<li  className={counts['annualReturn-overdue'].length > 1  ? "singular" : ""} key={orderedResults.length}>
-                                        <div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { alert.companyName } is overdue ({dueDiff}).</Link></div></li>);
+                                        <div><Link to={url} className={'text-danger alert-entry'}><Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { alert.companyName } is overdue ({dueDiff}).</Link></div></li>);
                 });
             }
         }
@@ -131,7 +131,7 @@ export function alertListSummaries(props){
                 orderedResults.push(<li key={'annualReturn-dueThisMonth-bulk'}>
                                     <Link to={url} className='text-warning alert-entry'>
                                     <Glyphicon glyph="warning-sign" className="big-icon"/>
-                                     { counts['annualReturn-dueThisMonth'].length } Annual Returns are due this month.  Click here to resolve.</Link>
+                                     { counts['annualReturn-dueThisMonth'].length } Annual returns are due this month.  Click here to resolve.</Link>
                                     </li>);
             }
             if(counts['annualReturn-dueThisMonth'].length && (props.full || counts['annualReturn-dueThisMonth'].length === 1)) {
@@ -140,7 +140,7 @@ export function alertListSummaries(props){
                     orderedResults.push(<li  className={counts['annualReturn-dueThisMonth'].length > 1 ? "singular" : ''} key={orderedResults.length}>
                                         <div>
                                         <Link to={url} className={'text-warning alert-entry'}>
-                                        <Glyphicon glyph="warning-sign" className="big-icon"/>Annual Return for { alert.companyName } is due this month.</Link>
+                                        <Glyphicon glyph="warning-sign" className="big-icon"/>Annual return for { alert.companyName } is due this month.</Link>
                                         </div></li>);
                 });
             }
