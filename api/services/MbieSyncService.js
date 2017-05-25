@@ -35,7 +35,6 @@ function getRegisteredAddress(addresses){
 }
 
 function formatPerson(person){
-    console.log(person)
     if(person.shareholderType === 'Person'){
         return {
             name: joinName(person.personShareholder.name),
@@ -188,7 +187,7 @@ module.exports = {
         company.ultimateHoldingCompany = results.general.body.isUltimateHoldingCompany;
         company.arFilingMoth = moment().month(results.general.body.annualReturnFilingMonth + 1).format('MMMM');
         company.effectiveDateString = moment().format('D MMM YYYY')
-        company.filingYear = (new Date()).getFullYear();
+        company.companyFilingYear = (new Date()).getFullYear();
         const addressMap = {
             'Registered office address': 'registeredCompanyAddress',
             'Address for service': 'addressForService',
