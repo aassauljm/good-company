@@ -120,6 +120,7 @@ const getUserTokenAndRetry = (user, action) => {
 
 
 module.exports = {
+    fetchUrl: fetchUrl,
     updateAuthority: function(user, company, state) {
         return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
             .then(bearerToken => {
@@ -156,76 +157,81 @@ module.exports = {
          .spread((general, shareholdings, directors) => ({general, shareholdings, directors}))
     },
 
-    flatten: function(user, company, state) {
-        return MbieSyncService.fetchState(user, company, state)
-            .then(results => {
-                const company = {holdingList: {}, directorList:{}};
-                const etag = results.general.header.etag[0];
-                const shareholdings = results.shareholdings.body;
-                const persons = shareholdings.shareholders.reduce((acc, s) => {
-                    acc[s.shareholderId] = s;
-                    return acc;
-                }, {})
-                company.holdingList.holdings = shareholdings.shareAllocations.map(a => {
-                    return {
-                        parcels: [{amount: a.numSharesInAllocation}],
-                        holders: shareholdings.shareholdersInAllocations.filter(s => s.allocationId === a.allocationId).map(a => {
-                            return {person: formatPerson(persons[a.shareholderId]), data: {
-                                     companiesOffice: {
-                                        shareholderId: a.shareholderId
-                                    }
-                            }}
-                        }),
-                        data: {
+    flatten: function(results) {
+        const company = {holdingList: {}, directorList:{}};
+        const etag = results.general.header.etag[0];
+        const shareholdings = results.shareholdings.body;
+        const persons = shareholdings.shareholders.reduce((acc, s) => {
+            acc[s.shareholderId] = s;
+            return acc;
+        }, {})
+        company.holdingList.holdings = shareholdings.shareAllocations.map(a => {
+            return {
+                parcels: [{amount: a.numSharesInAllocation}],
+                holders: shareholdings.shareholdersInAllocations.filter(s => s.allocationId === a.allocationId).map(a => {
+                    return {person: formatPerson(persons[a.shareholderId]), data: {
                              companiesOffice: {
-                                allocationId: a.allocationId
+                                shareholderId: a.shareholderId
                             }
-                        }
+                    }}
+                }),
+                data: {
+                     companiesOffice: {
+                        allocationId: a.allocationId
                     }
-                });
-                company.etag = etag;
-                company.companyName = results.general.body.companyName;
-                company.nzbn = results.general.body.nzbn;
-                company.ultimateHoldingCompany = results.general.body.isUltimateHoldingCompany;
-                company.arFilingMoth = moment().month(results.general.body.annualReturnFilingMonth + 1).format('MMMM');
-                company.effectiveDateString = moment().format('D MMM YYYY')
-                company.filingYear = (new Date()).getFullYear();
-                const addressMap = {
-                    'Registered office address': 'registeredCompanyAddress',
-                    'Address for service': 'addressForService',
-                    'Address for communication': 'addressForCommunication',
                 }
-                results.general.body.contacts.physicalOrPostalAddresses.map(address => {
-                    const type = addressMap[address.addressPurpose];
-                    if(type){
-                        company[type] = joinAddress(address)
+            }
+        });
+        company.etag = etag;
+        company.companyName = results.general.body.companyName;
+        company.nzbn = results.general.body.nzbn;
+        company.ultimateHoldingCompany = results.general.body.isUltimateHoldingCompany;
+        company.arFilingMoth = moment().month(results.general.body.annualReturnFilingMonth + 1).format('MMMM');
+        company.effectiveDateString = moment().format('D MMM YYYY')
+        company.filingYear = (new Date()).getFullYear();
+        const addressMap = {
+            'Registered office address': 'registeredCompanyAddress',
+            'Address for service': 'addressForService',
+            'Address for communication': 'addressForCommunication',
+        }
+        results.general.body.contacts.physicalOrPostalAddresses.map(address => {
+            const type = addressMap[address.addressPurpose];
+            if(type){
+                company[type] = joinAddress(address)
+            }
+        });
+        company.directorList.directors = results.directors.body.items.filter(d => d.roleStatus === 'active').map(director => {
+            const roleId = director.roleId;
+            const contacts = director.contacts;
+            const person = director.personInRole;
+            return {
+                appointment: moment(director.appointedDate, 'YYYY-MM-DD').toDate(),
+                person: {
+                    name: joinName(person.name),
+                    address: getResidentialAddress(director.contacts.physicalOrPostalAddresses)
+                },
+                data: {
+                    companiesOffice: {
+                        roleId: director.roleId
                     }
-                });
-                company.directorList.directors = results.directors.body.items.filter(d => d.roleStatus === 'active').map(director => {
-                    const roleId = director.roleId;
-                    const contacts = director.contacts;
-                    const person = director.personInRole;
-                    return {
-                        appointment: moment(director.appointedDate, 'YYYY-MM-DD').toDate(),
-                        person: {
-                            name: joinName(person.name),
-                            address: getResidentialAddress(director.contacts.physicalOrPostalAddresses)
-                        },
-                        data: {
-                            companiesOffice: {
-                                roleId: director.roleId
-                            }
-                        }
-                    }
-                });
-                return company;
-            })
-    },
+                }
+            }
+        });
+        return company;
+},
     merge: function(user, company, state) {
-        return MbieSyncService.flatten(user, company, state);
+        return MbieSyncService.fetchState(user, company, state)
+            .then(MbieSyncService.flatten)
+            .then(() => {
+                done();
+            });
     },
     arSummary: function(user, company, state) {
-        return MbieSyncService.flatten(user, company, state);
+        return MbieSyncService.fetchState(user, company, state)
+            .then(MbieSyncService.flatten)
+            .then(() => {
+                done();
+            });
     },
     arSubmit: function(user, company, state, values) {
         const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
