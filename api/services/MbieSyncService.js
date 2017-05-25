@@ -35,7 +35,7 @@ function getRegisteredAddress(addresses){
 }
 
 function formatPerson(person){
-
+    console.log(person)
     if(person.shareholderType === 'Person'){
         return {
             name: joinName(person.personShareholder.name),
@@ -44,9 +44,9 @@ function formatPerson(person){
     }
     if(person.shareholderType === 'Organisation'){
         return {
-            companyName: person.organisationShareholder.companyName,
+            name: person.organisationShareholder.name,
             nzbn: person.organisationShareholder.nzbn,
-            address: getResidentialAddress(person.contacts.physicalOrPostalAddresses)
+            address: getRegisteredAddress(person.contacts.physicalOrPostalAddresses)
         }
     }
 
@@ -218,7 +218,7 @@ module.exports = {
             }
         });
         return company;
-},
+    },
     merge: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(MbieSyncService.flatten)
