@@ -222,16 +222,11 @@ module.exports = {
     merge: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(MbieSyncService.flatten)
-            .then(() => {
-                done();
-            });
     },
     arSummary: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(MbieSyncService.flatten)
-            .then(() => {
-                done();
-            });
+
     },
     arSubmit: function(user, company, state, values) {
         const url = `${sails.config.mbie.companiesOffice.url}companies/${state.nzbn}/annual-returns`;
