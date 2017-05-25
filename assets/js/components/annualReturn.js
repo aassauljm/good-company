@@ -21,6 +21,8 @@ import { ConnectCompaniesOffice } from './companiesOfficeIntegration';
 import { CompaniesOfficeLink, UpdateSourceData } from './companiesRegister';
 import { arDue } from './companyAlerts';
 import { NextCompanyControls } from './guidedSetup';
+import Perf from 'react-addons-perf'; // ES6
+
 
 
 function ARLinks() {

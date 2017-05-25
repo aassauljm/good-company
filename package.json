@@ -117,7 +117,7 @@
     "postcss-loader": "^1.0.0",
     "proxyquire": "^1.7.3",
     "raven-js": "^3.10.0",
-    "react": "15.4.2",
+    "react": "15.5.4",
     "react-addons-shallow-compare": "^15.0.0",
     "react-autosuggest": "^8.0.0",
     "react-bootstrap": "^0.30.5",

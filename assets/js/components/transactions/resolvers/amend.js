@@ -73,7 +73,7 @@ const renderOption = (h, i) => {
 
 
 @formFieldProps()
-export class AmendSubAction extends React.Component {
+export class AmendSubAction extends React.PureComponent {
 
     renderTransfer(disabled) {
         const holdings = this.props.holdings;
@@ -171,6 +171,15 @@ const SubAction = (props) => {
     return <AmendSubAction {...props} />
 }
 
+class SubActionControls extends React.PureComponent {
+    render() {
+        return <div className="btn-group-vertical btn-group-sm list-controls">
+            { this.props.index > 0  && <button type="button" className="btn btn-default" onClick={() => this.props.subActions.swapFields(this.props.index, this.props.index - 1) } disabled={this.props.allDisabled}><Glyphicon glyph="arrow-up" /></button> }
+            <button type="button" className="btn btn-default"onClick={() => this.props.subActions.removeField(this.props.index) } disabled={this.props.allDisabled}><Glyphicon glyph="remove" /></button>
+            { this.props.index < this.props.subActions.length - 1  && <button type="button" className="btn btn-default" onClick={() => this.props.subActions.swapFields(this.props.index, this.props.index + 1) } disabled={this.props.allDisabled}><Glyphicon glyph="arrow-down" /></button> }
+        </div>
+    }
+}
 
 export function SubActions(props){
     const multipleTransactions = isAmendable(props.originalAction.value);
@@ -185,22 +194,18 @@ export function SubActions(props){
                             <Panel title={title} />
                         </div>
                     }
+                    const showControls = multipleTransactions &&! r.isInverse.value;
                     return <div className="list-item panel-external-controls" key={r._keyIndex.value}>
                             <SubAction {...r}
                             index={i}
                             increase={props.increase}
                             allSameDirection={props.allSameDirection}
                             holdings={props.holdings}
-                            remove={() => props.subActions.removeField(i)}
                             shareOptions={ props.shareOptions }
                             allDisabled={props.allDisabled}
                             externalActionSets={props.externalActionSets}
                             />
-                            {  multipleTransactions &&!r.isInverse.value &&  <div className="btn-group-vertical btn-group-sm list-controls">
-                                { i > 0  && <button type="button" className="btn btn-default" onClick={() => props.subActions.swapFields(i, i - 1) } disabled={props.allDisabled}><Glyphicon glyph="arrow-up" /></button> }
-                                <button type="button" className="btn btn-default"onClick={() => props.subActions.removeField(i) } disabled={props.allDisabled}><Glyphicon glyph="remove" /></button>
-                                { i < props.subActions.length - 1  && <button type="button" className="btn btn-default" onClick={() => props.subActions.swapFields(i, i + 1) } disabled={props.allDisabled}><Glyphicon glyph="arrow-down" /></button> }
-                            </div> }
+                            {  showControls && <SubActionControls subActions={props.subActions} index={i} allDisabled={props.allDisabled}/> }
                     </div>
                 }) }
             </Shuffle>

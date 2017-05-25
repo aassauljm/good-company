@@ -37,7 +37,7 @@ const BASE_GUIDED_SETUP_PAGES = [
     nav: (args) => push(args)
 })
 @AlertsHOC()
-export class NextCompanyControls extends React.Component {
+export class NextCompanyControls extends React.PureComponent {
 
     render() {
         if(this.props.alerts._status !== 'complete'){
@@ -90,7 +90,7 @@ export class NextCompanyControls extends React.Component {
 
 
 @connect((state, ownProps) => ({transactionViews: state.contextualTransactionViews[ownProps.companyId] || DEFAULT_OBJ}))
-export class GuidedSetup extends React.Component {
+export class GuidedSetup extends React.PureComponent {
     static warningCounts = {
         votingShareholderWarning: 1,
         shareClassWarning: 2,

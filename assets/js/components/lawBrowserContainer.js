@@ -5,7 +5,7 @@ import STRINGS from '../strings';
 import { AutoAffix } from './forms/autoAffix'
 
 
-class Law extends React.Component {
+class Law extends React.PureComponent {
     constructor(){
         super();
         this.state = {};
@@ -53,7 +53,7 @@ export class AffixedLaw extends React.Component {
 }
 
 
-export default class LawBrowserContainer extends React.Component {
+export default class LawBrowserContainer extends React.PureComponent {
 
     render(){
         if (!this.props.lawLinks || this.forceNoLawLinks) {
