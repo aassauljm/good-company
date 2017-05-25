@@ -1,0 +1,158 @@
+{
+    "body": {
+        "link": {
+            "rel": "self",
+            "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401"
+        },
+        "companyStatusDescription": "Registered",
+        "companyName": "SPUNK PONY SEMEN IMPORTS LIMITED",
+        "nzbn": "9429032730401",
+        "entityType": "NZ Limited Company",
+        "isUltimateHoldingCompany": false,
+        "annualReturnFilingMonth": 8,
+        "shareholdingLink": {
+            "rel": "self",
+            "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/shareholding"
+        },
+        "contacts": {
+            "phoneContacts": [],
+            "physicalOrPostalAddresses": [
+                {
+                    "addressType": "Physical",
+                    "addressPurpose": "Address for records",
+                    "dpid": "2721003",
+                    "address1": "42 Swansea Street",
+                    "address2": "Rd 2",
+                    "address3": "Middlemarch",
+                    "postCode": "9597",
+                    "countryCode": "NZ",
+                    "effectiveDate": "2013-08-27T10:10:13",
+                    "description": "Sheila Ramsay",
+                    "link": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/22829800"
+                    },
+                    "addressId": "22829800"
+                },
+                {
+                    "addressType": "Physical",
+                    "addressPurpose": "Registered office address",
+                    "dpid": "2091001",
+                    "address1": "481 Flora Road East",
+                    "address2": "Rd 6",
+                    "address3": "Invercargill",
+                    "postCode": "9876",
+                    "countryCode": "NZ",
+                    "effectiveDate": "2012-08-17T00:00:00",
+                    "link": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/28907791"
+                    },
+                    "addressId": "28907791"
+                },
+                {
+                    "addressType": "Physical",
+                    "addressPurpose": "Address for service",
+                    "dpid": "2091001",
+                    "address1": "481 Flora Road East",
+                    "address2": "Rd 6",
+                    "address3": "Invercargill",
+                    "postCode": "9876",
+                    "countryCode": "NZ",
+                    "effectiveDate": "2012-08-17T00:00:00",
+                    "link": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/28907793"
+                    },
+                    "addressId": "28907793"
+                },
+                {
+                    "addressType": "Physical",
+                    "addressPurpose": "Address for records",
+                    "address1": "481 Flora Rd East",
+                    "address2": "Rd 6",
+                    "address3": "Invercargill 9876",
+                    "effectiveDate": "2009-08-27T00:00:00",
+                    "description": "Financial",
+                    "link": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/8692675"
+                    },
+                    "addressId": "8692675"
+                },
+                {
+                    "addressType": "Physical",
+                    "addressPurpose": "Address for share register",
+                    "address1": "481 Flora Rd East",
+                    "address2": "Rd 6",
+                    "address3": "Invercargill 9876",
+                    "effectiveDate": "2009-08-27T00:00:00",
+                    "link": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/8692680"
+                    },
+                    "addressId": "8692680"
+                }
+            ],
+            "emailAddresses": []
+        },
+        "companyStatusCode": "50",
+        "registrationDate": "2008-06-16",
+        "isConstitutionFiled": false,
+        "directorLinks": [
+            {
+                "rel": "self",
+                "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/directors/8550522"
+            },
+            {
+                "rel": "self",
+                "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/directors/9454455"
+            },
+            {
+                "rel": "self",
+                "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/directors/9454456"
+            }
+        ]
+    },
+    "header": {
+        "etag": [
+            "aa8f2937-28bf-36e4-9c50-8461e008b27c"
+        ],
+        "content-language": [
+            "en"
+        ],
+        "access-control-allow-headers": [
+            "authorization,Access-Control-Allow-Origin,Content-Type"
+        ],
+        "api-business-govt-nz-request-id": [
+            "7a5033a4-2354-431c-b48f-88b7901c546f"
+        ],
+        "vary": [
+            "Accept-Encoding"
+        ],
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "access-control-allow-methods": [
+            "PUT,GET"
+        ],
+        "content-type": [
+            "application/json; charset=UTF-8"
+        ],
+        "x-powered-by": [
+            "Servlet/2.5 JSP/2.1"
+        ],
+        "date": [
+            "Thu, 25 May 2017 00:19:59 GMT"
+        ],
+        "connection": [
+            "Keep-Alive"
+        ],
+        "content-encoding": [
+            "gzip"
+        ],
+        "content-length": [
+            "778"
+        ]
+    }
+}

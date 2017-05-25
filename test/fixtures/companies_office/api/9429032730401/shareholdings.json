@@ -1,0 +1,230 @@
+{
+    "body": {
+        "shareholders": [
+            {
+                "shareholderId": "394166",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/shareholders/394166"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Sheila",
+                        "lastName": "RAMSAY"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "2721003",
+                            "address1": "42 Swansea Street",
+                            "address2": "Rd 2",
+                            "address3": "Middlemarch",
+                            "postCode": "9597",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-06-16T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/22829885"
+                            },
+                            "addressId": "22829885"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-06-16"
+            },
+            {
+                "shareholderId": "394168",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/shareholders/394168"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Fiona",
+                        "middleNames": "Glenis",
+                        "lastName": "COMER"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "2091001",
+                            "address1": "481 Flora Road",
+                            "address2": "Rd 6",
+                            "address3": "Invercargill",
+                            "postCode": "9876",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-06-16T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/14714945"
+                            },
+                            "addressId": "14714945"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-06-16"
+            },
+            {
+                "shareholderId": "394167",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/shareholders/394167"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Lisa",
+                        "lastName": "GILLESPIE"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "1135472",
+                            "address1": "40 State Highway 1",
+                            "address2": "Foxton",
+                            "address3": "Foxton",
+                            "postCode": "4814",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-06-16T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/14714835"
+                            },
+                            "addressId": "14714835"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-06-16"
+            },
+            {
+                "shareholderId": "1635480",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/shareholders/1635480"
+                },
+                "vacationDate": "2010-08-25",
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Erica",
+                        "middleNames": "Kathleen",
+                        "lastName": "GEE"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "10 Rewarewa St,",
+                            "address2": "Tokomaru,",
+                            "address3": "Manawatu",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-06-24T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/contacts/13395025"
+                            },
+                            "addressId": "13395025"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-06-24"
+            }
+        ],
+        "shareholdersInAllocations": [
+            {
+                "shareholderId": "394166",
+                "allocationId": "1482671"
+            },
+            {
+                "shareholderId": "394168",
+                "allocationId": "1482672"
+            },
+            {
+                "shareholderId": "394167",
+                "allocationId": "1482674"
+            }
+        ],
+        "shareAllocations": [
+            {
+                "numSharesInAllocation": 1,
+                "allocationId": "1482671"
+            },
+            {
+                "numSharesInAllocation": 1,
+                "allocationId": "1482672"
+            },
+            {
+                "numSharesInAllocation": 1,
+                "allocationId": "1482674"
+            }
+        ],
+        "link": {
+            "rel": "self",
+            "href": "http://app.prd.internal/companies/app/service/services/api/9429032730401/shareholding"
+        },
+        "numberOfShares": 3,
+        "hasExtensiveShareholding": false
+    },
+    "header": {
+        "etag": [
+            "aa8f2937-28bf-36e4-9c50-8461e008b27c"
+        ],
+        "content-language": [
+            "en"
+        ],
+        "access-control-allow-headers": [
+            "authorization,Access-Control-Allow-Origin,Content-Type"
+        ],
+        "api-business-govt-nz-request-id": [
+            "5a438688-5347-4f48-9ee0-a22b562eeb67"
+        ],
+        "vary": [
+            "Accept-Encoding"
+        ],
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "access-control-allow-methods": [
+            "PUT,GET"
+        ],
+        "content-type": [
+            "application/json;charset=UTF-8; charset=UTF-8"
+        ],
+        "x-powered-by": [
+            "Servlet/2.5 JSP/2.1"
+        ],
+        "date": [
+            "Thu, 25 May 2017 00:20:00 GMT"
+        ],
+        "connection": [
+            "Keep-Alive"
+        ],
+        "content-encoding": [
+            "gzip"
+        ],
+        "content-length": [
+            "858"
+        ]
+    }
+}

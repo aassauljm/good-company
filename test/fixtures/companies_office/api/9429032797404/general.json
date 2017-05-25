@@ -1,0 +1,118 @@
+{
+    "body": {
+        "link": {
+            "rel": "self",
+            "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404"
+        },
+        "companyStatusDescription": "Registered",
+        "companyName": "PROJECT MANAGER HOLDINGS LIMITED",
+        "nzbn": "9429032797404",
+        "entityType": "NZ Limited Company",
+        "isUltimateHoldingCompany": false,
+        "annualReturnFilingMonth": 4,
+        "shareholdingLink": {
+            "rel": "self",
+            "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholding"
+        },
+        "contacts": {
+            "phoneContacts": [],
+            "physicalOrPostalAddresses": [
+                {
+                    "addressType": "Physical",
+                    "addressPurpose": "Registered office address",
+                    "careOf": "Kanu Jeram Chartered Accountant Ltd",
+                    "address1": "112 Kitchener Road",
+                    "address2": "Milford",
+                    "address3": "Auckland",
+                    "postCode": "0620",
+                    "countryCode": "NZ",
+                    "effectiveDate": "2012-04-17T00:00:00",
+                    "link": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/19171226"
+                    },
+                    "addressId": "19171226"
+                },
+                {
+                    "addressType": "Physical",
+                    "addressPurpose": "Address for service",
+                    "careOf": "Kanu Jeram Chartered Accountant Ltd",
+                    "address1": "112 Kitchener Road",
+                    "address2": "Milford",
+                    "address3": "Auckland",
+                    "postCode": "0620",
+                    "countryCode": "NZ",
+                    "effectiveDate": "2012-04-17T00:00:00",
+                    "link": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/19171230"
+                    },
+                    "addressId": "19171230"
+                }
+            ],
+            "emailAddresses": []
+        },
+        "companyStatusCode": "50",
+        "registrationDate": "2008-05-20",
+        "isConstitutionFiled": true,
+        "directorLinks": [
+            {
+                "rel": "self",
+                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/directors/8280185"
+            },
+            {
+                "rel": "self",
+                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/directors/10588702"
+            },
+            {
+                "rel": "self",
+                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/directors/10588704"
+            },
+            {
+                "rel": "self",
+                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/directors/10588708"
+            }
+        ]
+    },
+    "header": {
+        "etag": [
+            "3e76e8e3-859d-3055-9d6e-feb72424ee07"
+        ],
+        "content-language": [
+            "en"
+        ],
+        "access-control-allow-headers": [
+            "authorization,Access-Control-Allow-Origin,Content-Type"
+        ],
+        "api-business-govt-nz-request-id": [
+            "9c282dc3-b920-4c4a-9c5f-e9426756fd0a"
+        ],
+        "vary": [
+            "Accept-Encoding"
+        ],
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "access-control-allow-methods": [
+            "PUT,GET"
+        ],
+        "content-type": [
+            "application/json; charset=UTF-8"
+        ],
+        "x-powered-by": [
+            "Servlet/2.5 JSP/2.1"
+        ],
+        "date": [
+            "Thu, 25 May 2017 03:10:09 GMT"
+        ],
+        "connection": [
+            "Keep-Alive"
+        ],
+        "content-encoding": [
+            "gzip"
+        ],
+        "content-length": [
+            "622"
+        ]
+    }
+}

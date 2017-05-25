@@ -194,7 +194,7 @@ export class CompaniesRegisterWidget extends React.Component {
                      <a className="external-link" href="https://www.companiesoffice.govt.nz/companies/learn-about/company-authority" target="_blank">Learn more <Glyphicon glyph="new-window"/></a></span>}
                 </p>
             </div>
-            <div className="button-row">
+            <div className="col-xs-12 button-row">
                 { this.authority(authority) }
                  <UpdateSourceData companyId={this.props.companyId} />
             </div>
