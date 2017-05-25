@@ -1,0 +1,171 @@
+{
+    "body": {
+        "items": [
+            {
+                "appointedDate": "2014-05-08",
+                "roleStatus": "active",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/directors/8007492"
+                },
+                "directorSpecific": {
+                    "directorNotOneOf": []
+                },
+                "roleType": "Director",
+                "personInRole": {
+                    "name": {
+                        "firstName": "John",
+                        "middleNames": "David Guy",
+                        "lastName": "HADDLETON"
+                    }
+                },
+                "roleId": "8007492",
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "169030",
+                            "address1": "25a Park Avenue",
+                            "address2": "Takapuna",
+                            "address3": "Auckland",
+                            "postCode": "0622",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-05-08T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24598645"
+                            },
+                            "addressId": "24598645"
+                        }
+                    ],
+                    "emailAddresses": []
+                }
+            },
+            {
+                "appointedDate": "2014-05-08",
+                "roleStatus": "active",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/directors/8007541"
+                },
+                "directorSpecific": {
+                    "directorNotOneOf": []
+                },
+                "roleType": "Director",
+                "personInRole": {
+                    "name": {
+                        "firstName": "Herbert",
+                        "middleNames": "Dennis",
+                        "lastName": "HUNT"
+                    }
+                },
+                "roleId": "8007541",
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "411 Walnut Street, Number 9094",
+                            "address2": "Green Cove Springs",
+                            "address3": "Florida",
+                            "postCode": "32043",
+                            "countryCode": "US",
+                            "effectiveDate": "2014-05-08T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24598742"
+                            },
+                            "addressId": "24598742"
+                        }
+                    ],
+                    "emailAddresses": []
+                }
+            },
+            {
+                "appointedDate": "2008-05-20",
+                "roleStatus": "active",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/directors/3912421"
+                },
+                "directorSpecific": {
+                    "directorNotOneOf": []
+                },
+                "roleType": "Director",
+                "personInRole": {
+                    "name": {
+                        "firstName": "Jason",
+                        "middleNames": "Brent",
+                        "lastName": "WESTLAND"
+                    }
+                },
+                "roleId": "3912421",
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "36 Margaret Henry Crescent",
+                            "address2": "Oteha",
+                            "address3": "North Shore City",
+                            "postCode": "0632",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2011-05-16T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/16858633"
+                            },
+                            "addressId": "16858633"
+                        }
+                    ],
+                    "emailAddresses": []
+                }
+            }
+        ]
+    },
+    "header": {
+        "etag": [
+            "3e76e8e3-859d-3055-9d6e-feb72424ee07"
+        ],
+        "content-language": [
+            "en"
+        ],
+        "access-control-allow-headers": [
+            "authorization,Access-Control-Allow-Origin,Content-Type"
+        ],
+        "api-business-govt-nz-request-id": [
+            "4882e5ea-8ce9-46d5-b628-153d42b371d6"
+        ],
+        "vary": [
+            "Accept-Encoding"
+        ],
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "access-control-allow-methods": [
+            "POST,GET"
+        ],
+        "content-type": [
+            "application/json; charset=UTF-8"
+        ],
+        "x-powered-by": [
+            "Servlet/2.5 JSP/2.1"
+        ],
+        "date": [
+            "Thu, 25 May 2017 03:10:09 GMT"
+        ],
+        "connection": [
+            "Keep-Alive"
+        ],
+        "content-encoding": [
+            "gzip"
+        ],
+        "content-length": [
+            "723"
+        ]
+    }
+}

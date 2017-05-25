@@ -216,7 +216,8 @@ before(function(done) {
                  'test/fixtures/shareClass.json',
                  'test/fixtures/companyState.json',
                  'test/fixtures/company.json',
-                 'test/fixtures/organisation.json'
+                 'test/fixtures/organisation.json',
+                 'test/fixtures/apiCredentials.json'
                  ], sails.models)
                 .tap(() => {
                     sails.log.error('Fixtures loaded')

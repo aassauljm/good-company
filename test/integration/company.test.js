@@ -239,7 +239,9 @@ function resolveAmend(details){
 
 describe('Company Integration Tests - PROJECT MANAGER HOLDINGS LIMITED', () => {
 
-    before('render', prepareApp);
+    before('render',function(){
+        return prepareApp.call(this, '/', 'integrate@email.com');
+    })
 
     after('cleanup', destroyApp)
 
@@ -286,7 +288,36 @@ describe('Company Integration Tests - PROJECT MANAGER HOLDINGS LIMITED', () => {
             return waitFor('Amend Screen', () => this.dom.querySelectorAll('.resolve').length, null, 10000);
         });
 
+        it('Goes to home page', function(){
+            const link = this.dom.querySelectorAll('.breadcrumb a')[1];
+           Simulate.click(link, {button: 0});
+           return waitFor('Home page to show', '.company-loaded', this.dom, 6000);
+        });
+
+        it('Checks warning', function(){
+            const link = this.dom.querySelector('.company-alerts .text-danger.alert-entry');
+           Simulate.click(link, {button: 0});
+           return waitFor('Annual return page to show', '.ar-info', this.dom);
+        });
+
+        it('Clicks next', function(){
+            const link = this.dom.querySelector('.ar-info .btn-primary');
+           Simulate.click(link, {button: 0});
+           return waitFor('Annual return page to show', '.ar-review .btn-success', this.dom, 6000);
+        });
+        it('Clicks submit', function(){
+            const input = this.dom.querySelector('.ar-review input[type="checkbox"]');
+            Simulate.focus(input);
+            input.checked = true;
+            Simulate.change(input);
+            const submit = this.dom.querySelector('.ar-review .confirm');
+            Simulate.click(submit, {button: 0});
+           return waitFor('Annual return form to show', '.ar-review-form', this.dom);
+        });
     });
+
+
+
 
 });
 

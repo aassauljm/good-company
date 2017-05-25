@@ -270,7 +270,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
                 </div>
                 <div className="button-row">
                 { this.props.arSummary && this.props.arSummary.data && <Link className="btn btn-info" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download as PDF</Link> }
-                { ready && <Button bsStyle="success" onClick={() => this.submit(this.props.arSummary.data.etag)} disabled={!confirm.value}>Continue</Button> }
+                { ready && <Button className="confirm" bsStyle="success" onClick={() => this.submit(this.props.arSummary.data.etag)} disabled={!confirm.value}>Continue</Button> }
             </div>
             { !deadline && <div className="alert alert-warning">Annual Return is not due</div> }
             </div>
@@ -317,7 +317,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
 
     render() {
         return <div><LawBrowserContainer lawLinks={ARLinks()}>
-              <Widget title="Review Annual Return">
+              <Widget className="ar-review" title="Review Annual Return">
                     { this.renderWarning()  }
                     { this.props.arSummary && this.props.arSummary.data && <ARSummary companyState={this.props.arSummary.data} /> }
                     { this.props.arSummary && this.props.arSummary._status === 'fetching' && this.renderLoading() }
@@ -445,7 +445,7 @@ export class AnnualReturnSubmission extends React.PureComponent {
     render() {
 
         return <div><LawBrowserContainer lawLinks={ARLinks()}>
-              <Widget title="Review Annual Return">
+              <Widget className="ar-review-form" title="Review Annual Return">
                 { this.error() }
                 <AnnualReturnSubmissionForm initialValues={{email: this.props.userInfo.email}} onSubmit={this.submit} companyId={this.props.companyId}/>
             </Widget>
@@ -459,7 +459,7 @@ export class AnnualReturnSubmitted extends React.PureComponent {
     render() {
 
         return <div><LawBrowserContainer lawLinks={ARLinks()}>
-              <Widget title="Annual Return Submitted">
+              <Widget className="ar-success" title="Annual Return Submitted">
               <p>Congratulations, the annual return for {this.props.companyState.companyName} has been submitted.</p>
               <div className="button-row">
                     <Link className="btn btn-info" to={{pathname: `/company/view/${this.props.companyId}`}}>View Company</Link>
@@ -479,7 +479,7 @@ export default class AnnualReturn extends React.PureComponent {
         const due = arDue(this.props.companyState.deadlines);
         return <div>
             <LawBrowserContainer lawLinks={ARLinks()}>
-            <Widget title="Annual Return">
+            <Widget className="ar-info" title="Annual Return">
 
                 { !due && <div className="alert alert-warning">According to our records, the annual return for this company is not yet due.</div> }
                 <p>If you have connected your RealMe with the Companies Office, and you have authourity over this company, you can submit an Annual Return.  </p>

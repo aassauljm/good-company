@@ -1,0 +1,1247 @@
+{
+    "body": {
+        "shareholders": [
+            {
+                "shareholderId": "401278",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/401278"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Chi",
+                        "middleNames": "Kin",
+                        "lastName": "LO"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "120240",
+                            "address1": "15 Joy Street",
+                            "address2": "Albany Heights",
+                            "address3": "Auckland",
+                            "postCode": "0632",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24948479"
+                            },
+                            "addressId": "24948479"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "shareholderId": "401279",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/401279"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Remko",
+                        "middleNames": "Arjan",
+                        "lastName": "DE JONG"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "5 Maungarei Road",
+                            "address2": "Remuera",
+                            "address3": "Auckland",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/12176262"
+                            },
+                            "addressId": "12176262"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "shareholderId": "401280",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/401280"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Reinier",
+                        "middleNames": "Simon",
+                        "lastName": "DE JONG"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "Hallet Road",
+                            "address2": "Otakiri Rd2",
+                            "address3": "Whakatane",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/12176263"
+                            },
+                            "addressId": "12176263"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "shareholderId": "1623414",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/1623414"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Mathew",
+                        "middleNames": "Duncan",
+                        "lastName": "JUBY"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "313 Marshall Crescent",
+                            "address2": "Thames",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/13393782"
+                            },
+                            "addressId": "13393782"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "shareholderId": "8070712",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8070712"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "John",
+                        "middleNames": "David Guy",
+                        "lastName": "HADDLETON"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "25a Park Avenue",
+                            "address2": "Takapuna",
+                            "address3": "Auckland",
+                            "postCode": "0622",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-05-30T15:21:55",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24776386"
+                            },
+                            "addressId": "24776386"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-05-30"
+            },
+            {
+                "shareholderId": "8070713",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8070713"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Susan",
+                        "middleNames": "Mary",
+                        "lastName": "HADDLETON"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "25a Park Avenue",
+                            "address2": "Takapuna",
+                            "address3": "Auckland",
+                            "postCode": "0622",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-05-30T15:21:56",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24776387"
+                            },
+                            "addressId": "24776387"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-05-30"
+            },
+            {
+                "shareholderId": "8070710",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8070710"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Janet",
+                        "lastName": "HUNT"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "411 Walnut Street 9094",
+                            "address2": "Green Cove Springs",
+                            "address3": "Fl",
+                            "postCode": "32043",
+                            "countryCode": "US",
+                            "effectiveDate": "2014-05-30T15:21:55",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24776384"
+                            },
+                            "addressId": "24776384"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-05-30"
+            },
+            {
+                "shareholderId": "8070711",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8070711"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Herbert",
+                        "middleNames": "Dennis",
+                        "lastName": "HUNT"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "411 Walnut Street 9094",
+                            "address2": "Green Cove Springs",
+                            "address3": "Fl",
+                            "postCode": "32043",
+                            "countryCode": "US",
+                            "effectiveDate": "2014-05-30T15:21:55",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24776385"
+                            },
+                            "addressId": "24776385"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-05-30"
+            },
+            {
+                "shareholderId": "8097742",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097742"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Scott",
+                        "lastName": "MORAN"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "64 Majoribanks Street",
+                            "address2": "Mount Victoria",
+                            "address3": "Wellignton",
+                            "postCode": "6011",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-06-11T10:43:51",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24861120"
+                            },
+                            "addressId": "24861120"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "shareholderId": "8097741",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097741"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Catherine",
+                        "middleNames": "Patricia",
+                        "lastName": "NORRIE"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "57 Paremata Road",
+                            "address2": "Paremata",
+                            "address3": "Porirua",
+                            "postCode": "5024",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-06-11T10:43:51",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24861119"
+                            },
+                            "addressId": "24861119"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "shareholderId": "8097740",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097740"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Wayne",
+                        "middleNames": "Stephen",
+                        "lastName": "NORRIE"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "57 Paremata Road",
+                            "address2": "Paremata",
+                            "address3": "Porirua",
+                            "postCode": "5024",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-06-11T10:43:50",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24861118"
+                            },
+                            "addressId": "24861118"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "shareholderId": "1317064",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/1317064"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Robert",
+                        "middleNames": "Craig",
+                        "lastName": "NICHOLSON"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "18 Boyd Avenue",
+                            "address2": "Mangere Bridge",
+                            "address3": "Auckland",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/12176261"
+                            },
+                            "addressId": "12176261"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "shareholderId": "8097739",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097739"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "James",
+                        "middleNames": "B.",
+                        "lastName": "CUMMING"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "Suite 2304, 78 Harrison Garden Blvd",
+                            "address2": "Toronto",
+                            "address3": "Ontario",
+                            "postCode": "M2N 7E2",
+                            "countryCode": "CA",
+                            "effectiveDate": "2014-06-11T10:43:50",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24861134"
+                            },
+                            "addressId": "24861134"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "shareholderId": "401281",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/401281"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Jason",
+                        "middleNames": "Brent",
+                        "lastName": "WESTLAND"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "36 Margaret Henry Crescent",
+                            "address2": "Oteha",
+                            "address3": "North Shore City",
+                            "postCode": "0632",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/16858742"
+                            },
+                            "addressId": "16858742"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "shareholderId": "7160646",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/7160646"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Cheryl",
+                        "middleNames": "Joy",
+                        "lastName": "WESTLAND"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "36 Margaret Henry Crescent",
+                            "address2": "Albany",
+                            "address3": "Auckland",
+                            "postCode": "0632",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2013-05-28T11:14:04",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/22115897"
+                            },
+                            "addressId": "22115897"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2013-05-28"
+            },
+            {
+                "shareholderId": "7160647",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/7160647"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Brent",
+                        "middleNames": "Murray James",
+                        "lastName": "WESTLAND"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "36 Margaret Henry Crescent",
+                            "address2": "Albany",
+                            "address3": "Auckland",
+                            "postCode": "0632",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2013-05-28T11:14:05",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/22115898"
+                            },
+                            "addressId": "22115898"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2013-05-28"
+            },
+            {
+                "shareholderId": "8097736",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097736"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Geoffrey",
+                        "middleNames": "A.",
+                        "lastName": "CUMMING"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "Suite 507, 600 Princeton Way",
+                            "address2": "Sw, Calgary",
+                            "address3": "Alberta",
+                            "postCode": "T2P 5N4",
+                            "countryCode": "CA",
+                            "effectiveDate": "2014-06-11T10:43:50",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24861114"
+                            },
+                            "addressId": "24861114"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "organisationShareholder": {
+                    "companyLink": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429037537777"
+                    },
+                    "name": "JACON INVESTMENTS LIMITED",
+                    "nzbn": "9429037537777",
+                    "entityType": "NZ Limited Company"
+                },
+                "shareholderId": "8097737",
+                "shareholderType": "Organisation",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097737"
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Registered office address",
+                            "dpid": "709135",
+                            "careOf": "Andrew Clements",
+                            "address1": "4 Staffa Street",
+                            "address2": "Parnell",
+                            "address3": "Auckland",
+                            "postCode": "1052",
+                            "countryCode": "NZ",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/31393720"
+                            },
+                            "addressId": "31393720"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "organisationShareholder": {
+                    "companyLink": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429041090961"
+                    },
+                    "name": "HIRVI LIMITED",
+                    "nzbn": "9429041090961",
+                    "entityType": "NZ Limited Company"
+                },
+                "shareholderId": "8097738",
+                "shareholderType": "Organisation",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097738"
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Registered office address",
+                            "address1": "17 Lewin Road",
+                            "address2": "Epsom",
+                            "address3": "Auckland",
+                            "address4": "Null",
+                            "postCode": "1023",
+                            "countryCode": "NZ",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24861116"
+                            },
+                            "addressId": "24861116"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "organisationShareholder": {
+                    "companyLink": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429037310257"
+                    },
+                    "name": "LATITUDE 35 HOLDINGS LIMITED",
+                    "nzbn": "9429037310257",
+                    "entityType": "NZ Limited Company"
+                },
+                "shareholderId": "8097743",
+                "shareholderType": "Organisation",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8097743"
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Registered office address",
+                            "address1": "9 Sylvia Rd",
+                            "address2": "St Heliers",
+                            "address3": "Auckland",
+                            "address4": "Null",
+                            "countryCode": "NZ",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24861121"
+                            },
+                            "addressId": "24861121"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-06-11"
+            },
+            {
+                "shareholderId": "8830980",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8830980"
+                },
+                "personShareholder": {
+                    "name": {
+                        "firstName": "David",
+                        "middleNames": "George",
+                        "lastName": "LOCK"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "2589268",
+                            "address1": "16 Kahikatea Close",
+                            "address2": "Campbells Bay",
+                            "address3": "Auckland",
+                            "postCode": "0630",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2015-03-24T10:51:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/26927716"
+                            },
+                            "addressId": "26927716"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2015-03-24"
+            },
+            {
+                "organisationShareholder": {
+                    "companyLink": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429032544404"
+                    },
+                    "name": "CANIWI CAPITAL PARTNERS LIMITED",
+                    "nzbn": "9429032544404",
+                    "entityType": "NZ Limited Company"
+                },
+                "shareholderId": "10808377",
+                "shareholderType": "Organisation",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/10808377"
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Registered office address",
+                            "address1": "Level 16, 2 Hunter Street",
+                            "address2": "Wellington Central",
+                            "address3": "Wellington",
+                            "postCode": "6011",
+                            "countryCode": "NZ",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/31040869"
+                            },
+                            "addressId": "31040869"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2016-06-08"
+            },
+            {
+                "shareholderId": "1623415",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/1623415"
+                },
+                "vacationDate": "2012-09-19",
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Brent",
+                        "middleNames": "Murray",
+                        "lastName": "WESTLAND"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "3 Burns Avenue",
+                            "address2": "Takapuna",
+                            "address3": "Auckland",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/12176266"
+                            },
+                            "addressId": "12176266"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "shareholderId": "401282",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/401282"
+                },
+                "vacationDate": "2012-09-19",
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Cheryl",
+                        "middleNames": "Joy",
+                        "lastName": "WESTLAND"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "26a Te Arawa Street",
+                            "address2": "Orakei",
+                            "address3": "Auckland",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2008-05-20T00:00:00",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/12176265"
+                            },
+                            "addressId": "12176265"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2008-05-20"
+            },
+            {
+                "organisationShareholder": {
+                    "companyLink": {
+                        "rel": "self",
+                        "href": "http://app.prd.internal/companies/app/service/services/api/9429034829035"
+                    },
+                    "name": "KJCA TRUSTEE SERVICES LIMITED",
+                    "nzbn": "9429034829035",
+                    "entityType": "NZ Limited Company"
+                },
+                "shareholderId": "6550773",
+                "shareholderType": "Organisation",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/6550773"
+                },
+                "vacationDate": "2013-05-28",
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Registered office address",
+                            "address1": "112 Kitchener Road",
+                            "address2": "Milford",
+                            "address3": "Auckland",
+                            "address4": "Null",
+                            "postCode": "0620",
+                            "countryCode": "NZ",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/20342427"
+                            },
+                            "addressId": "20342427"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2012-09-19"
+            },
+            {
+                "shareholderId": "6550772",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/6550772"
+                },
+                "vacationDate": "2013-05-28",
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Johanna",
+                        "middleNames": "Lisa",
+                        "lastName": "WESTLAND"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "address1": "36 Margaret Henry Crescent",
+                            "address2": "Oteha",
+                            "address3": "Auckland",
+                            "postCode": "0632",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2012-09-19T09:32:36",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/20342426"
+                            },
+                            "addressId": "20342426"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2012-09-19"
+            },
+            {
+                "shareholderId": "8070709",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8070709"
+                },
+                "vacationDate": "2014-08-29",
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Delwyn",
+                        "middleNames": "Joy",
+                        "lastName": "SHAW"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "1109558",
+                            "address1": "Flat 2, 41 Aurora Terrace",
+                            "address2": "Kelburn",
+                            "address3": "Wellington",
+                            "postCode": "6012",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-05-30T15:21:55",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24776383"
+                            },
+                            "addressId": "24776383"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-05-30"
+            },
+            {
+                "shareholderId": "8070708",
+                "shareholderType": "Person",
+                "link": {
+                    "rel": "self",
+                    "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholders/8070708"
+                },
+                "vacationDate": "2014-08-29",
+                "personShareholder": {
+                    "name": {
+                        "firstName": "Graham",
+                        "middleNames": "John",
+                        "lastName": "SHAW"
+                    }
+                },
+                "contacts": {
+                    "phoneContacts": [],
+                    "physicalOrPostalAddresses": [
+                        {
+                            "addressType": "Physical",
+                            "addressPurpose": "Residential address",
+                            "dpid": "1109558",
+                            "address1": "Flat 2, 41 Aurora Terrace",
+                            "address2": "Kelburn",
+                            "address3": "Wellington",
+                            "postCode": "6012",
+                            "countryCode": "NZ",
+                            "effectiveDate": "2014-05-30T15:21:51",
+                            "link": {
+                                "rel": "self",
+                                "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/contacts/24776375"
+                            },
+                            "addressId": "24776375"
+                        }
+                    ],
+                    "emailAddresses": []
+                },
+                "appointmentDate": "2014-05-30"
+            }
+        ],
+        "shareholdersInAllocations": [
+            {
+                "shareholderId": "401278",
+                "allocationId": "1470549"
+            },
+            {
+                "shareholderId": "401279",
+                "allocationId": "1470550"
+            },
+            {
+                "shareholderId": "401280",
+                "allocationId": "1470550"
+            },
+            {
+                "shareholderId": "1623414",
+                "allocationId": "1470550"
+            },
+            {
+                "shareholderId": "8070712",
+                "allocationId": "2279295"
+            },
+            {
+                "shareholderId": "8070713",
+                "allocationId": "2279295"
+            },
+            {
+                "shareholderId": "8070710",
+                "allocationId": "2279296"
+            },
+            {
+                "shareholderId": "8070711",
+                "allocationId": "2279296"
+            },
+            {
+                "shareholderId": "8097742",
+                "allocationId": "2284192"
+            },
+            {
+                "shareholderId": "8097741",
+                "allocationId": "2284192"
+            },
+            {
+                "shareholderId": "8097740",
+                "allocationId": "2284192"
+            },
+            {
+                "shareholderId": "1317064",
+                "allocationId": "1470548"
+            },
+            {
+                "shareholderId": "8097739",
+                "allocationId": "2284191"
+            },
+            {
+                "shareholderId": "401281",
+                "allocationId": "1470551"
+            },
+            {
+                "shareholderId": "7160646",
+                "allocationId": "1470551"
+            },
+            {
+                "shareholderId": "7160647",
+                "allocationId": "1470551"
+            },
+            {
+                "shareholderId": "8097736",
+                "allocationId": "2284188"
+            },
+            {
+                "shareholderId": "8097737",
+                "allocationId": "2284189"
+            },
+            {
+                "shareholderId": "8097738",
+                "allocationId": "2284190"
+            },
+            {
+                "shareholderId": "8097743",
+                "allocationId": "2284193"
+            },
+            {
+                "shareholderId": "8830980",
+                "allocationId": "2411939"
+            },
+            {
+                "shareholderId": "10808377",
+                "allocationId": "2634827"
+            }
+        ],
+        "shareAllocations": [
+            {
+                "numSharesInAllocation": 100000,
+                "allocationId": "1470549"
+            },
+            {
+                "numSharesInAllocation": 100000,
+                "allocationId": "1470550"
+            },
+            {
+                "numSharesInAllocation": 50000,
+                "allocationId": "2279295"
+            },
+            {
+                "numSharesInAllocation": 50000,
+                "allocationId": "2279296"
+            },
+            {
+                "numSharesInAllocation": 100000,
+                "allocationId": "2284192"
+            },
+            {
+                "numSharesInAllocation": 80000,
+                "allocationId": "1470548"
+            },
+            {
+                "numSharesInAllocation": 190000,
+                "allocationId": "2284191"
+            },
+            {
+                "numSharesInAllocation": 9540000,
+                "allocationId": "1470551"
+            },
+            {
+                "numSharesInAllocation": 1180000,
+                "allocationId": "2284188"
+            },
+            {
+                "numSharesInAllocation": 500000,
+                "allocationId": "2284189"
+            },
+            {
+                "numSharesInAllocation": 500000,
+                "allocationId": "2284190"
+            },
+            {
+                "numSharesInAllocation": 75000,
+                "allocationId": "2284193"
+            },
+            {
+                "numSharesInAllocation": 35000,
+                "allocationId": "2411939"
+            },
+            {
+                "numSharesInAllocation": 80000,
+                "allocationId": "2634827"
+            }
+        ],
+        "link": {
+            "rel": "self",
+            "href": "http://app.prd.internal/companies/app/service/services/api/9429032797404/shareholding"
+        },
+        "numberOfShares": 12580000,
+        "hasExtensiveShareholding": true
+    },
+    "header": {
+        "etag": [
+            "3e76e8e3-859d-3055-9d6e-feb72424ee07"
+        ],
+        "content-language": [
+            "en"
+        ],
+        "access-control-allow-headers": [
+            "authorization,Access-Control-Allow-Origin,Content-Type"
+        ],
+        "api-business-govt-nz-request-id": [
+            "2fe61549-2569-4ca3-9bac-2aa22b6449e6"
+        ],
+        "vary": [
+            "Accept-Encoding"
+        ],
+        "access-control-allow-origin": [
+            "*"
+        ],
+        "access-control-allow-methods": [
+            "PUT,GET"
+        ],
+        "content-type": [
+            "application/json;charset=UTF-8; charset=UTF-8"
+        ],
+        "x-powered-by": [
+            "Servlet/2.5 JSP/2.1"
+        ],
+        "date": [
+            "Thu, 25 May 2017 03:10:09 GMT"
+        ],
+        "connection": [
+            "Keep-Alive"
+        ],
+        "content-encoding": [
+            "gzip"
+        ],
+        "content-length": [
+            "3844"
+        ]
+    }
+}
