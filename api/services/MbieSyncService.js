@@ -185,7 +185,7 @@ module.exports = {
         company.companyName = results.general.body.companyName;
         company.nzbn = results.general.body.nzbn;
         company.ultimateHoldingCompany = results.general.body.isUltimateHoldingCompany;
-        company.arFilingMoth = moment().month(results.general.body.annualReturnFilingMonth + 1).format('MMMM');
+        company.arFilingMonth = moment().month(results.general.body.annualReturnFilingMonth + 1).format('MMMM');
         company.effectiveDateString = moment().format('D MMM YYYY')
         company.companyFilingYear = (new Date()).getFullYear();
         const addressMap = {
@@ -221,6 +221,9 @@ module.exports = {
     merge: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
             .then(MbieSyncService.flatten)
+            .then(() => {
+
+            })
     },
     arSummary: function(user, company, state) {
         return MbieSyncService.fetchState(user, company, state)
