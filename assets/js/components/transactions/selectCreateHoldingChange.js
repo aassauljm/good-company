@@ -1,5 +1,6 @@
 "use strict";
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime,
         renderShareClass, generateShareClassMap, formFieldProps, requireFields, joinAnd, numberWithCommas, holdingOptionsFromState } from '../../utils';
 import { connect } from 'react-redux';

@@ -191,7 +191,8 @@ function populateTransfer({fromHolding, toHolding, parcels}){
             return waitFor('Modal to appear', () => scryRenderedComponentsWithType(this.tree, Confirmation).length, this.dom, 10000)
         })
         .then(() => {
-            const portal = ReactDOM.findDOMNode(findRenderedComponentWithType(this.tree, Confirmation).refs.modal._modal.refs.modal);
+            //const portal = ReactDOM.findDOMNode(findRenderedComponentWithType(this.tree, Confirmation).refs.modal._modal.refs.modal);
+            const portal = findRenderedComponentWithType(this.tree, Confirmation).refs.modal._modal.mountNode;
             Simulate.click(portal.querySelector('.btn-primary'), {button: 0});
             return waitFor('Summary to appear', '.transaction-summary', this.dom, 5000)
         })

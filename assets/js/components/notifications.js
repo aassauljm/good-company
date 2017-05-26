@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { pureRender } from '../utils';
 import { connect } from 'react-redux';
 import { hideNotification, addNotification } from '../actions'
@@ -8,8 +9,8 @@ const NOTIFICATION_TIMEOUT = 7000;
 
 
 @pureRender
-class Notification extends React.Component {
-    static propTypes = { notification: React.PropTypes.object.isRequired };
+class Notification extends React.PureComponent {
+    static propTypes = { notification: PropTypes.object.isRequired };
 
     componentDidMount() {
         this._timeout = setTimeout(() => {
@@ -31,10 +32,10 @@ class Notification extends React.Component {
 
 
 @connect(state => state.notifications)
-export default class Notifications extends React.Component {
+export default class Notifications extends React.PureComponent {
 
     static propTypes = {
-        list: React.PropTypes.array.isRequired
+        list: PropTypes.array.isRequired
     };
 
     constructor(props) {

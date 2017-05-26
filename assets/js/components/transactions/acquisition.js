@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { DecreaseTransactionView, createFormatSubmit } from './decreaseShares';
 
 const formatSubmit = createFormatSubmit({baseTransaction: 'ACQUISITION', fromTransaction: 'ACQUISITION_FROM'})

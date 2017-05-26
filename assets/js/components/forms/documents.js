@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import StaticField from './staticField';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { NativeTypes } from 'react-dnd-html5-backend';

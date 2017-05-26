@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import isoFetch from 'isomorphic-fetch';
 import STRINGS from './strings'
 import { Link } from 'react-router';

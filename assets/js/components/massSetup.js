@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { ShareClassCreate, shareClassLawLinks } from './shareClasses';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux'

@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { showTransactionView } from '../actions';
 import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import ButtonInput from './forms/buttonInput';
