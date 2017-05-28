@@ -1,5 +1,6 @@
 "use strict";
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime,  renderShareClass, joinAnd, numberWithCommas } from '../../../utils';
 import STRINGS from '../../../strings'
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';

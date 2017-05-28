@@ -1,4 +1,5 @@
-import React, {PropTypes, cloneElement} from 'react';
+import React, { cloneElement } from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';import Overlay from 'react-bootstrap/lib/Overlay';
 
@@ -38,12 +39,12 @@ const otPropTypes = {
    * The initial visibility state of the Overlay. For more nuanced visibility
    * control, consider using the Overlay component directly.
    */
-  defaultOverlayShown: React.PropTypes.bool,
+  defaultOverlayShown: PropTypes.bool,
   /**
    * An element or text to overlay next to the target.
    */
-  overlay: React.PropTypes.node.isRequired,
-  onClick: React.PropTypes.func,
+  overlay: PropTypes.node.isRequired,
+  onClick: PropTypes.func,
 };
 
 const otDefaultProps = {
@@ -52,7 +53,7 @@ const otDefaultProps = {
 
 
 
-export class OverlayTrigger extends React.Component {
+export class OverlayTrigger extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
 

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 export const ScrollIntoViewOptional = ComposedComponent => {
 
-    class Injector extends React.Component {
+    class ScrollInjector extends React.PureComponent {
 
         componentDidMount() {
             if(this.props.scrollIntoView){
@@ -22,12 +22,12 @@ export const ScrollIntoViewOptional = ComposedComponent => {
         }
     }
 
-    return Injector;
+    return ScrollInjector;
 }
 
 const ScrollIntoView = ComposedComponent => {
 
-    class Injector extends React.Component {
+    class ScrollInjector extends React.PureComponent {
 
         componentDidMount() {
             const comp = ReactDOM.findDOMNode(this);
@@ -43,7 +43,7 @@ const ScrollIntoView = ComposedComponent => {
         }
     }
 
-    return Injector;
+    return ScrollInjector;
 }
 
 

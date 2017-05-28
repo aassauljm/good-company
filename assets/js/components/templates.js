@@ -1,5 +1,6 @@
 "use strict";
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';

@@ -5,7 +5,7 @@ import { validate, createHoldingMap, transferFormatSubmit, TransferConnected } f
 import { ParcelWithRemove } from '../../../assets/js/components/forms/parcel';
 import Input from '../../../assets/js/components/forms/input';
 import { simpleStore } from '../../integration/helpers';
-import TestUtils, { Simulate } from 'react-addons-test-utils';
+import TestUtils, { Simulate } from 'react-dom/test-utils';
 import { Provider } from 'react-redux';
 import chai from 'chai';
 import { DragDropContext } from 'react-dnd';

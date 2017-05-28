@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom'
 

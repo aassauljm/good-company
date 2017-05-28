@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import { AsyncHOCFactory, ALERTS, COMPANIES } from '../hoc/resources';
 import UserFeedback from './userFeedback';
 import { Link } from 'react-router';
+import Perf from 'react-addons-perf'; // ES6
 
 
 const Breadcrumbs = (props) => {

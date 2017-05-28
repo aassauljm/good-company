@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { requestResource, changeCompanyTab, showTransactionView, toggleWidget, resetTransactionViews, showBillingIssue} from '../actions';
 import { pureRender, numberWithCommas, stringDateToFormattedString, analyseCompan, resourceIsForbidden } from '../utils';
 import { connect } from 'react-redux';

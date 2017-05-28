@@ -11,7 +11,7 @@ import {
   scryRenderedDOMComponentsWithTag,
   scryRenderedComponentsWithType,
   Simulate
-} from 'react-addons-test-utils';
+} from 'react-dom/test-utils';
 import { prepareApp, destroyApp, waitFor } from './helpers';
 import { LoginForm } from "../../assets/js/components/login.js";
 import { Modals } from "../../assets/js/components/transactionViews.js";
@@ -191,7 +191,7 @@ function populateTransfer({fromHolding, toHolding, parcels}){
             return waitFor('Modal to appear', () => scryRenderedComponentsWithType(this.tree, Confirmation).length, this.dom, 10000)
         })
         .then(() => {
-            const portal = ReactDOM.findDOMNode(findRenderedComponentWithType(this.tree, Confirmation).refs.modal._modal.refs.modal);
+            const portal = findRenderedComponentWithType(this.tree, Confirmation).refs.modal._modal.mountNode;
             Simulate.click(portal.querySelector('.btn-primary'), {button: 0});
             return waitFor('Summary to appear', '.transaction-summary', this.dom, 5000)
         })
@@ -418,7 +418,7 @@ describe('Company Integration Tests - Catalex', () => {
             /*let modal;
             const button = findRenderedDOMComponentWithClass(this.tree, 'submit-import');
             Simulate.click(button, {button: 0});*/
-            return  waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
+            return waitFor('Import to complete', () => this.dom.querySelectorAll('.congratulations').length, null, 20000);
         });
 
 

@@ -1,5 +1,6 @@
 "use strict";
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { requestResource, createResource, updateResource, addNotification } from '../../actions';
 import { pureRender, stringDateToFormattedString, stringDateToFormattedStringTime, generateShareClassMap, getTotalShares } from '../../utils';
 import { ScrollIntoViewOptional } from '../../hoc/scrollIntoView';
@@ -36,7 +37,7 @@ const CONTINUE = 4;
 
 
 @ScrollIntoViewOptional
-class PendingFutureAction extends React.Component {
+class PendingFutureAction extends React.PureComponent {
     render() {
         const props = this.props;
         const p = this.props.action;
@@ -90,7 +91,27 @@ const PendingFutureActions = (props) => {
 
 
 @ScrollIntoViewOptional
-class PendingAction extends React.Component {
+class PendingAction extends React.PureComponent {
+
+    constructor(props){
+        super(props);
+        this.edit = ::this.edit;
+        this.confirm = ::this.confirm;
+        this.unconfirm = ::this.unconfirm;
+    }
+
+    edit(){
+        this.props.handleEdit(this.props.action, this.props.pendingActions, this.props.index)
+    }
+
+    confirm(){
+        this.props.handleConfirm(this.props.action)
+    }
+
+    unconfirm(){
+        this.props.handleConfirm(this.props.action, false)
+    }
+
     render() {
         const props = this.props;
         const p = this.props.action;
@@ -117,11 +138,11 @@ class PendingAction extends React.Component {
                             }) }
                             </div>
                             <div className="col-md-1">{
-                                editable && <div className="button-row"><Button bsStyle="info" onClick={() => props.handleEdit(p, props.pendingActions, props.index)}>Edit</Button></div>
+                                editable && <div className="button-row"><Button bsStyle="info" onClick={this.edit}>Edit</Button></div>
                             }</div>
                             <div className="col-md-1">
-                                { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={() => props.handleConfirm(p) }>Confirm</Button></div> }
-                                { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={() => props.handleConfirm(p, false ) }>Unconfirm</Button></div> }
+                                { showConfirm &&  <div className="button-row"><Button bsStyle="success" onClick={this.confirm }>Confirm</Button></div> }
+                                { showUnconfirm &&  <div className="button-row"><Button bsStyle="warning" onClick={this.unconfirm }>Unconfirm</Button></div> }
                             </div>
                         </div>
                     </div>
@@ -129,47 +150,80 @@ class PendingAction extends React.Component {
                 </div>
     }
 }
+class TransactionSummariesList extends React.PureComponent {
+    render() {
+        const props = this.props;
+        const pendingActions = props.pendingActions;
+        return <Shuffle>
+                { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction
+                                     handleEdit={props.handleEdit}
+                                     handleConfirm={props.handleConfirm}
+                                     action={p}
+                                     index={i}
+                                     scrollIntoView={i === props.scrollIndex}
+                                     shareClassMap={props.shareClassMap}/></div>) }
+                </Shuffle>
+    }
+}
+class TransactionSummaries extends React.PureComponent {
+    constructor(props){
+        super(props);
+        this.cancel = ::this.cancel;
+        this.state = {pendingActions: this.filterActions(props)};
+    }
+
+    componentWillReceiveProps(newProps){
+        this.setState({pendingActions: this.filterActions(newProps)});
+    }
+
+    cancel() {
+        this.props.end({cancelled: true})
+    }
+
+    filterActions(props) {
+        let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType === TransactionTypes.INCORPORATION);
+        return props.pendingActions.filter((p, i) => {
+            p.numberId = i;
+            const actions = p.data.actions.filter(a => a.transactionType);
+            if(!actions.length || (!props.showAllTypes && isNonDisplayedTransaction(p.data.transactionType))){
+                return false;
+            }
+            if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
+                return false;
+            }
+            if(i > incorpIndex && incorpIndex >= 0){
+                return false;
+            }
+            return true;
+        });
+
+    }
+
+    render() {
+        const props = this.props;
+        const pendingActions = this.state.pendingActions;
+        const className = props.loading ? 'button-loading' : 'loaded';
+        let message = pendingActions.length ?
+            'Please Confirm or Edit the transactions from the last 10 years listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
+            "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
 
 
-function TransactionSummaries(props) {
-    let incorpIndex = props.pendingActions.findIndex(p => p.data.transactionType === TransactionTypes.INCORPORATION);
-    const pendingActions = props.pendingActions.filter((p, i) => {
-        p.numberId = i;
-        const actions = p.data.actions.filter(a => a.transactionType);
-        if(!actions.length || (!props.showAllTypes && isNonDisplayedTransaction(p.data.transactionType))){
-            return false;
-        }
-        if(!props.showConfirmed && actions.every(a => a.userConfirmed) && !requiresEdit(p.data)){
-            return false;
-        }
-        if(i > incorpIndex && incorpIndex >= 0){
-            return false;
-        }
-        return true;
-    });
-    const className = props.loading ? 'button-loading' : 'loaded';
-    let message = pendingActions.length ?
-        'Please Confirm or Edit the transactions from the last 10 years listed below.  Entries shown in red will require your manual reconciliation.  Please note that even confirmed transactions may require corrections.' :
-        "All transactions are confirmed.  Please click 'Complete Reconciliation' to complete the import."
+        return <div className={className}>
+            <p>{ message }</p>
+            <hr/>
+            <TransactionSummariesList pendingActions={pendingActions} handleEdit={props.handleEdit} handleConfirm={props.handleConfirm} scrollIntoView={props.scrollIntoView} shareClassMap={props.shareClassMap} />
+            <div className="button-row">
+                <Button onClick={this.cancel}>Cancel</Button>
+                { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }
+                { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
+                { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
+                { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
+               <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button>
 
-
-    return <div className={className}>
-        <p>{ message }</p>
-        <hr/>
-        <Shuffle>
-            { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction  {...props} action={p} index={i}  scrollIntoView={i === props.scrollIndex}/></div>) }
-        </Shuffle>
-        <div className="button-row">
-        <Button onClick={() => props.end({cancelled: true})}>Cancel</Button>
-        { props.showConfirmed && <Button bsStyle="info"  onClick={props.toggleConfirmed }>Hide Confirmed</Button> }
-        { !props.showConfirmed &&<Button bsStyle="info"  onClick={props.toggleConfirmed}>Show Confirmed</Button> }
-        { !!pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Confirm All Transactions and Import</Button> }
-        { !pendingActions.length && <Button bsStyle="primary" className="submit-import" onClick={props.handleStart}>Complete Reconciliation</Button> }
-       <Button bsStyle="danger" onClick={props.handleReset}>Undo Company Reconciliation</Button>
-
-         { false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> }
+             { /* false && <Button bsStyle="info" onClick={() => props.handleAddNew(pendingActions)}>Add New Transaction</Button> */ }
+            </div>
         </div>
-    </div>
+    }
 }
 
 
@@ -275,7 +329,7 @@ HISTORY_PAGES[EXPLAINATION] = function() {
         const pendingYearActions = collectActions(this.state.pendingHistory.data);
         if(pendingYearActions.length){
             return <TransactionSummaries
-                shareClassMap={generateShareClassMap(this.props.transactionViewData.companyState) }
+                shareClassMap={this.state.shareClassMap}
                 pendingActions={pendingYearActions}
                 handleStart={this.handleStart}
                 handleAddNew={this.handleAddNew}
@@ -406,7 +460,7 @@ FUTURE_PAGES[FINISHED] = function() {
         },
     }
 })
-export class ImportHistoryTransactionView extends React.Component {
+export class ImportHistoryTransactionView extends React.PureComponent {
 
     constructor(props){
         super(props);
@@ -417,7 +471,7 @@ export class ImportHistoryTransactionView extends React.Component {
         this.handleConfirm = ::this.handleConfirm;
         this.toggleConfirmed = ::this.toggleConfirmed;
         this.handleReset = ::this.handleReset;
-        this.state = {pendingHistory: props.pendingHistory};
+        this.state = {pendingHistory: props.pendingHistory, shareClassMap: generateShareClassMap(props.companyState)};
     };
 
     fetch() {
@@ -438,6 +492,7 @@ export class ImportHistoryTransactionView extends React.Component {
         if(newProps.pendingHistory && newProps.pendingHistory.data){
             this.setState({pendingHistory: newProps.pendingHistory})
         }
+        this.setState({shareClassMap: generateShareClassMap(this.props.companyState)});
     }
 
     checkContinue() {

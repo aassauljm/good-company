@@ -1,5 +1,6 @@
 "use strict";
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import TransactionView from './forms/transactionView';
 import Button from 'react-bootstrap/lib/Button';
 import { connect } from 'react-redux';
@@ -37,7 +38,7 @@ const BASE_GUIDED_SETUP_PAGES = [
     nav: (args) => push(args)
 })
 @AlertsHOC()
-export class NextCompanyControls extends React.Component {
+export class NextCompanyControls extends React.PureComponent {
 
     render() {
         if(this.props.alerts._status !== 'complete'){
@@ -90,7 +91,7 @@ export class NextCompanyControls extends React.Component {
 
 
 @connect((state, ownProps) => ({transactionViews: state.contextualTransactionViews[ownProps.companyId] || DEFAULT_OBJ}))
-export class GuidedSetup extends React.Component {
+export class GuidedSetup extends React.PureComponent {
     static warningCounts = {
         votingShareholderWarning: 1,
         shareClassWarning: 2,

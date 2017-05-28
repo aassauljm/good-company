@@ -26,7 +26,6 @@ export class Confirmation extends React.Component {
         this.props.dispatch(endConfirmation());
     }
     render() {
-
         const {title, description, cancelMessage, resolveMessage} = this.props;
         return <Modal show={true} onHide={this.reject} ref="modal">
             <Modal.Header closeButton>

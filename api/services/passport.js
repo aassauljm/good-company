@@ -351,7 +351,7 @@ passport.loadStrategies = function () {
 
       Strategy = strategies[key].strategy;
 
-      var baseUrl = sails.getBaseurl();
+      var baseUrl = ''; //sails.getBaseurl();
 
       switch (protocol) {
         case 'oauth':

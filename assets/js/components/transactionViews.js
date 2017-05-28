@@ -199,7 +199,7 @@ export class TransactionViewSwitch extends React.PureComponent {
 }
 
 
-export class TransactionViews extends React.Component {
+export class TransactionViews extends React.PureComponent {
 
 
     renderTransactionView(showing) {

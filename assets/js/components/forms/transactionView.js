@@ -2,7 +2,7 @@
 import React from 'react';
 import LawBrowserContainer from '../lawBrowserContainer'
 
-export default class GCTransactionView extends React.Component {
+export default class GCTransactionView extends React.PureComponent {
     render() {
         if(this.props.lawLinks){
             return <LawBrowserContainer lawLinks={this.props.lawLinks}>
@@ -20,7 +20,7 @@ export default class GCTransactionView extends React.Component {
     }
 }
 
-class Header extends React.Component {
+class Header extends React.PureComponent {
     render() {
         return  <div className="widget-header-wrap">
             <div className="widget-header">
@@ -30,7 +30,7 @@ class Header extends React.Component {
     }
 }
 
-class Title extends React.Component {
+class Title extends React.PureComponent {
     render() {
         return  <div className="widget-title">
             { this.props.children }
@@ -39,7 +39,7 @@ class Title extends React.Component {
 }
 
 
-class Body extends React.Component {
+class Body extends React.PureComponent {
     render() {
         return  <div className="widget-body-wrap">
             <div className="widget-body">
@@ -49,7 +49,7 @@ class Body extends React.Component {
     }
 }
 
-class Footer extends React.Component {
+class Footer extends React.PureComponent {
     render() {
         return  <div className="widget-footer button-row">
             { this.props.children }

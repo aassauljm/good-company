@@ -1,5 +1,6 @@
 "use strict";
 import React from 'react';
+import PropTypes from 'prop-types'
 import { pureRender } from '../utils';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
@@ -12,8 +13,8 @@ import { replace } from 'react-router-redux'
 
 @connect(state => state.login)
 @pureRender
-export class LoginWithCatalex extends React.Component {
-    static propTypes = { login: React.PropTypes.object };
+export class LoginWithCatalex extends React.PureComponent {
+    static propTypes = { login: PropTypes.object };
 
     componentDidMount() {
         this.nav()
