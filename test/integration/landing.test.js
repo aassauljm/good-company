@@ -11,7 +11,7 @@ import {
   scryRenderedDOMComponentsWithTag,
   scryRenderedComponentsWithType,
   Simulate
-} from 'react-addons-test-utils';
+} from 'react-dom/test-utils';
 import { prepareApp, destroyApp, waitFor } from './helpers';
 import { LoginForm } from "../../assets/js/components/login.js";
 import { Modals } from "../../assets/js/components/transactionViews.js";
