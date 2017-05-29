@@ -22,6 +22,7 @@ function getUserNzbnToken(user) {
             return nzbnUserAccessToken;
         });
 }
+       const fs = Promise.promisifyAll(require("fs"));
 
 function getAuthorisedCompanies(user) {
     let headers;
@@ -60,7 +61,10 @@ function getAuthorisedCompanies(user) {
                 sails.log.verbose('Authority List: ', text);
                 return JSON.parse(text);
             })
-            .then(json => CompanyInfoService.getCompanyNamesFromNZBNS(json.items))
+            .then(result => Object.values(_.groupBy(result.items, item => item.nzbn))
+                  .map(items => _.last(items))
+                  .filter(item => item["AuthorityStatus"] === "ACCEPTED"))
+            .then(items => CompanyInfoService.getCompanyNamesFromNZBNS(items))
 }
 
 module.exports = {
@@ -86,7 +90,6 @@ module.exports = {
     authorisedCompanies: function (req, res) {
         function getCompaniesTask() {
              return getAuthorisedCompanies(req.user)
-                //.then(authorisedCompanies => Promise.resolve(authorisedCompanies))
                 .catch(error => {
                     return Promise.reject(error)
                 });
