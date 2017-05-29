@@ -229,7 +229,7 @@ export class CompanyAlertsBase extends React.Component {
                 { guide && <li><AlertWarnings.ResolveAllWarnings companyId={this.props.companyId} resetTransactionViews={this.props.resetTransactionViews}/></li>}
                 { deadlines }
                 { this.props.showAllWarnings && this.renderImportWarnings(warn) }
-                { !guide && !deadlines.length && !this.props.showAllWarnings && <li>No current Notifications</li>}
+                { !guide && !deadlines.length && !this.props.showAllWarnings && !pendingFuture && <li>No current Notifications</li>}
                 </ul>
     }
 }
