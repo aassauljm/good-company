@@ -469,13 +469,15 @@ module.exports = {
                                         if(pendingActions.length){
                                             nextActionId = _.last(pendingActions).id;
                                         }
-                                        return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                                        if(processedDocs.length){
+                                            return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                                        }
                                     })
                                     .then((actions) => {
-                                        if(!nextActionId){
+                                        if(!nextActionId && processedDocs.length){
                                             return company.currentCompanyState.update({'pending_future_action_id': processedDocs[0].id});
                                         }
-                                        else{
+                                        else if(nextActionId){
                                             return Action.update({previous_id: processedDocs[0].id}, {where: {id: nextActionId}})
                                         }
                                     })

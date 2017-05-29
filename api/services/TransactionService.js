@@ -1029,7 +1029,7 @@ export function validateAmend(data, companyState){
         })
     }
 
-    data.parcels.map(newParcel => {
+    !data.inferAmount && data.parcels.map(newParcel => {
         if(!data.inferAmount && (newParcel.beforeAmount < 0 || newParcel.afterAmount < 0)){
             throw new sails.config.exceptions.InvalidInverseOperation('Before and after amounts must be natural numbers ( n >=0 ')
         }
@@ -1042,7 +1042,7 @@ export function validateAmend(data, companyState){
 
     })
 
-    holding.dataValues.parcels.map(parcel => {
+    !data.inferAmount && holding.dataValues.parcels.map(parcel => {
         data.parcels.map(newParcel => {
             if(Parcel.match(parcel, newParcel) && parcel.amount !== newParcel.beforeAmount){
                 throw new sails.config.exceptions.InvalidInverseOperation('Before amount does not match, amend')
@@ -1066,9 +1066,17 @@ export const performAmend = Promise.method(function(data, companyState, previous
             companyState.dataValues.h_list_id = null;
 
             const transactionType  = data.transactionType;
+
+            if(data.inferAmount){
+                data = {...data}
+                data.parcels = holding.dataValues.parcels.map(p => ({amount: p.amount, beforeAmount: p.amount, afterAmount: 0, shareClass: p.shareClass}));
+                data.inferAmount = false;
+            }
+
             transaction = Transaction.build({type: transactionType,
                 data: data, effectiveDate: effectiveDate});
             let increase;
+
             const parcels = data.parcels.map(newParcel => {
                 const difference = newParcel.afterAmount - newParcel.beforeAmount;
                 increase = difference > 0;
@@ -1115,7 +1123,41 @@ export  function performNewAllocation(data, nextState, companyState, effectiveDa
         return CompanyState.populatePersonIds(data.holders, userId)
     })
     .then(function(personData){
+
+        if(data.inferAmount){
+            data = {...data}
+            // note: prevousState
+            let inverseHolding;
+            if(data.beforeAmountLookup){
+                inverseHolding = findHolding({
+                        holders: data.beforeAmountLookup.afterHolders,
+                        holdingId: data.beforeAmountLookup.holdingId
+                    },
+                    data, previousState, {
+                        multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
+                        none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND,
+                        shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
+                    });
+            }
+            else{
+                inverseHolding = findHolding({
+                        holders: data.afterAmountLookup.beforeHolders,
+                        holdingId: data.afterAmountLookup.holdingId
+                    },
+                    data, companyState, {
+                        multiple: sails.config.enums.MULTIPLE_HOLDING_TRANSFER_SOURCE,
+                        none: sails.config.enums.HOLDING_TRANSFER_SOURCE_NOT_FOUND,
+                        shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
+                    });
+            }
+            // TODO, needs before and after amount
+            data.parcels = inverseHolding.dataValues.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass, beforeAmount: p.amount, afterAmount: 0 }))
+            data.inferAmount = false;
+        }
+
         const transaction = Transaction.build({type: data.transactionType,  data: data, effectiveDate: effectiveDate});
+
+
         function votingShareholder(person){
             if(data.votingShareholder && Person.build(person).isEqual(data.votingShareholder)){
                 return {votingShareholder: true}

@@ -569,6 +569,9 @@ module.exports = {
 
     userSkipOldDocs: function(docs){
         const CUT_OFF_TIME = 10;
+        if(!docs.length){
+            return [];
+        }
         const startDate = moment(docs[0].effectiveDate);
         docs.map(d => {
             if(startDate.diff(moment(d.effectiveDate), 'years', true) > CUT_OFF_TIME){
