@@ -390,7 +390,7 @@ var transactions = {
                 return companyState.groupTotals();
             })
             .then(groupTotals => {
-                if(groupTotals[data.shareClassId] && groupTotals[data.shareClassId].amount > 0){
+                if(!data.forceUpdate && groupTotals[data.shareClassId] && groupTotals[data.shareClassId].amount > 0){
                     throw new sails.config.exceptions.ValidationException('Cannot update share classes that are on issue');
                 }
                 return companyState.getShareClasses({

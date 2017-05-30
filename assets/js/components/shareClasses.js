@@ -19,7 +19,7 @@ import Combobox from 'react-widgets/lib/Combobox';
 import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
 import Widget from './widget';
-
+import Loading from './loading';
 
 export const shareClassLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM320605/28784-DLM319594">Share classes</LawBrowserLink>
@@ -105,15 +105,20 @@ export class ShareClassForm extends React.Component {
             return this.props.submit(data);
         }
         const body = new FormData();
-        body.append('json', JSON.stringify({...data, documents: null}));
+        body.append('json', JSON.stringify({...data, documents: null, forceUpdate: this.props.edit}));
         (data.documents || []).map(d => {
             body.append('documents', d, d.name);
         });
         const key = this.props.companyId;
         return (!this.props.edit ? this.props.dispatch(createResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
-             : this.props.dispatch(updateResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false})))
-            .then(() => {
-                this.props.dispatch(addNotification({message: 'Share Class Added'}));
+             : this.props.dispatch(updateResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false,
+                    confirmation: {
+                        title: 'Confirm Correction of Share Class Information',
+                        description: 'Updating share class information applies retroactively, and should only be used for corrections.',
+                        resolveMessage: 'Confirm Correction',
+                        resolveBsStyle: 'warning'}} )))
+            .then((result) => {
+                this.props.dispatch(addNotification(result.response.message));
                 this.props.end && this.props.end();
             })
             .catch((err) => {
@@ -235,7 +240,9 @@ export class ShareClassEdit extends React.Component {
         const state = this.props.shareClasses.filter(s => {
             return s.id.toString() === this.props.routeParams.shareClassId;
         })[0];
-
+        if(!state){
+            return <Loading />
+        }
         return  <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
     }
 }

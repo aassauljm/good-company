@@ -306,10 +306,15 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                 const original = values.actions[action._holding].originalAction;
                 const afterParcels = values.actions[action._holding].afterParcels;
                 action.parcels = action.parcels.map((p, j) => {
-                    p = {...p}
+                    p = {...p};
                     const parcelIndex = parcelIndexByClass(afterParcels, p.shareClass);
                     // if share class has changed.....
-                    p.afterAmount = afterParcels[parcelIndex].afterAmount;
+                    if(parcelIndex === -1){
+                        p.afterAmount = 0;
+                    }
+                    else{
+                        p.afterAmount = afterParcels[parcelIndex].afterAmount;
+                    }
 
                     let direction;
                     // if amend, we can go up or down
