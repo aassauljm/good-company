@@ -301,6 +301,7 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
             if(action.userSkip && action._holding !== undefined){
                 return {userSkip: true, userConfirmed: true, ...values.actions[action._holding].originalAction};
             }
+
             if(action._holding !== undefined && values.actions[action._holding].originalAction.parcels){
                 //look up original action
                 const original = values.actions[action._holding].originalAction;
@@ -329,6 +330,12 @@ export function formatSubmit(values, actionSet, pendingActions = []) {
                     afterParcels[parcelIndex].afterAmount = p.beforeAmount;
                     return p;
                 });
+
+                afterParcels.map(aP => {
+                    if(!action.parcels.find(p => p.shareClass === aP.shareClass)){
+                        action.parcels.push({beforeAmount: aP.afterAmount, amount: 0, afterAmount: aP.afterAmount, shareClass: aP.shareClass});
+                    }
+                })
 
                 if(action.parcels.every(p => p.beforeAmount === 0) && (original.transactionMethod || original.transactionType) === TransactionTypes.NEW_ALLOCATION) {
                     newAllocations[action._holding] = action;
