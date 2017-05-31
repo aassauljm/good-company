@@ -34,7 +34,7 @@ function renderHolders(holding){
 }
 
 
-export class VoterSelect extends React.Component {
+export class VoterSelect extends React.PureComponent {
     renderSelect(field, holders) {
         return <Input type="select" {...field} bsStyle={fieldStyle(field)} help={fieldHelp(field)}
             hasFeedback >
@@ -76,11 +76,30 @@ function populateHolders(holdingId, companyState){
 }
 
 
-@connect(undefined)
-export class VotingShareholdersTransactionView extends React.Component {
+
+@connect(state => state.transactions)
+export class SubmitVotingShareholder extends React.PureComponent {
+    render() {
+        const submitting = this.props.transactions && this.props.transactions._status === 'fetching';
+        return <Button onClick={this.props.onClick} bsStyle="primary" className="submit" disabled={submitting}>Apply</Button>
+    }
+}
+
+
+@connect(undefined, {
+    companyTransaction: (...args) => companyTransaction(...args),
+    addNotification: (...args) => addNotification(...args)
+})
+export class VotingShareholdersTransactionView extends React.PureComponent {
     constructor(props) {
         super(props);
-         this.submit = ::this.submit;
+        this.submit = ::this.submit;
+        this.handleNext = ::this.handleNext;
+        this.cancel = ::this.cancel;
+    }
+
+    cancel() {
+        this.props.end({cancelled: true});
     }
 
     handleNext() {
@@ -118,15 +137,15 @@ export class VotingShareholdersTransactionView extends React.Component {
             effectiveDate: date
         }];
 
-        this.props.dispatch(companyTransaction('compound',
+        this.props.companyTransaction('compound',
                                 this.props.transactionViewData.companyId,
-                                {transactions: transactions}, {skipConfirmation: true}))
+                                {transactions: transactions}, {skipConfirmation: true})
             .then(() => {
                 this.props.end({reload: true});
-                this.props.dispatch(addNotification({message: 'Voting Shareholders applied'}));
+                this.props.addNotification({message: 'Voting Shareholders applied'});
             })
             .catch((err) => {
-                this.props.dispatch(addNotification({message: err.message, error: true}));
+                this.props.addNotification({message: err.message, error: true});
             });
     }
 
@@ -152,8 +171,8 @@ export class VotingShareholdersTransactionView extends React.Component {
                 { this.renderBody(this.props.transactionViewData.companyState) }
               </TransactionView.Body>
               <TransactionView.Footer>
-                <Button onClick={() => this.props.end({cancelled: true})} >Cancel</Button>
-                 <Button onClick={::this.handleNext} bsStyle="primary" className="submit">Apply</Button>
+                <Button onClick={this.cancel} >Cancel</Button>
+                 <SubmitVotingShareholder onClick={this.handleNext} />
               </TransactionView.Footer>
             </TransactionView>
     }
