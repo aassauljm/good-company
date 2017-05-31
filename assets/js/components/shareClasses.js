@@ -105,8 +105,8 @@ export class ShareClassForm extends React.Component {
             return this.props.submit(data);
         }
         const body = new FormData();
-        body.append('json', JSON.stringify({...data, documents: null, forceUpdate: this.props.edit}));
-        (data.documents || []).map(d => {
+        body.append('json', JSON.stringify({...data,  existingDocuments: (data.documents || []).map(d => d.id).filter(d => d), forceUpdate: this.props.edit}));
+        (data.documents || []).filter(d => !d.id).map(d => {
             body.append('documents', d, d.name);
         });
         const key = this.props.companyId;
@@ -212,6 +212,8 @@ export class ShareClassForm extends React.Component {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div></div> }
             { !this.props.noDocuments && <Documents documents={fields.documents} label={STRINGS.shareClasses.documentsLabel} /> }
+
+
             </fieldset>
             <div className="button-row">
                 { this.props.end &&  <ButtonInput onClick={() => this.props.end({cancelled: true})}>Cancel</ButtonInput> }
@@ -243,7 +245,7 @@ export class ShareClassEdit extends React.Component {
         if(!state){
             return <Loading />
         }
-        return  <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
+        return  <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name, documents: state.documents}} edit={true} shareClassId={state.id}/>
     }
 }
 
@@ -267,14 +269,12 @@ export class ShareClassEditTransactionView extends React.Component {
         const state = this.props.transactionViewData.shareClasses.filter(s => {
             return s.id === this.props.transactionViewData.shareClassId;
         })[0];
-
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'} lawLinks={shareClassLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Create Share Class</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
-                    <ShareClassFormConnected {...this.props} {...this.props.transactionViewData} end={this.props.end}  initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
-
+                    <ShareClassFormConnected {...this.props} {...this.props.transactionViewData} end={this.props.end}  initialValues={{...state.properties, name: state.name, documents: state.documents}} edit={true} shareClassId={state.id}/>
           </TransactionView.Body>
         </TransactionView>
     }

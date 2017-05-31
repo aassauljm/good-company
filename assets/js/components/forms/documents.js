@@ -74,9 +74,13 @@ class DocumentBase extends React.Component {
                   <input {...inputAttributes} />
             </div>) }
            {((documents|| {}).value || []).map((file, i) => {
+                if(file.type && file.type === 'Directory'){
+                    return false;
+                }
                 return  <StaticField type="static" key={i} label="File" key={i}
-                hasFeedback groupClassName='has-group' value={file.name}
-                buttonAfter={<button className="btn btn-default" onClick={() => {
+                hasFeedback groupClassName='has-group' value={file.name || file.filename}
+                buttonAfter={<button className="btn btn-default" onClick={(e) => {
+                    e.preventDefault();
                     const clone = documents.value.slice();
                     clone.splice(i, 1);
                     documents.onChange(clone);

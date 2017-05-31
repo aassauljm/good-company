@@ -15,8 +15,6 @@ import LawBrowserLink from '../lawBrowserLink';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
 
 
-
-
 function votingShareholdingLawLinks() {
     return <div>
         <LawBrowserLink title="Companies Act 1993" location="s 104">Exercise of powers of shareholders</LawBrowserLink>
@@ -126,7 +124,6 @@ export class VotingShareholdersTransactionView extends React.Component {
             .then(() => {
                 this.props.end({reload: true});
                 this.props.dispatch(addNotification({message: 'Voting Shareholders applied'}));
-                const key = this.props.transactionViewData.companyId;
             })
             .catch((err) => {
                 this.props.dispatch(addNotification({message: err.message, error: true}));
