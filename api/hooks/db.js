@@ -30,6 +30,9 @@ module.exports = function(sails) {
                     .then(() => {
                         next();
                     })
+                    .catch(e => {
+                        sails.log.error(e);
+                    })
             })
         },
         populate: populate,

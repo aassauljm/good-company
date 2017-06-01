@@ -403,6 +403,7 @@ export class PermissionTable extends React.Component {
     render(){
         const companies = (this.props.permissions.data || {}).companyPermissions || [];
         const userPermissions =(this.props.permissions.data || {}).userPermissions || [];
+        const userPermissionsLoading = this.props.permissions._status === 'fetching';
         /*if(this.props.permissions._status === 'fetching'){
             return <Loading />
         }*/
@@ -419,6 +420,7 @@ export class PermissionTable extends React.Component {
                 </tr>
             </thead>
             <tbody>
+            { userPermissionsLoading && <tr><td colSpan="3"><Loading /></td></tr>}
                     { companies.map((company, i) => {
                         const disabled = company.userPermissions && company.ownerId === company.userPermissions.userId;
                         const permissions = (company.userPermissions || {}).permissions || [];

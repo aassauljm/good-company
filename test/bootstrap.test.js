@@ -23,6 +23,15 @@ var LawBrowserContainer = require('../assets/js/components/lawBrowserContainer')
 
 var sails;
 
+var queryGen = require('sequelize/lib/dialects/postgres/query-generator');
+
+queryGen.pgEnumDrop =  function(tableName, attr, enumName) {
+    enumName = enumName || this.pgEnumName(tableName, attr);
+    return 'DROP TYPE IF EXISTS ' + enumName + ' CASCADE;';
+}
+
+
+
 function stubs(){
     // lawbrowser links screw up in the testing tree
     LawBrowserContainer.default.prototype.forceNoLawLinks = true;

@@ -180,6 +180,8 @@ $$ LANGUAGE SQL;
 
 
 
+
+
 CREATE OR REPLACE FUNCTION user_companies_by_permission(userId integer, permission text default 'read')
     RETURNS SETOF company
     STABLE AS $$
@@ -191,14 +193,16 @@ CREATE OR REPLACE FUNCTION user_companies_by_permission(userId integer, permissi
 
         UNION
 
-    SELECT c.id
+        SELECT DISTINCT(c.id)
 
-    FROM passport p
-    JOIN organisation o on p.identifier = o."catalexId" and provider = 'catalex'
-    LEFT OUTER JOIN organisation oo on oo."organisationId" = o."organisationId"
-    JOIN passport pp on pp."identifier" = oo."catalexId" and  p.provider = 'catalex'
-    JOIN company c on pp."userId" = c."ownerId"
-    WHERE  p."userId" = $1
+        FROM passport p
+        JOIN organisation o on p.identifier = o."catalexId" and provider = 'catalex'
+        LEFT OUTER JOIN organisation oo on oo."organisationId" = o."organisationId"
+        JOIN passport pp on pp."identifier" = oo."catalexId" and  p.provider = 'catalex'
+        JOIN company c on pp."userId" = c."ownerId"
+        LEFT OUTER JOIN model m on m.name = 'Company'
+        LEFT OUTER JOIN permission per on m.id = per."modelId"  and relation = 'catalex' AND per."catalexId" = p.identifier and action = $2::enum_permission_action and "entityId" = c.id
+        WHERE  p."userId" = $1 and deleted = false and (allow is NULL or allow = TRUE)
 
         UNION
 
@@ -206,7 +210,7 @@ CREATE OR REPLACE FUNCTION user_companies_by_permission(userId integer, permissi
         FROM model m
         LEFT OUTER JOIN permission p on m.id = p."modelId" and m.name = 'Company' and relation = 'user' and  "userId" = $1
         JOIN company c on c.id = p."entityId"
-        WHERE allow = TRUE
+        WHERE allow = TRUE AND action = permission::enum_permission_action and deleted = false
 
         UNION
 
@@ -215,12 +219,12 @@ CREATE OR REPLACE FUNCTION user_companies_by_permission(userId integer, permissi
         LEFT OUTER JOIN permission p on m.id = p."modelId" and m.name = 'Company' and relation = 'catalex'
         JOIN passport ps on ps.identifier = p."catalexId" and provider = 'catalex' and ps."userId" = $1
         JOIN company c on c.id = p."entityId"
-        WHERE allow = TRUE
+        WHERE allow = TRUE AND action = permission::enum_permission_action and deleted = false
 
         ) q on q.id = c.id
 
-    WHERE deleted = false AND check_permission($1, 'read', 'Company', c.id);
 $$ LANGUAGE SQL;
+
 
 
 CREATE OR REPLACE FUNCTION user_companies_now("userId" integer)
@@ -245,7 +249,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION get_company_permissions_json(entityId integer, catalexId text)
     RETURNS JSON
-        AS $$
+    STABLE AS $$
     SELECT row_to_json(qq) from (
 
     SELECT "catalexId", "name", "userId", array_agg(perms) as permissions from (
@@ -263,7 +267,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION user_companies_catalex_user_permissions("userId" integer, "catalexId" text)
     RETURNS SETOF json
-    AS $$
+    STABLE AS $$
     WITH basic_company_state as (
         SELECT id, "companyName", "companyNumber", "nzbn", "entityType", "incorporationDate"  from company_state
     )
@@ -277,7 +281,6 @@ CREATE OR REPLACE FUNCTION user_companies_catalex_user_permissions("userId" inte
     ) q
 
 $$ LANGUAGE SQL;
-
 
 
 
@@ -300,7 +303,7 @@ CREATE OR REPLACE FUNCTION get_all_company_permissions_json(entityId integer def
 
 
      SELECT "catalexId", "name", email, "userId", array_agg(perms) as permissions, FALSE as organisation from (
-        SELECT "catalexId", u."username" as name, email, p."userId", action::text as perms
+        SELECT "catalexId", u."username" as name, email, p."userId", action as perms
         FROM model m
         LEFT OUTER JOIN permission pp on m.id = pp."modelId" and "entityId" = $1 and relation = 'catalex' and allow = true
 
@@ -441,7 +444,6 @@ SELECT row_to_json(q) from (
     inner join transaction t on pt."transactionId" = t.id
     ORDER BY pt.generation ASC) as q;
 $$ LANGUAGE SQL;
-
 
 
 -- Like company_state_history_json but filters on transaction type, ie ISSUE
@@ -671,7 +673,7 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
             AS "futureTransactions"
 
         FROM (
-        SELECT *, company_now(c.id) FROM user_companies_by_permission($1, 'update') c
+        SELECT *, company_now(c.id) FROM user_companies_by_permission($1) c
         ) c
         JOIN company_state cs on cs.id = c.company_now
         ORDER BY "companyName"
