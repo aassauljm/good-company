@@ -332,7 +332,7 @@ function InterestsRegisterTable(props) {
                <strong> { STRINGS.interestsRegister.details } </strong>
                 <p>{ row.details }</p>
            </div>
-           { row.documents.length && <div className="col-xs-12">
+           { !!row.documents.length && <div className="col-xs-12">
                 <strong> { STRINGS.interestsRegister.documents } </strong>
                 {row.documents.filter(d => d.type !== 'Directory').map((d, i) => {
                     return <div key={i}><em>{ d.filename }</em></div>
