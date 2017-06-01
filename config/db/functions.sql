@@ -661,7 +661,6 @@ CREATE OR REPLACE FUNCTION get_deadlines(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
-
 CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
     RETURNS JSON
     AS $$
@@ -672,13 +671,13 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
             AS "futureTransactions"
 
         FROM (
-        SELECT *, company_now(c.id) FROM company c
-        WHERE c."ownerId" = $1 and c.deleted != true
+        SELECT *, company_now(c.id) FROM user_companies_by_permission($1, 'update') c
         ) c
         JOIN company_state cs on cs.id = c.company_now
         ORDER BY "companyName"
     ) q;
 $$ LANGUAGE SQL;
+
 
 
 
