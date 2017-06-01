@@ -4,6 +4,7 @@ import { requestResource, createResource, updateResource, addNotification } from
 import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import { reduxForm, addArrayValue } from 'redux-form';
+import { InterestsRegisterFromRouteHOC, CompanyFromRouteHOC } from '../hoc/resources'
 import { Link } from 'react-router';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
@@ -19,9 +20,9 @@ import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
 import Loading from './loading';
 import Widget from './widget';
+import { asyncConnect } from 'redux-connect';
 
-
-const interestRegisterLawLinks = () => <div>
+const interestsRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM319933">Keeping of interests register</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 139">Interests of directors in company transactions</LawBrowserLink>
         <LawBrowserLink title="Companies Act 1993" location="s 107(3)+140">Disclosure of director interests</LawBrowserLink>
@@ -239,20 +240,23 @@ export class InterestsRegisterView extends React.PureComponent {
 }
 
 
-
-@connect((state, ownProps) => {
-    return {data: [], ...state.resources['/company/'+ownProps.params.id +'/interests_register']}
-}, {
-    requestData: (key) => requestResource('/company/'+key+'/interests_register'),
+@InterestsRegisterFromRouteHOC(true)
+@connect(undefined, {
     viewEntry: (path, id) => push(path + '/view/'+id)
 })
 export class InterestsRegister extends React.PureComponent {
 
     static fields = ['date', 'persons', 'details', 'documents']
-
+    renderControls() {
+        return  <div className="button-row">
+                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/interests_register`} target='_blank'>Download</Link>
+            </div>
+    }
     renderList(data) {
         const companyId = this.props.companyId;
         return <div>
+
+            { !!data.length && this.renderControls() }
             <table className="table table-hover table-striped interests-register-table">
                 <thead>
                 <tr>{ InterestsRegister.fields.map((f, i) => {
@@ -280,25 +284,14 @@ export class InterestsRegister extends React.PureComponent {
         return (this.props.companyState.permissions || []).indexOf('update') >= 0;
     }
 
-    fetch() {
-        return this.props.requestData(this.key());
-    };
 
     key() {
         return this.props.params.id
     };
 
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
-
     render() {
-        const interestsRegister = (this.props.data || []);
-        return <LawBrowserContainer lawLinks={interestRegisterLawLinks()}>
+        const interestsRegister = (this.props.interestsRegister.data || []);
+        return <LawBrowserContainer lawLinks={interestsRegisterLawLinks()}>
                 <Widget title="Interests Register">
                         { !this.props.children && this.renderList(interestsRegister) }
                          { this.props.companyState && this.props.children && React.cloneElement(this.props.children, {
@@ -308,6 +301,60 @@ export class InterestsRegister extends React.PureComponent {
                         }) }
                         </Widget>
             </LawBrowserContainer>
+    }
+}
+
+function InterestsRegisterTable(props) {
+    const companyId = props.companyId;
+    const companyState = props.companyState;
+    return <div className="interests-register-document">
+        <div className="title"><h2>Interests Register</h2></div>
+            <table className="heading">
+                <tbody><tr>
+                <td>
+                <h2>{ companyState.companyName }</h2>
+                </td>
+                <td>
+                <h4>NZBN: { companyState.nzbn }</h4>
+                <h4>Company Number #{ companyState.companyNumber }</h4>
+                </td>
+                </tr>
+                </tbody>
+            </table>
+
+     {  props.interestsRegister.map((row, i) => {
+        return <div key={i} className="row">
+           { ['date', 'persons'].map((field, i) => {
+            return <div className="col-xs-12" key={i}><strong> { STRINGS.interestsRegister[field] }</strong><p> {renderField(field, row[field], companyId)}</p></div>
+             }) }
+
+           <div className="col-xs-12">
+               <strong> { STRINGS.interestsRegister.details } </strong>
+                <p>{ row.details }</p>
+           </div>
+           { row.documents.length && <div className="col-xs-12">
+                <strong> { STRINGS.interestsRegister.documents } </strong>
+                {row.documents.filter(d => d.type !== 'Directory').map((d, i) => {
+                    return <div key={i}><em>{ d.filename }</em></div>
+                }) }
+           </div> }
+           { i < props.interestsRegister.length -1 && <hr />}
+        </div>
+    }) }
+     </div>
+}
+
+const DEFAULT_OBJ = {};
+
+
+@InterestsRegisterFromRouteHOC(true)
+export class InterestsRegisterDocumentLoader extends React.PureComponent {
+    static propTypes = {
+        interestsRegister: PropTypes.object.isRequired
+    };
+    render() {
+        const companyState = ((this.props['/company/'+this.props.params.id +'/get_info'] || {}).data || {}).currentCompanyState;
+        return <InterestsRegisterTable interestsRegister={this.props.interestsRegister.data} companyState={companyState} companyId={this.props.companyId}/>
     }
 }
 

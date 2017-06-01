@@ -11,7 +11,7 @@ import Input from './forms/input';
 import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
-import { CompanyHOCFromRoute } from '../hoc/resources';
+import { CompanyFromRouteHOC } from '../hoc/resources';
 import { CompanyAlertsBase } from './companyAlerts';
 import Widget from './widget';
 
@@ -390,7 +390,8 @@ export class ShareRegisterDocument extends React.Component {
 
                 if((s.holderData||{}).heldPersonally === false){
                     title += ` (${s.holderData.onBehalfType} of ${s.holderData.onBehalfDescription})`
-                };
+                }
+
                 if(s.holdingName){
                     title += ` (${s.holdingName})`
                 }

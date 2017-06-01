@@ -243,15 +243,9 @@ export class DirectorRegisterDocument extends React.Component {
         </div>
     }
 }
-@asyncConnect([{
-    key: 'shareRegister',
-    promise: ({store: {dispatch, getState}, params}) => {
-        //return dispatch(requestResource('/company/'+params.id+'/share_register'));
-    }
-}])
-@connect((state, ownProps) => {
-    return {data: {}}
-})
+
+
+
 export class DirectorRegisterDocumentLoader extends React.Component {
     static propTypes = {
         data: PropTypes.object.isRequired
@@ -273,12 +267,13 @@ export class DirectorRegister extends React.Component {
         companyState: PropTypes.object,
         companyId: PropTypes.string
     };
+
     renderControls() {
         return  <div className="button-row">
                 <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/director_register`} target='_blank'>Download</Link>
             </div>
-
     }
+
     render() {
         if(!this.props.companyState || !this.props.companyState.directorList){
             return false;

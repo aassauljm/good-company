@@ -133,18 +133,20 @@ export const ANNUAL_RETURN_FROM_ROUTE = {resource: props => `/company/${props.pa
 export const COMPANY_FROM_ROUTE = {resource: props => `/company/${props.params.id}/get_info`, location: props => `/company/${props.params.id}/get_info`, postProcess: analyseCompany};
 export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.params.id}/at_date/${props.params.date}`, location: props => `/company/${props.params.id}/at_date/${props.params.date}`, postProcess: analyseCompany};
 export const ALL_PERSONS = {resource: props => `/company/${props.companyId}/all_persons`, location: props => `/company/${props.companyId}/all_persons`};
+export const INTERESTS_REGISTER_FROM_ROUTE = {resource: props => `/company/${props.params.id}/interests_register`, location: props => `/company/${props.params.id}/interests_register`, propName: 'interestsRegister'};
 
 export const AlertsHOC = (async, refreshOnMount) => HOCFactory(ALERTS, async, refreshOnMount);
 export const CompaniesHOC = (async, refreshOnMount) => HOCFactory(COMPANIES,  async, refreshOnMount);
 export const CompanyHOC = (async, refreshOnMount) => HOCFactory(COMPANY, async, refreshOnMount);
 export const ForeignPermissionsHOC = (async, refreshOnMount) => HOCFactory(FOREIGN_PERMISSIONS, async, refreshOnMount);
-export const CompanyHOCFromRoute = (async, refreshOnMount) => HOCFactory(COMPANY_FROM_ROUTE, async, refreshOnMount);
+export const CompanyFromRouteHOC = (async, refreshOnMount) => HOCFactory(COMPANY_FROM_ROUTE, async, refreshOnMount);
 export const CompanyDatedHOCFromRoute = (async, refreshOnMount) => HOCFactory(COMPANY_FROM_DATED_ROUTE, async, refreshOnMount);
 export const DocumentsHOC = (async, refreshOnMount) => HOCFactory(DOCUMENTS, async, refreshOnMount);
 export const DocumentsHOCFromRoute = (async, refreshOnMount) => HOCFactory(DOCUMENTS_FROM_ROUTE, async, refreshOnMount);
 export const AnnualReturnHOC = (async, refreshOnMount) => HOCFactory(ANNUAL_RETURN, async, refreshOnMount);
 export const AnnualReturnFromRouteHOC = (async, refreshOnMount) => HOCFactory(ANNUAL_RETURN_FROM_ROUTE, async, refreshOnMount);
 export const AllPersonsHOC = (async, refreshOnMount) => HOCFactory(ALL_PERSONS, async, refreshOnMount);
+export const InterestsRegisterFromRouteHOC = (async, refreshOnMount) => HOCFactory(INTERESTS_REGISTER_FROM_ROUTE, async, refreshOnMount);
 
 
 export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };

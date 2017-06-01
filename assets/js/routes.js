@@ -11,7 +11,7 @@ import Company, { CompanyDated } from './components/company';
 import { Shareholders } from './components/shareholders';
 import { Shareholdings } from './components/shareholdings';
 import { CompanyDetails } from './components/companyDetails';
-import { InterestsRegister, InterestsRegisterCreate, InterestsRegisterView } from './components/interestsRegister';
+import { InterestsRegister, InterestsRegisterCreate, InterestsRegisterView, InterestsRegisterDocumentLoader } from './components/interestsRegister';
 import { ShareRegister, ShareRegisterDocumentLoader } from './components/shareRegister';
 import CompaniesRegister from './components/companiesRegister';
 import { NewTransaction } from './components/newTransaction';
@@ -27,7 +27,7 @@ import ImportNZBN from './components/importNZBN';
 import ImportMenu from './components/importMenu';
 import { CompanyTransactions, PendingTransactions } from './components/transactions';
 import { UpdatePeople, UpdateContact, UpdateShares, UpdateResetDelete } from './components/transactions/selection';
-import { TransactionView, PendingTransactionView  } from './components/transaction';
+import { TransactionView, PendingTransactionView } from './components/transaction';
 import { MassSetup } from './components/massSetup';
 import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
@@ -37,7 +37,7 @@ import AnnualReturn, { ReviewAnnualReturn, AnnualReturnSubmission, AnnualReturnL
 import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
 import AccessList from './components/accessList';
-import { CompanyHOCFromRoute, Injector } from './hoc/resources';
+import { CompanyFromRouteHOC, Injector } from './hoc/resources';
 import { Organisation } from './components/accessList';
 import CompaniesOfficeIntegration from './components/companiesOfficeIntegration';
 import ErrorPage from './components/error'
@@ -143,9 +143,10 @@ export default (store) => {
                 <Route name="Import" path="import" component={ ImportMenu } />
                 <Route name="Import NZBN" path="import/nzbn" component={ ImportNZBN } />
                 <Route name="Import" path="import/:companyNumber" component={ ImportCompany } />
-                <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyHOCFromRoute(true)(Injector) } >
+                <Route path="company/render/:id" childrenOnly={true} print={true} component={ CompanyFromRouteHOC(true)(Injector) } >
                     <Route path="share_register" component={ ShareRegisterDocumentLoader } />
-                    <Route path="director_register" component={ DirectorRegisterDocumentLoader  } />
+                    <Route path="director_register" component={ DirectorRegisterDocumentLoader } />
+                    <Route path="interests_register" component={ InterestsRegisterDocumentLoader } />
                     <Route path="annual_return" component={ AnnualReturnLoader } />
                 </Route>
                 <Route name="Notifications" path="alerts" component={ Alerts } />

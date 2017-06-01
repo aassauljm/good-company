@@ -27,7 +27,7 @@ import Header from './header';
 import { CompanyAlertsWidget } from './companyAlerts';
 import moment from 'moment';
 import { destroy as destroyForm } from 'redux-form';
-import { CompanyHOCFromRoute, CompanyDatedHOCFromRoute } from '../hoc/resources';
+import { CompanyFromRouteHOC, CompanyDatedHOCFromRoute } from '../hoc/resources';
 
 
 const DEFAULT_OBJ = {};
@@ -40,7 +40,7 @@ const FAKE_COMPANY = {
 
 
 
-@CompanyHOCFromRoute(true)
+@CompanyFromRouteHOC(true)
 export default class Company extends React.Component {
     render() {
         const loc = '/company/'+this.props.params.id +'/get_info';
