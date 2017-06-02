@@ -657,7 +657,7 @@ CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
-DROP FUNCTION ar_deadline(integer,text) CASCADE;
+DROP FUNCTION IF EXISTS ar_deadline(integer,text) CASCADE;
 CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacific/Auckland')
     RETURNS JSON
     AS $$
@@ -692,7 +692,7 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacif
     ) q
 $$ LANGUAGE SQL;
 
-DROP FUNCTION get_deadlines(integer);
+DROP FUNCTION IF EXISTS get_deadlines(integer);
 CREATE OR REPLACE FUNCTION get_deadlines(companyId integer)
     RETURNS JSON
     AS $$
