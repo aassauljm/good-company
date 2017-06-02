@@ -657,8 +657,8 @@ CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
 $$ LANGUAGE SQL;
 
 
-
-CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default 'Pacific/Auckland')
+DROP FUNCTION ar_deadline(integer,text) CASCADE;
+CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacific/Auckland')
     RETURNS JSON
     AS $$
     SELECT row_to_json(q)
@@ -666,32 +666,34 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyStateId integer, tz text default '
         SELECT "arFilingMonth",
         format_iso_date(date) as "lastFiling",
         "filedThisYear",
-        EXTRACT(EPOCH FROM now() AT TIME ZONE $2 - due) as "seconds",
+        EXTRACT(EPOCH FROM now() AT TIME ZONE 'Pacific/Auckland' - due) as "seconds",
         not "filedThisYear" and due < now() and not "incorporatedThisYear" as "overdue",
         format_iso_date(due) as "dueDate",
         NOT "filedThisYear" AND EXTRACT(MONTH FROM now() AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueThisMonth"
         FROM (
             SELECT "arFilingMonth", date,
-         EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE 'Pacific/Auckland') as "incorporatedThisYear",
+         EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE $2) as "incorporatedThisYear",
                 EXTRACT(YEAR FROM COALESCE(date, "incorporationDate")) = EXTRACT(YEAR FROM now()) as "filedThisYear",
                 make_timestamptz(
                     EXTRACT(YEAR FROM COALESCE(date, "incorporationDate") AT TIME ZONE 'Pacific/Auckland')::integer + 1,
                     EXTRACT(MONTH FROM TO_TIMESTAMP("arFilingMonth"::text, 'Month'))::integer,
                     1,
                     0,0,0.0, $2) + INTERVAL '1 month - 1 second' as "due"
-            FROM company_state cs
-            LEFT OUTER JOIN doc_list_j dlj on cs.doc_list_id = dlj.doc_list_id
-            LEFT OUTER JOIN document d on d.id = dlj.document_id and  type = 'Companies Office' and (filename = 'File Annual Return' or filename = 'Online Annual Return' or filename = 'Annual Return Filed')
-
-            WHERE cs.id = $1
-
-            ORDER BY d.date DESC NULLS LAST LIMIT 1
+            FROM (
+        select "effectiveDate" as date, "incorporationDate", "arFilingMonth"
+        from annual_return
+        JOIN company c on c.id =  $1
+        JOIN company_state cs on cs.id = c."currentCompanyStateId"
+        WHERE "companyId" = $1
+        ORDER BY "effectiveDate" DESC
+        LIMIT 1
+            ) as s
         ) qq
     ) q
 $$ LANGUAGE SQL;
 
-
-CREATE OR REPLACE FUNCTION get_deadlines(companyStateId integer)
+DROP FUNCTION get_deadlines(integer);
+CREATE OR REPLACE FUNCTION get_deadlines(companyId integer)
     RETURNS JSON
     AS $$
     SELECT json_build_object(
@@ -705,7 +707,7 @@ CREATE OR REPLACE FUNCTION all_company_notifications("userId" integer)
     AS $$
     SELECT array_to_json(array_agg(row_to_json(q)))
     FROM (
-        SELECT c.id, cs."companyName", cs.warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(cs.id) as deadlines,
+        SELECT c.id, cs."companyName", cs.warnings, cs."constitutionFiled" as "constitutionFiled", get_deadlines(c.id) as deadlines,
         ( SELECT array_to_json(array_agg(qq)) FROM future_transaction_range(company_now, "currentCompanyStateId") qq)
             AS "futureTransactions"
 

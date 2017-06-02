@@ -3,8 +3,6 @@ CREATE OR REPLACE FUNCTION get_basic_warnings(companyStateId integer)
     RETURNS JSONB
     AS $$
     SELECT jsonb_build_object(
-        --'pendingHistory', has_pending_historic_actions($1),
-        --'pendingFuture', COALESCE(has_pending_future_actions($1), FALSE),
         'pendingHistory', COALESCE((cs.warnings->'pendingHistory')::TEXT::BOOLEAN, FALSE),
         'pendingFuture', COALESCE((cs.warnings->'pendingFuture')::TEXT::BOOLEAN, FALSE),
         'missingVotingShareholders', has_missing_voting_shareholders($1),
@@ -125,3 +123,30 @@ CREATE TRIGGER company_state_history_warnings_update_trigger AFTER UPDATE ON com
     FOR EACH ROW
     WHEN (pg_trigger_depth() = 0 AND (OLD.pending_historic_action_id IS DISTINCT FROM NEW.pending_historic_action_id OR OLD."previousCompanyStateId" IS DISTINCT FROM NEW."previousCompanyStateId"))
     EXECUTE PROCEDURE apply_proactive_warnings();
+
+
+
+
+CREATE OR REPLACE FUNCTION update_annual_returns()
+RETURNS trigger AS $$
+BEGIN
+
+DELETE FROM annual_return where "companyId" = NEW.id;
+INSERT INTO annual_return ("companyId", "documentId", "effectiveDate", "createdAt", "updatedAt") ((
+SELECT c.id, d.id, date, now(), now()
+    FROM company c
+    JOIN company_state cs ON cs.id = c."currentCompanyStateId"
+        LEFT OUTER JOIN doc_list_j dlj on cs.doc_list_id = dlj.doc_list_id
+        LEFT OUTER JOIN document d on d.id = dlj.document_id
+    WHERE c.id = NEW.id and type = 'Companies Office' and (filename = 'File Annual Return' or filename = 'Online Annual Return' or filename = 'Annual Return Filed')
+));
+
+  RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
+
+
+DROP TRIGGER IF EXISTS company_update_annual_returns_update_trigger ON company;
+CREATE TRIGGER company_update_annual_returns_update_trigger AFTER UPDATE ON company
+    FOR EACH ROW
+    WHEN  (OLD."currentCompanyStateId" IS DISTINCT FROM NEW."currentCompanyStateId")
+    EXECUTE PROCEDURE update_annual_returns();
