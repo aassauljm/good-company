@@ -390,7 +390,7 @@ var transactions = {
                 return companyState.groupTotals();
             })
             .then(groupTotals => {
-                if(groupTotals[data.shareClassId] && groupTotals[data.shareClassId].amount > 0){
+                if(!data.forceUpdate && groupTotals[data.shareClassId] && groupTotals[data.shareClassId].amount > 0){
                     throw new sails.config.exceptions.ValidationException('Cannot update share classes that are on issue');
                 }
                 return companyState.getShareClasses({
@@ -405,7 +405,27 @@ var transactions = {
                 if(shareClasses.dataValues.shareClasses.length !== 1){
                     throw new sails.config.exceptions.ValidationException('Share class not found');
                 }
-                return shareClasses.dataValues.shareClasses[0].update({name: data.name, properties: _.omit(data, 'name')});
+                return shareClasses.dataValues.shareClasses[0];
+            })
+            .tap(function(shareClass){
+                return shareClass.update({name: data.name, properties: _.omit(data, 'name', 'documents', 'existingDocuments')});
+            })
+            .tap(function(shareClass){
+                return shareClass.setDocuments([]);
+            })
+            .tap(function(shareClass){
+                // need to check ownnership
+                console.log(data.existingDocuments);
+                if(data.existingDocuments && data.existingDocuments.length){
+                    return shareClass.addDocuments(data.existingDocuments);
+                }
+            })
+            .tap(function(shareClass){
+                if(data.documents){
+                    console.log(data.documents)
+                    return shareClass.addDocuments(data.documents).then(() => shareClass)
+                }
+                return shareClass;
             })
             .then(function(){
                 return {message: `Share Class updated for ${companyState.companyName}`};
@@ -426,7 +446,6 @@ const selfManagedTransactions = {
             * import historic actions, until SEED
         */
         let state, companyName, historic_action_id, newRoot;
-        console.time('pew');
         return sequelize.transaction(function(){
             return company.getCurrentCompanyState()
                 .then(currentState => {

@@ -1,14 +1,14 @@
 --create types
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ace') THEN
-        CREATE TYPE ace AS (
-            permission TEXT,
+
+
+-- THIS MEANS WE CANT SAVE THEM FOR NOW
+DROP TYPE IF EXISTS ace CASCADE;
+
+CREATE TYPE ace AS (
+            permission enum_permission_action,
             principal TEXT,
             allow BOOLEAN
         );
-    END IF;
-END$$;
 
 CREATE OR REPLACE FUNCTION get_owner(_tbl regclass, id integer, OUT result integer) AS
     $func$
@@ -52,11 +52,11 @@ RETURNS INTEGER
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION generate_aces(modelName text,  entityId integer default NULL)
+CREATE OR REPLACE FUNCTION generate_aces(modelName text, entityId integer default NULL)
     RETURNS SETOF ace
-        AS $$
+       STABLE  AS $$
             SELECT * FROM (
-            SELECT action::text as permission,
+            SELECT action as permission,
              CASE
         WHEN p."relation" = 'role' THEN 'role:' || p."roleId"
         WHEN p."relation" = 'organisation' and $2 IS NOT NULL THEN 'org:' || get_org(m.identity, $2)
@@ -80,7 +80,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION generate_principals(userId integer)
     RETURNS SETOF text
-    AS $$
+    STABLE AS $$
         SELECT 'id:' || $1
 
         UNION
@@ -117,7 +117,7 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION generate_principals_catalex_user( catalexId text)
     RETURNS SETOF text
-    AS $$
+    STABLE AS $$
         SELECT generate_principals(p."userId")
         FROM passport p
         WHERE p.identifier = $1 and provider = 'catalex'
@@ -149,8 +149,8 @@ $$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entityId integer default NULL)
-    RETURNS SETOF TEXT
-        AS $$
+    RETURNS SETOF enum_permission_action
+        STABLE AS $$
 
         WITH principals as (
             SELECT generate_principals($1) as principal
@@ -169,15 +169,16 @@ CREATE OR REPLACE FUNCTION get_permissions(userId integer, modelName text, entit
 
 $$ LANGUAGE SQL;
 
+
 CREATE OR REPLACE FUNCTION get_permissions_array(userId integer, modelName text, entityId integer default NULL)
-    RETURNS TEXT[] AS $$
+    RETURNS enum_permission_action[] AS $$
     SELECT ARRAY_AGG(p) from get_permissions($1, $2, $3) p
 $$ LANGUAGE SQL;
 
 
 CREATE OR REPLACE FUNCTION get_permissions_catalex_user(catalexId text, modelName text, entityId integer default NULL)
-    RETURNS SETOF TEXT
-        AS $$
+    RETURNS SETOF enum_permission_action
+        STABLE AS $$
 
         WITH principals as (
             SELECT generate_principals_catalex_user($1) as principal
@@ -209,7 +210,7 @@ CREATE OR REPLACE FUNCTION check_permission(userId integer, permission text, mod
         SELECT COALESCE((SELECT a.allow
         FROM aces a
         JOIN principals p on a.principal = p.principal
-        WHERE permission = $2
+        WHERE permission = $2::enum_permission_action
         ORDER BY index
         LIMIT 1), FALSE)
 $$ LANGUAGE SQL;

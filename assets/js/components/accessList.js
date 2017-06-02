@@ -404,9 +404,8 @@ export class PermissionTable extends React.Component {
     render(){
         const companies = (this.props.permissions.data || {}).companyPermissions || [];
         const userPermissions =(this.props.permissions.data || {}).userPermissions || [];
-        /*if(this.props.permissions._status === 'fetching'){
-            return <Loading />
-        }*/
+        const userPermissionsLoading = this.props.permissions._status === 'fetching' && !this.props.permissions.data;
+
         return <div>
             <div className="button-row">
                 <Input type="checkbox" checked={ userPermissions.indexOf('create') >= 0 } disabled={false} onChange={(e) => this.onUserChange(e, 'create')} label="Can Import New Companies" />
@@ -420,15 +419,16 @@ export class PermissionTable extends React.Component {
                 </tr>
             </thead>
             <tbody>
-                    { companies.map((company, i) => {
-                        const disabled = company.userPermissions && company.ownerId === company.userPermissions.userId;
-                        const permissions = (company.userPermissions || {}).permissions || [];
-                        return <tr key={i}>
-                             <td> { company.currentCompanyState.companyName } </td>
-                            <td> <Input type="checkbox" checked={permissions.indexOf('read') >= 0 } disabled={disabled} onChange={(e) => this.onCompanyChange(e, company, 'read') }/></td>
-                            <td> <Input type="checkbox" checked={permissions.indexOf('update') >= 0 } disabled={disabled} onChange={(e) => this.onCompanyChange(e, company, 'update')}/></td>
-                        </tr>
-                    })}
+            { userPermissionsLoading && <tr><td colSpan="3"><Loading /></td></tr>}
+                { companies.map((company, i) => {
+                    const disabled = company.userPermissions && company.ownerId === company.userPermissions.userId;
+                    const permissions = (company.userPermissions || {}).permissions || [];
+                    return <tr key={i}>
+                         <td> { company.currentCompanyState.companyName } </td>
+                        <td> <Input type="checkbox" checked={permissions.indexOf('read') >= 0 } disabled={disabled} onChange={(e) => this.onCompanyChange(e, company, 'read') }/></td>
+                        <td> <Input type="checkbox" checked={permissions.indexOf('update') >= 0 } disabled={disabled} onChange={(e) => this.onCompanyChange(e, company, 'update')}/></td>
+                    </tr>
+                })}
                 </tbody>
         </table>
         </div>

@@ -171,8 +171,8 @@ export default {
     interestsRegister: {
         date: 'Date',
         persons: 'Interested Persons',
-        details: 'Details of Interests',
-        documents: 'Documents'
+        details: 'Details of Interest',
+        documents: 'Documents',
     },
     companyDocuments: {
         id: 'ID',

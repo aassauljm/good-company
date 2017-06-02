@@ -66,6 +66,7 @@ module.exports = {
     options: {
         freezeTableName: false,
         tableName: 'passport',
+        indexes: [{name: 'passport_provider_user_idx', fields: ['provider', 'userId']}],
         classMethods: {},
         instanceMethods: {
             changePassword: function(newPassword) {

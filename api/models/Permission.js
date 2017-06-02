@@ -86,6 +86,8 @@ module.exports = {
         tableName: 'permission',
         classMethods: {},
         instanceMethods: {},
+        indexes: [{name: 'permission_allow_relation_idx', fields: ['allow', 'relation']},
+            {name: 'permission_allow_relation_user_idx', fields: ['allow', 'relation', 'userId']}],
         hooks: {
             afterValidate: [
                 function validateOwnerCreateTautology(permission, next) {
