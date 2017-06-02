@@ -80,9 +80,10 @@ module.exports = {
                                    this.company.permissions(req.user.id),
                                    this.company.authorities(),
                                    this.company.hasAuthority(req.user.id),
+                                   this.company.getDeadlines()
                                    ])
             })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority) {
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority, deadlines) {
                 return res.json({...this.company.toJSON(),  currentCompanyState: {
                     ...currentCompanyState,
                     hasPendingJob,
@@ -90,7 +91,8 @@ module.exports = {
                     dateOfState: new Date(),
                     permissions,
                     authorities,
-                    authority }});
+                    authority,
+                    deadlines }});
             }).catch(function(err) {
                 return res.notFound();
             });
@@ -108,18 +110,19 @@ module.exports = {
                                    this.company.hasPendingJob(),
                                    this.company.permissions(req.user.id),
                                    this.company.authorities(),
-                                   this.company.hasAuthority(req.user.id)
+                                   this.company.hasAuthority(req.user.id),
+                                   this.company.getDeadlines()
                                    ])
             })
-            .spread(function(stats, hasPendingJob,  permissions, authorities, authority) {
+            .spread(function(stats, hasPendingJob,  permissions, authorities, authority, deadlines) {
                 var json = this.companyState.get();
-                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions, authorities, authority})});
+                res.json({companyState: _.merge(json, stats, {hasPendingJob, permissions, authorities, authority, deadlines})});
             }).catch(function(err) {
                 return res.notFound();
             });
     },
 
-   atDate: function(req, res) {
+    atDate: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
                 this.company = company;
@@ -132,9 +135,10 @@ module.exports = {
                                    this.company.getTransactionsAfter(companyState.id),
                                    this.company.permissions(req.user.id),
                                    this.company.authorities(),
-                                   this.company.hasAuthority(req.user.id)])
+                                   this.company.hasAuthority(req.user.id),
+                                   this.company.getDeadlines()])
             })
-            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority) {
+            .spread(function(currentCompanyState, hasPendingJob, futureTransactions, permissions, authorities, authority, deadlines) {
                 var json = this.companyState.get();
                 return res.json({...this.company.toJSON(),  currentCompanyState: {
                     ...currentCompanyState,
@@ -143,7 +147,8 @@ module.exports = {
                     dateOfState: new Date(),
                     permissions,
                     authorities,
-                    authority }});
+                    authority,
+                    deadlines }});
             }).catch(function(err) {
                 return res.notFound();
             });

@@ -424,7 +424,12 @@ module.exports = {
             foreignPermissions: function(userId){
                 return Company.foreignPermissions(this.id)
             },
-
+            getDeadlines: function(){
+                return sequelize.query('select get_deadlines(:id)',
+                                       { type: sequelize.QueryTypes.SELECT,
+                                            replacements: { id: this.id}})
+                    .then(results => results[0].get_deadlines)
+            },
             authorities: function(){
                 return sequelize.query("select company_co_authorities(:id)",
                                { type: sequelize.QueryTypes.SELECT,

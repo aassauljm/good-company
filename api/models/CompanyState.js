@@ -539,12 +539,7 @@ module.exports = {
                                        { type: sequelize.QueryTypes.SELECT,
                                             replacements: { id: this.id}});
             },
-            getDeadlines: function(){
-                return sequelize.query('select get_deadlines(:id)',
-                                       { type: sequelize.QueryTypes.SELECT,
-                                            replacements: { id: this.id}})
-                    .then(results => results[0].get_deadlines)
-            },
+
             votingShareholdersCheck: function() {
                 return this.getHoldingList({include: CompanyState.includes.holdings()})
                     .then(function(holdingList) {
@@ -1069,13 +1064,11 @@ module.exports = {
                                     this.groupUnallocatedShares(),
                                     this.groupTotals(),
                                     this.getTransactionSummary(),
-                                    this.getDeadlines(),
                                     this.getUnallocatedParcels(),
                         function(total,
                                  unallocated,
                                 countByClass,
                                 transactionSummary,
-                                deadlines,
                                 unallocatedParcels,
                                 ){
                         stats.totalUnallocatedShares = _.sum(Object.keys(unallocated).map(k =>  unallocated[k]), 'amount');
@@ -1089,7 +1082,6 @@ module.exports = {
                         }
                         stats.totalShares = stats.totalAllocatedShares + stats.totalUnallocatedShares;
                         stats.transactions = transactionSummary[0].transaction_summary;
-                        stats.deadlines = deadlines;
                         return stats
                     });
             },
