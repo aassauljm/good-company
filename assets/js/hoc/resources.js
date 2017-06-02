@@ -18,7 +18,7 @@ function stringOrFunction(input, props) {
 
 const HOCFactory = ({resource, location, postProcess, propName}, useAsyncConnect, refreshOnMount)  => ComposedComponent => {
 
-    class Injector extends React.Component {
+    class Injector extends React.PureComponent {
 
         fetch(refresh){
             this.props.fetch(refresh)
@@ -63,7 +63,7 @@ const HOCFactory = ({resource, location, postProcess, propName}, useAsyncConnect
 
 export const AsyncHOCFactory = (resourceTuples)  => ComposedComponent => {
 
-    class Injector extends React.Component {
+    class Injector extends React.PureComponent {
 
         fetch(){
             this.props.fetch()

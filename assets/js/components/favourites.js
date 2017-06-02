@@ -11,17 +11,7 @@ import { addNotification, createResource, deleteResource } from '../actions';
 import { CompaniesHOC } from '../hoc/resources';
 
 
-
-@CompaniesHOC()
-@connect((state, ownProps) => ({favourite: state.resources[`/favourites/${ownProps.companyId}`]}),
-    (dispatch) => ({
-        navigate: (url) => { dispatch(push(url)); dispatch(endTransactionView()) },
-        addFavourite: (id) => dispatch(createResource(`/favourites/${id}`,  null, {invalidates: []})),
-        removeFavourite: (id) => dispatch(deleteResource(`/favourites/${id}`, {invalidates: []})),
-        addNotification: (...args) => dispatch(addNotification(...args))
-    })
-)
-export default class FavouriteControl extends React.Component {
+export class FavouriteControlUnconnected extends React.PureComponent {
     constructor(props) {
         super(props);
         this.state = {}
@@ -64,3 +54,18 @@ export default class FavouriteControl extends React.Component {
                 </a>
     }
 }
+
+
+export function ConnectFavourites(component){
+    return CompaniesHOC()(connect((state, ownProps) => ({favourite: state.resources[`/favourites/${ownProps.companyId}`]}),
+    (dispatch) => ({
+        navigate: (url) => { dispatch(push(url)); dispatch(endTransactionView()) },
+        addFavourite: (id) => dispatch(createResource(`/favourites/${id}`,  null, {invalidates: []})),
+        removeFavourite: (id) => dispatch(deleteResource(`/favourites/${id}`, {invalidates: []})),
+        addNotification: (...args) => dispatch(addNotification(...args))
+    }))(component))
+}
+
+const FavouriteControl = ConnectFavourites(FavouriteControlUnconnected);
+export default FavouriteControl;
+

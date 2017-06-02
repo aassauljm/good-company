@@ -17,9 +17,9 @@ import Promise from 'bluebird';
 
 import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
-import FavouriteControl from './favourites'
+import { FavouriteControlUnconnected, ConnectFavourites } from './favourites'
 import firstBy from 'thenby';
-
+import { CompaniesHOC } from '../hoc/resources';
 
 
 const DEFAULT_OBJ = {};
@@ -114,7 +114,7 @@ const SelectCompaniesTableConnected = reduxForm({
 })(SelectCompaniesTable);
 
 
-const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
+const CompaniesRenderHOC = ComposedComponent => ConnectFavourites(class extends React.PureComponent {
 
     renderTable(data, condensed, favouriteAction) {
         const handleClick = (event, id) => {
@@ -143,7 +143,7 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
             <tbody>
             { data.filter(d => !d.deleted).map(
                 (row, i) => <tr key={i} onClick={(e) => handleClick(e, row.id) }>
-                <td><FavouriteControl isFavourite={row.favourite} companyId={row.id} action={favouriteAction}/></td>
+                <td><FavouriteControlUnconnected {...this.props} isFavourite={row.favourite} companyId={row.id} action={favouriteAction}  /></td>
                 { fields.map(f => <td key={f}>{row[f]}</td>) }
                 {!condensed && <td>{ (row.permissions || []).indexOf('read') >= 0 ? 'Yes' : 'No' }</td> }
                 {!condensed && <td>{ (row.permissions || []).indexOf('update') >= 0 ? 'Yes' : 'No'}</td> }
@@ -165,17 +165,12 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
     render() {
         return <ComposedComponent {...this.props} renderTable={::this.renderTable} renderList={::this.renderList}/>;
     }
-}
+})
 
 
 
-@asyncConnect([{
-    promise: ({store: {dispatch, getState}}) => {
-        return dispatch(requestResource('companies'));
-    }
-}],
-    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ}),
-{
+@CompaniesHOC()
+@connect(undefined, {
     push: (id) => push(`/company/view/${id}`),
     handleImport: () => push('/import'),
     addNotification: (args) => addNotification(args),
@@ -183,7 +178,7 @@ const CompaniesRenderHOC = ComposedComponent => class extends React.Component {
     resetResources: () => resetResources(),
 })
 @CompaniesRenderHOC
-export class CompaniesDelete extends React.Component {
+export class CompaniesDelete extends React.PureComponent {
 
     constructor(props) {
         super();
@@ -257,18 +252,13 @@ export class CompaniesDelete extends React.Component {
 }
 
 
-@asyncConnect([{
-    promise: ({store: {dispatch, getState}}) => {
-        return dispatch(requestResource('companies'));
-    }
-}],
-    state => ({companies: state.resources[`companies`] || DEFAULT_OBJ, userInfo: state.userInfo}),
-{
-    push: (id) => push(`/company/view/${id}`),
-    handleImport: () => push('/import')
+@CompaniesHOC()
+@connect(state => ({userInfo: state.userInfo}), {
+    handleImport: () => push('/import'),
+    push: (id) => push(`/company/view/${id}`)
 })
 @CompaniesRenderHOC
-export default class Companies extends React.Component {
+export default class Companies extends React.PureComponent {
 
     renderBody() {
         const canImport = this.props.userInfo.permissions.company.indexOf('create') >= 0;
@@ -291,44 +281,24 @@ export default class Companies extends React.Component {
     }
 
     render() {
-    return <LawBrowserContainer>
-            <Widget iconClass="fa fa-institution" title="Companies">
-                   { this.renderBody() }
-            </Widget>
-        </LawBrowserContainer>
-    }
+        return <LawBrowserContainer>
+                <Widget iconClass="fa fa-institution" title="Companies">
+                       { this.renderBody() }
+                </Widget>
+            </LawBrowserContainer>
+        }
 }
 
 
-
-@asyncConnect([{
-    promise: ({store: {dispatch, getState}}) => {
-        return dispatch(requestResource('companies'));
-    }
-}],
-    state => ({companies: state.resources[`companies`]}),
-{
-    requestData: () => requestResource(`companies`),
+@CompaniesHOC()
+@connect(undefined, {
     handleImport: () => push('/import'),
     push: (id) => push(`/company/view/${id}`)
 })
 @CompaniesRenderHOC
-export class CompaniesWidget extends React.Component {
-
-    fetch() {
-        return this.props.requestData();
-    }
-
-    componentDidMount() {
-        this.fetch();
-    }
-
-    componentDidUpdate() {
-        this.fetch();
-    };
+export class CompaniesWidget extends React.PureComponent {
 
     renderBody() {
-
         const data = (this.props.companies.data || []).filter(c => !c.deleted).map(c => ({...c.currentCompanyState, ...c}));
         data.sort(firstBy('favourite', -1).thenBy(c => c.currentCompanyState.companyName))
         return this.props.renderTable(data.slice(0, 6), true, false);

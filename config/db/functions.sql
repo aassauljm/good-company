@@ -124,7 +124,7 @@ $$ LANGUAGE SQL;
 
 
 -- get the companyState for right now
-CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp with time zone)
+CREATE OR REPLACE FUNCTION company_state_at_SLOW_BUT_CORRECT(companyStateId integer, timestamp with time zone)
     RETURNS integer
     AS $$
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "transactionId", generation) as (
@@ -141,6 +141,43 @@ CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp wi
     WHERE (q."effectiveDate" IS NOT NULL and q."effectiveDate" < $2) OR  (q."previousCompanyStateId" IS NULL)
     LIMIT 1
 $$ LANGUAGE SQL;
+
+/*
+early termination of above, to test:
+select id, time from (
+select id, time, company_state_at_SLOW_BUT_CORRECT(id, time) = company_state_at(id, time) as same from company_state
+
+left outer join (select timestamp '2010-01-10 20:00:00' +
+       random() * (timestamp '2017-6-20 20:00:00' -
+                   timestamp '2010-01-10 10:00:00') as time from generate_series(1, 100)) as sub on true
+) subsub where same = false
+
+
+*/
+
+CREATE OR REPLACE FUNCTION company_state_at(companyStateId integer, timestamp with time zone)
+    RETURNS integer
+    AS $$
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", generation, past) as (
+        SELECT t.id, t."previousCompanyStateId", 0 as generation,  tr."effectiveDate" IS NOT NULL and tr."effectiveDate" < $2 as past
+        FROM company_state as t
+        LEFT OUTER JOIN transaction tr on t."transactionId" = tr.id
+        WHERE t.id = $1
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1, tr."effectiveDate" IS NOT NULL and tr."effectiveDate" < $2 as past
+        FROM company_state t LEFT OUTER JOIN transaction tr on t."transactionId" = tr.id,
+        prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId" and not past
+    )
+    SELECT id FROM
+        (SELECT pvs.id, generation,"previousCompanyStateId" FROM prev_company_states pvs
+         ORDER BY generation DESC) q
+    LIMIT 1
+
+$$ LANGUAGE SQL;
+
+
+
 
 -- get the companyState for right now
 CREATE OR REPLACE FUNCTION company_state_now(companyStateId integer)
