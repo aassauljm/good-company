@@ -20,7 +20,7 @@ import Combobox from 'react-widgets/lib/Combobox';
 import LawBrowserLink from './lawBrowserLink';
 import LawBrowserContainer from './lawBrowserContainer'
 import Widget from './widget';
-
+import Loading from './loading';
 
 export const shareClassLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM320605/28784-DLM319594">Share classes</LawBrowserLink>
@@ -106,15 +106,20 @@ export class ShareClassForm extends React.Component {
             return this.props.submit(data);
         }
         const body = new FormData();
-        body.append('json', JSON.stringify({...data, documents: null}));
-        (data.documents || []).map(d => {
+        body.append('json', JSON.stringify({...data,  existingDocuments: (data.documents || []).map(d => d.id).filter(d => d), forceUpdate: this.props.edit}));
+        (data.documents || []).filter(d => !d.id).map(d => {
             body.append('documents', d, d.name);
         });
         const key = this.props.companyId;
         return (!this.props.edit ? this.props.dispatch(createResource('/company/'+key+'/share_classes/create', body, {stringify: false}))
-             : this.props.dispatch(updateResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false})))
-            .then(() => {
-                this.props.dispatch(addNotification({message: 'Share Class Added'}));
+             : this.props.dispatch(updateResource('/company/'+key+'/share_classes/'+this.props.shareClassId, body, {stringify: false,
+                    confirmation: {
+                        title: 'Confirm Correction of Share Class Information',
+                        description: 'Updating share class information applies retroactively, and should only be used for corrections.',
+                        resolveMessage: 'Confirm Correction',
+                        resolveBsStyle: 'warning'}} )))
+            .then((result) => {
+                this.props.dispatch(addNotification(result.response.message));
                 this.props.end && this.props.end();
             })
             .catch((err) => {
@@ -208,6 +213,8 @@ export class ShareClassForm extends React.Component {
                 fields.limitations.addField();    // pushes empty child field onto the end of the array
             }}>Add Limitation/Restriction</ButtonInput></div></div> }
             { !this.props.noDocuments && <Documents documents={fields.documents} label={STRINGS.shareClasses.documentsLabel} /> }
+
+
             </fieldset>
             <div className="button-row">
                 { this.props.end &&  <ButtonInput onClick={() => this.props.end({cancelled: true})}>Cancel</ButtonInput> }
@@ -236,8 +243,10 @@ export class ShareClassEdit extends React.Component {
         const state = this.props.shareClasses.filter(s => {
             return s.id.toString() === this.props.routeParams.shareClassId;
         })[0];
-
-        return  <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
+        if(!state){
+            return <Loading />
+        }
+        return  <ShareClassFormConnected {...this.props} initialValues={{...state.properties, name: state.name, documents: state.documents}} edit={true} shareClassId={state.id}/>
     }
 }
 
@@ -261,14 +270,12 @@ export class ShareClassEditTransactionView extends React.Component {
         const state = this.props.transactionViewData.shareClasses.filter(s => {
             return s.id === this.props.transactionViewData.shareClassId;
         })[0];
-
         return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.props.end} backdrop={'static'} lawLinks={shareClassLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Create Share Class</TransactionView.Title>
               </TransactionView.Header>
               <TransactionView.Body>
-                    <ShareClassFormConnected {...this.props} {...this.props.transactionViewData} end={this.props.end}  initialValues={{...state.properties, name: state.name}} edit={true} shareClassId={state.id}/>
-
+                    <ShareClassFormConnected {...this.props} {...this.props.transactionViewData} end={this.props.end}  initialValues={{...state.properties, name: state.name, documents: state.documents}} edit={true} shareClassId={state.id}/>
           </TransactionView.Body>
         </TransactionView>
     }

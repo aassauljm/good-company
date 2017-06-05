@@ -317,6 +317,11 @@ module.exports.routes = {
         model: 'company'
     },
 
+    'GET /api/company/render/:id/interests_register': {
+        controller: 'RenderController',
+        action: 'renderInterestsRegister',
+        model: 'company'
+    },
 
 
     'POST /api/render_template': {

@@ -129,8 +129,9 @@ html,body{
 body{
     margin:0;
     font-family: -apple-system, "Helvetica Neue", "Roboto", "Segoe UI", "Lucida Grande", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    //-webkit-font-smoothing: subpixel-antialiased;
+text-rendering: optimizeLegibility !important;
+-webkit-font-smoothing: antialiased !important;
+-moz-osx-font-smoothing: grayscale !important;
 
     & > .error{
         text-align:center;

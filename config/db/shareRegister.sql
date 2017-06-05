@@ -64,7 +64,7 @@ WITH transaction_history as (
     select q.id,   data->>'transactionMethod' as method, jsonb_array_elements(data->'parcels') as parcels from (
     select id, data from transaction
     ) q) tt on t.id = tt.id
-
+    WHERE (tt.parcels->>'amount')::int  > 0
     ORDER BY generation
 )
 

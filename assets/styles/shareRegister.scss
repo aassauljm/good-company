@@ -13,6 +13,7 @@
     }
 }
 
+.interests-register-document,
 .share-register-document{
         background-color:white;
         padding: 15px;
@@ -45,7 +46,10 @@
         text-align: right;
     }
 
-
+    hr{
+        float: left;
+        width: 100%;
+    }
 
 }
 

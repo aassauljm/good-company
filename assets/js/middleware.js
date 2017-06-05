@@ -76,7 +76,6 @@ export function confirmationMiddleware({
     }
 }
 
-let USER_WARNED = false;
 
 export function callAPIMiddleware({
     dispatch, getState

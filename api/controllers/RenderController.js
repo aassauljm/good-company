@@ -47,6 +47,7 @@ module.exports = {
     renderShareRegister: renderPage('Share Register', '/share_register'),
     renderDirectorRegister: renderPage('Director Register', '/director_register'),
     renderAnnualReturn: renderPage('Annual Return', '/annual_return'),
+    renderInterestsRegister: renderPage('Interests Register', '/interests_register'),
 
     renderTemplate: function(req, res){
         let response;
