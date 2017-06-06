@@ -71,6 +71,10 @@ module.exports = {
             isEqual: function(other, options={}){
                 return this.dataValues.person.isEqual(other.person ? other.person : other);
             },
+            setMbieData: function(data, date){
+                this.set('data', {...this.dataValues.data, mbieData: {...data, fetchedDate: date}});
+
+            }
         },
         hooks: {}
     }

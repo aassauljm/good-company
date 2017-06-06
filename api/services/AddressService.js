@@ -83,8 +83,8 @@ export function compareAddresses(first, second){
     }
 
     // drop postal codes
-    first =  first.replace(/(\d){4,6}/g, ' ').replace(/ +/g, ' ');
-    second = second.replace(/(\d){4,6}/g, ' ').replace(/ +/g, ' ');
+    first =  first.replace(/(\d){4,6},?/g, ' ').replace(/ +/g, ' ');
+    second = second.replace(/(\d){4,6},?/g, ' ').replace(/ +/g, ' ');
 
     if(first === second){
         return true;

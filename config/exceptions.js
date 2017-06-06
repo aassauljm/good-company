@@ -23,6 +23,8 @@ module.exports.exceptions = _.defaults({
     COFailValidation: errorFactory('COFailValidation', [ 'message', 'context' ]),
     BadRequest: errorFactory('BadRequest', [ 'message', 'context' ]),
     UserNotConnected: errorFactory('UserNotConnected', [ 'message', 'context' ]),
+    MbieMergeFail: errorFactory('MbieMergeFail', [ 'message', 'context' ])
+
 }, require('sequelize/lib/errors'));
 
 

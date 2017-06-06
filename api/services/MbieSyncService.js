@@ -118,6 +118,26 @@ const getUserTokenAndRetry = (user, action) => {
 }
 
 
+function normalizeAddresses(company) {
+    return Promise.all(company.directorList.directors.map(director => {
+        return AddressService.normalizeAddress(director.person.address)
+            .then(address => {
+                director.person.address = address;
+            })
+    }))
+    .then(() => {
+        return Promise.all(company.holdingList.holdings.map(holding => {
+            return Promise.all(holding.holders.map(holder => {
+                return AddressService.normalizeAddress(holder.person.address)
+                    .then(address => {
+                        holder.person.address = address;
+                    });
+                }));
+        }));
+    })
+    .then(() => company)
+}
+
 module.exports = {
     fetchUrl: fetchUrl,
     updateAuthority: function(user, company, state) {
@@ -141,7 +161,6 @@ module.exports = {
                 return null;
             })
     },
-
 
     fetchState: function(user, company, state) {
         // get auth token,
@@ -204,6 +223,7 @@ module.exports = {
             const contacts = director.contacts;
             const person = director.personInRole;
             return {
+                mbieData: director,
                 appointment: moment(director.appointedDate, 'YYYY-MM-DD').toDate(),
                 person: {
                     name: joinName(person.name),
@@ -219,10 +239,30 @@ module.exports = {
         return company;
     },
     merge: function(user, company, state) {
+        const date = new Date();
         return MbieSyncService.fetchState(user, company, state)
             .then(MbieSyncService.flatten)
-            .then(() => {
-
+            .then(normalizeAddresses)
+            .then((mbieState) => {
+                return sequelize.transaction(() => {
+                    return Promise.all(mbieState.directorList.directors.map(mbieDirector => {
+                        return Promise.all(state.directorList.directors.map(director => {
+                            if(director.person.isEqual(mbieDirector.person)){
+                                director.setMbieData(mbieDirector.mbieData, date);
+                                return director.save();
+                            }
+                        }));
+                    }))
+                    .then((results) => {
+                        const matches = _.flatten(results).filter(f => f).length;
+                        if(matches !== mbieState.directorList.directors.length){
+                            throw sails.config.exceptions.MbieMergeFail();
+                        }
+                    })
+                    .then(() => {
+                        return state.update({'coVersion': mbieState.etag});
+                    })
+                });
             })
     },
     arSummary: function(user, company, state) {
