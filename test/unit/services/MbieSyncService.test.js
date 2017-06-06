@@ -18,7 +18,7 @@ var login = function(req, username='companycreator@email.com'){
 
 describe('MBIE Sync Service', function() {
 
-    describe('Merges IDs in 3048297', function(){
+    describe('Merges IDs in AR TEST 1476323989359 (3048297)', function(){
         var req, companyId;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
@@ -32,13 +32,46 @@ describe('MBIE Sync Service', function() {
                     done();
                 });
         });
-        it('Merges with co', function(done){
-            req.post('/api/company/'+companyId+'/merge_companies_office')
+
+
+        const UPDATE_DIRECTOR = {
+            "documents": null,
+            "transactions": [
+                {
+                    "actions": [
+                        {
+                            "afterAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
+                            "afterName": "Daniel CARTERAGE",
+                            "beforeAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
+                            "beforeName": "Daniel CARTER",
+                            "personAttr": {},
+                            "transactionType": "UPDATE_DIRECTOR"
+                        }
+                    ],
+                    "effectiveDate": new Date(),
+                    "transactionType": "UPDATE_DIRECTOR"
+                }
+            ]
+        };
+
+        it('Updates director', function(done){
+            req.post('/api/transaction/compound/'+companyId)
+                .send({json: JSON.stringify(UPDATE_DIRECTOR)})
                 .expect(200)
                 .then(function(res){
                     done();
                 });
         });
+
+        it('Merges with co', function(done){
+            req.put('/api/company/'+companyId+'/merge_companies_office')
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+
     });
 
 
