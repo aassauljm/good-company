@@ -34,6 +34,7 @@ class NewPerson extends React.Component {
     renderBody(companyState) {
         return <this.props.form
                     ref="form"
+                    initialValues={{attr: {contactMethod: 'address'}}}
                     onSubmit={this.submit}/>
 
     }

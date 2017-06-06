@@ -11,7 +11,7 @@ import STRINGS from '../../strings';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import { HoldingNoParcelsConnected, updateHoldingFormatAction, reformatPersons } from '../forms/holding';
 import { HoldingDL } from '../shareholdings';
-
+import { holdingLawLinks } from './updateHolding'
 
 function updateHoldingSubmit(values, oldHolding){
     const actions = updateHoldingFormatAction(values, oldHolding);
@@ -24,7 +24,7 @@ function updateHoldingSubmit(values, oldHolding){
 
 
 @connect(undefined)
-export class SelectHoldingTransactionView extends React.Component {
+export class SelectHoldingTransactionView extends React.PureComponent {
     constructor(props) {
         super(props);
         this.handleClose = ::this.handleClose;
@@ -39,7 +39,7 @@ export class SelectHoldingTransactionView extends React.Component {
         const total = this.props.transactionViewData.companyState.totalShares;
         const shareClassMap = generateShareClassMap(this.props.transactionViewData.companyState)
         return <div className="row">
-            <div className="col-md-6 col-md-offset-3">
+            <div className="col-xs-12">
             { this.props.transactionViewData.companyState.holdingList.holdings.map((h, i) => {
             const sum = h.parcels.reduce((acc, p) => acc + p.amount, 0),
                     percentage = (sum/total*100).toFixed(2) + '%';
@@ -53,7 +53,7 @@ export class SelectHoldingTransactionView extends React.Component {
 
 
     render() {
-        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'}>
+        return  <TransactionView ref="transactionView" show={true} bsSize="large" onHide={this.handleClose} backdrop={'static'} lawLinks={holdingLawLinks()}>
               <TransactionView.Header closeButton>
                 <TransactionView.Title>Select Shareholding</TransactionView.Title>
               </TransactionView.Header>

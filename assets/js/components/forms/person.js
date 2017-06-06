@@ -121,8 +121,8 @@ export class NewDirector extends React.Component {
 
                     { !newPerson.value && <Input type="select" {...this.formFieldProps(['personId'])}  onChange={interceptChange} label={'Person'} >
                         <option></option>
+                        { <option value={CREATE_NEW_PERSON}>Add new Person ➕</option>}
                         { this.props.personOptions }
-                        { <option value={CREATE_NEW_PERSON}>Create new Person</option>}
                     </Input> }
 
                     { newPerson.value &&
@@ -131,7 +131,7 @@ export class NewDirector extends React.Component {
                             newPerson.onChange(null);
                         }}><Glyphicon glyph='trash'/></button>} /> }
 
-                    { !newPerson.value && person.error && <div className="alert alert-danger">
+                    { !newPerson.value && person.error && person.value && <div className="alert alert-danger">
                     <p>More information is required about this person.</p>
                     <div className="button-row"><Button bsStyle="danger" onClick={() => this.props.updatePerson(person.value)}>Click here to Update</Button></div>
                     </div> }
@@ -175,7 +175,7 @@ const birthAttributes = requireFields('dateOfBirth', 'placeOfBirth');
 
 const contactAttributes = (values, props) => {
     const errors = {}
-    if(values && values.contactMethod && values.contactMethod !== 'physical'){
+    if(values && values.contactMethod && values.contactMethod !== 'address'){
         if(!values[values.contactMethod]){
             errors[values.contactMethod] = ['Required.']
         }
@@ -188,8 +188,8 @@ const validateNewPersonFull = (values, props) => {
     const attrError = {...birthAttributes(values.attr, props), ...contactAttributes(values.attr, props) };
     if(Object.keys(attrError).length){
         error.attr = attrError
-    }
 
+    }
     return error;
 }
 
@@ -210,7 +210,11 @@ const validateNewDirector = (values, props) => {
         }
 
     }
-    return errors;;
+    else{
+        errors.personId = ['Required']
+    }
+
+    return errors;
 }
 
 const validateRemoveDirector = requireFields('cessation', 'reason');
