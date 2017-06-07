@@ -4,7 +4,9 @@ var kue = require('kue');
 var sails = new Sails();
 var queue = kue.createQueue();
 var Promise = require('bluebird');
-
+var events = require("events");
+events.EventEmitter.prototype._maxListeners = 40;
+Error.stackTraceLimit = Infinity;
 
 
 process.on('message', (msg) => {
@@ -79,7 +81,7 @@ function patchBluebird(ns) {
 
 sails.load({
     log: {
-        level: 'verbose'
+        level: 'info'
     },
     models: {
         migrate: 'safe'

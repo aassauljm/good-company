@@ -70,9 +70,6 @@ function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, 
                         return apiCredential.addScopes(scopes);
                     })
                 })
-                    .catch(e => {
-                        console.log(e)
-                    })
         });
 }
 
@@ -124,7 +121,7 @@ const authWithNzbn = (req, res) => {
     return authWithService({
         ...sails.config.mbie.nzbn,
         service: 'nzbn',
-        scope: {},
+        scope: { scope: 'openid' },
         redirect: '/import/nzbn',
         errorType: 'FAIL_NZBN'
     })(req, res);
