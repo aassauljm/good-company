@@ -34,27 +34,27 @@ describe('MBIE Sync Service', function() {
         });
 
 
-        const UPDATE_DIRECTOR = {
-            "documents": null,
-            "transactions": [
-                {
-                    "actions": [
-                        {
-                            "afterAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
-                            "afterName": "Daniel CARTERAGE",
-                            "beforeAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
-                            "beforeName": "Daniel CARTER",
-                            "personAttr": {},
-                            "transactionType": "UPDATE_DIRECTOR"
-                        }
-                    ],
-                    "effectiveDate": new Date(),
-                    "transactionType": "UPDATE_DIRECTOR"
-                }
-            ]
-        };
 
         it('Updates director', function(done){
+            const UPDATE_DIRECTOR = {
+                "documents": null,
+                "transactions": [
+                    {
+                        "actions": [
+                            {
+                                "afterAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
+                                "afterName": "Daniel CARTERAGE",
+                                "beforeAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
+                                "beforeName": "Daniel CARTER",
+                                "personAttr": {},
+                                "transactionType": "UPDATE_DIRECTOR"
+                            }
+                        ],
+                        "effectiveDate": new Date(),
+                        "transactionType": "UPDATE_DIRECTOR"
+                    }
+                ]
+            };
             req.post('/api/transaction/compound/'+companyId)
                 .send({json: JSON.stringify(UPDATE_DIRECTOR)})
                 .expect(200)
@@ -64,7 +64,7 @@ describe('MBIE Sync Service', function() {
         });
 
         it('Merges with co', function(done){
-            req.put('/api/company/'+companyId+'/merge_companies_office')
+            req.post('/api/company/'+companyId+'/merge_companies_office')
                 .expect(200)
                 .then(function(res){
                     done();

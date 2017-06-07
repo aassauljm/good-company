@@ -905,10 +905,15 @@ module.exports = {
 
     mergeCompaniesOffice: function(req, res) {
         let company;
-        Company.findById(req.params.id)
+        Company.findById(req.params.id, {
+            include: [{
+                    model: SourceData,
+                    as: 'sourceData'
+                }]
+            })
             .then(function(_company){
                 company  = _company;
-                return company.getNowCompanyState();
+                return company.getDatedCompanyState(company.sourceData.createdAt)
             })
             .then(state => {
                 return MbieSyncService.merge(req.user, company, state);
