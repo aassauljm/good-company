@@ -180,9 +180,10 @@ function dom(){
 function lift(cb){
     Sails.lift({
         port: 1338,
+        environment: 'test',
         serverRender: true,
         log: {
-            level: process.env.LOG || 'error'
+            level: process.env.LOG || 'silent'
         },
         models: {
             connection: 'pg_test',
@@ -200,6 +201,7 @@ function lift(cb){
         passport: {
             local: true,
         },
+        APP_URL: '',
         session: {adapter: 'memory'},
         test: true,
         renderServiceUrl: 'localhost:5668',
@@ -207,8 +209,8 @@ function lift(cb){
         IMPORT_EXTENSIVE: true,
         csrf: false,
         mbie: {
-            nzbn: {},
-            companiesOffice: {}
+            nzbn: {oauth: {url: 'http://xxx.nzbn'}},
+            companiesOffice: {oauth: {url: 'http://xxx.companiesOffice'}}
         }
     }, cb);
 }
