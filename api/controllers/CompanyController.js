@@ -319,6 +319,26 @@ module.exports = {
             });
     },
 
+    transactionsUnsubmitted: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                return company.getTransactionHistory()
+            })
+            .then(function(transactions) {
+                const interestedTransactions = {
+                    [Transaction.types.NEW_DIRECTOR]: true,
+                    [Transaction.types.REMOVE_DIRECTOR]: true,
+                    [Transaction.types.UPDATE_DIRECTOR]: true,
+                }
+                transactions = transactions.filter(t => interestedTransactions[t.transaction.type] && t.transaction.data && !t.transaction.data.documentId && !t.transaction.data.submitted);
+                res.json({unSubmittedTransactions: transactions});
+
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
+
+
     issueHistory: function(req, res) {
         Company.findById(req.params.id)
             .then(function(company) {
