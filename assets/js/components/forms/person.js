@@ -338,6 +338,9 @@ export function directorSubmit(values, oldDirector, companyState){
                 personId: oldDirector.person.personId,
                 effectiveDate: values.cessation,
                 noticeDate: values.noticeDate,
+                reason: values.reason,
+                reasonDetails: values.reasonDetails,
+                reasonDate: values.reasonDate,
                 personAttr: {...(oldDirector.person.attr || {}), ...values.person.attr}
             }]
         }]
