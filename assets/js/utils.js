@@ -204,12 +204,16 @@ export function requireFields(...names){
 
 let _fetch = isoFetch;
 
-export function fetch(url, args){
+export function fetch(url, args = {}){
    return _fetch(url, args);
 }
 
 export function setFetch(func){
     _fetch = func;
+}
+
+export function getFetch(){
+    return _fetch;
 }
 
 

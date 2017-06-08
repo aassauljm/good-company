@@ -23,7 +23,7 @@ import Amend, { SubActions } from '../../assets/js/components/transactions/resol
 import { Confirmation } from '../../assets/js/components/modals';
 import { LoadingOverlay } from '../../assets/js/components/loading';
 import Modal from 'react-bootstrap/lib/Modal'
-
+import { fetch } from '../../assets/js/utils';
 import chai from 'chai';
 
 
@@ -35,6 +35,11 @@ const navigateClick = (el) => {
     Simulate.click(el, {button: 0});
 }
 
+function contains(elements, text) {
+    return Array.prototype.filter.call(elements, function(element){
+        return RegExp(text).test(element.textContent);
+    });
+}
 
 function importCompany(name){
     const dom = this.dom;
@@ -536,28 +541,59 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
             })
         });
 
-        it('Views share register', function(){
-            const link = this.dom.querySelector('.share-register a');
-            Simulate.click(link, {button: 0});
-             return waitFor('Share register to display', () => this.dom.querySelectorAll('.share-register-document .transaction-history').length, null, 2000)
-        });
-
         it('Views interest register', function(){
             const link = this.dom.querySelector('.interests-register a');
             Simulate.click(link, {button: 0});
              return waitFor('Interest register to display', () => this.dom.querySelectorAll('.interests-register-table').length, null, 2000)
+            .then(() => {
+                const link = contains(this.dom.querySelectorAll('.btn-primary'), 'Create New Entry')[0];
+                Simulate.click(link, {button: 0});
+                return waitFor('Form to load', () => this.dom.querySelectorAll('.widget-body form').length, 2000)
+            })
+            .then(() => {
+                const select = this.dom.querySelector('select[name="persons[0]"]');
+                const option = select.querySelectorAll('option')[1];
+                Simulate.change(select, { target: {value: option.value} });
+                const details = this.dom.querySelector('textarea[name="details"]');
+                Simulate.change(details, { target: {value: 'Some details'} });
+            })
+            .then(() => {
+                Simulate.submit(findRenderedDOMComponentWithClass(this.tree, 'interests-entry'));
+                return waitFor('Table to load', () => this.dom.querySelectorAll('.interests-register-table tbody tr').length, 3000)
+            })
+
+            .then(() => {
+                const download = contains(this.dom.querySelectorAll('.btn-primary'), 'Download')[0];
+                return fetch(download.getAttribute("href"))
+                    .then(response => {
+                        return response.text()
+                    })
+                    .then(result => {
+                        result.length.should.be.least(10000)
+                    });
+            })
         });
 
         it('Views director register', function(){
             const link = this.dom.querySelector('.director-register a');
             Simulate.click(link, {button: 0});
              return waitFor('Director register to display', () => this.dom.querySelectorAll('.directors-register-document').length, null, 2000)
+            .then(() => {
+                const download = contains(this.dom.querySelectorAll('.btn-primary'), 'Download')[0];
+                return fetch(download.getAttribute("href"))
+                    .then(response => {
+                        return response.text()
+                    })
+                    .then(result => {
+                        result.length.should.be.least(10000)
+                    });
+            })
         });
 
         it('Views shareholdings page', function(){
             const link = this.dom.querySelector('a.dashboard');
             Simulate.click(link, {button: 0});
-            return  waitFor('Landing page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
+            return  waitFor('Company page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
             .then(() => {
                 const link = this.dom.querySelector('.shareholding-widget> a');
                 Simulate.click(link, {button: 0});
@@ -568,13 +604,36 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
         it('Views directors page', function(){
             const link = this.dom.querySelector('a.dashboard');
             Simulate.click(link, {button: 0});
-            return  waitFor('Landing page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
+            return  waitFor('Company page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
             .then(() => {
                 const link = this.dom.querySelector('.directors-widget> a');
                 Simulate.click(link, {button: 0});
                 return  waitFor('Directors page to load', () => this.dom.querySelectorAll('.director').length === 2, null, 5000)
             });
         });
+
+        it('Views graph page', function(){
+            const link = this.dom.querySelector('a.dashboard');
+            Simulate.click(link, {button: 0});
+            return  waitFor('Company page to load', () => this.dom.querySelectorAll('.company-loaded').length, null, 2000)
+            .then(() => {
+                const link = this.dom.querySelector('a.graph-link');
+                Simulate.click(link, {button: 0});
+                return  waitFor('Graph to load', () => this.dom.querySelectorAll('svg').length === 1, null, 5000)
+            });
+        });
+
+         it('Toggles favourite', function(){
+            const link = this.dom.querySelector('a.favourite');
+            Simulate.click(link, {button: 0});
+            return  waitFor('Favourite to register', () => this.dom.querySelectorAll('a.favourite .fa-star').length, 2000)
+            .then(() => {
+                const link = this.dom.querySelector('a.favourite');
+                Simulate.click(link, {button: 0});
+                return  waitFor('Favourite to unregister', () => this.dom.querySelectorAll('a.favourite .fa-star-o').length, 2000)
+            });
+        });
+
 
         it('Views all templates', function(){
             const link = this.dom.querySelector('a.templates');

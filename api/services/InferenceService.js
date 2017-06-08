@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const moment = require('moment');
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 
 /* This function is designed to infer whether AMEND, NEW_ALLOCATION
    are actually TRANSFERS or ISSUE/PURCHASES ETC

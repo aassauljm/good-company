@@ -1,5 +1,5 @@
 "use strict";
-const uuid = require("node-uuid")
+const uuid = require("uuid")
 
 
 describe('CompanyState Model', function() {

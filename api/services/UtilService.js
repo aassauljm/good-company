@@ -87,6 +87,7 @@ export function buildUrl(baseUri, parameters={}) {
 
 
 // na, this sucks due to large targetSums
+/*
 export function subsetSumMemoFail(items, targetSum) {
     // The value of subset[i][j] will be true if there is a subset of set[0..j-1]
     //  with sum equal to i
@@ -115,13 +116,6 @@ export function subsetSumMemoFail(items, targetSum) {
         }
     }
 
-    /* // uncomment this code to print table
-     for (int i = 0; i <= sum; i++)
-     {
-       for (int j = 0; j <= n; j++)
-          printf ("%4d", subset[i][j]);
-       printf("\n");
-     } */
     if(!subset[targetSum][n]){
         throw Error('Could not find solution')
     }
@@ -129,6 +123,8 @@ export function subsetSumMemoFail(items, targetSum) {
         subset[targetSum].map((v, i) => v ? i : null)
     }
 }
+*/
+
 
 export function logRequest(url, headers) {
     sails.log.info(`Requesting from MBIE ${url}  ${JSON.stringify(headers)}`);

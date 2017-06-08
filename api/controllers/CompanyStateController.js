@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 var _ = require('lodash');
 var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 var fs = Promise.promisifyAll(require("fs"));
-const uuid = require('node-uuid')
+const uuid = require('uuid')
 const moment = require('moment');
 
 
@@ -223,14 +223,12 @@ var transactions = {
                 register = r;
                 return InterestsEntry.create(_.omit(data, 'documents'))
             })
-            .then(function(entry){
+            .tap(function(entry){
                 return entry.setPersons(data.persons)
-                    .then(() => entry)
             })
-            .then(function(entry){
+            .tap(function(entry){
                 if(data.documents){
                     return entry.setDocuments(data.documents)
-                        .then(() => entry)
                 }
                 return entry;
             })
@@ -415,14 +413,12 @@ var transactions = {
             })
             .tap(function(shareClass){
                 // need to check ownnership
-                console.log(data.existingDocuments);
                 if(data.existingDocuments && data.existingDocuments.length){
                     return shareClass.addDocuments(data.existingDocuments);
                 }
             })
             .tap(function(shareClass){
                 if(data.documents){
-                    console.log(data.documents)
                     return shareClass.addDocuments(data.documents).then(() => shareClass)
                 }
                 return shareClass;
