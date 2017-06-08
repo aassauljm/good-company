@@ -198,15 +198,13 @@ function lift(cb){
             pubsub: false,
             permissions: false,
         },
-        passport: {
-            local: true,
-        },
         APP_URL: '',
         session: {adapter: 'memory'},
         test: true,
         renderServiceUrl: 'localhost:5668',
         CACHE_DIR: '/tmp/.gc_test',
         IMPORT_EXTENSIVE: true,
+        ADMIN_KEY: 'test',
         csrf: false,
         mbie: {
             nzbn: {oauth: {url: 'http://xxx.nzbn'}},
@@ -229,16 +227,16 @@ before(function(done) {
                  'test/fixtures/company.json',
                  'test/fixtures/organisation.json',
                  'test/fixtures/apiCredentials.json'
-                 ], sails.models)
+                 ], sails.models, {log: sails.log.info})
                 .tap(() => {
-                    sails.log.error('Fixtures loaded')
+                    sails.log.info('Fixtures loaded')
                 })
                 .then(addMigrations)
                 .then(function(){
                     return sequelize.query('SELECT reset_sequences();')
                 })
                 .tap(() => {
-                    sails.log.error('Migrations complete')
+                    sails.log.info('Migrations complete')
                 })
                 .then(function(){
                     stubs();
@@ -255,7 +253,7 @@ before(function(done) {
                 info: console.log,
             }
         }
-        console.log('Skipping sails lift');
+        sails.log.info('Skipping sails lift');
         done();
     }
 });

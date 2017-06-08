@@ -22,6 +22,8 @@ import LawBrowserContainer from './lawBrowserContainer'
 import Loading from './loading';
 import Widget from './widget';
 import { asyncConnect } from 'redux-connect';
+import FormData from 'form-data';
+
 
 const interestsRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM319933">Keeping of interests register</LawBrowserLink>
@@ -117,7 +119,7 @@ class EntryForm extends React.PureComponent {
             submitting
         } = this.props;
         //189(1)(c)
-        return <form onSubmit={handleSubmit(this.submit)}>
+        return <form onSubmit={handleSubmit(this.submit)} className="interests-entry">
             <fieldset>
             { fields.persons.map((n, i) => {
                 return <Input type="select" key={i} {...n} bsStyle={fieldStyle(n)} help={fieldHelp(n)} label="Interested Person"
@@ -144,7 +146,7 @@ class EntryForm extends React.PureComponent {
             <div className="button-row">
                 <ButtonInput onClick={() => this.props.dispatch(push(`/company/view/${this.props.companyId}/registers/interests_register`))}>Cancel</ButtonInput>
                 <ButtonInput  disabled={submitting} onClick={resetForm}>Reset</ButtonInput>
-                 <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid}>Create</ButtonInput>
+                 <ButtonInput type="submit" bsStyle="primary" disabled={submitting || invalid} >Create</ButtonInput>
             </div>
         </form>
     }
@@ -154,16 +156,14 @@ const ConnectedForm = reduxForm({
     form: 'interestEntry',
     fields,
     validate
-}, state => ({
-    initialValues: {persons: [''], }
-}), {
+}, undefined, {
     addValue: addArrayValue
 })(EntryForm);
 
 
-export class InterestsRegisterCreate extends React.Component {
+export class InterestsRegisterCreate extends React.PureComponent {
     render() {
-        return <ConnectedForm companyId={this.props.companyId} companyState={this.props.companyState}/>
+        return <ConnectedForm companyId={this.props.companyId} companyState={this.props.companyState} initialValues={{persons: [''], date: new Date()}} />
     }
 }
 

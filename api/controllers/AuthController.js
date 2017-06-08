@@ -1,16 +1,21 @@
 // api/controllers/AuthController.js
 
 const _ = require('lodash');
-const _super = require('sails-auth/api/controllers/AuthController');
-const actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 const fetch = require("isomorphic-fetch");
 const querystring = require('querystring');
 const passport = require('passport');
 
 
-_.merge(exports, _super);
-_.merge(exports, {
-
+module.exports = {
+    /**
+    * Create a third-party authentication endpoint
+    *
+    * @param {Object} req
+    * @param {Object} res
+    */
+    provider: function (req, res) {
+        sails.services.passport.endpoint(req, res);
+    },
 
     logout: function(req, res) {
         req.logout();
@@ -78,5 +83,7 @@ _.merge(exports, {
             });
         });
     },
-
-});
+    disconnect: function (req, res) {
+        sails.services.passport.disconnect(req, res);
+    }
+};

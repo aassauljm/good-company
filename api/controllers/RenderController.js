@@ -23,7 +23,7 @@ function binaryParser(res, callback) {
 
 const renderPage = (title, route) => {
     return (req, res) => {
-        const state = {login: {loggedIn: req.isAuthenticated()}, userInfo: req.user.toJSON(), _status: 'complete'};
+        const state = {login: {loggedIn: req.isAuthenticated()}, userInfo: {...req.user.toJSON(),  _status: 'complete'}};
         RenderService.serverRender('/company/render/'+req.params.id+route, req.get('cookie'), state)
             .then(result => {
                 res.render('staticContent', {reactOutput: result.reactOutput, assets: sails.config.paths.public}, (err, html) => {

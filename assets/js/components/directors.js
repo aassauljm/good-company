@@ -248,9 +248,6 @@ export class DirectorRegisterDocument extends React.Component {
 
 
 export class DirectorRegisterDocumentLoader extends React.Component {
-    static propTypes = {
-        data: PropTypes.object.isRequired
-    };
 
     render() {
         const companyState = ((this.props['/company/'+this.props.params.id +'/get_info'] || {}).data || {}).currentCompanyState;

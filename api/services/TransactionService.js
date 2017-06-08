@@ -5,7 +5,7 @@ const moment = require('moment');
 const Promise = require('bluebird');
 const cls = require('continuation-local-storage');
 const session = cls.getNamespace('session');
-const uuid = require('node-uuid')
+const uuid = require('uuid')
 
 export function validateAnnualReturn(data, companyState){
     const state = companyState.toJSON();

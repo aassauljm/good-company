@@ -69,6 +69,15 @@ module.exports.passport =  {
     catalex: {
         strategy: OAuth2Strat,
         protocol: 'catalex'
+    },
+
+    local: {
+        strategy: require('passport-local').Strategy,
+        protocl: 'local'
+    },
+
+    basic: {
+        strategy: require('passport-http').BasicStrategy,
+        protocol: 'basic'
     }
-  // Extend with custom logic here by adding additional fields, methods, etc.
 };

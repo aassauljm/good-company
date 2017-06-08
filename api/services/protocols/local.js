@@ -3,7 +3,6 @@
 var _ = require('lodash');
 var Promise = require('bluebird');
 
-var SAError = require('sails-auth/lib/error/SAError.js');
 /**
  * Local Authentication Protocol
  *

@@ -259,6 +259,7 @@ export class CompanyView extends React.Component {
                         { this.renderBody(current || FAKE_COMPANY, suspended) }
                     </div>
             </div>
+            <Link to={`/company/view/${this.props.params.id}/graph`} className="fa fa-pie-chart graph-link" />
         </div>
     }
 }

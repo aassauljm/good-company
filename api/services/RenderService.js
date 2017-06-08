@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 import { match } from 'react-router';
 import { createMemoryHistory } from 'react-router'
 import { loadOnServer } from 'redux-connect';
-import { setFetch } from "../../assets/js/utils";
+import { setFetch, getFetch } from "../../assets/js/utils";
 import fetch from 'isomorphic-fetch';
 import { syncHistoryWithStore } from 'react-router-redux'
 import Promise from 'bluebird';
@@ -19,6 +19,7 @@ export function serverRender(url, cookie, state={}){
     const memoryHistory = createMemoryHistory(url);
     const store = configureStore(memoryHistory, state);
     const history = syncHistoryWithStore(memoryHistory, store);
+    const _fetch = getFetch();
     setFetch(function(url, args={}){
         url = 'http://localhost:'+sails.config.port+url;
         return fetch(url, _.merge(args, {headers: _.merge(args.headers, {'Cookie': cookie})}))
@@ -37,10 +38,13 @@ export function serverRender(url, cookie, state={}){
                 .then(() => {
                     const output = renderToString(<Root store={store} history={history} />);
                     resolve({reactOutput: output, data: JSON.stringify(store.getState())});
-                }).
-                catch(error => {
+                })
+                .catch(error => {
                     sails.log.error(error);
                     reject({code: 500, message: error.message});
+                })
+                .then(() => {
+                    setFetch(_fetch);
                 })
             }
         });

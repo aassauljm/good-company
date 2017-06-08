@@ -43,7 +43,6 @@ module.exports.routes = {
         action: 'landing'
     },
 
-
     'GET /logout': 'AuthController.logout',
 
     'POST /auth/local': 'AuthController.callback',
@@ -109,43 +108,6 @@ module.exports.routes = {
         action: 'lookupOwn'
     },
 
-    'POST /api/favourites/:id': {
-        controller: 'FavouriteController',
-        action: 'addFavourite',
-        model: 'company',
-        method: 'read'
-    },
-
-
-    'DELETE /api/favourites/:id': {
-        controller: 'FavouriteController',
-        action: 'removeFavourite'
-    },
-
-    'GET /api/recent_activity/full': {
-        controller: 'UserController',
-        modelIdentity: 'user',
-        action: 'recentActivityFull'
-    },
-
-    'POST /api/document/upload_document': {
-        controller: 'DocumentController',
-        action: 'uploadDocument',
-        model: 'document'
-    },
-
-    'GET /api/document/get_document/:document_id': {
-        controller: 'DocumentController',
-        action: 'getDocument',
-        pk: 'document_id'
-    },
-
-    'GET /api/document/get_document_preview/:document_id': {
-        controller: 'DocumentController',
-        action: 'getDocumentPreview',
-        pk: 'document_id'
-    },
-
     'GET /api/company/:id/document/get_document/:document_id': {
         controller: 'DocumentController',
         action: 'getDocument',
@@ -194,14 +156,6 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'validate'
     },
-
-    'POST /api/transaction/:type/:id': {
-        controller: 'CompanyStateController',
-        model: 'company',
-        action: 'create',
-        method: 'update'
-    },
-
     'DELETE /api/company/:id/transactions/:transactionIds': {
         controller: 'CompanyStateController',
         model: 'company',
@@ -262,15 +216,6 @@ module.exports.routes = {
         controller: 'CompanyController',
         action: 'importBulk'
     },
-    'POST /api/bulk/transaction': {
-        controller: 'CompanyController',
-        action: 'transactionBulk',
-    },
-
-    'GET /api/address/lookup/:query': {
-        controller: 'AddressController',
-        action: 'lookup'
-    },
 
     'POST /api/company/:id/interests_register/create': {
         controller: 'CompanyStateController',
@@ -321,24 +266,6 @@ module.exports.routes = {
         controller: 'RenderController',
         action: 'renderInterestsRegister',
         model: 'company'
-    },
-
-
-    'POST /api/render_template': {
-        controller: 'RenderController',
-        action: 'renderTemplate',
-        method: 'read'
-    },
-
-    'POST /api/send_template': {
-        controller: 'RenderController',
-        action: 'sendTemplate',
-        method: 'read'
-    },
-
-    'GET /echo_file': {
-        controller: 'RenderController',
-        'action': 'echo'
     },
 
     'GET /api/company/:id/recent_activity': {
@@ -401,31 +328,9 @@ module.exports.routes = {
         model: 'company'
     },
 
-
     'GET /api/company/permissions/:catalexId': {
         controller: 'CompanyController',
         action: 'companyPermissionsCatalexUser',
-    },
-
-    'PUT /api/user/add_permissions': {
-        controller: 'UserController',
-        action: 'addPermissions'
-    },
-
-    'PUT /api/user/remove_permissions': {
-        controller: 'UserController',
-        action: 'removePermissions'
-    },
-
-    'GET /api/documents': {
-        controller: 'CompanyController',
-        action: 'getDocuments'
-    },
-
-    'POST /api/documents': {
-        controller: 'CompanyController',
-        action: 'createDocument',
-        method: 'update'
     },
 
     'GET /api/company/:id/documents': {
@@ -504,6 +409,118 @@ module.exports.routes = {
         action: 'findPerson'
     },
 
+    'POST /api/company/:id/merge_companies_office': {
+        controller: 'CompanyController',
+        action: 'mergeCompaniesOffice',
+        model: 'company'
+    },
+
+    'GET /api/company/:id/ar_summary': {
+        controller: 'CompanyController',
+        action: 'requestARSummary',
+        model: 'company'
+    },
+
+    'POST /api/company/:id/ar_submit': {
+        controller: 'CompanyController',
+        action: 'submitAR',
+        model: 'company'
+    },
+
+    'PUT /api/company/:id/update_authority': {
+        controller: 'CompanyController',
+        action: 'updateUserAuthority',
+        model: 'company'
+    },
+
+    'POST /api/favourites/:id': {
+        controller: 'FavouriteController',
+        action: 'addFavourite',
+        model: 'company',
+        method: 'read'
+    },
+
+    'DELETE /api/favourites/:id': {
+        controller: 'FavouriteController',
+        action: 'removeFavourite'
+    },
+
+    'GET /api/recent_activity/full': {
+        controller: 'UserController',
+        modelIdentity: 'user',
+        action: 'recentActivityFull'
+    },
+
+    'POST /api/document/upload_document': {
+        controller: 'DocumentController',
+        action: 'uploadDocument',
+        model: 'document'
+    },
+
+    'GET /api/document/get_document/:document_id': {
+        controller: 'DocumentController',
+        action: 'getDocument',
+        pk: 'document_id'
+    },
+
+    'GET /api/document/get_document_preview/:document_id': {
+        controller: 'DocumentController',
+        action: 'getDocumentPreview',
+        pk: 'document_id'
+    },
+
+    'GET /api/documents': {
+        controller: 'CompanyController',
+        action: 'getDocuments'
+    },
+
+    'POST /api/transaction/:type/:id': {
+        controller: 'CompanyStateController',
+        model: 'company',
+        action: 'create',
+        method: 'update'
+    },
+
+    'POST /api/bulk/transaction': {
+        controller: 'CompanyController',
+        action: 'transactionBulk',
+    },
+
+    'GET /api/address/lookup/:query': {
+        controller: 'AddressController',
+        action: 'lookup'
+    },
+
+
+    'POST /api/render_template': {
+        controller: 'RenderController',
+        action: 'renderTemplate',
+        method: 'read'
+    },
+
+    'POST /api/send_template': {
+        controller: 'RenderController',
+        action: 'sendTemplate',
+        method: 'read'
+    },
+
+    'GET /echo_file': {
+        controller: 'RenderController',
+        'action': 'echo'
+    },
+
+
+    'PUT /api/user/add_permissions': {
+        controller: 'UserController',
+        action: 'addPermissions'
+    },
+
+    'PUT /api/user/remove_permissions': {
+        controller: 'UserController',
+        action: 'removePermissions'
+    },
+
+
     'GET /api/pending_jobs': {
         controller: 'UserController',
         model: 'user',
@@ -515,7 +532,6 @@ module.exports.routes = {
         model: 'user',
         action: 'alerts'
     },
-
 
     'POST /api/admin/billing': {
         controller: 'AdminController',
@@ -547,34 +563,6 @@ module.exports.routes = {
         action: 'companyDetails'
     },
 
-    'POST /api/company/:id/merge_companies_office': {
-        controller: 'CompanyController',
-        action: 'mergeCompaniesOffice',
-        model: 'company'
-    },
-
-    'GET /api/company/:id/ar_summary': {
-        controller: 'CompanyController',
-        action: 'requestARSummary',
-        model: 'company'
-    },
-
-    'POST /api/company/:id/ar_submit': {
-        controller: 'CompanyController',
-        action: 'submitAR',
-        model: 'company'
-    },
-
-    'GET /api/bla': {
-        controller: 'ApiCredentialController',
-        action: 'refreshUserToken'
-    },
-
-    'PUT /api/company/:id/update_authority': {
-        controller: 'CompanyController',
-        action: 'updateUserAuthority',
-        model: 'company'
-    },
 
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
