@@ -14,7 +14,7 @@ function generateUrlForOauthLogin(url, clientId, callbackRoute, extraQueryParame
     return UtilService.buildUrl(url, queryParameters);
 }
 
-export function requestOauthToken(url, consumerKey, consumerSecret) {
+export function fetchWithAuth(url, consumerKey, consumerSecret) {
     let tokenRequestOptions = {
         method: 'POST',
         headers: {
@@ -34,6 +34,9 @@ export function requestOauthToken(url, consumerKey, consumerSecret) {
         .then(response => response.json())
 }
 
+export function requestOauthToken(...args){
+    return fetchWithAuth(...args);
+}
 
 
 function getOauthToken({oauthRoute, callbackRoute, code, clientId, consumerKey, consumerSecret, serviceName, userId}) {

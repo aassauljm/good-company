@@ -11,6 +11,16 @@ var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 var moment = require('moment');
 var fs = Promise.promisifyAll(require("fs"));
 
+function filterUnSubmittedTransactions(transactions){
+    const interestedTransactions = {
+        [Transaction.types.NEW_DIRECTOR]: true,
+        [Transaction.types.REMOVE_DIRECTOR]: true,
+        [Transaction.types.UPDATE_DIRECTOR]: true,
+    }
+    return transactions.filter(t => interestedTransactions[t.transaction.type] && t.transaction.data && !t.transaction.data.documentId && !t.transaction.data.submitted);
+}
+
+
 module.exports = {
 
     find: function(req, res) {
@@ -325,19 +335,28 @@ module.exports = {
                 return company.getTransactionHistory()
             })
             .then(function(transactions) {
-                const interestedTransactions = {
-                    [Transaction.types.NEW_DIRECTOR]: true,
-                    [Transaction.types.REMOVE_DIRECTOR]: true,
-                    [Transaction.types.UPDATE_DIRECTOR]: true,
-                }
-                transactions = transactions.filter(t => interestedTransactions[t.transaction.type] && t.transaction.data && !t.transaction.data.documentId && !t.transaction.data.submitted);
+                transactions = filterUnSubmittedTransactions(transactions);
                 res.json({unSubmittedTransactions: transactions});
 
             }).catch(function(err) {
+                console.log(err)
                 return res.badRequest(err);
             });
     },
 
+    transactionsSubmit: function(req, res) {
+        Company.findById(req.params.id)
+            .then(function(company) {
+                return company.getTransactionHistory()
+            })
+            .then(function(transactions) {
+                let args = actionUtil.parseValues(req);
+                transactions = filterUnSubmittedTransactions(transactions).filter(t => args.transactionIds.indexOf(t.transaction.id) >= 0);
+                res.json({unSubmittedTransactions: transactions});
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
 
     issueHistory: function(req, res) {
         Company.findById(req.params.id)

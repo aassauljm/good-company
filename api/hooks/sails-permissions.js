@@ -53,25 +53,6 @@ function initializeFixtures(sails) {
         })
         .then(function(roles) {
             this.roles = roles;
-
-            /*
-            var userModel = _.find(this.models, {
-                name: 'User'
-            });
-            return require('../../config/fixtures/user').create(this.roles, userModel);
-        })
-        .then(function() {
-            return User.findOne({
-                email: sails.config.permissions.adminEmail
-            });
-        })
-        .then(function(user) {
-            sails.log.verbose('sails-permissions: created admin user:', user.toJSON());
-            user.createdBy = user.id;
-            user.owner = user.id;
-            return user.save();
-        })*/
-
             return require('../../config/fixtures/permission').create(this.roles, this.models);
         })
         .catch(function(error) {

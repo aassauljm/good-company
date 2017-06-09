@@ -115,25 +115,30 @@ describe('MBIE Sync Service', function() {
         });
 
 
-        it('Merges with co', function(done){
-            req.post('/api/company/'+companyId+'/merge_companies_office')
+        it('Merges with co', function(){
+            return req.post('/api/company/'+companyId+'/merge_companies_office')
                 .expect(200)
                 .then(function(res){
-                    done();
                 });
         });
 
-        it('Collects transactions to be submitted', function(done){
-            req.get('/api/company/'+companyId+'/transactions/unsubmitted')
+        it('Collects transactions to be submitted', function(){
+            return req.get('/api/company/'+companyId+'/transactions/unsubmitted')
                 .expect(200)
                 .then(function(res){
                     res.body.unSubmittedTransactions.length.should.be.equal(3);
                     transactions = res.body.unSubmittedTransactions;
-                    done();
                 });
         });
 
+        it('Submits transactions', function(){
+            return req.post('/api/company/'+companyId+'/transactions/submit')
+                .send({transactionIds: transactions.map(t => t.transaction.id)})
+                .expect(200)
+                .then(function(res){
 
+                });
+        });
 
     });
 

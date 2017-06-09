@@ -2,6 +2,26 @@ const Promise = require('bluebird');
 import _ from 'lodash';
 
 
+export function lookupAddress(user, addressString, postal=false){
+    return AddressQueries.findOne({where: {query: addressString}})
+        .then(result => {
+            if(!result){
+                // do a look up
+                return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
+                    .then(bearerToken => {
+                        return MbieSyncService.fetchUrl(bearerToken, UtilService.buildUrl(`${sails.config.mbie.companiesOffice.url}companies/addresses`, {find: addressString, limit: 10, postal}))
+                    })
+                    .then((result) => {
+                        return AddressQueries.create({query: addressString, addresses: result.body.items});
+                    })
+                    .catch(result => {
+                        return AddressQueries.build({query: addressString, addresses: []})
+                    })
+            }
+            return result;
+        });
+
+}
 
 export const normalizeAddress = Promise.method(function(address){
     address = (address || '').replace(/^C\/- /, '').replace(/ \d{4,5}, /, ' ').replace('Null, ', '');
