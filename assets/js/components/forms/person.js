@@ -15,8 +15,8 @@ import StaticField from './staticField';
 import STRINGS from '../../strings';
 import moment from 'moment';
 import WorkingDays from './workingDays';
-import Glyphicon from 'react-bootstrap/lib/Glyphicon'
-import Button from 'react-bootstrap/lib/Button'
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+import Button from 'react-bootstrap/lib/Button';
 
 
 const CREATE_NEW_PERSON = 'CREATE_NEW_PERSON';
