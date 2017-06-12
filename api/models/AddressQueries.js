@@ -10,6 +10,10 @@ module.exports = {
             type: Sequelize.STRING,
             primaryKey: true
         },
+        postal: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
+        },
         addresses: {
             type: Sequelize.JSONB
         }

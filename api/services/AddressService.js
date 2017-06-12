@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 export function lookupAddress(user, addressString, postal=false){
     addressString = addressString.replace(/ New Zealand$/, ' NZ');
-    return AddressQueries.findOne({where: {query: addressString}})
+    return AddressQueries.findOne({where: {query: addressString, postal: !!postal}})
         .then(result => {
             if(!result){
                 // do a look up
@@ -13,7 +13,7 @@ export function lookupAddress(user, addressString, postal=false){
                         return MbieSyncService.fetchUrl(bearerToken, UtilService.buildUrl(`${sails.config.mbie.companiesOffice.url}companies/addresses`, {find: addressString, limit: 10, postal}))
                     })
                     .then((result) => {
-                        return AddressQueries.create({query: addressString, addresses: result.body.items});
+                        return AddressQueries.create({query: addressString, postal: postal, addresses: result.body.items});
                     })
                     .catch(result => {
                         return AddressQueries.build({query: addressString, addresses: []})

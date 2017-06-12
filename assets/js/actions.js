@@ -300,10 +300,14 @@ export function lookupOwnCompany(query) {
     };
 }
 
-export function lookupAddress(query) {
+export function lookupAddress(query, postal) {
+    let url = '/api/address?query=' + encodeURIComponent(query);
+    if(postal){
+        url += '&postal=true';
+    }
     return {
         types: [LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE],
-        callAPI: () => fetch('/api/address?query=' + encodeURIComponent(query), {
+        callAPI: () => fetch(url, {
             headers: json_headers,
             credentials: 'same-origin'
         }),
@@ -558,10 +562,10 @@ export function lookupCompanyChange(query) {
     };
 }
 
-export function lookupAddressChange(query) {
+export function lookupAddressChange(query, postal) {
     return {
         type: LOOKUP_ADDRESS_CHANGE,
-        payload: { query }
+        payload: { query, postal }
     };
 }
 export function showVersionWarning() {

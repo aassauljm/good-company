@@ -10,8 +10,10 @@ import { push } from 'react-router-redux'
 import RootCloseWrapper from 'react-overlays/lib/RootCloseWrapper';
 import { Link, IndexLink } from 'react-router';
 import Loading from '../loading';
-import Input from './input'
-
+import Input, { RenderIcon} from './input'
+import Button from 'react-bootstrap/lib/Button'
+import { OverlayTrigger } from '../lawBrowserLink';
+import Tooltip from 'react-bootstrap/lib/Tooltip';
 
 function canDoAddressLookup(props){
     return props.userInfo.mbieServices.indexOf('companies-office') >= 0;;
@@ -28,9 +30,7 @@ function renderSuggestion(suggestion, { value, valueBeforeUpDown }) {
     value = valueBeforeUpDown || value;
     const address = addressString(suggestion)
     return (
-        <div>
-            <h5 className="list-group-item-heading">{ address }</h5>
-        </div>
+        <span className="list-group-item-heading">{ address }</span>
     );
 }
 
@@ -46,7 +46,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     return {
         onSuggestionsUpdateRequested: ({value, force}) => {
             if(value !== ownProps.value || force){
-                dispatch(lookupAddressChange(value));
+                dispatch(lookupAddressChange(value, ownProps.postal));
             }
         }
     };
@@ -58,12 +58,12 @@ function renderLoading(){
 }
 
 const theme = {
-    container: 'auto-suggest',
-    containerOpen: 'open',
-    suggestionsContainer: 'suggest-container',
+    container: '',
+    containerOpen: 'search-results',
+    suggestionsContainer: '',
     input: 'form-control input',
     sectionSuggestionsContainer: 'list-group',
-    suggestion: 'list-group-item actionable',
+    suggestion: 'result',
     suggestionFocused: 'active'
 };
 
@@ -84,7 +84,7 @@ export default class Address extends React.PureComponent {
     handleFocus(e) {
         this.props.onFocus(e);
         if(this.props.value){
-            this.props.onSuggestionsUpdateRequested({value: this.props.value, force: true});
+            this.props.onSuggestionsUpdateRequested({value: this.props.value});
         }
     }
 
@@ -93,18 +93,21 @@ export default class Address extends React.PureComponent {
         this.props.onChange(addressString(suggestion))
     }
 
-    renderIcon(style) {
-        switch (style) {
-            case 'success': return <Glyphicon className="form-control-feedback" glyph="ok" key="icon" />;
-            case 'warning': return <Glyphicon className="form-control-feedback" glyph="warning-sign" key="icon" />;
-            case 'error': return <Glyphicon className="form-control-feedback" glyph="remove" key="icon" />;
-            default: return <span className="form-control-feedback" key="icon" />;
-        }
-    }
 
     render() {
         if(!canDoAddressLookup(this.props)){
-            return <Input type="text" {...this.props} />
+
+            const tooltip = <Tooltip id="tooltip">
+                Connect your RealMe account to use the NZ Post address lookup
+            </Tooltip>;
+            const overlay =  <OverlayTrigger placement="top" overlay={tooltip} >
+               <Button><Glyphicon glyph="question-sign"/></Button>
+            </OverlayTrigger>
+            const { lookupAddress, userInfo, onSuggestionsUpdateRequested, postal, ...props } = this.props;
+            return <Input
+                type="text" {...props}
+                buttonAfter={overlay}
+                />
         }
         const { value, onSuggestionsUpdateRequested, onChange, onTouch } = this.props;
         const suggestions = [];
@@ -129,9 +132,9 @@ export default class Address extends React.PureComponent {
             onFocus: this.handleFocus,
             onBlur: this.props.onBlur
         };
-        const required = this.props.error && this.props.error.indexOf('Required') >= 0;
-        const labelClass='control-label' + (required ? ' required' : '');
-        let feedback = fieldStyle(this.props);
+        const required = this.props.required;
+        const labelClass = 'control-label' + (required ? ' required' : '');
+        let feedback = this.props.bsStyle;
         return (
             <div className={"form-group has-feedback " + (feedback ? 'has-'+feedback : '')}>
                 <label className={labelClass}>{ this.props.label }</label>
@@ -146,7 +149,7 @@ export default class Address extends React.PureComponent {
                     renderSuggestion={loading ? renderLoading : renderSuggestion}
                     renderSectionTitle={ renderSectionTitle }
                     inputProps={inputProps} />
-                { this.renderIcon(feedback) }
+                    <RenderIcon bsStyle={this.props.bsStyle} />
 
             </div>
         );

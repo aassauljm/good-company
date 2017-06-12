@@ -109,7 +109,7 @@ module.exports = {
     },
 
     lookupAddress: function(req, res) {
-        return AddressService.lookupAddress(req.user, req.query.query)
+        return AddressService.lookupAddress(req.user, req.query.query, req.query.postal)
             .then((address) => {
                 res.json(address);
             })

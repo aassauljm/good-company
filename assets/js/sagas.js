@@ -29,7 +29,11 @@ function* fetchLookupAddress(action) {
     yield put({ type: LOOKUP_ADDRESS_REQUEST, payload: action.payload.query });
     yield call(delay, 150);
     try {
-        const result = yield fetchAndProcess(`/api/address?query=${encodeURIComponent(action.payload.query)}`, {
+        let url = `/api/address?query=${encodeURIComponent(action.payload.query)}`;
+        if(action.payload.postal){
+            url += '&postal=true'
+        }
+        const result = yield fetchAndProcess(url, {
                 credentials: 'same-origin'
             });
         yield put({ type: LOOKUP_ADDRESS_SUCCESS, response: result })

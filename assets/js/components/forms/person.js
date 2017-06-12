@@ -38,7 +38,7 @@ export class Person extends React.Component {
                 { !isNatural &&  <Input type="text"  {...this.formFieldProps('companyNumber')} /> }
 
                 <Address {...this.formFieldProps('address', isNatural ? STRINGS.persons.naturalPerson : STRINGS.persons.notNaturalPerson) } />
-                <Address {...this.formFieldProps(['attr', 'postalAddress'])} label={'Postal Address (if different)'} />
+                <Address {...this.formFieldProps(['attr', 'postalAddress'])} postal={true} label={'Postal Address (if different)'} />
 
                 <Input type="text"  {...this.formFieldProps(['attr', 'email'], STRINGS.persons)} />
                 <Input type="text"  {...this.formFieldProps(['attr', 'fax'], STRINGS.persons)} />
