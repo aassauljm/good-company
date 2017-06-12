@@ -14,6 +14,8 @@ import Input, { RenderIcon} from './input'
 import Button from 'react-bootstrap/lib/Button'
 import { OverlayTrigger } from '../lawBrowserLink';
 import Tooltip from 'react-bootstrap/lib/Tooltip';
+import { ConnectCompaniesOfficeLink } from '../companiesOfficeIntegration';
+
 
 function canDoAddressLookup(props){
     return props.userInfo.mbieServices.indexOf('companies-office') >= 0;;
@@ -98,7 +100,7 @@ export default class Address extends React.PureComponent {
         if(!canDoAddressLookup(this.props)){
 
             const tooltip = <Tooltip id="tooltip">
-                Connect your RealMe account to use the NZ Post address lookup
+                Connect your RealMe account to use the NZ Post address lookup.  <ConnectCompaniesOfficeLink label="Click here" className="vanity-link" />
             </Tooltip>;
             const overlay =  <OverlayTrigger placement="top" overlay={tooltip} >
                <Button><Glyphicon glyph="question-sign"/></Button>

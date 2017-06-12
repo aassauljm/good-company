@@ -587,5 +587,7 @@ module.exports.routes = {
     'DELETE /api/model/:id': {controller: 'ModelController', model: 'model', action: 'destroy'},
 
 
-    'GET /api/address': {controller: 'UserController', action: 'lookupAddress'}
+    'GET /api/address': {controller: 'UserController', action: 'lookupAddress'},
+
+    'GET /refresh_user': {controller: 'UserController', action: 'refreshUser'}
 };

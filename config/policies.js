@@ -57,7 +57,8 @@ module.exports.policies = {
         accountSettings: simpleAuth,
         addPermissions: simpleAuth,
         removePermissions: simpleAuth,
-        lookupAddress: simpleAuth
+        lookupAddress: simpleAuth,
+        refreshUser: simpleAuth
     },
     ModelController:{
         'create': false,

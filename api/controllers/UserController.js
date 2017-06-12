@@ -116,6 +116,10 @@ module.exports = {
             .catch(function(err){
                 return res.serverError(err);
             });
+    },
+
+    refreshUser: function(req, res){
+        return res.view('refreshUserAndClose', {layout: null});
     }
 
 }

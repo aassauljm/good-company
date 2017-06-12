@@ -136,7 +136,7 @@ const authWithCompaniesOffice = (req, res) => {
         ...sails.config.mbie.companiesOffice,
         service: 'companies-office',
         scope: { scope: 'openid' },
-        redirect: '/',
+        redirect: '/refresh_user?message_type=CONNECTED_COMPANIES_OFFICE',
         errorType: 'FAIL_COMPANIES_OFFICE'
     })(req, res);
 }

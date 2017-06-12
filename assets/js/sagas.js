@@ -2,11 +2,13 @@ import { delay } from 'redux-saga'
 import { select, put, call, takeEvery, takeLatest, take, race, fork } from 'redux-saga/effects';
 import { fetch } from './utils';
 import { checkStatus, parse } from './middleware'
-
+import Promise from 'bluebird';
 import { LOOKUP_COMPANY_CHANGE, LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     LOOKUP_ADDRESS_CHANGE, LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
     LOGOUT, MOUNTED } from './actionTypes';
-import { mounted, showVersionWarning } from './actions'
+import { mounted, showVersionWarning, requestUserInfo, addNotification } from './actions'
+import STRINGS from './strings';
+
 
 const fetchAndProcess = (...args) => fetch(...args).then(checkStatus).then(parse);
 
@@ -70,6 +72,41 @@ function* pollVersion() {
 }
 
 
+
+function listenTo(dom, name){
+    return new Promise(function (resolve) {
+        dom.addEventListener && dom.addEventListener("storage", function handler(e) {
+            dom.removeEventListener("storage", handler);
+            //call any handler you want here, if needed
+            resolve(e);
+        });
+    });
+}
+
+
+function *listenToStorage(){
+    while(true){
+        const event = yield listenTo(window, 'storage')
+        if(event.key === 'refresh'){
+            try{
+                const keys = JSON.parse(event.newValue).keys;
+                if(keys.indexOf('userInfo') >= 0){
+                    yield put(requestUserInfo({refresh: true}))
+                }
+            }
+            catch(e){};
+        }
+        if(event.key === 'message'){
+            try{
+                const message = JSON.parse(event.newValue).message_type;
+                yield put(addNotification({message: STRINGS.notifications[message]}))
+            }
+            catch(e){};
+        }
+    }
+}
+
+
 export function* longPollVersion() {
     while (true) {
         yield take(MOUNTED);
@@ -82,7 +119,7 @@ export function* longPollVersion() {
 
 
 export function* rootSagas(){
-    yield [lookupCompanyOnChange(),  lookupAddressOnChange(), longPollVersion()];
+    yield [lookupCompanyOnChange(),  lookupAddressOnChange(), longPollVersion(), listenToStorage()];
 }
 
 
