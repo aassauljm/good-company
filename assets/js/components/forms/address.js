@@ -102,7 +102,7 @@ export default class Address extends React.PureComponent {
             const tooltip = <Tooltip id="tooltip">
                 Connect your RealMe account to use the NZ Post address lookup.  <ConnectCompaniesOfficeLink label="Click here" className="vanity-link" />
             </Tooltip>;
-            const overlay =  <OverlayTrigger placement="top" overlay={tooltip} >
+            const overlay =  <OverlayTrigger placement="top" overlay={tooltip} toggle={true}>
                <Button><Glyphicon glyph="question-sign"/></Button>
             </OverlayTrigger>
             const { lookupAddress, userInfo, onSuggestionsUpdateRequested, postal, ...props } = this.props;
