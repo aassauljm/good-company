@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 
 export function lookupAddress(user, addressString, postal=false){
-    addressString = addressString.replace(/ New Zealand$/, ' NZ');
+    addressString = addressString.replace(/ New Zealand$/, ' NZ').replace(/\W+/g, " ");
     return AddressQueries.findOne({where: {query: addressString, postal: !!postal}})
         .then(result => {
             if(!result){
