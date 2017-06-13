@@ -102,14 +102,16 @@ export class ShareholdingsWidget extends React.PureComponent {
             <div  onClick={() => this.props.toggle && this.props.toggle(!this.props.expanded)}>
                 <div className="row">
                     <div className="col-sm-6 summary">
-                            <div className="col-xs-6 col-sm-12">
+                        <div className="row">
+                            <div className="col-us-12 col-xs-6 col-sm-12">
                                 <div><span className="big-number number">{numberWithCommas(this.props.companyState.totalShares)}</span><span className="number-label">Total Shares</span></div>
                             </div>
-                            <div className="col-xs-6 col-sm-12">
+                            <div className="col-us-12 col-xs-6 col-sm-12">
                                 <div><span className="med-number number">{this.props.companyState.holdingList.holdings.length}</span><span className="number-label">Total Allocations</span></div>
                                 <div><span className="med-number number">{holderCount}</span><span className="number-label">Total Shareholder{holderCount !== 1 && 's'}</span></div>
                                 <div><span className="med-number number">{classCount}</span><span className="number-label">Share Class{classCount !== 1 && 'es'}</span></div>
                             </div>
+                        </div>
                         </div>
                      <div className="col-sm-6">
                        <div className="hide-graph-labels pie-chart responsive">
