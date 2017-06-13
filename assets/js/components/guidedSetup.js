@@ -23,6 +23,8 @@ import LawBrowserContainer from './lawBrowserContainer';
 import { AlertsHOC } from '../hoc/resources'
 import Dropdown from 'react-bootstrap/lib/Dropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
+import Loading from './loading';
+
 
 
 const DEFAULT_OBJ = {};
@@ -189,7 +191,7 @@ export class GuidedSetup extends React.PureComponent {
                     </div> }
                 </Widget>
                 </div>
-
+                { !this.props.transactionViews.showing && <Loading />}
 
                 { !!this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
 

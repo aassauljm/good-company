@@ -63,7 +63,7 @@ module.exports = {
         Company.belongsTo(SourceData, {
             as: 'historicProcessedDocuments',
             foreignKey: {
-                as: 'historicSourceData',
+                as: 'historicProcessedDocuments',
                 name: 'historic_source_data_id'
             }
         });
@@ -299,6 +299,7 @@ module.exports = {
                         })
                     });
             },
+
             resetPendingActions: function(){
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
@@ -341,7 +342,7 @@ module.exports = {
             reparseResetPendingActions: function(){
                 return ImportService.refetchDocuments(this.id)
                     .then(sourceData => {
-                        return this.setHistoricSourceData(sourceData);
+                        return this.setHistoricProcessedDocuments(sourceData);
                     })
                     .then(() => {
                         return this.resetPendingActions();
