@@ -56,7 +56,7 @@ describe('API Credential Controller', function() {
             return req.get('/api/auth-with/companies-office?code=some_random_code')
                 .expect(302)
                 .then(response => {
-                    const expectedRedirectUrl = `${sails.config.APP_URL}/`;
+                    const expectedRedirectUrl = `${sails.config.APP_URL}/refresh_user?message_type=CONNECTED_COMPANIES_OFFICE`;
                     return response.headers.location.should.be.equal(expectedRedirectUrl);
                 })
         });
