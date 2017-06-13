@@ -299,6 +299,7 @@ module.exports = {
                         })
                     });
             },
+
             resetPendingActions: function(){
                 // point SEED transaction to original pending_actions_id
                 // remove SEED previousCompanyState
