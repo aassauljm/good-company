@@ -90,7 +90,7 @@ export class NextCompanyControls extends React.Component {
 
 
 @connect((state, ownProps) => ({transactionViews: state.contextualTransactionViews[ownProps.companyId] || DEFAULT_OBJ}))
-export class GuidedSetup extends React.Component {
+export class GuidedSetup extends React.PureComponent {
     static warningCounts = {
         votingShareholderWarning: 1,
         shareClassWarning: 2,
