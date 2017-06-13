@@ -318,7 +318,7 @@ export class ShareClassesTable extends React.Component {
     static fields = ['name', 'votingRights', 'transferRestriction', 'documents']
 
     renderList(data) {
-        return <div>
+        return <div className="table-responsive">
             <table className="table table-hover table-striped share-class-table">
                 <thead>
                 <tr>{ ShareClassesTable.fields.map((f, i) => {
