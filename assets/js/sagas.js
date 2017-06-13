@@ -85,23 +85,25 @@ function listenTo(dom, name){
 
 
 function *listenToStorage(){
-    while(true){
-        const event = yield listenTo(window, 'storage')
-        if(event.key === 'refresh'){
-            try{
-                const keys = JSON.parse(event.newValue).keys;
-                if(keys.indexOf('userInfo') >= 0){
-                    yield put(requestUserInfo({refresh: true}))
+    if(typeof window !== 'undefined'){
+        while(true){
+            const event = yield listenTo(window, 'storage')
+            if(event.key === 'refresh'){
+                try{
+                    const keys = JSON.parse(event.newValue).keys;
+                    if(keys.indexOf('userInfo') >= 0){
+                        yield put(requestUserInfo({refresh: true}))
+                    }
                 }
+                catch(e){};
             }
-            catch(e){};
-        }
-        if(event.key === 'message'){
-            try{
-                const message = JSON.parse(event.newValue).message_type;
-                yield put(addNotification({message: STRINGS.notifications[message]}))
+            if(event.key === 'message'){
+                try{
+                    const message = JSON.parse(event.newValue).message_type;
+                    yield put(addNotification({message: STRINGS.notifications[message]}))
+                }
+                catch(e){};
             }
-            catch(e){};
         }
     }
 }
