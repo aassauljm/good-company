@@ -165,7 +165,7 @@ export class OverlayTrigger extends React.PureComponent {
   makeOverlay(overlay, props) {
     let overlayProps = {
     }
-    if(!this.props.hover){
+    if(!this.props.hover &&!this.props.toggle){
          overlayProps = {
             close: this.handleHide,
             updatePosition: this.updatePosition,

@@ -18,14 +18,139 @@ var login = function(req, username='companycreator@email.com'){
 
 describe('MBIE Sync Service', function() {
 
-    describe('Merges IDs in', function(){
-        var req, companyId;
+    describe('Merges IDs in AR TEST 1476323989359 (3048297)', function(){
+        var req, companyId, transactions;
         it('should login successfully', function(done) {
             req = request.agent(sails.hooks.http.app);
             login(req).then(done);
         });
         it('Does a stubbed import', function(done){
             req.post('/api/company/import/companiesoffice/3048297')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                });
+        });
+
+
+
+        it('Updates director', function(done){
+            const UPDATE_DIRECTOR = {
+                "documents": null,
+                "transactions": [
+                    {
+                        "actions": [
+                            {
+                                "afterAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
+                                "afterName": "Daniel CARTERAGE",
+                                "beforeAddress": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
+                                "beforeName": "Daniel CARTER",
+                                "personAttr": {},
+                                "transactionType": "UPDATE_DIRECTOR"
+                            }
+                        ],
+                        "effectiveDate": new Date(),
+                        "transactionType": "UPDATE_DIRECTOR"
+                    }
+                ]
+            };
+            req.post('/api/transaction/compound/'+companyId)
+                .send({json: JSON.stringify(UPDATE_DIRECTOR)})
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+        it('Appoints director', function(done){
+            const NEW_DIRECTOR = {
+                "documents": null,
+                "transactions": [
+                    {
+                        "actions": [
+                            {
+                                "name": "Greesy Timpson",
+                                "address": "1234 Tacoville",
+                                "personAttr": {},
+                                "transactionType": "NEW_DIRECTOR"
+                            }
+                        ],
+                        "effectiveDate": new Date(),
+                        "transactionType": "NEW_DIRECTOR"
+                    }
+                ]
+            };
+            req.post('/api/transaction/compound/'+companyId)
+                .send({json: JSON.stringify(NEW_DIRECTOR)})
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+        it('Removes a director', function(done){
+            const REMOVE_DIRECTOR = {
+                "documents": null,
+                "transactions": [
+                    {
+                        "actions": [
+                            {
+                                "address": "19 Victoria Avenue, Morrinsville, Morrinsville, New Zealand",
+                                "name": "Daniel CARTERAGE",
+                                "transactionType": "REMOVE_DIRECTOR"
+                            }
+                        ],
+                        "effectiveDate": new Date(),
+                        "transactionType": "REMOVE_DIRECTOR"
+                    }
+                ]
+            };
+            req.post('/api/transaction/compound/'+companyId)
+                .send({json: JSON.stringify(REMOVE_DIRECTOR)})
+                .expect(200)
+                .then(function(res){
+                    done();
+                });
+        });
+
+
+        it('Merges with co', function(){
+            return req.post('/api/company/'+companyId+'/merge_companies_office')
+                .expect(200)
+                .then(function(res){
+                });
+        });
+
+        it('Collects transactions to be submitted', function(){
+            return req.get('/api/company/'+companyId+'/transactions/unsubmitted')
+                .expect(200)
+                .then(function(res){
+                    res.body.unSubmittedTransactions.length.should.be.equal(3);
+                    transactions = res.body.unSubmittedTransactions;
+                });
+        });
+
+        it('Submits transactions', function(){
+            return req.post('/api/company/'+companyId+'/transactions/submit')
+                .send({transactionIds: transactions.map(t => t.transaction.id)})
+                .expect(200)
+                .then(function(res){
+
+                });
+        });
+
+    });
+
+
+    describe('Merges IDs in 2135118', function(){
+        var req, companyId;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            req.post('/api/company/import/companiesoffice/2135118')
                 .expect(200)
                 .then(function(res){
                     companyId = res.body.id;
@@ -39,5 +164,6 @@ describe('MBIE Sync Service', function() {
                     done();
                 });
         });
-    })
+    });
+
 })

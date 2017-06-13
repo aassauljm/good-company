@@ -2,6 +2,27 @@ const Promise = require('bluebird');
 import _ from 'lodash';
 
 
+export function lookupAddress(user, addressString, postal=false){
+    addressString = addressString.replace(/ New Zealand$/, ' NZ');
+    return AddressQueries.findOne({where: {query: addressString, postal: !!postal}})
+        .then(result => {
+            if(!result){
+                // do a look up
+                return MbieApiBearerTokenService.getUserToken(user.id, 'companies-office')
+                    .then(bearerToken => {
+                        return MbieSyncService.fetchUrl(bearerToken, UtilService.buildUrl(`${sails.config.mbie.companiesOffice.url}companies/addresses`, {find: addressString, limit: 10, postal}))
+                    })
+                    .then((result) => {
+                        return AddressQueries.create({query: addressString, postal: postal, addresses: result.body.items});
+                    })
+                    .catch(result => {
+                        return AddressQueries.build({query: addressString, addresses: []})
+                    })
+            }
+            return result;
+        });
+
+}
 
 export const normalizeAddress = Promise.method(function(address){
     address = (address || '').replace(/^C\/- /, '').replace(/ \d{4,5}, /, ' ').replace('Null, ', '');
@@ -83,8 +104,8 @@ export function compareAddresses(first, second){
     }
 
     // drop postal codes
-    first =  first.replace(/(\d){4,6}/g, ' ').replace(/ +/g, ' ');
-    second = second.replace(/(\d){4,6}/g, ' ').replace(/ +/g, ' ');
+    first =  first.replace(/(\d){4,6},?/g, ' ').replace(/ +/g, ' ');
+    second = second.replace(/(\d){4,6},?/g, ' ').replace(/ +/g, ' ');
 
     if(first === second){
         return true;

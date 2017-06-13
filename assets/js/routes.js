@@ -132,10 +132,7 @@ export default (store) => {
                     <Route name="Create" path="create" component={ CreateEvent }/>
                     <Route name="View" path="edit/:eventId" component={ EditEvent }/>
                 </Route>
-
-
                 <Route name="Account Settings" path="account_settings" component={ Account }  />
-
                 <Route name="Document" path="documents/view/:documentId" component={ Document }  />
                 <Route name="Companies" path="companies" component={ Companies }  />
                 <Route name="Manage Companies" path="companies/manage" component={ CompaniesDelete  }  />

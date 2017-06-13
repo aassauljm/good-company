@@ -13,8 +13,16 @@ import Combobox from 'react-widgets/lib/Combobox';
 
 const DROPLIST_THRESHOLD = 20;
 
+export function RenderIcon(props){
+    switch (props.bsStyle) {
+      case 'success': return <Glyphicon className="form-control-feedback" glyph="ok" key="icon" />;
+      case 'warning': return <Glyphicon className="form-control-feedback" glyph="warning-sign" key="icon" />;
+      case 'error': return <Glyphicon className="form-control-feedback" glyph="remove" key="icon" />;
+      default: return <span className="form-control-feedback" key="icon" />;
+    }
+}
 
-class FormGroup extends React.Component {
+class FormGroup extends React.PureComponent {
   render() {
     let classes = {
       'form-group': !this.props.standalone,
@@ -57,7 +65,7 @@ FormGroup.propTypes = {
 
 
 
-class InputBase extends React.Component {
+class InputBase extends React.PureComponent {
   getInputDOMNode() {
     return this.refs.input;
   }
@@ -150,12 +158,7 @@ class InputBase extends React.Component {
         return React.cloneElement(this.props.feedbackIcon, { formControlFeedback: true });
       }
 
-      switch (this.props.bsStyle) {
-      case 'success': return <Glyphicon className="form-control-feedback" glyph="ok" key="icon" />;
-      case 'warning': return <Glyphicon className="form-control-feedback" glyph="warning-sign" key="icon" />;
-      case 'error': return <Glyphicon className="form-control-feedback" glyph="remove" key="icon" />;
-      default: return <span className="form-control-feedback" key="icon" />;
-      }
+      return <RenderIcon bsStyle={this.props.bsStype} key={'feedback'}/>
     } else {
       return null;
     }

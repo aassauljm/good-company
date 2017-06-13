@@ -144,7 +144,8 @@ SELECT c.id, d.id, date, now(), now()
   RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 
-
+/* UPDATE FOR ANNUAL RETURNS IS ONLY ON AN UPDATE
+*/
 DROP TRIGGER IF EXISTS company_update_annual_returns_update_trigger ON company;
 CREATE TRIGGER company_update_annual_returns_update_trigger AFTER UPDATE ON company
     FOR EACH ROW

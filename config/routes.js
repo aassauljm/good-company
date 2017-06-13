@@ -188,6 +188,16 @@ module.exports.routes = {
         action: 'transactionHistory',
         model: 'company'
     },
+    'GET /api/company/:id/transactions/unsubmitted': {
+        controller: 'CompanyController',
+        action: 'transactionsUnsubmitted',
+        model: 'company'
+    },
+    'POST /api/company/:id/transactions/submit': {
+        controller: 'CompanyController',
+        action: 'transactionsSubmit',
+        model: 'company'
+    },
     'GET /api/company/:id/issues': {
         controller: 'CompanyController',
         action: 'issueHistory',
@@ -574,5 +584,10 @@ module.exports.routes = {
     'POST /api/model': {controller: 'ModelController', model: 'model', action: 'create'},
     'GET /api/model/:id': {controller: 'ModelController', model: 'model', action: 'findOne'},
     'PUT /api/model/:id': {controller: 'ModelController', model: 'model', action: 'update'},
-    'DELETE /api/model/:id': {controller: 'ModelController', model: 'model', action: 'destroy'}
+    'DELETE /api/model/:id': {controller: 'ModelController', model: 'model', action: 'destroy'},
+
+
+    'GET /api/address': {controller: 'UserController', action: 'lookupAddress'},
+
+    'GET /refresh_user': {controller: 'UserController', action: 'refreshUser'}
 };

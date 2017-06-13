@@ -11,6 +11,7 @@ import {
     RESOURCE_DELETE_REQUEST, RESOURCE_DELETE_SUCCESS, RESOURCE_DELETE_FAILURE,
     TRANSACTION_REQUEST, TRANSACTION_SUCCESS, TRANSACTION_FAILURE,
     ADD_NOTIFICATION, HIDE_NOTIFICATION,
+    LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
     LOOKUP_COMPANY_REQUEST, LOOKUP_COMPANY_SUCCESS, LOOKUP_COMPANY_FAILURE,
     LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
@@ -136,6 +137,20 @@ function lookupOwnCompany(state = {list: []}, action){
             return state;
     }
 }
+
+function lookupAddress(state = {list: []}, action){
+    switch(action.type){
+        case LOOKUP_ADDRESS_REQUEST:
+            return {...state, _status: 'fetching', ...action.payload};
+        case LOOKUP_ADDRESS_SUCCESS:
+                return {...state, list: action.response.addresses, _status: 'complete', ...action.payload};
+        case LOOKUP_ADDRESS_FAILURE:
+            return {...state, _status: 'error', ...action.payload};
+        default:
+            return state;
+    }
+}
+
 
 function importCompany(state = {}, action){
     switch(action.type){
@@ -568,6 +583,7 @@ const appReducer = combineReducers({
     modals,
     sendDocument,
     reduxAsyncConnect,
+    lookupAddress,
     version
 });
 

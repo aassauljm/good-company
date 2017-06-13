@@ -51,15 +51,17 @@ export class CompaniesOfficeIntegrationWidget extends React.PureComponent {
     }
 }
 
-export const ConnectCompaniesOffice = (props) => {
+export const ConnectCompaniesOfficeLink = (props) => {
     let url = '/api/auth-with/companies-office';
-    if(props.redirect){
-        url += '?redirect=true'
-    }
+    return <a className={props.className}  href={url} onClick={(e) => {e.preventDefault(); window.open(url); return false;}}>{ props.label } </a>
+}
+
+
+export const ConnectCompaniesOffice = (props) => {
     return  <div>
             <p>Connect your RealMe with the Companies to enable the submission of company changes and annual returns.</p>
             <div className="button-row">
-                <a className="btn btn-info" href={url}>Connect with Companies Office</a>
+                <ConnectCompaniesOfficeLink className="btn btn-info" label="Connect with Companies Office" />
                 { props.children }
                 </div>
         </div>

@@ -16,6 +16,7 @@ import {
     LOOKUP_COMPANY_CHANGE,
     LOOKUP_OWN_COMPANY_REQUEST, LOOKUP_OWN_COMPANY_SUCCESS, LOOKUP_OWN_COMPANY_FAILURE,
     LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE,
+    LOOKUP_ADDRESS_CHANGE,
     IMPORT_COMPANY_REQUEST, IMPORT_COMPANY_SUCCESS, IMPORT_COMPANY_FAILURE,
     IMPORT_BULK_REQUEST, IMPORT_BULK_SUCCESS, IMPORT_BULK_FAILURE,
     TRANSACTION_BULK_REQUEST, TRANSACTION_BULK_SUCCESS, TRANSACTION_BULK_FAILURE,
@@ -299,10 +300,14 @@ export function lookupOwnCompany(query) {
     };
 }
 
-export function lookupAddress(query) {
+export function lookupAddress(query, postal) {
+    let url = '/api/address?query=' + encodeURIComponent(query);
+    if(postal){
+        url += '&postal=true';
+    }
     return {
         types: [LOOKUP_ADDRESS_REQUEST, LOOKUP_ADDRESS_SUCCESS, LOOKUP_ADDRESS_FAILURE],
-        callAPI: () => fetch('/api/address/lookup/' + encodeURIComponent(query), {
+        callAPI: () => fetch(url, {
             headers: json_headers,
             credentials: 'same-origin'
         }),
@@ -557,6 +562,12 @@ export function lookupCompanyChange(query) {
     };
 }
 
+export function lookupAddressChange(query, postal) {
+    return {
+        type: LOOKUP_ADDRESS_CHANGE,
+        payload: { query, postal }
+    };
+}
 export function showVersionWarning() {
     return { type: SHOW_VERSION_WARNING };
 }

@@ -4,20 +4,7 @@ import PropTypes from 'prop-types';
 import d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom'
 
-function splitLines(string, lineLength=12){
-    return string.split(' ').reduce((acc, string) => {
-        acc.output += string;
-        acc.length += string.length;
-        if(acc.length > lineLength){
-            acc.output += '\n';
-            acc.length = 0;
-        }
-        else{
-            acc.output += ' ';
-        }
-        return acc;
-    }, {length: 0, output: ''}).output;
-}
+
 
 function splitLinesArray(string, lineLength=12){
     return string.split(' ').reduce((acc, string) => {
@@ -40,6 +27,23 @@ function splitD3Lines(data){
             .attr("class", "tspan" + i);
     })
 }
+/*
+
+function splitLines(string, lineLength=12){
+    return string.split(' ').reduce((acc, string) => {
+        acc.output += string;
+        acc.length += string.length;
+        if(acc.length > lineLength){
+            acc.output += '\n';
+            acc.length = 0;
+        }
+        else{
+            acc.output += ' ';
+        }
+        return acc;
+    }, {length: 0, output: ''}).output;
+}
+
 
 var unscale = function (el) {
     var svg = el.ownerSVGElement.ownerSVGElement;
@@ -54,6 +58,7 @@ var unscale = function (el) {
     m.e = m.f = 0; // Ignore (preserve) any translations done up to this point
     xf.setMatrix(m);
 }
+*/
 
 export default class RadialGraph extends React.Component {
     static propTypes = {

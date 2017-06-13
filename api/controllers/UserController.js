@@ -106,6 +106,20 @@ module.exports = {
 
     removePermissions: function(req, res) {
         return changePermissions(PermissionService.removePermissionCatalexUser, req, res);
+    },
+
+    lookupAddress: function(req, res) {
+        return AddressService.lookupAddress(req.user, req.query.query, req.query.postal)
+            .then((address) => {
+                res.json(address);
+            })
+            .catch(function(err){
+                return res.serverError(err);
+            });
+    },
+
+    refreshUser: function(req, res){
+        return res.view('refreshUserAndClose', {layout: null});
     }
 
 }

@@ -263,5 +263,8 @@ export default {
         designation: "Designation",
         email: 'Contact Email Address',
         fullName: 'Full Name'
+    },
+    notifications: {
+        CONNECTED_COMPANIES_OFFICE: 'Connected with the Companies Office'
     }
 }
