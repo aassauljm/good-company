@@ -16,7 +16,7 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
-import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel } from 'json-schemer';
+import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel, controlStyle } from 'json-schemer';
 import Raven from 'raven-js';
 import Widget from './widget';
 
@@ -67,21 +67,29 @@ function RemoveButton({ removeField, index, numItems, minItems }) {
     );
 }
 
-function ListItemControls({ componentProps, index, minItems }) {
-    return (
-        <div>
-            <div className="text-right">
+
+function ButtonGroupListItemControls({ componentProps, index, minItems }){
+    return [<MoveUpButton key={0} index={index} swapFields={componentProps.swapFields} />,
+            <MoveDownButton key={1} index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />,
+            <RemoveButton key={2} index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
+        ]
+}
+
+
+function InlineListItemControls(props) {
+    return <div className="text-right">
                 <div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
-                    <MoveUpButton index={index} swapFields={componentProps.swapFields} />
-                    <MoveDownButton index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />
-                    <RemoveButton index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
+                    { ButtonGroupListItemControls(props) }
                 </div>
             </div>
+}
 
+function ListItemControls(props) {
+    return (
+        <div>
+            <InlineListItemControls componentProps={props.componentProps} index={props.index} minItems={props.minItems}  />
             <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block" style={{zIndex: 100}}>
-                <MoveUpButton index={index} swapFields={componentProps.swapFields} />
-                <RemoveButton index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
-                <MoveDownButton index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />
+                 { ButtonGroupListItemControls(props) }
             </div>
         </div>
     );
@@ -94,12 +102,14 @@ function renderList(fieldProps, componentProps) {
 
             <Shuffle scale={false}>
                 { componentProps.map((c, i) => {
+                    const controls = controlStyle(fieldProps.items);
+                    const className = controls === 'inline' ? 'list-item-inline' : 'list-item'
                     return (
-                        <div className="list-item" key={c._keyIndex.value || i}>
-                            <ListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} />
+                        <div className={className} key={c._keyIndex.value || i}>
+                            { controls !== 'inline' && <ListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} /> }
 
                             <div className="list-form-set">
-                                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }
+                                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i, null, controls === 'inline' && ButtonGroupListItemControls({componentProps, minItems: fieldProps.minItems || 0, index: i})) }
                             </div>
                         </div>
                     );
@@ -115,7 +125,7 @@ function renderList(fieldProps, componentProps) {
     );
 }
 
-function renderField(fieldProps, componentProps, index){
+function renderField(fieldProps, componentProps, index, controls){
     if (fieldDisplayLevel(fieldProps) === 'hidden') {
         return false;
     }
@@ -137,22 +147,22 @@ function renderField(fieldProps, componentProps, index){
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         }
         else if (componentType(fieldProps) == 'dateTime') {
-            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
+            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}  />
         }
         else if(componentType(fieldProps) === 'textarea') {
             return <Input type="textarea" rows="5" {...componentProps}  {...props} />
         }
-        return <Input type="text" {...componentProps} {...props} />
+        return <Input type="text" {...componentProps} {...props}  buttonAfter={controls}/>
     }
     else if (fieldProps.type === 'number'){
-        return <Input type="number" {...componentProps} {...props} />
+        return <Input type="number" {...componentProps} {...props}  buttonAfter={controls}/>
     }
     else if (fieldProps.enum && fieldProps.enum.length > 1) {
         if(componentProps.capacityType){
             debugger
         }
         return (
-            <Input type="select"  {...componentProps} {...props}>
+            <Input type="select"  {...componentProps} {...props} buttonAfter={controls}>
                 { fieldProps.enum.map((f, i) => {
                     return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
                 })}
@@ -167,7 +177,7 @@ function renderField(fieldProps, componentProps, index){
     }
 }
 
-function renderFormSet(schemaProps, fields, oneOfs, listIndex, title) {
+function renderFormSet(schemaProps, fields, oneOfs, listIndex, title, controls) {
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
     };
@@ -181,7 +191,7 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex, title) {
         <fieldset>
          { title && <legend>{title}</legend>}
             { Object.keys(schemaProps).map((key, i) => {
-                return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
+                return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex, controls) }</div>
             }) }
             { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields, null, null, ) }
         </fieldset>
