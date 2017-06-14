@@ -22,7 +22,7 @@ export default function configureStore(history, initialState=data) {
     middleware = applyMiddleware(
         sagaMiddleware,
         thunkMiddleware,
-        //loggerMiddleware,
+        loggerMiddleware,
         routerMiddleware(history),
         confirmationMiddleware,
         callAPIMiddleware

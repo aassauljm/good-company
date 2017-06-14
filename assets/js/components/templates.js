@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders } from '../utils';
+import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders, votingShareholderSignatureList } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import { Link } from 'react-router';
@@ -148,6 +148,9 @@ function renderField(fieldProps, componentProps, index){
         return <Input type="number" {...componentProps} {...props} />
     }
     else if (fieldProps.enum && fieldProps.enum.length > 1) {
+        if(componentProps.capacityType){
+            debugger
+        }
         return (
             <Input type="select"  {...componentProps} {...props}>
                 { fieldProps.enum.map((f, i) => {
@@ -267,7 +270,8 @@ function makeContext(companyState) {
         'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
         'company.shareholders': personList(companyState),
         'company.votingShareholders': votingShareholderList(companyState),
-        'company.holdingsAndHolders': holdingsAndHolders(companyState)
+        'company.holdingsAndHolders': holdingsAndHolders(companyState),
+        'company.shareholdingVotingList': votingShareholderSignatureList(companyState)
     }
 }
 

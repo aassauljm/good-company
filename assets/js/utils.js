@@ -306,6 +306,25 @@ export function votingShareholderList(companyState) {
     return personList(companyState, (holder) => !holder.data || holder.data.votingShareholder);
 }
 
+export function votingShareholderSignatureList(companyState) {
+    return companyState.holdingList.holdings.map((h, i) => {
+        if(h.holders.length === 1){
+            return {...h.holders[0].person};
+        }
+        const votingShareholder = (h.holders.find(h => h.data.votingShareholder) || h.holders[0]).person;
+        return {
+            ...votingShareholder,
+            signingMethod: {
+                signingMethod: 'on behalf of',
+                capacityType: 'Voting Shareholder',
+                //parties: h.holders.filter(h => h.person.personId !== votingShareholder.personId).map(h => h.person)
+                parties: h.holders.map(h => h.person)
+            }
+        }
+    });
+}
+
+
 export function personOptionsFromState(companyState, filter = x => true){
     return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId+''}>{p.name}</option>);
 }
