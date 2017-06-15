@@ -31,47 +31,53 @@ function createLawLinks(list){
     );
 }
 
-function MoveUpButton({ swapFields, index }) {
-    if (index === 0) {
+function MoveUpButton({ swapFields, index, forceDisplay }) {
+    const disabled = index === 0;
+
+    if (disabled && !forceDisplay) {
         return false;
     }
 
     return(
-        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index - 1)}>
+        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index - 1)} disabled={disabled}>
             <Glyphicon glyph="arrow-up"/>
         </button>
     );
 }
 
-function MoveDownButton({ swapFields, index, numItems }) {
-    if (index + 1 === numItems) {
+function MoveDownButton({ swapFields, index, numItems, forceDisplay }) {
+    const disabled = index + 1 === numItems;
+
+    if (disabled && !forceDisplay) {
         return false;
     }
 
     return (
-        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index + 1)}>
+        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index + 1)} disabled={disabled}>
             <Glyphicon glyph="arrow-down"/>
         </button>
     );
 }
 
-function RemoveButton({ removeField, index, numItems, minItems }) {
-    if (minItems >= numItems) {
+function RemoveButton({ removeField, index, numItems, minItems, forceDisplay }) {
+    const disabled = minItems >= numItems;
+
+    if (disabled && !forceDisplay) {
         return false;
     }
 
     return (
-        <button type="button" className="btn btn-default" onClick={() => removeField(index)}>
+        <button type="button" className="btn btn-default" onClick={() => removeField(index)} disabled={disabled}>
             <Glyphicon glyph="remove"/>
         </button>
     );
 }
 
 
-function ButtonGroupListItemControls({ componentProps, index, minItems }){
-    return [<MoveUpButton key={0} index={index} swapFields={componentProps.swapFields} />,
-            <MoveDownButton key={1} index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />,
-            <RemoveButton key={2} index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
+function ButtonGroupListItemControls({ componentProps, index, minItems, forceDisplay }){
+    return [<MoveUpButton key={0} index={index} swapFields={componentProps.swapFields} forceDisplay={forceDisplay} />,
+            <MoveDownButton key={1} index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} forceDisplay={forceDisplay} />,
+            <RemoveButton key={2} index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} forceDisplay={forceDisplay} />
         ]
 }
 
@@ -109,7 +115,7 @@ function renderList(fieldProps, componentProps) {
                             { controls !== 'inline' && <ListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} /> }
 
                             <div className="list-form-set">
-                                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i, null, controls === 'inline' && ButtonGroupListItemControls({componentProps, minItems: fieldProps.minItems || 0, index: i})) }
+                                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i, null, controls === 'inline' && ButtonGroupListItemControls({componentProps, minItems: fieldProps.minItems || 0, index: i, forceDisplay: true})) }
                             </div>
                         </div>
                     );
