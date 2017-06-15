@@ -309,7 +309,16 @@ export function votingShareholderList(companyState) {
 export function votingShareholderSignatureList(companyState) {
     return companyState.holdingList.holdings.map((h, i) => {
         if(h.holders.length === 1){
-            return {...h.holders[0].person};
+            if(isNaturalPerson(h.holders[0].person)){
+                return {...h.holders[0].person, signingMethod: {}};
+            }
+            else{
+                return {signingMethod: {
+                    signingMethod: 'on behalf of',
+                    parties: h.holders.map(h => h.person),
+                    capacityType: 'Authorised Signatory'
+                }};
+            }
         }
         const votingShareholder = (h.holders.find(h => h.data.votingShareholder) || h.holders[0]).person;
         return {
@@ -317,11 +326,24 @@ export function votingShareholderSignatureList(companyState) {
             signingMethod: {
                 signingMethod: 'on behalf of',
                 capacityType: 'Voting Shareholder',
-                //parties: h.holders.filter(h => h.person.personId !== votingShareholder.personId).map(h => h.person)
                 parties: h.holders.map(h => h.person)
             }
         }
-    });
+    }).reduce((acc, h) => {
+        // remove identical signing situations
+        const existing = acc.find((a) => {
+            return a.name === h.name &&
+                a.signingMethod.signingMethod === h.signingMethod.signingMethod &&
+                a.signingMethod.capacityType === h.signingMethod.capacityType &&
+                (a.signingMethod.parties || []).map(p => p.personId).join('-') === (h.signingMethod.parties || []).map(p => p.personId).join('-')
+        });
+        if(!existing){
+            acc.push(h);
+        }
+        return acc;
+    }, []);
+
+
 }
 
 
