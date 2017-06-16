@@ -31,46 +31,54 @@ function createLawLinks(list){
     );
 }
 
-function MoveUpButton({ swapFields, index, forceDisplay }) {
-    const disabled = index === 0;
+class MoveUpButton extends React.PureComponent{
+    render(){
+        const { swapFields, index, numItems, forceDisplay } = this.props;
+        const disabled = index === 0;
 
-    if (disabled && !forceDisplay) {
-        return false;
+        if (disabled && !forceDisplay) {
+            return false;
+        }
+
+        return(
+            <button type="button" className="btn btn-default" onClick={() => swapFields(index, index - 1)} disabled={disabled}>
+                <Glyphicon glyph="arrow-up"/>
+            </button>
+        );
     }
-
-    return(
-        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index - 1)} disabled={disabled}>
-            <Glyphicon glyph="arrow-up"/>
-        </button>
-    );
 }
 
-function MoveDownButton({ swapFields, index, numItems, forceDisplay }) {
-    const disabled = index + 1 === numItems;
+class MoveDownButton extends React.PureComponent{
+    render(){
+        const { swapFields, index, numItems, forceDisplay } = this.props;
+        const disabled = index + 1 === numItems;
 
-    if (disabled && !forceDisplay) {
-        return false;
+        if (disabled && !forceDisplay) {
+            return false;
+        }
+
+        return (
+            <button type="button" className="btn btn-default" onClick={() => swapFields(index, index + 1)} disabled={disabled}>
+                <Glyphicon glyph="arrow-down"/>
+            </button>
+        );
     }
-
-    return (
-        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index + 1)} disabled={disabled}>
-            <Glyphicon glyph="arrow-down"/>
-        </button>
-    );
 }
+class RemoveButton extends React.PureComponent{
+    render(){
+        const { index, numItems, minItems, forceDisplay, removeField } = this.props;
+        const disabled = minItems >= numItems;
 
-function RemoveButton({ removeField, index, numItems, minItems, forceDisplay }) {
-    const disabled = minItems >= numItems;
+        if (disabled && !forceDisplay) {
+            return false;
+        }
 
-    if (disabled && !forceDisplay) {
-        return false;
+        return (
+            <button type="button" className="btn btn-default" onClick={() => removeField(index)} disabled={disabled}>
+                <Glyphicon glyph="remove"/>
+            </button>
+        );
     }
-
-    return (
-        <button type="button" className="btn btn-default" onClick={() => removeField(index)} disabled={disabled}>
-            <Glyphicon glyph="remove"/>
-        </button>
-    );
 }
 
 
@@ -253,7 +261,7 @@ const CreateForm = (schema, name) => {
       fields: getFields(schema),
       validate: getValidate(schema)
     })
-    class Form extends React.Component {
+    class Form extends React.PureComponent {
         render() {
             const { fields } = this.props;
             return <RenderForm  schema={schema}  {...this.props} />
@@ -310,7 +318,7 @@ function jsonStringToValues(string) {
     showLoading: () => showLoading(),
     endLoading: () => endLoading(),
 })
-export  class TemplateView extends React.Component {
+export  class TemplateView extends React.PureComponent {
 
     constructor(props){
         super(props);
@@ -399,8 +407,7 @@ const RenderTemplateList = (props) => {
     );
 }
 
-@pureRender
-export default class TemplateList extends React.Component {
+export default class TemplateList extends React.PureComponent {
     static propTypes = {
         companyState: PropTypes.object,
         companyId: PropTypes.string
@@ -444,8 +451,8 @@ export default class TemplateList extends React.Component {
     }
 }
 
-@pureRender
-export class TemplateWidget extends React.Component {
+
+export class TemplateWidget extends React.PureComponent {
     static propTypes = {
         companyState: PropTypes.object,
         companyId: PropTypes.string
@@ -462,8 +469,7 @@ export class TemplateWidget extends React.Component {
 }
 
 
-@pureRender
-export class TemplateSelectCompany extends React.Component {
+export class TemplateSelectCompany extends React.PureComponent {
     render() {
         return (
             <LawBrowserContainer>
