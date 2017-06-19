@@ -25,7 +25,7 @@ const fields = [
     'minNoticeDate',
     'noticeDate',
     'documents'
-]
+];
 
 
 
@@ -50,7 +50,7 @@ const AddressFormConnected = reduxForm({
     form: 'addressChange',
     validate: (values) => {
         const errors = validateFields(values);
-        if(values.minNoticeDate && values.effectiveDate && values.effectiveDate < values.minNoticeDate){
+        if(values.minNoticeDate && values.effectiveDate && moment(values.effectiveDate).isBefore(values.minNoticeDate, 'day')){
             errors.effectiveDate = ['Must be at least 5 working days after date of notice']
         }
         return errors;

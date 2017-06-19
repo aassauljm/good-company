@@ -99,7 +99,7 @@ export class DocumentsWidget extends React.PureComponent {
         const documents = [...(files || [])].map(d => ({...d, date: new Date(d.date || d.createdAt) })).filter(d => d.type !== 'Directory');
         documents.sort((a, b) => b.date - a.date);
 
-        return  <div  onClick={() => this.props.toggle(!this.props.expanded)}>
+        return  <div className="table-responsive" onClick={() => this.props.toggle(!this.props.expanded)}>
                 <div className="text-center"><em>Latest Documents:</em></div>
                 <table className="table table-condensed" style={{marginBottom: 0}}>
                 <tbody>
@@ -530,7 +530,6 @@ export class CompanyDocuments extends React.Component {
         }
     }
 
-
     upload(files, directoryId=null) {
         const body = new FormData();
         body.append('json', JSON.stringify({directoryId}));
@@ -543,8 +542,8 @@ export class CompanyDocuments extends React.Component {
                 return result;
             })
             .catch((e) => this.props.addNotification({message: e.message, error: true}))
-
     }
+
     move(documentId, directoryId) {
         return this.props.updateDocument(`/company/${this.props.companyId}/document/${documentId}`, {directoryId: directoryId}, {loadingMessage: 'Moving File'})
             .then(() => this.props.addNotification({message: 'File moved'}))

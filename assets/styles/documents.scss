@@ -63,3 +63,15 @@
         }
     }
 }
+
+
+.widget.company-documents{
+    td{
+        white-space: nowrap;
+        a{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        }
+    }
+}
