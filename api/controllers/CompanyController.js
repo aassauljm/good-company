@@ -869,6 +869,44 @@ module.exports = {
             })
     },
 
+
+    companyPermissionsCatalexUser: function(req, res) {
+        return Company.companyPermissionsUser(req.user.id, req.params.catalexId)
+            .then(result =>{
+                return res.ok(result);
+            }).catch(function(err) {
+                return res.badRequest(err);
+            });
+    },
+
+    updateCompanyPermissionsCatalexUser: function(req, res) {
+        const permissionChanges = actionUtil.parseValues(req).permissionChanges;
+        return Promise.map(permissionChanges, permissionChange => {
+            return Company.findById(permissionChange.companyId)
+            .then(company => {
+                return PermissionService.isAllowed(company, req.user, 'update', 'Company')
+                .then(allowed => {
+                    if(allowed){
+                        return Promise.map(permissionChange.permissions, permission => {
+                            if(permissionChange.addOrRemove === 'add_permissions'){
+                                return PermissionService.addPermissionCatalexUser(req.params.catalexId, company, permission, permissionChange.allow, true);
+                            }
+                            else{
+                                return PermissionService.removePermissionCatalexUser(req.params.catalexId, company, permission, permissionChange.allow, true)
+                            }
+                        });
+                    }
+                })
+            })
+        })
+        .then(result =>{
+            return res.json({message: 'Permissions Updated'});
+        }).catch(function(err) {
+            return res.badRequest(err);
+        });
+    },
+
+
     inviteUserWithPermissions: function(req, res) {
         var data = actionUtil.parseValues(req), company, state;
         Company.findById(req.params.id)
@@ -933,14 +971,6 @@ module.exports = {
             })
     },
 
-    companyPermissionsCatalexUser: function(req, res) {
-        return Company.companyPermissionsUser(req.user.id, req.params.catalexId)
-            .then(result =>{
-                return res.ok(result);
-            }).catch(function(err) {
-                return res.badRequest(err);
-            });
-    },
 
     mergeCompaniesOffice: function(req, res) {
         let company;

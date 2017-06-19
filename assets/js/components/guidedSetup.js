@@ -191,7 +191,7 @@ export class GuidedSetup extends React.PureComponent {
                     </div> }
                 </Widget>
                 </div>
-                { !this.props.transactionViews.showing && <Loading />}
+                { !this.props.transactionViews.showing &&  this.state.warningCount > 0 && <Loading />}
 
                 { !!this.props.transactionViews.showing && <TransactionViewSwitch showing={this.props.transactionViews.showing} {...props}  /> }
 

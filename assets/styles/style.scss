@@ -26,7 +26,8 @@ $background-gray: #f2f2f2;
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/type";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/code";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";
+// Using custom grid
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap/grid";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/tables";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/forms";
 @import "~bootstrap-sass/assets/stylesheets/bootstrap/buttons";
@@ -81,6 +82,8 @@ $navbar-height: 50px;
 $header-image:url("~catalex_shared/images/hero-bg.jpg");
 $text-color: #333;
 
+
+@import "grid";
 
 @import "reactWidgets";
 @import "autoSuggest";

@@ -2160,9 +2160,7 @@ export function performAllInsertByEffectiveDate(data, company){
             return state;
         })
         .tap(state => {
-            if(pendingFuture){
-                return state.update({'pending_future_action_id': pendingFuture});
-            }
+            return state.update({'pending_future_action_id': pendingFuture});
         })
         .then(state => {
             return {companyState: state, transaction: completedTransactions[0]}
