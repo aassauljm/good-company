@@ -393,6 +393,7 @@ export class PermissionTable extends React.PureComponent {
             const {addOrRemove, permissions, allow} = formatChange(value, this.props.catalexId, permission)
             return {addOrRemove, permissions, allow, companyId}
         })
+         this.props.showLoading({message: 'Updating'});
         this.props.updatePermission(`/company/permissions/${this.props.catalexId}`, {permissionChanges: actions}, {
             invalidates: []
         })
