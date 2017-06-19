@@ -119,3 +119,6 @@ nbproject
 .idea
 .node_history
 serviceIsLive.flag
+.nyc_output/
+coverage
+stats.json
