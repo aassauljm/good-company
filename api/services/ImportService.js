@@ -17,7 +17,9 @@ export function importCompany(companyNumber, options) {
         })
         .then((readDocuments) => ScrapingService.processDocuments(data, readDocuments))
         .then((_processedDocs) => {
-            processedDocs = _processedDocs;
+            const now = new Date();
+            processedDocs = _processedDocs.filter(d => !d.effectiveDate || d.effectiveDate <= now);
+            const processedFutureDocs = _processedDocs.filter(d => d.effectiveDate && d.effectiveDate > now);
             return sequelize.transaction(function(){
                 return ScrapingService.populateDB(data, options.userId)
                 .then(function(_company) {
@@ -50,6 +52,13 @@ export function importCompany(companyNumber, options) {
                             pendingAction = _pendingAction;
                             newRoot.set('pending_historic_action_id', pendingAction[0].id);
                             return newRoot.save()
+                        })
+                        .then(() => {
+                            if(processedFutureDocs.length){
+                                processedFutureDocs.reverse();
+                                return Action.bulkCreate(processedFutureDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedFutureDocs[i+1] || {}).id})))
+                                .then(() => state.update({'pending_future_action_id': processedFutureDocs[0].id}))
+                            }
                         })
                         .then(() => {
                             return state.getHistoricActions()

@@ -300,15 +300,23 @@ var transactions = {
             })
     },
     createShareClass: function(data, company){
-        let companyState, shareClasses;
-        let effectiveDate;
+        let companyState, shareClasses, nowCompanyState, futureTransactions, pendingFuture;
+        let effectiveDate = new Date();
         const actions = [{..._.omit(data, 'documents', 'json'), id: uuid.v4(), transactionType: Transaction.types.CREATE_SHARE_CLASS}]
-
-        return company.getCurrentCompanyState({include: [{model: Transaction, as: 'transaction'}]})
-        .then(function(currentCompanyState){
-            effectiveDate = currentCompanyState.transaction ? currentCompanyState.transaction.effectiveDate : new Date();
-            return currentCompanyState.buildNext({
-                previousCompanyStateId: currentCompanyState.dataValues.id
+        return company.getCurrentCompanyState()
+        .then(state => {
+            pendingFuture = state.pending_future_action_id
+            return company.getDatedCompanyState(effectiveDate)
+        })
+        .then(_state => {
+            nowCompanyState= _state;
+            return company.getTransactionsAfter(nowCompanyState.id)
+        })
+        .then(_transactions => {
+            futureTransactions = _transactions;
+            return nowCompanyState.buildNext({
+                previousCompanyStateId: nowCompanyState.dataValues.id,
+                transactionId: null
             });
         })
         .then(function(cs){
@@ -344,7 +352,7 @@ var transactions = {
         })
         .then(function(shareClass){
             if(data.documents){
-                return shareClass.addDocuments(data.documents).then(() => shareClass)
+                return shareClass.addDocuments(data.documents).then(() => shareClass);
             }
             return shareClass;
         })
@@ -366,11 +374,19 @@ var transactions = {
             return Transaction.create({type: Transaction.types.CREATE_SHARE_CLASS, data: actions[0], effectiveDate: effectiveDate })
         })
         .then((transaction) => {
-            companyState.dataValues.transactionId = transaction.id;
+            companyState.transaction = companyState.dataValues.transaction;
             return companyState.save();
         })
         .then(function(){
             return company.setCurrentCompanyState(companyState);
+        })
+        .then(function(){
+            if(futureTransactions.length){
+                return TransactionService.performAll(TransactionService.transactionsToActions(futureTransactions), company, null, true)
+                .then(function(state){
+                    return state.update({'pending_future_action_id': pendingFuture});
+                })
+            }
         })
         .then(function(){
             return {message: `Share Class created for ${companyState.companyName}`}
@@ -442,18 +458,19 @@ const selfManagedTransactions = {
             * import historic actions, until SEED
         */
         let state, companyName, historic_action_id, newRoot;
+        data.effectiveDate = new Date();
         return sequelize.transaction(function(){
             return company.getCurrentCompanyState()
                 .then(currentState => {
                     historic_action_id = currentState.get('historic_action_id');
-                    return TransactionService.performTransaction({
+                    return TransactionService.performAllInsertByEffectiveDate([{
                             actions: data.actions,
-                            effectiveDate: data.effectiveDate || new Date(),
+                            effectiveDate: data.effectiveDate,
                             transactionType: Transaction.types.APPLY_SHARE_CLASSES
-                        }, company)
+                        }], company)
                 })
                 .then(_state => {
-                    state = _state;
+                    state = _state.companyState;
                     companyName = state.get('companyName');
                     return state.buildPrevious({
                         transaction: null,
