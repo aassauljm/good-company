@@ -843,7 +843,6 @@ module.exports = {
     updateCompanyPermissionsCatalexUser: function(req, res) {
         const permissionChanges = actionUtil.parseValues(req).permissionChanges;
         return Promise.map(permissionChanges, permissionChange => {
-            console.log(permissionChange)
             return Company.findById(permissionChange.companyId)
             .then(company => {
                 return PermissionService.isAllowed(company, req.user, 'update', 'Company')
