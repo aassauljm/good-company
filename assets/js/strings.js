@@ -93,6 +93,13 @@ export default {
         TRANSFER: 'Transfer',
         TRANSFER_TO: 'Transfer To',
         TRANSFER_FROM: 'Transfer From',
+        TRANSFER_TO_ACQUISITION: 'Transfer To',
+        TRANSFER_FROM_ACQUISITION: 'Transfer From',
+
+        TRANSFER_TO_REISSUE: 'Transfer To',
+        TRANSFER_FROM_REISSUE: 'Transfer From',
+
+
         CONVERSION_TO: 'Conversion To',
         CONVERSION: 'Conversion/Subdivision',
         SUBDIVISION: 'Subdivison',
@@ -124,7 +131,8 @@ export default {
         INFERRED_REMOVE_DIRECTOR: 'Remove Director',
         ADDRESS_CHANGE: 'Address Change',
         UPDATE_DIRECTOR: 'Update Director',
-        INFERRED_UPDATE_DIRECTOR: 'Update Director'
+        INFERRED_UPDATE_DIRECTOR: 'Update Director',
+
     },
     permissions: {
         update: 'Make Changes',

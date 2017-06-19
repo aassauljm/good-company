@@ -599,7 +599,7 @@ $$ LANGUAGE SQL STABLE;
 CREATE OR REPLACE FUNCTION has_pending_future_actions(companyStateId integer)
     RETURNS BOOLEAN
     AS $$
-    SELECT cs.pending_future_action_id is not null
+    SELECT pending_future_action_id is not null
     from  company c
       INNER JOIN
       (SELECT company_from_company_state($1)) s on s.company_from_company_state = c.id

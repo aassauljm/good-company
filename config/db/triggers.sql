@@ -77,6 +77,22 @@ BEGIN
   RETURN NEW;
 END $$ LANGUAGE 'plpgsql';
 
+CREATE OR REPLACE FUNCTION apply_retroactive_warnings_by_company()
+RETURNS trigger AS $$
+BEGIN
+    WITH RECURSIVE prev_company_states(id, "previousCompanyStateId", "generation") as (
+        SELECT t.id, t."previousCompanyStateId", 0 as generation FROM company_state as t where t.id = NEW."currentCompanyStateId"
+        UNION ALL
+        SELECT t.id, t."previousCompanyStateId", generation + 1
+        FROM company_state t, prev_company_states tt
+        WHERE t.id = tt."previousCompanyStateId"
+    )
+         UPDATE company_state cs set warnings = jsonb_set(warnings, '{pendingFuture}', COALESCE(has_pending_future_actions(NEW.id), FALSE)::text::jsonb)
+         FROM (SELECT id from prev_company_states) subquery
+        WHERE subquery.id = cs.id;
+
+  RETURN NEW;
+END $$ LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS company_state_future_warnings_insert_trigger ON company_state;
 CREATE TRIGGER company_state_future_warnings_insert_trigger AFTER INSERT ON company_state
@@ -89,7 +105,6 @@ CREATE TRIGGER company_state_future_warnings_update_trigger AFTER UPDATE ON comp
     FOR EACH ROW
     WHEN (pg_trigger_depth() = 0 AND (OLD.pending_future_action_id IS DISTINCT FROM NEW.pending_future_action_id OR OLD."previousCompanyStateId" IS DISTINCT FROM NEW."previousCompanyStateId"))
     EXECUTE PROCEDURE apply_retroactive_warnings();
-
 
 
 
@@ -150,3 +165,11 @@ CREATE TRIGGER company_update_annual_returns_update_trigger AFTER UPDATE ON comp
     FOR EACH ROW
     WHEN  (OLD."currentCompanyStateId" IS DISTINCT FROM NEW."currentCompanyStateId")
     EXECUTE PROCEDURE update_annual_returns();
+
+
+DROP TRIGGER IF EXISTS company_update_retroactive_warnings_update_trigger ON company;
+CREATE TRIGGER company_update_retroactive_warnings_update_trigger AFTER UPDATE ON company
+    FOR EACH ROW
+    WHEN  (OLD."currentCompanyStateId" IS DISTINCT FROM NEW."currentCompanyStateId")
+    EXECUTE PROCEDURE apply_retroactive_warnings_by_company();
+

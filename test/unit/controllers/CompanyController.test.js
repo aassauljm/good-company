@@ -1172,14 +1172,16 @@ describe('Company Controller', function() {
                 })
                 .catch(done)
         });
-        it('Creates share classes', function(done){
-            req.post('/api/company/'+companyId+'/share_classes/create')
+
+        /*it('Creates share classes', function(done){
+            return req.post('/api/company/'+companyId+'/share_classes/create')
                 .send({json: JSON.stringify({name: 'Ordinary'})})
                 .then(function(){
                     done();
                 })
                 .catch(done);
         });
+
         it('Confirms future warning', function(done){
             return req.get('/api/company/'+companyId+'/get_info')
                 .then((res) => {
@@ -1188,17 +1190,16 @@ describe('Company Controller', function() {
                 .then(done)
                 .catch(done)
 
-        });
+        });*/
 
-
-        it('Updates future', function(done){
+       /* it('Updates future', function(done){
             req.post('/api/company/'+companyId+'/import_pending_future')
                 .expect(200)
                 .then(function(res){
                     done();
                 })
                 .catch(done)
-        });
+        });*/
 
         after(() => {
             ScrapingService._testPath = path;
