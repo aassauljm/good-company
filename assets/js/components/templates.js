@@ -9,6 +9,7 @@ import { Link } from 'react-router';
 import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
+import Address from './forms/address';
 import { renderTemplate, showEmailDocument, addNotification, showLoading, endLoading } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
@@ -138,6 +139,9 @@ function renderField(fieldProps, componentProps, index){
         }
         else if (componentType(fieldProps) == 'dateTime') {
             return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
+        }
+        else if (componentType(fieldProps) == 'address') {
+            return <Address {...componentProps} {...props} />
         }
         else if(componentType(fieldProps) === 'textarea') {
             return <Input type="textarea" rows="5" {...componentProps}  {...props} />
