@@ -1172,6 +1172,24 @@ describe('Company Controller', function() {
                 })
                 .catch(done)
         });
+        it('Creates share classes', function(done){
+            req.post('/api/company/'+companyId+'/share_classes/create')
+                .send({json: JSON.stringify({name: 'Ordinary'})})
+                .then(function(){
+                    done();
+                })
+                .catch(done);
+        });
+        it('Confirms future warning', function(done){
+            return req.get('/api/company/'+companyId+'/get_info')
+                .then((res) => {
+                    res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(true);
+                })
+                .then(done)
+                .catch(done)
+
+        });
+
 
         it('Updates future', function(done){
             req.post('/api/company/'+companyId+'/import_pending_future')
@@ -1609,8 +1627,22 @@ describe('Company Controller', function() {
         });
     });
 
-
-
+   describe('Import with future changes (5720787)', function(){
+        var req, companyId, context, classes, holdings;
+        it('should login successfully', function(done) {
+            req = request.agent(sails.hooks.http.app);
+            login(req).then(done);
+        });
+        it('Does a stubbed import', function(done){
+            return req.post('/api/company/import/companiesoffice/5720787')
+                .expect(200)
+                .then(function(res){
+                    companyId = res.body.id;
+                    done();
+                })
+                .catch(done);
+        });
+    });
 
 
 
