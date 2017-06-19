@@ -36,7 +36,7 @@ const RenderPermissionType = (props) => {
 @connect(state => ({
     userInfo: state.userInfo
 }))
-export class OrganisationWidget extends React.Component {
+export class OrganisationWidget extends React.PureComponent {
     static propTypes = {
 
     };
@@ -75,7 +75,7 @@ export class OrganisationWidget extends React.Component {
 @connect(state => ({
     userInfo: state.userInfo
 }))
-export class AccessListWidget extends React.Component {
+export class AccessListWidget extends React.PureComponent {
     static propTypes = {
         companyState: PropTypes.object.isRequired,
         companyId: PropTypes.string.isRequired,
@@ -198,7 +198,7 @@ class InviteThirdPartyForm extends React.PureComponent {
     showLoading: (...args) => showLoading(...args),
     hideLoading: (...args) => endLoading(...args)
 })
-export default class AccessList extends React.Component {
+export default class AccessList extends React.PureComponent {
 
     constructor(props) {
         super(props);
@@ -350,7 +350,14 @@ export default class AccessList extends React.Component {
     showLoading: (...args) => dispatch(showLoading(...args)),
     hideLoading: (...args) => dispatch(endLoading(...args))
 }))
-export class PermissionTable extends React.Component {
+export class PermissionTable extends React.PureComponent {
+
+    constructor(props) {
+        super(props);
+
+        this.allRead = ::this.allRead;
+        this.allUpdate = ::this.addUpdate;
+    }
 
     componentDidUpdate(){
         this.props.fetchPermissions();
@@ -358,6 +365,43 @@ export class PermissionTable extends React.Component {
 
     componentWillMount(){
         this.props.fetchPermissions();
+    }
+
+    massUpdate(companies, permission, shouldGivePermission) {
+        // Get the id of all the companies that need updated
+        const companyIds = companies.reduce((companiesToUpdate, company) => {
+            const userCanUpdatePermission = company.userPermissions && company.ownerId === company.userPermissions.userId;
+            const permissions = (company.userPermissions || {}).permissions || [];
+
+            const hasPermission = permissions.indexOf(permission) >= 0;
+            const permissionNeedsUpdated = hasPermission !== shouldGivePermission;
+
+            if (userCanUpdatePermission && permissionNeedsUpdated) {
+                companiesToUpdate.push(company.id);
+            }
+
+            return companiesToUpdate;
+        }, []);
+
+        const requestPayload = {
+            catalexId: this.props.catalexId,
+            allow: shouldGivePermission,
+            companyIds,
+            permissions: [permission]
+        };
+    }
+
+    updateAllCompanies(permission, shouldGivePermission) {
+        const companies = (this.props.permissions.data || {}).companyPermissions || [];
+        massUpdate(companies, permission, shouldGivePermission);
+    }
+
+    allRead(event) {
+        updateAllCompanies('read', event.target.checked);
+    }
+
+    allUpdate(event) {
+        updateAllCompanies('update', event.target.checked);
     }
 
     onCompanyChange(event, company, permission) {
@@ -405,6 +449,9 @@ export class PermissionTable extends React.Component {
         const userPermissions =(this.props.permissions.data || {}).userPermissions || [];
         const userPermissionsLoading = this.props.permissions._status === 'fetching' && !this.props.permissions.data;
 
+        const allRead = companies.every(company => ((company.userPermissions || {}).permissions || []).indexOf('read') >= 0);
+        const allUpdate = companies.every(company => ((company.userPermissions || {}).permissions || []).indexOf('update') >= 0);
+
         return <div>
             <div className="button-row">
                 <Input type="checkbox" checked={ userPermissions.indexOf('create') >= 0 } disabled={false} onChange={(e) => this.onUserChange(e, 'create')} label="Can Import New Companies" />
@@ -418,6 +465,11 @@ export class PermissionTable extends React.Component {
                 </tr>
             </thead>
             <tbody>
+                <tr>
+                    <td><strong>All</strong></td>
+                    <td><Input type="checkbox" checked={allRead} disabled={false} onChange={(e) => allRead(e)}/></td>
+                    <td><Input type="checkbox" checked={allUpdate} disabled={false} onChange={(e) => allUpdate(e)}/></td>
+                </tr>
             { userPermissionsLoading && <tr><td colSpan="3"><Loading /></td></tr>}
                 { companies.map((company, i) => {
                     const disabled = company.userPermissions && company.ownerId === company.userPermissions.userId;
@@ -442,7 +494,7 @@ export class PermissionTable extends React.Component {
     userInfo: state.userInfo,
     login: state.login
 }))
-export class Organisation extends React.Component {
+export class Organisation extends React.PureComponent {
 
     userSelect() {
         const members = (this.props.userInfo.organisation || []);
