@@ -354,9 +354,7 @@ export class PermissionTable extends React.PureComponent {
 
     constructor(props) {
         super(props);
-
-        this.allRead = ::this.allRead;
-        this.allUpdate = ::this.addUpdate;
+        this.updateAll = ::this.updateAll;
     }
 
     componentDidUpdate(){
@@ -368,20 +366,7 @@ export class PermissionTable extends React.PureComponent {
     }
 
     massUpdate(companies, permission, shouldGivePermission) {
-        // Get the id of all the companies that need updated
-        const companyIds = companies.reduce((companiesToUpdate, company) => {
-            const userCanUpdatePermission = company.userPermissions && company.ownerId === company.userPermissions.userId;
-            const permissions = (company.userPermissions || {}).permissions || [];
 
-            const hasPermission = permissions.indexOf(permission) >= 0;
-            const permissionNeedsUpdated = hasPermission !== shouldGivePermission;
-
-            if (userCanUpdatePermission && permissionNeedsUpdated) {
-                companiesToUpdate.push(company.id);
-            }
-
-            return companiesToUpdate;
-        }, []);
 
         const requestPayload = {
             catalexId: this.props.catalexId,
@@ -391,17 +376,43 @@ export class PermissionTable extends React.PureComponent {
         };
     }
 
-    updateAllCompanies(permission, shouldGivePermission) {
+    updateAllCompanies(permission, value) {
         const companies = (this.props.permissions.data || {}).companyPermissions || [];
-        massUpdate(companies, permission, shouldGivePermission);
+        // Get the id of all the companies that need updated
+        const companyIds = companies.reduce((companiesToUpdate, company) => {
+            const permissions = (company.userPermissions || {}).permissions || [];
+            const hasPermission = permissions.indexOf(permission) >= 0;
+            const permissionNeedsUpdated = hasPermission !== value;
+            if(permissionNeedsUpdated) {
+                companiesToUpdate.push(company.id);
+            }
+            return companiesToUpdate;
+        }, []);
+
+        const actions = companyIds.map(companyId => {
+            const {addOrRemove, permissions, allow} = formatChange(value, this.props.catalexId, permission)
+            return {addOrRemove, permissions, allow, companyId}
+        })
+        this.props.updatePermission(`/company/permissions/${this.props.catalexId}`, {permissionChanges: actions}, {
+            invalidates: []
+        })
+        .then((r) => {
+            this.props.addNotification({message: r.response.message});
+            return this.props.fetchPermissions(true)
+        })
+        .then(() =>{
+            this.props.hideLoading();
+        })
+        .catch(error => {
+            this.props.fetchPermissions(true)
+            this.props.addNotification({message: 'Unable to update permissions', error: true})
+            this.props.hideLoading();
+        })
+
     }
 
-    allRead(event) {
-        updateAllCompanies('read', event.target.checked);
-    }
-
-    allUpdate(event) {
-        updateAllCompanies('update', event.target.checked);
+    updateAll(event, perm) {
+        this.updateAllCompanies(perm, event.target.checked);
     }
 
     onCompanyChange(event, company, permission) {
@@ -467,8 +478,8 @@ export class PermissionTable extends React.PureComponent {
             <tbody>
                 <tr>
                     <td><strong>All</strong></td>
-                    <td><Input type="checkbox" checked={allRead} disabled={false} onChange={(e) => allRead(e)}/></td>
-                    <td><Input type="checkbox" checked={allUpdate} disabled={false} onChange={(e) => allUpdate(e)}/></td>
+                    <td><Input type="checkbox" checked={allRead} disabled={false} onChange={(e) => this.updateAll(e, 'read')}/></td>
+                    <td><Input type="checkbox" checked={allUpdate} disabled={false} onChange={(e) => this.updateAll(e, 'update')}/></td>
                 </tr>
             { userPermissionsLoading && <tr><td colSpan="3"><Loading /></td></tr>}
                 { companies.map((company, i) => {

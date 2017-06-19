@@ -70,6 +70,7 @@ module.exports.policies = {
         'findPerson': simpleAuth,
         'find': simpleAuth,
         'companyPermissionsCatalexUser': simpleAuth,
+        'updateCompanyPermissionsCatalexUser': simpleAuth
     },
     CompanyStateController: {
         'create': standardAuth.concat(['SuspendedPolicy']),

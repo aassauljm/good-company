@@ -302,11 +302,14 @@ var transactions = {
             })
     },
     createShareClass: function(data, company){
-        let companyState, shareClasses, nowCompanyState, futureTransactions;
+        let companyState, shareClasses, nowCompanyState, futureTransactions, pendingFuture;
         let effectiveDate = new Date();
         const actions = [{..._.omit(data, 'documents', 'json'), id: uuid.v4(), transactionType: Transaction.types.CREATE_SHARE_CLASS}]
-
-        return company.getDatedCompanyState(effectiveDate)
+        return company.getCurrentCompanyState()
+        .then(state => {
+            pendingFuture = state.pending_future_action_id
+            return company.getDatedCompanyState(effectiveDate)
+        })
         .then(_state => {
             nowCompanyState= _state;
             return company.getTransactionsAfter(nowCompanyState.id)
@@ -314,7 +317,8 @@ var transactions = {
         .then(_transactions => {
             futureTransactions = _transactions;
             return nowCompanyState.buildNext({
-                previousCompanyStateId: nowCompanyState.dataValues.id
+                previousCompanyStateId: nowCompanyState.dataValues.id,
+                transactionId: null
             });
         })
         .then(function(cs){
@@ -372,7 +376,7 @@ var transactions = {
             return Transaction.create({type: Transaction.types.CREATE_SHARE_CLASS, data: actions[0], effectiveDate: effectiveDate })
         })
         .then((transaction) => {
-            companyState.dataValues.transactionId = transaction.id;
+            companyState.transaction = companyState.dataValues.transaction;
             return companyState.save();
         })
         .then(function(){
@@ -381,6 +385,9 @@ var transactions = {
         .then(function(){
             if(futureTransactions.length){
                 return TransactionService.performAll(TransactionService.transactionsToActions(futureTransactions), company, null, true)
+                .then(function(state){
+                    return state.update({'pending_future_action_id': pendingFuture});
+                })
             }
         })
         .then(function(){
@@ -448,63 +455,6 @@ var transactions = {
 
 const selfManagedTransactions = {
     // ew snake case, gross
-     apply_share_classes_BROKEN: function (data, company){
-        /* to apply, retroactively, a share class:
-            * clone current state without apply previousCompanyStateId.
-            * set shareClass ids on parcels
-            * import historic actions, until SEED
-        */
-        let state, companyName, historic_action_id, newRoot;
-        return sequelize.transaction(function(){
-            return company.getCurrentCompanyState()
-                .then(currentState => {
-                    historic_action_id = currentState.get('historic_action_id');
-                    return TransactionService.performTransaction({
-                            actions: data.actions,
-                            effectiveDate: data.effectiveDate || new Date(),
-                            transactionType: Transaction.types.APPLY_SHARE_CLASSES
-                        }, company)
-                })
-                .then(_state => {
-                    state = _state;
-                    companyName = state.get('companyName');
-                    return state.buildPrevious({
-                        transaction: null,
-                        transactionId: null,
-                        previousCompanyStateId: null,
-                        pending_historic_action_id: historic_action_id }, {newRecords: false});
-                })
-                .then(function(_newRoot){
-                    newRoot = _newRoot
-                    return newRoot.save();
-                })
-                .then(function(){
-                    sails.log.info('History reset for companyState', state.id);
-                    return state.setPreviousCompanyState(newRoot);
-                })
-
-                .then(state => {
-                    return state.save();
-                })
-            })
-            .then(state => {
-                return TransactionService.performInverseAllPending(company, (action => action.data.transactionType === Transaction.types.SEED))
-                .catch(e => {
-                    // swallow import error
-                    sails.log.error(e)
-                })
-            })
-            .then(function() {
-                return {
-                    message: `Share Classes applied for ${companyName}`
-                }
-            })
-            .then(function(messages){
-
-                return {messages}
-            })
-    },
-
      apply_share_classes: function (data, company){
         /* to apply, retroactively, a share class:
             * clone current state without apply previousCompanyStateId.

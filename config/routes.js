@@ -407,6 +407,11 @@ module.exports.routes = {
         action: 'companyPermissionsCatalexUser',
     },
 
+    'PUT /api/company/permissions/:catalexId': {
+        controller: 'CompanyController',
+        action: 'updateCompanyPermissionsCatalexUser',
+    },
+
     'PUT /api/user/add_permissions': {
         controller: 'UserController',
         action: 'addPermissions'
