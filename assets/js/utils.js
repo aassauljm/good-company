@@ -326,7 +326,7 @@ export function votingShareholderSignatureList(companyState) {
             signingMethod: {
                 signingMethod: 'on behalf of',
                 capacityType: 'Voting Shareholder',
-                parties: h.holders.map(h => h.person)
+                parties: h.holders.map(h => h.person).filter(h => h.personId !== votingShareholder.personId)
             }
         }
     }).reduce((acc, h) => {
