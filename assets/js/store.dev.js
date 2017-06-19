@@ -9,6 +9,12 @@ import DevTools from './components/devTools';
 import { routerMiddleware} from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
 import { runSagas } from './sagas'
+import perf from 'react-addons-perf';
+
+if(typeof window !== 'undefined'){
+    window.reactPerf = perf;
+}
+
 
 const data = {};
 
@@ -22,7 +28,7 @@ export default function configureStore(history, initialState=data) {
     middleware = applyMiddleware(
         sagaMiddleware,
         thunkMiddleware,
-        //loggerMiddleware,
+        loggerMiddleware,
         routerMiddleware(history),
         confirmationMiddleware,
         callAPIMiddleware

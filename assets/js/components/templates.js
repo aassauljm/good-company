@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders } from '../utils';
+import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders, votingShareholderSignatureList } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import { Link } from 'react-router';
@@ -17,7 +17,7 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
-import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel } from 'json-schemer';
+import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel, controlStyle } from 'json-schemer';
 import Raven from 'raven-js';
 import Widget from './widget';
 
@@ -32,57 +32,79 @@ function createLawLinks(list){
     );
 }
 
-function MoveUpButton({ swapFields, index }) {
-    if (index === 0) {
-        return false;
-    }
+class MoveUpButton extends React.PureComponent{
+    render(){
+        const { swapFields, index, numItems, forceDisplay } = this.props;
+        const disabled = index === 0;
 
-    return(
-        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index - 1)}>
-            <Glyphicon glyph="arrow-up"/>
-        </button>
-    );
+        if (disabled && !forceDisplay) {
+            return false;
+        }
+
+        return(
+            <button type="button" className="btn btn-default" onClick={() => swapFields(index, index - 1)} disabled={disabled}>
+                <Glyphicon glyph="arrow-up"/>
+            </button>
+        );
+    }
 }
 
-function MoveDownButton({ swapFields, index, numItems }) {
-    if (index + 1 === numItems) {
-        return false;
-    }
+class MoveDownButton extends React.PureComponent{
+    render(){
+        const { swapFields, index, numItems, forceDisplay } = this.props;
+        const disabled = index + 1 === numItems;
 
-    return (
-        <button type="button" className="btn btn-default" onClick={() => swapFields(index, index + 1)}>
-            <Glyphicon glyph="arrow-down"/>
-        </button>
-    );
+        if (disabled && !forceDisplay) {
+            return false;
+        }
+
+        return (
+            <button type="button" className="btn btn-default" onClick={() => swapFields(index, index + 1)} disabled={disabled}>
+                <Glyphicon glyph="arrow-down"/>
+            </button>
+        );
+    }
+}
+class RemoveButton extends React.PureComponent{
+    render(){
+        const { index, numItems, minItems, forceDisplay, removeField } = this.props;
+        const disabled = minItems >= numItems;
+
+        if (disabled && !forceDisplay) {
+            return false;
+        }
+
+        return (
+            <button type="button" className="btn btn-default" onClick={() => removeField(index)} disabled={disabled}>
+                <Glyphicon glyph="remove"/>
+            </button>
+        );
+    }
 }
 
-function RemoveButton({ removeField, index, numItems, minItems }) {
-    if (minItems >= numItems) {
-        return false;
-    }
 
-    return (
-        <button type="button" className="btn btn-default" onClick={() => removeField(index)}>
-            <Glyphicon glyph="remove"/>
-        </button>
-    );
+function ButtonGroupListItemControls({ componentProps, index, minItems, forceDisplay }){
+    return [<MoveUpButton key={0} index={index} swapFields={componentProps.swapFields} forceDisplay={forceDisplay} />,
+            <MoveDownButton key={1} index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} forceDisplay={forceDisplay} />,
+            <RemoveButton key={2} index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} forceDisplay={forceDisplay} />
+        ]
 }
 
-function ListItemControls({ componentProps, index, minItems }) {
-    return (
-        <div>
-            <div className="text-right">
+
+function InlineListItemControls(props) {
+    return <div className="text-right">
                 <div className="btn-group btn-group-sm list-controls visible-sm-inline-block visible-xs-inline-block text-right">
-                    <MoveUpButton index={index} swapFields={componentProps.swapFields} />
-                    <MoveDownButton index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />
-                    <RemoveButton index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
+                    { ButtonGroupListItemControls(props) }
                 </div>
             </div>
+}
 
+function ListItemControls(props) {
+    return (
+        <div>
+            <InlineListItemControls componentProps={props.componentProps} index={props.index} minItems={props.minItems}  />
             <div className="btn-group-vertical btn-group-sm list-controls visible-md-block visible-lg-block" style={{zIndex: 100}}>
-                <MoveUpButton index={index} swapFields={componentProps.swapFields} />
-                <RemoveButton index={index} removeField={componentProps.removeField} numItems={componentProps.length} minItems={minItems} />
-                <MoveDownButton index={index} swapFields={componentProps.swapFields} numItems={componentProps.length} />
+                 { ButtonGroupListItemControls(props) }
             </div>
         </div>
     );
@@ -95,12 +117,14 @@ function renderList(fieldProps, componentProps) {
 
             <Shuffle scale={false}>
                 { componentProps.map((c, i) => {
+                    const controls = controlStyle(fieldProps.items);
+                    const className = controls === 'inline' ? 'list-item-inline' : 'list-item'
                     return (
-                        <div className="list-item" key={c._keyIndex.value || i}>
-                            <ListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} />
+                        <div className={className} key={c._keyIndex.value || i}>
+                            { controls !== 'inline' && <ListItemControls componentProps={componentProps} minItems={fieldProps.minItems || 0} index={i} /> }
 
                             <div className="list-form-set">
-                                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i) }
+                                { renderFormSet(fieldProps.items.properties, c, fieldProps.items.oneOf, i, null, controls === 'inline' && ButtonGroupListItemControls({componentProps, minItems: fieldProps.minItems || 0, index: i, forceDisplay: true})) }
                             </div>
                         </div>
                     );
@@ -116,7 +140,7 @@ function renderList(fieldProps, componentProps) {
     );
 }
 
-function renderField(fieldProps, componentProps, index){
+function renderField(fieldProps, componentProps, index, controls){
     if (fieldDisplayLevel(fieldProps) === 'hidden') {
         return false;
     }
@@ -138,7 +162,7 @@ function renderField(fieldProps, componentProps, index){
             return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
         }
         else if (componentType(fieldProps) == 'dateTime') {
-            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}/>
+            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}  />
         }
         else if (componentType(fieldProps) == 'address') {
             return <Address {...componentProps} {...props} />
@@ -146,14 +170,17 @@ function renderField(fieldProps, componentProps, index){
         else if(componentType(fieldProps) === 'textarea') {
             return <Input type="textarea" rows="5" {...componentProps}  {...props} />
         }
-        return <Input type="text" {...componentProps} {...props} />
+        return <Input type="text" {...componentProps} {...props}  buttonAfter={controls}/>
     }
     else if (fieldProps.type === 'number'){
-        return <Input type="number" {...componentProps} {...props} />
+        return <Input type="number" {...componentProps} {...props}  buttonAfter={controls}/>
     }
     else if (fieldProps.enum && fieldProps.enum.length > 1) {
+        if(componentProps.capacityType){
+            debugger
+        }
         return (
-            <Input type="select"  {...componentProps} {...props}>
+            <Input type="select"  {...componentProps} {...props} buttonAfter={controls}>
                 { fieldProps.enum.map((f, i) => {
                     return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
                 })}
@@ -168,7 +195,7 @@ function renderField(fieldProps, componentProps, index){
     }
 }
 
-function renderFormSet(schemaProps, fields, oneOfs, listIndex, title) {
+function renderFormSet(schemaProps, fields, oneOfs, listIndex, title, controls) {
     const getMatchingOneOf = (value, key) => {
         return (oneOfs.filter(x => x.properties[key].enum[0] === value)[0] || {}).properties || {};
     };
@@ -182,7 +209,7 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex, title) {
         <fieldset>
          { title && <legend>{title}</legend>}
             { Object.keys(schemaProps).map((key, i) => {
-                return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex) }</div>
+                return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex, controls) }</div>
             }) }
             { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields, null, null, ) }
         </fieldset>
@@ -238,7 +265,7 @@ const CreateForm = (schema, name) => {
       fields: getFields(schema),
       validate: getValidate(schema)
     })
-    class Form extends React.Component {
+    class Form extends React.PureComponent {
         render() {
             const { fields } = this.props;
             return <RenderForm  schema={schema}  {...this.props} />
@@ -271,7 +298,8 @@ function makeContext(companyState) {
         'company.directors': companyState.directorList.directors.map(d => ({...d, ...d.person})),
         'company.shareholders': personList(companyState),
         'company.votingShareholders': votingShareholderList(companyState),
-        'company.holdingsAndHolders': holdingsAndHolders(companyState)
+        'company.holdingsAndHolders': holdingsAndHolders(companyState),
+        'company.shareholdingVotingList': votingShareholderSignatureList(companyState)
     }
 }
 
@@ -294,7 +322,7 @@ function jsonStringToValues(string) {
     showLoading: () => showLoading(),
     endLoading: () => endLoading(),
 })
-export  class TemplateView extends React.Component {
+export  class TemplateView extends React.PureComponent {
 
     constructor(props){
         super(props);
@@ -383,8 +411,7 @@ const RenderTemplateList = (props) => {
     );
 }
 
-@pureRender
-export default class TemplateList extends React.Component {
+export default class TemplateList extends React.PureComponent {
     static propTypes = {
         companyState: PropTypes.object,
         companyId: PropTypes.string
@@ -428,8 +455,8 @@ export default class TemplateList extends React.Component {
     }
 }
 
-@pureRender
-export class TemplateWidget extends React.Component {
+
+export class TemplateWidget extends React.PureComponent {
     static propTypes = {
         companyState: PropTypes.object,
         companyId: PropTypes.string
@@ -446,8 +473,7 @@ export class TemplateWidget extends React.Component {
 }
 
 
-@pureRender
-export class TemplateSelectCompany extends React.Component {
+export class TemplateSelectCompany extends React.PureComponent {
     render() {
         return (
             <LawBrowserContainer>

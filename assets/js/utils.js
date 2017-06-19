@@ -306,6 +306,47 @@ export function votingShareholderList(companyState) {
     return personList(companyState, (holder) => !holder.data || holder.data.votingShareholder);
 }
 
+export function votingShareholderSignatureList(companyState) {
+    return companyState.holdingList.holdings.map((h, i) => {
+        if(h.holders.length === 1){
+            if(isNaturalPerson(h.holders[0].person)){
+                return {...h.holders[0].person, signingMethod: {}};
+            }
+            else{
+                return {signingMethod: {
+                    signingMethod: 'on behalf of',
+                    parties: h.holders.map(h => h.person),
+                    capacityType: 'Authorised Signatory'
+                }};
+            }
+        }
+        const votingShareholder = (h.holders.find(h => h.data.votingShareholder) || h.holders[0]).person;
+        return {
+            ...votingShareholder,
+            signingMethod: {
+                signingMethod: 'on behalf of',
+                capacityType: 'Voting Shareholder',
+                parties: h.holders.map(h => h.person)
+            }
+        }
+    }).reduce((acc, h) => {
+        // remove identical signing situations
+        const existing = acc.find((a) => {
+            return a.name === h.name &&
+                a.signingMethod.signingMethod === h.signingMethod.signingMethod &&
+                a.signingMethod.capacityType === h.signingMethod.capacityType &&
+                (a.signingMethod.parties || []).map(p => p.personId).join('-') === (h.signingMethod.parties || []).map(p => p.personId).join('-')
+        });
+        if(!existing){
+            acc.push(h);
+        }
+        return acc;
+    }, []);
+
+
+}
+
+
 export function personOptionsFromState(companyState, filter = x => true){
     return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId+''}>{p.name}</option>);
 }
