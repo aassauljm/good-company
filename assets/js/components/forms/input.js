@@ -158,7 +158,7 @@ class InputBase extends React.PureComponent {
         return React.cloneElement(this.props.feedbackIcon, { formControlFeedback: true });
       }
 
-      return <RenderIcon bsStyle={this.props.bsStype} key={'feedback'}/>
+      return <RenderIcon bsStyle={this.props.bsStyle} key={'feedback'}/>
     } else {
       return null;
     }

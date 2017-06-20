@@ -61,8 +61,8 @@ function renderLoading(){
 
 const theme = {
     container: '',
-    containerOpen: 'search-results',
-    suggestionsContainer: '',
+    containerOpen: 'search-container-open',
+    suggestionsContainer: 'search-results',
     input: 'form-control input',
     sectionSuggestionsContainer: 'list-group',
     suggestion: 'result',
@@ -107,7 +107,8 @@ export default class Address extends React.PureComponent {
             </OverlayTrigger>
             const { lookupAddress, userInfo, onSuggestionsUpdateRequested, postal, ...props } = this.props;
             return <Input
-                type="text" {...props}
+                type="text"
+                {...props}
                 buttonAfter={overlay}
                 />
         }
@@ -127,7 +128,6 @@ export default class Address extends React.PureComponent {
             noSuggestions = true;
         }
 
-
         const inputProps = {
             value: value || '',
             onChange: onChange,
@@ -135,8 +135,33 @@ export default class Address extends React.PureComponent {
             onBlur: this.props.onBlur
         };
         const required = this.props.required;
-        const labelClass = 'control-label' + (required ? ' required' : '');
+        let labelClass = 'control-label ' + (required ? ' required ' : '');
         let feedback = this.props.bsStyle;
+        if(this.props.labelClassName){
+            labelClass += this.props.labelClassName;
+        }
+        let wrapperClassName = this.props.wrapperClassName ? this.props.wrapperClassName : '';
+        if(this.props.wrapperClassName){
+            return (
+                <div className={"form-group has-feedback " + (feedback ? 'has-'+feedback : '')}>
+                    <label className={labelClass}>{ this.props.label }</label>
+                    <div className={wrapperClassName}>
+                        <Autosuggest theme={theme}
+                            multiSection={true}
+                            suggestions={loading ? LOADING_DEFAULT : suggestions}
+                            onSuggestionsFetchRequested={onSuggestionsUpdateRequested}
+                            onSuggestionsClearRequested={() => {}}
+                            onSuggestionSelected={loading ? null: this.handleSelect}
+                            getSuggestionValue={addressString}
+                            getSectionSuggestions={ getSectionSuggestions }
+                            renderSuggestion={loading ? renderLoading : renderSuggestion}
+                            renderSectionTitle={ renderSectionTitle }
+                            inputProps={inputProps} />
+                            <RenderIcon bsStyle={this.props.bsStyle} />
+                        </div>
+                </div>
+            );
+        }
         return (
             <div className={"form-group has-feedback " + (feedback ? 'has-'+feedback : '')}>
                 <label className={labelClass}>{ this.props.label }</label>
@@ -152,7 +177,6 @@ export default class Address extends React.PureComponent {
                     renderSectionTitle={ renderSectionTitle }
                     inputProps={inputProps} />
                     <RenderIcon bsStyle={this.props.bsStyle} />
-
             </div>
         );
     }

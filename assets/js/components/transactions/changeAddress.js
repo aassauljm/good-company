@@ -12,6 +12,7 @@ import LawBrowserLink from '../lawBrowserLink'
 import STRINGS from '../../strings';
 import Input from '../forms/input';
 import DateInput from '../forms/dateInput';
+import Address from '../forms/address';
 import moment from 'moment';
 import { contactDetailsFormatSubmit } from '../forms/contactDetails';
 import WorkingDayNotice from '../forms/workingDays';
@@ -34,7 +35,7 @@ class AddressForm extends React.Component {
     render() {
         return <form className="form">
                 <Input type="static" value={this.props.currentAddress} label="Current Address" />
-                <Input type="text" {...this.formFieldProps('newAddress')} label="New Address" />
+                <Address {...this.formFieldProps('newAddress')} label="New Address" />
                 <DateInput {...this.formFieldProps('noticeDate')} label="Date of Notice to Registrar" />
                 <WorkingDayNotice field={this.props.fields.minNoticeDate} source={this.props.fields.noticeDate.value} days={5} label="Earliest Change Date"/>
                 <DateInput {...this.formFieldProps('effectiveDate')} time={true}/>

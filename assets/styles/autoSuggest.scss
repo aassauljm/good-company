@@ -135,46 +135,52 @@ nav .search-form{
 }
 
 
-.search-results{
-    text-align: left;
-    position: absolute;
-     left: 0;
-    right: 0;
-    top: 100%;
-    background-color: #fff;
-    z-index: 1080;
-     box-shadow: 0 4px 6px 2px rgba(0, 0, 0, .10);
-     text-shadow:none;
-        .section-title{
-            padding: 0px 15px;
-            * {
-                color: $gray-light;
-                font-size:15px;
-            }
-        }
-    .result{
-        padding: 8px;
-        border-bottom: 1px solid $gray-lighter;
-        color: $text-color;
-        cursor: pointer;
-        display:block;
+.search-container-open{
+    position:relative;
+    .search-results{
+        text-align: left;
+        position: absolute;
+         left: 0;
+        right: 0;
+        top: 100%;
+        background-color: #fff;
+        z-index: 1080;
+         box-shadow: 0 4px 6px 2px rgba(0, 0, 0, .10);
+         text-shadow:none;
+            .section-title{
+                padding: 0px 15px;
+                * {
+                    color: $gray-light;
+                    font-size:15px;
+                    margin: 8px;
+                    text-align:left;
 
-        &:hover{
-            border-left: 4px solid $gray;
-            background-color: $gray-lighter;
-            span{
-                color: $text-color;
+                }
+            }
+        .result{
+            padding: 8px;
+            border-bottom: 1px solid $gray-lighter;
+            color: $text-color;
+            cursor: pointer;
+            display:block;
+
+            &:hover{
+                border-left: 4px solid $gray;
+                background-color: $gray-lighter;
+                span{
+                    color: $text-color;
+                }
+            }
+            &:last-child{
+                border-bottom:none;
             }
         }
-        &:last-child{
-            border-bottom:none;
+        .no-results{
+            font-style:italic;
+             padding: 8px;
         }
-    }
-    .no-results{
-        font-style:italic;
-         padding: 8px;
-    }
-    .highlight{
-        font-weight: bold;
+        .highlight{
+            font-weight: bold;
+        }
     }
 }
