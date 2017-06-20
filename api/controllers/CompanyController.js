@@ -295,7 +295,7 @@ module.exports = {
             })
             .then(r => res.json(r))
             .catch(function(err) {
-                console.log(err)
+                sails.log.error(err);
                 return res.notFound(err);
             });
     },

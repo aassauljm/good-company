@@ -118,7 +118,6 @@ BEGIN
         FROM company_state t, future_company_states tt
         WHERE tt.id = t."previousCompanyStateId")
 
-
          UPDATE company_state cs set warnings = jsonb_set(warnings, '{pendingHistory}',  has_pending_historic_actions(cs.id)::text::jsonb)
          FROM (SELECT id from future_company_states) subquery
         WHERE subquery.id = cs.id;

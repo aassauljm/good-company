@@ -464,10 +464,9 @@ module.exports = {
                                 return SourceData.create({data:newData})
                                     .then(data => company.setSourceData(data))
                                     .then(() => ScrapingService.getDocumentSummaries(docData))
-                                    .then((readDocuments) => {
-                                        return ScrapingService.processDocuments(docData, readDocuments);
-                                    })
+                                    .then((readDocuments) => ScrapingService.processDocuments(docData, readDocuments))
                                     .then((docs) => {
+                                        // because future actions so in the opposite direction
                                         processedDocs = docs.reverse();
                                         return company.getPendingFutureActions()
                                     })
@@ -492,6 +491,16 @@ module.exports = {
                                     })
                                     .then(_state => {
                                         state = _state;
+                                        const dl = state.docList;
+                                        if(!dl){
+                                            return DocumentList.build({documents: []})
+                                        }
+                                        return dl.buildNext();
+                                    })
+                                    .then(dl => dl.save())
+                                    .then(dl => {
+                                        state.set('doc_list_id', dl.dataValues.id)
+                                        state.dataValues.docList = dl;
                                         return state.getDocumentDirectory();
                                     })
                                     .then(_directory => {
@@ -501,7 +510,7 @@ module.exports = {
                                     .then(data => {
                                         return Document.bulkCreate(data.docList.documents.map(d => ({...d, directoryId: directory.id})), {returning: true})
                                     })
-                                     .then((documents) => {
+                                    .then((documents) => {
                                         // mutate the company document list to contain the new docs
                                         return state.docList.addDocuments(documents);
                                     })

@@ -521,16 +521,22 @@ module.exports = {
         },
         instanceMethods: {
             getDocumentDirectory: function(){
-                return this.getDocList({
-                            include: [{
-                                model: Document,
-                                as: 'documents',
-                                through: {
-                                    attributes: []
-                                }
-                            }]})
+                return Promise.resolve()
+                .then(() =>{
+                    if(this.docList && this.docList.documents){
+                        return this.docList;
+                    }
+                    return this.getDocList({
+                                include: [{
+                                    model: Document,
+                                    as: 'documents',
+                                    through: {
+                                        attributes: []
+                                    }
+                                }]})
+                })
                 .then(docList => {
-                    return docList.documents.find(d => d.type === 'Directory');
+                    return docList.documents.find(d => d.type === 'Directory' && d.filename === 'Companies Office Documents');
                 });
             },
 
