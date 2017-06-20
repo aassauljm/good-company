@@ -17,9 +17,10 @@ import LawBrowserContainer from './lawBrowserContainer';
 import LawBrowserLink from './lawBrowserLink';
 import templateSchemas from './schemas/templateSchemas';
 import { Search } from './search';
-import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel, controlStyle } from 'json-schemer';
+import { componentType, addItem, injectContext, getValidate, getKey, getFields, setDefaults, fieldDisplayLevel, controlStyle, getIn } from 'json-schemer';
 import Raven from 'raven-js';
 import Widget from './widget';
+import WorkingDayNotice from './forms/workingDays';
 
 
 
@@ -140,58 +141,69 @@ function renderList(fieldProps, componentProps) {
     );
 }
 
-function renderField(fieldProps, componentProps, index, controls){
-    if (fieldDisplayLevel(fieldProps) === 'hidden') {
+class RenderField extends React.PureComponent {
+    render(){
+        const {fieldProps, componentProps, index, controls, siblings} = this.props;
+        if (fieldDisplayLevel(fieldProps) === 'hidden') {
+            return false;
+        }
+
+        let title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
+
+        const props = {
+            bsStyle: fieldStyle(componentProps),
+            hasFeedback: true,
+            help: fieldHelp(componentProps),
+            label: title,
+            labelClassName: 'col-md-3',
+            wrapperClassName: 'col-md-7'
+        };
+
+        if (fieldProps.type === 'string') {
+            const type = componentType(fieldProps);
+            if (type === 'date') {
+                return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
+            }
+            else if (type == 'dateTime') {
+                return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}  />
+            }
+            else if (type == 'address') {
+                return <Address {...componentProps} {...props} />
+            }
+            else if(type === 'textarea') {
+                return <Input type="textarea" rows="5" {...componentProps}  {...props} />
+            }
+            else if(type === 'workingDayNotice') {
+                const settings = getIn(fieldProps, ['x-hints', 'form', 'workingDayNotice']);
+                return  <WorkingDayNotice field={componentProps}  {...props} source={siblings[settings.source].value} format={"D MMMM YYYY"} days={settings.days} />
+            }
+
+
+
+            return <Input type="text" {...componentProps} {...props}  buttonAfter={controls}/>
+        }
+        else if (fieldProps.type === 'number'){
+            return <Input type="number" {...componentProps} {...props}  buttonAfter={controls}/>
+        }
+        else if (fieldProps.enum && fieldProps.enum.length > 1) {
+            if(componentProps.capacityType){
+                debugger
+            }
+            return (
+                <Input type="select"  {...componentProps} {...props} buttonAfter={controls}>
+                    { fieldProps.enum.map((f, i) => {
+                        return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
+                    })}
+                </Input>
+            );
+        }
+        else if (fieldProps.type === 'array'){
+            return renderList(fieldProps, componentProps);
+        }
+        else if (fieldProps.type === 'object'){
+            return <div>{ renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf, null, fieldProps.title) }</div>
+        }
         return false;
-    }
-
-    let title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
-
-
-    const props = {
-        bsStyle: fieldStyle(componentProps),
-        hasFeedback: true,
-        help: fieldHelp(componentProps),
-        label: title,
-        labelClassName: 'col-md-3',
-        wrapperClassName: 'col-md-7'
-    };
-
-    if (fieldProps.type === 'string') {
-        if (componentType(fieldProps) === 'date') {
-            return <DateInput {...componentProps} format={"D MMMM YYYY"} {...props} />
-        }
-        else if (componentType(fieldProps) == 'dateTime') {
-            return <DateInput {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}  />
-        }
-        else if (componentType(fieldProps) == 'address') {
-            return <Address {...componentProps} {...props} />
-        }
-        else if(componentType(fieldProps) === 'textarea') {
-            return <Input type="textarea" rows="5" {...componentProps}  {...props} />
-        }
-        return <Input type="text" {...componentProps} {...props}  buttonAfter={controls}/>
-    }
-    else if (fieldProps.type === 'number'){
-        return <Input type="number" {...componentProps} {...props}  buttonAfter={controls}/>
-    }
-    else if (fieldProps.enum && fieldProps.enum.length > 1) {
-        if(componentProps.capacityType){
-            debugger
-        }
-        return (
-            <Input type="select"  {...componentProps} {...props} buttonAfter={controls}>
-                { fieldProps.enum.map((f, i) => {
-                    return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
-                })}
-            </Input>
-        );
-    }
-    else if (fieldProps.type === 'array'){
-        return renderList(fieldProps, componentProps);
-    }
-    else if (fieldProps.type === 'object'){
-        return <div>{ renderFormSet(fieldProps.properties, componentProps, fieldProps.oneOf, null, fieldProps.title) }</div>
     }
 }
 
@@ -209,7 +221,7 @@ function renderFormSet(schemaProps, fields, oneOfs, listIndex, title, controls) 
         <fieldset>
          { title && <legend>{title}</legend>}
             { Object.keys(schemaProps).map((key, i) => {
-                return <div className="form-row" key={i}>{ renderField(schemaProps[key], fields[key], listIndex, controls) }</div>
+                return <div className="form-row" key={i}><RenderField fieldProps={schemaProps[key]} componentProps={fields[key]} index={listIndex} controls={controls} siblings={fields}/></div>
             }) }
             { oneOfs && selectKey && fields[selectKey] && renderFormSet(getMatchingOneOf(fields[selectKey].value, selectKey), fields, null, null, ) }
         </fieldset>

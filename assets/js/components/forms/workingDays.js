@@ -20,7 +20,7 @@ export default class WorkingDayNotice extends React.Component {
         if(source) {
             this.props.requestWorkingDayOffset({
                 scheme: 'companies',
-                start_date: moment(source).format('YYYY-MM-DD'),
+                start_date: moment(source, this.props.format).format('YYYY-MM-DD'),
                 amount: this.props.days,
                 direction: 'positive',
                 inclusion: 0,
@@ -28,7 +28,7 @@ export default class WorkingDayNotice extends React.Component {
             })
                 .then(result => {
                     if(result && result.response){
-                        this.props.field.onChange(moment(result.response.result, 'YYYY-MM-DD').hour(END_OF_WORKING_DAY_HOUR).toDate())
+                        this.props.field.onChange(moment(result.response.result, 'YYYY-MM-DD').toDate())
                     }
                 })
         }
@@ -51,8 +51,10 @@ export default class WorkingDayNotice extends React.Component {
 
     render() {
         const props = {
-            value: this.props.field.value ? moment(this.props.field.value).format("DD/MM/YYYY") : '',
-            label: this.props.label
+            value: this.props.field.value ? moment(this.props.field.value).format(this.props.format || "DD/MM/YYYY") : '',
+            label: this.props.label,
+            labelClassName: this.props.labelClassName,
+            wrapperClassName: this.props.wrapperClassName
         }
 
         if(this.props.export){
