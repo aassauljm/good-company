@@ -317,9 +317,9 @@ $rw-version:          "4.1.0";
 }
 
 
-.form-group.has-feedback{
+.form-group.has-feedback.has-controls{
     .input-group{
-        .with-controls.rw-combobox.rw-widget {
+        .rw-combobox.rw-widget {
             display: table-cell;
             input.rw-input{
                 @include border-right-radius(0);

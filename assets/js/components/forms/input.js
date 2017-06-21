@@ -31,7 +31,8 @@ class FormGroup extends React.PureComponent {
       'has-feedback': this.props.hasFeedback,
       'has-success': this.props.bsStyle === 'success',
       'has-warning': this.props.bsStyle === 'warning',
-      'has-error': this.props.bsStyle === 'error'
+      'has-error': this.props.bsStyle === 'error',
+      'has-controls': !!this.props.hasPositionControls
     };
 
     return (
@@ -251,7 +252,6 @@ class InputBase extends React.PureComponent {
           }
           if (this.props.comboData && this.props.comboData.length) {
             return <Combobox  ref="combo" {...elementProps} data={this.props.comboData}  key="input"
-                //onBlur={null}
                 onFocus={(event) => {
                    if(event.target.tagName === 'INPUT'){
                         this.refs.combo && this.refs.combo.getControlledInstance() &&this.refs.combo.getControlledInstance().open();

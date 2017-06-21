@@ -148,7 +148,6 @@ class RenderField extends React.PureComponent {
             return false;
         }
 
-        let className = !!controls  ? 'with-controls ' : '';
 
         let title = fieldProps.enumeratedTitle ? formatString(fieldProps.enumeratedTitle, index+1) : fieldProps.title;
 
@@ -164,30 +163,30 @@ class RenderField extends React.PureComponent {
         if (fieldProps.type === 'string') {
             const type = componentType(fieldProps);
             if (type === 'date') {
-                return <DateInput className={className}  {...componentProps} format={"D MMMM YYYY"} {...props} />
+                return <DateInput hasPositionControls={!!controls} {...componentProps} format={"D MMMM YYYY"} {...props} />
             }
             else if (type == 'dateTime') {
-                return <DateInput className={className} {...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}  />
+                return <DateInput hasPositionControls={!!controls}{...componentProps} {...props} time={true} displayFormat={'DD/MM/YYYY hh:mm a'}  />
             }
             else if (type == 'address') {
-                return <Address className={className} {...componentProps} {...props} />
+                return <Address hasPositionControls={!!controls} {...componentProps} {...props} />
             }
             else if(type === 'textarea') {
-                return <Input className={className} type="textarea" rows="5" {...componentProps}  {...props} />
+                return <Input hasPositionControls={!!controls} type="textarea" rows="5" {...componentProps}  {...props} />
             }
             else if(type === 'workingDayNotice') {
                 const settings = getIn(fieldProps, ['x-hints', 'form', 'workingDayNotice']);
-                return  <WorkingDayNotice className={className} field={componentProps}  {...props} source={siblings[settings.source].value} format={"D MMMM YYYY"} days={settings.days} />
+                return  <WorkingDayNotice hasPositionControls={!!controls} field={componentProps}  {...props} source={siblings[settings.source].value} format={"D MMMM YYYY"} days={settings.days} />
             }
 
-            return <Input className={className} type="text" {...componentProps} {...props}  buttonAfter={controls}/>
+            return <Input hasPositionControls={!!controls} type="text" {...componentProps} {...props}  buttonAfter={controls}/>
         }
         else if (fieldProps.type === 'number'){
-            return <Input className={className} type="number" {...componentProps} {...props}  buttonAfter={controls}/>
+            return <Input hasPositionControls={!!controls} type="number" {...componentProps} {...props}  buttonAfter={controls}/>
         }
         else if (fieldProps.enum && fieldProps.enum.length > 1) {
             return (
-                <Input type="select"  {...componentProps} {...props} buttonAfter={controls}>
+                <Input type="select"  {...componentProps} {...props} buttonAfter={controls} hasPositionControls={!!controls}>
                     { fieldProps.enum.map((f, i) => {
                         return <option key={i} value={f}>{fieldProps.enumNames ? fieldProps.enumNames[i] : f}</option>
                     })}
