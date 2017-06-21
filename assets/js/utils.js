@@ -342,10 +342,17 @@ export function votingShareholderSignatureList(companyState) {
         }
         return acc;
     }, []);
-
-
 }
 
+export function directorSignatureList(companyState) {
+    return companyState.directorList.directors.map((d, i) => {
+        return {
+            ...d.person,
+            signingMethod: {
+                capacityType: 'Director'
+            }};
+    });
+}
 
 export function personOptionsFromState(companyState, filter = x => true){
     return personList(companyState).filter(filter).map((p, i) => <option key={i} value={p.personId+''}>{p.name}</option>);
