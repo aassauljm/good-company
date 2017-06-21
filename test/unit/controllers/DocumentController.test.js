@@ -2,6 +2,7 @@ var request = require("supertest");
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 
+
 function binaryParser(res, callback) {
     res.setEncoding('binary');
     res.data = '';

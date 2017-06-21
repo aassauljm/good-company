@@ -251,7 +251,7 @@ class InputBase extends React.PureComponent {
           }
           if (this.props.comboData && this.props.comboData.length) {
             return <Combobox  ref="combo" {...elementProps} data={this.props.comboData}  key="input"
-                onBlur={null}
+                //onBlur={null}
                 onFocus={(event) => {
                    if(event.target.tagName === 'INPUT'){
                         this.refs.combo && this.refs.combo.getControlledInstance() &&this.refs.combo.getControlledInstance().open();

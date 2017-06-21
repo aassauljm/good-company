@@ -2,6 +2,9 @@ var request = require("supertest");
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var moment = require("moment")
+import chai from 'chai';
+const should = chai.should();
+
 
 describe('CompanyStateController', function() {
 
@@ -535,6 +538,67 @@ describe('Future Transactions', function(){
                 res.body.currentCompanyState.futureTransactions.length.should.be.equal(2);
                 done();
             });
-    })
+    });
+
+    it('Updates address in future', function() {
+        const transaction = {
+            transactions: [
+                {
+                    effectiveDate: moment().add('100', 'day').toDate(),
+                    actions: [{
+                        transactionType: 'ADDRESS_CHANGE',
+                        previousAddress: '',
+                        newAddress: '123 Fake St, Auckland',
+                        field: 'registeredCompanyAddress'
+                    }]
+                }
+        ]};
+        return req.post('/api/transaction/compound/'+companyId)
+            .attach('documents', 'test/fixtures/pdf-sample.pdf')
+            .field('json', JSON.stringify(transaction))
+            .expect(200)
+        });
+
+    it('confirms document exists', function() {
+        return req.get('/api/company/'+companyId+'/transactions')
+            .expect(200)
+            .then(res => {
+                res.body.transactions.length.should.be.equal(5);
+                res.body.transactions[0].transaction.documents.length.should.be.equal(2);
+                should.not.equal(res.body.transactions[0].transaction.documents.find(d => d.filename === 'pdf-sample.pdf'), null);
+            });
+    });
+
+    it('sends a transaction before last, to invoke replay', function() {
+        const transaction = {
+            transactions: [
+                {
+                    effectiveDate: moment().add('99', 'day').toDate(),
+                    actions: [{
+                        transactionType: 'ADDRESS_CHANGE',
+                        previousAddress: '',
+                        newAddress: '123 Fake St, Auckland',
+                        field: 'addressForService'
+                    }]
+                }
+        ]};
+        return req.post('/api/transaction/compound/'+companyId)
+            .attach('documents', 'test/fixtures/pdf-sample-repeat.pdf')
+            .field('json', JSON.stringify(transaction))
+            .expect(200)
+        });
+
+
+    it('confirms document exists', function() {
+        return req.get('/api/company/'+companyId+'/transactions')
+            .expect(200)
+            .then(res => {
+                res.body.transactions.length.should.be.equal(6);
+                res.body.transactions[0].transaction.documents.length.should.be.equal(2);
+                should.not.equal(res.body.transactions[0].transaction.documents.find(d => d.filename === 'pdf-sample.pdf'), null);
+                should.not.equal(res.body.transactions[1].transaction.documents.find(d => d.filename === 'pdf-sample-repeat.pdf'), null);
+            });
+    });
+
 });
 
