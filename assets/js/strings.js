@@ -132,6 +132,7 @@ export default {
         ADDRESS_CHANGE: 'Address Change',
         UPDATE_DIRECTOR: 'Update Director',
         INFERRED_UPDATE_DIRECTOR: 'Update Director',
+        UPDATE_SOURCE_DOCUMENTS: 'Updated Documents from Companies Office'
 
     },
     permissions: {

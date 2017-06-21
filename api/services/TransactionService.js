@@ -1339,6 +1339,12 @@ export function performInverseSeed(data, nextState, previousState, effectiveDate
     return Promise.resolve(Transaction.build({type: Transaction.types.SEED, effectiveDate: effectiveDate || data.effectiveDate }));
 }
 
+export function performBenignTransaction(data, nextState, previousState, effectiveDate){
+    return Promise.resolve(Transaction.build({type: data.transactionType, effectiveDate: effectiveDate || data.effectiveDate }));
+}
+
+
+
 /**
     Seed is a special cause, it doesn't care about previousState.  So not in normal transaction handler
 */
@@ -1639,7 +1645,7 @@ export function performInverseTransaction(data, company, rootState){
             return currentRoot.setTransaction(transaction.id);
         })
         .then(function(){
-            //return removeDocuments(prevState, data.actions);
+            return removeDocuments(prevState, data.actions);
         })
         .then(function(){
             return prevState.save();
@@ -1971,7 +1977,8 @@ export function performTransaction(data, company, companyState, resultingTransac
         [Transaction.types.REMOVE_DIRECTOR]:        TransactionService.performRemoveDirector,
         [Transaction.types.UPDATE_DIRECTOR]:        TransactionService.performUpdateDirector,
         [Transaction.types.APPLY_SHARE_CLASS]:      TransactionService.performApplyShareClass,
-        [Transaction.types.HISTORIC_HOLDER_CHANGE]: TransactionService.performHistoricHolderChange
+        [Transaction.types.HISTORIC_HOLDER_CHANGE]: TransactionService.performHistoricHolderChange,
+        [Transaction.types.UPDATE_SOURCE_DOCUMENTS]: TransactionService.performBenignTransaction
     };
 
     if(!data.actions || data.userSkip){
@@ -1981,14 +1988,6 @@ export function performTransaction(data, company, companyState, resultingTransac
     if(!actions.length){
         return Promise.resolve(companyState);
     }
-    /*if(data.transactionType === Transaction.types.ANNUAL_RETURN){
-        return (companyState ? Promise.resolve(companyState) : company.getCurrentCompanyState())
-        .then(function(_state){
-            return PERFORM_ACTION_MAP[data.transactionType]({
-                        ...data.actions[0], documentId: data.documentId
-                    }, _state);
-        })
-    }*/
     if(!data.id){
         data.id = uuid.v4();
     }
@@ -2043,7 +2042,8 @@ export function performTransaction(data, company, companyState, resultingTransac
             if(data.documents && data.documents.length){
                 return transaction.setDocuments(data.documents)
                     .then(function(){
-                        //return addDocuments(nextState, data.documents);
+                        const nonUserDocments = data.documents.filter(d => !d.userUploaded)
+                        return addDocuments(nextState, nonUserDocments);
                     })
             }
         })
@@ -2121,7 +2121,12 @@ export function performAll(data, company, state, isReplay, resultingTransactions
 export function transactionsToActions(transactions){
     return transactions.map(t => {
         const {id, subTransactions, data, ...info} = t;
-        return {...info, ...data, id: null, transactionType: t.type, originalTransactionId: id, actions: (t.subTransactions || []).map(s => {
+        return {...info, ...data, id: null, transactionType: t.type, originalTransactionId: id,
+            documents: (t.documents || []).map(d => Document.build(d)).map(d => {
+                d.isNewRecord = false;
+                return d;
+            }),
+            actions: (t.subTransactions || []).map(s => {
             const {id,  parentTransactionId, data, ...info} = s;
             return {...info, ...data, id: null};
         })}

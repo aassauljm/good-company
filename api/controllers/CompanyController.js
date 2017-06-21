@@ -279,7 +279,7 @@ module.exports = {
 
 
     updateSourceData: function(req, res){
-        let company;
+        let company, companyName;
         Company.findById(req.params.id, {
                 include: [{
                     model: SourceData,
@@ -291,7 +291,22 @@ module.exports = {
             })
             .then(_company => {
                 company = _company;
+                return company.getNowCompanyState();
+            })
+            .then(_state => {
+                companyName = _state.get('companyName');
                 return company.updateSourceData(req.user.id)
+            })
+            .tap((result) => {
+                if(result.sourceDataUpdated){
+                     return ActivityLog.create({
+                        type:  ActivityLog.types.UPDATE_SOURCE_DOCUMENTS,
+                        userId: req.user.id,
+                        companyId: company.id,
+                        description: `Retrieved documents from the Companies Office for ${companyName}`,
+                        data: {companyId: company.id}
+                    });
+                 }
             })
             .then(r => res.json(r))
             .catch(function(err) {

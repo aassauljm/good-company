@@ -87,7 +87,7 @@ BEGIN
         FROM company_state t, prev_company_states tt
         WHERE t.id = tt."previousCompanyStateId"
     )
-         UPDATE company_state cs set warnings = jsonb_set(warnings, '{pendingFuture}', COALESCE(has_pending_future_actions(NEW.id), FALSE)::text::jsonb)
+         UPDATE company_state cs set warnings = jsonb_set(warnings, '{pendingFuture}', COALESCE(has_pending_future_actions(NEW."currentCompanyStateId"), FALSE)::text::jsonb)
          FROM (SELECT id from prev_company_states) subquery
         WHERE subquery.id = cs.id;
 
@@ -135,7 +135,7 @@ CREATE TRIGGER company_state_history_warnings_insert_trigger AFTER INSERT ON com
 DROP TRIGGER IF EXISTS company_state_history_warnings_update_trigger ON company_state;
 CREATE TRIGGER company_state_history_warnings_update_trigger AFTER UPDATE ON company_state
     FOR EACH ROW
-    WHEN (pg_trigger_depth() = 0 AND (OLD.pending_historic_action_id IS DISTINCT FROM NEW.pending_historic_action_id OR OLD."previousCompanyStateId" IS DISTINCT FROM NEW."previousCompanyStateId"))
+    WHEN (pg_trigger_depth() = 0 AND ((OLD.pending_historic_action_id IS DISTINCT FROM NEW.pending_historic_action_id) OR (OLD."previousCompanyStateId" IS DISTINCT FROM NEW."previousCompanyStateId")))
     EXECUTE PROCEDURE apply_proactive_warnings();
 
 

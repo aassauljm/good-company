@@ -78,7 +78,7 @@ export class Search extends React.Component {
                   <RootCloseWrapper
                     onRootClose={this.hide}
                     event={'click'}>
-                <div className={`input-group ${this.state.show  ? 'showing': ''}`} >
+                <div className={`search-container-open input-group ${this.state.show  ? 'showing': ''}`} >
                     <input  type="text" className="form-control" placeholder="Search..." value={this.state.value} onChange={this.onChange} onFocus={this.show}  />
                     { this.results() }
                     <span className="input-group-addon" >

@@ -264,6 +264,7 @@ export const TransactionRenderMap = {
         return <BasicLoop {...props} />
     },
 
+    [TransactionTypes.UPDATE_SOURCE_DOCUMENTS]: BasicLoop,
     [TransactionTypes.COMPOUND]: BasicLoop,
     [TransactionTypes.INCORPORATION]: BasicLoop,
 

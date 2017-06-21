@@ -909,6 +909,7 @@ describe('Company Controller', function() {
                         res.body.currentCompanyState.warnings.pendingFuture.should.be.equal(true);
                         done();
                     })
+                    .catch(done)
             });
 
             it('Counts pending future', function(done){
@@ -942,6 +943,7 @@ describe('Company Controller', function() {
                     .catch(done)
             });
 
+
             it('Counts pending future', function(done){
                 return req.get('/api/company/'+companyId+'/pending_future')
                     .expect(200)
@@ -950,8 +952,6 @@ describe('Company Controller', function() {
                         done();
                     })
             });
-
-
 
             it('Updates future, fails, then resolves', function(done){
                 return req.post('/api/company/'+companyId+'/import_pending_future')

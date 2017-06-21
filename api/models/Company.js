@@ -444,7 +444,7 @@ module.exports = {
                     .spread(result => !result ? null : result.allowed)
             },
 
-            updateSourceData: function(userId){
+            updateSourceDataXXX: function(userId){
                 const company = this;
                 return ScrapingService.fetch(this.sourceData.data.companyNumber)
                 .then(ScrapingService.parseNZCompaniesOffice)
@@ -524,7 +524,80 @@ module.exports = {
                         }
                 })
             },
+            updateSourceData: function(userId){
+                const company = this;
+                return ScrapingService.fetch(this.sourceData.data.companyNumber)
+                .then(ScrapingService.parseNZCompaniesOffice)
+                .then(data => ScrapingService.prepareSourceData(data, userId))
+                .then(newData => {
+                    // currently identifying new source data by comparing data
+                        const effectiveDate = new Date();
+                        const existing = company.sourceData.data.documents.reduce((acc, d) => {
+                            acc[d.documentId] = true;
+                            return acc;
+                        }, {});
+                        let processedDocs, state, directory, nextActionId;
+                        const documents = newData.documents.filter(d => !existing[d.documentId]);
+                        if(documents.length){
+                           return sequelize.transaction(() => {
+                                const docData = {documents: documents, companyNumber: company.sourceData.data.companyNumber };
+                                return SourceData.create({data:newData})
+                                    .then(data => company.setSourceData(data))
+                                    .then(() => ScrapingService.getDocumentSummaries(docData))
+                                    .then((readDocuments) => ScrapingService.processDocuments(docData, readDocuments))
+                                    .then((docs) => {
+                                        // because future actions so in the opposite direction
+                                        processedDocs = docs.reverse();
+                                        return company.getPendingFutureActions()
+                                    })
+                                    .then(pendingActions => {
+                                        if(pendingActions.length){
+                                            nextActionId = _.last(pendingActions).id;
+                                        }
+                                        if(processedDocs.length){
+                                            return Action.bulkCreate(processedDocs.map((p, i) => ({id: p.id, data: p, previous_id: (processedDocs[i+1] || {}).id})));
+                                        }
+                                    })
+                                    .then(() => {
+                                        return company.getNowCompanyState()
+                                    })
+                                    .then(state => {
+                                        return state.getDocumentDirectory()
+                                    })
+                                    .then(_directory => {
+                                        directory = _directory;
+                                        return ScrapingService.formatDocuments({documents, companyNumber: company.sourceData.data.companyNumber}, userId)
+                                    })
+                                    .then(data => {
+                                        return Document.bulkCreate(data.docList.documents.map(d => ({...d, directoryId: directory.id})), {returning: true})
+                                    })
+                                    .then((documents) => {
+                                         return TransactionService.performAllInsertByEffectiveDate([{
+                                                actions: [{transactionType: Transaction.types.UPDATE_SOURCE_DOCUMENTS}],
+                                                effectiveDate: effectiveDate,
+                                                transactionType: Transaction.types.UPDATE_SOURCE_DOCUMENTS,
+                                                documents: documents
+                                            }], company)
+                                    })
+                                    .then(({companyState}) => {
+                                        if(!nextActionId && processedDocs.length){
+                                            return companyState.update({'pending_future_action_id': processedDocs[0].id});
+                                        }
+                                        else if(nextActionId){
+                                            return Action.update({previous_id: processedDocs[0].id}, {where: {id: nextActionId}})
+                                        }
+                                    })
 
+                                    .then(() => {
+                                        return {sourceDataUpdated: true}
+                                    })
+                                })
+                        }
+                        else{
+                            return {sourceDataUpdated: false};
+                        }
+                })
+            },
             isFavourite: function(userId){
                 return sequelize.query('SELECT EXISTS(SELECT * FROM favourite WHERE "userId" = :userId AND "companyId" = :companyId)',
                                { type: sequelize.QueryTypes.SELECT,

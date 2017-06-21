@@ -448,7 +448,8 @@ CREATE OR REPLACE FUNCTION future_transaction_range(startId integer, endId integ
         (select array_to_json(array_agg(row_to_json(d))) from (
         select t.id, type, data, format_iso_date(tt."effectiveDate") as "effectiveDate"
         from transaction tt where t.id = tt."parentTransactionId"
-        ) as d) as "subTransactions"
+        ) as d) as "subTransactions",
+        (SELECT array_to_json(array_agg(row_to_json(d.*))) from t_d_j j left outer join document d on j.document_id = d.id where t.id = j.transaction_id) as "documents"
     FROM transaction t
     JOIN
         (SELECT * FROM prev_company_states WHERE generation >= 0 and generation < (SELECT generation from selected_generation)) q
