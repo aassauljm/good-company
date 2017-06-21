@@ -314,7 +314,7 @@ export function votingShareholderSignatureList(companyState) {
             }
             else{
                 return {signingMethod: {
-                    signingMethod: 'on behalf of',
+                    signingMethod: 'themself and others',
                     parties: h.holders.map(h => h.person),
                     capacityType: 'Authorised Signatory'
                 }};
@@ -324,7 +324,7 @@ export function votingShareholderSignatureList(companyState) {
         return {
             ...votingShareholder,
             signingMethod: {
-                signingMethod: 'on behalf of',
+                signingMethod: 'themself and others',
                 capacityType: 'Voting Shareholder',
                 parties: h.holders.map(h => h.person).filter(h => h.personId !== votingShareholder.personId)
             }
