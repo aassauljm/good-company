@@ -197,8 +197,7 @@ $rw-version:          "4.1.0";
   top: 100%;
   margin-top: 1px;
   z-index: $zindex-popover;
-  // offset for drop shadow on rw-popup
- // left:  -10px - $input-border-width;
+   min-width: 256px;
   right: -10px - $input-border-width;
 
   &.rw-dropup {
@@ -318,3 +317,17 @@ $rw-version:          "4.1.0";
 }
 
 
+.form-group.has-feedback{
+    .input-group{
+        .with-controls.rw-combobox.rw-widget {
+            display: table-cell;
+            input.rw-input{
+                @include border-right-radius(0);
+                @include border-left-radius($border-radius-small);
+            }
+        }
+    }
+    .form-control-feedback{
+        right: 130px;
+    }
+}
