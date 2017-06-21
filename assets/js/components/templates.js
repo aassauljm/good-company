@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders, votingShareholderSignatureList } from '../utils';
+import { pureRender, fieldStyle, fieldHelp, formatString, personList, votingShareholderList, holdingsAndHolders, votingShareholderSignatureList, directorSignatureList } from '../utils';
 import Glyphicon from 'react-bootstrap/lib/Glyphicon';
 import Button from './forms/buttonInput';
 import { Link } from 'react-router';
@@ -311,7 +311,8 @@ function makeContext(companyState) {
         'company.shareholders': personList(companyState),
         'company.votingShareholders': votingShareholderList(companyState),
         'company.holdingsAndHolders': holdingsAndHolders(companyState),
-        'company.shareholdingVotingList': votingShareholderSignatureList(companyState)
+        'company.shareholdingVotingList': votingShareholderSignatureList(companyState),
+        'company.directorList': directorSignatureList(companyState)
     }
 }
 
