@@ -1,4 +1,4 @@
-import { resolveReferences } from 'json-schemer';
+import { prepareSchema } from 'json-schemer';
 import merge from 'deepmerge';
 import definitionsSchema from 'good-companies-templates/schemas/definitions.json';
 
@@ -14,7 +14,7 @@ let templateSchemas = {
 }
 
 Object.keys(templateSchemas).map((key) => {
-    templateSchemas[key] = resolveReferences(merge(definitionsSchema, templateSchemas[key]));
+    templateSchemas[key] = prepareSchema(definitionsSchema, templateSchemas[key]);
 });
 
 export default templateSchemas;
