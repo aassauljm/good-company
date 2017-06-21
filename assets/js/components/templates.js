@@ -312,7 +312,7 @@ function makeContext(companyState) {
         'company.votingShareholders': votingShareholderList(companyState),
         'company.holdingsAndHolders': holdingsAndHolders(companyState),
         'company.shareholdingVotingList': votingShareholderSignatureList(companyState),
-        'company.directorList': directorSignatureList(companyState)
+        'company.directorSignatureList': directorSignatureList(companyState)
     }
 }
 
