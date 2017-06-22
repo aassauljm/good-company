@@ -52,6 +52,7 @@ export class Person extends React.Component {
                 </Input>
 
                 { isNatural &&  <Country {...this.formFieldProps(['attr','placeOfBirth'], STRINGS.persons)} /> }
+                { isNatural &&  <Input type="text" {...this.formFieldProps(['attr','cityOfBirth'], STRINGS.persons)} /> }
                 { isNatural &&  <DateInput {...this.formFieldProps(['attr','dateOfBirth'], STRINGS.persons)} /> }
 
             </fieldset>
@@ -225,7 +226,7 @@ const validateRemoveDirector = requireFields('cessation', 'reason');
 const PersonFields = [
     'name', 'address', 'companyNumber',  'isNaturalPerson',
     'attr.postalAddress', 'attr.email', 'attr.fax', 'attr.phone',
-    'attr.contactMethod', 'attr.placeOfBirth',  'attr.dateOfBirth'];
+    'attr.contactMethod', 'attr.placeOfBirth', 'attr.cityOfBirth', 'attr.dateOfBirth'];
 
 export const NewPersonConnected = reduxForm({
   form: 'person',

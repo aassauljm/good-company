@@ -541,6 +541,7 @@ describe('Future Transactions', function(){
     });
 
     it('Updates address in future', function() {
+        sails.log.verbose = console.log;
         const transaction = {
             transactions: [
                 {
@@ -590,6 +591,7 @@ describe('Future Transactions', function(){
 
 
     it('confirms document exists', function() {
+        sails.log.verbose = () => {};
         return req.get('/api/company/'+companyId+'/transactions')
             .expect(200)
             .then(res => {

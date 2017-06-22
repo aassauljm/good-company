@@ -46,6 +46,7 @@ export default {
     persons: {
         'dateOfBirth': 'Date of Birth',
         'placeOfBirth': 'Place of Birth',
+        'cityOfBirth': 'City of Birth',
         'naturalPerson':{
             'address': 'Residential Address',
         },
