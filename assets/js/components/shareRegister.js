@@ -396,6 +396,9 @@ export class ShareRegisterDocument extends React.Component {
                 if(s.holdingName){
                     title += ` (${s.holdingName})`
                 }
+                else if(!s.current){
+                    title += ' (Historic Shareholding)';
+                }
 
                 title+= ` - ${renderShareClass(s.shareClass, shareClassMap)} Shares`;
                 return <table key={i} className="table share-register transaction-history">

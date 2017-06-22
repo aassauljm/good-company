@@ -158,6 +158,7 @@ class TransactionSummariesList extends React.PureComponent {
                 { pendingActions.map((p, i) => <div key={p.numberId}><PendingAction
                                      handleEdit={props.handleEdit}
                                      handleConfirm={props.handleConfirm}
+                                     pendingActions={pendingActions}
                                      action={p}
                                      index={i}
                                      scrollIntoView={i === props.scrollIndex}
