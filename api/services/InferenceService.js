@@ -281,9 +281,29 @@ module.exports = {
 
     splitHoldingTransfers: function(docs) {
         // holding transfers are now deprecated
+
+        // first, split unknown amount holding transfers up into separate sets
+        docs = docs.reduce((acc, doc) => {
+            const holdingTransfers = (doc.actions || []).filter(action => action.transactionType === Transaction.types.HOLDING_TRANSFER && action.unknownAmount);
+            if(holdingTransfers.length > 1){
+                // keep the first in there, move the others out
+                const actionsToRemove = holdingTransfers.splice(1);
+                acc.push({...doc, actions: _.without(doc.actions, ...actionsToRemove)});
+                actionsToRemove.map(action => {
+                    acc.push({...doc, actions: [action]});
+                })
+            }
+            else{
+                acc.push(doc);
+            }
+            return acc;
+        }, []);
+
+
+
         return docs.reduce((acc, doc) => {
             const standardActions = [];
-            const removals = []
+            const removals = [];
             doc.actions = (doc.actions || []).reduce((acc, action) => {
                 if(action.transactionType === Transaction.types.HOLDING_TRANSFER){
                     const amend = {

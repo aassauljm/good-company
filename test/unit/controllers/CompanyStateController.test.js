@@ -555,8 +555,8 @@ describe('Future Transactions', function(){
                 }
         ]};
         return req.post('/api/transaction/compound/'+companyId)
-            .attach('documents', 'test/fixtures/pdf-sample.pdf')
             .field('json', JSON.stringify(transaction))
+            .attach('documents', 'test/fixtures/pdf-sample.pdf')
             .expect(200)
         });
 
@@ -584,8 +584,8 @@ describe('Future Transactions', function(){
                 }
         ]};
         return req.post('/api/transaction/compound/'+companyId)
-            .attach('documents', 'test/fixtures/pdf-sample-repeat.pdf')
             .field('json', JSON.stringify(transaction))
+            .attach('documents', 'test/fixtures/pdf-sample-repeat.pdf')
             .expect(200)
         });
 
