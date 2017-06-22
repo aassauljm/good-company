@@ -1672,6 +1672,17 @@ describe('Company Controller', function() {
                 });
         });
 
+        it('checks register', function(done){
+            return req.get('/api/company/'+companyId+'/share_register')
+            .then(function(res){
+                const last = _.last(res.body.shareRegister);
+                last.transferHistoryTo[0].siblings.should.not.be.equal(null)
+                done();
+            })
+            .catch(done)
+        });
+
+
 
     });
 

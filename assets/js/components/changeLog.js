@@ -9,6 +9,7 @@ export default class ChangeLog extends React.PureComponent {
         return <Widget iconClass="fa fa-newspaper-o" title="Recent Changes & New Features">
         <div className="change-log">
             <ul className="bulleted">
+            <li>Improved signatures for templates, including optional witnesses</li>
             <li>New board resolutions for changing company addresses</li>
             <li>NZ Post address look ups, for users with Companies Office integration</li>
             <li>Aggregated notifications and improved workflows</li>

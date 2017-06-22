@@ -404,7 +404,7 @@ export  function performInverseAmend(data, companyState, previousState, effectiv
 };
 
 
-function findHolding(holding, action, companyState, errors={}){
+function findHolding(holding, action, companyState, errors={}, findWithNoTransaction){
     let current = companyState.getMatchingHoldings(holding);
     if(!current.length){
         current = companyState.getMatchingHoldings(holding, {ignoreCompanyNumber: true});
@@ -419,7 +419,10 @@ function findHolding(holding, action, companyState, errors={}){
             })
         }
     }
-
+    // this need serous rethinking, hmmmm
+    if(findWithNoTransaction && current.length > 1){
+        current = current.filter(c => !c.transactionId);
+    }
 
     if(!current.length){
          throw new sails.config.exceptions.InvalidInverseOperation('Cannot find matching holding', {
@@ -744,12 +747,13 @@ export  function performInverseNewAllocation(data, companyState, previousState, 
                 importErrorType: sails.config.enums.CONFIRMATION_REQUIRED
             })
         }
-        let holding = findHolding({holders: data.holders, holdingId: data.holdingId, parcels: (data.parcels || []).map(p => ({...p, amount: data.inferAmount ? undefined: p.amount}))},
+        let holding = findHolding({
+            holders: data.holders, holdingId: data.holdingId, parcels: (data.parcels || []).map(p => ({...p, amount: data.inferAmount ? undefined: p.amount}))},
           data, companyState, {
             multiple: sails.config.enums.MULTIPLE_HOLDINGS_FOUND,
             none: sails.config.enums.HOLDING_NOT_FOUND,
             shareClassesMissMatch: sails.config.enums.UNKNOWN_AMEND
-          });
+          }, true);
 
         if(data.inferAmount){
             data = {...data}
@@ -1813,12 +1817,11 @@ export function performInverseAllPendingResolve(company, root, endCondition){
 export function performInverseAllPendingUntil(company, endCondition, autoResolve=true){
     // unlike above this will commit all successful transactions, and complain when one fails
     let state, current, firstError;
-
     function perform(actions){
         return Promise.each(actions, (actionSet, i) => {
             return sequelize.transaction(function(t){
-                state.set('historic_action_id', state.get('pending_historic_action_id'));
-                current = actionSet;
+                    state.set('historic_action_id', state.get('pending_historic_action_id'));
+                    current = actionSet;
                     return TransactionService.performInverseTransaction(actionSet.data, company, state)
                 })
                 .then(_state => {
@@ -1835,7 +1838,6 @@ export function performInverseAllPendingUntil(company, endCondition, autoResolve
                 firstError = e;
                 firstError.context = firstError.context || {};
                 firstError.context.actionSet = current;
-
                 return Promise.all([state.fullPopulateJSON(true)])
                     .spread((fullState) => {
                         firstError.context.companyState = fullState;
