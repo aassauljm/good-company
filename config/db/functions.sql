@@ -854,12 +854,9 @@ SELECT array_to_json(array_agg(row_to_json(qq))) FROM
 $$ LANGUAGE SQL STABLE;
 
 
-
-
-
 DROP FUNCTION IF EXISTS company_persons("companyStateId" integer);
 CREATE OR REPLACE FUNCTION company_persons("companyStateId" integer)
-RETURNS TABLE( "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" jsonb, "lastEffectiveDate" timestamp with time zone, current boolean)
+RETURNS TABLE("lastestId" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" jsonb, director boolean, "lastEffectiveDate" timestamp with time zone, current boolean)
 AS $$
 
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (
@@ -878,7 +875,7 @@ AS $$
         LEFT OUTER JOIN transaction t on t.id = p."transactionId"
         WHERE cs.id = $1
     )
-SELECT  p."personId", "name", "address", "companyNumber", "attr", "lastEffectiveDate", current FROM
+SELECT max(p."id") as "latestId" , p."personId", "name", "address", "companyNumber", "attr", bool_or("director"), "lastEffectiveDate", bool_or(current) FROM
 (
 SELECT *, rank() OVER wnd
     FROM (
@@ -887,7 +884,8 @@ SELECT *, rank() OVER wnd
         "personId",
         "lastEffectiveDate",
         "generation",
-        generation = 0 as current
+        generation = 0 as current,
+        FALSE as director
         FROM (
              SELECT DISTINCT ON ("personId")
             "personId",
@@ -910,7 +908,7 @@ SELECT *, rank() OVER wnd
 
     UNION
 
-    SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", false as current
+    SELECT "id", "personId", "effectiveDate" as "lastEffectiveDate", -1 as "generation", FALSE, FALSE as current
         FROM historic_persons hp
 
     UNION
@@ -920,7 +918,8 @@ SELECT *, rank() OVER wnd
         "personId",
         "lastEffectiveDate",
         "generation",
-        generation = 0 as current
+        generation = 0 as current,
+        TRUE as director
         FROM (
              SELECT DISTINCT ON ("personId")
             p."personId",
@@ -947,9 +946,10 @@ WINDOW wnd AS (
  LEFT OUTER JOIN person p on q.id = p.id
  WHERE rank = 1
 
-GROUP BY p."personId", name, address, "companyNumber", attr, "lastEffectiveDate", current
+GROUP BY p."personId", name, address, "companyNumber", attr, "lastEffectiveDate"
  ORDER BY name
 $$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION find_persons(userId integer, personId integer)
 RETURNS SETOF JSON
@@ -1021,6 +1021,7 @@ AS $$
         GROUP BY "personId", q.name, q."companyNumber", q.address, "id", director  ORDER BY "personId"
 $$ LANGUAGE SQL;
 
+
 DROP FUNCTION IF EXISTS latest_user_persons("userId" integer);
 CREATE OR REPLACE FUNCTION latest_user_persons("userId" integer)
 RETURNS TABLE("personId" integer, "name" text, "address" text, "companyNumber" text, "attr" jsonb, "lastEffectiveDate" timestamp with time zone)
@@ -1038,6 +1039,16 @@ AS $$
     FROM   company c, historic_company_persons(c."currentCompanyStateId") f
     WHERE  c."ownerId" = $1 and deleted = FALSE;
 $$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION historic_user_persons("userId" integer)
+RETURNS TABLE("id" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "director" boolean)
+AS $$
+    SELECT f.*
+    FROM   company c, historic_company_persons(c."currentCompanyStateId") f
+    WHERE  c."ownerId" = $1 and deleted = FALSE;
+$$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION user_is_organisation_admin_of_catalex_user(userId integer, catalexId text)
     RETURNS BOOLEAN

@@ -587,6 +587,18 @@ describe('Company Controller', function() {
                 })
                 .catch(done);
         });
+        it('Checks for historic directors', function(done){
+            req.post('/api/company/'+companyId+'/all_persons')
+                .expect(200)
+                .then(function(res){
+                    res.body.length.should.be.equal(4);
+                    res.body.filter(person => person.director).length.should.equal(3);
+                    res.body.filter(person => person.current && person.director).length.should.equal(1);
+                })
+                .catch(done);
+        });
+
+
     });
 
     describe('Test import with resolution and reset and futures catalex (5311842)', function(){

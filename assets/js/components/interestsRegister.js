@@ -5,7 +5,7 @@ import { requestResource, createResource, updateResource, addNotification } from
 import { pureRender, numberWithCommas, stringDateToFormattedString } from '../utils';
 import { connect } from 'react-redux';
 import { reduxForm, addArrayValue } from 'redux-form';
-import { InterestsRegisterFromRouteHOC, CompanyFromRouteHOC } from '../hoc/resources'
+import { InterestsRegisterFromRouteHOC, CompanyFromRouteHOC, AllPersonsHOC } from '../hoc/resources'
 import { Link } from 'react-router';
 import Input from './forms/input';
 import ButtonInput from './forms/buttonInput';
@@ -23,7 +23,6 @@ import Loading from './loading';
 import Widget from './widget';
 import { asyncConnect } from 'redux-connect';
 import FormData from 'form-data';
-
 
 const interestsRegisterLawLinks = () => <div>
         <LawBrowserLink title="Companies Act 1993" definition="28784-DLM319933">Keeping of interests register</LawBrowserLink>
@@ -65,6 +64,7 @@ const validate = (values) => {
     }
     return errors;
 }
+
 
 class EntryForm extends React.PureComponent {
     static propTypes = {
@@ -126,9 +126,9 @@ class EntryForm extends React.PureComponent {
                 hasFeedback groupClassName='has-group'
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
                     <option></option>
-                    { (((this.props.companyState || {}).directorList || {}).directors || []).map((d, i) => {
-                        return <option key={i} value={d.person.id}>{d.person.name}</option>
-                    })}
+                   { this.props.persons.filter(p => p.director).map((p, i) => {
+                        return <option key={i} value={p.lastId}>{ p.name } { !p.current && ' (Former director)'}</option>
+                   }) }
                 </Input>
             }) }
             { fields.persons.error && fields.persons.error.map((e, i) => {
@@ -160,10 +160,16 @@ const ConnectedForm = reduxForm({
     addValue: addArrayValue
 })(EntryForm);
 
-
+@AllPersonsHOC()
 export class InterestsRegisterCreate extends React.PureComponent {
     render() {
-        return <ConnectedForm companyId={this.props.companyId} companyState={this.props.companyState} initialValues={{persons: [''], date: new Date()}} />
+        const persons = this.props[`/company/${this.props.companyId}/all_persons`].data || []
+        const loading = this.props[`/company/${this.props.companyId}/all_persons`]._status === 'fetching';
+        if(loading){
+            return <Loading />
+        }
+
+        return <ConnectedForm persons={persons} companyId={this.props.companyId} companyState={this.props.companyState} initialValues={{persons: [''], date: new Date()}} />
     }
 }
 
