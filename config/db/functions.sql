@@ -856,7 +856,7 @@ $$ LANGUAGE SQL STABLE;
 
 DROP FUNCTION IF EXISTS company_persons("companyStateId" integer);
 CREATE OR REPLACE FUNCTION company_persons("companyStateId" integer)
-RETURNS TABLE("lastestId" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" jsonb, director boolean, "lastEffectiveDate" timestamp with time zone, current boolean)
+RETURNS TABLE("latestId" integer, "personId" integer, "name" text, "address" text, "companyNumber" text, "attr" jsonb, director boolean, "lastEffectiveDate" timestamp with time zone, current boolean)
 AS $$
 
     WITH RECURSIVE prev_company_states(id, "previousCompanyStateId",  generation) as (

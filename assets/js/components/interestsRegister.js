@@ -127,7 +127,7 @@ class EntryForm extends React.PureComponent {
                 buttonAfter={<button className="btn btn-default" onClick={() => fields.persons.removeField(i)}><Glyphicon glyph='trash'/></button>} >
                     <option></option>
                    { this.props.persons.filter(p => p.director).map((p, i) => {
-                        return <option key={i} value={p.lastId}>{ p.name } { !p.current && ' (Former director)'}</option>
+                        return <option key={i} value={p.latestId}>{ p.name } { !p.current && ' (Former director)'}</option>
                    }) }
                 </Input>
             }) }
