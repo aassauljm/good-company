@@ -123,7 +123,7 @@ module.exports = {
                 other.parcels.every(p => {
                     return !p.amount || p.amount === thisClasses[p.shareClass || null]
                 });
-                
+
                 return other.parcels.every(p => p.amount  === undefined || p.amount === (thisClasses[p.shareClass || null] || 0))
             },
             getParcelByShareClass: function(shareClass){

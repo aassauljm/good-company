@@ -35,7 +35,15 @@ person_holdings as (
     LEFT OUTER JOIN "holder" hj on ph."hId" = hj."holdingId"
     LEFT OUTER JOIN person p on hj."holderId" = p.id
 ),
-
+latest_holding as (
+    SELECT * FROM
+    (SELECT first_value("hId") OVER wnd as "hId", first_value("transactionId") OVER wnd as "transactionId"
+    FROM prev_holdings
+     WINDOW wnd AS (
+       PARTITION BY "holdingId", "transactionId" ORDER BY generation asc
+     )) q
+     GROUP BY "hId", "transactionId"
+),
 -- get parcels for a given holdingId
 parcels as (
     SELECT pj."holdingId", sum(p.amount) as amount, p."shareClass"
@@ -55,7 +63,7 @@ WITH transaction_history as (
     (tt.parcels->>'beforeAmount')::int as "beforeAmount",
     CASE WHEN tt.method = 'NEW_ALLOCATION' THEN (tt.parcels->>'amount')::int ELSE (tt.parcels->>'afterAmount')::int END as "afterAmount",
 
-    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join holding h on h."transactionId" = t.id ) qq) as siblings,
+    (SELECT array_to_json(array_agg(row_to_json(qq))) FROM (SELECT *, holding_persons(h.id) from transaction_siblings(t.id) t join latest_holding lh on lh."transactionId" = t.id join holding h ON h.id = lh."hId" ) qq) as siblings,
     "holdingId",
     generation
     FROM person_holdings ph

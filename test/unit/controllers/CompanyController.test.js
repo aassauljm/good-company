@@ -1690,6 +1690,7 @@ describe('Company Controller', function() {
             .then(function(res){
                 const last = _.last(res.body.shareRegister);
                 last.transferHistoryTo[0].siblings.should.not.be.equal(null)
+                last.transferHistoryTo[0].siblings.length.should.be.equal(1);
                 done();
             })
             .catch(done)

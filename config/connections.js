@@ -66,7 +66,7 @@ module.exports.connections = {
     gc_error: {
         user: process.env.USER || 'postgres',
         password: '',
-        database: 'gc_error',
+        database: 'gc_june',
         dialect: 'postgres',
         options: {
             dialect: 'postgres',
