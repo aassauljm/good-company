@@ -419,10 +419,10 @@ export function validateAmend(values, props) {
             }
             afterParcelSum += parseInt(p.amount, 10) || 0;
             let diff = afterParcelSum - expectedAfterSum
-            if(diff > 0){
+            if(!inferAmount && diff > 0){
                 errors.amount = [`${numberWithCommas(diff)} shares over allocated.`]
             }
-            else if(diff < 0 && i === action.afterParcels.length-1){
+            else if(!inferAmount && diff < 0 && i === action.afterParcels.length-1){
                 errors.amount = [`${numberWithCommas(-diff)} shares under allocated.`]
             }
             shareClassExists[p.shareClass] = true;
