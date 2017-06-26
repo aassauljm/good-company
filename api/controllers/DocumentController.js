@@ -158,6 +158,7 @@ module.exports = {
                 res.end();
             })
             .catch(function(err){
+                console.log(err)
                 sails.log.error(err)
                return res.negotiate(err);
             })
