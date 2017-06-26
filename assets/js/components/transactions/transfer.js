@@ -17,9 +17,10 @@ import StaticField from '../forms/staticField';
 import { ParcelWithRemove } from '../forms/parcel';
 import { newHoldingFormatAction, HoldingSelectWithNew } from '../forms/holding';
 import { Documents } from '../forms/documents';
-import LawBrowserLink from '../lawBrowserLink'
+import LawBrowserLink from '../lawBrowserLink';
+import TEMPLATABLE from '../templates/templatable';
 import { enums as TransactionTypes } from '../../../../config/enums/transactions';
-
+import { push } from 'react-router-redux'
 
 const fields = [
     'effectiveDate',
@@ -245,10 +246,18 @@ export class TransferTransactionView extends React.Component {
         this.submit = ::this.submit;
         this.handleClose = ::this.handleClose;
         this.handleNext = ::this.handleNext;
+        this.handleDraft = ::this.handleDraft;
     }
 
     handleNext() {
+        this._draft = false;
         this.refs.form.submit();
+    }
+
+    handleDraft() {
+        this._draft = true;
+        this.refs.form.submit();
+        this._draft = false;
     }
 
     handleClose(data={}) {
@@ -256,8 +265,20 @@ export class TransferTransactionView extends React.Component {
         this.props.end(data);
     }
 
+    showDraftForm(values){
+        const template = TEMPLATABLE[TransactionTypes.TRANSFER];
+        const location = {
+            pathname: `/company/view/${this.props.transactionViewData.companyId}/templates/${template.url}`,
+            query: {json: JSON.stringify(template.format(values[0], this.props.transactionViewData.companyState))}
+        }
+        this.props.dispatch(push(location));
+    }
+
     submit(values) {
-        const transactions = transferFormatSubmit(values, this.props.transactionViewData.companyState)
+        const transactions = transferFormatSubmit(values, this.props.transactionViewData.companyState);
+        if(this._draft){
+            return this.showDraftForm(transactions)
+        }
         if(transactions.length){
             this.props.dispatch(companyTransaction(
                                     'compound',
@@ -314,7 +335,8 @@ export class TransferTransactionView extends React.Component {
               </TransactionView.Body>
               <TransactionView.Footer>
                 <Button onClick={this.handleClose} >Cancel</Button>
-                 <Button onClick={this.handleNext} bsStyle="primary">{ 'Submit' }</Button>
+                 <Button onClick={this.handleDraft} bsStyle="info">Create Draft Transfer Document</Button>
+                 <Button onClick={this.handleNext} bsStyle="primary">Submit</Button>
               </TransactionView.Footer>
             </TransactionView>
     }

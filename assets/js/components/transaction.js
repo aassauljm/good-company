@@ -14,33 +14,7 @@ import { actionAmountDirection } from './transactions/resolvers/summaries';
 import { companiesOfficeDocumentUrl, holderChange, directorChange, beforeAndAfterSummary, holdingChangeSummary, addressChange, nameChange, addRemoveDirector } from './transactions/resolvers/summaries';
 import { push } from 'react-router-redux'
 import { ARSummary } from './annualReturn'
-
-const TEMPLATABLE = {
-    [TransactionTypes.TRANSFER]: {
-        url: 'transfer',
-        format: (data, state) => {
-            const shareClassMap = generateShareClassMap(state);
-            const transferee = data.subTransactions.find(s => s.type === TransactionTypes.TRANSFER_TO);
-            const transferor = data.subTransactions.find(s => s.type === TransactionTypes.TRANSFER_FROM);
-
-            const result = {
-                company: {
-                    companyName: state.companyName,
-                    companyNumber: state.companyNumber
-                },
-                transaction: {
-                    parcels: transferee.data.parcels.map(p => ({amount: p.amount, shareClass: p.shareClass ? renderShareClass(p.shareClass, shareClassMap) : ''})),
-                    effectiveDateString: stringDateToFormattedString(data.effectiveDate),
-                    transferees: (transferee.data.holders || transferee.data.afterHolders || [])
-                        .map(h => ({companyNumber: h.companyNumber || '', name: h.name, address: h.address})),
-                    transferors: (transferor.data.holders || transferor.data.afterHolders || [])
-                        .map(h => ({companyNumber: h.companyNumber || '', name: h.name, address: h.address}))
-                }
-            }
-            return result;
-        }
-    }
-}
+import TEMPLATABLE from './templates/templatable';
 
 
 const BaseTransaction = (props) => {

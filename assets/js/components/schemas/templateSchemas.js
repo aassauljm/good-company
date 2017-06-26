@@ -16,5 +16,6 @@ let templateSchemas = {
 Object.keys(templateSchemas).map((key) => {
     templateSchemas[key] = prepareSchema(definitionsSchema, templateSchemas[key]);
 });
+   console.log(templateSchemas)
 
 export default templateSchemas;

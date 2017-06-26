@@ -282,7 +282,7 @@ export function newHoldingString(newHolding){
 export function personList(companyState, filter=() => true, directors = true){
     const persons = companyState.holdingList.holdings.reduce((acc, h) => {
         return h.holders.filter(filter).reduce((acc, p) => {
-            acc[p.person.personId] = {...p.person}
+            acc[p.person.personId] = {...p.person, companyNumber: p.companyNumber || ''}
             return acc;
         }, acc);
     }, {});
@@ -290,7 +290,7 @@ export function personList(companyState, filter=() => true, directors = true){
     if(directors){
         companyState.directorList.directors.reduce((acc, p) => {
             if(!acc[p.person.personId]){
-                acc[p.person.personId] = {...p.person}
+                acc[p.person.personId] = {...p.person, companyNumber: p.companyNumber || ''}
             }
             return acc;
         }, persons);
