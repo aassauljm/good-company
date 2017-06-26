@@ -286,7 +286,7 @@ module.exports.routes = {
 
     'GET /api/company/:id/recent_activity/full': {
         controller: 'CompanyController',
-        action: 'recentActivity',
+        action: 'recentActivityFull',
         model: 'company'
     },
 

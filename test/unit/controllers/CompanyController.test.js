@@ -1003,7 +1003,25 @@ describe('Company Controller', function() {
             })
         });
 
+        describe('Test history again (5311842)', function(){
 
+            it('reset history', function(done){
+                req.put('/api/company/'+companyId+'/reset_pending_history')
+                    .expect(200)
+                    .then(function(res){
+                        done();
+                    });
+            });
+
+            it('check pending history', function(done){
+                req.get('/api/company/'+companyId+'/pending_history')
+                    .then(function(res){
+                        res.body.length.should.be.equal(16);
+                        done();
+                    })
+                    .catch(done)
+            });
+        });
     });
 
 
