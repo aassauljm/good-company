@@ -8,26 +8,13 @@ import { stringDateToFormattedStringTime } from '../utils'
 import { Link } from 'react-router'
 import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
+import { RecentActivityHOC, RecentActivityFullHOC, CompanyRecentActivityHOC, CompanyRecentActivityFullFromRouteHOC } from '../hoc/resources';
 
-
-@connect((state, ownProps) => {
-    return state.resources['/recent_activity'] || {};
-}, {
-    requestData: (key) => requestResource('/recent_activity'),
+@connect(undefined,{
     navigate: (url) => push(url)
 })
+@RecentActivityHOC()
 export class RecentActivityWidget extends React.Component {
-
-    fetch() {
-        return this.props.requestData();
-    };
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
 
     handleClick(activity) {
         if(activity.data.companyId){
@@ -36,7 +23,7 @@ export class RecentActivityWidget extends React.Component {
     }
 
     render() {
-        const activities = this.props.data || [];
+        const activities = this.props.recentActivity.data || [];
         return <Widget className="recent-activity-widget"  title="Recent Activity" iconClass="fa fa-clock-o" link="/recent_activity">
                 <ul>
                 { activities.map((a, i) => <li key={i} className="actionable" onClick={() => this.handleClick(a)}>
@@ -48,33 +35,12 @@ export class RecentActivityWidget extends React.Component {
     }
 }
 
-@connect((state, ownProps) => {
-    return state.resources[`/company/${ownProps.companyId}/recent_activity`] || {};
-}, {
-    requestData: (key) => requestResource(`/company/${key}/recent_activity`),
-    navigate: (url) => push(url)
-})
+@CompanyRecentActivityHOC()
 export class RecentCompanyActivityWidget extends React.Component {
 
-    fetch() {
-        return this.props.requestData(this.props.companyId);
-    };
-    componentDidMount() {
-        this.fetch();
-    };
-
-    componentDidUpdate() {
-        this.fetch();
-    };
-
-    key() {
-        return this.props.companyId;
-    }
-
     render() {
-        const activities = this.props.data || [];
-        return <Widget title="Recent Activity" iconClass="fa fa-clock-o">
-
+        const activities = this.props.recentActivity.data || [];
+        return <Widget title="Recent Activity" iconClass="fa fa-clock-o" link={`/company/view/${this.props.companyId}/recent_activity`}>
                 <ul>
                 { activities.map((a, i) => <li key={i}>
                     <span className="date">{stringDateToFormattedStringTime(a.createdAt)}</span> {a.description}
@@ -85,17 +51,38 @@ export class RecentCompanyActivityWidget extends React.Component {
     }
 }
 
+@CompanyRecentActivityFullFromRouteHOC(true)
+export class CompanyRecentActivityFull extends React.Component {
 
-@asyncConnect([{
-      promise: ({store: {dispatch, getState}, params}) => {
-        return dispatch(requestResource('/recent_activity/full'))
-      }
-    }],
-    state => state.resources['/recent_activity/full'],
-    {
-        navigate: (url) => push(url)
-    })
+    render() {
+        const activities = this.props.recentActivity.data || [];
+        return  <LawBrowserContainer>
+            <Widget  title="Recent Activity" iconClass="fa fa-clock-o">
+                <div className="table-responsive">
+                <table className="table table-hover recent-activity-table">
+                <thead><tr><th>Time & Date</th><th>User</th><th>Description</th></tr></thead>
+                    <tbody>
+                    {activities.map(
+                        (row, i) => <tr key={i}>
+                        <td>{stringDateToFormattedStringTime(row.createdAt)}</td>
+                        <td>{row.username}</td>
+                        <td>{row.description}</td>
+                        </tr>) }
+                    </tbody>
+                </table>
+                </div>
+                </Widget>
+            </LawBrowserContainer>
+
+    }
+}
+
+@connect(undefined,{
+    navigate: (url) => push(url)
+})
+@RecentActivityFullHOC(true)
 export default class RecentActivity extends React.Component {
+
     handleClick(activity) {
         if(activity.data.companyId){
             this.props.navigate('/company/view/'+activity.data.companyId)
@@ -103,7 +90,7 @@ export default class RecentActivity extends React.Component {
     }
 
     render() {
-        const activities = this.props.data || [];
+        const activities = this.props.recentActivity.data || [];
         return  <LawBrowserContainer>
             <Widget  title="Recent Activity" iconClass="fa fa-clock-o">
                 <div className="table-responsive">

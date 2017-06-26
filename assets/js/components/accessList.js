@@ -31,7 +31,7 @@ const permissionsToString = (permissions) => {
 }
 
 const RenderPermissionType = (props) => {
-    return <strong> { permissionsToString(props.perm.permissions || []) } </strong>
+    return <strong className={props.className}> { permissionsToString(props.perm.permissions || []) } </strong>
 }
 
 @connect(state => ({
@@ -91,7 +91,7 @@ export class AccessListWidget extends React.PureComponent {
     renderAccessList() {
         if(this.props.foreignPermissions && this.props.foreignPermissions.data){
             return this.props.foreignPermissions.data.map((perm, i) => {
-                return <div key={i}>{ perm.name } <RenderPermissionType perm={perm} /></div>
+                return <div key={i}><div className="col-xs-6">{ perm.name }</div><RenderPermissionType perm={perm} className="col-xs-6"/></div>
             })
         }
         else{

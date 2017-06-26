@@ -19,7 +19,7 @@ import ContactDetails, { ContactEditDetails } from './components/contactDetails'
 import ReportingDetails from './components/reportingDetails';
 import Directors, { DirectorRegister, DirectorRegisterDocumentLoader  } from './components/directors';
 import { ShareClasses, ShareClassCreate, ShareClassEdit } from './components/shareClasses';
-import RecentActivity from './components/recentActivity';
+import RecentActivity, { CompanyRecentActivityFull } from './components/recentActivity';
 import Templates, { TemplateView, TemplateSelectCompany } from './components/templates';
 import  { LoginWithCatalex } from './components/login';
 import ImportCompany from './components/importCompany';
@@ -73,6 +73,7 @@ const CompanyChildren = [
     <Route name="Directors" path="directors" component={ Directors } />,
     <Route name="Graph" path="graph" component={ CompanyGraph } />,
     <Route name="Access List" path="access_list" component={ AccessList } />,
+    <Route name="Company Recent Activity" path="recent_activity" component={ CompanyRecentActivityFull } />,
 
     <Route name="Share Classes" path="share_classes" component={ ShareClasses } >
         <Route name="Create" path="create" component={ ShareClassCreate } />

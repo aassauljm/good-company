@@ -122,7 +122,8 @@ export const FromRouteHOC = (mappingFunction) => (ComposedComponent) => {
 
 export const EVENTS = {resource: 'events', location: '/events', postProcess: processEvents};
 export const ALERTS = {resource: 'alerts', location: '/alerts', postProcess: alertPostProcess};
-export const RECENT_ACTIVITY = {resource: 'recent_activity', location: '/recent_activity' };
+export const RECENT_ACTIVITY = {resource: 'recent_activity', location: '/recent_activity', propName: 'recentActivity' };
+export const RECENT_ACTIVITY_FULL = {resource: 'recent_activity', location: '/recent_activity/full', propName: 'recentActivity' };
 export const COMPANIES = {resource: 'companies', location: 'companies'};
 export const COMPANY = {resource: props => `/company/${props.companyId}/get_info`, location: props => `/company/${props.companyId}/get_info`, postProcess: analyseCompany};
 export const DOCUMENTS = {resource: props => `/company/${props.companyId}/documents`, location: props => `/company/${props.companyId}/documents`, propName: 'documents'};
@@ -134,6 +135,8 @@ export const COMPANY_FROM_ROUTE = {resource: props => `/company/${props.params.i
 export const COMPANY_FROM_DATED_ROUTE = {resource: props => `/company/${props.params.id}/at_date/${props.params.date}`, location: props => `/company/${props.params.id}/at_date/${props.params.date}`, postProcess: analyseCompany};
 export const ALL_PERSONS = {resource: props => `/company/${props.companyId}/all_persons`, location: props => `/company/${props.companyId}/all_persons`};
 export const INTERESTS_REGISTER_FROM_ROUTE = {resource: props => `/company/${props.params.id}/interests_register`, location: props => `/company/${props.params.id}/interests_register`, propName: 'interestsRegister'};
+export const COMPANY_RECENT_ACTIVITY = {resource: props => `/company/${props.companyId}/recent_activity`, location: props => `/company/${props.companyId}/recent_activity`, propName: 'recentActivity'};
+export const COMPANY_RECENT_ACTIVITY_FULL_FROM_ROUTE = {resource: props => `/company/${props.companyId}/recent_activity/full`, location: props => `/company/${props.companyId}/recent_activity/full`, propName: 'recentActivity'};
 
 export const AlertsHOC = (async, refreshOnMount) => HOCFactory(ALERTS, async, refreshOnMount);
 export const CompaniesHOC = (async, refreshOnMount) => HOCFactory(COMPANIES,  async, refreshOnMount);
@@ -147,6 +150,10 @@ export const AnnualReturnHOC = (async, refreshOnMount) => HOCFactory(ANNUAL_RETU
 export const AnnualReturnFromRouteHOC = (async, refreshOnMount) => HOCFactory(ANNUAL_RETURN_FROM_ROUTE, async, refreshOnMount);
 export const AllPersonsHOC = (async, refreshOnMount) => HOCFactory(ALL_PERSONS, async, refreshOnMount);
 export const InterestsRegisterFromRouteHOC = (async, refreshOnMount) => HOCFactory(INTERESTS_REGISTER_FROM_ROUTE, async, refreshOnMount);
+export const RecentActivityHOC = (async, refreshOnMount) => HOCFactory(RECENT_ACTIVITY, async, refreshOnMount);
+export const RecentActivityFullHOC = (async, refreshOnMount) => HOCFactory(RECENT_ACTIVITY_FULL, async, refreshOnMount);
+export const CompanyRecentActivityHOC = (async, refreshOnMount) => HOCFactory(COMPANY_RECENT_ACTIVITY, async, refreshOnMount);
+export const CompanyRecentActivityFullFromRouteHOC = (async, refreshOnMount) => HOCFactory(COMPANY_RECENT_ACTIVITY_FULL_FROM_ROUTE, async, refreshOnMount);
 
 
 export const Injector = (props) => { const {children, ...rest} = props;  return React.cloneElement(children, rest) };
