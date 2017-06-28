@@ -104,7 +104,7 @@ export default class Document extends React.Component {
     renderPreview(){
         if(this.props.document.data && this.props.document.data.type === 'application/pdf'){
             return <div className="preview">
-                <PDF url={`/api/company/${this.props.companyId}/document/get_document/${this.key()}`} scale={2} />
+                <PDF url={`/api/company/${this.props.companyId}/document/get_document/${this.key()}`} scale={2} noPDFMsg="Requesting Document..." />
                 </div>
         }
         return <div>
