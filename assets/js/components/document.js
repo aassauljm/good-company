@@ -10,7 +10,7 @@ import AutoAffix from 'react-overlays/lib/AutoAffix'
 import Button from 'react-bootstrap/lib/Button'
 import Input from './forms/input';
 import Widget from './widget';
-
+import PDF from 'react-pdf-component/lib/react-pdf';
 
 @formFieldProps()
 class RenameForm extends React.Component {
@@ -101,7 +101,17 @@ export default class Document extends React.Component {
         </div>
     }
 
-
+    renderPreview(){
+        if(this.props.document.data && this.props.document.data.type === 'application/pdf'){
+            return <div className="preview">
+                <PDF url={`/api/company/${this.props.companyId}/document/get_document/${this.key()}`} scale={2} />
+                </div>
+        }
+        return <div>
+            <h5>Page One Preview</h5>
+            <img className="image-loading" src={`/api/company/${this.props.companyId}/document/get_document_preview/${this.key()}`} />
+            </div>
+    }
 
     renderDetails(data) {
         return <Widget title="File Details">
@@ -119,8 +129,7 @@ export default class Document extends React.Component {
                     </AutoAffix> }
                 </div>
                 <div className="col-md-12 col-lg-9 col-lg-pull-3">
-                    <h5>Page One Preview</h5>
-                     <img className="image-loading" src={`/api/company/${this.props.companyId}/document/get_document_preview/${this.key()}`} />
+                   { this.renderPreview() }
 
                 </div>
             </div>
