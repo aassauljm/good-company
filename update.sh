@@ -3,6 +3,7 @@
 
 git pull
 
+rm -rf node_modules/react-pdf-component
 rm -rf node_modules/good-companies-templates
 rm -rf node_modules/json-schemer
 

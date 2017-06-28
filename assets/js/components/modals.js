@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { endConfirmation, hideVersionWarning, hideBillingIssue } from '../actions';
 import { LoadingOverlay } from './loading';
 import EmailDocument from './modals/emailDocument';
+import PreviewDocument from './modals/previewDocument';
 
 
 
@@ -128,6 +129,9 @@ export default class Modals extends React.Component {
         }
         else if (this.props.modals.billingIssue && this.props.modals.billingIssue.showing) {
             return <BillingIssueModal {...this.props.modals.billingIssue } hide={this.props.hideBillingIssue} />
+        }
+        else if (this.props.modals.previewDocument && this.props.modals.previewDocument.showing) {
+            return <PreviewDocument {...this.props.modals.previewDocument } />
         }
         return false;
     }

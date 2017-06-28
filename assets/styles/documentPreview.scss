@@ -1,0 +1,17 @@
+.modal.preview{
+    .modal-body{
+        margin: 10px;
+    }
+    canvas{
+        width:100%;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #dcdcdc;
+        &:last-child{
+            margin-bottom:0;
+        }
+    }
+}

@@ -26,7 +26,8 @@ var plugins = [
         new webpack.optimize.DedupePlugin(),
         new CopyWebpackPlugin([
                 { from: '*.*', to: '../'  },
-                { from: 'images/*.*',  to: '../'}
+                { from: 'images/*.*',  to: '../'},
+                { from: '../node_modules/pdfjs-dist/build/pdf.worker.min.js', to: './'}
         ])
     ];
 
@@ -54,17 +55,24 @@ else{
 module.exports = {
     cache: true,
     context: __dirname + '/assets',
-    entry: "./js/main.js",
+    entry: {main: "./js/main.js"},
     target: "web",
     node: {
         __dirname: true,
         fs: 'empty'
     },
     output: {
+        publicPath: '/js/',
         filename:  "[name].[hash].js",
         path: __dirname + "/.tmp/public/js"
     },
     devtool: 'source-map',
+      resolve: {
+        alias: {
+          'react': path.join(__dirname, 'node_modules', 'react')
+        },
+        extensions: ['', '.js']
+      },
     module: {
         loaders: [
         {

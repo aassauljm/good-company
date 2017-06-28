@@ -10,16 +10,16 @@ import fs from 'fs';
 const tmp = require('tmp');
 const actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
 
-function binaryParser(res, callback) {
-    res.setEncoding('binary');
-    res.data = '';
-    res.on('data', function (chunk) {
-        res.data += chunk;
-    });
-    res.on('end', function () {
-        callback(null, new Buffer(res.data, 'binary'));
-    });
+export function checkStatus(response) {
+  if (response.status >= 200 && response.status <= 304) {
+    return response
+  } else {
+    var error = new Error(response.statusText)
+    error.response = response
+    throw error
+  }
 }
+
 
 const renderPage = (title, route) => {
     return (req, res) => {
@@ -59,6 +59,7 @@ module.exports = {
             },
             body: JSON.stringify(req.body)
         })
+        .then(checkStatus)
         .then((_response) => {
             response = _response;
             res.set('Content-Type', response.headers.get('Content-Type'));

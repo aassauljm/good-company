@@ -10,7 +10,7 @@ import { reduxForm } from 'redux-form';
 import Input from './forms/input';
 import DateInput from './forms/dateInput';
 import Address from './forms/address';
-import { renderTemplate, showEmailDocument, addNotification, showLoading, endLoading } from '../actions';
+import { renderTemplate, showEmailDocument, showPreviewDocument, addNotification, showLoading, endLoading } from '../actions';
 import { saveAs } from 'file-saver';
 import Shuffle from 'react-shuffle';
 import LawBrowserContainer from './lawBrowserContainer';
@@ -21,8 +21,6 @@ import { componentType, addItem, injectContext, getValidate, getKey, getFields, 
 import Raven from 'raven-js';
 import Widget from './widget';
 import WorkingDayNotice from './forms/workingDays';
-
-
 
 
 function createLawLinks(list){
@@ -229,11 +227,18 @@ export class RenderForm extends React.Component {
     constructor(props) {
         super(props);
         this.emailDocument = ::this.emailDocument;
+        this.previewDocument = ::this.previewDocument;
     }
 
     emailDocument() {
         if (this.props.valid) {
             this.props.emailDocument(this.props.values);
+        }
+    }
+
+    previewDocument() {
+        if (this.props.valid) {
+            this.props.previewDocument(this.props.values);
         }
     }
 
@@ -243,6 +248,7 @@ export class RenderForm extends React.Component {
                 <Button type="reset" bsStyle="default" onClick={this.props.resetForm}>Reset Form</Button>
                 <Button type="submit" bsStyle="primary" >Download Document <Glyphicon glyph='download'/></Button>
                 <Button bsStyle="info" className="email-document" disabled={!this.props.valid} onClick={this.emailDocument}>Email Document <Glyphicon glyph='envelope'/></Button>
+                <Button bsStyle="success" className="preview-document" disabled={!this.props.valid} onClick={this.previewDocument}>Preview <Glyphicon glyph='eye-open'/></Button>
             </div>
         );
     }
@@ -327,6 +333,7 @@ function jsonStringToValues(string) {
 }, {
     renderTemplate: (args) => renderTemplate(args),
     showEmailDocument: (args) => showEmailDocument(args),
+    showPreviewDocument: (args) => showPreviewDocument(args),
     addNotification: (...args) => addNotification(...args),
     showLoading: () => showLoading(),
     endLoading: () => endLoading(),
@@ -337,6 +344,7 @@ export  class TemplateView extends React.PureComponent {
         super(props);
         this.submit = ::this.submit;
         this.emailDocument = ::this.emailDocument;
+        this.previewDocument = ::this.previewDocument;
     }
 
     buildRenderObject(values) {
@@ -371,6 +379,10 @@ export  class TemplateView extends React.PureComponent {
         this.props.showEmailDocument(this.buildRenderObject(values));
     }
 
+    previewDocument(values) {
+        this.props.showPreviewDocument(this.buildRenderObject(values));
+    }
+
     renderBody() {
         let state = this.props.location.query && this.props.location.query.json && {fileType: 'pdf', ...jsonStringToValues(this.props.location.query.json)};
         if(!this.props.canUpdate){
@@ -382,7 +394,7 @@ export  class TemplateView extends React.PureComponent {
             const template = TemplateMap[this.props.params.name];
             const context = makeContext(this.props.companyState);
             const values = template.getInitialValues(state || {}, context);
-            return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} initialValues={values} context={context} />
+            return <template.form onSubmit={this.submit} emailDocument={this.emailDocument} previewDocument={this.previewDocument} initialValues={values} context={context} />
         }
 
         return <div>Not Found</div>

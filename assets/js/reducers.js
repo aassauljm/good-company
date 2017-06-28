@@ -31,7 +31,8 @@ import {
     SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT,
     SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
     SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
-    SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE
+    SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE,
+    SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT
      } from './actionTypes';
 
 import {
@@ -469,6 +470,12 @@ function modals(state = {}, action) {
             return {...state, emailDocument: {renderData: action.data, showing: true}}
         case HIDE_EMAIL_DOCUMENT:
             return {...state, emailDocument: {showing: false}}
+
+        case SHOW_PREVIEW_DOCUMENT:
+            return {...state, previewDocument: {renderData: action.data, showing: true}}
+        case HIDE_PREVIEW_DOCUMENT:
+            return {...state, previewDocument: {showing: false}}
+
         case SHOW_VERSION_WARNING:
             return {...state, versionWarning: {showing: true}}
         case HIDE_VERSION_WARNING:
