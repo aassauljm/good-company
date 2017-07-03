@@ -32,6 +32,10 @@ var simpleAuth = [
     'AuditPolicy'
 ];
 
+var noAuth = [
+    'AuditPolicy'
+];
+
 
 module.exports.policies = {
     LandingController: {
@@ -95,6 +99,9 @@ module.exports.policies = {
     },
     ApiCredentialController: {
         '*': simpleAuth
+    },
+    ARConfirmationController: {
+        'getARConfirmationFromCode': noAuth
     }
 
     /***************************************************************************

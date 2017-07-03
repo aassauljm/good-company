@@ -5,11 +5,13 @@
  * @description :: Server-side logic for managing companies
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
-var Promise = require('bluebird');
-var _ = require('lodash');
-var actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
-var moment = require('moment');
-var fs = Promise.promisifyAll(require("fs"));
+const Promise = require('bluebird');
+const _ = require('lodash');
+const actionUtil = require('sails-hook-sequelize-blueprints/actionUtil');
+const moment = require('moment');
+const fs = Promise.promisifyAll(require("fs"));
+const uuid = require('uuid');
+
 
 function filterUnSubmittedTransactions(transactions){
     const interestedTransactions = {
@@ -1079,6 +1081,54 @@ module.exports = {
             });
     },
 
+    getARConfirmation: function(req, res) {
+        return ARConfirmation.find({where: {companyId: req.params.id}, include: [{
+                    model: ARConfirmationRequest,
+                    as: 'arConfirmationRequests'
+                }]})
+            .then((result) => {
+                return res.json(result);
+            })
+            .catch((e) => {
+                return res.negotiate(e);
+            })
+    },
+
+    createARConfirmation: function(req, res) {
+        const values = {...actionUtil.parseValues(req), id: null, companyId: req.params.id};
+        let companyName, company;
+        Company.findById(req.params.id)
+            .then((_company) => {
+                company  = _company;
+                return company.getNowCompanyState();
+            })
+            .then((state) => {
+                companyName = state.companyName;
+                values.arConfirmationRequests.map(r => {
+                    r.code = uuid.v4()
+                });
+                return ARConfirmation.create(values, {include: [{
+                    model: ARConfirmationRequest,
+                    as: 'arConfirmationRequests'
+                }]})
+            })
+            .then(() => {
+                return ActivityLog.create({
+                    type: ActivityLog.types.REQUEST_AR_CONFIRMATION,
+                    userId: req.user.id,
+                    description: `Annual Return confirmation for ${companyName} requested`,
+                    companyId: company.id,
+                    data: {companyId: company.id}
+                });
+            })
+            .then(() => {
+                return res.json({message: `Annual Return confirmation for ${companyName} requested`})
+            })
+            .catch((e) => {
+                return res.negotiate(e);
+            })
+    },
+
     updateUserAuthority: function(req, res) {
         let company;
         Company.findById(req.params.id)
@@ -1091,7 +1141,8 @@ module.exports = {
             })
             .then(result =>{
                 return res.json({hasAuthority: result});
-            }).catch(function(err) {
+            })
+            .catch(function(err) {
                 return res.badRequest(err);
             });
     }

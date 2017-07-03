@@ -111,4 +111,11 @@
         "userId": 23,
         "identifier": "0"
     }
+},{
+    "model": "passport",
+    "data": {
+        "protocol": "local",
+        "password": "testtest",
+        "userId": 24
+    }
 }]

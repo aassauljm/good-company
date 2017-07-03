@@ -599,6 +599,20 @@ module.exports.routes = {
         action: 'companyDetails'
     },
 
+    'POST /api/company/:id/ar_confirmation': {
+        controller: 'CompanyController',
+        action: 'createARConfirmation'
+    },
+
+    'GET /api/company/:id/ar_confirmation': {
+        controller: 'CompanyController',
+        action: 'getARConfirmation'
+    },
+
+    'GET /api/ar_confirmation/:code': {
+        controller: 'ARConfirmationController',
+        action: 'getARConfirmationFromCode'
+    },
 
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},

@@ -130,4 +130,14 @@
             "name": "subscribed"
         }]
     }
+}, {
+    "model": "user",
+    "data": {
+        "id": 24,
+        "username": "armasterclass",
+        "email": "armasterclass@email.com",
+        "roles": [{
+            "name": "subscribed"
+        }]
+    }
 }]
