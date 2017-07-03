@@ -109,6 +109,27 @@ describe('Deadline Tests', function() {
             });
         });
 
+        it('adds an annual return, checks that deadline is resolved', function() {
+            const documentDate = new Date();
+            return Document.create({type: 'Companies Office', filename: 'File Annual Return', date: new Date()})
+            .then((document) => {
+                 return TransactionService.performAllInsertByEffectiveDate([{
+                        actions: [{transactionType: Transaction.types.UPDATE_SOURCE_DOCUMENTS}],
+                        effectiveDate: documentDate,
+                        transactionType: Transaction.types.UPDATE_SOURCE_DOCUMENTS,
+                        documents: [document]
+                    }], company)
+            })
+            .then(() => {
+                return company.getDeadlines()
+            })
+            .then(deadlines => {
+                deadlines.annualReturn.overdue.should.be.equal(false);
+                deadlines.annualReturn.filedThisYear.should.be.equal(true);
+                deadlines.annualReturn.dueThisMonth.should.be.equal(false);
+                moment(deadlines.annualReturn.lastFiling).milliseconds(0).toISOString().should.be.equal(moment(documentDate).milliseconds(0).toISOString())
+            });
+        });
 
     });
 
