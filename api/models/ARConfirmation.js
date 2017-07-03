@@ -32,7 +32,12 @@ module.exports = {
             }
         });
         ARConfirmation.hasMany(ARConfirmationRequest, {
-            as: 'arConfirmationRequests'
+            as: 'arConfirmationRequests',
+            foreignKey: {
+                onDelete: 'cascade',
+                as: 'arConfirmation',
+                name: 'arConfirmationId'
+            }
         });
     },
     options: {

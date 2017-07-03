@@ -614,6 +614,11 @@ module.exports.routes = {
         action: 'getARConfirmationFromCode'
     },
 
+    'POST /api/ar_confirmation/:code': {
+        controller: 'ARConfirmationController',
+        action: 'postARConfirmationFromCode'
+    },
+
     'GET /api/events': {controller: 'EventController', event: 'event', action: 'find'},
     'POST /api/event': {controller: 'EventController', event: 'event', action: 'create'},
     'GET /api/event/:id': {controller: 'EventController', event: 'event', action: 'findOne'},

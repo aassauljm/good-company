@@ -28,10 +28,10 @@ module.exports = {
     associations: function() {
 
         ARConfirmationRequest.belongsTo(ARConfirmation, {
-            as: 'arConfirmations',
+            as: 'arConfirmation',
             foreignKey: {
                 onDelete: 'cascade',
-                as: 'arConfirmations',
+                as: 'arConfirmation',
                 name: 'arConfirmationId'
             }
         });

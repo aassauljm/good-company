@@ -101,7 +101,8 @@ module.exports.policies = {
         '*': simpleAuth
     },
     ARConfirmationController: {
-        'getARConfirmationFromCode': noAuth
+        'getARConfirmationFromCode': noAuth,
+        'postARConfirmationFromCode': noAuth
     }
 
     /***************************************************************************

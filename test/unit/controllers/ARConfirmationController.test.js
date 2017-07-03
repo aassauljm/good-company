@@ -3,9 +3,9 @@ var Promise = require("bluebird");
 
 
 describe('ARConfirmationController', function() {
-    let arConfirmationRequests;
+    let arConfirmationRequests, companyId;
     describe('login etc', function() {
-        var req, companyId;
+        var req
         it('should login successfully', function() {
             req = request.agent(sails.hooks.http.app);
             return req
@@ -52,11 +52,39 @@ describe('ARConfirmationController', function() {
 
     describe('uses unauthenticated endpoints', function() {
         let req;
-        it('uses code to get ar information', function(){
+        it('uses a bad code and fails', function(){
             req = request.agent(sails.hooks.http.app);
+            return req
+                .get(`/api/ar_confirmation/${arConfirmationRequests[0].code+'1234'}`)
+                .expect(404)
+
+        });
+
+        it('uses code to get ar information', function(){
             return req
                 .get(`/api/ar_confirmation/${arConfirmationRequests[0].code}`)
                 .expect(200)
+                .then(response => {
+                    response.body.arConfirmation.companyId.should.be.equal(companyId)
+                })
+
+        });
+
+        it('uses code to post confirmation', function(){
+            return req
+                .post(`/api/ar_confirmation/${arConfirmationRequests[0].code}`)
+                .send({
+                    confirmed: true
+                })
+                .expect(200)
+        });
+        it('checks result using code', function(){
+            return req
+                .get(`/api/ar_confirmation/${arConfirmationRequests[0].code}`)
+                .expect(200)
+                .then(response => {
+                    response.body.confirmed.should.be.equal(true);
+                });
 
         });
 
