@@ -681,11 +681,11 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacif
                     1,
                     0,0,0.0, $2) + INTERVAL '1 month - 1 second' as "due"
             FROM (
-        select "effectiveDate" as date, "incorporationDate", "arFilingMonth"
-        from annual_return
-        JOIN company c on c.id =  $1
+        SELECT "effectiveDate" as date, "incorporationDate", "arFilingMonth"
+        FROM company c
         JOIN company_state cs on cs.id = c."currentCompanyStateId"
-        WHERE "companyId" = $1
+        LEFT OUTER JOIN annual_return ar on c.id = ar."companyId"
+        WHERE c.id = $1
         ORDER BY "effectiveDate" DESC
         LIMIT 1
             ) as s
