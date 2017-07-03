@@ -162,8 +162,8 @@ export class CompaniesRegisterWidget extends React.Component {
                 </div>
         }
 
-        const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
-        const data = source.data;
+        const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData || {};
+        const data = source.data || {};
         const authority = this.props.companyState.authority;
         return <div className="row" key="body">
 

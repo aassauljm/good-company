@@ -9,6 +9,9 @@ const Promise = require('bluebird')
 
 module.exports = {
     attributes: {
+        year: {
+            type: Sequelize.INTEGER
+        },
         arData: {
             type: Sequelize.JSON
         }
@@ -28,7 +31,6 @@ module.exports = {
                 onDelete: 'cascade',
                 as: 'company',
                 name: 'companyId'
-
             }
         });
         ARConfirmation.hasMany(ARConfirmationRequest, {

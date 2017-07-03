@@ -33,7 +33,8 @@ describe('ARConfirmationController', function() {
                     ],
                     arData: {
 
-                    }
+                    },
+                    year: (new Date()).getFullYear()
                 })
                 .expect(200)
         });

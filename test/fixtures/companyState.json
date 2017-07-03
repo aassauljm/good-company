@@ -47,6 +47,8 @@
     "model": "companystate",
     "data": {
         "id": 8,
-        "companyName": "AR Master"
+        "companyName": "AR Master",
+        "incorporationDate": "2010-07-03T04:16:38.730Z",
+        "arFilingMonth": "June"
     }
 }]
