@@ -33,7 +33,7 @@ import { GuidedSetup } from './components/guidedSetup';
 import { CompanyAlerts } from './components/companyAlerts';
 import Calendar, { CreateEvent, EditEvent } from './components/calendar';
 import Alerts, { AnnualReturnAlerts, ShareRegisterAlerts } from './components/alerts';
-import AnnualReturn, { ReviewAnnualReturn, AnnualReturnSubmission, AnnualReturnLoader, AnnualReturnSubmitted } from './components/annualReturn';
+import AnnualReturn, { ReviewAnnualReturn, AnnualReturnSubmission, AnnualReturnLoader, AnnualReturnSubmitted, AnnualReturnConfirmation } from './components/annualReturn';
 import { CompanyGraph } from './components/companyDetails';
 import Account from './components/account';
 import AccessList from './components/accessList';
@@ -125,6 +125,10 @@ export default (store) => {
 
     return <Route name="Home" path="/" component={ App }>
 
+         <Route path='status' component={ Status } />
+        <Route path="*" component={ NotFound } />
+        <Route path="ar_confirmation/:code" component={ AnnualReturnConfirmation } />
+
         <Route onEnter={requireLogin} component={ LoggedInApp }>
             <Route component={ LandingPageView }>
                 <IndexRoute component={ Home }  />
@@ -159,7 +163,6 @@ export default (store) => {
             <Route name="View Company" path="company/view/:id" component={ Company } children={CompanyChildren} />
             <Route name="View Company" path="company/at_date/:date/view/:id" component={ CompanyDated } children={CompanyChildren} />
         </Route>
-         <Route path='status' component={ Status } />
-        <Route path="*" component={ NotFound } />
+
     </Route>
 };

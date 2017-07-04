@@ -86,7 +86,7 @@ export const NavLinks = (props) => {
 
 @CompaniesHOC()
 @AlertsHOC()
-export class Header extends React.PureComponent {
+export class HeaderUser extends React.PureComponent {
 
     constructor() {
         super();
@@ -128,44 +128,50 @@ export class Header extends React.PureComponent {
 
 
     render() {
-        if(this.props.login.loggedIn){
-            return  <Navbar>
-                   <Navbar.Header>
-                        <Navbar.Brand>
-                            <Dropdown id="title-dropdown"  ref="dropdown">
-                                <DropdownToggle href="/" bsRole="toggle">
-                                            <span className="company-title">
-                                             <span className="fa fa-bars"/>
-                                                <span className="logo" />
-                                            </span>
-                                </DropdownToggle>
-                                <Dropdown.Menu>
-                                     { this.renderNavLinks() }
-                                    { this.renderFavourites() }
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </Navbar.Brand>
-                    </Navbar.Header>
-                     <ul  className="nav navbar-nav navbar-right control-icons">
-                        { this.status() }
-                        <AccountControls {...this.props} />
-                    </ul>
+        return  <Navbar>
+               <Navbar.Header>
+                    <Navbar.Brand>
+                        <Dropdown id="title-dropdown"  ref="dropdown">
+                            <DropdownToggle href="/" bsRole="toggle">
+                                        <span className="company-title">
+                                         <span className="fa fa-bars"/>
+                                            <span className="logo" />
+                                        </span>
+                            </DropdownToggle>
+                            <Dropdown.Menu>
+                                 { this.renderNavLinks() }
+                                { this.renderFavourites() }
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Navbar.Brand>
+                </Navbar.Header>
+                 <ul  className="nav navbar-nav navbar-right control-icons">
+                    { this.status() }
+                    <AccountControls {...this.props} />
+                </ul>
 
-                   <Search />
-
-
-
+               <Search />
           </Navbar>
-      }
-      return <Navbar>
-            <div className="text-center"><span className="logo"/></div></Navbar>
     }
 }
 
+function HeaderNoUser() {
+    return <Navbar>
+        <div className="text-center"><span className="logo"/>
+        </div>
+    </Navbar>
+}
 
-const HeaderConnected = connect(state => {
+
+@connect(state => {
      // adding routes so links update active status
     return {login: state.login, userInfo: state.userInfo, routing: state.routing, alerts: state.resources['/alerts'] || {}}
-})(Header);
-
-export default HeaderConnected;
+})
+export default class Header extends React.PureComponent {
+    render(){
+        if(this.props.login.loggedIn){
+            return <HeaderUser {...this.props} />
+        }
+        return <HeaderNoUser />
+    }
+}

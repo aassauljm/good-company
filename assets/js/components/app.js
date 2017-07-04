@@ -117,7 +117,6 @@ export default class App extends React.PureComponent {
 
 
 @AsyncHOCFactory([ALERTS, COMPANIES])
-
 export class LoggedInApp extends React.PureComponent {
     render() {
         return this.props.children
