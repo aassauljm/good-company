@@ -22,7 +22,8 @@ module.exports = {
             type: Sequelize.TEXT
         },
         confirmed: {
-            type: Sequelize.BOOLEAN
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
         }
     },
     associations: function() {

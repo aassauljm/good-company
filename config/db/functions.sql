@@ -657,6 +657,22 @@ CREATE OR REPLACE FUNCTION has_extensive_shareholding(companyStateId integer)
     SELECT extensive from company_state cs where cs.id = $1
 $$ LANGUAGE SQL;
 
+DROP FUNCTION IF EXISTS ar_confirmations(integer,text) CASCADE;
+CREATE OR REPLACE FUNCTION ar_confirmations(companyId integer)
+    RETURNS JSON
+    AS $$
+    SELECT row_to_json(q)
+    FROM
+    (SELECT sum(CASE WHEN confirmed = TRUE AND feedback IS NULL THEN 1 ELSE 0 END) as confirmed,
+        sum(CASE WHEN confirmed = FALSE AND feedback IS NULL THEN 1 ELSE 0 END) as outstanding,
+        sum(CASE WHEN feedback IS NOT NULL THEN 1 ELSE 0 END) as feedback,
+        count(acr) as total
+        FROM ar_confirmation ac
+        LEFT OUTER JOIN ar_confirmation_request acr on ac.id = acr."arConfirmationId"
+        WHERE "companyId" = $1
+       ) q
+$$ LANGUAGE SQL;
+
 
 DROP FUNCTION IF EXISTS ar_deadline(integer,text) CASCADE;
 CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacific/Auckland')
@@ -670,7 +686,9 @@ CREATE OR REPLACE FUNCTION ar_deadline(companyId integer, tz text default 'Pacif
         EXTRACT(EPOCH FROM now() AT TIME ZONE 'Pacific/Auckland' - due) as "seconds",
         not "filedThisYear" and due < now() and not "incorporatedThisYear" as "overdue",
         format_iso_date(due) as "dueDate",
-        NOT "filedThisYear" AND EXTRACT(MONTH FROM now() AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueThisMonth"
+        NOT "filedThisYear" AND EXTRACT(MONTH FROM now() AT TIME ZONE $2) = EXTRACT(MONTH FROM due) as "dueThisMonth",
+        ar_confirmations($1) as "confirmations"
+
         FROM (
             SELECT "arFilingMonth", date,
          EXTRACT(YEAR FROM "incorporationDate") = EXTRACT(YEAR FROM now() AT TIME ZONE $2) as "incorporatedThisYear",

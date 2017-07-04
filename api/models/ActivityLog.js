@@ -19,6 +19,7 @@ const types = {
     MERGE_PERSONS: 'MERGE_PERSONS',
     REQUEST_AR_CONFIRMATION: 'REQUEST_AR_CONFIRMATION',
     AR_CONFIFMATION: 'AR_CONFIFMATION',
+    AR_CONFIFMATION_FEEDBACK: 'AR_CONFIFMATION_FEEDBACK',
     ...require('../../config/enums/transactions').enums
 };
 
