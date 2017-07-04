@@ -297,7 +297,7 @@ export class ReviewAnnualReturn extends React.PureComponent {
     }
 
     invite() {
-        this.props.showARInvite({arData: this.props.arSummary});
+        this.props.showARInvite({arData: this.props.arSummary.data, companyId: this.props.companyId});
     }
 
 
