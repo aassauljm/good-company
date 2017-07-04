@@ -12,6 +12,7 @@ import { replace } from 'react-router-redux'
 import { asyncConnect } from 'redux-connect';
 import Widget from './widget';
 import LawBrowserContainer from './lawBrowserContainer';
+import Download from './forms/download';
 
 /*
   Interests? (yes/no – if yes, link to Interests Register),
@@ -267,9 +268,7 @@ export class DirectorRegister extends React.Component {
     };
 
     renderControls() {
-        return  <div className="button-row">
-                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/director_register`} target='_blank'>Download</Link>
-            </div>
+        return  <Download url={`/api/company/render/${this.props.companyId}/director_register`} />
     }
 
     render() {

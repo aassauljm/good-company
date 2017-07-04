@@ -37,7 +37,8 @@ import {
     SHOW_EMAIL_DOCUMENT, HIDE_EMAIL_DOCUMENT, SEND_DOCUMENT_REQUEST, SEND_DOCUMENT_SUCCESS, SEND_DOCUMENT_FAILURE,
     SHOW_VERSION_WARNING, HIDE_VERSION_WARNING,
     SHOW_BILLING_ISSUE, HIDE_BILLING_ISSUE,
-    SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT
+    SHOW_PREVIEW_DOCUMENT, HIDE_PREVIEW_DOCUMENT,
+    SHOW_AR_INVITE, HIDE_AR_INVITE
      } from './actionTypes';
 
 const serialize = function(obj) {
@@ -541,6 +542,19 @@ export function hideEmailDocument() {
         type: HIDE_EMAIL_DOCUMENT
     }
 }
+
+export function showARInvite(data) {
+    return {
+        type: SHOW_AR_INVITE, data
+    }
+}
+
+export function hideARInvite() {
+    return {
+        type: HIDE_AR_INVITE
+    }
+}
+
 
 export function sendDocument(recipients, renderData) {
     renderData = {...renderData, goodCompaniesTemplate: true };

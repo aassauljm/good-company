@@ -7,6 +7,7 @@ import { endConfirmation, hideVersionWarning, hideBillingIssue } from '../action
 import { LoadingOverlay } from './loading';
 import EmailDocument from './modals/emailDocument';
 import PreviewDocument from './modals/previewDocument';
+import AnnualReturnInvite from './modals/annualReturnInvite';
 
 
 
@@ -123,6 +124,9 @@ export default class Modals extends React.Component {
         }
         else if (this.props.modals.emailDocument && this.props.modals.emailDocument.showing) {
             return <EmailDocument {...this.props.modals.emailDocument} />
+        }
+        else if (this.props.modals.arInvite && this.props.modals.arInvite.showing) {
+            return <AnnualReturnInvite {...this.props.modals.arInvite} />
         }
         else if (this.props.modals.versionWarning && this.props.modals.versionWarning.showing) {
             return <NewGCVersionModal hide={this.props.hideVersionWarning} />

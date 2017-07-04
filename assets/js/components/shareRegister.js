@@ -9,6 +9,7 @@ import LawBrowserLink from './lawBrowserLink'
 import LawBrowserContainer from './lawBrowserContainer'
 import { renderRights, renderLimitations } from './shareClasses';
 import Input from './forms/input';
+import Download from './forms/download';
 import { asyncConnect } from 'redux-connect';
 import { Link } from 'react-router';
 import { enums as TransactionTypes } from '../../../config/enums/transactions';
@@ -517,9 +518,8 @@ export class ShareRegister extends React.Component {
 
 
     renderControls() {
-        return  <div className="button-row">
-                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/share_register`} target='_blank'>Download</Link>
-            </div>
+        return  <Download url={`/api/company/render/${this.props.companyId}/share_register`} />
+
 
     }
 

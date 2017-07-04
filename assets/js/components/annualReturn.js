@@ -6,12 +6,13 @@ import LawBrowserLink from './lawBrowserLink';
 import { Link } from 'react-router';
 import { AnnualReturnHOC,  AnnualReturnFromRouteHOC } from '../hoc/resources';
 import { stringDateToFormattedString, numberWithCommas, formFieldProps, requireFields } from '../utils';
-import { createResource, addNotification } from '../actions';
+import { createResource, addNotification, showARInvite } from '../actions';
 import moment from 'moment';
 import Widget from './widget';
 import Loading from './loading';
 import Button from 'react-bootstrap/lib/Button';
 import Input from './forms/input';
+import Download from './forms/download';
 import { PersonNameFull } from './forms/personName';
 import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
@@ -252,16 +253,19 @@ export class AnnualReturnLoader extends React.Component {
     fields: ['confirm'],
     form: 'confirmAR'
 })
+@connect(undefined, {
+    showARInvite: (args) => showARInvite(args)
+})
 export class ReviewAnnualReturn extends React.PureComponent {
 
     constructor(props) {
         super(props);
         this.submit = ::this.submit;
+        this.invite = ::this.invite
     }
 
 
-
-    renderControls() {
+    renderSubmitControls() {
         const { fields: {confirm} } = this.props;
         const deadline = arDue(this.props.companyState.deadlines);
         const ready = deadline &&  this.props.arSummary && this.props.arSummary.data;
@@ -271,11 +275,17 @@ export class ReviewAnnualReturn extends React.PureComponent {
                     { ready && <Input type="checkbox" {...confirm} label={DECLARATION} /> }
                 </div>
                 <div className="button-row">
-                { this.props.arSummary && this.props.arSummary.data && <Link className="btn btn-info" to={`/api/company/render/${this.props.companyId}/annual_return`} target='_blank'>Download as PDF</Link> }
-                { ready && <Button className="confirm" bsStyle="success" onClick={() => this.submit(this.props.arSummary.data.etag)} disabled={!confirm.value}>Continue</Button> }
-            </div>
+                    { ready && <Button  bsStyle="info" onClick={this.invite} >Invite others to Review</Button> }
+                    { ready && <Button className="confirm" bsStyle="success" onClick={() => this.submit(this.props.arSummary.data.etag)} disabled={!confirm.value}>Continue with Submission</Button> }
+                </div>
             { !deadline && <div className="alert alert-warning">Annual Return is not due</div> }
             </div>
+
+    }
+
+
+    renderControls() {
+        return  this.renderSubmitControls();
 
     }
 
@@ -286,13 +296,17 @@ export class ReviewAnnualReturn extends React.PureComponent {
             })
     }
 
+    invite() {
+        this.props.showARInvite({arData: this.props.arSummary});
+    }
+
+
     renderError() {
         return <div>
             <div className="alert alert-danger">
                 { this.props.arSummary.error.message }
             </div>
             { this.props.arSummary.error.errorCode === ErrorTypes.USER_NOT_CONNECTED  && <div className="button-row">
-
                 <a className="btn btn-info" href="/api/auth-with/companies-office?redirect=true">Connect with Companies Office</a>
             </div>}
             </div>
@@ -321,7 +335,8 @@ export class ReviewAnnualReturn extends React.PureComponent {
         return <div><LawBrowserContainer lawLinks={ARLinks()}>
               <Widget className="ar-review" title="Review Annual Return">
                     { this.renderWarning()  }
-                    { this.props.arSummary && this.props.arSummary.data && <ARSummary companyState={this.props.arSummary.data} /> }
+                    { this.props.arSummary && this.props.arSummary._status === 'complete' && this.props.arSummary.data && <Download url={`/api/company/render/${this.props.companyId}/annual_return`} /> }
+                    { this.props.arSummary && this.props.arSummary._status === 'complete' && this.props.arSummary.data && <ARSummary companyState={this.props.arSummary.data} /> }
                     { this.props.arSummary && this.props.arSummary._status === 'fetching' && this.renderLoading() }
                     { this.props.arSummary && this.props.arSummary._status === 'error' && this.renderError() }
                     { this.renderControls() }

@@ -8,6 +8,7 @@ import { reduxForm, addArrayValue } from 'redux-form';
 import { InterestsRegisterFromRouteHOC, CompanyFromRouteHOC, AllPersonsHOC } from '../hoc/resources'
 import { Link } from 'react-router';
 import Input from './forms/input';
+import Download from './forms/download';
 import ButtonInput from './forms/buttonInput';
 import { fieldStyle, fieldHelp, objectValues, validateWithSchema, requireFields, renderDocumentLinks } from '../utils';
 import DateInput from './forms/dateInput';
@@ -255,9 +256,7 @@ export class InterestsRegister extends React.PureComponent {
 
     static fields = ['date', 'persons', 'details', 'documents']
     renderControls() {
-        return  <div className="button-row">
-                <Link className="btn btn-primary" to={`/api/company/render/${this.props.companyId}/interests_register`} target='_blank'>Download</Link>
-            </div>
+        return <Download block={true} url={`/api/company/render/${this.props.companyId}/interests_register`}/>
     }
     renderList(data) {
         const companyId = this.props.companyId;

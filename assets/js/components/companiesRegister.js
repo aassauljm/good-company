@@ -277,21 +277,21 @@ export default class CompaniesRegister extends React.PureComponent {
     renderBody() {
         const fetching = this.props.sourceData._status  === 'fetching' || !this.props.sourceData._status;
 
-
         if(fetching ){
             return <div className="loading" key="loading">
                     <Glyphicon glyph="refresh" className="spin"/>
                 </div>
         }
         const authority = this.props.companyState.authority;
-        const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData;
+        const source = (this.props.sourceData.data || {}).latestSourceData || (this.props.sourceData.data || {}).currentSourceData || {};
+        const data = source.data || {};
         return <div key="body">
             <div className="text-center">
-                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${source.data.companyNumber}`} target="blank">View at Companies Office <Glyphicon glyph="new-window"/></a>
+                <a className="external-link" href={`https://www.business.govt.nz/companies/app/ui/pages/companies/${data.companyNumber}`} target="blank">View at Companies Office <Glyphicon glyph="new-window"/></a>
             </div>
 
             { fields.map((f, i) => {
-                return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(source.data[f])}</div></div>
+                return <div className="row" key={i}><div className="col-md-3 "><strong>{ STRINGS[f]}</strong></div><div className="col-md-9">{ renderValue(data[f])}</div></div>
             })}
             <div className="row"><div className="col-md-3 "><strong>Last AR Filed</strong></div><div className="col-md-9">{ renderLastARFiled(this.props.companyState) }</div></div>
             <div className="text-center">
@@ -310,6 +310,7 @@ export default class CompaniesRegister extends React.PureComponent {
             <div className="button-row">
                 { this.authority(authority) }
                 <UpdateSourceData companyId={this.props.companyId} />
+                <Link className="btn btn-warning" to={`/company/view/${this.props.companyId}/annual_returns`}>View Annual Return</Link>
             </div>
         </div>
     }

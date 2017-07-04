@@ -3,13 +3,13 @@ import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import Button from 'react-bootstrap/lib/Button';
 import STRINGS from '../../strings';
-import { sendDocument, hideEmailDocument, addNotification } from '../../actions';
+import { sendDocument, hideARInvite, addNotification } from '../../actions';
 import { connect } from 'react-redux';
 import { EmailListForm } from '../forms/email'
 
 @connect(state => ({transactionViews: state.transactionViews || DEFAULT_OBJ, sendDocument: state.sendDocument}),
 {
-    hide: () => hideEmailDocument(),
+    hide: () => hideARInvite(),
     send: (recipients, renderData) => sendDocument(recipients, renderData),
     addNotification: (data) => addNotification(data)
 })
@@ -44,9 +44,9 @@ export default class EmailDocument extends React.Component {
 
     render() {
         return (
-            <Modal show={true} onHide={this.close} backdrop="static">
+            <Modal show={true} onHide={this.close}  backdrop="static">
                 <Modal.Header closeButton>
-                    <Modal.Title>Email Document</Modal.Title>
+                    <Modal.Title>Invite Others to Review Annual Return</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p></p>
@@ -54,7 +54,7 @@ export default class EmailDocument extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' onClick={this.close}>Cancel</Button>
-                    <Button bsStyle='primary' onClick={() => this.refs.form.submit()}>Send</Button>
+                    <Button bsStyle='primary' onClick={() => this.refs.form.submit()}>Invite</Button>
                 </Modal.Footer>
             </Modal>
         );
