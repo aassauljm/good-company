@@ -563,7 +563,7 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
             })
 
             .then(() => {
-                const download = contains(this.dom.querySelectorAll('.btn-primary'), 'Download')[0];
+                const download = contains(this.dom.querySelectorAll('.download-button'), 'Download')[0];
                 return fetch(download.getAttribute("href"))
                     .then(response => {
                         return response.text()
@@ -579,7 +579,7 @@ describe('Company Integration Tests - Evolution Lawyers', () => {
             Simulate.click(link, {button: 0});
              return waitFor('Director register to display', () => this.dom.querySelectorAll('.directors-register-document').length, null, 2000)
             .then(() => {
-                const download = contains(this.dom.querySelectorAll('.btn-primary'), 'Download')[0];
+                const download = contains(this.dom.querySelectorAll('.download-button'), 'Download')[0];
                 return fetch(download.getAttribute("href"))
                     .then(response => {
                         return response.text()

@@ -118,7 +118,7 @@ module.exports = {
         const url = UtilService.buildUrl(`${sails.config.mbie.companiesOffice.oauth.url}token`, {
             refresh_token: refreshToken,
             grant_type: 'refresh_token',
-            scope: 'openid'
+            //scope: 'openid'
         });
 
         let fetchOptions = {
